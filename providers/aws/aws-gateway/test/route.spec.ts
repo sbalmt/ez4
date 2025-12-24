@@ -76,6 +76,7 @@ describe('gateway route', () => {
     const integrationLambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-route-integration-lambda',
       type: IntegrationFunctionType.HttpRequest,
+      variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
@@ -90,6 +91,7 @@ describe('gateway route', () => {
 
     const authorizerLambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-route-authorizer-lambda',
+      variables: [],
       authorizer: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

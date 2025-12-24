@@ -28,8 +28,9 @@ const HELP_LINES = [
   '  --environment, -e  Specify the environment variables file to load',
   '  --force            Force deployment or destruction of resources',
   '  --debug            Enable debug mode for all provider resources',
-  '  --suppress         Suppress local schedulers and topics when serving',
-  '  --reset            Reset local resources when serving or testing',
+  '  --suppress         Suppress local resource emulation when serving',
+  '  --inspect          Enable inspect mode when serving, running, or testing',
+  '  --reset            Reset local resources when serving, running, or testing',
   '  --local            Use local options when serving or testing',
   ''
 ];

@@ -3,7 +3,7 @@
  */
 export default {
   prefix: 'ez4',
-  debugMode: true,
+  debugMode: false,
   projectName: 'schedule-manager',
   sourceFiles: ['./src/api.ts', './src/dynamo.ts', './src/scheduler.ts'],
   stateFile: {

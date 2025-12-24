@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { WsResponse } from './types';
 
@@ -13,9 +13,9 @@ import {
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/web/response';
-import { getWebBodyMetadata } from '../web/body';
-import { getFullTypeName } from '../utils/type';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { getFullTypeName } from '../utils/name';
+import { getWebBodyMetadata } from '../body';
 import { WsNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(WsNamespaceType, 'Response');
@@ -24,7 +24,7 @@ export const isWsResponseDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getWsResponseMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getWsResponseMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getResponseType(type, parent, reflection, errorList);
   }
@@ -38,7 +38,7 @@ export const getWsResponseMetadata = (type: AllType, parent: TypeModel, reflecti
   return undefined;
 };
 
-const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getResponseType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -60,7 +60,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const response: WsResponse = {};

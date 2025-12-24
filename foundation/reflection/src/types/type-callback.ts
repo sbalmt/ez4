@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypePosition } from './common';
 import type { TypeParameter } from './type-parameter';
 import type { EveryType } from './types';
 
@@ -8,6 +8,7 @@ export type TypeCallback = {
   type: TypeName.Callback;
   name?: string;
   file?: string;
+  position?: TypePosition;
   module?: string | null;
   description?: string;
   parameters?: TypeParameter[];

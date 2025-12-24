@@ -9,10 +9,14 @@ type DbClient = Db['client'];
 export type CreateItemInput = {
   name: string;
   description?: string;
-  category?: {
-    name: string;
-    description?: string;
-  };
+  category?:
+    | {
+        name: string;
+        description?: string;
+      }
+    | {
+        category_id: string;
+      };
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
@@ -29,7 +33,17 @@ export const createItem = async (client: DbClient, input: CreateItemInput) => {
       id: randomUUID(),
       name: input.name,
       description: input.description,
-      category: input.category,
+      ...(input.category && {
+        category:
+          'category_id' in input.category
+            ? {
+                id: input.category.category_id
+              }
+            : {
+                id: randomUUID(),
+                ...input.category
+              }
+      }),
       created_at: now,
       updated_at: now
     }
@@ -72,7 +86,17 @@ export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
     data: {
       name,
       description,
-      category,
+      ...(input.category && {
+        category:
+          'category_id' in input.category
+            ? {
+                id: input.category.category_id
+              }
+            : {
+                id: randomUUID(),
+                ...input.category
+              }
+      }),
       updated_at: now
     },
     where: {

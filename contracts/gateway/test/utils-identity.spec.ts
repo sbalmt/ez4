@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import { deepEqual, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getIdentity } from '@ez4/gateway/utils';
+import { resolveIdentity } from '@ez4/gateway/utils';
 import { HttpBadRequestError } from '@ez4/gateway';
 import { SchemaType } from '@ez4/schema';
 
@@ -22,7 +22,7 @@ describe('http identity utils', () => {
       fooKey: 'foo'
     };
 
-    const identityOutput = await getIdentity(identityInput, identitySchema);
+    const identityOutput = await resolveIdentity(identityInput, identitySchema);
 
     deepEqual(identityOutput, {
       fooKey: 'foo'
@@ -44,6 +44,6 @@ describe('http identity utils', () => {
       barKey: 'unexpected'
     };
 
-    await rejects(() => getIdentity(identityInput, identitySchema), HttpBadRequestError);
+    await rejects(() => resolveIdentity(identityInput, identitySchema), HttpBadRequestError);
   });
 });

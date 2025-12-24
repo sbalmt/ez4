@@ -1,3 +1,4 @@
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
 import type { QueueMessage, QueueRequest, QueueIncoming, QueueSubscriptionHandler, QueueSubscriptionListener } from './common';
 import type { QueueSubscription } from './subscription';
@@ -87,6 +88,11 @@ export namespace Queue {
      * Maximum delay (in seconds) to make messages available.
      */
     readonly delay?: number;
+
+    /**
+     * Variables associated to all subscriptions.
+     */
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.

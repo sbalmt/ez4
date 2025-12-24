@@ -1,7 +1,12 @@
 {
   "3f680985f5c327d1c59fbc8c3b10b276:Special": {
+    "file": "test/types/special.ts",
     "type": "class",
     "name": "Special",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true,
       "declare": true

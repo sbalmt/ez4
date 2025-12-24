@@ -1,7 +1,7 @@
 {
   "name": "@ez4/docs-gateway",
   "description": "EZ4: Gateway documentation generator",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -45,9 +45,9 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/project": "^0.36.0",
-    "@ez4/gateway": "^0.36.0",
-    "@ez4/schema": "^0.36.0",
-    "@ez4/utils": "^0.36.0"
+    "@ez4/project": "^0.37.0",
+    "@ez4/gateway": "^0.37.0",
+    "@ez4/schema": "^0.37.0",
+    "@ez4/utils": "^0.37.0"
   }
 }

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueDeadLetter } from '../types/common';
@@ -17,7 +17,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { IncompleteDeadLetterError, IncorrectDeadLetterTypeError, InvalidDeadLetterTypeError } from '../errors/deadletter';
 import { isQueueDeadLetter } from './utils';
 
-export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeDeadLetter(type, parent, errorList);
   }

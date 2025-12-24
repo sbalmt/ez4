@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import { deepEqual, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getHeaders } from '@ez4/gateway/utils';
+import { resolveHeaders } from '@ez4/gateway/utils';
 import { HttpBadRequestError } from '@ez4/gateway';
 import { SchemaType } from '@ez4/schema';
 
@@ -25,7 +25,7 @@ describe('http headers utils', () => {
       'x-foo-bar': 'ignored'
     };
 
-    const headersOutput = await getHeaders(headersInput, headersSchema);
+    const headersOutput = await resolveHeaders(headersInput, headersSchema);
 
     deepEqual(headersOutput, {
       'x-foo-key': 'foo'
@@ -46,6 +46,6 @@ describe('http headers utils', () => {
       'x-foo-key': 123
     };
 
-    await rejects(() => getHeaders(headersInput, headersSchema), HttpBadRequestError);
+    await rejects(() => resolveHeaders(headersInput, headersSchema), HttpBadRequestError);
   });
 });

@@ -5,24 +5,31 @@ import { isIdentifier, isPropertyAccessExpression } from 'typescript';
 import { relative } from 'node:path';
 import { hash } from 'node:crypto';
 
-import { getAccessName } from './identifier';
 import { isTypeDeclaration } from './declaration';
+import { getAccessName } from './identifier';
 
 export const isInternalType = (node: Node) => {
   return !!getNodeFilePath(node)?.includes('/typescript/lib/');
 };
 
-export const getNodeFilePath = (node: Node): string | null => {
+export const getNodeFilePath = (node: Node) => {
   const sourceFile = node.getSourceFile();
-
-  if (!sourceFile) {
-    return null;
-  }
 
   const basePath = process.cwd();
   const filePath = sourceFile.fileName;
 
   return relative(basePath, filePath);
+};
+
+export const getNodeFilePosition = (node: Node) => {
+  const sourceFile = node.getSourceFile();
+
+  const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+
+  return {
+    line: line + 1,
+    character: character + 1
+  };
 };
 
 export const getNodeIdentity = (node: Node, internal?: boolean) => {
@@ -46,5 +53,5 @@ export const getNodeIdentity = (node: Node, internal?: boolean) => {
     return `${prefix}:${node.name.getText()}`;
   }
 
-  return `${prefix}:${node.getStart()}`;
+  return `${prefix}:${node.pos}`;
 };

@@ -4,7 +4,7 @@ import type { InterfaceNodes } from './type-interface';
 import type { Context, State } from './common';
 import type { ClassNodes } from './type-class';
 
-import { getNodeFilePath, isInternalType } from '../helpers/node';
+import { getNodeFilePosition, getNodeFilePath, isInternalType } from '../helpers/node';
 import { tryModelMembers } from './model-members';
 import { isTypeInterface } from './type-interface';
 import { getTypeArguments } from './type-parameter';
@@ -20,22 +20,27 @@ export const isGenericReference = (node: Node): node is ClassNodes | InterfaceNo
 
 export const tryGenericReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!types || !isGenericReference(node) || isInternalType(node)) {
-    return null;
+    return undefined;
   }
 
   if (context.cache.has(types)) {
     return context.cache.get(types) as TypeObject;
   }
 
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
-  const reflectedType = createObject(file);
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
+
+  const reflectedType = createObject(file, position);
 
   context.cache.set(types, reflectedType);
 
   const newState = getNewState({ types: state.types });
   const newTypes = getTypeArguments(node, types, context, newState);
 
-  const memberTypes = tryModelMembers(node, context, { ...state, types: newTypes });
+  const memberTypes = tryModelMembers(node, context, {
+    ...state,
+    types: newTypes
+  });
 
   if (memberTypes?.length) {
     reflectedType.members = memberTypes;

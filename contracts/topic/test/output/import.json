@@ -8,6 +8,8 @@
     "type": "@ez4/topic",
     "name": "TestTopic",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "properties": {
@@ -23,40 +25,29 @@
     "type": "@ez4/import:topic",
     "name": "TestImport1Topic",
     "description": "Import topic assigning handler.",
-    "subscriptions": [
-      {
-        "type": "lambda",
-        "handler": {
-          "name": "testHandler",
-          "file": "test/input/output-import.ts"
-        }
-      }
-    ],
-    "reference": "TestTopic",
-    "schema": {
-      "type": "object",
-      "properties": {
-        "foo": {
-          "type": "string"
-        }
-      },
-      "identity": 1
-    },
     "project": "name from project in ez4.project.js",
+    "reference": "TestTopic",
+    "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
       "selfClient": "TestImport1Topic"
-    }
-  },
-  "TestImport2Topic": {
-    "type": "@ez4/import:topic",
-    "name": "TestImport2Topic",
-    "description": "Import topic with no assigned handler.",
-    "subscriptions": [],
-    "reference": "TestTopic",
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-import.ts",
+          "position": [
+            12,
+            1
+          ]
+        }
+      }
+    ],
     "schema": {
       "type": "object",
       "properties": {
@@ -65,14 +56,31 @@
         }
       },
       "identity": 1
-    },
+    }
+  },
+  "TestImport2Topic": {
+    "type": "@ez4/import:topic",
+    "name": "TestImport2Topic",
+    "description": "Import topic with no assigned handler.",
     "project": "name from project in ez4.project.js",
+    "reference": "TestTopic",
+    "subscriptions": [],
+    "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
       "selfClient": "TestImport2Topic"
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
     }
   }
 }

@@ -4,6 +4,7 @@ import type { ValidationContext } from '../types/context';
 import { isAnyBoolean } from '@ez4/utils';
 
 import { ExpectedBooleanTypeError, UnexpectedBooleanError } from '../errors/boolean';
+import { useCustomValidation } from '../utils/custom';
 import { isNullish } from '../utils/nullish';
 
 export const validateBoolean = (value: unknown, schema: BooleanSchema, context?: ValidationContext) => {
@@ -21,6 +22,10 @@ export const validateBoolean = (value: unknown, schema: BooleanSchema, context?:
 
   if (isAnyBoolean(definitions?.value) && value !== definitions?.value) {
     return [new UnexpectedBooleanError(definitions.value, property)];
+  }
+
+  if (definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return [];

@@ -8,12 +8,18 @@
     "type": "@ez4/http",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "routes": [
       {
         "path": "GET /test-route-a",
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-body.ts",
+          "position": [
+            52,
+            1
+          ],
           "request": {
             "body": {
               "type": "string",
@@ -30,6 +36,10 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-body.ts",
+          "position": [
+            58,
+            1
+          ],
           "request": {
             "body": {
               "type": "object",
@@ -55,6 +65,10 @@
         "handler": {
           "name": "testRouteC",
           "file": "test/http/input/output-body.ts",
+          "position": [
+            64,
+            1
+          ],
           "request": {
             "body": {
               "type": "union",
@@ -86,6 +100,10 @@
         "handler": {
           "name": "testRouteD",
           "file": "test/http/input/output-body.ts",
+          "position": [
+            70,
+            1
+          ],
           "request": {
             "body": {
               "type": "object",

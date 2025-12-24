@@ -1,3 +1,4 @@
+%% Auto-generated ERD diagram, any manual modifications will be lost during regeneration.
 %%{init: { "layout": "elk", "theme": "light" } }%%
 erDiagram
 	Items {
@@ -13,4 +14,4 @@ erDiagram
 		name string
 		description string
 	}
-	Categories |o--o{ Items : "categories(id) → items(category_id)"
+	Categories ||--o{ Items : "categories(id) → items(category_id)"

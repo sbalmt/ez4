@@ -7,6 +7,8 @@
   "TestService": {
     "type": "@ez4/http",
     "context": {},
+    "variables": {},
+    "services": {},
     "name": "TestService",
     "displayName": "Remote API",
     "routes": [
@@ -15,11 +17,19 @@
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/http/input/output-import.ts"
+          "file": "test/http/input/output-import.ts",
+          "position": [
+            23,
+            1
+          ]
         },
         "handler": {
           "name": "testHandler",
           "file": "test/http/input/output-import.ts",
+          "position": [
+            25,
+            1
+          ],
           "response": {
             "status": 204
           }
@@ -37,6 +47,7 @@
     "name": "TestImport",
     "description": "Import API gateway.",
     "reference": "TestService",
+    "context": {},
     "authorization": {
       "header": "authorization",
       "type": "bearer",
@@ -48,11 +59,19 @@
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/http/input/output-import.ts"
+          "file": "test/http/input/output-import.ts",
+          "position": [
+            23,
+            1
+          ]
         },
         "handler": {
           "name": "testHandler",
           "file": "test/http/input/output-import.ts",
+          "position": [
+            25,
+            1
+          ],
           "response": {
             "status": 204
           }

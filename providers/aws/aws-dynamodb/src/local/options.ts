@@ -6,15 +6,15 @@ import { isEmptyObject, toSnakeCase } from '@ez4/utils';
 import { LocalOptionsNotFoundError } from './errors';
 
 export const getConnectionOptions = (service: DatabaseService, options: ServeOptions) => {
-  const serviceName = toSnakeCase(service.name);
+  const optionsName = toSnakeCase(service.name);
 
   const serviceOptions = {
-    ...options.localOptions[serviceName],
-    ...(options.test && options.testOptions[serviceName])
+    ...options.localOptions[optionsName],
+    ...(options.test && options.testOptions[optionsName])
   };
 
   if (isEmptyObject(serviceOptions)) {
-    throw new LocalOptionsNotFoundError(service.name);
+    throw new LocalOptionsNotFoundError(optionsName, service.name);
   }
 
   const { host = 'localhost', port = '8000' } = serviceOptions;

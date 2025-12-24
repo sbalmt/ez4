@@ -1,7 +1,12 @@
 {
   "29a974ac0ad8d09a93e9122be537f05f:Tuple": {
+    "file": "test/types/tuple.ts",
     "type": "interface",
     "name": "Tuple",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

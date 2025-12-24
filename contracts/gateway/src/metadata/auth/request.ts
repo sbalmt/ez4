@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { AuthRequest } from '../auth/types';
 
@@ -13,11 +13,11 @@ import {
   getReferenceType
 } from '@ez4/common/library';
 
-import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/web/request';
-import { getWebParametersMetadata } from '../web/parameters';
-import { getWebHeadersMetadata } from '../web/headers';
-import { getWebQueryMetadata } from '../web/query';
-import { getFullTypeName } from '../utils/type';
+import { IncorrectRequestTypeError, InvalidRequestTypeError } from '../../errors/request';
+import { getFullTypeName } from '../utils/name';
+import { getWebParametersMetadata } from '../parameters';
+import { getWebHeadersMetadata } from '../headers';
+import { getWebQueryMetadata } from '../query';
 
 const BASE_TYPE = 'AuthRequest';
 
@@ -28,7 +28,7 @@ export const isAuthRequestDeclaration = (type: TypeModel, namespace: string) => 
 export const getAuthRequestMetadata = (
   type: AllType,
   parent: TypeModel,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ): AuthRequest | undefined => {
@@ -49,7 +49,7 @@ export const getAuthRequestMetadata = (
   return undefined;
 };
 
-const getRequestType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], namespace: string) => {
+const getRequestType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, namespace);
   }
@@ -71,7 +71,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel | TypeIntersection,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[],
   namespace: string
 ) => {

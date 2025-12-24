@@ -8,6 +8,8 @@
     "type": "@ez4/http",
     "name": "TestService1",
     "context": {},
+    "variables": {},
+    "services": {},
     "displayName": "Test Service 1",
     "description": "First test service description.",
     "routes": []
@@ -16,11 +18,12 @@
     "type": "@ez4/http",
     "name": "TestService2",
     "context": {},
-    "description": "Description of the second test service.",
-    "routes": [],
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
-    }
+    },
+    "services": {},
+    "description": "Description of the second test service.",
+    "routes": []
   }
 }

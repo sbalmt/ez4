@@ -18,8 +18,20 @@ if (options?.projectFile) {
 
 const extraArguments = [];
 
-if (options?.command === CommandType.Serve || options?.command === CommandType.Test) {
-  extraArguments.push('--experimental-test-module-mocks', '--enable-source-maps');
+if (options?.command === CommandType.Test) {
+  extraArguments.push('--experimental-test-module-mocks');
+
+  if (options.coverage) {
+    extraArguments.push('--experimental-test-coverage');
+  }
+}
+
+if (options?.command === CommandType.Serve || options?.command === CommandType.Test || options?.command === CommandType.Run) {
+  extraArguments.push('--enable-source-maps');
+
+  if (options.inspect) {
+    extraArguments.push('--inspect');
+  }
 }
 
 spawn(

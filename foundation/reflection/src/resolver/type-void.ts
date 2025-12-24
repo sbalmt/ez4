@@ -17,7 +17,7 @@ export const isTypeVoid = (node: Node) => {
 
 export const tryTypeVoid = (node: Node, context: Context) => {
   if (!isTypeVoid(node)) {
-    return null;
+    return undefined;
   }
 
   const result = createVoid();

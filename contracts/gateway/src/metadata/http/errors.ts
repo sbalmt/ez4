@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { HttpErrors } from './types';
 
@@ -8,7 +8,7 @@ import { isAnyNumber, isEmptyObject } from '@ez4/utils';
 
 import { InvalidRouteErrorTypeError } from '../../errors/http/route';
 
-export const getHttpErrorsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpErrorsMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getErrorsType(type, parent, reflection, errorList);
   }
@@ -22,7 +22,7 @@ export const getHttpErrorsMetadata = (type: AllType, parent: TypeModel, reflecti
   return undefined;
 };
 
-const getErrorsType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getErrorsType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -34,7 +34,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const httpErrors: HttpErrors = {};
@@ -64,7 +64,13 @@ const getTypeFromMembers = (
   return undefined;
 };
 
-export const getErrorClasses = (member: ModelProperty, errorCode: number, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getErrorClasses = (
+  member: ModelProperty,
+  errorCode: number,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+) => {
   const errorTypes = getPropertyTuple(member) ?? [];
   const errorMap: HttpErrors = {};
 

@@ -31,7 +31,7 @@ export const isTypeParameter = (node: Node): node is ParameterDeclaration => {
 
 export const tryCallableParameter = (node: Node, context: Context, state: State) => {
   if (!isTypeParameter(node)) {
-    return null;
+    return undefined;
   }
 
   const resolver = () => {
@@ -46,13 +46,13 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
       return tryTypes(node.initializer, context, newState);
     }
 
-    return null;
+    return undefined;
   };
 
   const valueType = resolver();
 
   if (!valueType) {
-    return null;
+    return undefined;
   }
 
   const name = node.name.getText();
@@ -71,7 +71,7 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
 
 export const tryCallableParameters = (nodes: NodeWithParameters, context: Context, state: State) => {
   if (context.options.ignoreParameters) {
-    return null;
+    return undefined;
   }
 
   const newState = getNewState({ types: state.types });

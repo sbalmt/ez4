@@ -11,7 +11,7 @@ import type { TypeStringEvents } from './types/type-string';
 import type { TypeObjectEvents } from './types/type-object';
 import type { TypeReferenceEvents } from './types/type-reference';
 import type { TypeIntersectionEvents } from './types/type-intersection';
-import type { SourceMap } from './types/source';
+import type { ReflectionTypes } from './types/source';
 import type { AllType } from './types';
 
 import { isExportDeclaration, isImportDeclaration } from 'typescript';
@@ -57,9 +57,9 @@ export type ResolverEvents = TypeAnyEvents &
 
 export type ResolverOptions = {
   /**
-   * Determines whether or not model and function types will output its source file path.
+   * Determines whether or not model and function types will output its source location (file path, module name and position).
    */
-  includePath?: boolean;
+  includeLocation?: boolean;
 
   /**
    * Determines whether or not `enum` types are ignored from reflection.
@@ -166,7 +166,7 @@ export const resolveReflectionFiles = (program: Program) => {
 };
 
 export const resolveReflectionMetadata = (program: Program, options?: ReflectionOptions) => {
-  const reflection: SourceMap = {};
+  const reflection: ReflectionTypes = {};
 
   const sourceContext = {
     events: options?.resolverEvents ?? {},

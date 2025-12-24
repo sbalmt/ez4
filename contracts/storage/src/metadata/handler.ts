@@ -1,41 +1,20 @@
-import type { Incomplete } from '@ez4/utils';
-import type { AllType, SourceMap } from '@ez4/reflection';
-import type { EventHandler } from '../types/common';
+import type { AllType } from '@ez4/reflection';
+
+import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { isEventHandler } from './utils';
 
-export const getEventHandler = (type: AllType, _reflection: SourceMap, errorList: Error[]) => {
+export const getEventHandler = (type: AllType, errorList: Error[]) => {
   if (!isEventHandler(type)) {
     return undefined;
   }
 
-  const { description, module } = type;
+  const handler = getFunctionSignature(type);
 
-  const handler: Incomplete<EventHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
-  };
-
-  const properties = new Set(['name', 'file']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
+  if (!handler) {
+    errorList.push(new IncompleteHandlerError(type.file));
   }
 
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
-
-  if (properties.size === 0 && isValidHandler(handler)) {
-    return handler;
-  }
-
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
-};
-
-const isValidHandler = (type: Incomplete<EventHandler>): type is EventHandler => {
-  return !!type.name && !!type.file;
+  return handler;
 };

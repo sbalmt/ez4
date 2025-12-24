@@ -1,7 +1,12 @@
 {
   "0a156658005290072d647e4db75bb9d8:Object": {
+    "file": "test/types/object.ts",
     "type": "interface",
     "name": "Object",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -10,7 +15,12 @@
         "type": "property",
         "name": "regular1",
         "value": {
+          "file": "test/types/object.ts",
           "type": "object",
+          "position": {
+            "line": 7,
+            "character": 13
+          },
           "members": [
             {
               "type": "property",
@@ -40,19 +50,34 @@
         "type": "property",
         "name": "regular2",
         "value": {
+          "file": "test/types/object.ts",
           "type": "object",
+          "position": {
+            "line": 13,
+            "character": 13
+          },
           "members": [
             {
               "type": "property",
               "name": "level1",
               "value": {
+                "file": "test/types/object.ts",
                 "type": "object",
+                "position": {
+                  "line": 14,
+                  "character": 13
+                },
                 "members": [
                   {
                     "type": "property",
                     "name": "level2",
                     "value": {
+                      "file": "test/types/object.ts",
                       "type": "object",
+                      "position": {
+                        "line": 15,
+                        "character": 15
+                      },
                       "members": [
                         {
                           "type": "property",
@@ -74,7 +99,12 @@
         "type": "property",
         "name": "template",
         "value": {
+          "file": "test/types/object.ts",
           "type": "object",
+          "position": {
+            "line": 22,
+            "character": 18
+          },
           "members": [
             {
               "type": "property",
@@ -104,7 +134,12 @@
         "type": "property",
         "name": "dynamic1",
         "value": {
+          "file": "test/shared/types.ts",
           "type": "object",
+          "position": {
+            "line": 12,
+            "character": 29
+          },
           "members": {
             "index": {
               "type": "string"
@@ -119,7 +154,12 @@
         "type": "property",
         "name": "dynamic2",
         "value": {
+          "file": "test/types/object.ts",
           "type": "object",
+          "position": {
+            "line": 31,
+            "character": 13
+          },
           "members": {
             "index": {
               "type": "union",

@@ -33,7 +33,7 @@ export namespace Tester {
     });
   };
 
-  export const getServiceClient = (resourceName: string) => {
+  export const getServiceClient = (resourceName: string): Promise<unknown> | unknown => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Tester is not configured yet.');
     }

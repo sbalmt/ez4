@@ -3,11 +3,12 @@ import type { ObjectSchema } from '@ez4/schema';
 import { getPropertyName } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
-import { isNullish } from '../utils/nullish';
 import { ExpectedObjectTypeError } from '../errors/object';
 import { UnexpectedPropertiesError } from '../errors/common';
 import { createValidatorContext } from '../types/context';
 import { tryDecodeBase64Json } from '../utils/base64';
+import { useCustomValidation } from '../utils/custom';
+import { isNullish } from '../utils/nullish';
 import { validateAny } from './any';
 
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
@@ -15,7 +16,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     return [];
   }
 
-  const { property: parentProperty, references, depth } = context;
+  const { property: parentProperty, references, depth, inputStyle, pathStyle = inputStyle, ...currentContext } = context;
   const { definitions } = schema;
 
   if (schema.identity) {
@@ -31,8 +32,6 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const allProperties = new Set(Object.keys(objectValue));
   const allErrors: Error[] = [];
 
-  const { inputStyle, pathStyle = inputStyle } = context;
-
   for (const propertyKey in schema.properties) {
     const propertyName = getPropertyName(propertyKey, inputStyle);
 
@@ -43,10 +42,12 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       const propertyValue = objectValue[propertyName];
 
       const errorList = await validateAny(propertyValue, propertySchema, {
+        ...currentContext,
         property: getPropertyPath(propertyPath, parentProperty),
         depth: depth - 1,
+        references,
         inputStyle,
-        references
+        pathStyle
       });
 
       allErrors.push(...errorList);
@@ -70,10 +71,12 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
         const propertyValue = objectValue[propertyName];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
+          ...currentContext,
           property: getPropertyPath(propertyPath, parentProperty),
           depth: depth - 1,
+          references,
           inputStyle,
-          references
+          pathStyle
         });
 
         allErrors.push(...valueErrors);
@@ -89,6 +92,10 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
+  }
+
+  if (!allErrors.length && definitions?.type && context) {
+    return useCustomValidation(value, schema, definitions.type, context);
   }
 
   return allErrors;

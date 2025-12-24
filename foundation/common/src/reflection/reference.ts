@@ -1,9 +1,9 @@
-import type { AllType, ModelHeritage, SourceMap, TypeReference } from '@ez4/reflection';
+import type { AllType, ModelHeritage, ReflectionTypes, TypeReference } from '@ez4/reflection';
 
 import { isTypeObject, isTypeModel, isModelProperty, isTypeReference } from '@ez4/reflection';
-import { getModelMembers } from './model';
-import { getObjectMembers } from './object';
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
+import { getObjectMembers } from './object';
+import { getModelMembers } from './model';
 
 export const getReferenceName = (type: TypeReference | ModelHeritage) => {
   const [, typeName] = type.path.split(':');
@@ -11,7 +11,7 @@ export const getReferenceName = (type: TypeReference | ModelHeritage) => {
   return typeName;
 };
 
-export const getReferenceType = (type: TypeReference, reflection: SourceMap): AllType => {
+export const getReferenceType = (type: TypeReference, reflection: ReflectionTypes): AllType => {
   const reference = reflection[type.path];
   const index = type.index;
 
@@ -36,7 +36,7 @@ export const getReferenceType = (type: TypeReference, reflection: SourceMap): Al
   return member.value;
 };
 
-export const tryGetReferenceType = (type: TypeReference, reflection: SourceMap) => {
+export const tryGetReferenceType = (type: TypeReference, reflection: ReflectionTypes) => {
   try {
     return getReferenceType(type, reflection);
   } catch {
@@ -44,7 +44,7 @@ export const tryGetReferenceType = (type: TypeReference, reflection: SourceMap) 
   }
 };
 
-export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
+export const getReferenceBoolean = (type: AllType, reflection: ReflectionTypes) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }
@@ -57,7 +57,7 @@ export const getReferenceBoolean = (type: AllType, reflection: SourceMap) => {
   }
 };
 
-export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
+export const getReferenceNumber = (type: AllType, reflection: ReflectionTypes) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }
@@ -70,7 +70,7 @@ export const getReferenceNumber = (type: AllType, reflection: SourceMap) => {
   }
 };
 
-export const getReferenceString = (type: AllType, reflection: SourceMap) => {
+export const getReferenceString = (type: AllType, reflection: ReflectionTypes) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }
@@ -83,7 +83,7 @@ export const getReferenceString = (type: AllType, reflection: SourceMap) => {
   }
 };
 
-export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
+export const getReferenceTuple = (type: AllType, reflection: ReflectionTypes) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }
@@ -96,7 +96,7 @@ export const getReferenceTuple = (type: AllType, reflection: SourceMap) => {
   }
 };
 
-export const getReferenceModel = (type: AllType, reflection: SourceMap) => {
+export const getReferenceModel = (type: AllType, reflection: ReflectionTypes) => {
   if (!isTypeReference(type) || !type.index) {
     return undefined;
   }

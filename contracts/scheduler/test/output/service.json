@@ -3,6 +3,10 @@
     "type": "@ez4/cron",
     "name": "TestScheduler",
     "context": {},
+    "variables": {
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {},
     "description": "Scheduler cron description.",
     "group": "test-group",
     "expression": "rate(1 minute)",
@@ -15,7 +19,11 @@
     "target": {
       "handler": {
         "name": "targetHandler",
-        "file": "test/input/output-service.ts"
+        "file": "test/input/output-service.ts",
+        "position": [
+          39,
+          1
+        ]
       },
       "logRetention": 14,
       "timeout": 30,
@@ -23,9 +31,6 @@
       "variables": {
         "TEST_VAR1": "test-literal-value"
       }
-    },
-    "variables": {
-      "TEST_VAR2": "test-env-var-value"
     }
   }
 }

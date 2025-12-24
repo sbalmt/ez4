@@ -1,6 +1,3 @@
-export type StreamHandler = {
-  name: string;
-  module?: string;
-  file: string;
-  description?: string;
-};
+import type { FunctionSignature } from '@ez4/common/library';
+
+export type StreamHandler = FunctionSignature;

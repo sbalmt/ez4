@@ -1,29 +1,28 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { AuthHandler } from '../auth/types';
+
+import { createServiceMetadata } from '@ez4/project/library';
 
 export const WsServiceType = '@ez4/ws';
 
 export const WsNamespaceType = 'Ws';
 
-export const isWsService = (service: ServiceMetadata): service is WsService => {
-  return service.type === WsServiceType;
-};
-
 export type WsDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 
-export type WsService = ServiceMetadata & {
-  type: typeof WsServiceType;
-  displayName?: string;
-  stageName?: string;
-  description?: string;
-  defaults?: WsDefaults;
-  schema: WsDataSchema;
-  connect: WsConnection;
-  disconnect: WsConnection;
-  message: WsMessage;
-};
+export type WsService = Omit<ServiceMetadata, 'variables' | 'services'> &
+  Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
+    type: typeof WsServiceType;
+    displayName?: string;
+    stageName?: string;
+    description?: string;
+    defaults?: WsDefaults;
+    schema: WsDataSchema;
+    connect: WsConnection;
+    disconnect: WsConnection;
+    message: WsMessage;
+  };
 
 export type WsConnection = {
   handler: WsHandler;
@@ -46,11 +45,7 @@ export type WsMessage = {
   memory?: number;
 };
 
-export type WsHandler = {
-  name: string;
-  file: string;
-  module?: string;
-  description?: string;
+export type WsHandler = FunctionSignature & {
   request?: WsRequest | WsEvent;
   response?: WsResponse;
 };
@@ -85,4 +80,16 @@ export type WsDefaults = {
 
 export type WsCache = {
   authorizerTTL?: number;
+};
+
+export const isWsService = (service: ServiceMetadata): service is WsService => {
+  return service.type === WsServiceType;
+};
+
+export const createWsService = (name: string) => {
+  return {
+    ...createServiceMetadata<WsService>(WsServiceType, name),
+    variables: {},
+    services: {}
+  };
 };

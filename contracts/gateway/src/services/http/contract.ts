@@ -1,14 +1,15 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { AuthProvider as HttpAuthProvider } from '../auth/provider';
 import type { AuthResponse as HttpAuthResponse } from '../auth/response';
 import type { AuthRequest as HttpAuthRequest } from '../auth/request';
-import type { WebJsonBody, WebRawBody } from '../web/body';
-import type { WebPathParameters } from '../web/parameters';
-import type { WebPreferences } from '../web/preferences';
 import type { AuthIdentity } from '../auth/identity';
-import type { WebQueryStrings } from '../web/query';
-import type { WebHeaders } from '../web/headers';
 import type { AuthCache } from '../auth/cache';
+import type { WebHeaders } from '../headers';
+import type { WebQueryStrings } from '../query';
+import type { WebPreferences } from '../preferences';
+import type { WebPathParameters } from '../parameters';
+import type { WebJsonBody, WebRawBody } from '../body';
 import type { HttpSuccessStatuses, HttpSuccessEmptyResponse, HttpSuccessResponse, HttpEmptyRequest } from './utils';
 import type { HttpAuthorization } from './authorization';
 import type { HttpDefaults } from './defaults';
@@ -44,12 +45,13 @@ export namespace Http {
 
   export type Request = HttpRequest;
   export type Response = HttpResponse;
+  export type Provider = HttpProvider;
 
   export type AuthRequest = HttpAuthRequest;
   export type AuthResponse = HttpAuthResponse;
+  export type AuthProvider = HttpAuthProvider;
 
   export type Errors = HttpErrors;
-  export type Provider = HttpProvider;
   export type Cors = HttpCors;
 
   export type Incoming<T extends Request> = HttpIncoming<T>;

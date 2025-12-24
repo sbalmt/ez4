@@ -8,6 +8,10 @@
     "type": "@ez4/ws",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestService"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
@@ -17,6 +21,10 @@
       "handler": {
         "name": "connectHandler",
         "file": "test/ws/input/output-authorizer.ts",
+        "position": [
+          64,
+          1
+        ],
         "request": {
           "identity": {
             "type": "object",
@@ -33,6 +41,18 @@
       "authorizer": {
         "name": "authorizerHandler",
         "file": "test/ws/input/output-authorizer.ts",
+        "position": [
+          43,
+          1
+        ],
+        "provider": {
+          "services": {
+            "selfClient": "TestService"
+          },
+          "variables": {
+            "TEST_VAR": "test-literal-value"
+          }
+        },
         "request": {
           "query": {
             "type": "object",
@@ -63,6 +83,10 @@
       "handler": {
         "name": "disconnectHandler",
         "file": "test/ws/input/output-authorizer.ts",
+        "position": [
+          70,
+          1
+        ],
         "request": {
           "identity": {
             "type": "object",
@@ -81,6 +105,10 @@
       "handler": {
         "name": "messageHandler",
         "file": "test/ws/input/output-authorizer.ts",
+        "position": [
+          76,
+          1
+        ],
         "request": {
           "body": {
             "type": "object",

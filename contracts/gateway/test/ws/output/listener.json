@@ -8,6 +8,8 @@
     "type": "@ez4/ws",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "identity": 1,
@@ -16,31 +18,55 @@
     "connect": {
       "handler": {
         "name": "connectHandler",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          20,
+          1
+        ]
       },
       "listener": {
         "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          26,
+          1
+        ]
       }
     },
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          22,
+          1
+        ]
       },
       "listener": {
         "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          26,
+          1
+        ]
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          24,
+          1
+        ]
       },
       "listener": {
         "name": "testListener",
-        "file": "test/ws/input/output-listener.ts"
+        "file": "test/ws/input/output-listener.ts",
+        "position": [
+          26,
+          1
+        ]
       }
     }
   }

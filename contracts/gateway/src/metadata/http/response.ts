@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpResponse } from './types';
@@ -17,10 +17,10 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
-import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/web/response';
-import { getWebHeadersMetadata } from '../web/headers';
-import { getWebBodyMetadata } from '../web/body';
-import { getFullTypeName } from '../utils/type';
+import { IncorrectResponseTypeError, InvalidResponseTypeError } from '../../errors/response';
+import { getFullTypeName } from '../utils/name';
+import { getWebHeadersMetadata } from '../headers';
+import { getWebBodyMetadata } from '../body';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Response');
@@ -29,7 +29,7 @@ export const isHttpResponseDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getHttpResponseMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpResponseMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getResponseType(type, parent, reflection, errorList);
   }
@@ -47,7 +47,7 @@ const isCompleteResponse = (type: Incomplete<HttpResponse>): type is HttpRespons
   return isObjectWith(type, ['status']) && (isAnyNumber(type.status) || !!type.status.length);
 };
 
-const getResponseType = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getResponseType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -69,7 +69,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const response: Incomplete<HttpResponse> = {};

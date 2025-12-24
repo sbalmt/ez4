@@ -5,6 +5,6 @@ import type { TypeEnum } from './type-enum';
 
 export type EverySourceType = TypeEnum | TypeClass | TypeInterface | TypeFunction;
 
-export type SourceMap = {
+export type ReflectionTypes = {
   [id: string]: EverySourceType;
 };

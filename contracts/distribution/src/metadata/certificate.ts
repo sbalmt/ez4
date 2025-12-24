@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { CdnCertificate } from '../types/certificate';
@@ -17,7 +17,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { IncompleteCertificateError, IncorrectCertificateTypeError, InvalidCertificateTypeError } from '../errors/certificate';
 import { isCdnCertificate } from './utils';
 
-export const getCdnCertificate = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getCdnCertificate = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCertificate(type, parent, errorList);
   }

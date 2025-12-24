@@ -42,7 +42,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       ...target,
       connections: candidate.connections,
       dependencies: candidate.dependencies,
-      variables: target.variables && protectVariables(target.variables),
+      variables: protectVariables(await target.getFunctionVariables()),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
       valuesHash: target.getFunctionHash()
     },
@@ -50,6 +50,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       ...source,
       connections: current.connections,
       dependencies: current.dependencies,
+      variables: current.result?.variables,
       sourceHash: current.result?.sourceHash,
       valuesHash: current.result?.valuesHash
     }
@@ -79,10 +80,11 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const [sourceHash, sourceFile, valuesHash] = await Promise.all([
+  const [sourceHash, sourceFile, valuesHash, variables] = await Promise.all([
     getBundleHash(...parameters.getFunctionFiles()),
     parameters.getFunctionBundle(context),
-    parameters.getFunctionHash()
+    parameters.getFunctionHash(),
+    parameters.getFunctionVariables()
   ]);
 
   const importedFunction = await importFunction(functionName);
@@ -91,6 +93,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   if (importedFunction) {
     await updateConfiguration(functionName, {
       ...parameters,
+      variables,
       logGroup,
       roleArn
     });
@@ -104,11 +107,10 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
       ...parameters.tags
     });
 
-    lockSensitiveData(candidate);
-
     return {
       functionArn: importedFunction.functionArn,
       functionVersion: importedFunction.functionVersion,
+      variables: protectVariables(variables),
       valuesHash,
       sourceHash,
       bundleHash,
@@ -122,15 +124,15 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     publish: true,
     functionName,
     sourceFile,
+    variables,
     logGroup,
     roleArn
   });
 
-  lockSensitiveData(candidate);
-
   return {
     functionArn: createdFunction.functionArn,
     functionVersion: createdFunction.functionVersion,
+    variables: protectVariables(variables),
     valuesHash,
     sourceHash,
     bundleHash,
@@ -148,25 +150,27 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
 
   const functionName = parameters.functionName;
 
+  const newVariables = await parameters.getFunctionVariables();
+  const oldVariables = current.result?.variables ?? newVariables;
+
   const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
   const oldRoleArn = current.result?.roleArn ?? newRoleArn;
 
   const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const oldLogGroup = current.result?.logGroup ?? newLogGroup;
 
-  const newConfig = { ...parameters, roleArn: newRoleArn, logGroup: newLogGroup };
-  const oldConfig = { ...current.parameters, roleArn: oldRoleArn, logGroup: oldLogGroup };
+  const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
+  const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
   await checkConfigurationUpdates(functionName, newConfig, oldConfig);
   await checkTagUpdates(result.functionArn, parameters, current.parameters);
 
   const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
 
-  lockSensitiveData(candidate);
-
   return {
     ...result,
     ...newResult,
+    variables: protectVariables(newVariables),
     logGroup: newLogGroup,
     roleArn: newRoleArn
   };
@@ -180,25 +184,8 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
-const lockSensitiveData = (candidate: FunctionState) => {
-  const { parameters } = candidate;
-
-  if (parameters.variables) {
-    parameters.variables = protectVariables(parameters.variables);
-  }
-
-  return candidate;
-};
-
 const checkConfigurationUpdates = async (functionName: string, candidate: FunctionParameters, current: FunctionParameters) => {
-  const protectedCandidate = {
-    ...candidate,
-    ...(candidate.variables && {
-      variables: protectVariables(candidate.variables)
-    })
-  };
-
-  const hasChanges = !deepEqual(protectedCandidate, current, {
+  const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,

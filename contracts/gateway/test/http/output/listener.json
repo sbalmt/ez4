@@ -8,17 +8,27 @@
     "type": "@ez4/http",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Service for testing route listener.",
     "routes": [
       {
         "path": "ANY /test-route",
         "listener": {
           "name": "testListener",
-          "file": "test/http/input/output-listener.ts"
+          "file": "test/http/input/output-listener.ts",
+          "position": [
+            16,
+            1
+          ]
         },
         "handler": {
           "name": "testHandler",
           "file": "test/http/input/output-listener.ts",
+          "position": [
+            18,
+            1
+          ],
           "response": {
             "status": 204
           }

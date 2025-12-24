@@ -1,8 +1,10 @@
 import type { EmulateServiceContext, EmulatorConnectionEvent, ServeOptions } from '@ez4/project/library';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { WsService } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestHeaders, getIncomingRequestQuery } from '../../utils/request';
@@ -19,7 +21,10 @@ export const processWsAuthorization = async (
     return undefined;
   }
 
-  const clients = service?.services && context.makeClients(service.services);
+  const provider = connect.authorizer.provider;
+  const services = provider?.services ?? {};
+
+  const clients = await context.makeClients(services);
 
   const module = await createModule({
     listener: connect.listener ?? service.defaults?.listener,
@@ -38,12 +43,16 @@ export const processWsAuthorization = async (
     timestamp: new Date()
   };
 
+  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    return resolveValidation(value, clients, context.type);
+  };
+
   try {
     await onBegin(module, clients, request);
 
     if (connect.authorizer?.request) {
-      Object.assign(request, await getIncomingRequestHeaders(connect.authorizer.request, event));
-      Object.assign(request, await getIncomingRequestQuery(connect.authorizer.request, event));
+      Object.assign(request, await getIncomingRequestHeaders(connect.authorizer.request, event, onCustomValidation));
+      Object.assign(request, await getIncomingRequestQuery(connect.authorizer.request, event, onCustomValidation));
     }
 
     await onReady(module, clients, request);

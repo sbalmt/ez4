@@ -1,20 +1,24 @@
 import type { Node, TypeLiteralNode } from 'typescript';
-import type { EveryMemberType, TypeObject } from '../types';
-import { getNewState, type Context, type State } from './common';
+import type { EveryMemberType, TypeObject, TypePosition } from '../types';
+import type { Context, State } from './common';
 
 import { isIndexSignatureDeclaration, isTypeLiteralNode, SyntaxKind } from 'typescript';
 
 import { getPathModule } from '../utils/module';
-import { getNodeFilePath } from '../helpers/node';
+import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { TypeName } from '../types';
 import { tryModelMembers } from './model-members';
+import { getNewState } from './common';
 import { tryTypes } from './types';
 
-export const createObject = (file: string | null, members?: EveryMemberType[]): TypeObject => {
+export const createObject = (file: string | undefined, position: TypePosition | undefined, members?: EveryMemberType[]): TypeObject => {
+  const module = file && getPathModule(file);
+
   return {
     type: TypeName.Object,
     ...(file && { file }),
-    ...(file && { module: getPathModule(file) }),
+    ...(position && { position }),
+    ...(module && { module }),
     ...(members?.length && { members })
   };
 };
@@ -25,7 +29,7 @@ export const isTypeObject = (node: Node) => {
 
 export const tryTypeObject = (node: Node, context: Context, state: State) => {
   if (!isTypeObject(node) && !isTypeLiteralNode(node)) {
-    return null;
+    return undefined;
   }
 
   const generic = !!Object.keys(state.types).length;
@@ -41,8 +45,10 @@ export const tryTypeObject = (node: Node, context: Context, state: State) => {
     return cache;
   }
 
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
-  const type = createObject(file);
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
+
+  const type = createObject(file, position);
 
   if (!generic) {
     context.cache.set(node, type);

@@ -1,15 +1,14 @@
-import type { AllType, ModelProperty, SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { ObjectSchema, ObjectSchemaProperties } from '../types/type-object';
 import type { ReferenceSchema } from '../types/type-reference';
 import type { SchemaDefinitions } from '../types/common';
 import type { SchemaContext } from '../types/context';
 
-import { isTypeIntersection, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isTypeIntersection, isTypeModel, isTypeObject } from '@ez4/reflection';
 
 import { getPropertyName } from '../utils/naming';
 import { getModelProperties } from '../reflection/model';
 import { getObjectProperties } from '../reflection/object';
-import { SchemaReferenceNotFound } from '../errors/reference';
 import { createSchemaContext } from '../types/context';
 import { createReferenceSchema } from './reference';
 import { SchemaType } from '../types/common';
@@ -56,7 +55,7 @@ export const isRichTypeModel = (type: AllType): type is RichTypeModel => {
 
 export const getObjectSchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): ObjectSchema | ReferenceSchema | null => {
@@ -103,20 +102,10 @@ export const getObjectSchema = (
     return modelSchema;
   }
 
-  if (isTypeReference(type)) {
-    const declaration = reflection[type.path];
-
-    if (!declaration) {
-      throw new SchemaReferenceNotFound(type.path);
-    }
-
-    return getObjectSchema(declaration, reflection, context, description);
-  }
-
   return null;
 };
 
-const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, members: ModelProperty[]) => {
+const getAnySchemaFromMembers = (reflection: ReflectionTypes, context: SchemaContext, members: ModelProperty[]) => {
   const properties: ObjectSchemaProperties = {};
 
   const { namingStyle } = context;
@@ -140,7 +129,7 @@ const getAnySchemaFromMembers = (reflection: SourceMap, context: SchemaContext, 
   return properties;
 };
 
-const getAnySchemaFromDynamicMembers = (reflection: SourceMap, context: SchemaContext, type: TypeObject) => {
+const getAnySchemaFromDynamicMembers = (reflection: ReflectionTypes, context: SchemaContext, type: TypeObject) => {
   if (!type.members || Array.isArray(type.members)) {
     return;
   }

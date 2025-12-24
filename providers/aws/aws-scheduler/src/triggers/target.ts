@@ -45,6 +45,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     context: service.context,
     debug: options.debug,
     tags: options.tags,
+    variables: [options.variables, service.variables, variables],
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -55,11 +56,6 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
       functionName: listener.name,
       sourceFile: listener.file,
       module: listener.module
-    },
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...variables
     }
   });
 

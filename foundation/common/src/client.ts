@@ -2,15 +2,19 @@ import { isAnyString } from '@ez4/utils';
 
 export namespace Client {
   export const make = () => {
-    return new Proxy(
+    return new Proxy<Record<string, string>>(
       {},
       {
-        get: (_target, property) => {
-          if (!isAnyString(property) || !(property in process.env)) {
+        get: (_, property) => {
+          if (isAnyString(property) && property in process.env) {
+            return process.env[property];
+          }
+
+          if (property !== 'then') {
             throw new Error(`Environment variable '${property.toString()}' not found.`);
           }
 
-          return process.env[property];
+          return undefined;
         }
       }
     );

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { CronTarget } from '../types/common';
@@ -20,7 +20,7 @@ import { IncompleteTargetError, IncorrectTargetTypeError, InvalidTargetTypeError
 import { getTargetHandler } from './handler';
 import { isCronTarget } from './utils';
 
-export const getCronTarget = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getCronTarget = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeTarget(type, parent, reflection, errorList);
   }
@@ -38,7 +38,7 @@ const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
   return !!type.handler;
 };
 
-const getTypeTarget = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeTarget = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -60,7 +60,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const target: Incomplete<CronTarget> = {};

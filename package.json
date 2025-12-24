@@ -25,6 +25,8 @@
     "contracts/distribution",
     "contracts/queue",
     "contracts/topic",
+    "contracts/factory",
+    "contracts/validation",
     "libraries/pgsql",
     "libraries/pgclient",
     "libraries/pgmigration",

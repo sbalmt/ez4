@@ -1,3 +1,4 @@
+import type { ValidationCustomHandler } from '@ez4/validator';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
@@ -5,13 +6,22 @@ import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
-export const getHeaders = async <T extends Http.Headers>(input: T, schema: ObjectSchema): Promise<T> => {
+export const resolveHeaders = async <T extends Http.Headers>(
+  input: T,
+  schema: ObjectSchema,
+  onCustomValidation?: ValidationCustomHandler
+): Promise<T> => {
   const headers = transform(input, schema, createTransformContext({ convert: false }));
 
-  const errors = await validate(headers, schema, createValidatorContext({ property: '$header' }));
+  const validationContext = createValidatorContext({
+    property: '$header',
+    onCustomValidation
+  });
 
-  if (errors.length) {
-    const messages = getUniqueErrorMessages(errors);
+  const validationErrors = await validate(headers, schema, validationContext);
+
+  if (validationErrors.length) {
+    const messages = getUniqueErrorMessages(validationErrors);
 
     throw new HttpBadRequestError('Malformed request headers.', messages);
   }

@@ -1,10 +1,10 @@
 import type { FunctionDeclaration, FunctionTypeNode, Node } from 'typescript';
-import type { TypeCallback, TypeParameter, EveryType } from '../types';
+import type { TypeCallback, TypeParameter, EveryType, TypePosition } from '../types';
 import type { Context, State } from './common';
 
 import { isFunctionDeclaration, isFunctionTypeNode } from 'typescript';
 
-import { getNodeFilePath } from '../helpers/node';
+import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { getNodeDocumentation } from '../helpers/documentation';
 import { getPathModule } from '../utils/module';
 import { TypeName } from '../types';
@@ -15,16 +15,20 @@ export type CallbackNodes = FunctionTypeNode | FunctionDeclaration;
 
 export const createCallback = (
   name: string | undefined,
-  file: string | null,
-  description: string | null,
-  parameterTypes?: TypeParameter[] | null,
-  returnType?: EveryType | null
+  file: string | undefined,
+  position: TypePosition | undefined,
+  description: string | undefined,
+  parameterTypes?: TypeParameter[] | undefined,
+  returnType?: EveryType | undefined
 ): TypeCallback => {
+  const module = file && getPathModule(file);
+
   return {
     type: TypeName.Callback,
     ...(name && { name }),
     ...(file && { file }),
-    ...(file && { module: getPathModule(file) }),
+    ...(position && { position }),
+    ...(module && { module }),
     ...(description && { description }),
     ...(parameterTypes?.length && { parameters: parameterTypes }),
     ...(returnType && { return: returnType })
@@ -37,7 +41,7 @@ export const isTypeCallback = (node: Node): node is CallbackNodes => {
 
 export const tryTypeCallback = (node: Node, context: Context, state: State) => {
   if (context.options.ignoreCallback || !isTypeCallback(node) || node.typeParameters) {
-    return null;
+    return undefined;
   }
 
   if (context.cache.has(node)) {
@@ -45,10 +49,11 @@ export const tryTypeCallback = (node: Node, context: Context, state: State) => {
   }
 
   const name = node.name?.getText();
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
-  const description = node.name ? getNodeDocumentation(node.name, context.checker) : null;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
+  const description = node.name && getNodeDocumentation(node.name, context.checker);
 
-  const reflectedType = createCallback(name, file, description);
+  const reflectedType = createCallback(name, file, position, description);
 
   context.cache.set(node, reflectedType);
 

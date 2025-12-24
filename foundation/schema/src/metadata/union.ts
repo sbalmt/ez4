@@ -1,4 +1,4 @@
-import type { AllType, EveryType, SourceMap, TypeUnion } from '@ez4/reflection';
+import type { AllType, EveryType, ReflectionTypes, TypeUnion } from '@ez4/reflection';
 import type { SchemaContext } from '../types/context';
 import type { SchemaDefinitions } from '../types/common';
 import type { EnumSchema, EnumSchemaOption } from '../types/type-enum';
@@ -40,7 +40,12 @@ export const isRichTypeUnion = (type: AllType): type is RichTypeUnion => {
   return isTypeUnion(type);
 };
 
-export const getUnionSchema = (type: AllType, reflection: SourceMap, context: SchemaContext, description?: string): AnySchema | null => {
+export const getUnionSchema = (
+  type: AllType,
+  reflection: ReflectionTypes,
+  context: SchemaContext,
+  description?: string
+): AnySchema | null => {
   if (!isRichTypeUnion(type)) {
     return null;
   }
@@ -89,7 +94,7 @@ const hasNullableType = (types: EveryType[]) => {
   return types.some((type) => isTypeNull(type));
 };
 
-const getAnySchemaFromTypeList = (reflection: SourceMap, context: SchemaContext, types: AllType[]) => {
+const getAnySchemaFromTypeList = (reflection: ReflectionTypes, context: SchemaContext, types: AllType[]) => {
   const typeList: AnySchema[] = [];
 
   const pushElements = (...elements: AnySchema[]) => {

@@ -1,4 +1,4 @@
-import type { SourceMap, TypeModel } from '@ez4/reflection';
+import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { CronService } from '../types/service';
 
@@ -16,13 +16,13 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { ServiceType, DynamicExpression, isDynamicCronService } from '../types/service';
+import { DynamicExpression, isDynamicCronService, createCronService } from '../types/service';
 import { IncompleteServiceError, IncorrectServiceError } from '../errors/service';
 import { getCronTarget } from './target';
 import { isCronService } from './utils';
 import { getCronEvent } from './event';
 
-export const getCronServices = (reflection: SourceMap) => {
+export const getCronServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, CronService> = {};
   const errorList: Error[] = [];
 
@@ -33,12 +33,10 @@ export const getCronServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<CronService> = { type: ServiceType, context: {} };
+    const service = createCronService(declaration.name);
     const properties = new Set(['target', 'expression']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -117,7 +115,7 @@ export const getCronServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -143,8 +141,8 @@ export const getCronServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<CronService>): type is CronService => {
-  if (!type.name || !type.target || !type.context) {
+const isCompleteService = (type: Incomplete<CronService>): type is CronService => {
+  if (!type.target || !type.context || !type.variables || !type.services) {
     return false;
   }
 

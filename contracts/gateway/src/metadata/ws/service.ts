@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { WsService } from './types';
 
@@ -17,19 +17,21 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError } from '../../errors/web/service';
-import { getWebBodyMetadata } from '../web/body';
-import { getFullTypeName } from '../utils/type';
-import { WsNamespaceType, WsServiceType } from './types';
+import { IncompleteServiceError } from '../../errors/service';
+import { attachValidatorLinkedServices } from '../utils/validator';
+import { getFullTypeName } from '../utils/name';
+import { getWebBodyMetadata } from '../body';
+import { createWsService, WsNamespaceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
 import { getWsMessageMetadata } from './message';
+import { attachProviderLinkedServices } from '../utils/provider';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
 };
 
-export const getWsServicesMetadata = (reflection: SourceMap) => {
+export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, WsService> = {};
   const errorList: Error[] = [];
 
@@ -40,12 +42,10 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<WsService> = { type: WsServiceType, context: {} };
+    const service = createWsService(declaration.name);
     const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -104,12 +104,16 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
         case 'variables':
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
+          } else {
+            service.variables = {};
           }
           break;
 
         case 'services':
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
+          } else {
+            service.services = {};
           }
           break;
       }
@@ -125,6 +129,8 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
+    attachLinkedServices(service, errorList, fileName);
+
     allServices[declaration.name] = service;
   }
 
@@ -135,5 +141,17 @@ export const getWsServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
-  return isObjectWith(type, ['name', 'schema', 'connect', 'disconnect', 'message', 'context']);
+  return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
+};
+
+const attachLinkedServices = (service: WsService, errorList: Error[], fileName?: string) => {
+  const { connect, disconnect, message } = service;
+
+  attachValidatorLinkedServices(connect.handler, service.services);
+  attachValidatorLinkedServices(disconnect.handler, service.services);
+  attachValidatorLinkedServices(message.handler, service.services);
+
+  if (connect.authorizer) {
+    attachProviderLinkedServices(connect.authorizer, service.services, errorList, fileName);
+  }
 };

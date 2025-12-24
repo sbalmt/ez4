@@ -1,7 +1,12 @@
 {
   "50d6450e72dc69b85c53bceaa7d71d6f:Optional": {
+    "file": "test/types/optional.ts",
     "type": "interface",
     "name": "Optional",
+    "position": {
+      "line": 1,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

@@ -17,7 +17,7 @@ export const isTypeAny = (node: Node) => {
 
 export const tryTypeAny = (node: Node, context: Context) => {
   if (!isTypeAny(node)) {
-    return null;
+    return undefined;
   }
 
   const result = createAny();

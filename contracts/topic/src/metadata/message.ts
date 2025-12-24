@@ -1,16 +1,17 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 import type { TopicMessageSchema } from '../types/common';
 
-import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
-import { createUnionSchema, getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
 import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { createUnionSchema, getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
+import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isObjectSchema } from '@ez4/schema';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message';
 import { isTopicMessage } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getTopicMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+export const getTopicMessage = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeMessage(type, parent, reflection, errorList);
   }
@@ -24,7 +25,12 @@ export const getTopicMessage = (type: AllType, parent: TypeParent, reflection: S
   return undefined;
 };
 
-const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap, errorList: Error[]): TopicMessageSchema | undefined => {
+const getTypeMessage = (
+  type: AllType,
+  parent: TypeParent,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+): TopicMessageSchema | undefined => {
   if (isTypeUnion(type)) {
     return getMessageFromUnion(type.elements, parent, reflection, errorList);
   }
@@ -50,7 +56,7 @@ const getTypeMessage = (type: AllType, parent: TypeParent, reflection: SourceMap
   return getMessageSchema(type, reflection);
 };
 
-const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: SourceMap, errorList: Error[]) => {
+const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   const schemaList = [];
 
   for (const type of types) {
@@ -66,7 +72,7 @@ const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: S
   });
 };
 
-const getMessageFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+const getMessageFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getIntersectionSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {
@@ -76,7 +82,7 @@ const getMessageFromIntersection = (type: TypeObject | TypeModel | TypeIntersect
   return undefined;
 };
 
-const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+const getMessageSchema = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {

@@ -1,6 +1,8 @@
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Http, Ws } from '@ez4/gateway';
+import type { AnyObject } from '@ez4/utils';
 
 import type {
   APIGatewayAuthorizerWithContextResult,
@@ -9,11 +11,9 @@ import type {
   Context
 } from 'aws-lambda';
 
-import * as GatewayUtils from '@ez4/gateway/utils';
-
+import { resolveHeaders, resolvePathParameters, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
-import { AnyObject } from '@ez4/utils';
 
 type IncomingRequest = Http.Incoming<Http.AuthRequest> | Ws.Incoming<Ws.AuthRequest>;
 type ServiceEvent = Http.ServiceEvent<Http.AuthRequest> | Ws.ServiceEvent<Ws.AuthRequest>;
@@ -108,7 +108,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
 
 const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
-    return GatewayUtils.getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
+    return resolveHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA, onCustomValidation);
   }
 
   return undefined;
@@ -116,7 +116,7 @@ const getIncomingRequestHeaders = (event: RequestEvent) => {
 
 const getIncomingRequestParameters = (event: RequestEvent) => {
   if (__EZ4_PARAMETERS_SCHEMA) {
-    return GatewayUtils.getPathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA);
+    return resolvePathParameters(event.pathParameters ?? {}, __EZ4_PARAMETERS_SCHEMA, onCustomValidation);
   }
 
   return undefined;
@@ -124,10 +124,14 @@ const getIncomingRequestParameters = (event: RequestEvent) => {
 
 const getIncomingRequestQuery = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
+    return resolveQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES, onCustomValidation);
   }
 
   return undefined;
+};
+
+const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+  return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
 const onBegin = async (request: IncomingRequest) => {

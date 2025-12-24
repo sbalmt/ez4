@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { CdnFallback } from '../types/fallback';
@@ -20,7 +20,7 @@ import { isAnyNumber } from '@ez4/utils';
 import { IncompleteFallbackError, IncorrectFallbackTypeError, InvalidFallbackTypeError } from '../errors/fallback';
 import { isCdnFallback } from './utils';
 
-export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const fallbackItems = getPropertyTuple(member) ?? [];
   const resultList: CdnFallback[] = [];
 
@@ -35,7 +35,7 @@ export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflec
   return resultList;
 };
 
-const getCdnFallback = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getCdnFallback = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeFallback(type, parent, errorList);
   }

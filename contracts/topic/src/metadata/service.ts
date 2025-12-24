@@ -1,20 +1,21 @@
-import type { SourceMap, TypeModel } from '@ez4/reflection';
+import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { TopicService } from '../types/service';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelMembers,
-  InvalidServicePropertyError
+  getModelMembers
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
+import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../types/service';
+import { createTopicService } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
 import { getAllSubscription } from './subscription';
@@ -22,7 +23,7 @@ import { getTopicMessage } from './message';
 import { getTopicFifoMode } from './fifo';
 import { isTopicService } from './utils';
 
-export const getTopicServices = (reflection: SourceMap) => {
+export const getTopicServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, TopicService> = {};
   const errorList: Error[] = [];
 
@@ -33,12 +34,10 @@ export const getTopicServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<TopicService> = { type: ServiceType, context: {} };
-    const properties = new Set(['subscriptions', 'schema']);
+    const service = createTopicService(declaration.name);
+    const properties = new Set(['schema', 'subscriptions']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -91,7 +90,7 @@ export const getTopicServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -117,8 +116,8 @@ export const getTopicServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<TopicService>): type is TopicService => {
-  return !!type.name && !!type.schema && !!type.subscriptions && !!type.context;
+const isCompleteService = (type: Incomplete<TopicService>): type is TopicService => {
+  return isObjectWith(type, ['schema', 'subscriptions', 'variables', 'services']);
 };
 
 const validateFifoModeProperties = (parent: TypeModel, service: TopicService) => {

@@ -1,3 +1,4 @@
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
@@ -10,8 +11,7 @@ import type {
   Context
 } from 'aws-lambda';
 
-import * as GatewayUtils from '@ez4/gateway/utils';
-
+import { resolveHeaders, resolveIdentity, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { ServiceEventType } from '@ez4/common';
 
 type RequestEvent = APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2> &
@@ -79,7 +79,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
 
 const getIncomingRequestHeaders = (event: RequestEvent) => {
   if (__EZ4_HEADERS_SCHEMA) {
-    return GatewayUtils.getHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA);
+    return resolveHeaders(event.headers ?? {}, __EZ4_HEADERS_SCHEMA, onCustomValidation);
   }
 
   return undefined;
@@ -87,7 +87,7 @@ const getIncomingRequestHeaders = (event: RequestEvent) => {
 
 const getIncomingRequestQueryStrings = (event: RequestEvent) => {
   if (__EZ4_QUERY_SCHEMA) {
-    return GatewayUtils.getQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES);
+    return resolveQueryStrings(event.queryStringParameters ?? {}, __EZ4_QUERY_SCHEMA, __EZ4_PREFERENCES, onCustomValidation);
   }
 
   return undefined;
@@ -100,7 +100,11 @@ const getIncomingRequestIdentity = (event: RequestEvent) => {
 
   const identity = event.requestContext?.authorizer?.identity;
 
-  return GatewayUtils.getIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA);
+  return resolveIdentity(JSON.parse(identity ?? '{}'), __EZ4_IDENTITY_SCHEMA, onCustomValidation);
+};
+
+const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+  return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
 const onBegin = async (request: Ws.Incoming<Ws.Event>) => {

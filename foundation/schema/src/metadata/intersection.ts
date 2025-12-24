@@ -1,4 +1,4 @@
-import type { AllType, SourceMap } from '@ez4/reflection';
+import type { AllType, ReflectionTypes } from '@ez4/reflection';
 import type { AnySchema } from '../types/type-any';
 
 import { deepMerge } from '@ez4/utils';
@@ -9,7 +9,7 @@ import { getAnySchema } from './any';
 
 export const getIntersectionSchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): AnySchema | null => {

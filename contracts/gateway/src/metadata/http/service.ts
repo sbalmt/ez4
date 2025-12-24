@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeClass } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpService } from './types';
 
@@ -17,9 +17,10 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteServiceError, ServiceCollisionError } from '../../errors/web/service';
-import { getFullTypeName } from '../utils/type';
-import { HttpNamespaceType, HttpServiceType } from './types';
+import { IncompleteServiceError } from '../../errors/service';
+import { attachProviderLinkedServices } from '../utils/provider';
+import { getFullTypeName } from '../utils/name';
+import { createHttpService, HttpNamespaceType } from './types';
 import { getHttpDefaultsMetadata } from './defaults';
 import { getHttpAccessMetadata } from './access';
 import { getHttpCacheMetadata } from './cache';
@@ -30,7 +31,7 @@ export const isHttpServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Service'));
 };
 
-export const getHttpServicesMetadata = (reflection: SourceMap) => {
+export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, HttpService> = {};
   const errorList: Error[] = [];
 
@@ -41,12 +42,10 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<HttpService> = { type: HttpServiceType, context: {} };
+    const service = createHttpService(declaration.name);
     const properties = new Set(['routes']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -108,7 +107,7 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
       continue;
     }
 
-    assignProviderServices(service, errorList, fileName);
+    attachLinkedServices(service, errorList, fileName);
 
     allServices[declaration.name] = service;
   }
@@ -120,33 +119,15 @@ export const getHttpServicesMetadata = (reflection: SourceMap) => {
 };
 
 const isCompleteService = (type: Incomplete<HttpService>): type is HttpService => {
-  return isObjectWith(type, ['name', 'routes', 'context']);
+  return isObjectWith(type, ['routes', 'variables', 'services']);
 };
 
-const assignProviderServices = (service: HttpService, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (service: HttpService, errorList: Error[], fileName?: string) => {
   for (const route of service.routes) {
-    const provider = route.handler.provider;
+    attachProviderLinkedServices(route.handler, service.services, errorList, fileName);
 
-    if (!provider?.services) {
-      continue;
-    }
-
-    if (!service.services) {
-      service.services = {};
-    }
-
-    for (const serviceName in provider.services) {
-      const currentServiceType = service.services[serviceName];
-      const handlerServiceType = provider.services[serviceName];
-
-      if (!currentServiceType) {
-        service.services[serviceName] = handlerServiceType;
-        continue;
-      }
-
-      if (currentServiceType !== handlerServiceType) {
-        errorList.push(new ServiceCollisionError(serviceName, fileName));
-      }
+    if (route.authorizer) {
+      attachProviderLinkedServices(route.authorizer, service.services, errorList, fileName);
     }
   }
 };

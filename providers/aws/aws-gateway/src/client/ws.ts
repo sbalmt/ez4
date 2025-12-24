@@ -8,7 +8,7 @@ import {
   GoneException
 } from '@aws-sdk/client-apigatewaymanagementapi';
 
-import { getResponseBody } from '@ez4/gateway/utils';
+import { resolveResponseBody } from '@ez4/gateway/utils';
 
 export namespace WsClient {
   export type Options = {
@@ -26,7 +26,7 @@ export namespace WsClient {
 
     return new (class {
       async sendMessage(connectionId: string, message: T) {
-        const content = await getResponseBody(message, messageSchema, preferences);
+        const content = await resolveResponseBody(message, messageSchema, preferences);
         const payload = JSON.stringify(content);
 
         await client.send(

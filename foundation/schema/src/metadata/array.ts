@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeArray } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeArray } from '@ez4/reflection';
 import type { SchemaDefinitions } from '../types/common';
 import type { ArraySchema } from '../types/type-array';
 
@@ -33,7 +33,7 @@ export const isRichTypeArray = (type: AllType): type is RichTypeArray => {
 
 export const getArraySchema = (
   type: AllType,
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   context = createSchemaContext(),
   description?: string
 ): ArraySchema | null => {

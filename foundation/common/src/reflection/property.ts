@@ -1,4 +1,4 @@
-import type { EveryType, ModelProperty, SourceMap } from '@ez4/reflection';
+import type { EveryType, ModelProperty, ReflectionTypes } from '@ez4/reflection';
 
 import { isTypeObject, isTypeUnion } from '@ez4/reflection';
 import { isAnyString, isNullish } from '@ez4/utils';
@@ -6,19 +6,19 @@ import { isAnyString, isNullish } from '@ez4/utils';
 import { getReferenceBoolean, getReferenceNumber, getReferenceString, getReferenceTuple } from './reference';
 import { getLiteralBoolean, getLiteralNumber, getLiteralString, getLiteralTuple } from './value';
 
-export const getPropertyBoolean = (member: ModelProperty, reflection?: SourceMap) => {
+export const getPropertyBoolean = (member: ModelProperty, reflection?: ReflectionTypes) => {
   return getLiteralBoolean(member.value) ?? (reflection && getReferenceBoolean(member.value, reflection));
 };
 
-export const getPropertyNumber = (member: ModelProperty, reflection?: SourceMap) => {
+export const getPropertyNumber = (member: ModelProperty, reflection?: ReflectionTypes) => {
   return getLiteralNumber(member.value) ?? (reflection && getReferenceNumber(member.value, reflection));
 };
 
-export const getPropertyString = (member: ModelProperty, reflection?: SourceMap) => {
+export const getPropertyString = (member: ModelProperty, reflection?: ReflectionTypes) => {
   return getLiteralString(member.value) ?? (reflection && getReferenceString(member.value, reflection));
 };
 
-export const getPropertyTuple = (member: ModelProperty, reflection?: SourceMap) => {
+export const getPropertyTuple = (member: ModelProperty, reflection?: ReflectionTypes) => {
   return getLiteralTuple(member.value) ?? (reflection && getReferenceTuple(member.value, reflection));
 };
 

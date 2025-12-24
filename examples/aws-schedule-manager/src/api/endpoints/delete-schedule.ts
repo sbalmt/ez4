@@ -30,7 +30,7 @@ export async function deleteScheduleHandler(
   request: DeleteScheduleRequest,
   context: Service.Context<Api>
 ): Promise<DeleteScheduleResponse> {
-  const { eventDb, eventScheduler } = context;
+  const { eventDb, eventScheduler, statsService } = context;
   const { scheduleId } = request.parameters;
 
   const exists = await eventScheduler.getEvent(scheduleId);
@@ -42,6 +42,8 @@ export async function deleteScheduleHandler(
   await eventScheduler.deleteEvent(scheduleId);
 
   await deleteEvent(eventDb, scheduleId);
+
+  await statsService.countEvents();
 
   return {
     status: 204

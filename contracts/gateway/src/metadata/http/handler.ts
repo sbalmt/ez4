@@ -1,40 +1,37 @@
-import type { AllType, SourceMap, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpHandler } from './types';
 
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
+import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteHandlerError } from '../../errors/web/handler';
-import { getHttpProviderMetadata } from './provider';
+import { IncompleteHandlerError } from '../../errors/handler';
+import { getWebProviderMetadata } from '../provider';
 import { getHttpResponseMetadata } from './response';
 import { getHttpRequestMetadata } from './request';
+import { HttpNamespaceType } from './types';
 
 export const isHttpHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
 };
 
-export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[], external: boolean) => {
+export const getHttpHandlerMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  external: boolean
+) => {
   if (!isHttpHandlerDeclaration(type)) {
     return undefined;
   }
 
-  const { description, module } = type;
-
   const handler: Incomplete<HttpHandler> = {
-    ...(description && { description }),
-    ...(module && { module })
+    ...getFunctionSignature(type)
   };
 
-  const properties = new Set(['name', 'file', 'response']);
-
-  if ((handler.name = type.name)) {
-    properties.delete('name');
-  }
-
-  if ((handler.file = type.file)) {
-    properties.delete('file');
-  }
+  const properties = new Set(['response']);
 
   if (type.parameters) {
     const [{ value: requestType }, contextType] = type.parameters;
@@ -42,7 +39,7 @@ export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     handler.request = getHttpRequestMetadata(requestType, parent, reflection, errorList);
 
     if (contextType && !external) {
-      handler.provider = getHttpProviderMetadata(contextType.value, parent, reflection, errorList);
+      handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
     }
   }
 
@@ -50,15 +47,15 @@ export const getHttpHandlerMetadata = (type: AllType, parent: TypeModel, reflect
     properties.delete('response');
   }
 
-  if (isCompleteHandler(handler)) {
-    return handler;
+  if (!isCompleteHandler(handler)) {
+    errorList.push(new IncompleteHandlerError([...properties], type.file));
+
+    return undefined;
   }
 
-  errorList.push(new IncompleteHandlerError([...properties], type.file));
-
-  return undefined;
+  return handler;
 };
 
 const isCompleteHandler = (type: Incomplete<HttpHandler>): type is HttpHandler => {
-  return isObjectWith(type, ['name', 'file', 'response']);
+  return isObjectWith(type, ['response']) && isFunctionSignature(type);
 };

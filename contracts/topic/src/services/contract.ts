@@ -1,3 +1,4 @@
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
 import type { Exclusive } from '@ez4/utils';
 import type { TopicMessage, TopicRequest, TopicIncoming, TopicSubscriptionHandler, TopicSubscriptionListener } from './common';
@@ -59,6 +60,11 @@ export namespace Topic {
      * Enable and configure the FIFO mode options.
      */
     readonly fifoMode?: FifoMode<T>;
+
+    /**
+     * Variables associated to all subscriptions.
+     */
+    readonly variables?: LinkedVariables;
 
     /**
      * Service client.

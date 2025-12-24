@@ -3,6 +3,10 @@
     "type": "@ez4/database",
     "name": "TestDatabase",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestDatabase"
+    },
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -27,9 +31,13 @@
         "indexes": [],
         "stream": {
           "handler": {
-            "description": "Test table stream.",
             "name": "streamHandler",
-            "file": "test/models/output-stream.ts"
+            "description": "Test table stream.",
+            "file": "test/models/output-stream.ts",
+            "position": [
+              51,
+              1
+            ]
           },
           "logRetention": 14,
           "timeout": 10,
@@ -50,18 +58,19 @@
         "indexes": [],
         "stream": {
           "handler": {
-            "description": "Test table stream.",
             "name": "streamHandler",
-            "file": "test/models/output-stream.ts"
+            "description": "Test table stream.",
+            "file": "test/models/output-stream.ts",
+            "position": [
+              51,
+              1
+            ]
           },
           "variables": {
             "TEST_VAR": "test-literal-value"
           }
         }
       }
-    ],
-    "services": {
-      "selfClient": "TestDatabase"
-    }
+    ]
   }
 }

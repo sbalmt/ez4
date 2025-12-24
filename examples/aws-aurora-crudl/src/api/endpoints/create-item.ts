@@ -1,6 +1,7 @@
-import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
+import type { String } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
+import type { NewItemCategory, SetItemCategory } from '../types/category';
 import type { Api } from '../../api';
 
 import { createItem } from '../repository';
@@ -20,17 +21,7 @@ declare class CreateItemRequest implements Http.Request {
     /**
      * Item category.
      */
-    category?: {
-      /**
-       * Category name.
-       */
-      name: String.Size<1, 32>;
-
-      /**
-       * Category description.
-       */
-      description?: String.Size<1, 128>;
-    };
+    category?: NewItemCategory | SetItemCategory;
   };
 }
 

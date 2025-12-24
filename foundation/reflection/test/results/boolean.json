@@ -1,7 +1,12 @@
 {
   "78a29781cffb7f495b7fafb3f242b950:Boolean": {
+    "file": "test/types/boolean.ts",
     "type": "interface",
     "name": "Boolean",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

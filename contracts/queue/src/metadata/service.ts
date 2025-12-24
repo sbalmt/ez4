@@ -1,4 +1,4 @@
-import type { SourceMap, TypeModel } from '@ez4/reflection';
+import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueService } from '../types/service';
 
@@ -14,8 +14,9 @@ import {
 
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
+import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../types/service';
+import { createQueueService } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
 import { getQueueDeadLetter } from './deadletter';
@@ -24,7 +25,7 @@ import { getQueueMessage } from './message';
 import { getQueueFifoMode } from './fifo';
 import { isQueueService } from './utils';
 
-export const getQueueServices = (reflection: SourceMap) => {
+export const getQueueServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, QueueService> = {};
   const errorList: Error[] = [];
 
@@ -35,10 +36,8 @@ export const getQueueServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<QueueService> = { type: ServiceType, context: {} };
-    const properties = new Set(['subscriptions', 'schema']);
-
-    service.name = declaration.name;
+    const service = createQueueService(declaration.name);
+    const properties = new Set(['schema', 'subscriptions']);
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -110,7 +109,7 @@ export const getQueueServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -136,8 +135,8 @@ export const getQueueServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<QueueService>): type is QueueService => {
-  return !!type.name && !!type.schema && !!type.subscriptions && !!type.context;
+const isCompleteService = (type: Incomplete<QueueService>): type is QueueService => {
+  return isObjectWith(type, ['schema', 'subscriptions', 'variables', 'services']);
 };
 
 const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {

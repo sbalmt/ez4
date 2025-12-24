@@ -11,10 +11,16 @@ import { getQueueEdges, getQueueNodes } from './queue';
 import { getTopicEdges, getTopicNodes } from './topic';
 import { getDatabaseEdges, getDatabaseNodes } from './database';
 import { getStorageEdges, getStorageNodes } from './storage';
+import { getValidationEdges, getValidationNodes } from './validation';
+import { getFactoryEdges, getFactoryNodes } from './factory';
 
 export namespace TopologyGenerator {
   export const getTopologyOutput = (metadata: MetadataReflection) => {
-    const output = ['%%{init: { "layout": "elk", "theme": "light" } }%%', 'graph LR'];
+    const output = [
+      '%% Auto-generated topology diagram, any manual modifications will be lost during regeneration.',
+      '%%{init: { "layout": "elk", "theme": "light" } }%%',
+      'graph LR'
+    ];
 
     output.push(
       ...getGatewayNodes(metadata),
@@ -24,6 +30,8 @@ export namespace TopologyGenerator {
       ...getTopicNodes(metadata, getEdge),
       ...getDatabaseNodes(metadata),
       ...getStorageNodes(metadata),
+      ...getValidationNodes(metadata),
+      ...getFactoryNodes(metadata),
       ...getServiceEdges(metadata)
     );
 
@@ -71,7 +79,9 @@ export namespace TopologyGenerator {
         getQueueEdges(id, target, source) ??
         getTopicEdges(id, target, source) ??
         getDatabaseEdges(id, target, source) ??
-        getStorageEdges(id, target, source)
+        getStorageEdges(id, target, source) ??
+        getValidationEdges(id, target, source) ??
+        getFactoryEdges(id, target, source)
       );
     });
   };

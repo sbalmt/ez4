@@ -8,7 +8,7 @@ export declare class CategorySchema implements Database.Schema {
   /**
    * Category Id.
    */
-  id?: String.UUID;
+  id: String.UUID;
 
   /**
    * Category name.

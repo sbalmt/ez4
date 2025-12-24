@@ -17,8 +17,8 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
     prepareHandler: () => {
       return runDatabaseReset(service, options, context);
     },
-    bootstrapHandler: () => {
-      return runDatabaseMigration(service, options, context);
+    bootstrapHandler: async () => {
+      await runDatabaseMigration(service, options, context);
     },
     exportHandler: () => {
       return client;

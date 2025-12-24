@@ -45,9 +45,12 @@ export async function updateScheduleHandler(
   request: UpdateScheduleRequest,
   context: Service.Context<Api>
 ): Promise<UpdateScheduleResponse> {
-  const { eventDb, eventScheduler } = context;
+  const { eventDb, eventScheduler, dateValidation } = context;
   const { scheduleId } = request.parameters;
   const { date, message } = request.body;
+
+  // Use validation service rather than type validation.
+  await dateValidation.validate(date);
 
   const exists = await eventScheduler.getEvent(scheduleId);
 

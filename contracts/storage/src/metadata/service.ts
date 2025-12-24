@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketService } from '../types/service';
 
@@ -14,14 +14,15 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../types/service';
+import { createBucketService } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
 import { isBucketService } from './utils';
 import { getBucketEvent } from './event';
 import { getBucketCors } from './cors';
 
-export const getBucketServices = (reflection: SourceMap) => {
+export const getBucketServices = (reflection: ReflectionTypes) => {
   const allServices: Record<string, BucketService> = {};
   const errorList: Error[] = [];
 
@@ -32,11 +33,9 @@ export const getBucketServices = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<BucketService> = { type: ServiceType, context: {} };
+    const service = createBucketService(declaration.name);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -78,7 +77,7 @@ export const getBucketServices = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidService(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([], fileName));
       continue;
     }
@@ -97,6 +96,6 @@ export const getBucketServices = (reflection: SourceMap) => {
   };
 };
 
-const isValidService = (type: Incomplete<BucketService>): type is BucketService => {
-  return !!type.name && !!type.context;
+const isCompleteService = (type: Incomplete<BucketService>): type is BucketService => {
+  return isObjectWith(type, ['variables', 'services']);
 };

@@ -1,7 +1,12 @@
 {
   "432b7cf5a23289932dc9b8dadae79de1:Class": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "Class",
+    "position": {
+      "line": 39,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -129,7 +134,12 @@
         "type": "property",
         "name": "template3",
         "value": {
+          "file": "test/types/class.ts",
           "type": "object",
+          "position": {
+            "line": 25,
+            "character": 1
+          },
           "members": [
             {
               "type": "property",
@@ -181,8 +191,13 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:ClassWithModifiers": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "ClassWithModifiers",
+    "position": {
+      "line": 65,
+      "character": 1
+    },
     "modifiers": {
       "export": true,
       "declare": true
@@ -251,19 +266,34 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:EmptyClass": {
+    "file": "test/types/class.ts",
     "type": "class",
-    "name": "EmptyClass"
+    "name": "EmptyClass",
+    "position": {
+      "line": 3,
+      "character": 1
+    }
   },
   "432b7cf5a23289932dc9b8dadae79de1:DeclareClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "DeclareClass",
+    "position": {
+      "line": 7,
+      "character": 1
+    },
     "modifiers": {
       "declare": true
     }
   },
   "432b7cf5a23289932dc9b8dadae79de1:AbstractClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "AbstractClass",
+    "position": {
+      "line": 9,
+      "character": 1
+    },
     "modifiers": {
       "abstract": true
     },
@@ -291,8 +321,13 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:HeritageClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "HeritageClass",
+    "position": {
+      "line": 14,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "432b7cf5a23289932dc9b8dadae79de1:AbstractClass"
@@ -328,8 +363,13 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:ConcreteClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "ConcreteClass",
+    "position": {
+      "line": 37,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "432b7cf5a23289932dc9b8dadae79de1:TemplateClass",
@@ -369,12 +409,22 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:EmptyInterface": {
+    "file": "test/types/class.ts",
     "type": "interface",
-    "name": "EmptyInterface"
+    "name": "EmptyInterface",
+    "position": {
+      "line": 5,
+      "character": 1
+    }
   },
   "432b7cf5a23289932dc9b8dadae79de1:TemplateClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "TemplateClass",
+    "position": {
+      "line": 25,
+      "character": 1
+    },
     "heritage": [
       {
         "path": "432b7cf5a23289932dc9b8dadae79de1:BaseClass"
@@ -391,8 +441,13 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:BaseClass": {
+    "file": "test/types/class.ts",
     "type": "class",
     "name": "BaseClass",
+    "position": {
+      "line": 21,
+      "character": 1
+    },
     "members": [
       {
         "type": "property",

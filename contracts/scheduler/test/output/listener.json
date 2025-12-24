@@ -3,16 +3,26 @@
     "type": "@ez4/cron",
     "name": "TestScheduler",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Scheduler for testing cron listener.",
     "expression": "rate(1 minute)",
     "target": {
       "listener": {
         "name": "targetListener",
-        "file": "test/input/output-listener.ts"
+        "file": "test/input/output-listener.ts",
+        "position": [
+          15,
+          1
+        ]
       },
       "handler": {
         "name": "targetHandler",
-        "file": "test/input/output-listener.ts"
+        "file": "test/input/output-listener.ts",
+        "position": [
+          17,
+          1
+        ]
       }
     }
   }

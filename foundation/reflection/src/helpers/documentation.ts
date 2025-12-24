@@ -10,5 +10,5 @@ export const getNodeDocumentation = (node: Node, checker: TypeChecker) => {
     return lines.join('\n');
   }
 
-  return null;
+  return undefined;
 };

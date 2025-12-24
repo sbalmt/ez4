@@ -7,6 +7,13 @@
   "TestService": {
     "type": "@ez4/http",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    },
     "name": "TestService",
     "routes": [
       {
@@ -17,6 +24,10 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-variables.ts",
+          "position": [
+            27,
+            1
+          ],
           "request": {},
           "provider": {
             "services": {
@@ -32,13 +43,6 @@
           }
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfSettings": "@variables"
-    }
+    ]
   }
 }

@@ -1,7 +1,12 @@
 {
   "fd0a3ebbd6101482004328124830ac6c:Array": {
+    "file": "test/types/array.ts",
     "type": "interface",
     "name": "Array",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

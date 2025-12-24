@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpCors } from './types';
@@ -19,7 +19,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../../errors/http/cors';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cors');
@@ -28,7 +28,7 @@ export const isHttpCorsDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getHttpCorsMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpCorsMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getCorsType(type, parent, errorList);
   }

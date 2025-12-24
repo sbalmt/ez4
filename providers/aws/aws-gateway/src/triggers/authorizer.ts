@@ -1,6 +1,5 @@
 import type { HttpRoute, HttpService, WsConnection, WsService } from '@ez4/gateway/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { FunctionParameters, Variables } from '@ez4/aws-function';
 import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
@@ -46,7 +45,7 @@ export const getAuthorizerFunction = (
 
   let authorizerState = tryGetFunctionState(context, internalName, options);
 
-  const request = authorizer.request;
+  const { provider, request } = authorizer;
 
   if (!authorizerState) {
     const authorizerName = getFunctionName(service, authorizer, options);
@@ -66,10 +65,11 @@ export const getAuthorizerFunction = (
       querySchema: request?.query,
       timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
       memory: memory ?? Defaults.Memory,
-      services: service.services,
+      services: provider?.services,
       context: service.context,
       debug: options.debug,
       tags: options.tags,
+      variables: [options.variables, service.variables],
       preferences: {
         ...defaults.preferences,
         ...target.preferences
@@ -84,19 +84,21 @@ export const getAuthorizerFunction = (
         functionName: listener.name,
         sourceFile: listener.file,
         module: listener.module
-      },
-      variables: {
-        ...options.variables,
-        ...service.variables
       }
     });
 
     context.setServiceState(authorizerState, internalName, options);
   }
 
-  if (target.variables) {
-    assignVariables(authorizerState.parameters, target.variables);
-  }
+  const getPriorVariables = authorizerState.parameters.getFunctionVariables;
+
+  authorizerState.parameters.getFunctionVariables = () => {
+    return {
+      ...getPriorVariables(),
+      ...target.variables,
+      ...provider?.variables
+    };
+  };
 
   return (
     getAuthorizer(state, gatewayState, authorizerState) ??
@@ -109,13 +111,6 @@ export const getAuthorizerFunction = (
       })
     })
   );
-};
-
-const assignVariables = (parameters: FunctionParameters, variables: Variables) => {
-  parameters.variables = {
-    ...parameters.variables,
-    ...variables
-  };
 };
 
 const getIdentitySources = (schema: ObjectSchema | undefined | null) => {

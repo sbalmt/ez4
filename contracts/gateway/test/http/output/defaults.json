@@ -8,11 +8,17 @@
     "type": "@ez4/http",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "routes": [],
     "defaults": {
       "listener": {
         "name": "testListener",
-        "file": "test/http/input/output-defaults.ts"
+        "file": "test/http/input/output-defaults.ts",
+        "position": [
+          19,
+          1
+        ]
       },
       "httpErrors": {
         "CustomError": 400

@@ -6,6 +6,8 @@ export * from './utils/nullish';
 export * from './types/string';
 export * from './types/context';
 
+export * from './richtypes/validator';
+
 export * from './schema/any';
 export * from './schema/boolean';
 export * from './schema/number';

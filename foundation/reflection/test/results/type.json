@@ -1,7 +1,12 @@
 {
   "fbe7e90b1e5bf6fb192fdf23fc4ea18c:Template": {
+    "file": "test/types/type.ts",
     "type": "interface",
     "name": "Template",
+    "position": {
+      "line": 10,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -10,7 +15,12 @@
         "type": "property",
         "name": "generic1",
         "value": {
+          "file": "test/types/type.ts",
           "type": "object",
+          "position": {
+            "line": 1,
+            "character": 19
+          },
           "members": [
             {
               "type": "property",
@@ -33,7 +43,12 @@
         "type": "property",
         "name": "generic2",
         "value": {
+          "file": "test/types/type.ts",
           "type": "object",
+          "position": {
+            "line": 1,
+            "character": 19
+          },
           "members": [
             {
               "type": "property",
@@ -57,7 +72,12 @@
         "type": "property",
         "name": "generic3",
         "value": {
+          "file": "test/types/type.ts",
           "type": "object",
+          "position": {
+            "line": 1,
+            "character": 19
+          },
           "members": [
             {
               "type": "property",
@@ -81,7 +101,12 @@
         "type": "property",
         "name": "generic4",
         "value": {
+          "file": "test/types/type.ts",
           "type": "object",
+          "position": {
+            "line": 1,
+            "character": 19
+          },
           "members": [
             {
               "type": "property",
@@ -105,7 +130,12 @@
         "type": "property",
         "name": "array1",
         "value": {
+          "file": "test/types/type.ts",
           "type": "object",
+          "position": {
+            "line": 1,
+            "character": 19
+          },
           "members": [
             {
               "type": "property",
@@ -135,7 +165,12 @@
         "value": {
           "type": "array",
           "element": {
+            "file": "test/types/type.ts",
             "type": "object",
+            "position": {
+              "line": 1,
+              "character": 19
+            },
             "members": [
               {
                 "type": "property",

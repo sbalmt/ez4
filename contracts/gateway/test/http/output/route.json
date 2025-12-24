@@ -8,6 +8,8 @@
     "type": "@ez4/http",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "routes": [
       {
         "path": "ANY /test-route-1",
@@ -16,6 +18,10 @@
         "handler": {
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
+          "position": [
+            32,
+            1
+          ],
           "response": {
             "status": 204
           }
@@ -26,6 +32,10 @@
         "handler": {
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
+          "position": [
+            38,
+            1
+          ],
           "response": {
             "status": 204
           }

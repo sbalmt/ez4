@@ -1,6 +1,6 @@
-import type { WebPathParameters } from '../web/parameters';
-import type { WebQueryStrings } from '../web/query';
-import type { WebHeaders } from '../web/headers';
+import type { WebPathParameters } from '../parameters';
+import type { WebQueryStrings } from '../query';
+import type { WebHeaders } from '../headers';
 
 /**
  * Authorization request.

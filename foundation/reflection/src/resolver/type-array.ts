@@ -22,13 +22,13 @@ export const isTypeArray = (node: Node): node is ArrayTypeNode => {
 
 export const tryTypeArray = (node: Node, context: Context, state: State) => {
   if (!isTypeArray(node)) {
-    return null;
+    return undefined;
   }
 
   const elementType = tryTypes(node.elementType, context, state);
 
   if (!elementType) {
-    return null;
+    return undefined;
   }
 
   return createArray(elementType, state);

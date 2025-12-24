@@ -1,7 +1,7 @@
 import type { MetadataReflection } from '@ez4/project/library';
 import type { GeneratorInput } from '../utils/graph';
 
-import { isHttpImport, isHttpService } from '@ez4/gateway/library';
+import { isHttpImport, isHttpService, isWsService } from '@ez4/gateway/library';
 
 import { getSubgraphOutput } from '../utils/graph';
 import { getEdgeStyle, getNodeImportStyle, getNodeStyle } from '../utils/theme';
@@ -15,7 +15,7 @@ export const getGatewayNodes = (metadata: MetadataReflection) => {
       `classDef ez4ApiEdge ${getEdgeStyle(ThemeColor.Gateway)}`
     ],
     generator: ({ name, resource }) => {
-      if (isHttpService(resource)) {
+      if (isHttpService(resource) || isWsService(resource)) {
         return {
           shape: `${name}@{ shape: circle, label: "${resource.name}" }`,
           style: `class ${name} ez4Api`
@@ -35,16 +35,16 @@ export const getGatewayNodes = (metadata: MetadataReflection) => {
 };
 
 export const getGatewayEdges = (id: string, target: GeneratorInput, source: GeneratorInput) => {
-  if (isHttpImport(target.resource)) {
+  if (isHttpService(target.resource) || isWsService(target.resource)) {
     return {
-      edge: `${target.name} ${id}@-.-> ${source.name}`,
+      edge: `${target.name} ${id}@--> ${source.name}`,
       style: `class ${id} ez4ApiEdge`
     };
   }
 
-  if (isHttpService(target.resource)) {
+  if (isHttpImport(target.resource)) {
     return {
-      edge: `${target.name} ${id}@--> ${source.name}`,
+      edge: `${target.name} ${id}@-.-> ${source.name}`,
       style: `class ${id} ez4ApiEdge`
     };
   }

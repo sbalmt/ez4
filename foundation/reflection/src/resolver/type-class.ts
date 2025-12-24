@@ -1,10 +1,10 @@
 import type { ClassDeclaration, Node } from 'typescript';
-import type { ClassModifiers, EveryMemberType, ModelHeritage, TypeClass } from '../types';
+import type { ClassModifiers, EveryMemberType, ModelHeritage, TypeClass, TypePosition } from '../types';
 import type { Context, State } from './common';
 
 import { isClassDeclaration } from 'typescript';
 
-import { getNodeFilePath } from '../helpers/node';
+import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { getNodeDocumentation } from '../helpers/documentation';
 import { getNodeModifiers } from '../helpers/modifier';
 import { getPathModule } from '../utils/module';
@@ -16,18 +16,21 @@ export type ClassNodes = ClassDeclaration;
 
 export const createClass = (
   name: string,
-  file: string | null,
-
-  description: string | null,
-  modifiers: ClassModifiers | null,
+  file: string | undefined,
+  position: TypePosition | undefined,
+  description: string | undefined,
+  modifiers: ClassModifiers | undefined,
   heritage?: ModelHeritage[],
   members?: EveryMemberType[]
 ): TypeClass => {
+  const module = file && getPathModule(file);
+
   return {
     type: TypeName.Class,
     name,
     ...(file && { file }),
-    ...(file && { module: getPathModule(file) }),
+    ...(position && { position }),
+    ...(module && { module }),
     ...(description && { description }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),
@@ -41,7 +44,7 @@ export const isTypeClass = (node: Node): node is ClassNodes => {
 
 export const tryTypeClass = (node: Node, context: Context, state: State) => {
   if (context.options.ignoreClass || !isTypeClass(node) || !node.name) {
-    return null;
+    return undefined;
   }
 
   if (context.cache.has(node)) {
@@ -49,11 +52,12 @@ export const tryTypeClass = (node: Node, context: Context, state: State) => {
   }
 
   const name = node.name.getText();
-  const file = context.options.includePath ? getNodeFilePath(node) : null;
+  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
   const description = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
-  const reflectedType = createClass(name, file, description, modifiers);
+  const reflectedType = createClass(name, file, position, description, modifiers);
 
   context.cache.set(node, reflectedType);
 

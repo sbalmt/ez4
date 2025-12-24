@@ -1,5 +1,5 @@
-import type { String } from '@ez4/schema';
 import type { Cron } from '@ez4/scheduler';
+import type { String } from '@ez4/schema';
 
 /**
  * Event request example.

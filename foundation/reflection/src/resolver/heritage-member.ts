@@ -14,7 +14,7 @@ import { isTypeAlias } from './type-alias';
 import { isTypeClass } from './type-class';
 import { getNewState } from './common';
 
-export const createModelHeritage = (path: string, namespace?: string | null, members?: EveryMemberType[]): ModelHeritage => {
+export const createModelHeritage = (path: string, namespace?: string | undefined, members?: EveryMemberType[]): ModelHeritage => {
   return {
     path,
     ...(namespace && { namespace }),
@@ -28,13 +28,13 @@ export const isHeritageMember = (node: Node): node is ExpressionWithTypeArgument
 
 export const tryHeritageMember = (node: Node, context: Context, state: State) => {
   if (!isHeritageMember(node)) {
-    return null;
+    return undefined;
   }
 
   const declaration = getNodeTypeDeclaration(node.expression, context.checker);
 
   if (!declaration || isInternalType(declaration)) {
-    return null;
+    return undefined;
   }
 
   if (!hasModifierExport(declaration)) {
@@ -57,5 +57,5 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
     return createModelHeritage(identity, namespace, results);
   }
 
-  return null;
+  return undefined;
 };

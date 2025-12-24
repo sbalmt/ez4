@@ -1,8 +1,15 @@
 {
   "TestDatabase": {
     "type": "@ez4/database",
-    "context": {},
     "name": "TestDatabase",
+    "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    },
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -28,17 +35,14 @@
         "stream": {
           "handler": {
             "name": "streamHandler",
-            "file": "test/models/output-variables.ts"
+            "file": "test/models/output-variables.ts",
+            "position": [
+              33,
+              1
+            ]
           }
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfSettings": "@variables"
-    }
+    ]
   }
 }

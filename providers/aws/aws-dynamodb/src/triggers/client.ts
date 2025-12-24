@@ -3,7 +3,6 @@ import type { DatabaseService } from '@ez4/database/library';
 
 import { getTableState } from '../table/utils';
 import { getTableRepository } from '../utils/repository';
-import { LocalOptionsNotFoundError } from '../local/errors';
 import { getConnectionOptions } from '../local/options';
 import { getClientInstance } from '../client/utils';
 import { Client } from '../client';
@@ -17,15 +16,17 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
     return tableState.entryId;
   });
 
+  const clientOptions = JSON.stringify({
+    repository: getTableRepository(service, options),
+    debug: options.debug
+  });
+
   return {
-    connectionIds: tableIds,
-    dependencyIds: tableIds,
-    from: '@ez4/aws-dynamodb/client',
     module: 'Client',
-    constructor: `make(${JSON.stringify({
-      repository: getTableRepository(service, options),
-      debug: options.debug
-    })})`
+    from: '@ez4/aws-dynamodb/client',
+    constructor: `@{EZ4_MODULE_IMPORT}.make(${clientOptions})`,
+    connectionIds: tableIds,
+    dependencyIds: tableIds
   };
 };
 
@@ -38,10 +39,6 @@ export const prepareEmulatorClient = (event: EmulateClientEvent) => {
 
   if (options.local) {
     const connection = getConnectionOptions(service, options);
-
-    if (!connection) {
-      throw new LocalOptionsNotFoundError(service.name);
-    }
 
     return Client.make({
       repository: getTableRepository(service, options),

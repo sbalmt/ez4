@@ -1,7 +1,12 @@
 {
   "640073facdace3ec31d6c53cd61c4476:Internal": {
+    "file": "test/types/internal.ts",
     "type": "interface",
     "name": "Internal",
+    "position": {
+      "line": 13,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },
@@ -63,7 +68,12 @@
         "type": "property",
         "name": "required1",
         "value": {
+          "file": "test/types/internal.ts",
           "type": "object",
+          "position": {
+            "line": 8,
+            "character": 20
+          },
           "members": [
             {
               "type": "property",
@@ -90,7 +100,12 @@
           "type": "union",
           "elements": [
             {
+              "file": "test/types/internal.ts",
               "type": "object",
+              "position": {
+                "line": 8,
+                "character": 20
+              },
               "members": [
                 {
                   "type": "property",
@@ -110,7 +125,12 @@
               ]
             },
             {
+              "file": "test/types/internal.ts",
               "type": "object",
+              "position": {
+                "line": 26,
+                "character": 37
+              },
               "members": [
                 {
                   "type": "property",
@@ -128,7 +148,12 @@
         "type": "property",
         "name": "partial1",
         "value": {
+          "file": "test/types/internal.ts",
           "type": "object",
+          "position": {
+            "line": 3,
+            "character": 21
+          },
           "members": [
             {
               "type": "property",
@@ -171,7 +196,12 @@
           "type": "union",
           "elements": [
             {
+              "file": "test/types/internal.ts",
               "type": "object",
+              "position": {
+                "line": 3,
+                "character": 21
+              },
               "members": [
                 {
                   "type": "property",
@@ -207,7 +237,12 @@
               ]
             },
             {
+              "file": "test/types/internal.ts",
               "type": "object",
+              "position": {
+                "line": 30,
+                "character": 36
+              },
               "members": [
                 {
                   "type": "property",
@@ -232,7 +267,12 @@
     ]
   },
   "640073facdace3ec31d6c53cd61c4476:InternalHeritage": {
+    "file": "test/types/internal.ts",
     "type": "interface",
+    "position": {
+      "line": 1,
+      "character": 1
+    },
     "name": "InternalHeritage"
   }
 }

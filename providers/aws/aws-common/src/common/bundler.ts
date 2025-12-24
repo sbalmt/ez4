@@ -1,4 +1,4 @@
-import type { ContextSource } from '@ez4/project/library';
+import type { LinkedContext } from '@ez4/project/library';
 
 import { build, formatMessages } from 'esbuild';
 import { readFile, stat } from 'node:fs/promises';
@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
+import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
 
 import { SourceFileError } from '../errors/bundler';
 import { Logger } from './logger';
@@ -27,7 +27,7 @@ export type BundlerOptions = {
   templateFile: string;
   handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
-  context?: Record<string, ContextSource>;
+  context?: Record<string, LinkedContext>;
   define?: Record<string, string>;
   debug?: boolean;
 };
@@ -169,8 +169,25 @@ const getEntrypointCode = async (options: BundlerOptions) => {
   return `
 import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
 ${listener ? `import { ${listener.functionName} as dispatch } from '${getEntrypointImport(listener)}'` : `const dispatch = () => {}`};
-${context.packages}
+${context.packages.join('\n')}
 
+const __EZ4_MAKE_LAZY_CONTEXT_FACTORY = (context)=> {
+  return new Proxy(context, {
+    get: (target, property) => {
+      if (typeof property !== 'string' || !(property in target)) {
+        throw new Error(\`Context service '\${property.toString()}' not found.\`);
+      }
+
+      if (target[property] instanceof Function) {
+        target[property] = target[property]();
+      }
+
+      return target[property];
+    }
+  });
+}
+
+const __EZ4_REPOSITORY = ${context.repository};
 const __EZ4_CONTEXT = ${context.services};
 
 ${template}
@@ -181,21 +198,54 @@ const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
   return entrypoint.module ?? `./${entrypoint.sourceFile}`;
 };
 
-const buildServiceContext = (context: Record<string, ContextSource>) => {
+const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
+  const repository: Record<string, string> = {};
   const packages: string[] = [];
-  const services: string[] = [];
 
-  for (const serviceName of Object.keys(context).sort()) {
-    const { constructor, module, from } = context[serviceName];
+  const buildContext = (linkedContext: Record<string, LinkedContext>) => {
+    const services: string[] = [];
 
-    const service = `${serviceName}${module}`;
+    for (const property of Object.keys(linkedContext).sort()) {
+      const { constructor, module, from, context } = linkedContext[property];
 
-    packages.push(`import { ${module} as ${service} } from '${from}';`);
-    services.push(`${serviceName}: ${service}.${constructor}`);
-  }
+      const constructorName = toPascalCase(`${property}${module}`);
+
+      const constructorCode = applyTemplateVariables(constructor, {
+        EZ4_MODULE_CONTEXT: context && buildContext(context),
+        EZ4_MODULE_IMPORT: constructorName
+      });
+
+      const constructorHash = `__EZ4_${toSnakeCase(hashData(constructorCode)).toUpperCase()}`;
+
+      if (!(constructorHash in repository)) {
+        packages.push(`import { ${module} as ${constructorName} } from '${from}';`);
+
+        repository[constructorHash] = constructorCode;
+      }
+
+      services.push(`['${property}']: __EZ4_REPOSITORY.${constructorHash}`);
+    }
+
+    return `__EZ4_MAKE_LAZY_CONTEXT_FACTORY({${services.join(',')}})`;
+  };
+
+  const services = buildContext(linkedContext);
+
+  const factory = Object.entries(repository).map(([property, service]) => `['${property}']: () => ${service}`);
 
   return {
-    packages: packages.join('\n'),
-    services: `{${services.join(',\n')}}`
+    repository: `{${factory.join(',')}}`,
+    packages,
+    services
   };
+};
+
+const applyTemplateVariables = (constructor: string, variables: Record<string, string | undefined>) => {
+  return constructor.replaceAll(/@\{([\w_]+)\}/g, (_, variableName) => {
+    if (!(variableName in variables) || isNullish(variables[variableName])) {
+      throw new Error(`Template variable ${variableName} isn't expected.`);
+    }
+
+    return variables[variableName];
+  });
 };

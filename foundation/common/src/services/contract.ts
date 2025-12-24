@@ -1,14 +1,6 @@
 import type { Service as RichService } from '../richtypes/service';
-
-import type {
-  ServiceAnyEvent,
-  ServiceBeginEvent,
-  ServiceDoneEvent,
-  ServiceEndEvent,
-  ServiceErrorEvent,
-  ServiceReadyEvent,
-  ServiceRequest
-} from './common';
+import type { ServiceAnyEvent, ServiceBeginEvent, ServiceDoneEvent, ServiceEndEvent, ServiceErrorEvent, ServiceReadyEvent } from './event';
+import type { ServiceRequest } from './request';
 
 export namespace Service {
   export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;
@@ -19,7 +11,7 @@ export namespace Service {
   export type EndEvent<T extends ServiceRequest> = ServiceEndEvent<T>;
 
   /**
-   * Service events listener.
+   * Function to listen to the service events.
    */
   export type Listener<T extends ServiceRequest> = (event: AnyEvent<T>, context: Context<any>) => Promise<void> | void;
 
@@ -35,11 +27,11 @@ export namespace Service {
     /**
      * All services associated to the provider.
      */
-    services?: Record<string, unknown>;
+    readonly services?: Record<string, unknown>;
 
     /**
      * Service client provided.
      */
-    client: unknown;
+    readonly client: unknown;
   }
 }

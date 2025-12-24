@@ -1,5 +1,5 @@
+import type { FunctionParameters, FunctionVariables } from '@ez4/aws-function';
 import type { TopicMessageSchema } from '@ez4/topic/library';
-import type { FunctionParameters } from '@ez4/aws-function';
 import type { ContextSource } from '@ez4/project/library';
 
 export type SubscriptionFunction = {
@@ -14,11 +14,12 @@ export type SubscriptionEntryPoint = SubscriptionFunction & {
 
 export type SubscriptionFunctionParameters = Omit<
   FunctionParameters,
-  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'sourceFile' | 'handlerName'
+  'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: SubscriptionEntryPoint;
   listener?: SubscriptionFunction;
   messageSchema?: TopicMessageSchema;
   context?: Record<string, ContextSource>;
+  variables: (FunctionVariables | undefined)[];
   debug?: boolean;
 };

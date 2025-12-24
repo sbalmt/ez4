@@ -1,5 +1,5 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
-import type { EveryType, SourceMap, TypeClass, TypeObject } from '@ez4/reflection';
+import type { EveryType, ReflectionTypes, TypeClass, TypeObject } from '@ez4/reflection';
 import type { ServiceEmulator, EmulateServiceEvent, EmulateClientEvent, EmulatorRequestEvent, EmulatorResponse } from '../emulator/types';
 import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/events';
 import type { ResourceOutput, ResourceOutputEvent } from '../deploy/output';
@@ -24,7 +24,7 @@ export type AsyncEventTrigger<T extends keyof AsyncEvent> = (handler: AsyncEvent
 export type SyncEvent = {
   'reflection:loadFile': (file: string) => SyncEventResult<string>;
   'reflection:typeObject': (type: TypeObject) => SyncEventResult<EveryType>;
-  'metadata:getServices': (reflection: SourceMap) => SyncEventResult<MetadataServiceResult>;
+  'metadata:getServices': (reflection: ReflectionTypes) => SyncEventResult<MetadataServiceResult>;
   'metadata:getLinkedService': (type: TypeClass) => SyncEventResult<string>;
   'generator:getUsageHelp': (event: GenerateHelpEvent) => SyncEventResult<GeneratorUsageHelp>;
   'deploy:resourceOutput': (event: ResourceOutputEvent) => SyncEventResult<ResourceOutput>;

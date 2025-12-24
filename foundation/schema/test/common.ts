@@ -1,10 +1,11 @@
-import type { SchemaContextOptions } from '@ez4/schema/library';
+import type { SchemaContextOptions } from '@ez4/schema';
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, ok } from 'node:assert/strict';
 
-import { createSchemaContext, getAnySchema } from '@ez4/schema/library';
+import { createSchemaContext } from '@ez4/schema';
 import { buildReflection } from '@ez4/project/library';
+import { getAnySchema } from '@ez4/schema/library';
 
 export type TestFileOptions = SchemaContextOptions & {
   overwrite?: boolean;

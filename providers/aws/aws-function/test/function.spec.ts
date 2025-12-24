@@ -60,13 +60,13 @@ describe('function', () => {
       description: 'EZ4 Test lambda',
       handlerName: 'main',
       sourceFile,
-      variables: {
-        test1: 'ez4-variable'
-      },
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
       },
+      getFunctionVariables: () => ({
+        test1: 'ez4-variable'
+      }),
       getFunctionFiles: () => {
         return [sourceFile, [sourceFile]];
       },
@@ -96,10 +96,10 @@ describe('function', () => {
     resource.parameters.timeout = 10;
     resource.parameters.memory = 256;
 
-    resource.parameters.variables = {
+    resource.parameters.getFunctionVariables = () => ({
       test1: 'ez4-variable',
       test2: 'ez4-variable-new'
-    };
+    });
 
     const { state } = await assertDeploy(functionId, localState, lastState);
 

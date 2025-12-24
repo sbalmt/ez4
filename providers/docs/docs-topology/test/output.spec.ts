@@ -1,7 +1,7 @@
 import { buildMetadata } from '@ez4/project/library';
 
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual } from 'node:assert/strict';
-import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import { TopologyGenerator } from '../src/generator/topology';
@@ -14,7 +14,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   const outputContent = TopologyGenerator.getTopologyOutput(metadata);
 
-  if (overwrite) {
+  if (!existsSync(fileName) || overwrite) {
     writeFileSync(outputFile, outputContent);
   } else {
     deepEqual(outputContent, readFileSync(outputFile).toString());
@@ -22,12 +22,14 @@ const testFile = (fileName: string, overwrite = false) => {
 };
 
 describe('topology documentation (mermaid output)', () => {
-  it('assert :: api', () => testFile('api', true));
-  it('assert :: bucket', () => testFile('bucket', true));
-  it('assert :: database', () => testFile('database', true));
-  it('assert :: scheduler', () => testFile('scheduler', true));
-  it('assert :: queue', () => testFile('queue', true));
-  it('assert :: topic', () => testFile('topic', true));
-  it('assert :: topic with queue', () => testFile('topic-queue', true));
-  it('assert :: cdn', () => testFile('cdn', true));
+  it('assert :: api', () => testFile('api'));
+  it('assert :: bucket', () => testFile('bucket'));
+  it('assert :: database', () => testFile('database'));
+  it('assert :: scheduler', () => testFile('scheduler'));
+  it('assert :: queue', () => testFile('queue'));
+  it('assert :: topic', () => testFile('topic'));
+  it('assert :: topic with queue', () => testFile('topic-queue'));
+  it('assert :: cdn', () => testFile('cdn'));
+  it('assert :: validation', () => testFile('validation'));
+  it('assert :: factory', () => testFile('factory'));
 });

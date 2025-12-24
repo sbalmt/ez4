@@ -16,6 +16,8 @@ export type InputOptions = {
   arguments?: string[];
   suppress?: boolean;
   force?: boolean;
+  inspect?: boolean;
+  coverage?: boolean;
   debug?: boolean;
   reset?: boolean;
   local?: boolean;
@@ -50,12 +52,20 @@ export const getInputOptions = () => {
         options.projectFile = input[++index];
         break;
 
-      case '--suppress':
-        options.suppress = true;
-        break;
-
       case '--force':
         options.force = true;
+        break;
+
+      case '--inspect':
+        options.inspect = true;
+        break;
+
+      case '--coverage':
+        options.coverage = true;
+        break;
+
+      case '--suppress':
+        options.suppress = true;
         break;
 
       case '--debug':

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketEvent } from '../types/common';
@@ -21,15 +21,15 @@ import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } 
 import { getEventHandler } from './handler';
 import { isBucketEvent } from './utils';
 
-export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeEvent(type, parent, reflection, errorList);
+    return getTypeEvent(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeEvent(declaration, parent, reflection, errorList);
+    return getTypeEvent(declaration, parent, errorList);
   }
 
   return undefined;
@@ -39,9 +39,9 @@ const isValidEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
   return !!type.handler;
 };
 
-const getTypeEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -54,16 +54,10 @@ const getTypeEvent = (type: AllType, parent: TypeModel, reflection: SourceMap, e
     return undefined;
   }
 
-  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel,
-  parent: TypeModel,
-  members: MemberType[],
-  reflection: SourceMap,
-  errorList: Error[]
-) => {
+const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const event: Incomplete<BucketEvent> = {};
   const properties = new Set(['handler']);
 
@@ -86,7 +80,7 @@ const getTypeFromMembers = (
         break;
 
       case 'handler':
-        event.handler = getEventHandler(member.value, reflection, errorList);
+        event.handler = getEventHandler(member.value, errorList);
         break;
 
       case 'memory':

@@ -40,7 +40,7 @@ export const tryTypeString = (node: Node, context: Context) => {
       return createString(type, current.text);
     }
 
-    return null;
+    return undefined;
   };
 
   const result = resolver(node, 'default');

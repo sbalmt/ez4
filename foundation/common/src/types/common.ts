@@ -1,6 +1,3 @@
-export type ServiceListener = {
-  name: string;
-  description?: string;
-  module?: string;
-  file: string;
-};
+import type { FunctionSignature } from '../reflection/function';
+
+export type ServiceListener = FunctionSignature;

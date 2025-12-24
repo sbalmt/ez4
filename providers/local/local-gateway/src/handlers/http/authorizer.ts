@@ -1,9 +1,11 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { HttpService } from '@ez4/gateway/library';
 import type { Http } from '@ez4/gateway';
 import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../../utils/request';
@@ -18,8 +20,10 @@ export const processHttpAuthorization = async (
     return undefined;
   }
 
-  const provider = route.handler.provider;
-  const clients = provider?.services && context.makeClients(provider.services);
+  const provider = route.authorizer.provider;
+  const services = provider?.services ?? {};
+
+  const clients = await context.makeClients(services);
 
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
@@ -40,13 +44,17 @@ export const processHttpAuthorization = async (
     path: route.path
   };
 
+  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    return resolveValidation(value, clients, context.type);
+  };
+
   try {
     await onBegin(module, clients, request);
 
     if (route.authorizer?.request) {
-      Object.assign(request, await getIncomingRequestHeaders(route.authorizer.request, route));
-      Object.assign(request, await getIncomingRequestParameters(route.authorizer.request, route));
-      Object.assign(request, await getIncomingRequestQuery(route.authorizer.request, route));
+      Object.assign(request, await getIncomingRequestHeaders(route.authorizer.request, route, onCustomValidation));
+      Object.assign(request, await getIncomingRequestParameters(route.authorizer.request, route, onCustomValidation));
+      Object.assign(request, await getIncomingRequestQuery(route.authorizer.request, route, onCustomValidation));
     }
 
     await onReady(module, clients, request);

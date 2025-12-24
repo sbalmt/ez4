@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { deepEqual, rejects } from 'node:assert';
 
 import { HttpBadRequestError } from '@ez4/gateway';
-import { getRequestBody, getResponseBody } from '@ez4/gateway/utils';
+import { resolveRequestBody, resolveResponseBody } from '@ez4/gateway/utils';
 import { NamingStyle, SchemaType } from '@ez4/schema';
 
 describe('http body utils', () => {
@@ -33,7 +33,7 @@ describe('http body utils', () => {
       }
     };
 
-    const bodyOutput = await getRequestBody(bodyInput, bodySchema, {
+    const bodyOutput = await resolveRequestBody(bodyInput, bodySchema, {
       namingStyle: NamingStyle.SnakeCase
     });
 
@@ -70,7 +70,7 @@ describe('http body utils', () => {
       }
     };
 
-    await rejects(() => getRequestBody(bodyInput, bodySchema), HttpBadRequestError);
+    await rejects(() => resolveRequestBody(bodyInput, bodySchema), HttpBadRequestError);
   });
 
   it('assert :: get response body', async () => {
@@ -102,7 +102,7 @@ describe('http body utils', () => {
       Qux: undefined
     };
 
-    const bodyOutput = await getResponseBody(bodyInput, bodySchema, {
+    const bodyOutput = await resolveResponseBody(bodyInput, bodySchema, {
       namingStyle: NamingStyle.SnakeCase
     });
 

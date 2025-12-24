@@ -1,7 +1,12 @@
 {
   "ca22826a98d5fb9f7890b2fb31ad7cc9:String": {
+    "file": "test/types/string.ts",
     "type": "interface",
     "name": "String",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

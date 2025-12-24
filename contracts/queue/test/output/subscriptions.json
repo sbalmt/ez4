@@ -8,6 +8,10 @@
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {
+      "selfClient": "TestQueue"
+    },
     "description": "Queue to test subscriptions.",
     "schema": {
       "type": "object",
@@ -25,22 +29,27 @@
         "batch": 5,
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-subscriptions.ts"
+          "file": "test/input/output-subscriptions.ts",
+          "position": [
+            42,
+            1
+          ]
         }
       },
       {
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-subscriptions.ts"
+          "file": "test/input/output-subscriptions.ts",
+          "position": [
+            42,
+            1
+          ]
         },
         "memory": 128,
         "variables": {
           "TEST_VAR": "test-literal-value"
         }
       }
-    ],
-    "services": {
-      "selfClient": "TestQueue"
-    }
+    ]
   }
 }

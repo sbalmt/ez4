@@ -23,7 +23,7 @@ export const isTypeTuple = (node: Node): node is TupleTypeNode => {
 
 export const tryTypeTuple = (node: Node, context: Context, state: State) => {
   if (!isTupleTypeNode(node)) {
-    return null;
+    return undefined;
   }
 
   const newState = getNewState({ types: state.types });

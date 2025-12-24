@@ -1,10 +1,12 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceMetadata } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
 import type { AuthorizationType } from '../../services/http/authorization';
-import type { AuthHandler } from '../auth/types';
 import type { HttpPath } from '../../services/http/path';
+import type { AuthHandler } from '../auth/types';
+
+import { createServiceMetadata } from '@ez4/project/library';
 
 export const HttpServiceType = '@ez4/http';
 
@@ -12,26 +14,19 @@ export const HttpImportType = '@ez4/import:http';
 
 export const HttpNamespaceType = 'Http';
 
-export const isHttpService = (service: ServiceMetadata): service is HttpService => {
-  return service.type === HttpServiceType;
-};
-
-export const isHttpImport = (service: ServiceMetadata): service is HttpImport => {
-  return service.type === HttpImportType;
-};
-
 export type HttpDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
 
-export type HttpService = ServiceMetadata & {
-  type: typeof HttpServiceType;
-  displayName?: string;
-  description?: string;
-  defaults?: HttpDefaults;
-  routes: HttpRoute[];
-  cache?: HttpCache;
-  access?: HttpAccess;
-  cors?: HttpCors;
-};
+export type HttpService = Omit<ServiceMetadata, 'variables' | 'services'> &
+  Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
+    type: typeof HttpServiceType;
+    displayName?: string;
+    description?: string;
+    defaults?: HttpDefaults;
+    routes: HttpRoute[];
+    cache?: HttpCache;
+    access?: HttpAccess;
+    cors?: HttpCors;
+  };
 
 export type HttpImport = ServiceMetadata & {
   type: typeof HttpImportType;
@@ -68,14 +63,10 @@ export type HttpResponse = {
   body?: HttpDataSchema;
 };
 
-export type HttpHandler = {
-  name: string;
-  file: string;
-  module?: string;
-  description?: string;
+export type HttpHandler = FunctionSignature & {
+  provider?: HttpProvider;
   response: HttpResponse;
   request?: HttpRequest;
-  provider?: HttpProvider;
 };
 
 export type HttpErrors = {
@@ -127,4 +118,24 @@ export type HttpCors = {
 export type HttpProvider = {
   variables?: LinkedVariables;
   services?: LinkedServices;
+};
+
+export const isHttpService = (service: ServiceMetadata): service is HttpService => {
+  return service.type === HttpServiceType;
+};
+
+export const createHttpService = (name: string) => {
+  return {
+    ...createServiceMetadata<HttpService>(HttpServiceType, name),
+    variables: {},
+    services: {}
+  };
+};
+
+export const isHttpImport = (service: ServiceMetadata): service is HttpImport => {
+  return service.type === HttpImportType;
+};
+
+export const createHttpImport = (name: string) => {
+  return createServiceMetadata<HttpImport>(HttpImportType, name);
 };

@@ -63,6 +63,7 @@ describe('topic subscription', () => {
 
     const functionResource = createSubscriptionFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-topic-subscription-lambda',
+      variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

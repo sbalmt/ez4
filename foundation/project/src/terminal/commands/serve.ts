@@ -9,7 +9,7 @@ import { createServer } from 'node:http';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceAddress, getServicePort } from '../../utils/project';
-import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils';
+import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { watchMetadata } from '../../library/metadata';
@@ -32,6 +32,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
 
   warnUnsupportedFlags(input, {
     reset: options.local,
+    inspect: true,
     suppress: true,
     local: true
   });

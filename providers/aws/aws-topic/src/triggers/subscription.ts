@@ -64,6 +64,7 @@ export const prepareSubscriptions = (
             context: service.context,
             debug: options.debug,
             tags: options.tags,
+            variables: [options.variables, service.variables, subscription.variables],
             handler: {
               sourceFile: handler.file,
               functionName: handler.name,
@@ -74,11 +75,6 @@ export const prepareSubscriptions = (
               functionName: listener.name,
               sourceFile: listener.file,
               module: listener.module
-            },
-            variables: {
-              ...options.variables,
-              ...service.variables,
-              ...subscription.variables
             }
           });
 

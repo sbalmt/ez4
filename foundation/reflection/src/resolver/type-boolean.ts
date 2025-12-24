@@ -44,7 +44,7 @@ export const tryTypeBoolean = (node: Node, { events }: Context) => {
       return createBoolean(type, false);
     }
 
-    return null;
+    return undefined;
   };
 
   const result = resolver(node, 'default');

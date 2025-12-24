@@ -1,7 +1,12 @@
 {
   "e542fbcb632d2537a3efda5cdbb3fa5c:Number": {
+    "file": "test/types/number.ts",
     "type": "interface",
     "name": "Number",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
     "modifiers": {
       "export": true
     },

@@ -3,14 +3,24 @@
     "type": "@ez4/bucket",
     "name": "TestStorage",
     "context": {},
+    "variables": {},
+    "services": {},
     "events": {
       "listener": {
         "name": "eventListener",
-        "file": "test/input/output-listener.ts"
+        "file": "test/input/output-listener.ts",
+        "position": [
+          10,
+          1
+        ]
       },
       "handler": {
         "name": "eventHandler",
-        "file": "test/input/output-listener.ts"
+        "file": "test/input/output-listener.ts",
+        "position": [
+          12,
+          1
+        ]
       }
     }
   }

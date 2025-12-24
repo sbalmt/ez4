@@ -1,0 +1,43 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestServiceAFactory": {
+    "type": "@ez4/factory",
+    "context": {},
+    "variables": {
+      "TEST_VAR": "test-var"
+    },
+    "services": {
+      "selfVariables": "@variables"
+    },
+    "name": "TestServiceAFactory",
+    "handler": {
+      "name": "testServiceAInitializer",
+      "file": "test/input/output-service.ts",
+      "position": [
+        20,
+        1
+      ]
+    }
+  },
+  "TestServiceBFactory": {
+    "type": "@ez4/factory",
+    "context": {},
+    "variables": {},
+    "services": {
+      "serviceA": "TestServiceAFactory"
+    },
+    "name": "TestServiceBFactory",
+    "handler": {
+      "name": "testServiceBInitializer",
+      "file": "test/input/output-service.ts",
+      "position": [
+        37,
+        1
+      ]
+    }
+  }
+}

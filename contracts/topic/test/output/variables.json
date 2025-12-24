@@ -7,6 +7,13 @@
   "TestTopic": {
     "type": "@ez4/topic",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {
+      "selfSettings": "@variables"
+    },
     "name": "TestTopic",
     "schema": {
       "type": "object",
@@ -22,16 +29,13 @@
         "type": "lambda",
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-variables.ts"
+          "file": "test/input/output-variables.ts",
+          "position": [
+            26,
+            1
+          ]
         }
       }
-    ],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
-    "services": {
-      "selfSettings": "@variables"
-    }
+    ]
   }
 }

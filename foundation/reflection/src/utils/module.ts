@@ -26,11 +26,11 @@ export const getModulePath = (moduleName: string, sourceFile: string) => {
   return resolvedModule?.resolvedFileName;
 };
 
-export const getPathModule = (filePath: string): string | null => {
+export const getPathModule = (filePath: string) => {
   const moduleStart = filePath.indexOf(MODULES_PATH);
 
   if (moduleStart === -1) {
-    return null;
+    return undefined;
   }
 
   const [moduleName, modulePath] = filePath.substring(moduleStart + MODULES_PATH.length).split('/');

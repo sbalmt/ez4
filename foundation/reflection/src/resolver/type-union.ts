@@ -20,7 +20,7 @@ export const isTypeUnion = (node: Node): node is UnionTypeNode => {
 
 export const tryTypeUnion = (node: Node, context: Context, state: State) => {
   if (!isTypeUnion(node)) {
-    return null;
+    return undefined;
   }
 
   const newState = getNewState({ types: state.types });

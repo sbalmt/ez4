@@ -8,6 +8,8 @@
     "type": "@ez4/ws",
     "name": "TestService",
     "context": {},
+    "variables": {},
+    "services": {},
     "schema": {
       "type": "object",
       "identity": 1,
@@ -17,6 +19,10 @@
       "handler": {
         "name": "connectHandler",
         "file": "test/ws/input/output-query.ts",
+        "position": [
+          23,
+          1
+        ],
         "request": {
           "query": {
             "type": "object",
@@ -34,13 +40,21 @@
     "disconnect": {
       "handler": {
         "name": "disconnectHandler",
-        "file": "test/ws/input/output-query.ts"
+        "file": "test/ws/input/output-query.ts",
+        "position": [
+          25,
+          1
+        ]
       }
     },
     "message": {
       "handler": {
         "name": "messageHandler",
-        "file": "test/ws/input/output-query.ts"
+        "file": "test/ws/input/output-query.ts",
+        "position": [
+          27,
+          1
+        ]
       }
     }
   }

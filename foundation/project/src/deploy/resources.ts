@@ -16,16 +16,11 @@ export const prepareDeployResources = async (
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const result = await triggerAllAsync('deploy:prepareResources', (handler) =>
-      handler({
-        state,
-        service,
-        options,
-        context
-      })
-    );
+    const successful = await triggerAllAsync('deploy:prepareResources', (handler) => {
+      return handler({ state, service, options, context });
+    });
 
-    if (!result) {
+    if (!successful) {
       throw new MissingResourceProvider(service.name);
     }
   }
@@ -42,16 +37,11 @@ export const connectDeployResources = async (
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const result = triggerAllAsync('deploy:connectResources', (handler) =>
-      handler({
-        state,
-        service,
-        options,
-        context
-      })
-    );
+    const promise = triggerAllAsync('deploy:connectResources', (handler) => {
+      return handler({ state, service, options, context });
+    });
 
-    allPrepareEvents.push(result);
+    allPrepareEvents.push(promise);
   }
 
   await Promise.all(allPrepareEvents);

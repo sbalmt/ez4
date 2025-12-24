@@ -56,10 +56,7 @@ interface MyRouteProvider extends Http.Provider {
 }
 
 // MyServer route handler
-export function routeHandler(
-  request: Http.Incoming<MyRouteRequest>,
-  context: Service.Context<MyRouteProvider>
-): MyRouteResponse {
+export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Service.Context<MyRouteProvider>): MyRouteResponse {
   const { otherService, variables } = context;
   const { body } = request;
 
@@ -123,6 +120,8 @@ export function routeHandler(
 - [Importing gateway](../../examples/aws-import-gateway)
 - [Aurora RDS CRUDL](../../examples/aws-aurora-crudl)
 - [DynamoDB CRUDL](../../examples/aws-dynamodb-crudl)
+- [Schedule manager](../../examples/aws-schedule-manager)
+- [Storage manager](../../examples/aws-storage-manager)
 
 ## Providers
 

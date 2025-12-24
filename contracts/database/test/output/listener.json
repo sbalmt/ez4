@@ -3,6 +3,8 @@
     "type": "@ez4/database",
     "name": "TestDatabase",
     "context": {},
+    "variables": {},
+    "services": {},
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",
@@ -28,11 +30,19 @@
         "stream": {
           "listener": {
             "name": "streamListener",
-            "file": "test/models/output-listener.ts"
+            "file": "test/models/output-listener.ts",
+            "position": [
+              26,
+              1
+            ]
           },
           "handler": {
             "name": "streamHandler",
-            "file": "test/models/output-listener.ts"
+            "file": "test/models/output-listener.ts",
+            "position": [
+              28,
+              1
+            ]
           }
         }
       }

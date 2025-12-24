@@ -1,3 +1,4 @@
+%% Auto-generated topology diagram, any manual modifications will be lost during regeneration.
 %%{init: { "layout": "elk", "theme": "light" } }%%
 graph LR
 	classDef ez4Api fill:#196ee650, stroke:#196ee6a0;
@@ -23,9 +24,17 @@ graph LR
 		EventDb@{ shape: cyl, label: "EventDb" }
 		class EventDb ez4Database
 	end
-	EventScheduler EventDbEventScheduler@--> EventDb
+	StatsServiceFactory --> EventDb
+	Api DateValidationApi@--> DateValidation
+	Api StatsServiceFactoryApi@--> StatsServiceFactory
 	Api EventSchedulerApi@--> EventScheduler
 	Api EventDbApi@--> EventDb
-	class EventDbEventScheduler ez4SchedulerEdge
+	Api DateValidationApi@--> DateValidation
+	EventScheduler EventDbEventScheduler@--> EventDb
+	DateValidation --> EventDb
+	class DateValidationApi ez4ApiEdge
+	class StatsServiceFactoryApi ez4ApiEdge
 	class EventSchedulerApi ez4ApiEdge
 	class EventDbApi ez4ApiEdge
+	class DateValidationApi ez4ApiEdge
+	class EventDbEventScheduler ez4SchedulerEdge

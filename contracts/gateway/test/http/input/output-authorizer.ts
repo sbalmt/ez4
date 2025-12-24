@@ -1,3 +1,4 @@
+import type { Environment, Service } from '@ez4/common';
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
@@ -40,6 +41,16 @@ declare class TestAuthResponse implements Http.AuthResponse {
   };
 }
 
+declare class TestAuthProvider implements Http.AuthProvider {
+  variables: {
+    TEST_VAR: 'test-literal-value';
+  };
+
+  services: {
+    selfClient: Environment.Service<TestService>;
+  };
+}
+
 function testQueryAuthorizer(request: TestQueryAuthRequest): TestAuthResponse {
   if (request.query.apiKey !== 'test-token') {
     return { identity: undefined };
@@ -52,10 +63,13 @@ function testQueryAuthorizer(request: TestQueryAuthRequest): TestAuthResponse {
   };
 }
 
-function testHeaderAuthorizer(request: TestHeaderAuthRequest): TestAuthResponse {
+function testHeaderAuthorizer(request: TestHeaderAuthRequest, context: Service.Context<TestAuthProvider>): TestAuthResponse {
   if (request.headers['x-api-key'] !== 'test-token') {
     return { identity: undefined };
   }
+
+  // Ensure provider client
+  context.selfClient;
 
   return {
     identity: {

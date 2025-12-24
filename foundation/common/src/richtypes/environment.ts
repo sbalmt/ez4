@@ -1,3 +1,5 @@
+import type { Service as ServiceContract } from '../services/contract';
+
 export namespace Environment {
   /**
    * Bind a variable from the environment.
@@ -19,7 +21,7 @@ export namespace Environment {
   /**
    * Bind a service from the environment.
    */
-  export type Service<T> = {
+  export type Service<T extends ServiceContract.Provider> = {
     reference: T;
   };
 }

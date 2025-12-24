@@ -7,6 +7,8 @@
   "TestService": {
     "type": "@ez4/ws",
     "context": {},
+    "variables": {},
+    "services": {},
     "name": "TestService",
     "schema": {
       "type": "object",
@@ -17,6 +19,10 @@
       "handler": {
         "name": "connectHandler",
         "file": "test/ws/input/output-identity.ts",
+        "position": [
+          25,
+          1
+        ],
         "request": {
           "identity": {
             "type": "object",
@@ -35,6 +41,10 @@
       "handler": {
         "name": "disconnectHandler",
         "file": "test/ws/input/output-identity.ts",
+        "position": [
+          31,
+          1
+        ],
         "request": {
           "identity": {
             "type": "object",
@@ -53,6 +63,10 @@
       "handler": {
         "name": "messageHandler",
         "file": "test/ws/input/output-identity.ts",
+        "position": [
+          37,
+          1
+        ],
         "request": {
           "identity": {
             "type": "object",

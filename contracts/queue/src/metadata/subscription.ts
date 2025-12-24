@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueSubscription } from '../types/common';
@@ -21,7 +21,7 @@ import { IncompleteSubscriptionError, IncorrectSubscriptionTypeError, InvalidSub
 import { getSubscriptionHandler } from './handler';
 import { isQueueSubscription } from './utils';
 
-export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];
   const resultList: QueueSubscription[] = [];
 
@@ -36,7 +36,7 @@ export const getAllSubscription = (member: ModelProperty, parent: TypeModel, ref
   return resultList;
 };
 
-const getQueueSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getQueueSubscription = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSubscription(type, parent, reflection, errorList);
   }
@@ -54,7 +54,7 @@ const isValidSubscription = (type: Incomplete<QueueSubscription>): type is Queue
   return !!type.handler;
 };
 
-const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
@@ -76,7 +76,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const subscription: Incomplete<QueueSubscription> = {};

@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpAccess } from './types';
@@ -17,14 +17,14 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteAccessError, IncorrectAccessTypeError, InvalidAccessTypeError } from '../../errors/http/access';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 export const isHttpAccessDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Access'));
 };
 
-export const getHttpAccessMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpAccessMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getAccessType(type, parent, errorList);
   }

@@ -1,5 +1,5 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { Variables } from '../types/variables';
+import type { FunctionVariables } from '../types/variables';
 
 import {
   LambdaClient,
@@ -42,7 +42,7 @@ export type CreateRequest = {
   handlerName: string;
   description?: string;
   logGroup?: string;
-  variables?: Variables;
+  variables?: FunctionVariables;
   timeout?: number;
   memory?: number;
   publish?: boolean;
@@ -60,7 +60,7 @@ export type UpdateConfigurationRequest = {
   handlerName?: string;
   description?: string;
   logGroup?: string;
-  variables?: Variables;
+  variables?: FunctionVariables;
   timeout?: number;
   memory?: number;
   debug?: boolean;

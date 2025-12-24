@@ -8,6 +8,8 @@
     "type": "@ez4/queue",
     "name": "TestQueue",
     "context": {},
+    "variables": {},
+    "services": {},
     "description": "Queue to test subscription listener.",
     "schema": {
       "type": "object",
@@ -22,11 +24,19 @@
       {
         "listener": {
           "name": "testListener",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-listener.ts",
+          "position": [
+            19,
+            1
+          ]
         },
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-listener.ts"
+          "file": "test/input/output-listener.ts",
+          "position": [
+            21,
+            1
+          ]
         }
       }
     ]

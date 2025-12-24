@@ -1,4 +1,4 @@
-import type { SourceMap } from '@ez4/reflection';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { QueueImport } from '../types/import';
 
@@ -16,15 +16,16 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { ImportType } from '../types/import';
+import { createQueueImport } from '../types/import';
 import { IncompleteServiceError } from '../errors/service';
 import { getAllSubscription } from './subscription';
 import { getQueueMessage } from './message';
 import { getQueueFifoMode } from './fifo';
 import { isQueueImport } from './utils';
 
-export const getQueueImports = (reflection: SourceMap) => {
+export const getQueueImports = (reflection: ReflectionTypes) => {
   const queueImports: Record<string, QueueImport> = {};
   const errorList: Error[] = [];
 
@@ -35,12 +36,10 @@ export const getQueueImports = (reflection: SourceMap) => {
       continue;
     }
 
-    const service: Incomplete<QueueImport> = { type: ImportType };
+    const service = createQueueImport(declaration.name);
     const properties = new Set(['project', 'reference', 'schema']);
 
     const fileName = declaration.file;
-
-    service.name = declaration.name;
 
     if (declaration.description) {
       service.description = declaration.description;
@@ -115,7 +114,7 @@ export const getQueueImports = (reflection: SourceMap) => {
       }
     }
 
-    if (!isValidImport(service)) {
+    if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
       continue;
     }
@@ -134,6 +133,6 @@ export const getQueueImports = (reflection: SourceMap) => {
   };
 };
 
-const isValidImport = (type: Incomplete<QueueImport>): type is QueueImport => {
-  return !!type.name && !!type.reference && !!type.project && !!type.schema && !!type.subscriptions;
+const isCompleteService = (type: Incomplete<QueueImport>): type is QueueImport => {
+  return isObjectWith(type, ['project', 'reference', 'schema', 'subscriptions', 'variables', 'services']);
 };

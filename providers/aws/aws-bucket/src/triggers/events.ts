@@ -48,6 +48,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     context: service.context,
     debug: options.debug,
     tags: options.tags,
+    variables: [options.variables, service.variables, variables],
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -58,11 +59,6 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
       functionName: listener.name,
       sourceFile: listener.file,
       module: listener.module
-    },
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...variables
     }
   });
 

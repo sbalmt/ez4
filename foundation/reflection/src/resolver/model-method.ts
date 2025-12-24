@@ -13,10 +13,10 @@ export type MethodNodes = MethodDeclaration | MethodSignature;
 
 export const createMethod = (
   name: string,
-  description: string | null,
-  modifiers: MethodModifiers | null,
-  parameterTypes: TypeParameter[] | null,
-  returnType: EveryType | null
+  description: string | undefined,
+  modifiers: MethodModifiers | undefined,
+  parameterTypes: TypeParameter[] | undefined,
+  returnType: EveryType | undefined
 ): ModelMethod => {
   return {
     type: TypeName.Method,
@@ -34,7 +34,7 @@ export const isModelMethod = (node: Node): node is MethodNodes => {
 
 export const tryModelMethod = (node: Node, context: Context, state: State) => {
   if (context.options.ignoreMethod || !isModelMethod(node) || node.typeParameters) {
-    return null;
+    return undefined;
   }
 
   const name = node.name.getText();
@@ -44,7 +44,7 @@ export const tryModelMethod = (node: Node, context: Context, state: State) => {
   const returnType = tryCallableReturns(node, context, state);
 
   if (!parameterTypes?.length && !returnType) {
-    return null;
+    return undefined;
   }
 
   return createMethod(name, description, modifiers, parameterTypes, returnType);

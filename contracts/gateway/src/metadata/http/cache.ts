@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { HttpCache } from './types';
@@ -17,7 +17,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../../errors/http/cache';
-import { getFullTypeName } from '../utils/type';
+import { getFullTypeName } from '../utils/name';
 import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Cache');
@@ -26,7 +26,7 @@ export const isHttpCacheDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, FULL_BASE_TYPE);
 };
 
-export const getHttpCacheMetadata = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getHttpCacheMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getCacheType(type, parent, errorList);
   }

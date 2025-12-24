@@ -1,8 +1,9 @@
-import type { SourceMap, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
-import { getIntersectionSchema, getObjectSchema, isObjectSchema } from '@ez4/schema/library';
+import { getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
+import { isObjectSchema } from '@ez4/schema';
 
-export const getSchemaFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+export const getSchemaFromIntersection = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getIntersectionSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {
@@ -12,7 +13,7 @@ export const getSchemaFromIntersection = (type: TypeObject | TypeModel | TypeInt
   return undefined;
 };
 
-export const getSchemaFromObject = (type: TypeObject | TypeModel | TypeIntersection, reflection: SourceMap) => {
+export const getSchemaFromObject = (type: TypeObject | TypeModel | TypeIntersection, reflection: ReflectionTypes) => {
   const schema = getObjectSchema(type, reflection);
 
   if (schema && isObjectSchema(schema)) {

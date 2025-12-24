@@ -26,11 +26,15 @@ export const createHttpServiceClient = <T extends Http.Service>(
     {},
     {
       get: (_target, property) => {
-        return async (request: HttpClientRequest) => {
-          if (!isAnyString(property) || !(property in operations)) {
+        if (!isAnyString(property) || !(property in operations)) {
+          if (property !== 'then') {
             throw new Error(`Operation '${property.toString()}' wasn't found.`);
           }
 
+          return undefined;
+        }
+
+        return async (request: HttpClientRequest) => {
           const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
           const requestUrl = getClientRequestUrl(gatewayHost, path, {

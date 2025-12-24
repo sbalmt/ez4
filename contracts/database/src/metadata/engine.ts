@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { DatabaseEngine } from '../types/engine';
@@ -23,7 +23,7 @@ import { OrderMode } from '../services/order';
 import { LockMode } from '../services/lock';
 import { isDatabaseEngine } from './utils';
 
-export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEngine(type, parent, errorList);
   }

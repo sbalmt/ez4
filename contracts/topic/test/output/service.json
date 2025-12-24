@@ -9,6 +9,10 @@
     "name": "TestTopic1",
     "description": "First test topic description.",
     "context": {},
+    "variables": {},
+    "services": {
+      "testTopic": "TestTopic2"
+    },
     "fifoMode": {
       "groupId": "user",
       "uniqueId": "id"
@@ -25,15 +29,17 @@
         }
       }
     },
-    "subscriptions": [],
-    "services": {
-      "testTopic": "TestTopic2"
-    }
+    "subscriptions": []
   },
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
     "context": {},
+    "variables": {
+      "TEST_VAR1": "test-literal-value",
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {},
     "description": "Description of the second test topic.",
     "schema": {
       "type": "object",
@@ -47,10 +53,6 @@
       },
       "identity": 1
     },
-    "subscriptions": [],
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    }
+    "subscriptions": []
   }
 }

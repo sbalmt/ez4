@@ -1,9 +1,9 @@
 import type { Http } from '@ez4/gateway';
 
-import type { headerAuthorizer } from './authorizers/header';
-import type { queryAuthorizer } from './authorizers/query';
-import type { publicHandler } from './endpoints/public';
+import type { queryAuthorizer } from './authorizers/strategies/query';
+import type { headerAuthorizer } from './authorizers/strategies/header';
 import type { privateHandler } from './endpoints/private';
+import type { publicHandler } from './endpoints/public';
 
 export type AllRoutes = [
   Http.UseRoute<{

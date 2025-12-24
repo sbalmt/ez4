@@ -1,4 +1,4 @@
-import type { AllType, SourceMap, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
@@ -16,7 +16,7 @@ import { isDatabaseTable } from './utils';
 import { getTableSchema } from './schema';
 import { getTableStream } from './stream';
 
-export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeTable(type, parent, reflection, errorList);
   }
@@ -34,7 +34,7 @@ const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable =>
   return !!type.name && !!type.schema && !!type.indexes;
 };
 
-const getTypeTable = (type: AllType, parent: TypeModel, reflection: SourceMap, errorList: Error[]) => {
+const getTypeTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isDatabaseTable(type)) {
     return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
   }
@@ -50,7 +50,7 @@ const getTypeFromMembers = (
   type: TypeObject | TypeModel,
   parent: TypeModel,
   members: MemberType[],
-  reflection: SourceMap,
+  reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
   const table: Incomplete<DatabaseTable> = {};

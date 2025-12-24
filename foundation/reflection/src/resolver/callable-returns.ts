@@ -10,7 +10,7 @@ export type NodeWithReturns = MethodNodes | CallbackNodes | FunctionNodes;
 
 export const tryCallableReturns = (node: NodeWithReturns, context: Context, state: State) => {
   if (context.options.ignoreReturns || !node.type) {
-    return null;
+    return undefined;
   }
 
   const newState = getNewState({ types: state.types });
