@@ -1,10 +1,11 @@
-import type { ValidationCustomHandler } from '@ez4/validator';
+import type { ValidationCustomContext, ValidationCustomHandler } from '@ez4/validator';
 import type { AnySchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
 import { isScalarSchema, NamingStyle } from '@ez4/schema';
+import { isAnyArray, isAnyObject } from '@ez4/utils';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const prepareRequestBody = <T extends Http.JsonBody | Http.RawBody>(
@@ -40,9 +41,22 @@ export const resolveRequestBody = async <T extends Http.JsonBody | Http.RawBody>
 ): Promise<T> => {
   const inputStyle = preferences?.namingStyle;
 
+  const transformContext = createTransformContext({
+    convert: false,
+    inputStyle
+  });
+
+  const useCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    if (isAnyObject(value) || isAnyArray(value)) {
+      return onCustomValidation?.(transform(value, context.schema, transformContext), context);
+    }
+
+    return onCustomValidation?.(value, context);
+  };
+
   const validationContext = createValidatorContext({
+    onCustomValidation: useCustomValidation,
     property: '$body',
-    onCustomValidation,
     inputStyle
   });
 
@@ -53,11 +67,6 @@ export const resolveRequestBody = async <T extends Http.JsonBody | Http.RawBody>
 
     throw new HttpBadRequestError('Malformed body payload.', messages);
   }
-
-  const transformContext = createTransformContext({
-    convert: false,
-    inputStyle
-  });
 
   const payload = transform(input, schema, transformContext);
 
