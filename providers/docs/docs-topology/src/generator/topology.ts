@@ -11,6 +11,8 @@ import { getQueueEdges, getQueueNodes } from './queue';
 import { getTopicEdges, getTopicNodes } from './topic';
 import { getDatabaseEdges, getDatabaseNodes } from './database';
 import { getStorageEdges, getStorageNodes } from './storage';
+import { getValidationEdges, getValidationNodes } from './validation';
+import { getFactoryEdges, getFactoryNodes } from './factory';
 
 export namespace TopologyGenerator {
   export const getTopologyOutput = (metadata: MetadataReflection) => {
@@ -28,6 +30,8 @@ export namespace TopologyGenerator {
       ...getTopicNodes(metadata, getEdge),
       ...getDatabaseNodes(metadata),
       ...getStorageNodes(metadata),
+      ...getValidationNodes(metadata),
+      ...getFactoryNodes(metadata),
       ...getServiceEdges(metadata)
     );
 
@@ -75,7 +79,9 @@ export namespace TopologyGenerator {
         getQueueEdges(id, target, source) ??
         getTopicEdges(id, target, source) ??
         getDatabaseEdges(id, target, source) ??
-        getStorageEdges(id, target, source)
+        getStorageEdges(id, target, source) ??
+        getValidationEdges(id, target, source) ??
+        getFactoryEdges(id, target, source)
       );
     });
   };

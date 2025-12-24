@@ -6,6 +6,8 @@ graph LR
 	classDef ez4ApiEdge stroke:#196ee6
 	subgraph APIs
 		style APIs fill: #f5f5f5, stroke-width: 0
+		TestWs@{ shape: circle, label: "TestWs" }
 		TestHttp@{ shape: circle, label: "TestHttp" }
+		class TestWs ez4Api
 		class TestHttp ez4Api
 	end

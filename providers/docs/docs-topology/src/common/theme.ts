@@ -6,5 +6,7 @@ export const enum ThemeColor {
   Queue = '#2dbd6e',
   Topic = '#f2c94c',
   Database = '#eb5757',
-  Storage = '#2ac4c9'
+  Storage = '#2ac4c9',
+  Validation = '#e61975',
+  Factory = '#8ded70'
 }

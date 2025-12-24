@@ -6,3 +6,4 @@ export * from './errors/handler';
 
 export * from './metadata/service';
 export * from './metadata/handler';
+export * from './metadata/types';

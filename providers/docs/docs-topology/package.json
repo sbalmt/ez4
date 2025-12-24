@@ -43,6 +43,7 @@
     "@ez4/common": "^0.37.0",
     "@ez4/distribution": "^0.37.0",
     "@ez4/database": "^0.37.0",
+    "@ez4/factory": "^0.37.0",
     "@ez4/queue": "^0.37.0",
     "@ez4/gateway": "^0.37.0",
     "@ez4/project": "^0.37.0",
@@ -50,6 +51,7 @@
     "@ez4/schema": "^0.37.0",
     "@ez4/storage": "^0.37.0",
     "@ez4/topic": "^0.37.0",
-    "@ez4/utils": "^0.37.0"
+    "@ez4/utils": "^0.37.0",
+    "@ez4/validation": "^0.37.0"
   }
 }
