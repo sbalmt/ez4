@@ -10,7 +10,7 @@ import { ThemeColor } from '../common/theme';
 export const getGatewayNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('APIs', metadata, {
     styles: [
-      `classDef ez4Api ${getNodeStyle(ThemeColor.Gateway)};`,
+      `classDef ez4Api ${getNodeStyle(ThemeColor.Gateway)}`,
       `classDef ez4ApiImport ${getNodeImportStyle(ThemeColor.Gateway)}`,
       `classDef ez4ApiEdge ${getEdgeStyle(ThemeColor.Gateway)}`
     ],

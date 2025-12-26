@@ -1,7 +1,7 @@
 %% Auto-generated topology diagram, any manual modifications will be lost during regeneration.
 %%{init: { "layout": "elk", "theme": "light" } }%%
 graph LR
-	classDef ez4Cdn fill:#f28c3550, stroke:#f28c35a0;
+	classDef ez4Cdn fill:#f28c3550, stroke:#f28c35a0
 	classDef ez4CdnEdge stroke:#f28c35
 	subgraph CDNs
 		style CDNs fill: #f5f5f5, stroke-width: 0
@@ -10,8 +10,8 @@ graph LR
 	end
 	TestCdn TestBucketTestCdn@--> TestBucket
 	class TestBucketTestCdn ez4CdnEdge
-	classDef ez4Bucket fill:#2ac4c950, stroke:#2ac4c9a0;
-	classDef ez4BucketEdge stroke:#2ac4c9;
+	classDef ez4Bucket fill:#2ac4c950, stroke:#2ac4c9a0
+	classDef ez4BucketEdge stroke:#2ac4c9
 	subgraph Storages
 		style Storages fill: #f5f5f5, stroke-width: 0
 		TestBucket@{ shape: lin-cyl, label: "TestBucket" }

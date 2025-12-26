@@ -25,9 +25,9 @@ export const getTopicNodes = (metadata: MetadataReflection, edgeGenerator: Topic
 
   return getSubgraphOutput('Topics', metadata, {
     styles: [
-      `classDef ez4Topic ${getNodeStyle(ThemeColor.Topic)};`,
-      `classDef ez4ImportTopic ${getNodeImportStyle(ThemeColor.Topic)};`,
-      `classDef ez4TopicEdge ${getEdgeStyle(ThemeColor.Topic)};`
+      `classDef ez4Topic ${getNodeStyle(ThemeColor.Topic)}`,
+      `classDef ez4ImportTopic ${getNodeImportStyle(ThemeColor.Topic)}`,
+      `classDef ez4TopicEdge ${getEdgeStyle(ThemeColor.Topic)}`
     ],
     generator: ({ name, resource }) => {
       if (isTopicService(resource)) {

@@ -10,9 +10,9 @@ import { ThemeColor } from '../common/theme';
 export const getSchedulerNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('Schedulers', metadata, {
     styles: [
-      `classDef ez4Scheduler ${getNodeStyle(ThemeColor.Scheduler)};`,
+      `classDef ez4Scheduler ${getNodeStyle(ThemeColor.Scheduler)}`,
       `classDef ez4SchedulerEdge ${getEdgeStyle(ThemeColor.Scheduler)}`,
-      `classDef ez4SchedulerEdge ${getEdgeStyle(ThemeColor.Scheduler)};`
+      `classDef ez4SchedulerEdge ${getEdgeStyle(ThemeColor.Scheduler)}`
     ],
     generator: ({ name, resource }) => {
       if (isCronService(resource)) {
