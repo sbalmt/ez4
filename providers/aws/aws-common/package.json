@@ -46,6 +46,6 @@
     "@ez4/reflection": "^0.37.0",
     "@ez4/stateful": "^0.37.0",
     "@ez4/utils": "^0.37.0",
-    "esbuild": "^0.25.11"
+    "esbuild": "^0.27.2"
   }
 }
