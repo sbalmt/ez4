@@ -51,8 +51,8 @@
     "@types/mime": "^3.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.913.0",
-    "@aws-sdk/s3-request-presigner": "^3.913.0",
+    "@aws-sdk/client-s3": "^3.958.0",
+    "@aws-sdk/s3-request-presigner": "^3.958.0",
     "@ez4/aws-common": "^0.37.0",
     "@ez4/aws-function": "^0.37.0",
     "@ez4/aws-identity": "^0.37.0",
