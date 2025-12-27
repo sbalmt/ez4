@@ -1,3 +1,4 @@
+import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 import type { TopicSubscriptionListener, TopicSubscriptionHandler, TopicMessage } from './common';
@@ -47,4 +48,14 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Architecture for the handler.
+   */
+  readonly architecture?: ServiceArchitecture;
+
+  /**
+   * Runtime for the handler.
+   */
+  readonly runtime?: ServiceRuntime;
 }

@@ -11,6 +11,8 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -90,17 +92,24 @@ const getTypeFromMembers = (
         stream[member.name] = getPropertyNumber(member);
         break;
 
+      case 'architecture':
+        stream[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        stream[member.name] = getServiceRuntime(member);
+        break;
+
       case 'variables':
         stream.variables = getLinkedVariableList(member, errorList);
         break;
     }
   }
 
-  if (isValidStream(stream)) {
-    return stream;
+  if (!isValidStream(stream)) {
+    errorList.push(new IncompleteStreamError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteStreamError([...properties], type.file));
-
-  return undefined;
+  return stream;
 };

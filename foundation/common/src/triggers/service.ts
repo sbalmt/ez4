@@ -4,7 +4,7 @@ import type { ReflectionTypes } from '@ez4/reflection';
 import { createServiceMetadata, getServiceName } from '@ez4/project/library';
 
 import { Client } from '../client';
-import { ServiceName, ServiceType } from '../types/services';
+import { ServiceName, ServiceType } from '../metadata/types';
 import { prepareLinkedClient } from './client';
 import { isCommonService } from './utils';
 

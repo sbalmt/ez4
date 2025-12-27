@@ -1,3 +1,4 @@
+import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common/library';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { WebPreferences } from './preferences';
 
@@ -29,4 +30,14 @@ export interface WebTarget {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Architecture for the API function.
+   */
+  readonly architecture?: ServiceArchitecture;
+
+  /**
+   * Runtime for the API function.
+   */
+  readonly runtime?: ServiceRuntime;
 }

@@ -22,6 +22,8 @@ export const createSubscriptionFunction = <E extends EntryState>(
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    architecture: parameters.architecture,
+    runtime: parameters.runtime,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,

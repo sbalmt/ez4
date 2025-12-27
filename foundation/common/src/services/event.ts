@@ -1,3 +1,4 @@
+import type { ServiceEventType } from '../types/event';
 import type { ServiceRequest } from './request';
 
 /**
@@ -9,17 +10,6 @@ export type ServiceAnyEvent<T extends ServiceRequest> =
   | ServiceDoneEvent<T>
   | ServiceErrorEvent<T>
   | ServiceEndEvent<T>;
-
-/**
- * Service event type.
- */
-export const enum ServiceEventType {
-  Begin = 'begin',
-  Ready = 'ready',
-  Done = 'done',
-  Error = 'error',
-  End = 'end'
-}
 
 /**
  * Service event for the beginning of an execution.

@@ -35,7 +35,7 @@
         "stream": {
           "handler": {
             "name": "streamHandler",
-            "file": "test/models/output-variables.ts",
+            "file": "test/input/output-variables.ts",
             "position": [
               33,
               1

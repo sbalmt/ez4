@@ -8,6 +8,8 @@ import { getServiceName, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
+import { Defaults } from '../../utils/defaults';
+import { getInternalName } from '../utils/name';
 import { createStage } from '../../stage/service';
 import { createRoute } from '../../route/service';
 import { createGateway } from '../../gateway/service';
@@ -16,8 +18,6 @@ import { createResponse } from '../../response/service';
 import { getIntegrationConnectionFunction, getIntegrationMessageFunction } from '../integration';
 import { getAuthorizerFunction } from '../authorizer';
 import { RoleMissingError } from '../errors';
-import { getInternalName } from '../utils';
-import { Defaults } from '../defaults';
 import { prepareLinkedClient } from './client';
 
 export const prepareWsLinkedService = (event: ServiceEvent) => {

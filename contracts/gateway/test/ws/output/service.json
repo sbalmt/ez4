@@ -29,7 +29,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          46,
+          56,
           1
         ]
       }
@@ -39,7 +39,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          48,
+          58,
           1
         ]
       }
@@ -49,7 +49,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          50,
+          60,
           1
         ]
       }
@@ -76,31 +76,39 @@
       }
     },
     "connect": {
+      "logRetention": 15,
+      "memory": 128,
       "handler": {
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          46,
+          56,
           1
         ]
       }
     },
     "disconnect": {
+      "architecture": "arm",
+      "runtime": "node24",
       "handler": {
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          48,
+          58,
           1
         ]
       }
     },
     "message": {
+      "timeout": 90,
+      "preferences": {
+        "namingStyle": "camel"
+      },
       "handler": {
         "name": "messageHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          50,
+          60,
           1
         ]
       }

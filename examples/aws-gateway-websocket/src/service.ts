@@ -1,5 +1,5 @@
 import type { Environment } from '@ez4/common';
-import type { Ws } from '@ez4/gateway';
+import type { Architecture, Ws } from '@ez4/gateway';
 import type { HelloQueue } from './queues/hello';
 import type { tokenAuthorizer } from './authorizers/token';
 import type { connectHandler } from './events/connect';
@@ -20,6 +20,16 @@ export declare class WsApi extends Ws.Service<AllMessages> {
    * Optionally redefine default stage name.
    */
   stage: 'ez4-websocket';
+
+  /**
+   * Default options for all handlers.
+   */
+  defaults: Ws.UseDefaults<{
+    /**
+     * Use ARM64 architecture.
+     */
+    architecture: Architecture.Arm;
+  }>;
 
   /**
    * Define the connection handler.

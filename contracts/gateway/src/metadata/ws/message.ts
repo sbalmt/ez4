@@ -13,6 +13,8 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType,
   isModelDeclaration,
   hasHeritageType
@@ -92,6 +94,14 @@ const getTypeFromMembers = (
       case 'logRetention':
       case 'timeout':
         target[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        target[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        target[member.name] = getServiceRuntime(member);
         break;
 
       case 'listener':

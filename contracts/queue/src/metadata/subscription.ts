@@ -12,6 +12,8 @@ import {
   getPropertyNumber,
   getPropertyTuple,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -103,6 +105,14 @@ const getTypeFromMembers = (
       case 'concurrency':
       case 'batch':
         subscription[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        subscription[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        subscription[member.name] = getServiceRuntime(member);
         break;
 
       case 'listener':

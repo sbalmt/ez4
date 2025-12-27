@@ -1,5 +1,5 @@
+import type { Environment, Service, ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { StreamAnyChange, Database, Client } from '@ez4/database';
-import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
 export declare class TestDatabase extends Database.Service {
@@ -12,6 +12,7 @@ export declare class TestDatabase extends Database.Service {
       indexes: {};
       stream: {
         handler: typeof streamHandler;
+        architecture: ServiceArchitecture.Arm;
         logRetention: 14;
         timeout: 10;
         memory: 256;
@@ -39,6 +40,8 @@ declare class TestSchema implements Database.Schema {
 
 declare class TestStream implements Database.Stream<TestSchema> {
   handler: typeof streamHandler;
+
+  runtime: ServiceRuntime.Node24;
 
   variables: {
     TEST_VAR: 'test-literal-value';

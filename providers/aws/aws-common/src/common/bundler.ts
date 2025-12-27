@@ -30,6 +30,7 @@ export type BundlerOptions = {
   context?: Record<string, LinkedContext>;
   define?: Record<string, string>;
   debug?: boolean;
+  target?: string;
 };
 
 export const createBundleHash = async (allSourceFiles: string[]) => {
@@ -88,7 +89,7 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   }
 
   const { dir: targetPath, name: targetName } = parse(sourceFile);
-  const { filePrefix, debug } = options;
+  const { filePrefix, target, debug } = options;
 
   const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
   const outputFile = getTemporaryPath(targetFile);
@@ -98,13 +99,13 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
     treeShaking: !debug,
     minifyWhitespace: true,
     minifySyntax: true,
-    packages: 'bundle',
     platform: 'node',
-    target: 'node22',
+    packages: 'bundle',
     format: 'esm',
     external: ['@aws-sdk/*'],
     keepNames: true,
     bundle: true,
+    target,
     define: {
       ...options.define
     },

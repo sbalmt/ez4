@@ -1,15 +1,17 @@
 import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import { HttpNamespaceType, type HttpDefaults } from './types';
+import type { HttpDefaults } from './types';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  tryGetReferenceType,
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
+  tryGetReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -19,6 +21,7 @@ import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../erro
 import { getFullTypeName } from '../utils/name';
 import { getWebPreferencesMetadata } from '../preferences';
 import { getHttpErrorsMetadata } from './errors';
+import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Defaults');
 
@@ -83,6 +86,14 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
       case 'logRetention':
       case 'timeout':
         defaults[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        defaults[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        defaults[member.name] = getServiceRuntime(member);
         break;
 
       case 'listener':

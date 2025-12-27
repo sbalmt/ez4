@@ -15,8 +15,8 @@ import { createGateway } from '../../gateway/service';
 import { GatewayProtocol } from '../../gateway/types';
 import { getIntegrationRequestFunction } from '../integration';
 import { getAuthorizerFunction } from '../authorizer';
+import { getInternalName } from '../utils/name';
 import { RoleMissingError } from '../errors';
-import { getInternalName } from '../utils';
 import { prepareLinkedClient } from './client';
 import { getCorsConfiguration } from './cors';
 

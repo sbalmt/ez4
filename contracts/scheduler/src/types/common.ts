@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedVariables } from '@ez4/project/library';
 
@@ -10,6 +10,8 @@ export type CronTarget = {
   listener?: ServiceListener;
   handler: TargetHandler;
   variables?: LinkedVariables;
+  architecture?: ServiceArchitecture;
+  runtime?: ServiceRuntime;
   logRetention?: number;
   timeout?: number;
   memory?: number;

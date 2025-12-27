@@ -1,3 +1,4 @@
+import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common/library';
 import type { WebPreferences } from './preferences';
 
 /**
@@ -23,4 +24,14 @@ export interface WebDefaults {
    * Default amount of memory available (in megabytes) for handlers.
    */
   readonly memory?: number;
+
+  /**
+   * Default architecture for all the API functions.
+   */
+  readonly architecture?: ServiceArchitecture;
+
+  /**
+   * Default runtime for all the API functions.
+   */
+  readonly runtime?: ServiceRuntime;
 }
