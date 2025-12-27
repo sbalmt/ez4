@@ -6,26 +6,8 @@ import { after, beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client insert relations', async () => {
+describe('client insert unique relations', async () => {
   const client = await makeRelationClient();
-
-  const assertTableBRelations = async (primaryId: string, expected: AnyObject) => {
-    const result = await client.table_b.findOne({
-      select: {
-        id_b: true,
-        value: true,
-        relations: {
-          id_a: true,
-          value: true
-        }
-      },
-      where: {
-        id_b: primaryId
-      }
-    });
-
-    deepEqual(result, expected);
-  };
 
   const assertTableARelation2 = async (relationIds: string[], expected: AnyObject[]) => {
     const { records } = await client.table_a.findMany({
@@ -71,50 +53,6 @@ describe('client insert relations', async () => {
 
   after(async () => {
     await deleteRelationTables(client);
-  });
-
-  it('assert :: insert, create and select relation (secondary to primary)', async () => {
-    const sourceId = randomUUID();
-    const targetId = randomUUID();
-
-    const result = await client.table_a.insertOne({
-      select: {
-        id_a: true,
-        value: true,
-        relation_1: {
-          id_b: true,
-          value: true
-        }
-      },
-      data: {
-        id_a: sourceId,
-        value: 'foo',
-        relation_1: {
-          id_b: targetId,
-          value: 'bar'
-        }
-      }
-    });
-
-    deepEqual(result, {
-      id_a: sourceId,
-      value: 'foo',
-      relation_1: {
-        id_b: targetId,
-        value: 'bar'
-      }
-    });
-
-    await assertTableBRelations(targetId, {
-      id_b: targetId,
-      value: 'bar',
-      relations: [
-        {
-          id_a: sourceId,
-          value: 'foo'
-        }
-      ]
-    });
   });
 
   it('assert :: insert, create and select relation (unique to primary)', async () => {
