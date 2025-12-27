@@ -9,11 +9,11 @@ import { tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 
+import { Defaults } from '../utils/defaults';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service';
 import { createAuthorizerFunction } from '../authorizer/function/service';
-import { getFunctionName, getInternalName } from './utils';
+import { getFunctionName, getInternalName } from './utils/name';
 import { RoleMissingError } from './errors';
-import { Defaults } from './defaults';
 
 export const getAuthorizerFunction = (
   state: EntryStates,
@@ -36,9 +36,11 @@ export const getAuthorizerFunction = (
   const {
     authorizer,
     listener = defaults.listener,
-    logRetention = defaults.logRetention,
-    timeout = defaults.timeout,
-    memory = defaults.memory
+    runtime = defaults.runtime ?? Defaults.Runtime,
+    architecture = defaults.architecture ?? Defaults.Architecture,
+    logRetention = defaults.logRetention ?? Defaults.LogRetention,
+    timeout = defaults.timeout ?? Defaults.Timeout,
+    memory = defaults.memory ?? Defaults.Memory
   } = target;
 
   const internalName = getInternalName(service, authorizer.name);
@@ -52,8 +54,8 @@ export const getAuthorizerFunction = (
     const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
-      retention: logRetention ?? Defaults.LogRetention,
       groupName: authorizerName,
+      retention: logRetention,
       tags: options.tags
     });
 
@@ -63,13 +65,15 @@ export const getAuthorizerFunction = (
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
-      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
-      memory: memory ?? Defaults.Memory,
+      timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,
       debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],
+      architecture,
+      runtime,
+      memory,
       preferences: {
         ...defaults.preferences,
         ...target.preferences

@@ -1,4 +1,4 @@
-import type { Http } from '@ez4/gateway';
+import type { Architecture, Http, Runtime } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
   routes: [
@@ -6,6 +6,7 @@ export declare class TestService extends Http.Service {
     Http.UseRoute<{
       path: 'ANY /test-route-1';
       handler: typeof testRoute1;
+      runtime: Runtime.Node24;
       logRetention: 7;
       disabled: true;
     }>,
@@ -23,6 +24,8 @@ declare class TestRoute implements Http.Route {
   timeout: 30;
 
   memory: 512;
+
+  architecture: Architecture.Arm;
 
   variables: {
     TEST_VAR: 'test-literal-value';

@@ -6,7 +6,7 @@ import { getEntryDependents } from '@ez4/stateful';
 import { isGatewayState } from '../gateway/utils';
 import { GatewayProtocol } from '../gateway/types';
 import { StageServiceType } from '../stage/types';
-import { Defaults } from './defaults';
+import { Defaults } from '../utils/defaults';
 
 export const resourceOutput = (event: ResourceOutputEvent) => {
   const { state, service } = event;

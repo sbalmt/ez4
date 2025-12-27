@@ -12,6 +12,8 @@ import {
   getPropertyNumber,
   getPropertyString,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -87,6 +89,14 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
       case 'logRetention':
       case 'timeout':
         event[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        event[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        event[member.name] = getServiceRuntime(member);
         break;
 
       case 'variables':

@@ -23,6 +23,8 @@ export const createAuthorizerFunction = <E extends EntryState>(
     sourceFile: authorizer.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    architecture: parameters.architecture,
+    runtime: parameters.runtime,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,

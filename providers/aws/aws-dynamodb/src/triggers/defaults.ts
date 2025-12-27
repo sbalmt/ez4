@@ -1,16 +1,28 @@
+import { FunctionDefaults } from '@ez4/aws-function';
+
 export namespace Defaults {
   /**
    * Default log retention in days.
    */
-  export const LogRetention = 90;
+  export const LogRetention = FunctionDefaults.LogRetention;
 
   /**
-   * Default lambda timeout.
+   * Default stream architecture.
    */
-  export const Timeout = 90;
+  export const Architecture = FunctionDefaults.Architecture;
 
   /**
-   * Default lambda memory.
+   * Default stream runtime.
    */
-  export const Memory = 192;
+  export const Runtime = FunctionDefaults.Runtime;
+
+  /**
+   * Default stream timeout.
+   */
+  export const Timeout = FunctionDefaults.Timeout;
+
+  /**
+   * Default stream memory.
+   */
+  export const Memory = FunctionDefaults.Memory;
 }

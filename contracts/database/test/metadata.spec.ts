@@ -6,7 +6,7 @@ import { registerTriggers, getDatabaseServices } from '@ez4/database/library';
 import { buildReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/models/output-${fileName}.ts`;
+  const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = buildReflection([sourceFile]);

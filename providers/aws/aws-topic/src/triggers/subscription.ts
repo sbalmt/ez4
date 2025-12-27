@@ -49,9 +49,17 @@ export const prepareSubscriptions = (
           const subscriptionName = getFunctionName(service, handler.name, options);
           const dependencies = context.getDependencyFiles(handler.file);
 
+          const {
+            runtime = Defaults.Runtime,
+            architecture = Defaults.Architecture,
+            logRetention = Defaults.LogRetention,
+            timeout = Defaults.Timeout,
+            memory = Defaults.Memory
+          } = subscription;
+
           const logGroupState = createLogGroup(state, {
-            retention: subscription.logRetention ?? Defaults.LogRetention,
             groupName: subscriptionName,
+            retention: logRetention,
             tags: options.tags
           });
 
@@ -59,12 +67,14 @@ export const prepareSubscriptions = (
             functionName: subscriptionName,
             description: handler.description,
             messageSchema: service.schema,
-            timeout: subscription.timeout ?? Defaults.Timeout,
-            memory: subscription.memory ?? Defaults.Memory,
             context: service.context,
             debug: options.debug,
             tags: options.tags,
             variables: [options.variables, service.variables, subscription.variables],
+            architecture,
+            runtime,
+            timeout,
+            memory,
             handler: {
               sourceFile: handler.file,
               functionName: handler.name,

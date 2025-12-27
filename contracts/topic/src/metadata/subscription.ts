@@ -13,6 +13,8 @@ import {
   getPropertyNumber,
   getPropertyTuple,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType
 } from '@ez4/common/library';
 
@@ -142,6 +144,14 @@ const getLambdaSubscription = (
       case 'logRetention':
       case 'timeout':
         subscription[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        subscription[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        subscription[member.name] = getServiceRuntime(member);
         break;
 
       case 'listener':
