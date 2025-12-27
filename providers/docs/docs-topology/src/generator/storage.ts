@@ -9,7 +9,7 @@ import { ThemeColor } from '../common/theme';
 
 export const getStorageNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('Storages', metadata, {
-    styles: [`classDef ez4Bucket ${getNodeStyle(ThemeColor.Storage)};`, `classDef ez4BucketEdge ${getEdgeStyle(ThemeColor.Storage)};`],
+    styles: [`classDef ez4Bucket ${getNodeStyle(ThemeColor.Storage)}`, `classDef ez4BucketEdge ${getEdgeStyle(ThemeColor.Storage)}`],
     generator: ({ name, resource }) => {
       if (isBucketService(resource)) {
         return {

@@ -1,4 +1,5 @@
-import type { Ws } from '@ez4/gateway';
+import type { Architecture, Runtime, Ws } from '@ez4/gateway';
+import type { NamingStyle } from '@ez4/schema';
 
 type TestData = {
   foo: string;
@@ -32,14 +33,22 @@ export declare class TestService2 extends Ws.Service<TestData> {
 
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
+    logRetention: 15;
+    memory: 128;
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
+    architecture: Architecture.Arm;
+    runtime: Runtime.Node24;
   }>;
 
   message: Ws.UseMessage<{
     handler: typeof messageHandler;
+    timeout: 90;
+    preferences: {
+      namingStyle: NamingStyle.CamelCase;
+    };
   }>;
 }
 

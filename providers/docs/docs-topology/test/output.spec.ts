@@ -14,7 +14,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   const outputContent = TopologyGenerator.getTopologyOutput(metadata);
 
-  if (!existsSync(fileName) || overwrite) {
+  if (!existsSync(outputFile) || overwrite) {
     writeFileSync(outputFile, outputContent);
   } else {
     deepEqual(outputContent, readFileSync(outputFile).toString());

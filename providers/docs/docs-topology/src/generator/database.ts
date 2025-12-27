@@ -9,10 +9,7 @@ import { ThemeColor } from '../common/theme';
 
 export const getDatabaseNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('DBs', metadata, {
-    styles: [
-      `classDef ez4Database ${getNodeStyle(ThemeColor.Database)};`,
-      `classDef ez4DatabaseEdge ${getEdgeStyle(ThemeColor.Database)};`
-    ],
+    styles: [`classDef ez4Database ${getNodeStyle(ThemeColor.Database)}`, `classDef ez4DatabaseEdge ${getEdgeStyle(ThemeColor.Database)}`],
     generator: ({ name, resource }) => {
       if (isDatabaseService(resource)) {
         return {

@@ -11,7 +11,7 @@ export type DistributionEdges = (target: ServiceMetadata, source: ServiceMetadat
 
 export const getDistributionNodes = (metadata: MetadataReflection, edgeGenerator: DistributionEdges) => {
   return getSubgraphOutput('CDNs', metadata, {
-    styles: [`classDef ez4Cdn ${getNodeStyle(ThemeColor.Distribution)};`, `classDef ez4CdnEdge ${getEdgeStyle(ThemeColor.Distribution)}`],
+    styles: [`classDef ez4Cdn ${getNodeStyle(ThemeColor.Distribution)}`, `classDef ez4CdnEdge ${getEdgeStyle(ThemeColor.Distribution)}`],
     generator: ({ name, resource }) => {
       if (!isCdnService(resource)) {
         return undefined;

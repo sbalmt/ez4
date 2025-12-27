@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
 import type { LinkedVariables } from '@ez4/project/library';
 
 export type BucketCors = {
@@ -16,6 +16,8 @@ export type BucketEvent = {
   listener?: ServiceListener;
   handler: EventHandler;
   variables?: LinkedVariables;
+  architecture?: ServiceArchitecture;
+  runtime?: ServiceRuntime;
   logRetention?: number;
   timeout?: number;
   memory?: number;

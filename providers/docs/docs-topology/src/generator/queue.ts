@@ -10,8 +10,8 @@ import { ThemeColor } from '../common/theme';
 export const getQueueNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('Queues', metadata, {
     styles: [
-      `classDef ez4Queue ${getNodeStyle(ThemeColor.Queue)};`,
-      `classDef ez4ImportQueue ${getNodeImportStyle(ThemeColor.Queue)};`,
+      `classDef ez4Queue ${getNodeStyle(ThemeColor.Queue)}`,
+      `classDef ez4ImportQueue ${getNodeImportStyle(ThemeColor.Queue)}`,
       `classDef ez4QueueEdge ${getEdgeStyle(ThemeColor.Queue)}`
     ],
     generator: ({ name, resource }) => {

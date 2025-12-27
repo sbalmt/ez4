@@ -47,8 +47,8 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-rds": "^3.913.0",
-    "@aws-sdk/client-rds-data": "^3.913.0",
+    "@aws-sdk/client-rds": "^3.958.0",
+    "@aws-sdk/client-rds-data": "^3.958.0",
     "@ez4/aws-common": "^0.37.0",
     "@ez4/aws-identity": "^0.37.0",
     "@ez4/database": "^0.37.0",

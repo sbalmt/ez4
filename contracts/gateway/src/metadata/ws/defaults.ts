@@ -9,6 +9,8 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   tryGetReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
@@ -79,6 +81,14 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
       case 'logRetention':
       case 'timeout':
         defaults[member.name] = getPropertyNumber(member);
+        break;
+
+      case 'architecture':
+        defaults[member.name] = getServiceArchitecture(member);
+        break;
+
+      case 'runtime':
+        defaults[member.name] = getServiceRuntime(member);
         break;
 
       case 'listener':

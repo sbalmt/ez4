@@ -10,8 +10,8 @@ import { ThemeColor } from '../common/theme';
 export const getValidationNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('Validations', metadata, {
     styles: [
-      `classDef ez4Validation ${getNodeStyle(ThemeColor.Validation)};`,
-      `classDef ez4ValidationEdge ${getEdgeStyle(ThemeColor.Validation)};`
+      `classDef ez4Validation ${getNodeStyle(ThemeColor.Validation)}`,
+      `classDef ez4ValidationEdge ${getEdgeStyle(ThemeColor.Validation)}`
     ],
     generator: ({ name, resource }) => {
       if (isValidationService(resource)) {
