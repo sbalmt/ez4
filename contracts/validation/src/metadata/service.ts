@@ -4,12 +4,12 @@ import type { ValidationService } from './types';
 
 import {
   DuplicateServiceError,
+  InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  InvalidServicePropertyError,
-  isClassDeclaration,
   hasHeritageType
 } from '@ez4/common/library';
 

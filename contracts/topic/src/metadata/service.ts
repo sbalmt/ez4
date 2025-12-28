@@ -3,6 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { TopicService } from './types';
 
 import {
+  DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
@@ -103,6 +104,11 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
 
     if (validationErrors.length) {
       errorList.push(...validationErrors);
+      continue;
+    }
+
+    if (allServices[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 

@@ -3,6 +3,7 @@ import type { Incomplete } from '@ez4/utils';
 import type { TopicImport } from './types';
 
 import {
+  DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
@@ -121,6 +122,11 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
 
     if (!isCompleteService(service)) {
       errorList.push(new IncompleteServiceError([...properties], fileName));
+      continue;
+    }
+
+    if (allImports[declaration.name]) {
+      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 

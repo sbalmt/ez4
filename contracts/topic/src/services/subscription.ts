@@ -1,7 +1,9 @@
 import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
-import type { TopicSubscriptionListener, TopicSubscriptionHandler, TopicMessage } from './common';
+import type { TopicSubscriptionListener } from './listener';
+import type { TopicSubscriptionHandler } from './handler';
+import type { TopicMessage } from './message';
 
 /**
  * Queue subscription for the topic.
