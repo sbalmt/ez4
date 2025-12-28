@@ -1,7 +1,7 @@
 import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { TopicSubscription } from '../types/common';
+import type { TopicSubscription } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -15,17 +15,25 @@ import {
   getServiceListener,
   getServiceArchitecture,
   getServiceRuntime,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteSubscriptionError, IncorrectSubscriptionTypeError, InvalidSubscriptionTypeError } from '../errors/subscription';
-import { TopicSubscriptionType } from '../types/common';
-import { isTopicSubscription } from './utils';
-import { getSubscriptionHandler } from './handler';
+import { getSubscriptionHandlerMetadata } from './handler';
+import { TopicSubscriptionType } from './types';
 
-export const getAllSubscription = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTopicSubscriptionDeclaration = (type: AllType) => {
+  if (isModelDeclaration(type)) {
+    return hasHeritageType(type, 'Topic.QueueSubscription') || hasHeritageType(type, 'Topic.LambdaSubscription');
+  }
+
+  return false;
+};
+
+export const getAllSubscriptionMetadata = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const subscriptionItems = getPropertyTuple(member) ?? [];
   const resultList: TopicSubscription[] = [];
 
@@ -76,7 +84,7 @@ const getTypeSubscription = (type: AllType, parent: TypeModel, reflection: Refle
     return undefined;
   }
 
-  if (!isTopicSubscription(type)) {
+  if (!isTopicSubscriptionDeclaration(type)) {
     errorList.push(new IncorrectSubscriptionTypeError(type.name, type.file));
     return undefined;
   }
@@ -135,7 +143,7 @@ const getLambdaSubscription = (
         break;
 
       case 'handler':
-        if ((subscription.handler = getSubscriptionHandler(member.value, reflection, errorList))) {
+        if ((subscription.handler = getSubscriptionHandlerMetadata(member.value, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;

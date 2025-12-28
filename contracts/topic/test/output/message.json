@@ -1,0 +1,82 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestTopic1": {
+    "type": "@ez4/topic",
+    "name": "TestTopic1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "union",
+      "elements": [
+        {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bar": {
+              "type": "number"
+            }
+          },
+          "identity": 1
+        }
+      ]
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "handler": {
+          "name": "testHandler1",
+          "file": "test/input/output-message.ts",
+          "position": [
+            13,
+            1
+          ]
+        }
+      }
+    ]
+  },
+  "TestTopic2": {
+    "type": "@ez4/topic",
+    "name": "TestTopic2",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 2
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "handler": {
+          "name": "testHandler2",
+          "file": "test/input/output-message.ts",
+          "position": [
+            25,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

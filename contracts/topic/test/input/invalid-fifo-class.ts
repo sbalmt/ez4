@@ -5,11 +5,14 @@ type TestMessage = {
   user: string;
 };
 
+// Concrete class is not allowed.
+class TestFifoMode implements Topic.FifoMode<TestMessage> {
+  groupId!: 'user';
+  uniqueId!: 'id';
+}
+
 export declare class TestTopic extends Topic.Service<TestMessage> {
-  // @ts-expect-error Missing groupId field.
-  fifoMode: {
-    uniqueId: 'id';
-  };
+  fifoMode: TestFifoMode;
 
   subscriptions: [];
 }

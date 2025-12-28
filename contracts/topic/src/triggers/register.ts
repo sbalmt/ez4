@@ -3,11 +3,9 @@ import { registerTriggers as registerSchemaTriggers } from '@ez4/schema/library'
 import { registerTriggers as registerQueueTriggers } from '@ez4/queue/library';
 import { tryCreateTrigger } from '@ez4/project/library';
 
-import { getTopicImports } from '../metadata/import';
-import { ImportType } from '../types/import';
-
-import { ServiceType } from '../types/service';
-import { getTopicServices } from '../metadata/service';
+import { getTopicImportsMetadata } from '../metadata/import';
+import { getTopicServicesMetadata } from '../metadata/service';
+import { ServiceType, ImportType } from '../metadata/types';
 import { getLinkedService, getLinkedImport } from './service';
 
 export const registerTriggers = () => {
@@ -16,12 +14,12 @@ export const registerTriggers = () => {
   registerQueueTriggers();
 
   tryCreateTrigger(ServiceType, {
-    'metadata:getServices': getTopicServices,
+    'metadata:getServices': getTopicServicesMetadata,
     'metadata:getLinkedService': getLinkedService
   });
 
   tryCreateTrigger(ImportType, {
-    'metadata:getServices': getTopicImports,
+    'metadata:getServices': getTopicImportsMetadata,
     'metadata:getLinkedService': getLinkedImport
   });
 };

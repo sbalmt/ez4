@@ -1,36 +1,40 @@
-import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { TopicService } from '../types/service';
+import type { TopicService } from './types';
 
 import {
-  DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelMembers
+  getModelMembers,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 import { isObjectWith } from '@ez4/utils';
 
-import { createTopicService } from '../types/service';
+import { createTopicService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
-import { getAllSubscription } from './subscription';
-import { getTopicMessage } from './message';
-import { getTopicFifoMode } from './fifo';
-import { isTopicService } from './utils';
+import { getAllSubscriptionMetadata } from './subscription';
+import { getTopicMessageMetadata } from './message';
+import { getTopicFifoModeMetadata } from './fifo';
 
-export const getTopicServices = (reflection: ReflectionTypes) => {
+export const isTopicServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Service');
+};
+
+export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, TopicService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isTopicService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isTopicServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -59,20 +63,20 @@ export const getTopicServices = (reflection: ReflectionTypes) => {
           break;
 
         case 'schema':
-          if ((service.schema = getTopicMessage(member.value, declaration, reflection, errorList))) {
+          if ((service.schema = getTopicMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
         case 'subscriptions':
-          if (!member.inherited && (service.subscriptions = getAllSubscription(member, declaration, reflection, errorList))) {
+          if (!member.inherited && (service.subscriptions = getAllSubscriptionMetadata(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
 
         case 'fifoMode':
           if (!member.inherited) {
-            service.fifoMode = getTopicFifoMode(member.value, declaration, reflection, errorList);
+            service.fifoMode = getTopicFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
           break;
 
@@ -99,11 +103,6 @@ export const getTopicServices = (reflection: ReflectionTypes) => {
 
     if (validationErrors.length) {
       errorList.push(...validationErrors);
-      continue;
-    }
-
-    if (allServices[declaration.name]) {
-      errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
 

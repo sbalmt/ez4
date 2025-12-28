@@ -1,7 +1,7 @@
-import type { Incomplete } from '@ez4/utils';
-import type { MemberType } from '@ez4/common/library';
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TopicFifoMode } from '../types/common';
+import type { MemberType } from '@ez4/common/library';
+import type { Incomplete } from '@ez4/utils';
+import type { TopicFifoMode } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,33 +9,38 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyString,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo';
-import { isTopicFifoMode } from './utils';
 
-export const getTopicFifoMode = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTopicFifoModeDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Topic.FifoMode');
+};
+
+export const getTopicFifoModeMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeFifoMode(type, parent, errorList);
+    return getFifoModeType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeFifoMode(declaration, parent, errorList);
+    return getFifoModeType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidFifoMode = (type: Incomplete<TopicFifoMode>): type is TopicFifoMode => {
-  return !!type.groupId;
+const isCompleteFifoMode = (type: Incomplete<TopicFifoMode>): type is TopicFifoMode => {
+  return isObjectWith(type, ['groupId']);
 };
 
-const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getFifoModeType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -45,7 +50,7 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
     return undefined;
   }
 
-  if (!isTopicFifoMode(type)) {
+  if (!isTopicFifoModeDeclaration(type)) {
     errorList.push(new IncorrectFifoModeTypeError(type.name, type.file));
     return undefined;
   }
@@ -76,11 +81,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidFifoMode(fifoOptions)) {
-    return fifoOptions;
+  if (!isCompleteFifoMode(fifoOptions)) {
+    errorList.push(new IncompleteFifoModeError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteFifoModeError([...properties], type.file));
-
-  return undefined;
+  return fifoOptions;
 };

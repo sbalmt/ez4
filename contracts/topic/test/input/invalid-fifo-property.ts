@@ -5,16 +5,14 @@ type TestMessage = {
   user: string;
 };
 
-// Concrete class is not allowed.
-class TestFifoMode implements Topic.FifoMode<TestMessage> {
-  groupId!: 'user';
-  uniqueId!: 'id';
-}
-
 export declare class TestTopic extends Topic.Service<TestMessage> {
-  schema: TestMessage;
+  fifoMode: Topic.UseFifoMode<{
+    groupId: 'user';
+    uniqueId: 'id';
 
-  fifoMode: TestFifoMode;
+    // No extra property is allowed
+    invalid_property: true;
+  }>;
 
   subscriptions: [];
 }

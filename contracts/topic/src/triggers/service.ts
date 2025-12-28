@@ -1,11 +1,12 @@
 import type { TypeClass } from '@ez4/reflection';
 
-import { isTopicService, isTopicImport } from '../metadata/utils';
+import { isTopicServiceDeclaration } from '../metadata/service';
+import { isTopicImportDeclaration } from '../metadata/import';
 
 export const getLinkedService = (declaration: TypeClass): string | null => {
-  return isTopicService(declaration) ? declaration.name : null;
+  return isTopicServiceDeclaration(declaration) ? declaration.name : null;
 };
 
 export const getLinkedImport = (declaration: TypeClass): string | null => {
-  return isTopicImport(declaration) ? declaration.name : null;
+  return isTopicImportDeclaration(declaration) ? declaration.name : null;
 };
