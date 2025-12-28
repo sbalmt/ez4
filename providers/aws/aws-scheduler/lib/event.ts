@@ -4,6 +4,8 @@ import type { Cron } from '@ez4/scheduler';
 
 import { getJsonEvent } from '@ez4/scheduler/utils';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -23,9 +25,16 @@ export async function eventEntryPoint(event: ScheduledEvent, context: Context): 
   try {
     await onBegin(request);
 
-    if (__EZ4_SCHEMA) {
-      Object.assign(request, { event: await getJsonEvent(event, __EZ4_SCHEMA) });
-    }
+    const traceId = getRandomUUID();
+
+    Object.assign(request, {
+      ...(__EZ4_SCHEMA && { event: await getJsonEvent(event, __EZ4_SCHEMA) }),
+      traceId
+    });
+
+    Runtime.setScope({
+      traceId
+    });
 
     await onReady(request);
     await handle(request, __EZ4_CONTEXT);
@@ -68,7 +77,7 @@ const onDone = async (request: Cron.Incoming<Cron.Event | null>) => {
 };
 
 const onError = async (error: unknown, request: Cron.Incoming<Cron.Event | null>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

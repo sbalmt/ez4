@@ -51,6 +51,7 @@
     "@aws-sdk/client-rds-data": "^3.958.0",
     "@ez4/aws-common": "^0.37.0",
     "@ez4/aws-identity": "^0.37.0",
+    "@ez4/common": "^0.37.0",
     "@ez4/database": "^0.37.0",
     "@ez4/pgclient": "^0.37.0",
     "@ez4/pgmigration": "^0.37.0",

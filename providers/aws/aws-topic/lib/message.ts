@@ -2,9 +2,10 @@ import type { SNSEvent, Context } from 'aws-lambda';
 import type { MessageSchema } from '@ez4/topic/utils';
 import type { Topic } from '@ez4/topic';
 
-import * as TopicUtils from '@ez4/topic/utils';
-
+import { getJsonMessage } from '@ez4/topic/utils';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -26,17 +27,24 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
-      throw new Error(`Validation schema for SNS message not found.`);
+      throw new Error(`Validation schema for SNS message wasn't found.`);
     }
 
-    for (const record of event.Records) {
-      const payload = JSON.parse(record.Sns.Message);
-      const message = await TopicUtils.getJsonMessage(payload, __EZ4_SCHEMA);
+    for (const { Sns } of event.Records) {
+      const payload = JSON.parse(Sns.Message);
+      const message = await getJsonMessage(payload, __EZ4_SCHEMA);
+
+      const traceId = Sns.MessageAttributes['EZ4.TRACE_ID']?.Value ?? getRandomUUID();
 
       currentRequest = {
         ...request,
+        traceId,
         message
       };
+
+      Runtime.setScope({
+        traceId
+      });
 
       await onReady(currentRequest);
       await handle(currentRequest, __EZ4_CONTEXT);
@@ -80,7 +88,7 @@ const onDone = async (request: Topic.Incoming<Topic.Message>) => {
 };
 
 const onError = async (error: unknown, request: Topic.Request | Topic.Incoming<Topic.Message>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

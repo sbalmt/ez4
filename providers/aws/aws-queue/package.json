@@ -47,7 +47,6 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
-    "@ez4/common": "^0.37.0",
     "@types/aws-lambda": "^8.10.156"
   },
   "dependencies": {
@@ -56,12 +55,13 @@
     "@ez4/aws-function": "^0.37.0",
     "@ez4/aws-identity": "^0.37.0",
     "@ez4/aws-logs": "^0.37.0",
+    "@ez4/common": "^0.37.0",
     "@ez4/project": "^0.37.0",
     "@ez4/queue": "^0.37.0",
     "@ez4/schema": "^0.37.0",
     "@ez4/stateful": "^0.37.0",
     "@ez4/transform": "^0.37.0",
-    "@ez4/validator": "^0.37.0",
-    "@ez4/utils": "^0.37.0"
+    "@ez4/utils": "^0.37.0",
+    "@ez4/validator": "^0.37.0"
   }
 }

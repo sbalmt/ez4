@@ -2,10 +2,11 @@ import type { SQSEvent, Context, SQSBatchItemFailure, SQSBatchResponse, SQSRecor
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import * as QueueUtils from '@ez4/queue/utils';
-
+import { getJsonMessage } from '@ez4/queue/utils';
 import { SQSClient, DeleteMessageCommand } from '@aws-sdk/client-sqs';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 const client = new SQSClient({});
 
@@ -61,12 +62,19 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       }
 
       const payload = JSON.parse(record.body);
-      const message = await QueueUtils.getJsonMessage(payload, schema);
+      const message = await getJsonMessage(payload, schema);
+
+      const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
       currentRequest = {
         ...request,
+        traceId,
         message
       };
+
+      Runtime.setScope({
+        traceId
+      });
 
       await onReady(currentRequest);
 
@@ -151,7 +159,7 @@ const onDone = async (request: Queue.Incoming<Queue.Message>) => {
 };
 
 const onError = async (error: unknown, request: Queue.Request | Queue.Incoming<Queue.Message>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

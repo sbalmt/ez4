@@ -2,7 +2,8 @@ import type { HttpClient as HttpClientType, HttpClientRequest, Http } from '@ez4
 import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
 
 import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
-import { isAnyString } from '@ez4/utils';
+import { getRandomUUID, isAnyString } from '@ez4/utils';
+import { Runtime } from '@ez4/common/runtime';
 
 export type ClientOperations = Record<string, ClientOperation>;
 
@@ -26,6 +27,8 @@ export namespace HttpClient {
 
             const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
+            const scope = Runtime.getScope();
+
             const requestUrl = getClientRequestUrl(gatewayUrl, path, {
               ...request,
               querySchema,
@@ -37,6 +40,10 @@ export namespace HttpClient {
               bodySchema,
               responseSchema,
               namingStyle,
+              headers: {
+                ['X-Trace-Id']: scope?.traceId ?? getRandomUUID(),
+                ...request.headers
+              },
               ...(authorize && {
                 authorization
               })

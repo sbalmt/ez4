@@ -21,9 +21,14 @@ export type CronIncoming<T extends CronEvent | null> = CronRequest & {
  */
 export type CronRequest = {
   /**
-   * Request tracking Id.
+   *  Unique identifier for the request.
    */
   readonly requestId: string;
+
+  /**
+   * Unique identifier across multiple services.
+   */
+  readonly traceId?: string;
 };
 
 /**

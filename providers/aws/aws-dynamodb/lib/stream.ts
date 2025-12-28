@@ -8,6 +8,8 @@ import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { createTransformContext, transform } from '@ez4/transform';
 import { StreamChangeType } from '@ez4/database';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: ObjectSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -39,10 +41,17 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
         continue;
       }
 
+      const traceId = getRandomUUID();
+
       currentRequest = {
         ...request,
-        ...change
+        ...change,
+        traceId
       };
+
+      Runtime.setScope({
+        traceId
+      });
 
       await onReady(currentRequest);
       await handle(currentRequest, __EZ4_CONTEXT);
@@ -159,7 +168,7 @@ const onDone = async (request: Database.Incoming<Database.Schema>) => {
 };
 
 const onError = async (error: unknown, request: Database.Request | Database.Incoming<Database.Schema>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

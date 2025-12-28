@@ -14,6 +14,8 @@ import type {
 import { resolveHeaders, resolvePathParameters, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 type IncomingRequest = Http.Incoming<Http.AuthRequest> | Ws.Incoming<Ws.AuthRequest>;
 type ServiceEvent = Http.ServiceEvent<Http.AuthRequest> | Ws.ServiceEvent<Ws.AuthRequest>;
@@ -48,7 +50,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   try {
     await onBegin(request);
 
-    Object.assign(request, await getIncomingRequest(event));
+    const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
+
+    Object.assign(request, {
+      ...(await getIncomingRequest(event)),
+      traceId
+    });
+
+    Runtime.setScope({
+      traceId
+    });
 
     await onReady(request);
 
@@ -165,7 +176,7 @@ const onDone = async (request: IncomingRequest) => {
 };
 
 const onError = async (error: unknown, request: IncomingRequest) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

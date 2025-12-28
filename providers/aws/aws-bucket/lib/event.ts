@@ -1,8 +1,10 @@
 import type { S3Event, Context } from 'aws-lambda';
 import type { Bucket } from '@ez4/storage';
 
-import { ServiceEventType } from '@ez4/common';
 import { BucketEventType } from '@ez4/storage';
+import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_CONTEXT: object;
 
@@ -27,13 +29,20 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
 
       const { bucket, object } = record.s3;
 
+      const traceId = getRandomUUID();
+
       currentRequest = {
         ...request,
-        eventType,
         bucketName: bucket.name,
         objectSize: object.size,
-        objectKey: object.key
+        objectKey: object.key,
+        eventType,
+        traceId
       };
+
+      Runtime.setScope({
+        traceId
+      });
 
       await onReady(currentRequest);
       await handle(currentRequest, __EZ4_CONTEXT);
@@ -89,7 +98,7 @@ const onDone = async (request: Bucket.Incoming) => {
 };
 
 const onError = async (error: unknown, request: Bucket.Request | Bucket.Incoming) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {
