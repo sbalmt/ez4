@@ -47,6 +47,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
+    "@ez4/common": "^0.37.0",
     "@types/aws-lambda": "^8.10.159"
   },
   "dependencies": {

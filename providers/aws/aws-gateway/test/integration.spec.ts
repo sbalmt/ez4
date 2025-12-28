@@ -14,9 +14,10 @@ import {
   GatewayProtocol
 } from '@ez4/aws-gateway';
 
-import { deploy } from '@ez4/aws-common';
+import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
+import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -71,6 +72,8 @@ describe('gateway integration', () => {
     const lambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-integration-lambda',
       type: IntegrationFunctionType.HttpRequest,
+      architecture: ServiceArchitecture.Arm,
+      runtime: ServiceRuntime.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

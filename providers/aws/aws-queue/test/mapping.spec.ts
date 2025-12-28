@@ -5,6 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createQueueFunction, createMapping, createQueue, registerTriggers } from '@ez4/aws-queue';
+import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -66,6 +67,8 @@ describe('queue mapping', () => {
 
     const functionResource = createQueueFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-queue-mapping-lambda',
+      architecture: ServiceArchitecture.Arm,
+      runtime: ServiceRuntime.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

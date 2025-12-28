@@ -5,6 +5,7 @@ import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { AttributeKeyType, AttributeType, createStreamFunction, createMapping, createTable, registerTriggers } from '@ez4/aws-dynamodb';
+import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -76,6 +77,8 @@ describe('dynamodb mapping', () => {
 
     const functionResource = createStreamFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-table-mapping-lambda',
+      architecture: ServiceArchitecture.Arm,
+      runtime: ServiceRuntime.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
