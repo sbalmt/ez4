@@ -16,7 +16,7 @@ Most engineering teams strive to build solid foundations and deliver value when 
 
 ## Getting started
 
-Check out some examples to get started with.
+Read the [quick start](./documentation/quick-start.md) guide and check out some examples to begin.
 
 - [Get started with API Gateway](./examples/hello-aws-gateway)
 - [Get started with CloudFront](./examples/hello-aws-cloudfront)
