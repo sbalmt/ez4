@@ -13,7 +13,6 @@ export * from './reflection/reference';
 export * from './reflection/function';
 export * from './reflection/property';
 export * from './reflection/object';
-export * from './reflection/array';
 export * from './reflection/model';
 export * from './reflection/types';
 export * from './reflection/value';
