@@ -51,36 +51,41 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
         case 'client':
           break;
 
-        case 'handler':
+        case 'handler': {
           if (!member.inherited && (service.handler = getValidationHandlerMetadata(member.value, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'schema':
+        case 'schema': {
           if ((service.schema = getAnySchema(member.value, reflection))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
+        }
       }
     }
 
