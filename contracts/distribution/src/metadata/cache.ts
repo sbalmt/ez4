@@ -9,9 +9,9 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyBoolean,
+  getPropertyStringList,
   getPropertyNumber,
-  getReferenceType,
-  getArrayStrings
+  getReferenceType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -66,9 +66,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'ttl':
       case 'minTTL':
@@ -83,23 +84,24 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
-      case 'compress':
+      case 'compress': {
         cache.compress = getPropertyBoolean(member);
         break;
+      }
 
       case 'headers':
       case 'cookies':
-      case 'queries':
-        cache[member.name] = getArrayStrings(member);
+      case 'queries': {
+        cache[member.name] = getPropertyStringList(member);
         break;
+      }
     }
   }
 
-  if (isValidCache(cache)) {
-    return cache;
+  if (!isValidCache(cache)) {
+    errorList.push(new IncompleteCacheError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteCacheError([...properties], type.file));
-
-  return undefined;
+  return cache;
 };
