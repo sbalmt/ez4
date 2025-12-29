@@ -1,4 +1,4 @@
-import { MissingPackageError } from '../common/errors';
+import { MissingPackageError } from '../errors/common';
 
 export class MissingEmulatorProvider extends MissingPackageError {
   constructor(public contractName: string) {
