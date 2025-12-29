@@ -1,40 +1,44 @@
-import type { ModelProperty, ReflectionTypes } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnService } from '../types/service';
+import type { CdnService } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getModelMembers,
   getPropertyBoolean,
+  getPropertyStringList,
   getPropertyString,
-  getPropertyTuple
+  hasHeritageType
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeString } from '@ez4/reflection';
-import { createServiceMetadata } from '@ez4/project/library';
+import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { ServiceType } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
-import { getAllCdnOrigins, getCdnOrigin } from './origin';
-import { getCdnCertificate } from './certificate';
-import { getAllFallbacks } from './fallback';
-import { isCdnService } from './utils';
+import { getCdnOriginsMetadata, getCdnOriginMetadata } from './origin';
+import { getCdnCertificateMetadata } from './certificate';
+import { getCndFallbacksMetadata } from './fallback';
+import { createCdnService } from './types';
 
-export const getCdnServices = (reflection: ReflectionTypes) => {
+export const isCdnServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Cdn.Service');
+};
+
+export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, CdnService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isCdnService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isCdnServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
-    const service = createServiceMetadata<CdnService>(ServiceType, declaration.name);
+    const service = createCdnService(declaration.name);
     const properties = new Set(['defaultOrigin']);
 
     const fileName = declaration.file;
@@ -49,39 +53,47 @@ export const getCdnServices = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
-        case 'defaultOrigin':
-          if ((service.defaultOrigin = getCdnOrigin(member.value, declaration, reflection, errorList))) {
+        case 'defaultOrigin': {
+          if ((service.defaultOrigin = getCdnOriginMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'defaultIndex':
+        case 'defaultIndex': {
           service.defaultIndex = getPropertyString(member);
           break;
+        }
 
-        case 'aliases':
-          service.aliases = getAllAliases(member);
+        case 'aliases': {
+          service.aliases = getPropertyStringList(member);
           break;
+        }
 
-        case 'certificate':
-          service.certificate = getCdnCertificate(member.value, declaration, reflection, errorList);
+        case 'certificate': {
+          service.certificate = getCdnCertificateMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'origins':
-          service.origins = getAllCdnOrigins(member.value, declaration, reflection, errorList);
+        case 'origins': {
+          service.origins = getCdnOriginsMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'fallbacks':
-          service.fallbacks = getAllFallbacks(member, declaration, reflection, errorList);
+        case 'fallbacks': {
+          service.fallbacks = getCndFallbacksMetadata(member, declaration, reflection, errorList);
           break;
+        }
 
-        case 'disabled':
+        case 'disabled': {
           service.disabled = getPropertyBoolean(member);
           break;
+        }
       }
     }
 
@@ -106,19 +118,4 @@ export const getCdnServices = (reflection: ReflectionTypes) => {
 
 const isCompleteService = (type: Incomplete<CdnService>): type is CdnService => {
   return isObjectWith(type, ['defaultOrigin']);
-};
-
-const getAllAliases = (member: ModelProperty) => {
-  const aliasItems = getPropertyTuple(member) ?? [];
-  const aliasList: string[] = [];
-
-  for (const alias of aliasItems) {
-    if (!isTypeString(alias) || !alias.literal) {
-      continue;
-    }
-
-    aliasList.push(alias.literal);
-  }
-
-  return aliasList;
 };

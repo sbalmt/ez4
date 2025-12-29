@@ -7,13 +7,12 @@ declare class TestBucket extends Bucket.Service {}
 export declare class TestCdn extends Cdn.Service {
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
-    location: '/site';
   }>;
 
-  certificate: TestCertificate;
-}
+  certificate: Cdn.UseCertificate<{
+    domain: 'ez4.dev';
 
-// Concrete class is not allowed.
-class TestCertificate implements Cdn.Certificate {
-  domain!: 'ez4.dev';
+    // No extra property is allowed
+    invalid_property: true;
+  }>;
 }

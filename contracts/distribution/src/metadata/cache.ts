@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnCache } from '../types/cache';
+import type { CdnCache } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -11,34 +11,38 @@ import {
   getPropertyBoolean,
   getPropertyStringList,
   getPropertyNumber,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../errors/cache';
-import { isCdnCache } from './utils';
 
-export const getCdnCache = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isCdnCacheDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cdn.Cache');
+};
+
+export const getCdnCacheMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeCache(type, parent, errorList);
+    return getCacheType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeCache(declaration, parent, errorList);
+    return getCacheType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidCache = (type: Incomplete<CdnCache>): type is CdnCache => {
+const isCompleteCache = (type: Incomplete<CdnCache>): type is CdnCache => {
   return isAnyNumber(type.ttl);
 };
 
-const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getCacheType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -48,7 +52,7 @@ const getTypeCache = (type: AllType, parent: TypeModel, errorList: Error[]) => {
     return undefined;
   }
 
-  if (!isCdnCache(type)) {
+  if (!isCdnCacheDeclaration(type)) {
     errorList.push(new IncorrectCacheTypeError(type.name, type.file));
     return undefined;
   }
@@ -98,7 +102,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (!isValidCache(cache)) {
+  if (!isCompleteCache(cache)) {
     errorList.push(new IncompleteCacheError([...properties], type.file));
     return undefined;
   }

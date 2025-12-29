@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getCdnServices } from '@ez4/distribution/library';
+import { registerTriggers, getCdnServicesMetadata } from '@ez4/distribution/library';
 import { buildReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
@@ -10,7 +10,7 @@ const testFile = (fileName: string, overwrite = false) => {
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = buildReflection([sourceFile]);
-  const result = getCdnServices(reflection);
+  const result = getCdnServicesMetadata(reflection);
 
   result.errors.forEach((error) => {
     console.error(error.message);
