@@ -73,11 +73,12 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
 
       case 'uniqueId':
-      case 'groupId':
+      case 'groupId': {
         if ((fifoOptions[member.name] = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
     }
   }
 

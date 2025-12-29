@@ -1,0 +1,80 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestQueue1": {
+    "type": "@ez4/queue",
+    "name": "TestQueue1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "union",
+      "elements": [
+        {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bar": {
+              "type": "number"
+            }
+          },
+          "identity": 1
+        }
+      ]
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler1",
+          "file": "test/input/output-message.ts",
+          "position": [
+            13,
+            1
+          ]
+        }
+      }
+    ]
+  },
+  "TestQueue2": {
+    "type": "@ez4/queue",
+    "name": "TestQueue2",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 2
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler2",
+          "file": "test/input/output-message.ts",
+          "position": [
+            25,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

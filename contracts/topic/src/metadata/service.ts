@@ -20,7 +20,7 @@ import { isObjectWith } from '@ez4/utils';
 import { createTopicService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
-import { getAllSubscriptionMetadata } from './subscription';
+import { getTopicSubscriptionsMetadata } from './subscription';
 import { getTopicMessageMetadata } from './message';
 import { getTopicFifoModeMetadata } from './fifo';
 
@@ -54,44 +54,50 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
+        }
 
         case 'client':
           break;
 
-        case 'schema':
+        case 'schema': {
           if ((service.schema = getTopicMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'subscriptions':
-          if (!member.inherited && (service.subscriptions = getAllSubscriptionMetadata(member, declaration, reflection, errorList))) {
+        case 'subscriptions': {
+          if (!member.inherited && (service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'fifoMode':
+        case 'fifoMode': {
           if (!member.inherited) {
             service.fifoMode = getTopicFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
+        }
       }
     }
 

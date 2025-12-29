@@ -24,6 +24,7 @@
     },
     "subscriptions": [
       {
+        "architecture": "arm",
         "logRetention": 7,
         "concurrency": 2,
         "batch": 5,
@@ -31,7 +32,7 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            42,
+            45,
             1
           ]
         }
@@ -41,10 +42,11 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            42,
+            45,
             1
           ]
         },
+        "runtime": "node24",
         "memory": 128,
         "variables": {
           "TEST_VAR": "test-literal-value"

@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueDeadLetter } from '../types/common';
+import type { QueueDeadLetter } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,33 +9,38 @@ import {
   getModelMembers,
   getObjectMembers,
   getReferenceType,
-  getPropertyNumber
+  getPropertyNumber,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteDeadLetterError, IncorrectDeadLetterTypeError, InvalidDeadLetterTypeError } from '../errors/deadletter';
-import { isQueueDeadLetter } from './utils';
 
-export const getQueueDeadLetter = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isQueueDeadLetterDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Queue.DeadLetter');
+};
+
+export const getQueueDeadLetterMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeDeadLetter(type, parent, errorList);
+    return getDeadLetterType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeDeadLetter(declaration, parent, errorList);
+    return getDeadLetterType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidDeadLetter = (type: Incomplete<QueueDeadLetter>): type is QueueDeadLetter => {
-  return !!type.maxRetries;
+const isCompleteDeadLetter = (type: Incomplete<QueueDeadLetter>): type is QueueDeadLetter => {
+  return isObjectWith(type, ['maxRetries']);
 };
 
-const getTypeDeadLetter = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getDeadLetterType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -45,7 +50,7 @@ const getTypeDeadLetter = (type: AllType, parent: TypeModel, errorList: Error[])
     return undefined;
   }
 
-  if (!isQueueDeadLetter(type)) {
+  if (!isQueueDeadLetterDeclaration(type)) {
     errorList.push(new IncorrectDeadLetterTypeError(type.name, type.file));
     return undefined;
   }
@@ -67,23 +72,24 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
 
-      case 'retention':
+      case 'retention': {
         deadLetter[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'maxRetries':
+      case 'maxRetries': {
         if ((deadLetter[member.name] = getPropertyNumber(member))) {
           properties.delete(member.name);
         }
         break;
+      }
     }
   }
 
-  if (isValidDeadLetter(deadLetter)) {
-    return deadLetter;
+  if (!isCompleteDeadLetter(deadLetter)) {
+    errorList.push(new IncompleteDeadLetterError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteDeadLetterError([...properties], type.file));
-
-  return undefined;
+  return deadLetter;
 };

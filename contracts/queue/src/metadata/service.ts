@@ -1,38 +1,43 @@
-import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueService } from '../types/service';
+import type { QueueService } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  getPropertyNumber
+  getPropertyNumber,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 import { isObjectWith } from '@ez4/utils';
 
-import { createQueueService } from '../types/service';
+import { createQueueService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
-import { getQueueDeadLetter } from './deadletter';
-import { getAllSubscription } from './subscription';
-import { getQueueMessage } from './message';
-import { getQueueFifoMode } from './fifo';
-import { isQueueService } from './utils';
+import { getQueueSubscriptionsMetadata } from './subscription';
+import { getQueueDeadLetterMetadata } from './deadletter';
+import { getQueueMessageMetadata } from './message';
+import { getQueueFifoModeMetadata } from './fifo';
 
-export const getQueueServices = (reflection: ReflectionTypes) => {
+export const isQueueServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Service');
+};
+
+export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, QueueService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isQueueService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isQueueServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -51,61 +56,67 @@ export const getQueueServices = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
+        }
 
         case 'client':
           break;
 
-        case 'schema':
-          if ((service.schema = getQueueMessage(member.value, declaration, reflection, errorList))) {
+        case 'schema': {
+          if ((service.schema = getQueueMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
         case 'timeout':
         case 'retention':
         case 'polling':
-        case 'delay':
+        case 'delay': {
           if (!member.inherited) {
             service[member.name] = getPropertyNumber(member);
           }
           break;
+        }
 
-        case 'fifoMode':
+        case 'fifoMode': {
           if (!member.inherited) {
-            service.fifoMode = getQueueFifoMode(member.value, declaration, reflection, errorList);
+            service.fifoMode = getQueueFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
-          break;
-
-        case 'deadLetter':
-          if (!member.inherited) {
-            service.deadLetter = getQueueDeadLetter(member.value, declaration, reflection, errorList);
-          }
-          break;
-
-        case 'subscriptions': {
-          if (!member.inherited && (service.subscriptions = getAllSubscription(member, declaration, reflection, errorList))) {
-            properties.delete(member.name);
-          }
-
           break;
         }
 
-        case 'variables':
+        case 'deadLetter': {
+          if (!member.inherited) {
+            service.deadLetter = getQueueDeadLetterMetadata(member.value, declaration, reflection, errorList);
+          }
+          break;
+        }
+
+        case 'subscriptions': {
+          if (!member.inherited && (service.subscriptions = getQueueSubscriptionsMetadata(member, declaration, reflection, errorList))) {
+            properties.delete(member.name);
+          }
+          break;
+        }
+
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
+        }
       }
     }
 

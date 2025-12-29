@@ -1,4 +1,4 @@
-import type { QueueMessage } from './common';
+import type { QueueMessage } from './message';
 
 /**
  * Queue FIFO mode options.

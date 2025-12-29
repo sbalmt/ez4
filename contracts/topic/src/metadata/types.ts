@@ -1,5 +1,5 @@
 import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
-import type { ServiceMetadata, LinkedVariables } from '@ez4/project/library';
+import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { createServiceMetadata } from '@ez4/project/library';
@@ -31,7 +31,7 @@ export type TopicImport = Omit<ServiceMetadata, 'variables' | 'services'> &
 
 export type TopicMessageSchema = ObjectSchema | UnionSchema;
 
-export type SubscriptionHandler = FunctionSignature;
+export type TopicSubscriptionHandler = FunctionSignature;
 
 export type TopicSubscription = TopicLambdaSubscription | TopicQueueSubscription;
 
@@ -43,7 +43,7 @@ export enum TopicSubscriptionType {
 export type TopicLambdaSubscription = {
   type: TopicSubscriptionType.Lambda;
   listener?: ServiceListener;
-  handler: SubscriptionHandler;
+  handler: TopicSubscriptionHandler;
   variables?: LinkedVariables;
   architecture?: ServiceArchitecture;
   runtime?: ServiceRuntime;

@@ -1,6 +1,8 @@
 import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { QueueMessage, QueueSubscriptionListener, QueueSubscriptionHandler } from './common';
+import type { QueueSubscriptionListener } from './listener';
+import type { QueueSubscriptionHandler } from './handler';
+import type { QueueMessage } from './message';
 
 /**
  * Queue subscription.

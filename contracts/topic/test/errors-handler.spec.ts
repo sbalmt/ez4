@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { IncompleteSubscriptionError, IncompleteHandlerError } from '@ez4/topic/library';
 import { InvalidServicePropertyError } from '@ez4/common/library';
 import { registerTriggers } from '@ez4/topic/library';
+
 import { parseFile } from './common/parser';
 
 describe('topic handler metadata errors', () => {

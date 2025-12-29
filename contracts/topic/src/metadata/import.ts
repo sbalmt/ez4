@@ -20,7 +20,7 @@ import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
-import { getAllSubscriptionMetadata } from './subscription';
+import { getTopicSubscriptionsMetadata } from './subscription';
 import { getTopicMessageMetadata } from './message';
 import { getTopicFifoModeMetadata } from './fifo';
 import { createTopicImport } from './types';
@@ -97,7 +97,7 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'subscriptions': {
           if (!member.inherited) {
-            service.subscriptions = getAllSubscriptionMetadata(member, declaration, reflection, errorList);
+            service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList);
           } else {
             service.subscriptions = [];
           }

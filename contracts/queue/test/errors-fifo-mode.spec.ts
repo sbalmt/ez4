@@ -6,13 +6,14 @@ import {
   IncorrectFifoModePropertyError,
   IncorrectFifoModeTypeError,
   InvalidFifoModeTypeError
-} from '@ez4/topic/library';
+} from '@ez4/queue/library';
 
 import { InvalidServicePropertyError } from '@ez4/common/library';
-import { registerTriggers } from '@ez4/topic/library';
+import { registerTriggers } from '@ez4/queue/library';
+
 import { parseFile } from './common/parser';
 
-describe('topic fifo metadata errors', () => {
+describe('queue fifo mode metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete fifo mode', () => {
@@ -26,21 +27,21 @@ describe('topic fifo metadata errors', () => {
     const [error1, error2] = parseFile('incorrect-fifo', 2);
 
     ok(error1 instanceof IncorrectFifoModeTypeError);
-    equal(error1.baseType, 'Topic.FifoMode');
+    equal(error1.baseType, 'Queue.FifoMode');
     equal(error1.modelType, 'TestFifoMode');
 
     ok(error2 instanceof IncorrectFifoModePropertyError);
     deepEqual(error2.properties, ['wrong']);
   });
 
-  it('assert :: invalid fifo mode', () => {
+  it('assert :: invalid fifo mode (declaration)', () => {
     const [error1] = parseFile('invalid-fifo-class', 1);
 
     ok(error1 instanceof InvalidFifoModeTypeError);
-    equal(error1.baseType, 'Topic.FifoMode');
+    equal(error1.baseType, 'Queue.FifoMode');
   });
 
-  it('assert :: invalid fifo property', () => {
+  it('assert :: invalid fifo mode (property)', () => {
     const [error1] = parseFile('invalid-fifo-property', 1);
 
     ok(error1 instanceof InvalidServicePropertyError);
