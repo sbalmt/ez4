@@ -8,9 +8,9 @@ import {
   InvalidRequestTypeError
 } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
-describe('http authorizer metadata errors', () => {
+describe('ws authorizer metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete authorizer handler', () => {
@@ -24,14 +24,14 @@ describe('http authorizer metadata errors', () => {
     const [error1] = parseFile('incorrect-authorizer', 1);
 
     ok(error1 instanceof IncorrectRequestTypeError);
-    equal(error1.baseType, 'Http.AuthRequest');
-    equal(error1.modelType, 'TestAuthRequest');
+    equal(error1.baseType, 'Ws.AuthRequest');
+    equal(error1.modelType, 'AuthorizerRequest');
   });
 
   it('assert :: invalid authorizer request', () => {
     const [error1] = parseFile('invalid-authorizer', 1);
 
     ok(error1 instanceof InvalidRequestTypeError);
-    equal(error1.baseType, 'Http.AuthRequest');
+    equal(error1.baseType, 'Ws.AuthRequest');
   });
 });

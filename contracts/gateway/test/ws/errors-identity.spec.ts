@@ -8,7 +8,7 @@ import {
   InvalidIdentityTypeError
 } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
 describe('ws identity metadata errors', () => {
   registerTriggers();

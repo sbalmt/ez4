@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers, IncompleteServiceError } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
 describe('ws service metadata errors', () => {
   registerTriggers();

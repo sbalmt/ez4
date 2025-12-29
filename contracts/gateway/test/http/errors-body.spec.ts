@@ -3,16 +3,16 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers, IncorrectBodyTypeError, InvalidBodyTypeError } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
-describe('ws body metadata errors', () => {
+describe('http body metadata errors', () => {
   registerTriggers();
 
   it('assert :: incorrect body', () => {
     const [error1] = parseFile('incorrect-body', 1);
 
     ok(error1 instanceof IncorrectBodyTypeError);
-    equal(error1.baseType, 'Ws.JsonBody');
+    equal(error1.baseType, 'Http.JsonBody');
     equal(error1.modelType, 'TestBody');
   });
 
@@ -20,6 +20,6 @@ describe('ws body metadata errors', () => {
     const [error1] = parseFile('invalid-body', 1);
 
     ok(error1 instanceof InvalidBodyTypeError);
-    equal(error1.baseType, 'Ws.JsonBody');
+    equal(error1.baseType, 'Http.JsonBody');
   });
 });

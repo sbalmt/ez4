@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers, IncorrectIdentityTypeError, InvalidIdentityTypeError } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
 describe('http identity metadata errors', () => {
   registerTriggers();

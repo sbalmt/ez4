@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { registerTriggers, IncompleteAccessError, IncorrectAccessTypeError, InvalidAccessTypeError } from '@ez4/gateway/library';
 
-import { parseFile } from './utils/parser';
+import { parseFile } from './common/parser';
 
 describe('http access metadata errors', () => {
   registerTriggers();
