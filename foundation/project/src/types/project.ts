@@ -9,33 +9,33 @@ export type ProjectOptions = {
   prefix?: string;
 
   /**
+   * Project name that's combined with the `prefix`.
+   */
+  projectName: string;
+
+  /**
    * Determine whether the deployment must be confirmed before proceeding.
    * Default is: `true`
    */
   confirmMode?: boolean;
 
   /**
-   * Determine whether the debug mode is active for the project.
+   * Determine whether the debug mode is active for the project. (Same as the `--debug` CLI option)
    * Default is: `false`
    */
   debugMode?: boolean;
 
   /**
-   * Determines whether the serve and test commands must use the `localOptions`.
+   * Determines whether the serve and test commands must use the `localOptions`. (Same as the `--local` CLI option)
    * Default is: `false`
    */
   localMode?: boolean;
 
   /**
-   * Determines whether the serve and test commands must reset local resources.
+   * Determines whether the serve and test commands must reset local resources. (Same as the `--reset` CLI option)
    * Default is: `false`
    */
   resetMode?: boolean;
-
-  /**
-   * Project name that's combined with the `prefix`.
-   */
-  projectName: string;
 
   /**
    * Set a new `package.json` location relative to the current working directory.
@@ -65,6 +65,7 @@ export type ProjectOptions = {
 
   /**
    * Configuration for custom providers.
+   * All custom providers are automatically loaded from the specified package names.
    */
   customProviders?: ProjectCustomProviders;
 
