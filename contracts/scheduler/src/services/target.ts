@@ -1,6 +1,8 @@
 import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { CronEvent, CronHandler, CronListener } from './common';
+import type { CronListener } from './listener';
+import type { CronHandler } from './handler';
+import type { CronEvent } from './event';
 
 /**
  * Cron target.

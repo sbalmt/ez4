@@ -1,35 +1,40 @@
-import type { ReflectionTypes, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { CronService } from '../types/service';
+import type { CronService } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
-  getModelMembers
+  getModelMembers,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 
-import { DynamicExpression, isDynamicCronService, createCronService } from '../types/service';
+import { DynamicExpression, isDynamicCronService, createCronService } from './types';
 import { IncompleteServiceError, IncorrectServiceError } from '../errors/service';
-import { getCronTarget } from './target';
-import { isCronService } from './utils';
-import { getCronEvent } from './event';
+import { getCronTargetMetadata } from './target';
+import { getCronEventMetadata } from './event';
 
-export const getCronServices = (reflection: ReflectionTypes) => {
+export const isCronServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Cron.Service');
+};
+
+export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, CronService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isCronService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isCronServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -48,24 +53,27 @@ export const getCronServices = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
         case 'client':
           break;
 
-        case 'schema':
-          if ((service.schema = getCronEvent(member.value, declaration, reflection, errorList))) {
+        case 'schema': {
+          if ((service.schema = getCronEventMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'target':
-          if (!member.inherited && (service.target = getCronTarget(member.value, declaration, reflection, errorList))) {
+        case 'target': {
+          if (!member.inherited && (service.target = getCronTargetMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
         case 'expression': {
           if (!member.inherited && (service.expression = getPropertyString(member))) {
@@ -82,36 +90,41 @@ export const getCronServices = (reflection: ReflectionTypes) => {
         case 'group':
         case 'timezone':
         case 'startDate':
-        case 'endDate':
+        case 'endDate': {
           if (!member.inherited) {
             service[member.name] = getPropertyString(member);
           }
           break;
+        }
 
-        case 'disabled':
+        case 'disabled': {
           if (!member.inherited) {
             service.disabled = getPropertyBoolean(member);
           }
           break;
+        }
 
         case 'maxAge':
-        case 'maxRetries':
+        case 'maxRetries': {
           if (!member.inherited) {
             service[member.name] = getPropertyNumber(member);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
+        }
       }
     }
 

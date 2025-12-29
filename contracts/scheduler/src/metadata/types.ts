@@ -1,5 +1,6 @@
-import type { ServiceMetadata } from '@ez4/project/library';
-import type { CronEventSchema, CronTarget } from './common';
+import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
+import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -23,6 +24,21 @@ export type CronService = Omit<ServiceMetadata, 'variables' | 'services'> &
     maxRetries?: number;
     disabled?: boolean;
   };
+
+export type CronEventSchema = ObjectSchema | UnionSchema;
+
+export type TargetHandler = FunctionSignature;
+
+export type CronTarget = {
+  listener?: ServiceListener;
+  handler: TargetHandler;
+  variables?: LinkedVariables;
+  architecture?: ServiceArchitecture;
+  runtime?: ServiceRuntime;
+  logRetention?: number;
+  timeout?: number;
+  memory?: number;
+};
 
 export const isCronService = (service: ServiceMetadata): service is CronService => {
   return service.type === ServiceType;

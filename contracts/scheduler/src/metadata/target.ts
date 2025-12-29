@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CronTarget } from '../types/common';
+import type { CronTarget } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -13,16 +13,20 @@ import {
   getServiceListener,
   getServiceArchitecture,
   getServiceRuntime,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteTargetError, IncorrectTargetTypeError, InvalidTargetTypeError } from '../errors/target';
-import { getTargetHandler } from './handler';
-import { isCronTarget } from './utils';
+import { getTargetHandlerMetadata } from './handler';
 
-export const getCronTarget = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isCronTargetDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cron.Target');
+};
+
+export const getCronTargetMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeTarget(type, parent, reflection, errorList);
   }
@@ -36,7 +40,7 @@ export const getCronTarget = (type: AllType, parent: TypeModel, reflection: Refl
   return undefined;
 };
 
-const isValidTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
+const isCompleteTarget = (type: Incomplete<CronTarget>): type is CronTarget => {
   return !!type.handler;
 };
 
@@ -50,7 +54,7 @@ const getTypeTarget = (type: AllType, parent: TypeModel, reflection: ReflectionT
     return undefined;
   }
 
-  if (!isCronTarget(type)) {
+  if (!isCronTargetDeclaration(type)) {
     errorList.push(new IncorrectTargetTypeError(type.name, type.file));
     return undefined;
   }
@@ -74,45 +78,51 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'handler':
-        if ((target.handler = getTargetHandler(member.value, reflection, errorList))) {
+      case 'handler': {
+        if ((target.handler = getTargetHandlerMetadata(member.value, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         target.listener = getServiceListener(member.value, errorList);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         target[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'architecture':
+      case 'architecture': {
         target[member.name] = getServiceArchitecture(member);
         break;
+      }
 
-      case 'runtime':
+      case 'runtime': {
         target[member.name] = getServiceRuntime(member);
         break;
+      }
 
-      case 'variables':
+      case 'variables': {
         target.variables = getLinkedVariableList(member, errorList);
         break;
+      }
     }
   }
 
-  if (isValidTarget(target)) {
-    return target;
+  if (!isCompleteTarget(target)) {
+    errorList.push(new IncompleteTargetError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteTargetError([...properties], type.file));
-
-  return undefined;
+  return target;
 };

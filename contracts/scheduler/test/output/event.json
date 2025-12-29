@@ -1,0 +1,73 @@
+{
+  "TestScheduler1": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "union",
+      "elements": [
+        {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bar": {
+              "type": "number"
+            }
+          },
+          "identity": 1
+        }
+      ]
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "targetHandler1",
+        "file": "test/input/output-event.ts",
+        "position": [
+          13,
+          1
+        ]
+      }
+    }
+  },
+  "TestScheduler2": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler2",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 2
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "targetHandler2",
+        "file": "test/input/output-event.ts",
+        "position": [
+          25,
+          1
+        ]
+      }
+    }
+  }
+}
