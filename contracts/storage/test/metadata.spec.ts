@@ -1,8 +1,8 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getBucketServices } from '@ez4/storage/library';
+import { registerTriggers, getBucketServicesMetadata } from '@ez4/storage/library';
 import { buildReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
@@ -10,7 +10,7 @@ const testFile = (fileName: string, overwrite = false) => {
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = buildReflection([sourceFile]);
-  const result = getBucketServices(reflection);
+  const result = getBucketServicesMetadata(reflection);
 
   result.errors.forEach((error) => {
     console.error(error.message);
@@ -18,7 +18,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   equal(result.errors.length, 0);
 
-  if (overwrite) {
+  if (!existsSync(outputFile) || overwrite) {
     writeFileSync(outputFile, JSON.stringify(result.services, undefined, 2));
   } else {
     deepEqual(result.services, JSON.parse(readFileSync(outputFile).toString()));

@@ -1,35 +1,40 @@
-import type { ReflectionTypes } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { BucketService } from '../types/service';
+import type { BucketService } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedVariableList,
   getLinkedServiceList,
   getModelMembers,
   getPropertyNumber,
-  getPropertyString
+  getPropertyString,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { createBucketService } from '../types/service';
 import { IncompleteServiceError } from '../errors/service';
-import { isBucketService } from './utils';
-import { getBucketEvent } from './event';
-import { getBucketCors } from './cors';
+import { getBucketEventMetadata } from './event';
+import { getBucketCorsMetadata } from './cors';
+import { createBucketService } from './types';
 
-export const getBucketServices = (reflection: ReflectionTypes) => {
+export const isBucketServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Bucket.Service');
+};
+
+export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, BucketService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isBucketService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isBucketServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -43,37 +48,44 @@ export const getBucketServices = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
         case 'client':
           break;
 
         case 'localPath':
-        case 'globalName':
+        case 'globalName': {
           service[member.name] = getPropertyString(member);
           break;
+        }
 
-        case 'autoExpireDays':
+        case 'autoExpireDays': {
           service.autoExpireDays = getPropertyNumber(member);
           break;
+        }
 
-        case 'events':
-          service.events = getBucketEvent(member.value, declaration, reflection, errorList);
+        case 'events': {
+          service.events = getBucketEventMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'cors':
-          service.cors = getBucketCors(member.value, declaration, reflection, errorList);
+        case 'cors': {
+          service.cors = getBucketCorsMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           service.variables = getLinkedVariableList(member, errorList);
           break;
+        }
 
-        case 'services':
+        case 'services': {
           service.services = getLinkedServiceList(member, reflection, errorList);
           break;
+        }
       }
     }
 

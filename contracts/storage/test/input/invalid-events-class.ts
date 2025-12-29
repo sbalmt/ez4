@@ -10,4 +10,4 @@ export declare class TestStorage extends Bucket.Service {
   events: TestEvent;
 }
 
-export async function eventHandler(_event: Bucket.Event, _context: Service.Context<TestStorage>) {}
+export function eventHandler(_event: Bucket.Event, _context: Service.Context<TestStorage>) {}

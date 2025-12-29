@@ -1,6 +1,8 @@
 import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { BucketEvent, BucketHandler, BucketListener } from './common';
+import type { BucketListener } from './listener';
+import type { BucketHandler } from './handler';
+import type { BucketEvent } from './event';
 
 /**
  * Bucket events.

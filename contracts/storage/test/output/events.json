@@ -9,6 +9,8 @@
     },
     "events": {
       "path": "uploads/*",
+      "architecture": "arm",
+      "runtime": "node24",
       "logRetention": 14,
       "memory": 128,
       "timeout": 5,
@@ -17,9 +19,13 @@
         "name": "eventHandler",
         "file": "test/input/output-events.ts",
         "position": [
-          22,
+          28,
           1
         ]
+      },
+      "variables": {
+        "TEST_VAR1": "test-literal-value",
+        "TEST_VAR2": "test-env-var-value"
       }
     }
   }

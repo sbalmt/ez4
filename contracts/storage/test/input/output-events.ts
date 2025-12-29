@@ -1,13 +1,19 @@
-import type { Environment, Service } from '@ez4/common';
+import type { Environment, Service, ServiceArchitecture, ServiceRuntime } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
   events: Bucket.UseEvents<{
     path: 'uploads/*';
     handler: typeof eventHandler;
+    architecture: ServiceArchitecture.Arm;
+    runtime: ServiceRuntime.Node24;
     logRetention: 14;
     memory: 128;
     timeout: 5;
+    variables: {
+      TEST_VAR1: 'test-literal-value';
+      TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
+    };
   }>;
 
   // Services to all streams.

@@ -1,7 +1,7 @@
 import type { TypeClass } from '@ez4/reflection';
 
-import { isBucketService } from '../metadata/utils';
+import { isBucketServiceDeclaration } from '../metadata/service';
 
 export const getLinkedService = (declaration: TypeClass): string | null => {
-  return isBucketService(declaration) ? declaration.name : null;
+  return isBucketServiceDeclaration(declaration) ? declaration.name : null;
 };
