@@ -71,11 +71,12 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList:
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
+      }
 
-      case 'namingStyle':
+      case 'namingStyle': {
         preferences.namingStyle = getPropertyStringIn(member, [
           NamingStyle.Preserve,
           NamingStyle.CamelCase,
@@ -83,8 +84,8 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], errorList:
           NamingStyle.SnakeCase,
           NamingStyle.KebabCase
         ]);
-
         break;
+      }
     }
   }
 

@@ -50,23 +50,27 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
-        case 'handler':
+        case 'handler': {
           if ((service.handler = getFactoryHandlerMetadata(member.value, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           service.variables = getLinkedVariableList(member, errorList);
           break;
+        }
 
-        case 'services':
+        case 'services': {
           service.services = getLinkedServiceList(member, reflection, errorList);
           break;
+        }
       }
     }
 

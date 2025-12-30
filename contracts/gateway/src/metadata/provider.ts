@@ -72,25 +72,24 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      case 'variables':
+      case 'variables': {
         context.variables = getLinkedVariableList(member, errorList);
         break;
+      }
 
       case 'services': {
         if ((context.services = getLinkedServiceList(member, reflection, errorList))) {
           properties.delete(member.name);
         }
-
         break;
       }
     }
   }
 
-  if (isCompleteProvider(context)) {
-    return context;
+  if (!isCompleteProvider(context)) {
+    errorList.push(new IncompleteProviderError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteProviderError([...properties], type.file));
-
-  return undefined;
+  return context;
 };

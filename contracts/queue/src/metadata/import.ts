@@ -56,11 +56,12 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
+        }
 
         case 'reference': {
           if (member.inherited && isTypeReference(member.value)) {

@@ -80,13 +80,15 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'status':
+      case 'status': {
         response.status = getPropertyNumber(member) ?? getPropertyNumberList(member);
         break;
+      }
 
       case 'headers': {
         response.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, HttpNamespaceType);

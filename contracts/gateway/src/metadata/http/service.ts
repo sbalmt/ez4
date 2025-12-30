@@ -57,43 +57,52 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
-        case 'routes':
+        case 'routes': {
           if ((service.routes = getHttpLocalRoutes(declaration, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'name':
+        case 'name': {
           service.displayName = getPropertyString(member);
           break;
+        }
 
-        case 'defaults':
+        case 'defaults': {
           service.defaults = getHttpDefaultsMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'cache':
+        case 'cache': {
           service.cache = getHttpCacheMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'access':
+        case 'access': {
           service.access = getHttpAccessMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'cors':
+        case 'cors': {
           service.cors = getHttpCorsMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           service.variables = getLinkedVariableList(member, errorList);
           break;
+        }
 
-        case 'services':
+        case 'services': {
           service.services = getLinkedServiceList(member, reflection, errorList);
           break;
+        }
       }
     }
 

@@ -49,7 +49,6 @@ export const getHttpHandlerMetadata = (
 
   if (!isCompleteHandler(handler)) {
     errorList.push(new IncompleteHandlerError([...properties], type.file));
-
     return undefined;
   }
 

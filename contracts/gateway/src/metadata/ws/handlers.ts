@@ -57,7 +57,6 @@ const getWsHandler = (
 
   if (!isFunctionSignature(handler)) {
     errorList.push(new IncompleteHandlerError([...properties], type.file));
-
     return undefined;
   }
 

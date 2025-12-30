@@ -53,48 +53,55 @@ export const getHttpImportsMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
+        }
 
-        case 'reference':
+        case 'reference': {
           if (member.inherited && isTypeReference(member.value)) {
             service[member.name] = getReferenceName(member.value);
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'authorization':
+        case 'authorization': {
           if (!member.inherited) {
             service[member.name] = getHttpAuthorizationMetadata(member.value, declaration, reflection, errorList);
           }
           break;
+        }
 
-        case 'project':
+        case 'project': {
           if (!member.inherited && (service.project = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'name':
+        case 'name': {
           if (member.inherited) {
             service.displayName = getPropertyString(member, reflection);
           }
           break;
+        }
 
-        case 'routes':
+        case 'routes': {
           if (member.inherited && (service.routes = getHttpRemoteRoutes(declaration, member, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'defaults':
+        case 'defaults': {
           if (member.inherited) {
             service.defaults = getHttpDefaultsMetadata(member.value, declaration, reflection, errorList);
           }
           break;
+        }
       }
     }
 

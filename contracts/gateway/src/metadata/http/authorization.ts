@@ -83,13 +83,15 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
+      }
 
-      case 'type':
+      case 'type': {
         authorization.type = getPropertyStringIn(member, [AuthorizationType.Bearer]);
         break;
+      }
 
       case 'value':
       case 'header': {
@@ -105,11 +107,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isCompleteAuthorization(authorization)) {
-    return authorization;
+  if (!isCompleteAuthorization(authorization)) {
+    errorList.push(new IncompleteAuthorizationError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteAuthorizationError([...properties], type.file));
-
-  return undefined;
+  return authorization;
 };

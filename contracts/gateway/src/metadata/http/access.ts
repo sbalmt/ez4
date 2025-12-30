@@ -70,9 +70,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'logRetention': {
         const value = getPropertyNumber(member);
@@ -87,11 +88,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isCompleteAccess(access)) {
-    return access;
+  if (!isCompleteAccess(access)) {
+    errorList.push(new IncompleteAccessError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteAccessError([...properties], type.file));
-
-  return undefined;
+  return access;
 };

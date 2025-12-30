@@ -68,9 +68,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'retention': {
         deadLetter[member.name] = getPropertyNumber(member);

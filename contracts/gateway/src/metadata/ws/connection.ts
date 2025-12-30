@@ -81,53 +81,61 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'handler':
+      case 'handler': {
         if ((target.handler = getWsConnectionHandler(member.value, parent, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'authorizer':
+      case 'authorizer': {
         target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
+      }
 
-      case 'preferences':
+      case 'preferences': {
         target.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         target[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'architecture':
+      case 'architecture': {
         target[member.name] = getServiceArchitecture(member);
         break;
+      }
 
-      case 'runtime':
+      case 'runtime': {
         target[member.name] = getServiceRuntime(member);
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         target.listener = getServiceListener(member.value, errorList);
         break;
+      }
 
-      case 'variables':
+      case 'variables': {
         target.variables = getLinkedVariableList(member, errorList);
         break;
+      }
     }
   }
 
-  if (isCompleteWsConnection(target)) {
-    return target;
+  if (!isCompleteWsConnection(target)) {
+    errorList.push(new IncompleteTargetError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteTargetError([...properties], type.file));
-
-  return undefined;
+  return target;
 };

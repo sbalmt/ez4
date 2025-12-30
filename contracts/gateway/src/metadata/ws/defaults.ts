@@ -69,31 +69,37 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
+      }
 
-      case 'preferences':
+      case 'preferences': {
         defaults.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         defaults[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'architecture':
+      case 'architecture': {
         defaults[member.name] = getServiceArchitecture(member);
         break;
+      }
 
-      case 'runtime':
+      case 'runtime': {
         defaults[member.name] = getServiceRuntime(member);
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         defaults.listener = getServiceListener(member.value, errorList);
         break;
+      }
     }
   }
 

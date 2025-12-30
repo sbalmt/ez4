@@ -71,9 +71,10 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'body': {
         response.body = getWebBodyMetadata(member.value, type, reflection, errorList, WsNamespaceType);

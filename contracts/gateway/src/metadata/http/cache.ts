@@ -72,9 +72,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'authorizerTTL': {
         const value = getPropertyNumber(member);
@@ -89,11 +90,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isCompleteCache(cache)) {
-    return cache;
+  if (!isCompleteCache(cache)) {
+    errorList.push(new IncompleteCacheError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteCacheError([...properties], type.file));
-
-  return undefined;
+  return cache;
 };

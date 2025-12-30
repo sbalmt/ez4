@@ -144,9 +144,10 @@ const getLambdaSubscription = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'handler': {
         if ((subscription.handler = getSubscriptionHandlerMetadata(member.value, reflection, errorList))) {
@@ -211,9 +212,10 @@ const getQueueSubscription = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'service': {
         if ((subscription.service = getLinkedServiceName(member, parent, reflection, errorList))) {
