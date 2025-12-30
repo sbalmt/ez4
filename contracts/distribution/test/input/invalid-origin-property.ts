@@ -8,7 +8,7 @@ export declare class TestCdn extends Cdn.Service {
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

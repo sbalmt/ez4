@@ -6,7 +6,7 @@ export declare class TestService extends Http.Service {
   cors: Http.UseCors<{
     allowOrigins: ['*'];
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

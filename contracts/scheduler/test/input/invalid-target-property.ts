@@ -6,7 +6,7 @@ export declare class TestScheduler extends Cron.Service {
   target: Cron.UseTarget<{
     handler: typeof targetHandler;
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

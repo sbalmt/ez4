@@ -1,7 +1,7 @@
 import type { Ws } from '@ez4/gateway';
 
 export declare class TestService extends Ws.Service<{}> {
-  // @ts-expect-error No extra property is allowed
+  // @ts-expect-error No extra property is allowed.
   defaults: Ws.UseDefaults<{
     invalid_property: true;
   }>;

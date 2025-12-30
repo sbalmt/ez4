@@ -10,7 +10,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
     groupId: 'user';
     uniqueId: 'id';
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 

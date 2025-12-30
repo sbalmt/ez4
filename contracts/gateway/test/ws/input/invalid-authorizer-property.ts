@@ -15,7 +15,7 @@ export declare class TestService extends Ws.Service<{}> {
   }>;
 }
 
-// @ts-expect-error No extra property is allowed
+// @ts-expect-error No extra property is allowed.
 declare class AuthorizerRequest implements Ws.AuthRequest {
   invalid_property: true;
 }

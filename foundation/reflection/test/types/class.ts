@@ -12,7 +12,7 @@ abstract class AbstractClass {
 }
 
 class HeritageClass extends AbstractClass implements EmptyInterface, Type<{ property: unknown }> {
-  // @ts-ignore
+  // @ts-expect-error
   override property: void;
 
   override method(): void {}
@@ -23,10 +23,10 @@ class BaseClass {
 }
 
 class TemplateClass<T> extends BaseClass {
-  // @ts-ignore
+  // @ts-expect-error
   regular: void;
 
-  // @ts-ignore
+  // @ts-expect-error
   template: T;
 
   templateMethod(input: T): T {
@@ -58,7 +58,7 @@ export class Class {
   // Computed
   ['computed1']: any;
 
-  // @ts-ignore
+  // @ts-expect-error
   [`computed2`]: void;
 }
 

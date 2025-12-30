@@ -22,5 +22,5 @@ type MessageRequest = {
   invalid_property: true;
 };
 
-// @ts-expect-error No extra property is allowed
+// @ts-expect-error No extra property is allowed.
 function messageHandler(_request: Ws.Incoming<MessageRequest>) {}

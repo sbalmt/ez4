@@ -9,6 +9,6 @@ export declare class TestCdn extends Cdn.Service {
     bucket: Environment.Service<TestBucket>;
   }>;
 
-  // No extra property is allowed
+  // No extra property is allowed.
   invalid_property: true;
 }

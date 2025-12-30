@@ -12,7 +12,7 @@ export declare class TestCdn extends Cdn.Service {
   certificate: Cdn.UseCertificate<{
     domain: 'ez4.dev';
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

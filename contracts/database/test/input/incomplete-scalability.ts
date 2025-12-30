@@ -6,6 +6,6 @@ export declare class TestDatabase extends Database.Service {
 
   tables: [];
 
-  // @ts-ignore Incomplete scalability.
+  // @ts-expect-error Incomplete scalability.
   scalability: {};
 }

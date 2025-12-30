@@ -14,7 +14,7 @@ export declare class TestCdn extends Cdn.Service {
       code: 400;
       location: '/site';
 
-      // No extra property is allowed
+      // No extra property is allowed.
       invalid_property: true;
     }>
   ];

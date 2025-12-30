@@ -9,7 +9,7 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-// @ts-expect-error No extra property is allowed
+// @ts-expect-error No extra property is allowed.
 declare class TestRequest implements Http.Request {
   invalid_property: true;
 }

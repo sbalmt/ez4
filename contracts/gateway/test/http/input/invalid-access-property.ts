@@ -6,7 +6,7 @@ export declare class TestService extends Http.Service {
   access: Http.UseAccess<{
     logRetention: 5;
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

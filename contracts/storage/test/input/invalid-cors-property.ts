@@ -4,7 +4,7 @@ export declare class TestStorage extends Bucket.Service {
   cors: Bucket.UseCors<{
     allowOrigins: ['*'];
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

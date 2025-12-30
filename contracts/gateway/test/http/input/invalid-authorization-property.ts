@@ -10,7 +10,7 @@ export declare class TestImport extends Http.Import<TestService> {
   authorization: Http.UseAuthorization<{
     value: 'secret';
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

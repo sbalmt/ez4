@@ -12,7 +12,7 @@ export declare class TestService extends Http.Service {
 declare class TestResponse implements Http.Response {
   status: 200;
 
-  // No extra property is allowed
+  // No extra property is allowed.
   invalid_property: true;
 }
 

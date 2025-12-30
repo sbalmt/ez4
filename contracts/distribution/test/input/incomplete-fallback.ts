@@ -10,7 +10,7 @@ export declare class TestCdn extends Cdn.Service {
     location: '/site';
   }>;
 
-  // @ts-ignore Missing required location.
+  // @ts-expect-error Missing required location.
   fallbacks: [
     {
       code: 400;

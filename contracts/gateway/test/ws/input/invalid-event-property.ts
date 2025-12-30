@@ -18,7 +18,7 @@ type TestEvent = {
   invalid_property: true;
 };
 
-// @ts-expect-error No extra property is allowed
+// @ts-expect-error No extra property is allowed.
 function connectHandler(_request: Ws.Incoming<TestEvent>) {}
 
 function disconnectHandler() {}

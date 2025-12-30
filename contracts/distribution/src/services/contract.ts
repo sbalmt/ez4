@@ -50,6 +50,11 @@ export namespace Cdn {
    */
   export declare abstract class Service implements CommonService.Provider {
     /**
+     * Default origin for the distribution results.
+     */
+    abstract readonly defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
+
+    /**
      * List of CNAME aliases for the distribution.
      */
     readonly aliases: string[];
@@ -58,11 +63,6 @@ export namespace Cdn {
      * Custom certificate associated to the distribution.
      */
     readonly certificate?: Certificate;
-
-    /**
-     * Default origin for the distribution results.
-     */
-    readonly defaultOrigin: DefaultRegularOrigin | DefaultBucketOrigin;
 
     /**
      * Default index file name (e.g. `index.html`).

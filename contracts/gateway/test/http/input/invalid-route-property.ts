@@ -6,7 +6,7 @@ export declare class TestService extends Http.Service {
       path: 'ANY /test-route';
       handler: typeof testRoute;
 
-      // No extra property is allowed
+      // No extra property is allowed.
       invalid_property: true;
     }>
   ];

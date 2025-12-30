@@ -5,7 +5,7 @@ import type { Cdn } from '@ez4/distribution';
 declare class TestBucket extends Bucket.Service {}
 
 export declare class TestCdn extends Cdn.Service {
-  // @ts-ignore Missing ttl.
+  // @ts-expect-error Missing ttl.
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
     location: '/site';

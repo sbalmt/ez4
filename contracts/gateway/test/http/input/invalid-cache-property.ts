@@ -6,7 +6,7 @@ export declare class TestService extends Http.Service {
   cache: Http.UseCache<{
     authorizerTTL: 5;
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

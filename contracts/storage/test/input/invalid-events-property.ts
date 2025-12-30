@@ -5,7 +5,7 @@ export declare class TestStorage extends Bucket.Service {
   events: Bucket.UseEvents<{
     handler: typeof eventHandler;
 
-    // No extra property is allowed
+    // No extra property is allowed.
     invalid_property: true;
   }>;
 }

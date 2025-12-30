@@ -18,7 +18,7 @@ export declare class TestService extends Http.Service {
 
 declare class TestRequest implements Http.Request {}
 
-// @ts-ignore Missing required services definition.
+// @ts-expect-error Missing required services definition.
 declare class TestProvider implements Http.Provider {}
 
 function testRouteA(_request: TestRequest, _context: Service.Context<TestService>): Http.SuccessEmptyResponse {

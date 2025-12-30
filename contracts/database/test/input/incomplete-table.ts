@@ -4,6 +4,6 @@ import type { TestEngine } from '../common/engines';
 export declare class TestDatabase extends Database.Service {
   engine: TestEngine;
 
-  // @ts-ignore Missing required table name and schema.
+  // @ts-expect-error Missing required table name and schema.
   tables: [{}];
 }

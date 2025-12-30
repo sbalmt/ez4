@@ -25,7 +25,7 @@ declare class MessageResponse implements Ws.Response {
     status: boolean;
   };
 
-  // No extra property is allowed
+  // No extra property is allowed.
   invalid_property: true;
 }
 
