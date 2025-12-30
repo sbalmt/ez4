@@ -29,7 +29,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          56,
+          61,
           1
         ]
       }
@@ -39,17 +39,17 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          58,
+          63,
           1
         ]
       }
     },
     "message": {
       "handler": {
-        "name": "messageHandler",
+        "name": "messageHandler1",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          60,
+          65,
           1
         ]
       }
@@ -76,41 +76,58 @@
       }
     },
     "connect": {
+      "architecture": "arm",
       "logRetention": 15,
       "memory": 128,
       "handler": {
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          56,
+          61,
           1
         ]
       }
     },
     "disconnect": {
-      "architecture": "arm",
       "runtime": "node24",
+      "preferences": {
+        "namingStyle": "snake"
+      },
       "handler": {
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          58,
+          63,
           1
         ]
       }
     },
     "message": {
+      "architecture": "arm",
+      "runtime": "node24",
       "timeout": 90,
       "preferences": {
         "namingStyle": "camel"
       },
       "handler": {
-        "name": "messageHandler",
+        "name": "messageHandler2",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          60,
+          73,
           1
-        ]
+        ],
+        "response": {
+          "body": {
+            "type": "object",
+            "description": "WS body payload.",
+            "identity": 1,
+            "properties": {
+              "status": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       }
     }
   }

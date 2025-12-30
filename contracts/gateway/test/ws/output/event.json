@@ -1,0 +1,116 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService1": {
+    "type": "@ez4/ws",
+    "name": "TestService1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "union",
+      "elements": [
+        {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bar": {
+              "type": "number"
+            }
+          },
+          "identity": 1
+        }
+      ]
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          35,
+          1
+        ]
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          37,
+          1
+        ]
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          39,
+          1
+        ]
+      }
+    }
+  },
+  "TestService2": {
+    "type": "@ez4/ws",
+    "name": "TestService2",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 2
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          35,
+          1
+        ]
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          37,
+          1
+        ]
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-event.ts",
+        "position": [
+          39,
+          1
+        ]
+      }
+    }
+  }
+}

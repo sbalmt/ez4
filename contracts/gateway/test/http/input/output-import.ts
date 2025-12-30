@@ -1,5 +1,5 @@
 import type { NamingStyle } from '@ez4/schema';
-import type { Http } from '@ez4/gateway';
+import type { AuthorizationType, Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
   name: 'Remote API';
@@ -35,6 +35,8 @@ export declare class TestImport extends Http.Import<TestService> {
   project: 'name from project in ez4.project.js';
 
   authorization: Http.UseAuthorization<{
+    type: AuthorizationType.Bearer;
+    header: 'x-custom-api';
     value: 'secret';
   }>;
 }

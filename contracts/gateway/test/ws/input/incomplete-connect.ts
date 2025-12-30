@@ -1,7 +1,7 @@
 import type { Ws } from '@ez4/gateway';
 
 export declare class TestService extends Ws.Service<{}> {
-  // @ts-ignore Missing required message handler.
+  // @ts-expect-error Missing required message handler.
   connect: Ws.UseConnect<{}>;
 
   disconnect: Ws.UseDisconnect<{

@@ -9,7 +9,7 @@ describe('topic import metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete topic import', () => {
-    const [error1] = parseFile('incomplete-import', 1, true);
+    const [error1] = parseFile('incomplete-import', 1);
 
     ok(error1 instanceof IncompleteServiceError);
     deepEqual(error1.properties, ['project']);

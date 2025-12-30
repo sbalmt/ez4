@@ -2,6 +2,7 @@ import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
 import { registerTriggers, IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '@ez4/gateway/library';
+import { InvalidServicePropertyError } from '@ez4/common/library';
 
 import { parseFile } from './common/parser';
 
@@ -23,10 +24,17 @@ describe('http cache metadata errors', () => {
     equal(error1.modelType, 'TestCache');
   });
 
-  it('assert :: invalid cache', () => {
-    const [error1] = parseFile('invalid-cache', 1);
+  it('assert :: invalid cache (declaration)', () => {
+    const [error1] = parseFile('invalid-cache-class', 1);
 
     ok(error1 instanceof InvalidCacheTypeError);
     equal(error1.baseType, 'Http.Cache');
+  });
+
+  it('assert :: invalid cache (property)', () => {
+    const [error1] = parseFile('invalid-cache-property', 1);
+
+    ok(error1 instanceof InvalidServicePropertyError);
+    deepEqual(error1.propertyName, 'invalid_property');
   });
 });

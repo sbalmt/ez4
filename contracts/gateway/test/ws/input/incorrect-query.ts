@@ -15,7 +15,7 @@ export declare class TestService extends Ws.Service<{}> {
   }>;
 }
 
-// Missing Http.QueryStrings inheritance.
+// Missing Ws.QueryStrings inheritance.
 interface TestQueryStrings {}
 
 declare class AuthorizerRequest implements Ws.AuthRequest {

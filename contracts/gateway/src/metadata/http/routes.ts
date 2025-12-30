@@ -226,10 +226,8 @@ const getTypeFromMembers = (
   return route;
 };
 
-const PARAMETER_NAME_PATTERN = /\{([\w_-]+)\}/g;
-
 const getMismatchParameters = (path: string, parametersSchema: ObjectSchema | undefined) => {
-  const allParameters = path.matchAll(PARAMETER_NAME_PATTERN);
+  const allParameters = path.matchAll(/\{([\w_-]+)\}/g);
   const allMismatches = [];
 
   for (const pathParameter of allParameters) {

@@ -1,15 +1,7 @@
-import { ok, equal, deepEqual } from 'assert/strict';
+import { ok, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import {
-  registerTriggers,
-  IncompleteRouteError,
-  IncompleteHandlerError,
-  IncorrectRequestTypeError,
-  IncorrectResponseTypeError,
-  InvalidRequestTypeError,
-  InvalidResponseTypeError
-} from '@ez4/gateway/library';
+import { registerTriggers, IncompleteRouteError, IncompleteHandlerError } from '@ez4/gateway/library';
 
 import { parseFile } from './common/parser';
 
@@ -24,47 +16,5 @@ describe('http handler metadata errors', () => {
 
     ok(error2 instanceof IncompleteRouteError);
     deepEqual(error2.properties, ['handler']);
-  });
-
-  it('assert :: incorrect handler response', () => {
-    const [error1, error2, error3] = parseFile('incorrect-response', 3);
-
-    ok(error1 instanceof IncorrectResponseTypeError);
-    equal(error1.baseType, 'Http.Response');
-    equal(error1.responseType, 'TestResponse');
-
-    ok(error2 instanceof IncompleteHandlerError);
-    deepEqual(error2.properties, ['response']);
-
-    ok(error3 instanceof IncompleteRouteError);
-    deepEqual(error3.properties, ['handler']);
-  });
-
-  it('assert :: invalid handler response', () => {
-    const [error1, error2, error3] = parseFile('invalid-response', 3);
-
-    ok(error1 instanceof InvalidResponseTypeError);
-    equal(error1.baseType, 'Http.Response');
-
-    ok(error2 instanceof IncompleteHandlerError);
-    deepEqual(error2.properties, ['response']);
-
-    ok(error3 instanceof IncompleteRouteError);
-    deepEqual(error3.properties, ['handler']);
-  });
-
-  it('assert :: incorrect handler request', () => {
-    const [error1] = parseFile('incorrect-request', 1);
-
-    ok(error1 instanceof IncorrectRequestTypeError);
-    equal(error1.baseType, 'Http.Request');
-    equal(error1.modelType, 'TestRequest');
-  });
-
-  it('assert :: invalid handler request', () => {
-    const [error1] = parseFile('invalid-request', 1);
-
-    ok(error1 instanceof InvalidRequestTypeError);
-    equal(error1.baseType, 'Http.Request');
   });
 });

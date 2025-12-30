@@ -8,6 +8,8 @@ import {
   InvalidAuthorizationTypeError
 } from '@ez4/gateway/library';
 
+import { InvalidServicePropertyError } from '@ez4/common/library';
+
 import { parseFile } from './common/parser';
 
 describe('http authorization metadata errors', () => {
@@ -28,10 +30,17 @@ describe('http authorization metadata errors', () => {
     equal(error1.modelType, 'TestAuthorization');
   });
 
-  it('assert :: invalid authorization', () => {
-    const [error1] = parseFile('invalid-authorization', 1);
+  it('assert :: invalid authorization (declaration)', () => {
+    const [error1] = parseFile('invalid-authorization-class', 1);
 
     ok(error1 instanceof InvalidAuthorizationTypeError);
     equal(error1.baseType, 'Http.Authorization');
+  });
+
+  it('assert :: invalid authorization (property)', () => {
+    const [error1] = parseFile('invalid-authorization-property', 1);
+
+    ok(error1 instanceof InvalidServicePropertyError);
+    deepEqual(error1.propertyName, 'invalid_property');
   });
 });

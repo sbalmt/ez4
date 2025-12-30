@@ -25,10 +25,13 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-variables.ts",
         "position": [
-          30,
+          36,
           1
         ],
         "request": {}
+      },
+      "variables": {
+        "TEST_VAR3": "test-literal-data-value"
       }
     },
     "disconnect": {
@@ -36,10 +39,13 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-variables.ts",
         "position": [
-          38,
+          44,
           1
         ],
         "request": {}
+      },
+      "variables": {
+        "TEST_VAR4": "test-literal-data-value"
       }
     },
     "message": {
@@ -47,13 +53,13 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-variables.ts",
         "position": [
-          46,
+          52,
           1
         ],
         "request": {}
       },
       "variables": {
-        "TEST_VAR3": "test-literal-data-value"
+        "TEST_VAR5": "test-literal-data-value"
       }
     }
   }

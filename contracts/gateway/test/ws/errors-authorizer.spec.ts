@@ -9,6 +9,7 @@ import {
 } from '@ez4/gateway/library';
 
 import { parseFile } from './common/parser';
+import { InvalidServicePropertyError } from '@ez4/common/library';
 
 describe('ws authorizer metadata errors', () => {
   registerTriggers();
@@ -28,10 +29,17 @@ describe('ws authorizer metadata errors', () => {
     equal(error1.modelType, 'AuthorizerRequest');
   });
 
-  it('assert :: invalid authorizer request', () => {
-    const [error1] = parseFile('invalid-authorizer', 1);
+  it('assert :: invalid authorizer request (declaration)', () => {
+    const [error1] = parseFile('invalid-authorizer-class', 1);
 
     ok(error1 instanceof InvalidRequestTypeError);
     equal(error1.baseType, 'Ws.AuthRequest');
+  });
+
+  it('assert :: invalid authorizer request (property)', () => {
+    const [error1] = parseFile('invalid-authorizer-property', 1);
+
+    ok(error1 instanceof InvalidServicePropertyError);
+    deepEqual(error1.propertyName, 'invalid_property');
   });
 });

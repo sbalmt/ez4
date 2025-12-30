@@ -1,6 +1,6 @@
 import type { Ws } from '@ez4/gateway';
 
-// Missing Http.Defaults inheritance.
+// Missing Ws.Defaults inheritance.
 interface TestDefaults {}
 
 export declare class TestService extends Ws.Service<{}> {
