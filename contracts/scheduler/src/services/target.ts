@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronListener } from './listener';
 import type { CronHandler } from './handler';
@@ -41,10 +41,10 @@ export interface CronTarget<T extends CronEvent | null> {
   /**
    * Architecture for the handler.
    */
-  readonly architecture?: ServiceArchitecture;
+  readonly architecture?: ArchitectureType;
 
   /**
    * Runtime for the handler.
    */
-  readonly runtime?: ServiceRuntime;
+  readonly runtime?: RuntimeType;
 }

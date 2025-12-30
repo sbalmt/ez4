@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/common/library';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { WebPreferences } from './preferences';
 
@@ -34,10 +34,10 @@ export interface WebTarget {
   /**
    * Architecture for the API function.
    */
-  readonly architecture?: ServiceArchitecture;
+  readonly architecture?: ArchitectureType;
 
   /**
    * Runtime for the API function.
    */
-  readonly runtime?: ServiceRuntime;
+  readonly runtime?: RuntimeType;
 }

@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
-import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/common';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
@@ -57,8 +57,8 @@ describe('function', () => {
     const sourceFile = join(baseDir, 'lambda-1.js');
 
     const resource = createFunction(localState, roleResource, logGroupResource, {
-      runtime: ServiceRuntime.Node24,
-      architecture: ServiceArchitecture.Arm,
+      runtime: RuntimeType.Node24,
+      architecture: ArchitectureType.Arm,
       functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',

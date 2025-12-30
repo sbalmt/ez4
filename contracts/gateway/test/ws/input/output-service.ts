@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/common';
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
@@ -34,14 +34,14 @@ export declare class TestService2 extends Ws.Service<TestData> {
 
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
-    architecture: ServiceArchitecture.Arm;
+    architecture: ArchitectureType.Arm;
     logRetention: 15;
     memory: 128;
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
-    runtime: ServiceRuntime.Node24;
+    runtime: RuntimeType.Node24;
     preferences: {
       namingStyle: NamingStyle.SnakeCase;
     };
@@ -49,8 +49,8 @@ export declare class TestService2 extends Ws.Service<TestData> {
 
   message: Ws.UseMessage<{
     handler: typeof messageHandler2;
-    architecture: ServiceArchitecture.Arm;
-    runtime: ServiceRuntime.Node24;
+    architecture: ArchitectureType.Arm;
+    runtime: RuntimeType.Node24;
     timeout: 90;
     preferences: {
       namingStyle: NamingStyle.CamelCase;

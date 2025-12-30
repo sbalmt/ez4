@@ -1,4 +1,4 @@
-import type { ServiceArchitecture } from '@ez4/common';
+import type { ArchitectureType } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { startUploadHandler } from '@/api/endpoints/start-upload';
 import type { startDownloadHandler } from '@/api/endpoints/start-download';
@@ -21,7 +21,7 @@ export declare class Api extends Http.Service {
     /**
      * Use ARM64 architecture.
      */
-    architecture: ServiceArchitecture.Arm;
+    architecture: ArchitectureType.Arm;
   }>;
 
   /**

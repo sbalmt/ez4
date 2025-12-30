@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/common';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { FunctionVariables } from '../types/variables';
 
@@ -46,8 +46,8 @@ export type CreateRequest = {
   description?: string;
   logGroup?: string;
   variables?: FunctionVariables;
-  architecture: ServiceArchitecture;
-  runtime: ServiceRuntime;
+  architecture: ArchitectureType;
+  runtime: RuntimeType;
   timeout?: number;
   memory?: number;
   publish?: boolean;
@@ -66,14 +66,14 @@ export type UpdateConfigurationRequest = {
   description?: string;
   logGroup?: string;
   variables?: FunctionVariables;
-  runtime?: ServiceRuntime;
+  runtime?: RuntimeType;
   timeout?: number;
   memory?: number;
   debug?: boolean;
 };
 
 export type UpdateSourceCodeRequest = {
-  architecture?: ServiceArchitecture;
+  architecture?: ArchitectureType;
   sourceFile: string;
   publish?: boolean;
 };

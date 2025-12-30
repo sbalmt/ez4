@@ -1,4 +1,4 @@
-import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/common';
 
 export namespace FunctionDefaults {
   /**
@@ -9,12 +9,12 @@ export namespace FunctionDefaults {
   /**
    * Default function architecture.
    */
-  export const Architecture = ServiceArchitecture.x86;
+  export const Architecture = ArchitectureType.x86;
 
   /**
    * Default function runtime.
    */
-  export const Runtime = ServiceRuntime.Node24;
+  export const Runtime = RuntimeType.Node24;
 
   /**
    * Default function timeout.

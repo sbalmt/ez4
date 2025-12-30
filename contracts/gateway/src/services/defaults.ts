@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/common/library';
 import type { WebPreferences } from './preferences';
 
 /**
@@ -28,10 +28,10 @@ export interface WebDefaults {
   /**
    * Default architecture for all the API functions.
    */
-  readonly architecture?: ServiceArchitecture;
+  readonly architecture?: ArchitectureType;
 
   /**
    * Default runtime for all the API functions.
    */
-  readonly runtime?: ServiceRuntime;
+  readonly runtime?: RuntimeType;
 }

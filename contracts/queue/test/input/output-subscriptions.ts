@@ -1,4 +1,4 @@
-import type { Service, Environment, ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { Service, Environment, ArchitectureType, RuntimeType } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
 interface TestMessage extends Queue.Message {
@@ -13,7 +13,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
     // Inline subscription.
     Queue.UseSubscription<{
       handler: typeof testHandler;
-      architecture: ServiceArchitecture.Arm;
+      architecture: ArchitectureType.Arm;
       logRetention: 7;
       concurrency: 2;
       batch: 5;
@@ -32,7 +32,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
 declare class TestSubscription implements Queue.Subscription<TestMessage> {
   handler: typeof testHandler;
 
-  runtime: ServiceRuntime.Node24;
+  runtime: RuntimeType.Node24;
 
   memory: 128;
 

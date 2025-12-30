@@ -1,5 +1,5 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
+import type { FunctionSignature, ArchitectureType, ServiceListener, RuntimeType } from '@ez4/common/library';
 import type { LinkedServices, LinkedVariables } from '@ez4/project/library';
 import type { ServiceMetadata } from '@ez4/project/library';
 import type { AuthorizationType } from '../../services/http/authorization';
@@ -87,8 +87,8 @@ export type HttpDefaults = {
   listener?: ServiceListener;
   httpErrors?: HttpErrors;
   preferences?: HttpPreferences;
-  architecture?: ServiceArchitecture;
-  runtime?: ServiceRuntime;
+  architecture?: ArchitectureType;
+  runtime?: RuntimeType;
   logRetention?: number;
   timeout?: number;
   memory?: number;

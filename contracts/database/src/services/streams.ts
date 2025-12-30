@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { TableStreamHandler, TableStreamListener } from './common';
 import type { TableSchema } from './schemas';
@@ -25,12 +25,12 @@ export interface TableStream<T extends TableSchema> {
   /**
    * Architecture for the stream function.
    */
-  readonly architecture?: ServiceArchitecture;
+  readonly architecture?: ArchitectureType;
 
   /**
    * Runtime for the stream function.
    */
-  readonly runtime?: ServiceRuntime;
+  readonly runtime?: RuntimeType;
 
   /**
    * Log retention (in days) for the handler.

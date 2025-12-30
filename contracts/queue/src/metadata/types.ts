@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceArchitecture, ServiceListener, ServiceRuntime } from '@ez4/common/library';
+import type { FunctionSignature, ArchitectureType, ServiceListener, RuntimeType } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 
@@ -53,8 +53,8 @@ export type QueueSubscription = {
   listener?: ServiceListener;
   handler: QueueSubscriptionHandler;
   variables?: LinkedVariables;
-  architecture?: ServiceArchitecture;
-  runtime?: ServiceRuntime;
+  architecture?: ArchitectureType;
+  runtime?: RuntimeType;
   logRetention?: number;
   concurrency?: number;
   batch?: number;

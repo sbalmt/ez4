@@ -1,4 +1,4 @@
-import type { Service, Environment, ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { Service, Environment, ArchitectureType, RuntimeType } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 import type { Queue } from '@ez4/queue';
 
@@ -14,7 +14,7 @@ export declare class TestTopic extends Topic.Service<TestMessage> {
     // Inline lambda subscription.
     Topic.UseSubscription<{
       handler: typeof testHandler;
-      architecture: ServiceArchitecture.Arm;
+      architecture: ArchitectureType.Arm;
       logRetention: 14;
       timeout: 15;
     }>,
@@ -40,7 +40,7 @@ export declare class TestTopic extends Topic.Service<TestMessage> {
 declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMessage> {
   handler: typeof testHandler;
 
-  runtime: ServiceRuntime.Node24;
+  runtime: RuntimeType.Node24;
 
   memory: 128;
 

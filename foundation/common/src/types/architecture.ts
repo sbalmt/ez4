@@ -1,4 +1,4 @@
-export const enum ServiceArchitecture {
+export const enum ArchitectureType {
   Arm = 'arm',
   x86 = 'x86'
 }

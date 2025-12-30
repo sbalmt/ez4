@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createBucket, createBucketEventFunction, isBucketState, registerTriggers } from '@ez4/aws-bucket';
-import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/common';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
@@ -54,8 +54,8 @@ describe('bucket resources', () => {
 
     const lambdaResource = createBucketEventFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-bucket-event-lambda',
-      architecture: ServiceArchitecture.Arm,
-      runtime: ServiceRuntime.Node24,
+      architecture: ArchitectureType.Arm,
+      runtime: RuntimeType.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

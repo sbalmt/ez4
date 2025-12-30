@@ -1,8 +1,8 @@
 import type { ModelProperty } from '@ez4/reflection';
 
 import { getPropertyStringIn } from '../reflection/property';
-import { ServiceRuntime } from '../types/runtime';
+import { RuntimeType } from '../types/runtime';
 
 export const getServiceRuntime = (member: ModelProperty) => {
-  return getPropertyStringIn(member, [ServiceRuntime.Node22, ServiceRuntime.Node24]);
+  return getPropertyStringIn(member, [RuntimeType.Node22, RuntimeType.Node24]);
 };

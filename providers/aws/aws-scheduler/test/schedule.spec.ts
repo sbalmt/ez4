@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createSchedule, createTargetFunction, isScheduleState, registerTriggers } from '@ez4/aws-scheduler';
-import { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/common';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';
@@ -56,8 +56,8 @@ describe('scheduler', () => {
 
     const lambdaResource = createTargetFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-scheduler-lambda',
-      architecture: ServiceArchitecture.Arm,
-      runtime: ServiceRuntime.Node24,
+      architecture: ArchitectureType.Arm,
+      runtime: RuntimeType.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

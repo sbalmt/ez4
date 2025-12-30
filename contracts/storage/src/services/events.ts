@@ -1,4 +1,4 @@
-import type { ServiceArchitecture, ServiceRuntime } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { BucketListener } from './listener';
 import type { BucketHandler } from './handler';
@@ -46,10 +46,10 @@ export interface BucketEvents {
   /**
    * Architecture for the handler.
    */
-  readonly architecture?: ServiceArchitecture;
+  readonly architecture?: ArchitectureType;
 
   /**
    * Runtime for the handler.
    */
-  readonly runtime?: ServiceRuntime;
+  readonly runtime?: RuntimeType;
 }
