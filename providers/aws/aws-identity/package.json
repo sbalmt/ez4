@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-identity",
   "description": "EZ4: Self-managed AWS role and policy provider",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -44,9 +44,9 @@
   "dependencies": {
     "@aws-sdk/client-iam": "^3.958.0",
     "@aws-sdk/client-sts": "^3.958.0",
-    "@ez4/aws-common": "^0.37.0",
-    "@ez4/project": "^0.37.0",
-    "@ez4/stateful": "^0.37.0",
-    "@ez4/utils": "^0.37.0"
+    "@ez4/aws-common": "^0.38.0",
+    "@ez4/project": "^0.38.0",
+    "@ez4/stateful": "^0.38.0",
+    "@ez4/utils": "^0.38.0"
   }
 }
