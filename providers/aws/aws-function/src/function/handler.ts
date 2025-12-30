@@ -3,7 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
 import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
+import { deepCompare, deepEqual, hashData, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
 
@@ -99,6 +99,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     });
 
     await updateSourceCode(functionName, {
+      architecture: parameters.architecture,
       publish: false,
       sourceFile
     });
@@ -162,7 +163,7 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
   const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig);
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig, context);
   await checkTagUpdates(result.functionArn, parameters, current.parameters);
 
   const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
@@ -184,16 +185,22 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
-const checkConfigurationUpdates = async (functionName: string, candidate: FunctionParameters, current: FunctionParameters) => {
+const checkConfigurationUpdates = async (
+  functionName: string,
+  candidate: FunctionParameters,
+  current: FunctionParameters,
+  context: StepContext
+) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,
+      architecture: true,
       tags: true
     }
   });
 
-  if (hasChanges) {
+  if (hasChanges || context.force) {
     await updateConfiguration(functionName, candidate);
   }
 };
@@ -221,7 +228,7 @@ const checkSourceCodeUpdates = async (
   if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || context.force) {
     const newSourceFile = await candidate.getFunctionBundle(context);
 
-    const newBundleHash = await hashFile(newSourceFile);
+    const newBundleHash = hashData(candidate.architecture, await hashFile(newSourceFile));
     const oldBundleHash = current?.bundleHash;
 
     if (newBundleHash === oldBundleHash) {
@@ -234,6 +241,7 @@ const checkSourceCodeUpdates = async (
     }
 
     const { functionVersion } = await updateSourceCode(functionName, {
+      architecture: candidate.architecture,
       publish: !current?.functionVersion,
       sourceFile: newSourceFile
     });
