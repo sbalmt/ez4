@@ -1,5 +1,5 @@
-import type { Environment } from '@ez4/common';
-import type { Architecture, Ws } from '@ez4/gateway';
+import type { Environment, ArchitectureType } from '@ez4/common';
+import type { Ws } from '@ez4/gateway';
 import type { HelloQueue } from './queues/hello';
 import type { tokenAuthorizer } from './authorizers/token';
 import type { connectHandler } from './events/connect';
@@ -28,7 +28,7 @@ export declare class WsApi extends Ws.Service<AllMessages> {
     /**
      * Use ARM64 architecture.
      */
-    architecture: Architecture.Arm;
+    architecture: ArchitectureType.Arm;
   }>;
 
   /**
