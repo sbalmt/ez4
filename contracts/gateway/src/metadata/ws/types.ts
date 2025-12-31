@@ -1,6 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { FunctionSignature, ArchitectureType, ServiceListener, RuntimeType } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { AuthHandler } from '../auth/types';
 
 import { createServiceMetadata } from '@ez4/project/library';

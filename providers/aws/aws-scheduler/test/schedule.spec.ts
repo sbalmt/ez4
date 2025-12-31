@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createSchedule, createTargetFunction, isScheduleState, registerTriggers } from '@ez4/aws-scheduler';
-import { ArchitectureType, RuntimeType } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';

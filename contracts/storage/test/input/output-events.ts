@@ -1,4 +1,5 @@
-import type { Environment, Service, ArchitectureType, RuntimeType } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {

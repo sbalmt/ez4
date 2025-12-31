@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { QueueSubscriptionListener } from './listener';
 import type { QueueSubscriptionHandler } from './handler';

@@ -1,4 +1,5 @@
-import type { Environment, ArchitectureType, RuntimeType } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
 /**

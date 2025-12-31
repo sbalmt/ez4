@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createQueueFunction, createMapping, createQueue, registerTriggers } from '@ez4/aws-queue';
-import { ArchitectureType, RuntimeType } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { isMappingState } from '@ez4/aws-function';
 import { createLogGroup } from '@ez4/aws-logs';

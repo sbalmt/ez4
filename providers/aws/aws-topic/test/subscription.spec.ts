@@ -5,7 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-topic';
-import { ArchitectureType, RuntimeType } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';

@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/common/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { WebPreferences } from './preferences';
 
 /**

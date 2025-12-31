@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createBucket, createBucketEventFunction, isBucketState, registerTriggers } from '@ez4/aws-bucket';
-import { ArchitectureType, RuntimeType } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
 import { deploy } from '@ez4/aws-common';

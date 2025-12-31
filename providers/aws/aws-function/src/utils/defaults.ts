@@ -1,4 +1,4 @@
-import { ArchitectureType, RuntimeType } from '@ez4/common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 
 export namespace FunctionDefaults {
   /**

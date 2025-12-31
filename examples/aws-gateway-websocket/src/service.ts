@@ -1,4 +1,5 @@
-import type { Environment, ArchitectureType } from '@ez4/common';
+import type { ArchitectureType } from '@ez4/project';
+import type { Environment } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 import type { HelloQueue } from './queues/hello';
 import type { tokenAuthorizer } from './authorizers/token';

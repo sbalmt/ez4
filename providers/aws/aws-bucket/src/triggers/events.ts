@@ -21,15 +21,17 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
+  const { defaults } = options;
+
   const {
     handler,
     listener,
     variables,
-    runtime = Defaults.Runtime,
-    architecture = Defaults.Architecture,
-    logRetention = Defaults.LogRetention,
-    timeout = Defaults.Timeout,
-    memory = Defaults.Memory
+    runtime = defaults?.runtime ?? Defaults.Runtime,
+    architecture = defaults?.architecture ?? Defaults.Architecture,
+    logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+    memory = defaults?.memory ?? Defaults.Memory,
+    timeout = Defaults.Timeout
   } = service.events;
 
   const internalName = getInternalName(service, handler.name);

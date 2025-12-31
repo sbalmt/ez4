@@ -1,4 +1,4 @@
-import { RuntimeType } from '@ez4/common';
+import { RuntimeType } from '@ez4/project';
 import { FunctionRuntime } from '../types/runtime';
 
 const TRANSLATION: Record<RuntimeType, FunctionRuntime> = {

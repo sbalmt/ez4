@@ -24,5 +24,3 @@ export * from './errors/listener';
 
 export * from './types/event';
 export * from './types/listener';
-export * from './types/architecture';
-export * from './types/runtime';

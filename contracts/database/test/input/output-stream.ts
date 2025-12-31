@@ -1,5 +1,6 @@
-import type { Environment, Service, ArchitectureType, RuntimeType } from '@ez4/common';
 import type { StreamAnyChange, Database, Client } from '@ez4/database';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
 export declare class TestDatabase extends Database.Service {

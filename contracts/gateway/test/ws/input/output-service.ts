@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 

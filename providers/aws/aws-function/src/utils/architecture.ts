@@ -1,4 +1,4 @@
-import { ArchitectureType } from '@ez4/common';
+import { ArchitectureType } from '@ez4/project';
 import { FunctionArchitecture } from '../types/architecture';
 
 const TRANSLATION: Record<ArchitectureType, FunctionArchitecture> = {

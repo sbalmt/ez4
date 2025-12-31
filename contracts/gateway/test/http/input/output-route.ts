@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/common';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {

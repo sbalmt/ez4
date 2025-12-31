@@ -21,11 +21,11 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     handler,
     listener,
     variables,
-    runtime = Defaults.Runtime,
-    architecture = Defaults.Architecture,
-    logRetention = Defaults.LogRetention,
-    timeout = Defaults.Timeout,
-    memory = Defaults.Memory
+    runtime = options.defaults?.runtime ?? Defaults.Runtime,
+    architecture = options.defaults?.architecture ?? Defaults.Architecture,
+    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
+    memory = options.defaults?.memory ?? Defaults.Memory,
+    timeout = Defaults.Timeout
   } = service.target;
 
   const internalName = getInternalName(service, handler.name);

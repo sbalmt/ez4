@@ -1,5 +1,6 @@
-import type { FunctionSignature, ArchitectureType, ServiceListener, RuntimeType } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 
 import { createServiceMetadata } from '@ez4/project/library';
 

@@ -65,12 +65,12 @@ const getIntegrationFunction = (
 
   const {
     handler,
-    listener = defaults.listener,
-    runtime = defaults.runtime ?? Defaults.Runtime,
-    architecture = defaults.architecture ?? Defaults.Architecture,
-    logRetention = defaults.logRetention ?? Defaults.LogRetention,
-    timeout = defaults.timeout ?? Defaults.Timeout,
-    memory = defaults.memory ?? Defaults.Memory
+    listener = service.defaults?.listener,
+    runtime = options.defaults?.runtime ?? Defaults.Runtime,
+    architecture = options.defaults?.architecture ?? Defaults.Architecture,
+    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
+    timeout = service.defaults?.timeout ?? Defaults.Timeout,
+    memory = options.defaults?.memory ?? Defaults.Memory
   } = target;
 
   const provider = 'provider' in handler ? handler.provider : undefined;

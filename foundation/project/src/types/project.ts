@@ -1,5 +1,7 @@
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
+import type { ArchitectureType } from './architecture';
+import type { RuntimeType } from './runtime';
 
 export type ProjectOptions = {
   /**
@@ -90,6 +92,11 @@ export type ProjectOptions = {
   testOptions?: Record<string, AnyObject>;
 
   /**
+   * Default options associated to all services.
+   */
+  defaultOptions?: ProjectDefaultOptions;
+
+  /**
    * Variables associated to all services.
    */
   variables?: LinkedVariables;
@@ -128,6 +135,28 @@ export type ProjectCustomProviders = {
    * Specify all the custom provider packages.
    */
   packages: string[];
+};
+
+export type ProjectDefaultOptions = {
+  /**
+   * Default log retention (in days) for all handlers.
+   */
+  logRetention?: number;
+
+  /**
+   * Default architecture for all handlers.
+   */
+  architecture?: ArchitectureType;
+
+  /**
+   * Default runtime for all handlers.
+   */
+  runtime?: RuntimeType;
+
+  /**
+   * Default amount of memory available (in megabytes) for all handlers.
+   */
+  memory?: number;
 };
 
 export type ProjectServeOptions = {

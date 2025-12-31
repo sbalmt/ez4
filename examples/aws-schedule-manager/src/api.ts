@@ -1,5 +1,6 @@
+import type { ArchitectureType } from '@ez4/project';
+import type { Environment } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { Environment, ArchitectureType } from '@ez4/common';
 import type { createScheduleHandler } from '@/api/endpoints/create-schedule';
 import type { readScheduleHandler } from '@/api/endpoints/read-schedule';
 import type { updateScheduleHandler } from '@/api/endpoints/update-schedule';
