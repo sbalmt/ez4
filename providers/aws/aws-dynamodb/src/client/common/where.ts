@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
-import { isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
+import { arrayUnique, isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
 import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
 import { isSkippableData } from './data';
@@ -126,11 +126,13 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'isIn': {
       if (!isEmptyArray(value)) {
+        const uniqueItems = arrayUnique(value);
+
         if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
-          return [value.map(() => `? IN ${path}`).join(' AND '), ...value];
+          return [uniqueItems.map(() => `? IN ${path}`).join(' AND '), ...uniqueItems];
         }
 
-        return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
+        return [`${path} IN [${uniqueItems.map(() => '?').join(', ')}]`, ...uniqueItems];
       }
 
       // Force no results for empty arrays
@@ -151,8 +153,10 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'contains': {
       if (isAnyArray(value)) {
-        if (!isEmptyArray(value) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
-          return [value.map(() => `contains(${path}, ?)`).join(' AND '), ...value];
+        const uniqueItems = arrayUnique(value);
+
+        if (!isEmptyArray(uniqueItems) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+          return [uniqueItems.map(() => `contains(${path}, ?)`).join(' AND '), ...uniqueItems];
         }
 
         // Force any results for empty arrays
