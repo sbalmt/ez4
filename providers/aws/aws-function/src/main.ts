@@ -1,6 +1,5 @@
 export * from './triggers/register';
 
-export * from './types/variables';
 export * from './types/architecture';
 export * from './types/runtime';
 

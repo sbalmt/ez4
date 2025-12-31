@@ -1,6 +1,6 @@
 import type { ArchitectureType, RuntimeType } from '@ez4/common';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { FunctionVariables } from '../types/variables';
 
 import {
   LambdaClient,
@@ -45,7 +45,7 @@ export type CreateRequest = {
   handlerName: string;
   description?: string;
   logGroup?: string;
-  variables?: FunctionVariables;
+  variables?: LinkedVariables;
   architecture: ArchitectureType;
   runtime: RuntimeType;
   timeout?: number;
@@ -65,7 +65,7 @@ export type UpdateConfigurationRequest = {
   handlerName?: string;
   description?: string;
   logGroup?: string;
-  variables?: FunctionVariables;
+  variables?: LinkedVariables;
   runtime?: RuntimeType;
   timeout?: number;
   memory?: number;

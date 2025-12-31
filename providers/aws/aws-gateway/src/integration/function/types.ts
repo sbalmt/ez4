@@ -1,6 +1,6 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { FunctionParameters, FunctionVariables } from '@ez4/aws-function';
-import type { ContextSource, LinkedServices } from '@ez4/project/library';
+import type { ContextSource, LinkedServices, LinkedVariables } from '@ez4/project/library';
+import type { FunctionParameters } from '@ez4/aws-function';
 import type { HttpPreferences } from '@ez4/gateway/library';
 
 export type IntegrationFunction = {
@@ -29,7 +29,7 @@ export type IntegrationFunctionParameters = Omit<
   responseSchema?: ObjectSchema | UnionSchema | ArraySchema | ScalarSchema;
   errorsMap?: Record<string, number>;
   context?: Record<string, ContextSource>;
-  variables: (FunctionVariables | undefined)[];
+  variables: (LinkedVariables | undefined)[];
   services?: LinkedServices;
   debug?: boolean;
 };

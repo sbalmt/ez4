@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { FunctionVariables } from '@ez4/aws-function';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
 import type { AuthorizerFunctionParameters } from './types';
@@ -30,7 +30,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
-      return variables.reduce<FunctionVariables>((variables, current) => ({ ...variables, ...current }), {});
+      return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionFiles: () => {
       return [authorizer.sourceFile, authorizer.dependencies];

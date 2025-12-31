@@ -1,7 +1,6 @@
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn } from '@ez4/aws-common';
-import type { FunctionVariables } from '../types/variables';
 import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const FunctionServiceName = 'AWS:Lambda/Function';
@@ -21,7 +20,7 @@ export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish' | 'va
 };
 
 export type FunctionResult = ImportOrCreateResponse & {
-  variables: FunctionVariables;
+  variables: LinkedVariables;
   valuesHash?: string;
   sourceHash: string;
   bundleHash: string;

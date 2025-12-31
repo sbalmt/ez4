@@ -1,4 +1,5 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
@@ -19,6 +20,10 @@ import {
 
 import { protectVariables } from './helpers/variables';
 import { FunctionServiceName } from './types';
+
+type FunctionConfigurationWithVariables = FunctionParameters & {
+  variables: LinkedVariables;
+};
 
 export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   equals: equalsResource,
@@ -187,11 +192,18 @@ const deleteResource = async (candidate: FunctionState) => {
 
 const checkConfigurationUpdates = async (
   functionName: string,
-  candidate: FunctionParameters,
-  current: FunctionParameters,
+  candidate: FunctionConfigurationWithVariables,
+  current: FunctionConfigurationWithVariables,
   context: StepContext
 ) => {
-  const hasChanges = !deepEqual(candidate, current, {
+  const { variables, ...configuration } = candidate;
+
+  const protectedCandidate = {
+    variables: protectVariables(variables),
+    ...configuration
+  };
+
+  const hasChanges = !deepEqual(protectedCandidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,
