@@ -49,9 +49,13 @@ export const processWsConnection = async (
     await onBegin(module, clients, request);
 
     if (handler.request) {
+      const { preferences = defaults?.preferences } = target;
+
+      const incoming = { ...event, preferences };
+
       Object.assign(request, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
       Object.assign(request, await getIncomingRequestHeaders(handler.request, event, onCustomValidation));
-      Object.assign(request, await getIncomingRequestQuery(handler.request, event, onCustomValidation));
+      Object.assign(request, await getIncomingRequestQuery(handler.request, incoming, onCustomValidation));
     }
 
     await onReady(module, clients, request);
