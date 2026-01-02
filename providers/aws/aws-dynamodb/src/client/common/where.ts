@@ -126,13 +126,13 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'isIn': {
       if (!isEmptyArray(value)) {
-        const uniqueItems = arrayUnique(value);
+        const values = sanitizeValues(value);
 
         if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
-          return [uniqueItems.map(() => `? IN ${path}`).join(' AND '), ...uniqueItems];
+          return [values.map(() => `? IN ${path}`).join(' AND '), ...values];
         }
 
-        return [`${path} IN [${uniqueItems.map(() => '?').join(', ')}]`, ...uniqueItems];
+        return [`${path} IN [${values.map(() => '?').join(', ')}]`, ...values];
       }
 
       // Force no results for empty arrays
@@ -153,10 +153,10 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'contains': {
       if (isAnyArray(value)) {
-        const uniqueItems = arrayUnique(value);
+        const values = sanitizeValues(value);
 
-        if (!isEmptyArray(uniqueItems) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
-          return [uniqueItems.map(() => `contains(${path}, ?)`).join(' AND '), ...uniqueItems];
+        if (!isEmptyArray(values) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+          return [values.map(() => `contains(${path}, ?)`).join(' AND '), ...values];
         }
 
         // Force any results for empty arrays
@@ -168,4 +168,14 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
   }
 
   return undefined;
+};
+
+/**
+ * Ensure all value are unique and not empty string as per DynamoDB expectations.
+ *
+ * @param values Input values.
+ * @returns Returns the sanitized array of values.
+ */
+const sanitizeValues = (values: unknown[]) => {
+  return arrayUnique(values).filter((value) => value !== '');
 };
