@@ -8,10 +8,10 @@ export class InvalidIndexesTypeError extends InvalidTypeError {
 
 export class IncorrectIndexesTypeError extends IncorrectTypeError {
   constructor(
-    public schemaType: string,
+    public indexType: string,
     fileName?: string
   ) {
-    super('Incorrect table indexes type', schemaType, 'Database.Indexes', fileName);
+    super('Incorrect table indexes type', indexType, 'Database.Indexes', fileName);
   }
 }
 

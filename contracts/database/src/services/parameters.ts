@@ -1,13 +1,6 @@
+import type { ParametersMode } from '../types/mode';
 import type { EngineUtils } from './engine';
 import type { Database } from './contract';
-
-/**
- * Parameters mode.
- */
-export const enum ParametersMode {
-  NameAndIndex = 'both',
-  OnlyIndex = 'index'
-}
 
 /**
  * Parameters mode utils.

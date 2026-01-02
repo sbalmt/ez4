@@ -1,38 +1,43 @@
-import type { ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseService } from '../types/service';
-import type { DatabaseTable } from '../types/table';
-import type { TableIndex } from '../types/indexes';
+import type { DatabaseService } from './types';
+import type { DatabaseTable } from './types';
+import type { TableIndex } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyTuple,
-  getModelMembers
+  getModelMembers,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { createDatabaseService } from '../types/service';
+import { createDatabaseService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
-import { getDatabaseScalability } from './scalability';
-import { getDatabaseEngine } from './engine';
-import { isDatabaseService } from './utils';
-import { getDatabaseTable } from './table';
+import { getDatabaseScalabilityMetadata } from './scalability';
+import { getDatabaseEngineMetadata } from './engine';
+import { getDatabaseTableMetadata } from './table';
 
-export const getDatabaseServices = (reflection: ReflectionTypes) => {
+export const isDatabaseServiceDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Database.Service');
+};
+
+export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
   const allServices: Record<string, DatabaseService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isDatabaseService(declaration) || isExternalDeclaration(declaration)) {
+    if (!isDatabaseServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -47,36 +52,42 @@ export const getDatabaseServices = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
         case 'client':
           break;
 
-        case 'scalability':
-          service.scalability = getDatabaseScalability(member.value, declaration, reflection, errorList);
+        case 'scalability': {
+          service.scalability = getDatabaseScalabilityMetadata(member.value, declaration, reflection, errorList);
           break;
+        }
 
-        case 'engine':
-          if ((service.engine = getDatabaseEngine(member.value, declaration, reflection, errorList))) {
+        case 'engine': {
+          if ((service.engine = getDatabaseEngineMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'tables':
+        case 'tables': {
           if ((service.tables = getAllTables(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           service.variables = getLinkedVariableList(member, errorList);
           break;
+        }
 
-        case 'services':
+        case 'services': {
           service.services = getLinkedServiceList(member, reflection, errorList);
           break;
+        }
       }
     }
 
@@ -115,7 +126,7 @@ const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: Refl
   const tableList: DatabaseTable[] = [];
 
   for (const subscription of tableItems) {
-    const result = getDatabaseTable(subscription, parent, reflection, errorList);
+    const result = getDatabaseTableMetadata(subscription, parent, reflection, errorList);
 
     if (result) {
       tableList.push(result);

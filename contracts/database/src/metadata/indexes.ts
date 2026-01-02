@@ -1,17 +1,28 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { TableIndex } from '../types/indexes';
+import type { TableIndex } from './types';
 
-import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
+import {
+  isModelDeclaration,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyString,
+  getReferenceType,
+  hasHeritageType
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectIndexesTypeError, InvalidIndexesTypeError, InvalidIndexTypeError } from '../errors/indexes';
-import { Index } from '../services/indexes';
-import { isTableIndexes } from './utils';
+import { Index } from '../types/index';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableIndexes = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTableIndexesDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Indexes');
+};
+
+export const getTableIndexesMetadata = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeIndexes(type, parent, errorList);
   }
@@ -35,7 +46,7 @@ const getTypeIndexes = (type: AllType, parent: TypeParent, errorList: Error[]) =
     return undefined;
   }
 
-  if (!isTableIndexes(type)) {
+  if (!isTableIndexesDeclaration(type)) {
     errorList.push(new IncorrectIndexesTypeError(type.name, type.file));
     return undefined;
   }
@@ -58,17 +69,19 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, members: MemberType[],
       case Index.Primary:
       case Index.Secondary:
       case Index.Unique:
-      case Index.TTL:
+      case Index.TTL: {
         indexes.push({
           name: indexName,
           columns: indexName.split(':'),
           type: indexType
         });
         break;
+      }
 
-      default:
+      default: {
         errorList.push(new InvalidIndexTypeError(indexName, type.file));
         return undefined;
+      }
     }
   }
 

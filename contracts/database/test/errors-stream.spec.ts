@@ -1,9 +1,16 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { IncompleteHandlerError, IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '@ez4/database/library';
+import {
+  IncompleteHandlerError,
+  IncompleteStreamError,
+  IncorrectStreamTypeError,
+  InvalidStreamTypeError,
+  registerTriggers
+} from '@ez4/database/library';
 
-import { registerTriggers } from '@ez4/database/library';
+import { InvalidServicePropertyError } from '@ez4/common/library';
+
 import { parseFile } from './common/parser';
 
 describe('database stream errors', () => {
@@ -24,11 +31,24 @@ describe('database stream errors', () => {
     equal(error1.streamType, 'TestStream');
   });
 
-  it('assert :: invalid stream', () => {
-    const [error1] = parseFile('invalid-stream', 1);
+  it('assert :: invalid stream (declaration)', () => {
+    const [error1] = parseFile('invalid-stream-class', 1);
 
     ok(error1 instanceof InvalidStreamTypeError);
     equal(error1.baseType, 'Database.Stream');
+  });
+
+  it('assert :: invalid stream (property)', () => {
+    const [error1, error2, error3] = parseFile('invalid-stream-property', 3);
+
+    ok(error1 instanceof IncompleteHandlerError);
+    deepEqual(error1.properties, ['change']);
+
+    ok(error2 instanceof InvalidServicePropertyError);
+    deepEqual(error2.propertyName, 'invalid_property');
+
+    ok(error3 instanceof IncompleteStreamError);
+    deepEqual(error3.properties, ['handler']);
   });
 
   it('assert :: incomplete stream handler', () => {

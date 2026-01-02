@@ -1,10 +1,5 @@
-import type { ParametersMode } from './parameters';
-import type { TransactionMode } from './transaction';
-import type { InsensitiveMode } from './insensitive';
-import type { PaginationMode } from './pagination';
+import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
 import type { Database } from './contract';
-import type { OrderMode } from './order';
-import type { LockMode } from './lock';
 
 /**
  * Database engine.

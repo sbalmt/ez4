@@ -1,10 +1,4 @@
-/**
- * Bucket event type.
- */
-export const enum BucketEventType {
-  Create = 'create',
-  Delete = 'delete'
-}
+import type { BucketEventType } from '../types/event';
 
 /**
  * Bucket event.

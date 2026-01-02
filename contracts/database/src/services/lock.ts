@@ -1,12 +1,5 @@
+import type { LockMode } from '../types/mode';
 import type { TableMetadata } from './table';
-
-/**
- * Lock mode.
- */
-export const enum LockMode {
-  Unsupported = 'unsupported',
-  Supported = 'supported'
-}
 
 /**
  * Lock mode utils.

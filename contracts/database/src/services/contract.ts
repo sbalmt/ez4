@@ -1,6 +1,9 @@
 import type { Service as CommonService } from '@ez4/common';
-import type { TableStreamHandler, TableStreamIncoming, TableStreamListener, TableStreamRequest } from './common';
 import type { DatabaseScalability } from './scalability';
+import type { TableStreamIncoming } from './incoming';
+import type { TableStreamListener } from './listener';
+import type { TableStreamHandler } from './handler';
+import type { TableStreamRequest } from './request';
 import type { TableRelations } from './relations';
 import type { DatabaseEngine } from './engine';
 import type { TableIndexes } from './indexes';

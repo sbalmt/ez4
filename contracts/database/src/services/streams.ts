@@ -1,6 +1,7 @@
 import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { TableStreamHandler, TableStreamListener } from './common';
+import type { TableStreamListener } from './listener';
+import type { TableStreamHandler } from './handler';
 import type { TableSchema } from './schemas';
 
 /**

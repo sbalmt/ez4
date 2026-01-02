@@ -1,29 +1,30 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseEngine } from '../types/engine';
+import type { DatabaseEngine } from './types';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import {
   InvalidServicePropertyError,
+  isModelDeclaration,
   getModelMembers,
   getObjectMembers,
   getPropertyString,
   getPropertyStringIn,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
-import { ParametersMode } from '../services/parameters';
-import { PaginationMode } from '../services/pagination';
-import { TransactionMode } from '../services/transaction';
-import { InsensitiveMode } from '../services/insensitive';
-import { IncompleteEngineError } from '../errors/engine';
-import { OrderMode } from '../services/order';
-import { LockMode } from '../services/lock';
-import { isDatabaseEngine } from './utils';
+import { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
+import { IncompleteEngineError, IncorrectEngineTypeError, InvalidEngineTypeError } from '../errors/engine';
 
-export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isDatabaseEngineDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Engine');
+};
+
+export const getDatabaseEngineMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEngine(type, parent, errorList);
   }
@@ -37,22 +38,26 @@ export const getDatabaseEngine = (type: AllType, parent: TypeModel, reflection: 
   return undefined;
 };
 
-const isValidEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
-  return (
-    !!type.name && !!type.parametersMode && !!type.transactionMode && !!type.insensitiveMode && !!type.paginationMode && !!type.orderMode
-  );
+const isCompleteEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
+  return isObjectWith(type, ['name', 'parametersMode', 'transactionMode', 'insensitiveMode', 'paginationMode', 'orderMode']);
 };
 
 const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => {
-  if (isDatabaseEngine(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
-  }
-
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
-  return undefined;
+  if (!isModelDeclaration(type)) {
+    errorList.push(new InvalidEngineTypeError(parent.file));
+    return undefined;
+  }
+
+  if (!isDatabaseEngineDeclaration(type)) {
+    errorList.push(new IncorrectEngineTypeError(type.name, type.file));
+    return undefined;
+  }
+
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
@@ -66,55 +71,63 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'name':
+      case 'name': {
         if ((engine.name = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'parametersMode':
+      case 'parametersMode': {
         if ((engine.parametersMode = getPropertyStringIn(member, [ParametersMode.OnlyIndex, ParametersMode.NameAndIndex]))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'transactionMode':
+      case 'transactionMode': {
         if ((engine.transactionMode = getPropertyStringIn(member, [TransactionMode.Static, TransactionMode.Interactive]))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'insensitiveMode':
+      case 'insensitiveMode': {
         if ((engine.insensitiveMode = getPropertyStringIn(member, [InsensitiveMode.Unsupported, InsensitiveMode.Enabled]))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'paginationMode':
+      case 'paginationMode': {
         if ((engine.paginationMode = getPropertyStringIn(member, [PaginationMode.Cursor, PaginationMode.Offset]))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'orderMode':
+      case 'orderMode': {
         if ((engine.orderMode = getPropertyStringIn(member, [OrderMode.AnyColumns, OrderMode.IndexColumns]))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'lockMode':
+      case 'lockMode': {
         if ((engine.lockMode = getPropertyStringIn(member, [LockMode.Unsupported, LockMode.Supported]))) {
           properties.delete(member.name);
         }
         break;
+      }
     }
   }
 
-  if (!isValidEngine(engine)) {
+  if (!isCompleteEngine(engine)) {
     errorList.push(new IncompleteEngineError([...properties], type.file));
     return undefined;
   }

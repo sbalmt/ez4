@@ -185,7 +185,7 @@ const getLambdaSubscription = (
     }
   }
 
-  if (properties.size !== 0 || !isCompleteSubscription(subscription)) {
+  if (properties.size || !isCompleteSubscription(subscription)) {
     errorList.push(new IncompleteSubscriptionError([...properties], type.file));
     return undefined;
   }
@@ -226,7 +226,7 @@ const getQueueSubscription = (
     }
   }
 
-  if (properties.size !== 0 || !isCompleteSubscription(subscription)) {
+  if (properties.size || !isCompleteSubscription(subscription)) {
     errorList.push(new IncompleteSubscriptionError([...properties], type.file));
     return undefined;
   }

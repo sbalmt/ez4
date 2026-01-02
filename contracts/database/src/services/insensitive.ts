@@ -1,12 +1,5 @@
+import type { InsensitiveMode } from '../types/mode';
 import type { DatabaseEngine, EngineUtils } from './engine';
-
-/**
- * Insensitive mode.
- */
-export const enum InsensitiveMode {
-  Unsupported = 'unsupported',
-  Enabled = 'enabled'
-}
 
 /**
  * Insensitive mode utils.

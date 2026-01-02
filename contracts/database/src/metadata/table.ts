@@ -2,21 +2,33 @@ import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/refle
 import type { MemberType } from '@ez4/common/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseTable } from '../types/table';
-import type { TableIndex } from '../types/indexes';
+import type { DatabaseTable, TableIndex } from './types';
 
-import { InvalidServicePropertyError, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
+import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyString,
+  getReferenceType,
+  hasHeritageType
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { IncompleteTableError } from '../errors/table';
+import { IncompleteTableError, IncorrectTableTypeError, InvalidTableTypeError } from '../errors/table';
 import { InvalidIndexReferenceError } from '../errors/indexes';
-import { getTableRelations } from './relations';
-import { getTableIndexes } from './indexes';
-import { isDatabaseTable } from './utils';
-import { getTableSchema } from './schema';
-import { getTableStream } from './stream';
+import { getTableRelationsMetadata } from './relations';
+import { getTableIndexesMetadata } from './indexes';
+import { getTableSchemaMetadata } from './schema';
+import { getTableStreamMetadata } from './stream';
 
-export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isDatabaseTableDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Table');
+};
+
+export const getDatabaseTableMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeTable(type, parent, reflection, errorList);
   }
@@ -30,20 +42,26 @@ export const getDatabaseTable = (type: AllType, parent: TypeModel, reflection: R
   return undefined;
 };
 
-const isValidTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable => {
-  return !!type.name && !!type.schema && !!type.indexes;
+const isCompleteTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable => {
+  return isObjectWith(type, ['name', 'schema', 'indexes']);
 };
 
 const getTypeTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
-  if (isDatabaseTable(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
-  }
-
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
-  return undefined;
+  if (!isModelDeclaration(type)) {
+    errorList.push(new InvalidTableTypeError(parent.file));
+    return undefined;
+  }
+
+  if (!isDatabaseTableDeclaration(type)) {
+    errorList.push(new IncorrectTableTypeError(type.name, type.file));
+    return undefined;
+  }
+
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
 const getTypeFromMembers = (
@@ -62,39 +80,45 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'name':
+      case 'name': {
         if ((table.name = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'schema':
-        if ((table.schema = getTableSchema(member.value, type, reflection, errorList))) {
+      case 'schema': {
+        if ((table.schema = getTableSchemaMetadata(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'indexes':
-        if ((table.indexes = getTableIndexes(member.value, type, reflection, errorList))) {
+      case 'indexes': {
+        if ((table.indexes = getTableIndexesMetadata(member.value, type, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'relations':
-        table.relations = getTableRelations(member.value, type, reflection, errorList);
+      case 'relations': {
+        table.relations = getTableRelationsMetadata(member.value, type, reflection, errorList);
         break;
+      }
 
-      case 'stream':
-        table.stream = getTableStream(member.value, parent, reflection, errorList);
+      case 'stream': {
+        table.stream = getTableStreamMetadata(member.value, parent, reflection, errorList);
         break;
+      }
     }
   }
 
-  if (!isValidTable(table)) {
+  if (!isCompleteTable(table)) {
     errorList.push(new IncompleteTableError([...properties], type.file));
     return undefined;
   }

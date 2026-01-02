@@ -6,10 +6,10 @@ import {
   IncorrectIndexesTypeError,
   InvalidIndexesTypeError,
   InvalidIndexTypeError,
-  InvalidIndexReferenceError
+  InvalidIndexReferenceError,
+  registerTriggers
 } from '@ez4/database/library';
 
-import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser';
 
 describe('database index errors', () => {
@@ -20,14 +20,14 @@ describe('database index errors', () => {
 
     ok(error1 instanceof IncorrectIndexesTypeError);
     equal(error1.baseType, 'Database.Indexes');
-    equal(error1.schemaType, 'TestIndexes');
+    equal(error1.indexType, 'TestIndexes');
 
     ok(error2 instanceof IncompleteTableError);
     deepEqual(error2.properties, ['indexes']);
   });
 
-  it('assert :: invalid table indexes', () => {
-    const [error1, error2] = parseFile('invalid-indexes', 2);
+  it('assert :: invalid table indexes (declaration)', () => {
+    const [error1, error2] = parseFile('invalid-indexes-class', 2);
 
     ok(error1 instanceof InvalidIndexesTypeError);
     equal(error1.baseType, 'Database.Indexes');
@@ -37,7 +37,7 @@ describe('database index errors', () => {
   });
 
   it('assert :: invalid index type', () => {
-    const [error1, error2] = parseFile('invalid-index-type', 2);
+    const [error1, error2] = parseFile('invalid-indexes-type', 2);
 
     ok(error1 instanceof InvalidIndexTypeError);
     equal(error1.indexName, 'id');
@@ -47,7 +47,7 @@ describe('database index errors', () => {
   });
 
   it('assert :: invalid index reference', () => {
-    const [error1] = parseFile('invalid-index-reference', 1);
+    const [error1] = parseFile('invalid-indexes-reference', 1);
 
     ok(error1 instanceof InvalidIndexReferenceError);
     equal(error1.indexName, 'id');

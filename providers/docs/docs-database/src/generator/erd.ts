@@ -1,7 +1,7 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 
-import { Index } from '@ez4/database/library';
 import { toPascalCase } from '@ez4/utils';
+import { Index } from '@ez4/database';
 
 export namespace EntityRelationshipGenerator {
   export const getDatabaseOutput = (databaseService: DatabaseService) => {

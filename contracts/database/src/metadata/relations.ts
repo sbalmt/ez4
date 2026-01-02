@@ -1,16 +1,27 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { TableRelation } from '../types/relations';
+import type { TableRelation } from './types';
 
-import { isModelDeclaration, getModelMembers, getObjectMembers, getPropertyString, getReferenceType } from '@ez4/common/library';
+import {
+  isModelDeclaration,
+  getModelMembers,
+  getObjectMembers,
+  getPropertyString,
+  getReferenceType,
+  hasHeritageType
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRelationsTypeError, InvalidRelationsTypeError, InvalidRelationTargetError } from '../errors/relations';
-import { isTableRelations } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableRelations = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTableRelationsDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Relations');
+};
+
+export const getTableRelationsMetadata = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeRelations(type, parent, errorList);
   }
@@ -34,7 +45,7 @@ const getTypeRelations = (type: AllType, parent: TypeParent, errorList: Error[])
     return undefined;
   }
 
-  if (!isTableRelations(type)) {
+  if (!isTableRelationsDeclaration(type)) {
     errorList.push(new IncorrectRelationsTypeError(type.name, type.file));
     return undefined;
   }

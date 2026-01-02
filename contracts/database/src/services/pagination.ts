@@ -1,12 +1,5 @@
+import type { PaginationMode } from '../types/mode';
 import type { DatabaseEngine, EngineUtils } from './engine';
-
-/**
- * Pagination mode.
- */
-export const enum PaginationMode {
-  Cursor = 'cursor',
-  Offset = 'offset'
-}
 
 /**
  * Pagination mode utils.

@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { TableStream } from '../types/stream';
+import type { TableStream } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -13,16 +13,21 @@ import {
   getServiceListener,
   getServiceArchitecture,
   getServiceRuntime,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '../errors/stream';
-import { getStreamHandler } from './handler';
-import { isTableStream } from './utils';
+import { getStreamHandlerMetadata } from './handler';
 
-export const getTableStream = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTableStreamDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Stream');
+};
+
+export const getTableStreamMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeStream(type, parent, reflection, errorList);
   }
@@ -36,8 +41,8 @@ export const getTableStream = (type: AllType, parent: TypeModel, reflection: Ref
   return undefined;
 };
 
-const isValidStream = (type: Incomplete<TableStream>): type is TableStream => {
-  return !!type.handler;
+const isCompleteStream = (type: Incomplete<TableStream>): type is TableStream => {
+  return isObjectWith(type, ['handler']);
 };
 
 const getTypeStream = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
@@ -50,7 +55,7 @@ const getTypeStream = (type: AllType, parent: TypeModel, reflection: ReflectionT
     return undefined;
   }
 
-  if (!isTableStream(type)) {
+  if (!isTableStreamDeclaration(type)) {
     errorList.push(new IncorrectStreamTypeError(type.name, type.file));
     return undefined;
   }
@@ -74,39 +79,46 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'handler':
-        stream.handler = getStreamHandler(member.value, reflection, errorList);
+      case 'handler': {
+        stream.handler = getStreamHandlerMetadata(member.value, reflection, errorList);
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         stream.listener = getServiceListener(member.value, errorList);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         stream[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'architecture':
+      case 'architecture': {
         stream[member.name] = getServiceArchitecture(member);
         break;
+      }
 
-      case 'runtime':
+      case 'runtime': {
         stream[member.name] = getServiceRuntime(member);
         break;
+      }
 
-      case 'variables':
+      case 'variables': {
         stream.variables = getLinkedVariableList(member, errorList);
         break;
+      }
     }
   }
 
-  if (!isValidStream(stream)) {
+  if (!isCompleteStream(stream)) {
     errorList.push(new IncompleteStreamError([...properties], type.file));
     return undefined;
   }

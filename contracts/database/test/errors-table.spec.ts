@@ -1,9 +1,17 @@
 import { ok, equal, deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { IncompleteTableError, IncorrectSchemaTypeError, InvalidSchemaTypeError } from '@ez4/database/library';
+import {
+  IncompleteTableError,
+  IncorrectSchemaTypeError,
+  IncorrectTableTypeError,
+  InvalidSchemaTypeError,
+  InvalidTableTypeError,
+  registerTriggers
+} from '@ez4/database/library';
 
-import { registerTriggers } from '@ez4/database/library';
+import { InvalidServicePropertyError } from '@ez4/common/library';
+
 import { parseFile } from './common/parser';
 
 describe('database service errors', () => {
@@ -14,6 +22,28 @@ describe('database service errors', () => {
 
     ok(error1 instanceof IncompleteTableError);
     deepEqual(error1.properties, ['name', 'schema', 'indexes']);
+  });
+
+  it('assert :: incorrect table', () => {
+    const [error1] = parseFile('incorrect-table', 1);
+
+    ok(error1 instanceof IncorrectTableTypeError);
+    equal(error1.baseType, 'Database.Table');
+    equal(error1.tableType, 'TestTable');
+  });
+
+  it('assert :: invalid table (declaration)', () => {
+    const [error1] = parseFile('invalid-table-class', 1);
+
+    ok(error1 instanceof InvalidTableTypeError);
+    equal(error1.baseType, 'Database.Table');
+  });
+
+  it('assert :: invalid table (property)', () => {
+    const [error1] = parseFile('invalid-table-property', 1);
+
+    ok(error1 instanceof InvalidServicePropertyError);
+    deepEqual(error1.propertyName, 'invalid_property');
   });
 
   it('assert :: incorrect table schema', () => {

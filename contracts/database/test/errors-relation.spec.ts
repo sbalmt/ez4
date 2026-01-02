@@ -6,10 +6,10 @@ import {
   InvalidRelationsTypeError,
   InvalidRelationTargetError,
   InvalidRelationTableError,
-  InvalidRelationColumnError
+  InvalidRelationColumnError,
+  registerTriggers
 } from '@ez4/database/library';
 
-import { registerTriggers } from '@ez4/database/library';
 import { parseFile } from './common/parser';
 
 describe('database relation errors', () => {
@@ -21,7 +21,7 @@ describe('database relation errors', () => {
     ok(error1 instanceof IncorrectRelationsTypeError);
 
     equal(error1.baseType, 'Database.Relations');
-    equal(error1.schemaType, 'TestRelations');
+    equal(error1.relationType, 'TestRelations');
   });
 
   it('assert :: invalid table relations', () => {
