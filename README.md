@@ -53,6 +53,12 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | [Validation](./contracts/validation/)     | N/A                                              | N/A                                                                                  |
 | [Factory](./contracts/factory/)           | N/A                                              | N/A                                                                                  |
 
+## Table of contents
+
+- [Quick start](./documentation/quick-start.md)
+- [Configuration](./documentation/configuration.md)
+- [Philosophy](./documentation/philosophy.md)
+
 ## Requirements
 
 - TypeScript 5.8+
