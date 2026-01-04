@@ -41,20 +41,18 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const request: Ws.Incoming<Ws.Event> = {
     timestamp: new Date(requestContext.requestTimeEpoch),
     connectionId: requestContext.connectionId,
-    requestId: context.awsRequestId
+    requestId: context.awsRequestId,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
 
-    Object.assign(request, {
-      ...(await getIncomingRequest(event)),
-      traceId
-    });
-
-    Runtime.setScope({
-      traceId
-    });
+    Object.assign(request, await getIncomingRequest(event));
 
     await onReady(request);
 

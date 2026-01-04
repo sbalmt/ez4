@@ -38,25 +38,23 @@ declare function handle(request: Ws.Incoming<Ws.Request>, context: object): Prom
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const traceId = getRandomUUID();
+
   const request: Ws.Incoming<Ws.Request> = {
     timestamp: new Date(requestContext.requestTimeEpoch),
     connectionId: requestContext.connectionId,
-    requestId: context.awsRequestId
+    requestId: context.awsRequestId,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
 
-    const traceId = getRandomUUID();
-
-    Object.assign(request, {
-      ...(await getIncomingRequest(event)),
-      traceId
-    });
-
-    Runtime.setScope({
-      traceId
-    });
+    Object.assign(request, await getIncomingRequest(event));
 
     await onReady(request);
 

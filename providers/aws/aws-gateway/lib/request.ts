@@ -51,20 +51,18 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     requestId: context.awsRequestId,
     method: requestContext.http.method,
     path: requestContext.http.path,
-    encoded: event.isBase64Encoded
+    encoded: event.isBase64Encoded,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
 
-    Object.assign(request, {
-      ...(await getIncomingRequest(event)),
-      traceId
-    });
-
-    Runtime.setScope({
-      traceId
-    });
+    Object.assign(request, await getIncomingRequest(event));
 
     await onReady(request);
 

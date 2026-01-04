@@ -39,27 +39,24 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const { requestContext } = event;
 
   const resourceArn = event.methodArn ?? event.routeArn;
+  const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
   const request: Http.Incoming<Http.AuthRequest> = {
     timestamp: new Date(requestContext.timeEpoch),
     requestId: context.awsRequestId,
     method: requestContext.http?.method,
-    path: requestContext.http?.path
+    path: requestContext.http?.path,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
 
-    const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
-
-    Object.assign(request, {
-      ...(await getIncomingRequest(event)),
-      traceId
-    });
-
-    Runtime.setScope({
-      traceId
-    });
+    Object.assign(request, await getIncomingRequest(event));
 
     await onReady(request);
 
