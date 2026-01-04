@@ -10,11 +10,13 @@ import type {
 } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
+import { HttpError } from '@ez4/gateway';
 
 import { createWsServiceClient } from '../../client/ws/service';
 import { processWsAuthorization } from '../../handlers/ws/authorizer';
 import { processWsConnection } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
+import { getWsErrorResponse } from '../../utils/ws/response';
 
 export const registerWsLocalServices = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: serviceName, defaults, connect, message } = service;
@@ -63,9 +65,18 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
     messageHandler: async (message: EmulatorMessageEvent) => {
       const { connection } = message;
 
-      const identity = identities[connection.id];
+      try {
+        const identity = identities[connection.id];
 
-      return processWsMessage(service, options, context, message, identity);
+        return await processWsMessage(service, options, context, message, identity);
+        //
+      } catch (error) {
+        if (!(error instanceof HttpError)) {
+          return getWsErrorResponse();
+        }
+
+        return getWsErrorResponse(error);
+      }
     }
   };
 };

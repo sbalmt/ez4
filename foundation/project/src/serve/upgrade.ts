@@ -65,12 +65,16 @@ export const upgradeHandler = async (
     }
 
     close() {
-      socket.destroy();
+      try {
+        socket.destroy();
 
-      return disconnectHandler?.({
-        connection: this,
-        headers
-      });
+        return disconnectHandler?.({
+          connection: this,
+          headers
+        });
+      } catch (error) {
+        Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
+      }
     }
   })();
 
@@ -82,9 +86,10 @@ export const upgradeHandler = async (
       headers,
       query
     });
-  } catch {
+  } catch (error) {
+    Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
     socket.destroy();
-    return false;
+    return;
   }
 
   let buffer = Buffer.alloc(0);
@@ -109,13 +114,20 @@ export const upgradeHandler = async (
 
         case WebSocketOpcode.Text:
         case WebSocketOpcode.Binary: {
-          const response = await messageHandler?.({
-            body: frame.payload,
-            connection
-          });
+          try {
+            Logger.log(`➡️  ${emulator.type} [${emulator.name}] Incoming message`);
 
-          if (response) {
-            connection.write(response);
+            const response = await messageHandler?.({
+              body: frame.payload,
+              connection
+            });
+
+            if (response) {
+              connection.write(response);
+            }
+          } catch (error) {
+            Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
+            socket.destroy();
           }
 
           break;
@@ -141,11 +153,9 @@ export const upgradeHandler = async (
   });
 
   socket.on('end', async () => {
-    try {
-      Logger.log(`🟥 WS connection closed [${emulator.name}]`);
+    Logger.log(`🟥 WS connection closed [${emulator.name}]`);
 
-      await connection.close();
-    } catch {}
+    await connection.close();
   });
 };
 
