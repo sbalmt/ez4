@@ -1,5 +1,5 @@
+import type { ProjectDefaultOptions } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
-import type { ProjectDefaultOptions } from './project';
 import type { LinkedVariables } from './service';
 
 export type CommonOptions = {

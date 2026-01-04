@@ -1,7 +1,6 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
-import type { ArchitectureType } from './architecture';
-import type { RuntimeType } from './runtime';
 
 export type ProjectOptions = {
   /**
