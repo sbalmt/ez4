@@ -1,4 +1,4 @@
-const emailRegEx = /^[\w\+\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+const EMAIL_REGEX = /^[\w\+\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
 
 /**
  * Determines whether or not the given value is a valid email format.
@@ -7,5 +7,5 @@ const emailRegEx = /^[\w\+\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
  * @returns Returns true for a valid email, false otherwise.
  */
 export const isEmail = (value: string) => {
-  return emailRegEx.test(value);
+  return EMAIL_REGEX.test(value);
 };
