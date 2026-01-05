@@ -47,11 +47,13 @@ export namespace Client {
           const date = ScheduleExpression!.substring(3, 22);
           const policy = Target!.RetryPolicy;
 
+          const { event } = JSON.parse(Target!.Input!);
+
           return {
             date: new Date(`${date}Z`),
-            event: JSON.parse(Target!.Input!),
             maxRetries: policy?.MaximumRetryAttempts,
-            maxAge: policy?.MaximumEventAgeInSeconds
+            maxAge: policy?.MaximumEventAgeInSeconds,
+            event
           };
         } catch (error) {
           if (!(error instanceof ResourceNotFoundException)) {
