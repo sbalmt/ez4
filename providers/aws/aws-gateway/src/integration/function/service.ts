@@ -24,7 +24,7 @@ export const createIntegrationFunction = <E extends EntryState>(
   parameters: IntegrationFunctionParameters
 ) => {
   const { headersSchema, parametersSchema, querySchema, bodySchema, identitySchema, responseSchema } = parameters;
-  const { type, handler, variables, preferences, errorsMap } = parameters;
+  const { type, handler, variables, architecture, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
@@ -48,6 +48,7 @@ export const createIntegrationFunction = <E extends EntryState>(
     },
     getFunctionHash: () => {
       return hashObject({
+        architecture,
         headersSchema,
         parametersSchema,
         querySchema,

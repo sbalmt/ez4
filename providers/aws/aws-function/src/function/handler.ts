@@ -4,7 +4,7 @@ import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
 import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
-import { deepCompare, deepEqual, hashData, hashFile } from '@ez4/utils';
+import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
 
@@ -240,10 +240,10 @@ const checkSourceCodeUpdates = async (
   if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || context.force) {
     const newSourceFile = await candidate.getFunctionBundle(context);
 
-    const newBundleHash = hashData(candidate.architecture, await hashFile(newSourceFile));
+    const newBundleHash = await hashFile(newSourceFile);
     const oldBundleHash = current?.bundleHash;
 
-    if (newBundleHash === oldBundleHash) {
+    if (newBundleHash === oldBundleHash && newValuesHash === oldValuesHash) {
       Logger.logSkip(FunctionServiceName, `${functionName} source code`);
 
       return {

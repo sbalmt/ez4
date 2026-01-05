@@ -15,7 +15,7 @@ export const createSubscriptionFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: SubscriptionFunctionParameters
 ) => {
-  const { handler, variables, messageSchema } = parameters;
+  const { handler, variables, architecture, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'snsEntryPoint',
@@ -38,7 +38,10 @@ export const createSubscriptionFunction = <E extends EntryState>(
       return bundleSubscriptionFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return hashObject({ messageSchema });
+      return hashObject({
+        architecture,
+        messageSchema
+      });
     }
   });
 };

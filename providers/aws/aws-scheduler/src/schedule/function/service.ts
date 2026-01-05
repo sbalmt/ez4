@@ -15,7 +15,7 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
-  const { handler, variables, eventSchema } = parameters;
+  const { handler, variables, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
@@ -38,7 +38,10 @@ export const createTargetFunction = <E extends EntryState>(
       return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return hashObject({ eventSchema });
+      return hashObject({
+        architecture,
+        eventSchema
+      });
     }
   });
 };

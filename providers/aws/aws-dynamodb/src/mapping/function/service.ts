@@ -15,7 +15,7 @@ export const createStreamFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: StreamFunctionParameters
 ) => {
-  const { handler, variables, tableSchema } = parameters;
+  const { handler, variables, architecture, tableSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'dbStreamEntryPoint',
@@ -38,7 +38,10 @@ export const createStreamFunction = <E extends EntryState>(
       return bundleStreamFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return hashObject({ tableSchema });
+      return hashObject({
+        architecture,
+        tableSchema
+      });
     }
   });
 };

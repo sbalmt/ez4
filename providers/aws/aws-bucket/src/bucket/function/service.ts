@@ -5,6 +5,7 @@ import type { RoleState } from '@ez4/aws-identity';
 import type { BucketEventFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleBucketEventFunction } from './bundler';
 
@@ -14,7 +15,7 @@ export const createBucketEventFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: BucketEventFunctionParameters
 ) => {
-  const { handler, variables } = parameters;
+  const { handler, variables, architecture } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
@@ -37,7 +38,7 @@ export const createBucketEventFunction = <E extends EntryState>(
       return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return undefined;
+      return hashObject({ architecture });
     }
   });
 };

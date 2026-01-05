@@ -15,8 +15,8 @@ export const createAuthorizerFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: AuthorizerFunctionParameters
 ) => {
+  const { authorizer, variables, architecture, preferences } = parameters;
   const { headersSchema, parametersSchema, querySchema } = parameters;
-  const { authorizer, variables, preferences } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
@@ -40,6 +40,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
     },
     getFunctionHash: () => {
       return hashObject({
+        architecture,
         headersSchema,
         parametersSchema,
         querySchema,

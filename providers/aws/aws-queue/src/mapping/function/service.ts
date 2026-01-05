@@ -15,7 +15,7 @@ export const createQueueFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: QueueFunctionParameters
 ) => {
-  const { handler, variables, messageSchema } = parameters;
+  const { handler, variables, architecture, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
@@ -38,7 +38,10 @@ export const createQueueFunction = <E extends EntryState>(
       return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return hashObject({ messageSchema });
+      return hashObject({
+        architecture,
+        messageSchema
+      });
     }
   });
 };
