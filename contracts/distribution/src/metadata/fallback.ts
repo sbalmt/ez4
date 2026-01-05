@@ -1,7 +1,7 @@
 import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnFallback } from '../types/fallback';
+import type { CdnFallback } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -11,16 +11,20 @@ import {
   getPropertyNumber,
   getPropertyString,
   getPropertyTuple,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteFallbackError, IncorrectFallbackTypeError, InvalidFallbackTypeError } from '../errors/fallback';
-import { isCdnFallback } from './utils';
 
-export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isCdnFallbackMetadata = (type: AllType) => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.Fallback');
+};
+
+export const getCndFallbacksMetadata = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const fallbackItems = getPropertyTuple(member) ?? [];
   const resultList: CdnFallback[] = [];
 
@@ -37,23 +41,23 @@ export const getAllFallbacks = (member: ModelProperty, parent: TypeModel, reflec
 
 const getCdnFallback = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeFallback(type, parent, errorList);
+    return getFallbackType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeFallback(declaration, parent, errorList);
+    return getFallbackType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidFallback = (type: Incomplete<CdnFallback>): type is CdnFallback => {
-  return !!type.code && !!type.location;
+const isCompleteFallback = (type: Incomplete<CdnFallback>): type is CdnFallback => {
+  return isObjectWith(type, ['code', 'location']);
 };
 
-const getTypeFallback = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getFallbackType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -63,7 +67,7 @@ const getTypeFallback = (type: AllType, parent: TypeModel, errorList: Error[]) =
     return undefined;
   }
 
-  if (!isCdnFallback(type)) {
+  if (!isCdnFallbackMetadata(type)) {
     errorList.push(new IncorrectFallbackTypeError(type.name, type.file));
     return undefined;
   }
@@ -81,15 +85,17 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'location':
+      case 'location': {
         if ((fallback.location = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
 
       case 'ttl':
       case 'code': {
@@ -105,11 +111,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
   }
 
-  if (isValidFallback(fallback)) {
-    return fallback;
+  if (!isCompleteFallback(fallback)) {
+    errorList.push(new IncompleteFallbackError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteFallbackError([...properties], type.file));
-
-  return undefined;
+  return fallback;
 };

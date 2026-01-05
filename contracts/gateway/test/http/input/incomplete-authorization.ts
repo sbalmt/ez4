@@ -7,6 +7,6 @@ export declare class TestService extends Http.Service {
 export declare class TestImport extends Http.Import<TestService> {
   project: 'name from project in ez4.project.js';
 
-  // @ts-ignore Missing authorization value.
+  // @ts-expect-error Missing authorization value.
   authorization: {};
 }

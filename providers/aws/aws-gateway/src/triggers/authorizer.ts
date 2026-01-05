@@ -9,11 +9,11 @@ import { tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 
+import { Defaults } from '../utils/defaults';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service';
 import { createAuthorizerFunction } from '../authorizer/function/service';
-import { getFunctionName, getInternalName } from './utils';
+import { getFunctionName, getInternalName } from './utils/name';
 import { RoleMissingError } from './errors';
-import { Defaults } from './defaults';
 
 export const getAuthorizerFunction = (
   state: EntryStates,
@@ -31,14 +31,14 @@ export const getAuthorizerFunction = (
     throw new RoleMissingError();
   }
 
-  const defaults = service.defaults ?? {};
-
   const {
     authorizer,
-    listener = defaults.listener,
-    logRetention = defaults.logRetention,
-    timeout = defaults.timeout,
-    memory = defaults.memory
+    listener = service.defaults?.listener,
+    runtime = options.defaults?.runtime ?? Defaults.Runtime,
+    architecture = options.defaults?.architecture ?? Defaults.Architecture,
+    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
+    timeout = service.defaults?.timeout ?? Defaults.Timeout,
+    memory = options.defaults?.memory ?? Defaults.Memory
   } = target;
 
   const internalName = getInternalName(service, authorizer.name);
@@ -52,8 +52,8 @@ export const getAuthorizerFunction = (
     const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
-      retention: logRetention ?? Defaults.LogRetention,
       groupName: authorizerName,
+      retention: logRetention,
       tags: options.tags
     });
 
@@ -63,15 +63,17 @@ export const getAuthorizerFunction = (
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
-      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
-      memory: memory ?? Defaults.Memory,
+      timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,
       debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],
+      architecture,
+      runtime,
+      memory,
       preferences: {
-        ...defaults.preferences,
+        ...service.defaults?.preferences,
         ...target.preferences
       },
       authorizer: {

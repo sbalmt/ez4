@@ -49,7 +49,7 @@
     "reference": "TestService",
     "context": {},
     "authorization": {
-      "header": "authorization",
+      "header": "x-custom-api",
       "type": "bearer",
       "value": "secret"
     },

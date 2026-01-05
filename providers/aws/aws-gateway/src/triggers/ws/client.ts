@@ -5,7 +5,7 @@ import type { GatewayState } from '../../gateway/types';
 import { getDefinitionName } from '@ez4/project/library';
 
 import { getGatewayState } from '../../gateway/utils';
-import { Defaults } from '../defaults';
+import { Defaults } from '../../utils/defaults';
 
 export const prepareLinkedClient = (context: EventContext, service: WsService, options: DeployOptions): ContextSource => {
   const gatewayState = getGatewayState(context, service.name, options);

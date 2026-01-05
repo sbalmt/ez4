@@ -1,4 +1,4 @@
-import type { TopicMessage } from './common';
+import type { TopicMessage } from './message';
 
 /**
  * Topic FIFO mode options.

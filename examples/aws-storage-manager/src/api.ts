@@ -1,3 +1,4 @@
+import type { ArchitectureType } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { startUploadHandler } from '@/api/endpoints/start-upload';
 import type { startDownloadHandler } from '@/api/endpoints/start-download';
@@ -12,6 +13,16 @@ export declare class Api extends Http.Service {
    * Display name for this API.
    */
   name: 'Storage Manager';
+
+  /**
+   * Default configuration for all routes.
+   */
+  defaults: Http.UseDefaults<{
+    /**
+     * Use ARM64 architecture.
+     */
+    architecture: ArchitectureType.Arm;
+  }>;
 
   /**
    * All API routes.

@@ -1,5 +1,8 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { QueueMessage, QueueSubscriptionListener, QueueSubscriptionHandler } from './common';
+import type { QueueSubscriptionListener } from './listener';
+import type { QueueSubscriptionHandler } from './handler';
+import type { QueueMessage } from './message';
 
 /**
  * Queue subscription.
@@ -39,4 +42,14 @@ export interface QueueSubscription<T extends QueueMessage> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Architecture for the handler.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the handler.
+   */
+  readonly runtime?: RuntimeType;
 }

@@ -4,16 +4,22 @@ import type { Ws } from '@ez4/gateway';
 export declare class TestService extends Ws.Service<{}> {
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
+    variables: {
+      TEST_VAR3: 'test-literal-data-value';
+    };
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
+    variables: {
+      TEST_VAR4: 'test-literal-data-value';
+    };
   }>;
 
   message: Ws.UseMessage<{
     handler: typeof messageHandler;
     variables: {
-      TEST_VAR3: 'test-literal-data-value';
+      TEST_VAR5: 'test-literal-data-value';
     };
   }>;
 

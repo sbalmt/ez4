@@ -1,12 +1,16 @@
-import type { AllType } from '@ez4/reflection';
+import type { AllType, TypeCallback, TypeFunction } from '@ez4/reflection';
 
+import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
-import { isEventHandler } from './utils';
 
-export const getEventHandler = (type: AllType, errorList: Error[]) => {
-  if (!isEventHandler(type)) {
+export const isEventHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
+};
+
+export const getEventHandlerMetadata = (type: AllType, errorList: Error[]) => {
+  if (!isEventHandlerDeclaration(type)) {
     return undefined;
   }
 

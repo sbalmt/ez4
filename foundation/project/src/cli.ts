@@ -22,7 +22,7 @@ if (options?.command === CommandType.Test) {
   extraArguments.push('--experimental-test-module-mocks');
 
   if (options.coverage) {
-    extraArguments.push('--experimental-test-coverage');
+    extraArguments.push('--experimental-test-coverage', `--test-coverage-include=${process.cwd()}/**/*`);
   }
 }
 

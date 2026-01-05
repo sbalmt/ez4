@@ -1,6 +1,6 @@
-import type { FunctionParameters, FunctionVariables } from '@ez4/aws-function';
+import type { ContextSource, LinkedVariables } from '@ez4/project/library';
 import type { CronEventSchema } from '@ez4/scheduler/library';
-import type { ContextSource } from '@ez4/project/library';
+import type { FunctionParameters } from '@ez4/aws-function';
 
 export type TargetFunction = {
   functionName: string;
@@ -20,6 +20,6 @@ export type TargetFunctionParameters = Omit<
   listener?: TargetFunction;
   eventSchema?: CronEventSchema;
   context?: Record<string, ContextSource>;
-  variables: (FunctionVariables | undefined)[];
+  variables: (LinkedVariables | undefined)[];
   debug?: boolean;
 };

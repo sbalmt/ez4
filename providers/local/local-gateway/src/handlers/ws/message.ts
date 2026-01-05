@@ -17,7 +17,7 @@ export const processWsMessage = async (
   event: EmulatorMessageEvent,
   identity?: Ws.Identity
 ) => {
-  const { message, services } = service;
+  const { message, defaults, services } = service;
 
   const clients = await context.makeClients(services);
   const handler = message.handler;
@@ -44,17 +44,20 @@ export const processWsMessage = async (
   };
 
   try {
+    const { preferences = defaults?.preferences } = message;
+
     await onBegin(module, clients, request);
 
     if (handler.request) {
+      const incoming = { ...event, preferences };
+
       Object.assign(request, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
-      Object.assign(request, await getIncomingRequestBody(handler.request, event, onCustomValidation));
+      Object.assign(request, await getIncomingRequestBody(handler.request, incoming, onCustomValidation));
     }
 
     await onReady(module, clients, request);
 
     const response = await module.handler<Ws.Response | void>(request, clients);
-    const preferences = message.preferences ?? service.defaults?.preferences;
 
     await onDone(module, clients, request);
 

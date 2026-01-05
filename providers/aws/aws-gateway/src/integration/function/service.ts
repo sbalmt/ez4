@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { FunctionVariables } from '@ez4/aws-function';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { IntegrationFunctionParameters } from './types';
@@ -24,19 +24,21 @@ export const createIntegrationFunction = <E extends EntryState>(
   parameters: IntegrationFunctionParameters
 ) => {
   const { headersSchema, parametersSchema, querySchema, bodySchema, identitySchema, responseSchema } = parameters;
-  const { type, handler, variables, preferences, errorsMap } = parameters;
+  const { type, handler, variables, architecture, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    architecture: parameters.architecture,
+    runtime: parameters.runtime,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
-      return variables.reduce<FunctionVariables>((variables, current) => ({ ...variables, ...current }), {});
+      return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
@@ -46,6 +48,7 @@ export const createIntegrationFunction = <E extends EntryState>(
     },
     getFunctionHash: () => {
       return hashObject({
+        architecture,
         headersSchema,
         parametersSchema,
         querySchema,

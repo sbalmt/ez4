@@ -8,12 +8,12 @@ import { tryGetFunctionState } from '@ez4/aws-function';
 import { createLogGroup } from '@ez4/aws-logs';
 import { isAnyObject } from '@ez4/utils';
 
+import { Defaults } from '../utils/defaults';
 import { IntegrationFunctionType } from '../integration/function/types';
 import { createIntegrationFunction } from '../integration/function/service';
 import { getIntegration, createIntegration } from '../integration/service';
-import { getFunctionName, getInternalName } from './utils';
+import { getFunctionName, getInternalName } from './utils/name';
 import { RoleMissingError } from './errors';
-import { Defaults } from './defaults';
 
 export const getIntegrationRequestFunction = (
   state: EntryStates,
@@ -65,10 +65,12 @@ const getIntegrationFunction = (
 
   const {
     handler,
-    listener = defaults.listener,
-    logRetention = defaults.logRetention,
-    timeout = defaults.timeout,
-    memory = defaults.memory
+    listener = service.defaults?.listener,
+    runtime = options.defaults?.runtime ?? Defaults.Runtime,
+    architecture = options.defaults?.architecture ?? Defaults.Architecture,
+    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
+    timeout = service.defaults?.timeout ?? Defaults.Timeout,
+    memory = options.defaults?.memory ?? Defaults.Memory
   } = target;
 
   const provider = 'provider' in handler ? handler.provider : undefined;
@@ -84,8 +86,8 @@ const getIntegrationFunction = (
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
-      retention: logRetention ?? Defaults.LogRetention,
       groupName: integrationName,
+      retention: logRetention,
       tags: options.tags
     });
 
@@ -100,13 +102,15 @@ const getIntegrationFunction = (
         bodySchema: request.body
       }),
       responseSchema: response?.body,
-      timeout: Math.max(5, (timeout ?? Defaults.Timeout) - 1),
-      memory: memory ?? Defaults.Memory,
+      timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,
       debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],
+      architecture,
+      runtime,
+      memory,
       type,
       handler: {
         sourceFile: handler.file,

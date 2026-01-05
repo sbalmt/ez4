@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnCertificate } from '../types/certificate';
+import type { CdnCertificate } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,33 +9,38 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyString,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteCertificateError, IncorrectCertificateTypeError, InvalidCertificateTypeError } from '../errors/certificate';
-import { isCdnCertificate } from './utils';
 
-export const getCdnCertificate = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isCdnCertificateDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cdn.Certificate');
+};
+
+export const getCdnCertificateMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeCertificate(type, parent, errorList);
+    return getCertificateType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeCertificate(declaration, parent, errorList);
+    return getCertificateType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidCertificate = (type: Incomplete<CdnCertificate>): type is CdnCertificate => {
-  return !!type.domain;
+const isCompleteCertificate = (type: Incomplete<CdnCertificate>): type is CdnCertificate => {
+  return isObjectWith(type, ['domain']);
 };
 
-const getTypeCertificate = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getCertificateType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -45,7 +50,7 @@ const getTypeCertificate = (type: AllType, parent: TypeModel, errorList: Error[]
     return undefined;
   }
 
-  if (!isCdnCertificate(type)) {
+  if (!isCdnCertificateDeclaration(type)) {
     errorList.push(new IncorrectCertificateTypeError(type.name, type.file));
     return undefined;
   }
@@ -63,23 +68,24 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'domain':
+      case 'domain': {
         if ((certificate.domain = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
     }
   }
 
-  if (isValidCertificate(certificate)) {
-    return certificate;
+  if (!isCompleteCertificate(certificate)) {
+    errorList.push(new IncompleteCertificateError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteCertificateError([...properties], type.file));
-
-  return undefined;
+  return certificate;
 };

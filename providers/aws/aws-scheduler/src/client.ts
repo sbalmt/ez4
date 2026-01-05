@@ -13,8 +13,9 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
-import { getJsonStringEvent } from '@ez4/scheduler/utils';
-import { isAnyNumber } from '@ez4/utils';
+import { getRandomUUID, isAnyNumber } from '@ez4/utils';
+import { getJsonEvent } from '@ez4/scheduler/utils';
+import { Runtime } from '@ez4/common/runtime';
 
 const client = new SchedulerClient({});
 
@@ -46,11 +47,13 @@ export namespace Client {
           const date = ScheduleExpression!.substring(3, 22);
           const policy = Target!.RetryPolicy;
 
+          const { event } = JSON.parse(Target!.Input!);
+
           return {
             date: new Date(`${date}Z`),
-            event: JSON.parse(Target!.Input!),
             maxRetries: policy?.MaximumRetryAttempts,
-            maxAge: policy?.MaximumEventAgeInSeconds
+            maxAge: policy?.MaximumEventAgeInSeconds,
+            event
           };
         } catch (error) {
           if (!(error instanceof ResourceNotFoundException)) {
@@ -62,7 +65,8 @@ export namespace Client {
       }
 
       async createEvent(identifier: string, input: ScheduleEvent<T>) {
-        const message = await getJsonStringEvent(input.event, parameters.schema);
+        const event = await getJsonEvent(input.event, parameters.schema);
+        const scope = Runtime.getScope();
 
         const defaults = parameters.defaults;
 
@@ -86,7 +90,10 @@ export namespace Client {
             Target: {
               Arn: functionArn,
               RoleArn: roleArn,
-              Input: message,
+              Input: JSON.stringify({
+                traceId: scope?.traceId ?? getRandomUUID(),
+                event
+              }),
               ...(hasPolicy && {
                 RetryPolicy: {
                   ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
@@ -106,12 +113,12 @@ export namespace Client {
           })
         );
 
+        const scope = Runtime.getScope();
+
         const target = response.Target;
         const policy = target?.RetryPolicy;
 
         const date = input.date ? `at(${input.date.toISOString().substring(0, 19)})` : response.ScheduleExpression;
-
-        const message = input.event ? await getJsonStringEvent(input.event, parameters.schema) : target?.Input;
 
         const defaults = parameters.defaults;
 
@@ -135,7 +142,12 @@ export namespace Client {
             Target: {
               Arn: functionArn,
               RoleArn: roleArn,
-              Input: message,
+              Input: !input.event
+                ? target?.Input
+                : JSON.stringify({
+                    traceId: scope?.traceId ?? getRandomUUID(),
+                    event: await getJsonEvent(input.event, parameters.schema)
+                  }),
               ...(hasPolicy && {
                 RetryPolicy: {
                   ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),

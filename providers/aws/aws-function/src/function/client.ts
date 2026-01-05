@@ -1,5 +1,6 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { FunctionVariables } from '../types/variables';
 
 import {
   LambdaClient,
@@ -22,6 +23,8 @@ import {
 
 import { Logger, tryParseArn, waitCreation, waitDeletion } from '@ez4/aws-common';
 
+import { getFunctionRuntime } from '../utils/runtime';
+import { getFunctionArchitecture } from '../utils/architecture';
 import { assertVariables } from './helpers/variables';
 import { getZipBuffer } from './helpers/zip';
 import { FunctionServiceName } from './types';
@@ -42,7 +45,9 @@ export type CreateRequest = {
   handlerName: string;
   description?: string;
   logGroup?: string;
-  variables?: FunctionVariables;
+  variables?: LinkedVariables;
+  architecture: ArchitectureType;
+  runtime: RuntimeType;
   timeout?: number;
   memory?: number;
   publish?: boolean;
@@ -60,13 +65,15 @@ export type UpdateConfigurationRequest = {
   handlerName?: string;
   description?: string;
   logGroup?: string;
-  variables?: FunctionVariables;
+  variables?: LinkedVariables;
+  runtime?: RuntimeType;
   timeout?: number;
   memory?: number;
   debug?: boolean;
 };
 
 export type UpdateSourceCodeRequest = {
+  architecture?: ArchitectureType;
   sourceFile: string;
   publish?: boolean;
 };
@@ -110,22 +117,25 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
+  const { description, memory, timeout, architecture, runtime, debug, roleArn, logGroup } = request;
+
   // If the given roleArn is new and still propagating on AWS, the creation will fail.
   // The `waitCreation` will keep retrying until max attempts.
   const response = await waitCreation(() => {
     return client.send(
       new CreateFunctionCommand({
-        FunctionName: request.functionName,
-        Description: request.description,
-        MemorySize: request.memory,
-        Timeout: request.timeout,
-        Role: request.roleArn,
+        FunctionName: functionName,
+        Description: description,
+        MemorySize: memory,
+        Timeout: timeout,
+        Role: roleArn,
         Handler: handlerName,
-        Runtime: 'nodejs22.x',
+        Architectures: [getFunctionArchitecture(architecture)],
+        Runtime: getFunctionRuntime(runtime),
         PackageType: 'Zip',
         LoggingConfig: {
-          LogGroup: request.logGroup,
-          ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+          LogGroup: logGroup,
+          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
           SystemLogLevel: SystemLogLevel.Warn,
           LogFormat: LogFormat.Json
         },
@@ -170,11 +180,14 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
 
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
+  const { publish, architecture } = request;
+
   const response = await client.send(
     new UpdateFunctionCodeCommand({
+      Architectures: architecture && [getFunctionArchitecture(architecture)],
       FunctionName: functionName,
-      Publish: request.publish,
-      ZipFile: sourceFile
+      ZipFile: sourceFile,
+      Publish: publish
     })
   );
 
@@ -209,20 +222,22 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     assertVariables(variables);
   }
 
+  const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
+
   await client.send(
     new UpdateFunctionConfigurationCommand({
+      Runtime: runtime && getFunctionRuntime(runtime),
       FunctionName: functionName,
-      Description: request.description,
-      MemorySize: request.memory,
-      Timeout: request.timeout,
-      Role: request.roleArn,
-      Runtime: 'nodejs22.x',
+      Description: description,
+      MemorySize: memory,
+      Timeout: timeout,
+      Role: roleArn,
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
       LoggingConfig: {
-        LogGroup: request.logGroup,
-        ApplicationLogLevel: request.debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+        LogGroup: logGroup,
+        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
         SystemLogLevel: SystemLogLevel.Warn,
         LogFormat: LogFormat.Json
       },

@@ -74,32 +74,35 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':
-      case 'exposeHeaders':
+      case 'exposeHeaders': {
         cors[member.name] = getPropertyStringList(member);
         break;
+      }
 
-      case 'allowCredentials':
+      case 'allowCredentials': {
         cors.allowCredentials = getPropertyBoolean(member);
         break;
+      }
 
-      case 'maxAge':
+      case 'maxAge': {
         cors.maxAge = getPropertyNumber(member);
         break;
+      }
     }
   }
 
-  if (isCompleteCors(cors)) {
-    return cors;
+  if (!isCompleteCors(cors)) {
+    errorList.push(new IncompleteCorsError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteCorsError([...properties], type.file));
-
-  return undefined;
+  return cors;
 };

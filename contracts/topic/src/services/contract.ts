@@ -1,8 +1,12 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
 import type { Exclusive } from '@ez4/utils';
-import type { TopicMessage, TopicRequest, TopicIncoming, TopicSubscriptionHandler, TopicSubscriptionListener } from './common';
 import type { TopicLambdaSubscription, TopicQueueSubscription } from './subscription';
+import type { TopicSubscriptionListener } from './listener';
+import type { TopicSubscriptionHandler } from './handler';
+import type { TopicIncoming } from './incoming';
+import type { TopicRequest } from './request';
+import type { TopicMessage } from './message';
 import type { TopicFifoMode } from './mode';
 import type { Client } from './client';
 

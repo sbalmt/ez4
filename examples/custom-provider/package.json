@@ -22,9 +22,9 @@
     "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/gateway": "^0.37.0",
-    "@ez4/local-gateway": "^0.37.0",
-    "@ez4/project": "^0.37.0",
-    "@ez4/reflection": "^0.37.0"
+    "@ez4/gateway": "^0.38.0",
+    "@ez4/local-gateway": "^0.38.0",
+    "@ez4/project": "^0.38.0",
+    "@ez4/reflection": "^0.38.0"
   }
 }

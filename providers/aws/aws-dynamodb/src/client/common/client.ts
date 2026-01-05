@@ -5,6 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 import { ReturnConsumedCapacity } from '@aws-sdk/client-dynamodb';
 import { ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
 import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
+import { Runtime } from '@ez4/common/runtime';
 
 export type StatementResult = {
   cursor?: string;
@@ -102,6 +103,7 @@ const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: Consu
 
   console.debug({
     type: 'PartiQL',
+    ...Runtime.getScope(),
     consumption: consumption?.CapacityUnits,
     query: input.Statement,
     ...(transaction && {
@@ -118,6 +120,7 @@ const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolea
 
   console.error({
     type: 'PartiQL',
+    ...Runtime.getScope(),
     query: input.Statement,
     ...(parameters && {
       parameters

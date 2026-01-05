@@ -1,3 +1,4 @@
+import type { ProjectDefaultOptions } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
@@ -14,6 +15,7 @@ export type ImportOptions = CommonOptions & {
 
 export type DeployOptions = CommonOptions & {
   imports?: Record<string, ImportOptions>;
+  defaults?: ProjectDefaultOptions;
   variables?: LinkedVariables;
   tags?: Record<string, string>;
 };

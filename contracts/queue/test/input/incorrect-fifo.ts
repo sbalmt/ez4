@@ -18,7 +18,7 @@ export declare class TestQueue1 extends Queue.Service<TestMessage> {
 }
 
 export declare class TestQueue2 extends Queue.Service<TestMessage> {
-  // @ts-ignore Group Id doesn't exist in TestMessage.
+  // @ts-expect-error Group Id doesn't exist in TestMessage.
   fifoMode: {
     groupId: 'wrong';
   };

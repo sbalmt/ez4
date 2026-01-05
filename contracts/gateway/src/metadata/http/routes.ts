@@ -17,6 +17,8 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
   getReferenceType,
   getPropertyTuple,
   hasHeritageType
@@ -131,13 +133,15 @@ const getTypeFromMembers = (
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'name':
+      case 'name': {
         route.name = getPropertyString(member);
         break;
+      }
 
       case 'path': {
         const path = getPropertyString(member);
@@ -150,42 +154,60 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'handler':
+      case 'handler': {
         if ((route.handler = getHttpHandlerMetadata(member.value, parent, reflection, errorList, external))) {
           properties.delete(member.name);
         }
         break;
+      }
 
-      case 'authorizer':
+      case 'authorizer': {
         route.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
         break;
+      }
 
-      case 'preferences':
+      case 'preferences': {
         route.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
         break;
+      }
 
-      case 'httpErrors':
+      case 'httpErrors': {
         route.httpErrors = getHttpErrorsMetadata(member.value, parent, reflection, errorList);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         route[member.name] = getPropertyNumber(member);
         break;
+      }
+
+      case 'architecture': {
+        route[member.name] = getServiceArchitecture(member);
+        break;
+      }
+
+      case 'runtime': {
+        route[member.name] = getServiceRuntime(member);
+        break;
+      }
 
       case 'cors':
-      case 'disabled':
+      case 'disabled': {
         route[member.name] = getPropertyBoolean(member);
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         route.listener = getServiceListener(member.value, errorList);
         break;
+      }
 
-      case 'variables':
+      case 'variables': {
         route.variables = getLinkedVariableList(member, errorList);
         break;
+      }
     }
   }
 
@@ -204,10 +226,8 @@ const getTypeFromMembers = (
   return route;
 };
 
-const PARAMETER_NAME_PATTERN = /\{([\w_-]+)\}/g;
-
 const getMismatchParameters = (path: string, parametersSchema: ObjectSchema | undefined) => {
-  const allParameters = path.matchAll(PARAMETER_NAME_PATTERN);
+  const allParameters = path.matchAll(/\{([\w_-]+)\}/g);
   const allMismatches = [];
 
   for (const pathParameter of allParameters) {

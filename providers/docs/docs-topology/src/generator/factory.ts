@@ -9,7 +9,7 @@ import { ThemeColor } from '../common/theme';
 
 export const getFactoryNodes = (metadata: MetadataReflection) => {
   return getSubgraphOutput('Factories', metadata, {
-    styles: [`classDef ez4Factory ${getNodeStyle(ThemeColor.Factory)};`, `classDef ez4FactoryEdge ${getEdgeStyle(ThemeColor.Factory)};`],
+    styles: [`classDef ez4Factory ${getNodeStyle(ThemeColor.Factory)}`, `classDef ez4FactoryEdge ${getEdgeStyle(ThemeColor.Factory)}`],
     generator: ({ name, resource }) => {
       if (isFactoryService(resource)) {
         return {

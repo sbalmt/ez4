@@ -30,12 +30,13 @@
         },
         "indexes": [],
         "stream": {
+          "architecture": "arm",
           "handler": {
             "name": "streamHandler",
             "description": "Test table stream.",
-            "file": "test/models/output-stream.ts",
+            "file": "test/input/output-stream.ts",
             "position": [
-              51,
+              55,
               1
             ]
           },
@@ -57,12 +58,13 @@
         },
         "indexes": [],
         "stream": {
+          "runtime": "node24",
           "handler": {
             "name": "streamHandler",
             "description": "Test table stream.",
-            "file": "test/models/output-stream.ts",
+            "file": "test/input/output-stream.ts",
             "position": [
-              51,
+              55,
               1
             ]
           },

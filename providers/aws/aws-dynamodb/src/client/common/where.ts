@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
-import { isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
+import { arrayUnique, isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
 import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
 import { isSkippableData } from './data';
@@ -126,11 +126,13 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'isIn': {
       if (!isEmptyArray(value)) {
+        const values = sanitizeValues(value);
+
         if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
-          return [value.map(() => `? IN ${path}`).join(' AND '), ...value];
+          return [values.map(() => `? IN ${path}`).join(' AND '), ...values];
         }
 
-        return [`${path} IN [${value.map(() => '?').join(', ')}]`, ...value];
+        return [`${path} IN [${values.map(() => '?').join(', ')}]`, ...values];
       }
 
       // Force no results for empty arrays
@@ -151,8 +153,10 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
 
     case 'contains': {
       if (isAnyArray(value)) {
-        if (!isEmptyArray(value) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
-          return [value.map(() => `contains(${path}, ?)`).join(' AND '), ...value];
+        const values = sanitizeValues(value);
+
+        if (!isEmptyArray(values) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+          return [values.map(() => `contains(${path}, ?)`).join(' AND '), ...values];
         }
 
         // Force any results for empty arrays
@@ -164,4 +168,14 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
   }
 
   return undefined;
+};
+
+/**
+ * Ensure all value are unique and not empty string as per DynamoDB expectations.
+ *
+ * @param values Input values.
+ * @returns Returns the sanitized array of values.
+ */
+const sanitizeValues = (values: unknown[]) => {
+  return arrayUnique(values).filter((value) => value !== '');
 };

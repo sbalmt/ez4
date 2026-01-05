@@ -8,6 +8,8 @@ import type { Http } from '@ez4/gateway';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 import {
   resolveHeaders,
@@ -42,13 +44,20 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  const request = {
+  const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
+
+  const request: Http.Incoming<Http.Request> = {
     timestamp: new Date(requestContext.timeEpoch),
     requestId: context.awsRequestId,
     method: requestContext.http.method,
     path: requestContext.http.path,
-    encoded: event.isBase64Encoded
+    encoded: event.isBase64Encoded,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
@@ -62,6 +71,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onDone(request);
 
     return getSuccessResponse(status, body, headers);
+
     //
   } catch (error) {
     await onError(error, request);
@@ -174,6 +184,7 @@ const getOutgoingResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: A
 
 const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
   const response = body ? getOutgoingResponseBody(body, headers) : undefined;
+  const scope = Runtime.getScope();
 
   return {
     statusCode: status,
@@ -182,6 +193,9 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
       ...headers,
       ...(response && {
         ['content-type']: response.type
+      }),
+      ...(scope && {
+        ['x-trace-id']: scope.traceId
       })
     },
     ...(response && {
@@ -191,13 +205,17 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
 };
 
 const getDefaultErrorResponse = (error?: HttpError) => {
-  const { status, body } = getJsonError(error ?? new HttpInternalServerError());
+  const response = getJsonError(error ?? new HttpInternalServerError());
+  const scope = Runtime.getScope();
 
   return {
-    statusCode: status,
-    body: JSON.stringify(body),
+    statusCode: response.status,
+    body: JSON.stringify(response.body),
     headers: {
-      ['content-type']: 'application/json'
+      ['content-type']: 'application/json',
+      ...(scope && {
+        ['x-trace-id']: scope.traceId
+      })
     }
   };
 };
@@ -259,7 +277,7 @@ const onDone = async (request: Http.Incoming<Http.Request>) => {
 };
 
 const onError = async (error: unknown, request: Http.Incoming<Http.Request>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

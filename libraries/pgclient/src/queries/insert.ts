@@ -372,7 +372,7 @@ const getInsertSelectFields = (
           main.results.column(targetColumn);
         }
 
-        const relationRecord = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, fieldPath, true);
+        const relationRecord = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
           relationQuery.objectColumn(relationRecord, { binary: true });

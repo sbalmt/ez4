@@ -1,15 +1,17 @@
 import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import { HttpNamespaceType, type HttpDefaults } from './types';
+import type { HttpDefaults } from './types';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  tryGetReferenceType,
   getPropertyNumber,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceArchitecture,
+  getServiceRuntime,
+  tryGetReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -19,6 +21,7 @@ import { IncorrectDefaultsTypeError, InvalidDefaultsTypeError } from '../../erro
 import { getFullTypeName } from '../utils/name';
 import { getWebPreferencesMetadata } from '../preferences';
 import { getHttpErrorsMetadata } from './errors';
+import { HttpNamespaceType } from './types';
 
 const FULL_BASE_TYPE = getFullTypeName(HttpNamespaceType, 'Defaults');
 
@@ -67,27 +70,42 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, parent.file));
         break;
+      }
 
-      case 'preferences':
+      case 'preferences': {
         defaults.preferences = getWebPreferencesMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
         break;
+      }
 
-      case 'httpErrors':
+      case 'httpErrors': {
         defaults.httpErrors = getHttpErrorsMetadata(member.value, parent, reflection, errorList);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         defaults[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'listener':
+      case 'architecture': {
+        defaults[member.name] = getServiceArchitecture(member);
+        break;
+      }
+
+      case 'runtime': {
+        defaults[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'listener': {
         defaults.listener = getServiceListener(member.value, errorList);
         break;
+      }
     }
   }
 

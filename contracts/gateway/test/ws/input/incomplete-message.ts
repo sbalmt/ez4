@@ -9,7 +9,7 @@ export declare class TestService extends Ws.Service<{}> {
     handler: typeof disconnectHandler;
   }>;
 
-  // @ts-ignore Missing required message handler.
+  // @ts-expect-error Missing required message handler.
   message: Ws.UseMessage<{}>;
 }
 

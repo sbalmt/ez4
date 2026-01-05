@@ -5,12 +5,14 @@ import type { AnyObject } from '@ez4/utils';
 
 import { getJsonStringMessage, MissingMessageGroupError } from '@ez4/topic/utils';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
-
-const client = new SNSClient({});
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 type FifoParameters = Pick<PublishInput, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
 export namespace Client {
+  const client = new SNSClient();
+
   export const make = <T extends Topic.Message>(
     topicArn: string,
     messageSchema: MessageSchema,
@@ -19,6 +21,7 @@ export namespace Client {
     return new (class {
       async sendMessage(message: T) {
         const messageBody = await getJsonStringMessage(message, messageSchema);
+        const scope = Runtime.getScope();
 
         await client.send(
           new PublishCommand({
@@ -26,7 +29,13 @@ export namespace Client {
             Message: messageBody,
             ...(fifoMode && {
               ...getFifoParameters(message, fifoMode)
-            })
+            }),
+            MessageAttributes: {
+              ['EZ4.TRACE_ID']: {
+                StringValue: scope?.traceId ?? getRandomUUID(),
+                DataType: 'String'
+              }
+            }
           })
         );
       }

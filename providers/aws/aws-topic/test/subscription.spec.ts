@@ -5,6 +5,7 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createSubscriptionFunction, createSubscription, createTopic, registerTriggers, isSubscriptionState } from '@ez4/aws-topic';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createPolicy, createRole } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 import { deploy } from '@ez4/aws-common';
@@ -63,6 +64,8 @@ describe('topic subscription', () => {
 
     const functionResource = createSubscriptionFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-topic-subscription-lambda',
+      architecture: ArchitectureType.Arm,
+      runtime: RuntimeType.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

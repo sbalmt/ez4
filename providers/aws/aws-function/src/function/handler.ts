@@ -1,4 +1,5 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
@@ -19,6 +20,10 @@ import {
 
 import { protectVariables } from './helpers/variables';
 import { FunctionServiceName } from './types';
+
+type FunctionConfigurationWithVariables = FunctionParameters & {
+  variables: LinkedVariables;
+};
 
 export const getFunctionHandler = (): StepHandler<FunctionState> => ({
   equals: equalsResource,
@@ -99,6 +104,7 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     });
 
     await updateSourceCode(functionName, {
+      architecture: parameters.architecture,
       publish: false,
       sourceFile
     });
@@ -162,7 +168,7 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
   const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig);
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig, context);
   await checkTagUpdates(result.functionArn, parameters, current.parameters);
 
   const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
@@ -184,16 +190,29 @@ const deleteResource = async (candidate: FunctionState) => {
   }
 };
 
-const checkConfigurationUpdates = async (functionName: string, candidate: FunctionParameters, current: FunctionParameters) => {
-  const hasChanges = !deepEqual(candidate, current, {
+const checkConfigurationUpdates = async (
+  functionName: string,
+  candidate: FunctionConfigurationWithVariables,
+  current: FunctionConfigurationWithVariables,
+  context: StepContext
+) => {
+  const { variables, ...configuration } = candidate;
+
+  const protectedCandidate = {
+    variables: protectVariables(variables),
+    ...configuration
+  };
+
+  const hasChanges = !deepEqual(protectedCandidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,
+      architecture: true,
       tags: true
     }
   });
 
-  if (hasChanges) {
+  if (hasChanges || context.force) {
     await updateConfiguration(functionName, candidate);
   }
 };
@@ -224,7 +243,7 @@ const checkSourceCodeUpdates = async (
     const newBundleHash = await hashFile(newSourceFile);
     const oldBundleHash = current?.bundleHash;
 
-    if (newBundleHash === oldBundleHash) {
+    if (newBundleHash === oldBundleHash && newValuesHash === oldValuesHash) {
       Logger.logSkip(FunctionServiceName, `${functionName} source code`);
 
       return {
@@ -234,6 +253,7 @@ const checkSourceCodeUpdates = async (
     }
 
     const { functionVersion } = await updateSourceCode(functionName, {
+      architecture: candidate.architecture,
       publish: !current?.functionVersion,
       sourceFile: newSourceFile
     });

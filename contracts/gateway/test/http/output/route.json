@@ -15,11 +15,12 @@
         "path": "ANY /test-route-1",
         "logRetention": 7,
         "disabled": true,
+        "runtime": "node24",
         "handler": {
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            32,
+            36,
             1
           ],
           "response": {
@@ -29,11 +30,12 @@
       },
       {
         "path": "GET /test-route-2",
+        "architecture": "arm",
         "handler": {
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            38,
+            42,
             1
           ],
           "response": {

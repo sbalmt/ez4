@@ -2,15 +2,15 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getDatabaseServices } from '@ez4/database/library';
+import { registerTriggers, getDatabaseServicesMetadata } from '@ez4/database/library';
 import { buildReflection } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
-  const sourceFile = `./test/models/output-${fileName}.ts`;
+  const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
   const reflection = buildReflection([sourceFile]);
-  const result = getDatabaseServices(reflection);
+  const result = getDatabaseServicesMetadata(reflection);
 
   result.errors.forEach((error) => {
     console.error(error.message);

@@ -10,6 +10,6 @@ export declare class TestCdn extends Cdn.Service {
     location: '/site';
   }>;
 
-  // @ts-ignore Missing domain.
+  // @ts-expect-error Missing domain.
   certificate: {};
 }

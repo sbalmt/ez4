@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { BucketEvent } from '../types/common';
+import type { BucketEvent } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -12,16 +12,23 @@ import {
   getPropertyNumber,
   getPropertyString,
   getServiceListener,
-  getReferenceType
+  getServiceArchitecture,
+  getServiceRuntime,
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event';
-import { getEventHandler } from './handler';
-import { isBucketEvent } from './utils';
+import { getEventHandlerMetadata } from './handler';
 
-export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isBucketEventDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Bucket.Event');
+};
+
+export const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEvent(type, parent, errorList);
   }
@@ -35,8 +42,8 @@ export const getBucketEvent = (type: AllType, parent: TypeModel, reflection: Ref
   return undefined;
 };
 
-const isValidEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
-  return !!type.handler;
+const isCompleteEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
+  return isObjectWith(type, ['handler']);
 };
 
 const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -49,7 +56,7 @@ const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {
     return undefined;
   }
 
-  if (!isBucketEvent(type)) {
+  if (!isBucketEventDeclaration(type)) {
     errorList.push(new IncorrectEventTypeError(type.name, type.file));
     return undefined;
   }
@@ -67,39 +74,54 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
-      case 'path':
+      case 'path': {
         event.path = getPropertyString(member);
         break;
+      }
 
-      case 'listener':
+      case 'listener': {
         event.listener = getServiceListener(member.value, errorList);
         break;
+      }
 
-      case 'handler':
-        event.handler = getEventHandler(member.value, errorList);
+      case 'handler': {
+        event.handler = getEventHandlerMetadata(member.value, errorList);
         break;
+      }
 
       case 'memory':
       case 'logRetention':
-      case 'timeout':
+      case 'timeout': {
         event[member.name] = getPropertyNumber(member);
         break;
+      }
 
-      case 'variables':
+      case 'architecture': {
+        event[member.name] = getServiceArchitecture(member);
+        break;
+      }
+
+      case 'runtime': {
+        event[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'variables': {
         event.variables = getLinkedVariableList(member, errorList);
         break;
+      }
     }
   }
 
-  if (isValidEvent(event)) {
-    return event;
+  if (!isCompleteEvent(event)) {
+    errorList.push(new IncompleteEventError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteEventError([...properties], type.file));
-
-  return undefined;
+  return event;
 };

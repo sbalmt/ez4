@@ -1,31 +1,34 @@
 import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
-import type { QueueMessageSchema } from '../types/common';
+import type { QueueMessageSchema } from './types';
 
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
 import { isObjectSchema } from '@ez4/schema';
 
 import { IncorrectMessageTypeError, InvalidMessageTypeError } from '../errors/message';
-import { isQueueMessage } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getQueueMessage = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isQueueMessageDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Queue.Message');
+};
+
+export const getQueueMessageMetadata = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeMessage(type, parent, reflection, errorList);
+    return getMessageType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeMessage(declaration, parent, reflection, errorList);
+    return getMessageType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getTypeMessage = (
+const getMessageType = (
   type: AllType,
   parent: TypeParent,
   reflection: ReflectionTypes,
@@ -48,7 +51,7 @@ const getTypeMessage = (
     return undefined;
   }
 
-  if (!isQueueMessage(type)) {
+  if (!isQueueMessageDeclaration(type)) {
     errorList.push(new IncorrectMessageTypeError(type.name, type.file));
     return undefined;
   }
@@ -60,7 +63,7 @@ const getMessageFromUnion = (types: AllType[], parent: TypeParent, reflection: R
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getQueueMessage(type, parent, reflection, errorList);
+    const schema = getQueueMessageMetadata(type, parent, reflection, errorList);
 
     if (schema) {
       schemaList.push(schema);

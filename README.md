@@ -16,7 +16,7 @@ Most engineering teams strive to build solid foundations and deliver value when 
 
 ## Getting started
 
-Check out some examples to get started with.
+Read the [quick start](./documentation/quick-start.md) guide and check out some examples to begin.
 
 - [Get started with API Gateway](./examples/hello-aws-gateway)
 - [Get started with CloudFront](./examples/hello-aws-cloudfront)
@@ -52,6 +52,12 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | [Distribution](./contracts/distribution/) | N/A                                              | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
 | [Validation](./contracts/validation/)     | N/A                                              | N/A                                                                                  |
 | [Factory](./contracts/factory/)           | N/A                                              | N/A                                                                                  |
+
+## Table of contents
+
+- [Quick start](./documentation/quick-start.md)
+- [Configuration](./documentation/configuration.md)
+- [Philosophy](./documentation/philosophy.md)
 
 ## Requirements
 

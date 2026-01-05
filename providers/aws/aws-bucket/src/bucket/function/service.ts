@@ -1,10 +1,11 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { FunctionVariables } from '@ez4/aws-function';
+import type { LinkedVariables } from '@ez4/project/library';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
 import type { BucketEventFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
+import { hashObject } from '@ez4/utils';
 
 import { bundleBucketEventFunction } from './bundler';
 
@@ -14,19 +15,21 @@ export const createBucketEventFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: BucketEventFunctionParameters
 ) => {
-  const { handler, variables } = parameters;
+  const { handler, variables, architecture } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    architecture: parameters.architecture,
+    runtime: parameters.runtime,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
-      return variables.reduce<FunctionVariables>((variables, current) => ({ ...variables, ...current }), {});
+      return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, handler.dependencies];
@@ -35,7 +38,7 @@ export const createBucketEventFunction = <E extends EntryState>(
       return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionHash: () => {
-      return undefined;
+      return hashObject({ architecture });
     }
   });
 };

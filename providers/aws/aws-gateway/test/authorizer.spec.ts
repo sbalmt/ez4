@@ -13,9 +13,10 @@ import {
   GatewayProtocol
 } from '@ez4/aws-gateway';
 
-import { deploy } from '@ez4/aws-common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
+import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -69,6 +70,8 @@ describe('gateway authorizer', () => {
 
     const lambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-authorizer-lambda',
+      architecture: ArchitectureType.Arm,
+      runtime: RuntimeType.Node24,
       variables: [],
       authorizer: {
         sourceFile: join(baseDir, 'lambda.js'),

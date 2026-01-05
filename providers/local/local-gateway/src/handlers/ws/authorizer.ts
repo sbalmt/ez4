@@ -15,7 +15,7 @@ export const processWsAuthorization = async (
   context: EmulateServiceContext,
   event: EmulatorConnectionEvent
 ): Promise<Ws.Identity | undefined> => {
-  const { connect } = service;
+  const { connect, defaults } = service;
 
   if (!connect.authorizer) {
     return undefined;
@@ -27,7 +27,7 @@ export const processWsAuthorization = async (
   const clients = await context.makeClients(services);
 
   const module = await createModule({
-    listener: connect.listener ?? service.defaults?.listener,
+    listener: connect.listener ?? defaults?.listener,
     handler: connect.authorizer,
     version: options.version,
     variables: {
@@ -51,8 +51,12 @@ export const processWsAuthorization = async (
     await onBegin(module, clients, request);
 
     if (connect.authorizer?.request) {
+      const { preferences = defaults?.preferences } = connect;
+
+      const incoming = { ...event, preferences };
+
       Object.assign(request, await getIncomingRequestHeaders(connect.authorizer.request, event, onCustomValidation));
-      Object.assign(request, await getIncomingRequestQuery(connect.authorizer.request, event, onCustomValidation));
+      Object.assign(request, await getIncomingRequestQuery(connect.authorizer.request, incoming, onCustomValidation));
     }
 
     await onReady(module, clients, request);

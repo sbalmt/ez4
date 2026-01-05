@@ -13,6 +13,8 @@ import type {
 
 import { resolveHeaders, resolveIdentity, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 type RequestEvent = APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2> &
   APIGatewayProxyWithLambdaAuthorizerEvent<any>;
@@ -34,11 +36,18 @@ declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promis
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
+
   const request: Ws.Incoming<Ws.Event> = {
     timestamp: new Date(requestContext.requestTimeEpoch),
     connectionId: requestContext.connectionId,
-    requestId: context.awsRequestId
+    requestId: context.awsRequestId,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
@@ -52,7 +61,10 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onDone(request);
 
     return {
-      statusCode: 204
+      statusCode: 204,
+      headers: {
+        ['x-trace-id']: traceId
+      }
     };
 
     //
@@ -60,7 +72,10 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onError(error, request);
 
     return {
-      statusCode: 500
+      statusCode: 500,
+      headers: {
+        ['x-trace-id']: traceId
+      }
     };
 
     //
@@ -138,7 +153,7 @@ const onDone = async (request: Ws.Incoming<Ws.Event>) => {
 };
 
 const onError = async (error: unknown, request: Ws.Incoming<Ws.Event>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

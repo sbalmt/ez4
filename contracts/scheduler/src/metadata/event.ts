@@ -1,18 +1,21 @@
-import type { CronEventSchema } from '../types/common';
+import type { CronEventSchema } from './types';
 
 import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
 
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
 import { isTypeIntersection, isTypeObject, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { createUnionSchema, getIntersectionSchema, getObjectSchema } from '@ez4/schema/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { isObjectSchema } from '@ez4/schema';
 
 import { IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event';
-import { isCronEvent } from './utils';
 
 type TypeParent = TypeModel | TypeCallback | TypeFunction;
 
-export const getCronEvent = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isCronEventDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Cron.Event');
+};
+
+export const getCronEventMetadata = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEvent(type, parent, reflection, errorList);
   }
@@ -44,7 +47,7 @@ const getTypeEvent = (type: AllType, parent: TypeParent, reflection: ReflectionT
     return undefined;
   }
 
-  if (!isCronEvent(type)) {
+  if (!isCronEventDeclaration(type)) {
     errorList.push(new IncorrectEventTypeError(type.name, type.file));
     return undefined;
   }
@@ -56,7 +59,7 @@ const getEventFromUnion = (types: AllType[], parent: TypeParent, reflection: Ref
   const schemaList = [];
 
   for (const type of types) {
-    const schema = getCronEvent(type, parent, reflection, errorList);
+    const schema = getCronEventMetadata(type, parent, reflection, errorList);
 
     if (schema) {
       schemaList.push(schema);

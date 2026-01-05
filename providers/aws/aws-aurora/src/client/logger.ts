@@ -1,12 +1,15 @@
 import type { PgExecuteStatement } from '@ez4/pgclient';
 import type { AnyObject } from '@ez4/utils';
 
+import { Runtime } from '@ez4/common/runtime';
+
 export const logQuerySuccess = (statement: PgExecuteStatement, transactionId?: string) => {
   const transaction = getTransactionId(transactionId);
   const parameters = getDebugParameters(statement);
 
   console.debug({
     type: 'PgSQL',
+    ...Runtime.getScope(),
     query: statement.query,
     ...(transaction && {
       transaction
@@ -23,6 +26,7 @@ export const logQueryError = (statement: PgExecuteStatement, transactionId?: str
 
   console.error({
     type: 'PgSQL',
+    ...Runtime.getScope(),
     query: statement.query,
     ...(transaction && {
       transaction

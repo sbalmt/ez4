@@ -6,9 +6,7 @@ type TestMessage = {
 };
 
 export declare class TestTopic extends Topic.Service<TestMessage> {
-  schema: TestMessage;
-
-  // @ts-ignore Missing groupId field.
+  // @ts-expect-error Missing groupId field.
   fifoMode: {
     uniqueId: 'id';
   };

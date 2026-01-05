@@ -1,5 +1,5 @@
-import type { FunctionParameters, FunctionVariables } from '@ez4/aws-function';
-import type { ContextSource } from '@ez4/project/library';
+import type { ContextSource, LinkedVariables } from '@ez4/project/library';
+import type { FunctionParameters } from '@ez4/aws-function';
 import type { ObjectSchema } from '@ez4/schema';
 
 export type StreamFunction = {
@@ -20,6 +20,6 @@ export type StreamFunctionParameters = Omit<
   listener?: StreamFunction;
   tableSchema?: ObjectSchema;
   context?: Record<string, ContextSource>;
-  variables: (FunctionVariables | undefined)[];
+  variables: (LinkedVariables | undefined)[];
   debug?: boolean;
 };

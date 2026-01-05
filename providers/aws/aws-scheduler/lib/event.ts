@@ -1,9 +1,12 @@
-import type { Context, ScheduledEvent } from 'aws-lambda';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { Cron } from '@ez4/scheduler';
+import type { Context } from 'aws-lambda';
 
 import { getJsonEvent } from '@ez4/scheduler/utils';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_CONTEXT: object;
@@ -14,17 +17,24 @@ declare function handle(request: Cron.Incoming<Cron.Event | null>, context: obje
 /**
  * Entrypoint to handle EventBridge scheduler events.
  */
-export async function eventEntryPoint(event: ScheduledEvent, context: Context): Promise<void> {
+export async function eventEntryPoint(payload: AnyObject | null, context: Context): Promise<void> {
+  const traceId = payload?.traceId ?? getRandomUUID();
+
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: context.awsRequestId,
-    event: null
+    event: null,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
 
     if (__EZ4_SCHEMA) {
-      Object.assign(request, { event: await getJsonEvent(event, __EZ4_SCHEMA) });
+      Object.assign(request, { event: await getJsonEvent(payload?.event, __EZ4_SCHEMA) });
     }
 
     await onReady(request);
@@ -68,7 +78,7 @@ const onDone = async (request: Cron.Incoming<Cron.Event | null>) => {
 };
 
 const onError = async (error: unknown, request: Cron.Incoming<Cron.Event | null>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

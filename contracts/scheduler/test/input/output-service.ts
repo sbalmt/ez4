@@ -1,3 +1,4 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
@@ -23,6 +24,8 @@ export declare class TestScheduler extends Cron.Service {
 
   target: Cron.UseTarget<{
     handler: typeof targetHandler;
+    architecture: ArchitectureType.Arm;
+    runtime: RuntimeType.Node24;
     logRetention: 14;
     timeout: 30;
     memory: 128;

@@ -9,6 +9,7 @@ export const getDeployOptions = (input: InputOptions, project: ProjectOptions): 
     resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
     debug: input.debug ?? project.debugMode,
+    defaults: project.defaultOptions,
     variables: project.variables,
     force: input.force,
     tags: project.tags

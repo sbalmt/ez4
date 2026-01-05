@@ -3,13 +3,16 @@ export { StreamAnyChange, StreamDeleteChange, StreamInsertChange, StreamUpdateCh
 export { Client } from './services/client';
 export { RelationMetadata } from './services/relations';
 export { TableMetadata, Table } from './services/table';
-export { ParametersMode, ParametersModeUtils } from './services/parameters';
-export { TransactionMode, TransactionModeUtils } from './services/transaction';
-export { InsensitiveMode, InsensitiveModeUtils } from './services/insensitive';
-export { PaginationMode, PaginationModeUtils } from './services/pagination';
-export { Order, OrderMode, OrderModeUtils } from './services/order';
-export { LockMode, LockModeUtils } from './services/lock';
+export { ParametersModeUtils } from './services/parameters';
+export { TransactionModeUtils } from './services/transaction';
+export { InsensitiveModeUtils } from './services/insensitive';
+export { PaginationModeUtils } from './services/pagination';
+export { OrderModeUtils } from './services/order';
+export { LockModeUtils } from './services/lock';
 export { EngineUtils } from './services/engine';
 export { Database } from './services/contract';
-export { Index } from './services/indexes';
 export { Query } from './services/query';
+
+export * from './types/index';
+export * from './types/order';
+export * from './types/mode';

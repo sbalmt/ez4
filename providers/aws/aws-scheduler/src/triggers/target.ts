@@ -17,7 +17,16 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     throw new RoleMissingError();
   }
 
-  const { handler, listener, logRetention, timeout, memory, variables } = service.target;
+  const {
+    handler,
+    listener,
+    variables,
+    runtime = options.defaults?.runtime ?? Defaults.Runtime,
+    architecture = options.defaults?.architecture ?? Defaults.Architecture,
+    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
+    memory = options.defaults?.memory ?? Defaults.Memory,
+    timeout = Defaults.Timeout
+  } = service.target;
 
   const internalName = getInternalName(service, handler.name);
 
@@ -31,7 +40,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
   const dependencies = context.getDependencyFiles(handler.file);
 
   const logGroupState = createLogGroup(state, {
-    retention: logRetention ?? Defaults.LogRetention,
+    retention: logRetention,
     groupName: targetName,
     tags: options.tags
   });
@@ -40,12 +49,14 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     functionName: targetName,
     description: handler.description,
     eventSchema: service.schema,
-    timeout: timeout ?? Defaults.Timeout,
-    memory: memory ?? Defaults.Memory,
     context: service.context,
     debug: options.debug,
     tags: options.tags,
     variables: [options.variables, service.variables, variables],
+    architecture,
+    runtime,
+    timeout,
+    memory,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,

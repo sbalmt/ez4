@@ -1,12 +1,16 @@
-import type { AllType, ReflectionTypes } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeCallback, TypeFunction } from '@ez4/reflection';
 
+import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
-import { isStreamHandler } from './utils';
 
-export const getStreamHandler = (type: AllType, _reflection: ReflectionTypes, errorList: Error[]) => {
-  if (!isStreamHandler(type)) {
+export const isStreamHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
+  return isTypeCallback(type) || isTypeFunction(type);
+};
+
+export const getStreamHandlerMetadata = (type: AllType, _reflection: ReflectionTypes, errorList: Error[]) => {
+  if (!isStreamHandlerDeclaration(type)) {
     return undefined;
   }
 
@@ -20,7 +24,6 @@ export const getStreamHandler = (type: AllType, _reflection: ReflectionTypes, er
 
   if (!handler || properties.size) {
     errorList.push(new IncompleteHandlerError([...properties], type.file));
-
     return undefined;
   }
 

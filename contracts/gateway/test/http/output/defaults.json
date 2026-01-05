@@ -12,11 +12,13 @@
     "services": {},
     "routes": [],
     "defaults": {
+      "runtime": "node22",
+      "architecture": "x86",
       "listener": {
         "name": "testListener",
         "file": "test/http/input/output-defaults.ts",
         "position": [
-          19,
+          22,
           1
         ]
       },

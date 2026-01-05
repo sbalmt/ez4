@@ -1,5 +1,6 @@
-import type { Http } from '@ez4/gateway';
+import type { ArchitectureType } from '@ez4/project';
 import type { Environment } from '@ez4/common';
+import type { Http } from '@ez4/gateway';
 import type { createScheduleHandler } from '@/api/endpoints/create-schedule';
 import type { readScheduleHandler } from '@/api/endpoints/read-schedule';
 import type { updateScheduleHandler } from '@/api/endpoints/update-schedule';
@@ -50,6 +51,11 @@ export declare class Api extends Http.Service {
    * Default configurations for the API.
    */
   defaults: Http.UseDefaults<{
+    /**
+     * User ARM64 architecture.
+     */
+    architecture: ArchitectureType.Arm;
+
     /**
      * Mapped HTTP exceptions.
      */

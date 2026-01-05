@@ -5,7 +5,7 @@ export const getNodeStyle = (color: ThemeColor) => {
 };
 
 export const getNodeImportStyle = (color: ThemeColor) => {
-  return `fill:${color}25, stroke:${color}a0, stroke-dasharray:5 5;`;
+  return `fill:${color}25, stroke:${color}a0, stroke-dasharray:5 5`;
 };
 
 export const getEdgeStyle = (color: ThemeColor) => {

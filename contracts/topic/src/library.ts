@@ -13,7 +13,4 @@ export * from './metadata/subscription';
 export * from './metadata/handler';
 export * from './metadata/message';
 export * from './metadata/fifo';
-
-export * from './types/common';
-export * from './types/service';
-export * from './types/import';
+export * from './metadata/types';

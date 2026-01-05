@@ -1,17 +1,20 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
-import type { TableSchema } from '../types/schema';
+import type { TableSchema } from './types';
 
 import { isTypeObject, isTypeReference } from '@ez4/reflection';
-import { getReferenceType, isModelDeclaration } from '@ez4/common/library';
+import { getReferenceType, hasHeritageType, isModelDeclaration } from '@ez4/common/library';
 import { createSchemaContext, isObjectSchema } from '@ez4/schema';
 import { getObjectSchema } from '@ez4/schema/library';
 
 import { IncorrectSchemaTypeError, InvalidSchemaTypeError } from '../errors/schema';
-import { isTableSchema } from './utils';
 
 type TypeParent = TypeModel | TypeObject;
 
-export const getTableSchema = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isTableSchemaDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Schema');
+};
+
+export const getTableSchemaMetadata = (type: AllType, parent: TypeParent, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeSchema(type, parent, reflection, errorList);
   }
@@ -35,7 +38,7 @@ const getTypeSchema = (type: AllType, parent: TypeParent, reflection: Reflection
     return undefined;
   }
 
-  if (!isTableSchema(type)) {
+  if (!isTableSchemaDeclaration(type)) {
     errorList.push(new IncorrectSchemaTypeError(type.name, type.file));
     return undefined;
   }

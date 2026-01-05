@@ -6,9 +6,14 @@ import type { WsEvent } from './event';
  */
 export type WsIncoming<T extends WsRequest | WsEvent> = T & {
   /**
-   * Request tracking Id.
+   *  Unique identifier for the request.
    */
   readonly requestId: string;
+
+  /**
+   * Unique identifier across multiple services.
+   */
+  readonly traceId?: string;
 
   /**
    * Request connection Id.

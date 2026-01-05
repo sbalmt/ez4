@@ -3,6 +3,7 @@ import {
   HttpUnauthorizedError,
   HttpForbiddenError,
   HttpNotFoundError,
+  HttpConflictError,
   HttpUnsupportedMediaTypeError,
   HttpUnprocessableEntityError,
   HttpError
@@ -45,6 +46,9 @@ export const getHttpException = (status: number, message: string, details?: stri
 
     case 404:
       return new HttpNotFoundError(message, details);
+
+    case 409:
+      return new HttpConflictError(message, details);
 
     case 415:
       return new HttpUnsupportedMediaTypeError(message, details);

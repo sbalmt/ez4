@@ -1,7 +1,11 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { BucketEvent, BucketHandler, BucketIncoming, BucketListener, BucketRequest } from './common';
+import type { BucketIncoming } from './incoming';
+import type { BucketListener } from './listener';
+import type { BucketRequest } from './request';
+import type { BucketHandler } from './handler';
 import type { BucketEvents } from './events';
+import type { BucketEvent } from './event';
 import type { BucketCors } from './cors';
 import type { Client } from './client';
 

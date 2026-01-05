@@ -12,11 +12,13 @@
     "variables": {},
     "services": {},
     "defaults": {
+      "runtime": "node24",
+      "architecture": "arm",
       "listener": {
         "name": "testListener",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          36,
+          39,
           1
         ]
       },
@@ -37,7 +39,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          30,
+          33,
           1
         ]
       }
@@ -47,7 +49,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          32,
+          35,
           1
         ]
       }
@@ -57,7 +59,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          34,
+          37,
           1
         ]
       }

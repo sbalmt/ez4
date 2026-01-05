@@ -4,7 +4,5 @@ import type { Topic } from '@ez4/topic';
 class TestMessage implements Topic.Message {}
 
 export declare class TestTopic extends Topic.Service<TestMessage> {
-  schema: TestMessage;
-
   subscriptions: [];
 }

@@ -64,8 +64,10 @@ export const getIncomingRequestQuery = async (
     return undefined;
   }
 
+  const { preferences } = target;
+
   return {
-    query: await resolveQueryStrings(target.query ?? {}, metadata.query, target.preferences, onCustomValidation)
+    query: await resolveQueryStrings(target.query ?? {}, metadata.query, preferences, onCustomValidation)
   };
 };
 
@@ -79,11 +81,12 @@ export const getIncomingRequestBody = async (
   }
 
   const { body } = metadata;
+  const { preferences } = target;
 
   const data = target.body?.toString();
 
   if (isScalarSchema(body) || (isObjectSchema(body) && body.definitions?.encoded)) {
-    const payload = await resolveRequestBody(data, body, target.preferences, onCustomValidation);
+    const payload = await resolveRequestBody(data, body, preferences, onCustomValidation);
 
     return {
       body: payload
@@ -91,7 +94,7 @@ export const getIncomingRequestBody = async (
   }
 
   const content = data && JSON.parse(data);
-  const payload = await resolveRequestBody(content, body, target.preferences, onCustomValidation);
+  const payload = await resolveRequestBody(content, body, preferences, onCustomValidation);
 
   return {
     body: payload

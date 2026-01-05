@@ -1,3 +1,5 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
 type TestData = {
@@ -20,7 +22,7 @@ export declare class TestService1 extends Ws.Service<TestData> {
   }>;
 
   message: Ws.UseMessage<{
-    handler: typeof messageHandler;
+    handler: typeof messageHandler1;
   }>;
 }
 
@@ -32,14 +34,27 @@ export declare class TestService2 extends Ws.Service<TestData> {
 
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
+    architecture: ArchitectureType.Arm;
+    logRetention: 15;
+    memory: 128;
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
+    runtime: RuntimeType.Node24;
+    preferences: {
+      namingStyle: NamingStyle.SnakeCase;
+    };
   }>;
 
   message: Ws.UseMessage<{
-    handler: typeof messageHandler;
+    handler: typeof messageHandler2;
+    architecture: ArchitectureType.Arm;
+    runtime: RuntimeType.Node24;
+    timeout: 90;
+    preferences: {
+      namingStyle: NamingStyle.CamelCase;
+    };
   }>;
 }
 
@@ -47,4 +62,18 @@ function connectHandler() {}
 
 function disconnectHandler() {}
 
-function messageHandler() {}
+function messageHandler1() {}
+
+declare class Message2Response implements Ws.Response {
+  body: {
+    status: boolean;
+  };
+}
+
+function messageHandler2(): Message2Response {
+  return {
+    body: {
+      status: true
+    }
+  };
+}

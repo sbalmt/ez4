@@ -5,10 +5,10 @@ import { ok, equal } from 'node:assert/strict';
 import { join } from 'node:path';
 
 import { createSchedule, createTargetFunction, isScheduleState, registerTriggers } from '@ez4/aws-scheduler';
-
-import { deploy } from '@ez4/aws-common';
+import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
+import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -56,6 +56,8 @@ describe('scheduler', () => {
 
     const lambdaResource = createTargetFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-scheduler-lambda',
+      architecture: ArchitectureType.Arm,
+      runtime: RuntimeType.Node24,
       variables: [],
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),

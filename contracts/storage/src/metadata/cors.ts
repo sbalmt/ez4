@@ -1,25 +1,28 @@
-import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { BucketCors } from '../types/common';
+import type { BucketCors } from './types';
 
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLiteralString,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getPropertyTuple,
-  getReferenceType
+  getPropertyStringList,
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncompleteCorsError, IncorrectCorsTypeError, InvalidCorsTypeError } from '../errors/cors';
-import { isBucketCors } from './utils';
 
-export const getBucketCors = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isBucketCorsDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Bucket.Cors');
+};
+
+export const getBucketCorsMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeCors(type, parent, errorList);
   }
@@ -33,7 +36,7 @@ export const getBucketCors = (type: AllType, parent: TypeModel, reflection: Refl
   return undefined;
 };
 
-const isValidCors = (type: Incomplete<BucketCors>): type is BucketCors => {
+const isCompleteCors = (type: Incomplete<BucketCors>): type is BucketCors => {
   return !!type.allowOrigins?.length;
 };
 
@@ -47,7 +50,7 @@ const getTypeCors = (type: AllType, parent: TypeModel, errorList: Error[]) => {
     return undefined;
   }
 
-  if (!isBucketCors(type)) {
+  if (!isBucketCorsDeclaration(type)) {
     errorList.push(new IncorrectCorsTypeError(type.name, type.file));
     return undefined;
   }
@@ -65,43 +68,30 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'allowOrigins':
       case 'allowMethods':
       case 'allowHeaders':
-      case 'exposeHeaders':
-        cors[member.name] = getStringValues(member);
+      case 'exposeHeaders': {
+        cors[member.name] = getPropertyStringList(member);
         break;
+      }
 
-      case 'maxAge':
+      case 'maxAge': {
         cors.maxAge = getPropertyNumber(member);
         break;
+      }
     }
   }
 
-  if (isValidCors(cors)) {
-    return cors;
+  if (!isCompleteCors(cors)) {
+    errorList.push(new IncompleteCorsError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteCorsError([...properties], type.file));
-
-  return undefined;
-};
-
-const getStringValues = (member: ModelProperty) => {
-  const stringItems = getPropertyTuple(member) ?? [];
-  const stringList: string[] = [];
-
-  for (const item of stringItems) {
-    const result = getLiteralString(item);
-
-    if (result) {
-      stringList.push(result);
-    }
-  }
-
-  return stringList;
+  return cors;
 };

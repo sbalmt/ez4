@@ -8,10 +8,10 @@ export class InvalidRelationsTypeError extends InvalidTypeError {
 
 export class IncorrectRelationsTypeError extends IncorrectTypeError {
   constructor(
-    public schemaType: string,
+    public relationType: string,
     fileName?: string
   ) {
-    super('Incorrect table relations type', schemaType, 'Database.Relations', fileName);
+    super('Incorrect table relations type', relationType, 'Database.Relations', fileName);
   }
 }
 

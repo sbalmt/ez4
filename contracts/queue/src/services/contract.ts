@@ -1,8 +1,12 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
-import type { QueueMessage, QueueRequest, QueueIncoming, QueueSubscriptionHandler, QueueSubscriptionListener } from './common';
+import type { QueueSubscriptionListener } from './listener';
+import type { QueueSubscriptionHandler } from './handler';
 import type { QueueSubscription } from './subscription';
 import type { QueueDeadLetter } from './deadletter';
+import type { QueueIncoming } from './incoming';
+import type { QueueRequest } from './request';
+import type { QueueMessage } from './message';
 import type { QueueFifoMode } from './mode';
 import type { Client } from './client';
 

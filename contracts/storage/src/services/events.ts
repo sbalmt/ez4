@@ -1,5 +1,8 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { BucketEvent, BucketHandler, BucketListener } from './common';
+import type { BucketListener } from './listener';
+import type { BucketHandler } from './handler';
+import type { BucketEvent } from './event';
 
 /**
  * Bucket events.
@@ -39,4 +42,14 @@ export interface BucketEvents {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Architecture for the handler.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the handler.
+   */
+  readonly runtime?: RuntimeType;
 }

@@ -1,4 +1,4 @@
-import { MissingPackageError } from '../common/errors';
+import { MissingPackageError } from './common';
 
 export class MissingResourceProvider extends MissingPackageError {
   constructor(public contractName: string) {

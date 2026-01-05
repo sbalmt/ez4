@@ -70,6 +70,7 @@ const getPath = (baseDirectory: string, filePath: string) => {
 const packState = (state: EntryStates) => {
   const data = {
     lastUpdate: new Date().toISOString(),
+    version: 1,
     state
   };
 

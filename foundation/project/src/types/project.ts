@@ -1,3 +1,4 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
@@ -9,33 +10,33 @@ export type ProjectOptions = {
   prefix?: string;
 
   /**
+   * Project name that's combined with the `prefix`.
+   */
+  projectName: string;
+
+  /**
    * Determine whether the deployment must be confirmed before proceeding.
    * Default is: `true`
    */
   confirmMode?: boolean;
 
   /**
-   * Determine whether the debug mode is active for the project.
+   * Determine whether the debug mode is active for the project. (Same as the `--debug` CLI option)
    * Default is: `false`
    */
   debugMode?: boolean;
 
   /**
-   * Determines whether the serve and test commands must use the `localOptions`.
+   * Determines whether the serve and test commands must use the `localOptions`. (Same as the `--local` CLI option)
    * Default is: `false`
    */
   localMode?: boolean;
 
   /**
-   * Determines whether the serve and test commands must reset local resources.
+   * Determines whether the serve and test commands must reset local resources. (Same as the `--reset` CLI option)
    * Default is: `false`
    */
   resetMode?: boolean;
-
-  /**
-   * Project name that's combined with the `prefix`.
-   */
-  projectName: string;
 
   /**
    * Set a new `package.json` location relative to the current working directory.
@@ -65,6 +66,7 @@ export type ProjectOptions = {
 
   /**
    * Configuration for custom providers.
+   * All custom providers are automatically loaded from the specified package names.
    */
   customProviders?: ProjectCustomProviders;
 
@@ -87,6 +89,11 @@ export type ProjectOptions = {
    * Options for local development tests.
    */
   testOptions?: Record<string, AnyObject>;
+
+  /**
+   * Default options associated to all services.
+   */
+  defaultOptions?: ProjectDefaultOptions;
 
   /**
    * Variables associated to all services.
@@ -127,6 +134,28 @@ export type ProjectCustomProviders = {
    * Specify all the custom provider packages.
    */
   packages: string[];
+};
+
+export type ProjectDefaultOptions = {
+  /**
+   * Default log retention (in days) for all handlers.
+   */
+  logRetention?: number;
+
+  /**
+   * Default architecture for all handlers.
+   */
+  architecture?: ArchitectureType;
+
+  /**
+   * Default runtime for all handlers.
+   */
+  runtime?: RuntimeType;
+
+  /**
+   * Default amount of memory available (in megabytes) for all handlers.
+   */
+  memory?: number;
 };
 
 export type ProjectServeOptions = {

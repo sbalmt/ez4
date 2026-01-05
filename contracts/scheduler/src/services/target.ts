@@ -1,5 +1,8 @@
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { CronEvent, CronHandler, CronListener } from './common';
+import type { CronListener } from './listener';
+import type { CronHandler } from './handler';
+import type { CronEvent } from './event';
 
 /**
  * Cron target.
@@ -34,4 +37,14 @@ export interface CronTarget<T extends CronEvent | null> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Architecture for the handler.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the handler.
+   */
+  readonly runtime?: RuntimeType;
 }

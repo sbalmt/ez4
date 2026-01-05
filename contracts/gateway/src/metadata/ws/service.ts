@@ -19,13 +19,13 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../../errors/service';
 import { attachValidatorLinkedServices } from '../utils/validator';
+import { attachProviderLinkedServices } from '../utils/provider';
 import { getFullTypeName } from '../utils/name';
 import { getWebBodyMetadata } from '../body';
 import { createWsService, WsNamespaceType } from './types';
 import { getWsConnectionMetadata } from './connection';
 import { getWsDefaultsMetadata } from './defaults';
 import { getWsMessageMetadata } from './message';
-import { attachProviderLinkedServices } from '../utils/provider';
 
 export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
@@ -57,65 +57,74 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           break;
+        }
 
         case 'client':
           break;
 
-        case 'name':
+        case 'name': {
           if (!member.inherited) {
             service.displayName = getPropertyString(member);
           }
           break;
+        }
 
-        case 'stage':
+        case 'stage': {
           if (!member.inherited) {
             service.stageName = getPropertyString(member);
           }
           break;
+        }
 
-        case 'defaults':
+        case 'defaults': {
           if (!member.inherited) {
             service.defaults = getWsDefaultsMetadata(member.value, declaration, reflection, errorList);
           }
           break;
+        }
 
-        case 'schema':
+        case 'schema': {
           if ((service.schema = getWebBodyMetadata(member.value, declaration, reflection, errorList, WsNamespaceType))) {
             properties.delete(member.name);
           }
           break;
+        }
 
         case 'connect':
-        case 'disconnect':
+        case 'disconnect': {
           if (!member.inherited && (service[member.name] = getWsConnectionMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'message':
+        case 'message': {
           if (!member.inherited && (service[member.name] = getWsMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           } else {
             service.variables = {};
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           } else {
             service.services = {};
           }
           break;
+        }
       }
     }
 

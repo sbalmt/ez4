@@ -15,6 +15,8 @@ import { resolveIdentity, getJsonError, resolveRequestBody, resolveResponseBody,
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
 import { ServiceEventType } from '@ez4/common';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 type RequestEvent = APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2> &
   APIGatewayProxyWithLambdaAuthorizerEvent<any>;
@@ -36,11 +38,18 @@ declare function handle(request: Ws.Incoming<Ws.Request>, context: object): Prom
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const traceId = getRandomUUID();
+
   const request: Ws.Incoming<Ws.Request> = {
     timestamp: new Date(requestContext.requestTimeEpoch),
     connectionId: requestContext.connectionId,
-    requestId: context.awsRequestId
+    requestId: context.awsRequestId,
+    traceId
   };
+
+  Runtime.setScope({
+    traceId
+  });
 
   try {
     await onBegin(request);
@@ -185,7 +194,7 @@ const onDone = async (request: Ws.Incoming<Ws.Request>) => {
 };
 
 const onError = async (error: unknown, request: Ws.Incoming<Ws.Request>) => {
-  console.error(error);
+  console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
     {

@@ -1,22 +1,8 @@
+import type { OrderMode } from '../types/mode';
+import type { Order } from '../types/order';
 import type { DecomposeIndexName } from './indexes';
 import type { TableMetadata } from './table';
 import type { Database } from './contract';
-
-/**
- * Query order types.
- */
-export const enum Order {
-  Asc = 'asc',
-  Desc = 'desc'
-}
-
-/**
- * Order mode.
- */
-export const enum OrderMode {
-  IndexColumns = 'index',
-  AnyColumns = 'any'
-}
 
 /**
  * Order mode utils.

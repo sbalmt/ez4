@@ -2,21 +2,12 @@ import type { ArrayRest, IsArrayEmpty } from '@ez4/utils';
 import type { DatabaseTable, DatabaseTables } from './table';
 import type { TableSchema } from './schemas';
 import type { Database } from './contract';
+import type { Index } from '../types';
 
 /**
  * Database table indexes.
  */
 export type TableIndexes = {};
-
-/**
- * All supported index types.
- */
-export const enum Index {
-  Primary = 'primary',
-  Secondary = 'secondary',
-  Unique = 'unique',
-  TTL = 'ttl'
-}
 
 /**
  * Given an index name `T`, it produces the decomposed index names.

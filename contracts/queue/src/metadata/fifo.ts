@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueFifoMode } from '../types/common';
+import type { QueueFifoMode } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -9,33 +9,38 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyString,
-  getReferenceType
+  getReferenceType,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteFifoModeError, IncorrectFifoModeTypeError, InvalidFifoModeTypeError } from '../errors/fifo';
-import { isQueueFifoMode } from './utils';
 
-export const getQueueFifoMode = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isQueueFifoModeDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Queue.FifoMode');
+};
+
+export const getQueueFifoModeMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeFifoMode(type, parent, errorList);
+    return getFifoModeType(type, parent, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeFifoMode(declaration, parent, errorList);
+    return getFifoModeType(declaration, parent, errorList);
   }
 
   return undefined;
 };
 
-const isValidFifoMode = (type: Incomplete<QueueFifoMode>): type is QueueFifoMode => {
-  return !!type.groupId;
+const isCompleteFifoMode = (type: Incomplete<QueueFifoMode>): type is QueueFifoMode => {
+  return isObjectWith(type, ['groupId']);
 };
 
-const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getFifoModeType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
@@ -45,7 +50,7 @@ const getTypeFifoMode = (type: AllType, parent: TypeModel, errorList: Error[]) =
     return undefined;
   }
 
-  if (!isQueueFifoMode(type)) {
+  if (!isQueueFifoModeDeclaration(type)) {
     errorList.push(new IncorrectFifoModeTypeError(type.name, type.file));
     return undefined;
   }
@@ -63,24 +68,25 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'groupId':
-      case 'uniqueId':
+      case 'uniqueId': {
         if ((fifoMode[member.name] = getPropertyString(member))) {
           properties.delete(member.name);
         }
         break;
+      }
     }
   }
 
-  if (isValidFifoMode(fifoMode)) {
-    return fifoMode;
+  if (!isCompleteFifoMode(fifoMode)) {
+    errorList.push(new IncompleteFifoModeError([...properties], type.file));
+    return undefined;
   }
 
-  errorList.push(new IncompleteFifoModeError([...properties], type.file));
-
-  return undefined;
+  return fifoMode;
 };

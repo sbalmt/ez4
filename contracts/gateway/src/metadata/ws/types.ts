@@ -1,6 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { AuthHandler } from '../auth/types';
 
 import { createServiceMetadata } from '@ez4/project/library';
@@ -24,25 +25,15 @@ export type WsService = Omit<ServiceMetadata, 'variables' | 'services'> &
     message: WsMessage;
   };
 
-export type WsConnection = {
+export type WsConnection = WsDefaults & {
   handler: WsHandler;
-  listener?: ServiceListener;
   authorizer?: AuthHandler;
   variables?: LinkedVariables;
-  preferences?: WsPreferences;
-  logRetention?: number;
-  timeout?: number;
-  memory?: number;
 };
 
-export type WsMessage = {
+export type WsMessage = WsDefaults & {
   handler: WsHandler;
-  listener?: ServiceListener;
   variables?: LinkedVariables;
-  preferences?: WsPreferences;
-  logRetention?: number;
-  timeout?: number;
-  memory?: number;
 };
 
 export type WsHandler = FunctionSignature & {
@@ -73,13 +64,11 @@ export type WsPreferences = {
 export type WsDefaults = {
   listener?: ServiceListener;
   preferences?: WsPreferences;
+  architecture?: ArchitectureType;
+  runtime?: RuntimeType;
   logRetention?: number;
   timeout?: number;
   memory?: number;
-};
-
-export type WsCache = {
-  authorizerTTL?: number;
 };
 
 export const isWsService = (service: ServiceMetadata): service is WsService => {

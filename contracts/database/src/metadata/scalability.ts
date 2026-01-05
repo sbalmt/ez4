@@ -1,16 +1,28 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { DatabaseScalability } from '../types/scalability';
+import type { DatabaseScalability } from './types';
 
-import { InvalidServicePropertyError, getModelMembers, getPropertyNumber, getObjectMembers, getReferenceType } from '@ez4/common/library';
+import {
+  InvalidServicePropertyError,
+  isModelDeclaration,
+  getModelMembers,
+  getPropertyNumber,
+  getObjectMembers,
+  getReferenceType,
+  hasHeritageType
+} from '@ez4/common/library';
+
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
-import { IncompleteScalabilityError } from '../errors/scalability';
-import { isDatabaseEngine } from './utils';
+import { IncompleteScalabilityError, IncorrectScalabilityTypeError, InvalidScalabilityTypeError } from '../errors/scalability';
 
-export const getDatabaseScalability = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const isDatabaseScalabilityDeclaration = (type: TypeModel) => {
+  return hasHeritageType(type, 'Database.Scalability');
+};
+
+export const getDatabaseScalabilityMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeScalability(type, parent, errorList);
   }
@@ -24,20 +36,26 @@ export const getDatabaseScalability = (type: AllType, parent: TypeModel, reflect
   return undefined;
 };
 
-const isValidScalability = (type: Incomplete<DatabaseScalability>): type is DatabaseScalability => {
-  return isAnyNumber(type.minCapacity) && isAnyNumber(type.maxCapacity);
+const isCompleteScalability = (type: Incomplete<DatabaseScalability>): type is DatabaseScalability => {
+  return isObjectWith(type, ['minCapacity', 'maxCapacity']);
 };
 
 const getTypeScalability = (type: AllType, parent: TypeModel, errorList: Error[]) => {
-  if (isDatabaseEngine(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
-  }
-
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
-  return undefined;
+  if (!isModelDeclaration(type)) {
+    errorList.push(new InvalidScalabilityTypeError(parent.file));
+    return undefined;
+  }
+
+  if (!isDatabaseScalabilityDeclaration(type)) {
+    errorList.push(new IncorrectScalabilityTypeError(type.name, type.file));
+    return undefined;
+  }
+
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
@@ -51,12 +69,13 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
     }
 
     switch (member.name) {
-      default:
+      default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
         break;
+      }
 
       case 'minCapacity':
-      case 'maxCapacity':
+      case 'maxCapacity': {
         const capacity = getPropertyNumber(member);
 
         if (isAnyNumber(capacity)) {
@@ -65,10 +84,11 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         }
 
         break;
+      }
     }
   }
 
-  if (!isValidScalability(scalability)) {
+  if (!isCompleteScalability(scalability)) {
     errorList.push(new IncompleteScalabilityError([...properties], type.file));
     return undefined;
   }

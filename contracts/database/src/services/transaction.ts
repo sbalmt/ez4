@@ -1,3 +1,4 @@
+import type { TransactionMode } from '../types/mode';
 import type { TableIndex, TableMetadata, TableRelation } from './table';
 import type { RelationTables } from './relations';
 import type { IndexedTables } from './indexes';
@@ -6,14 +7,6 @@ import type { TableSchemas } from './schemas';
 import type { Database } from './contract';
 import type { Client } from './client';
 import type { Query } from './query';
-
-/**
- * Transaction mode.
- */
-export const enum TransactionMode {
-  Interactive = 'interactive',
-  Static = 'static'
-}
 
 /**
  * Transaction mode utils.

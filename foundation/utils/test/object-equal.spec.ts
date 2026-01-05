@@ -74,4 +74,15 @@ describe('object equality utils', () => {
 
     ok(!result);
   });
+
+  it('assert :: deep equals (ignore functions)', () => {
+    const newTarget = {
+      ...target,
+      funcA: () => {}
+    };
+
+    const result = deepEquals(newTarget, target);
+
+    ok(result);
+  });
 });

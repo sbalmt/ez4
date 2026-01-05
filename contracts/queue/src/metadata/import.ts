@@ -1,38 +1,43 @@
-import type { ReflectionTypes } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
-import type { QueueImport } from '../types/import';
+import type { QueueImport } from './types';
 
 import {
   DuplicateServiceError,
   InvalidServicePropertyError,
   isExternalDeclaration,
+  isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
   getPropertyString,
   getReferenceName,
   getReferenceModel,
-  getPropertyNumber
+  getPropertyNumber,
+  hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { createQueueImport } from '../types/import';
 import { IncompleteServiceError } from '../errors/service';
-import { getAllSubscription } from './subscription';
-import { getQueueMessage } from './message';
-import { getQueueFifoMode } from './fifo';
-import { isQueueImport } from './utils';
+import { getQueueSubscriptionsMetadata } from './subscription';
+import { getQueueMessageMetadata } from './message';
+import { getQueueFifoModeMetadata } from './fifo';
+import { createQueueImport } from './types';
 
-export const getQueueImports = (reflection: ReflectionTypes) => {
+export const isQueueImportDeclaration = (type: AllType): type is TypeClass => {
+  return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Import');
+};
+
+export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
   const queueImports: Record<string, QueueImport> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isQueueImport(declaration) || isExternalDeclaration(declaration)) {
+    if (!isQueueImportDeclaration(declaration) || isExternalDeclaration(declaration)) {
       continue;
     }
 
@@ -51,66 +56,75 @@ export const getQueueImports = (reflection: ReflectionTypes) => {
       }
 
       switch (member.name) {
-        default:
+        default: {
           if (!member.inherited) {
             errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
           }
           break;
+        }
 
-        case 'reference':
+        case 'reference': {
           if (member.inherited && isTypeReference(member.value)) {
             service.reference = getReferenceName(member.value);
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'project':
+        case 'project': {
           if (!member.inherited && (service.project = getPropertyString(member))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'schema':
-          if (member.inherited && (service.schema = getQueueMessage(member.value, declaration, reflection, errorList))) {
+        case 'schema': {
+          if (member.inherited && (service.schema = getQueueMessageMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
+        }
 
-        case 'fifoMode':
+        case 'fifoMode': {
           if (member.inherited) {
             const reference = getReferenceModel(member.value, reflection);
 
             if (reference && !isTypeUnion(reference)) {
-              service.fifoMode = getQueueFifoMode(reference, declaration, reflection, errorList);
+              service.fifoMode = getQueueFifoModeMetadata(reference, declaration, reflection, errorList);
             }
           }
           break;
+        }
 
-        case 'subscriptions':
+        case 'subscriptions': {
           if (!member.inherited) {
-            service.subscriptions = getAllSubscription(member, declaration, reflection, errorList);
+            service.subscriptions = getQueueSubscriptionsMetadata(member, declaration, reflection, errorList);
           } else {
             service.subscriptions = [];
           }
           break;
+        }
 
-        case 'timeout':
+        case 'timeout': {
           if (member.inherited) {
             service.timeout = getPropertyNumber(member, reflection);
           }
           break;
+        }
 
-        case 'variables':
+        case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariableList(member, errorList);
           }
           break;
+        }
 
-        case 'services':
+        case 'services': {
           if (!member.inherited) {
             service.services = getLinkedServiceList(member, reflection, errorList);
           }
           break;
+        }
       }
     }
 

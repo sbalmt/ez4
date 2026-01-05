@@ -5,12 +5,14 @@ import type { AnyObject } from '@ez4/utils';
 
 import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-
-const client = new SQSClient({});
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
 export namespace Client {
+  const client = new SQSClient();
+
   export const make = <T extends Queue.Service<any>>(
     queueUrl: string,
     messageSchema: MessageSchema,
@@ -19,6 +21,7 @@ export namespace Client {
     return new (class {
       async sendMessage(message: T['schema'], options?: SendOptions<T>) {
         const messageBody = await getJsonStringMessage(message, messageSchema);
+        const scope = Runtime.getScope();
 
         await client.send(
           new SendMessageCommand({
@@ -27,7 +30,13 @@ export namespace Client {
             MessageBody: messageBody,
             ...(fifoMode && {
               ...getFifoParameters(message, fifoMode)
-            })
+            }),
+            MessageAttributes: {
+              ['EZ4.TRACE_ID']: {
+                StringValue: scope?.traceId ?? getRandomUUID(),
+                DataType: 'String'
+              }
+            }
           })
         );
       }
