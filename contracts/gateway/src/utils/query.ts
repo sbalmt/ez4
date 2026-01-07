@@ -14,7 +14,7 @@ export const prepareQueryStrings = <T extends Http.QueryStrings>(input: T, schem
   }
 
   const context = createTransformContext({
-    inputStyle: preferences?.namingStyle,
+    outputStyle: preferences?.namingStyle,
     convert: false
   });
 
