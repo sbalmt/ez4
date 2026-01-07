@@ -259,6 +259,22 @@
           "type": "number"
         }
       }
+    },
+    "preserve": {
+      "type": "object",
+      "description": "Preserve object naming style.",
+      "identity": 19,
+      "definitions": {
+        "preserve": true
+      },
+      "properties": {
+        "foo": {
+          "type": "number"
+        },
+        "bar": {
+          "type": "string"
+        }
+      }
     }
   }
 }

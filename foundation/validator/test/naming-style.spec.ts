@@ -85,4 +85,19 @@ describe('naming validation', () => {
 
     equal((await validate(payload, schema, context)).length, 0);
   });
+
+  it('assert :: preserve', async () => {
+    const payload = {
+      fooFoo: 'abc',
+      FooBar: 123,
+      foo_baz: 'abc',
+      'foo-qux': 123
+    };
+
+    const context = createValidatorContext({
+      inputStyle: NamingStyle.Preserve
+    });
+
+    equal((await validate(payload, schema, context)).length, 0);
+  });
 });
