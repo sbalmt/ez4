@@ -98,7 +98,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
         const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
-        relationQuery.objectColumn(record, {
+        relationQuery.take(1).objectColumn(record, {
           binary: true
         });
 
