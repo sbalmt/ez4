@@ -50,6 +50,9 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/gateway",
     "live:publish": "npm run build && npm publish --access public"
   },
+  "devDependencies": {
+    "@ez4/validation": "^0.39.0"
+  },
   "dependencies": {
     "@ez4/common": "^0.39.0",
     "@ez4/project": "^0.39.0",

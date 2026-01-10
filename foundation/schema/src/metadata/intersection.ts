@@ -32,7 +32,7 @@ export const getIntersectionSchema = (
     }
 
     if (intersectionType.type === elementSchema.type) {
-      intersectionType = deepMerge(intersectionType, elementSchema);
+      intersectionType = deepMerge(intersectionType, elementSchema, { array: true });
       continue;
     }
 

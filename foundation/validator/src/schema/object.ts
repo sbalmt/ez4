@@ -95,8 +95,8 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
   }
 
-  if (!allErrors.length && definitions?.type && context) {
-    return useCustomValidation(value, schema, definitions.type, context);
+  if (!allErrors.length && definitions?.types && context) {
+    return useCustomValidation(value, schema, definitions.types, context);
   }
 
   return allErrors;
