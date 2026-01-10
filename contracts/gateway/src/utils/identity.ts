@@ -18,9 +18,9 @@ export const resolveIdentity = async <T extends Http.Identity>(
   const validationErrors = await validate(input, schema, validationContext);
 
   if (validationErrors.length) {
-    const messages = getUniqueErrorMessages(validationErrors);
+    const details = getUniqueErrorMessages(validationErrors);
 
-    throw new HttpBadRequestError('Malformed authorizer identity.', messages);
+    throw new HttpBadRequestError('Malformed authorizer identity.', { details });
   }
 
   return input as T;

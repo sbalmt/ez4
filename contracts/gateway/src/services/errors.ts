@@ -1,3 +1,5 @@
+import type { ServiceErrorContext } from '@ez4/common';
+
 import { ServiceError } from '@ez4/common';
 
 /**
@@ -7,9 +9,9 @@ export class HttpError extends ServiceError {
   constructor(
     public status: number,
     message: string,
-    details?: string[]
+    context?: ServiceErrorContext
   ) {
-    super(message, details);
+    super(message, context);
   }
 }
 
@@ -17,8 +19,8 @@ export class HttpError extends ServiceError {
  * HTTP Bad Request error.
  */
 export class HttpBadRequestError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(400, message || 'Bad request', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(400, message || 'Bad request', context);
   }
 }
 
@@ -26,8 +28,8 @@ export class HttpBadRequestError extends HttpError {
  * HTTP Unauthorized error.
  */
 export class HttpUnauthorizedError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(401, message || 'Unauthorized', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(401, message || 'Unauthorized', context);
   }
 }
 
@@ -35,8 +37,8 @@ export class HttpUnauthorizedError extends HttpError {
  * HTTP Forbidden error.
  */
 export class HttpForbiddenError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(403, message || 'Forbidden', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(403, message || 'Forbidden', context);
   }
 }
 
@@ -44,8 +46,8 @@ export class HttpForbiddenError extends HttpError {
  * HTTP Not Found error.
  */
 export class HttpNotFoundError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(404, message || 'Not found', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(404, message || 'Not found', context);
   }
 }
 
@@ -53,8 +55,8 @@ export class HttpNotFoundError extends HttpError {
  * HTTP Conflict error.
  */
 export class HttpConflictError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(409, message || 'Conflict', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(409, message || 'Conflict', context);
   }
 }
 
@@ -62,8 +64,8 @@ export class HttpConflictError extends HttpError {
  * HTTP Unsupported Media Type error.
  */
 export class HttpUnsupportedMediaTypeError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(415, message || 'Unsupported media type', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(415, message || 'Unsupported media type', context);
   }
 }
 
@@ -71,8 +73,8 @@ export class HttpUnsupportedMediaTypeError extends HttpError {
  * HTTP Unprocessable Entity error.
  */
 export class HttpUnprocessableEntityError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(422, message || 'Unprocessable entity', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(422, message || 'Unprocessable entity', context);
   }
 }
 
@@ -80,7 +82,7 @@ export class HttpUnprocessableEntityError extends HttpError {
  * HTTP Internal Server error.
  */
 export class HttpInternalServerError extends HttpError {
-  constructor(message?: string, details?: string[]) {
-    super(500, message || 'Internal server error', details);
+  constructor(message?: string, context?: ServiceErrorContext) {
+    super(500, message || 'Internal server error', context);
   }
 }

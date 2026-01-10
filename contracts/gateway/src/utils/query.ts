@@ -47,9 +47,9 @@ export const resolveQueryStrings = async <T extends Http.QueryStrings>(
   const validationErrors = await validate(payload, schema, validationContext);
 
   if (validationErrors.length) {
-    const messages = getUniqueErrorMessages(validationErrors);
+    const details = getUniqueErrorMessages(validationErrors);
 
-    throw new HttpBadRequestError('Malformed query strings.', messages);
+    throw new HttpBadRequestError('Malformed query strings.', { details });
   }
 
   return payload as T;
