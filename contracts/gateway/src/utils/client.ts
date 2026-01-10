@@ -70,7 +70,7 @@ export const sendClientRequest = async (url: string, method: string, request: Cl
   if (!result.ok) {
     const error = await result.json();
 
-    throw getHttpException(result.status, error.message, error.details);
+    throw getHttpException(result.status, error.message, error.context);
   }
 
   const response = await result.text();
