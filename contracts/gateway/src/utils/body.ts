@@ -63,9 +63,9 @@ export const resolveRequestBody = async <T extends Http.JsonBody | Http.RawBody>
   const validationErrors = await validate(input, schema, validationContext);
 
   if (validationErrors.length) {
-    const details = getUniqueErrorMessages(validationErrors);
-
-    throw new HttpBadRequestError('Malformed body payload.', { details });
+    throw new HttpBadRequestError('Malformed body payload.', {
+      details: getUniqueErrorMessages(validationErrors)
+    });
   }
 
   const payload = transform(input, schema, transformContext);

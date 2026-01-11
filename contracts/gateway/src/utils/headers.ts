@@ -21,9 +21,9 @@ export const resolveHeaders = async <T extends Http.Headers>(
   const validationErrors = await validate(headers, schema, validationContext);
 
   if (validationErrors.length) {
-    const details = getUniqueErrorMessages(validationErrors);
-
-    throw new HttpBadRequestError('Malformed request headers.', { details });
+    throw new HttpBadRequestError('Malformed request headers.', {
+      details: getUniqueErrorMessages(validationErrors)
+    });
   }
 
   return headers as T;

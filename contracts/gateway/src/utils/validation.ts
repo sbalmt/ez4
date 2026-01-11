@@ -1,6 +1,8 @@
 import type { AnyObject } from '@ez4/utils';
 
-import { getValidatorName } from '../metadata/utils/name';
+export const getValidatorName = (type: string) => {
+  return `@${type}`;
+};
 
 export const resolveValidation = async (input: unknown, validators: AnyObject, name: string) => {
   const validator = validators[getValidatorName(name)];
