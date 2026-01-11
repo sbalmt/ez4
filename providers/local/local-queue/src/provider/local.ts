@@ -3,7 +3,7 @@ import type { QueueImport, QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
-import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
+import { MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';
 
@@ -48,9 +48,8 @@ const handleQueueRequest = async (
 
   try {
     const jsonMessage = JSON.parse(body.toString());
-    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    await handleQueueMessage(service, options, context, safeMessage);
+    await handleQueueMessage(service, options, context, jsonMessage);
 
     return getSuccessResponse(201);
     //

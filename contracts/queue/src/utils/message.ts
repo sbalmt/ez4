@@ -1,3 +1,4 @@
+import type { ValidationCustomHandler } from '@ez4/validator';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Queue } from '@ez4/queue';
 
@@ -8,16 +9,25 @@ import { MalformedMessageError } from './errors';
 
 export type MessageSchema = ObjectSchema | UnionSchema;
 
-export const getJsonMessage = async <T extends Queue.Message>(input: T, schema: MessageSchema): Promise<T> => {
-  const message = transform(input, schema, createTransformContext({ convert: false }));
+export const getJsonMessage = async <T extends Queue.Message>(
+  input: T,
+  schema: MessageSchema,
+  onCustomValidation?: ValidationCustomHandler
+): Promise<T> => {
+  const payload = transform(input, schema, createTransformContext({ convert: false }));
 
-  const errors = await validate(message, schema, createValidatorContext({ property: '$message' }));
+  const validationContext = createValidatorContext({
+    property: '$message',
+    onCustomValidation
+  });
 
-  if (errors.length) {
-    throw new MalformedMessageError(getUniqueErrorMessages(errors));
+  const validationErrors = await validate(payload, schema, validationContext);
+
+  if (validationErrors.length) {
+    throw new MalformedMessageError(getUniqueErrorMessages(validationErrors));
   }
 
-  return message as T;
+  return payload as T;
 };
 
 export const getJsonStringMessage = async <T extends Queue.Message>(message: T, schema: MessageSchema) => {
