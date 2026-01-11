@@ -1,0 +1,81 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestValidationA": {
+    "type": "@ez4/validation",
+    "name": "TestValidationA",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "string"
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/common/validations.ts",
+      "position": [
+        11,
+        1
+      ]
+    }
+  },
+  "TestValidationB": {
+    "type": "@ez4/validation",
+    "name": "TestValidationB",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "string"
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/common/validations.ts",
+      "position": [
+        11,
+        1
+      ]
+    }
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "context": {},
+    "variables": {},
+    "services": {
+      "@TestValidationB": "TestValidationB",
+      "@TestValidationA": "TestValidationA"
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string",
+          "definitions": {
+            "custom": true,
+            "types": [
+              "TestValidationB",
+              "TestValidationA"
+            ]
+          }
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-validation.ts",
+          "position": [
+            17,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

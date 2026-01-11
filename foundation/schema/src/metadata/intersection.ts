@@ -6,6 +6,7 @@ import { deepMerge } from '@ez4/utils';
 import { createSchemaContext } from '../types/context';
 import { isRichTypeIntersection } from './object';
 import { getAnySchema } from './any';
+import { InvalidSchemaIntersection } from '../errors/intersection';
 
 export const getIntersectionSchema = (
   type: AllType,
@@ -32,11 +33,11 @@ export const getIntersectionSchema = (
     }
 
     if (intersectionType.type === elementSchema.type) {
-      intersectionType = deepMerge(intersectionType, elementSchema);
+      intersectionType = deepMerge(intersectionType, elementSchema, { array: true });
       continue;
     }
 
-    return null;
+    throw new InvalidSchemaIntersection(intersectionType.type, elementSchema.type);
   }
 
   return intersectionType;

@@ -20,6 +20,7 @@ export type ObjectSchemaAdditional = {
 export type ObjectSchemaDefinitions = SchemaDefinitions & {
   encoded?: boolean;
   extensible?: boolean;
+  preserve?: boolean;
   default?: AnyObject;
   value?: AnyObject;
 };

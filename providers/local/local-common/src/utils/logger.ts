@@ -1,5 +1,6 @@
 import { Logger } from '@ez4/project/library';
 import { ServiceError } from '@ez4/common';
+import { isAnyArray } from '@ez4/utils';
 
 export const logErrorDetails = (error: unknown) => {
   if (error instanceof Error) {
@@ -8,8 +9,8 @@ export const logErrorDetails = (error: unknown) => {
     Logger.error(`${error}`);
   }
 
-  if (error instanceof ServiceError && error.details) {
+  if (error instanceof ServiceError && isAnyArray(error.context?.details)) {
     Logger.error(`Details:`);
-    error.details?.forEach((detail) => Logger.error(`\t${detail}`));
+    error.context.details.forEach((detail: string) => Logger.error(`\t${detail}`));
   }
 };

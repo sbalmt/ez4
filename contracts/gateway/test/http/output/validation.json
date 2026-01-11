@@ -1,0 +1,226 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestValidationA": {
+    "type": "@ez4/validation",
+    "name": "TestValidationA",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "string"
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/common/validations.ts",
+      "position": [
+        11,
+        1
+      ]
+    }
+  },
+  "TestValidationB": {
+    "type": "@ez4/validation",
+    "name": "TestValidationB",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "string"
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/common/validations.ts",
+      "position": [
+        11,
+        1
+      ]
+    }
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "authorizer": {
+          "name": "testAuthorizer",
+          "file": "test/http/input/output-validation.ts",
+          "position": [
+            51,
+            1
+          ],
+          "request": {
+            "headers": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationA",
+                      "TestValidationB"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP headers."
+            },
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "bar": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationB",
+                      "TestValidationA"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP path parameters."
+            },
+            "query": {
+              "type": "object",
+              "properties": {
+                "baz": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationA",
+                      "TestValidationB"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP query strings."
+            }
+          },
+          "response": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "identity": 1,
+              "description": "Authorization identity."
+            }
+          }
+        },
+        "handler": {
+          "name": "testRoute",
+          "file": "test/http/input/output-validation.ts",
+          "position": [
+            59,
+            1
+          ],
+          "request": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationA",
+                      "TestValidationB"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected identity."
+            },
+            "headers": {
+              "type": "object",
+              "properties": {
+                "bar": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationB",
+                      "TestValidationA"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP headers."
+            },
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "baz": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationA",
+                      "TestValidationB"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP path parameters."
+            },
+            "query": {
+              "type": "object",
+              "properties": {
+                "qux": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationB",
+                      "TestValidationA"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP query strings."
+            },
+            "body": {
+              "type": "object",
+              "properties": {
+                "yay": {
+                  "type": "string",
+                  "definitions": {
+                    "custom": true,
+                    "types": [
+                      "TestValidationA",
+                      "TestValidationB"
+                    ]
+                  }
+                }
+              },
+              "identity": 1,
+              "description": "Expected HTTP body payload."
+            }
+          },
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}

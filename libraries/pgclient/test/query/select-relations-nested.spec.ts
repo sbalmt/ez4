@@ -212,14 +212,14 @@ describe('select nested relations', () => {
       `SELECT "R0"."id", ` +
         // First relation
         `(SELECT jsonb_build_object('id', "S0"."id") FROM "ez4-test-a" AS "S0" ` +
-        `WHERE "S0"."id" = "R0"."relation_a_id") AS "relation_a", ` +
+        `WHERE "S0"."id" = "R0"."relation_a_id" LIMIT 1) AS "relation_a", ` +
         // Second relation
         `(SELECT jsonb_build_object('id', "S1"."id", ` +
         //
         /**/ `'relation_b', (SELECT jsonb_build_object('id', "S2"."id") ` +
-        /**/ `FROM "ez4-test-b" AS "S2" WHERE "S2"."id" = "S1"."relation_b_id")` +
+        /**/ `FROM "ez4-test-b" AS "S2" WHERE "S2"."id" = "S1"."relation_b_id" LIMIT 1)` +
         //
-        `) FROM "ez4-test-c" AS "S1" WHERE "S1"."id" = "R0"."relation_c_id") AS "relation_c" ` +
+        `) FROM "ez4-test-c" AS "S1" WHERE "S1"."id" = "R0"."relation_c_id" LIMIT 1) AS "relation_c" ` +
         `FROM "ez4-test-b" AS "R0" ` +
         `WHERE "R0"."id" = :0`
     );
@@ -252,10 +252,12 @@ describe('select nested relations', () => {
         // First relation
         `(SELECT jsonb_build_object('id', "S0"."id", ` +
         //
-        /**/ `'relation_c', (SELECT jsonb_build_object('id', "S1"."id") FROM "ez4-test-c" AS "S1" WHERE "S1"."id" = "S0"."relation_c_id"), ` +
-        /**/ `'relation_a', (SELECT jsonb_build_object('id', "S2"."id") FROM "ez4-test-a" AS "S2" WHERE "S2"."id" = "S0"."relation_a_id")` +
+        /**/ `'relation_c', (SELECT jsonb_build_object('id', "S1"."id") FROM "ez4-test-c" AS "S1" ` +
+        /**/ `WHERE "S1"."id" = "S0"."relation_c_id" LIMIT 1), ` +
+        /**/ `'relation_a', (SELECT jsonb_build_object('id', "S2"."id") FROM "ez4-test-a" AS "S2" ` +
+        /**/ `WHERE "S2"."id" = "S0"."relation_a_id" LIMIT 1)` +
         //
-        `) FROM "ez4-test-b" AS "S0" WHERE "S0"."id" = "R0"."relation_b_id") AS "relation_b" ` +
+        `) FROM "ez4-test-b" AS "S0" WHERE "S0"."id" = "R0"."relation_b_id" LIMIT 1) AS "relation_b" ` +
         `FROM "ez4-test-c" AS "R0" ` +
         `WHERE "R0"."id" = :0`
     );

@@ -88,7 +88,7 @@ const handleTopicRequest = async (
 
     return getErrorResponse(400, {
       message: error.message,
-      details: error.details
+      context: error.context
     });
   }
 };

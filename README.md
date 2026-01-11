@@ -14,6 +14,15 @@
 
 Most engineering teams strive to build solid foundations and deliver value when building production-ready cloud applications. EZ4's mission is to provide all the tools for making this possible with as little friction as possible.
 
+## Features
+
+- Base contracts to declare serverless infrastructure resources.
+- Built-in serverless clients to consume infrastructure resources.
+- Seamless connection and permissioning between infrastructure resources.
+- Strongly typed system for contract and payload validations.
+- One command to deploy infrastructure and source code.
+- One command for local emulation and testing.
+
 ## Getting started
 
 Read the [quick start](./documentation/quick-start.md) guide and check out some examples to begin.

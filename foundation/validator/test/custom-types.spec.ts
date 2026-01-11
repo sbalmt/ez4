@@ -54,7 +54,7 @@ describe('custom types validation', () => {
             type: SchemaType.String,
             definitions: {
               custom: true,
-              type: 'A'
+              types: ['A']
             }
           }
         },
@@ -65,7 +65,7 @@ describe('custom types validation', () => {
               type: SchemaType.Number,
               definitions: {
                 custom: true,
-                type: 'B'
+                types: ['B']
               }
             }
           ]
@@ -74,7 +74,7 @@ describe('custom types validation', () => {
           type: SchemaType.Boolean,
           definitions: {
             custom: true,
-            type: 'C'
+            types: ['C']
           }
         }
       }
@@ -103,7 +103,7 @@ describe('custom types validation', () => {
       type: SchemaType.String,
       definitions: {
         custom: true,
-        type: 'A'
+        types: ['A']
       }
     };
 

@@ -20,4 +20,9 @@ export namespace Object {
    * Object with default value.
    */
   export type Default<Type extends AnyObject, _Value extends Type> = Type;
+
+  /**
+   * Object without any predefined naming style.
+   */
+  export type Preserve<Type extends AnyObject> = Type;
 }

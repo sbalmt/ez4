@@ -50,8 +50,8 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
     }
   }
 
-  if (!allErrors.length && definitions?.type && context) {
-    return useCustomValidation(value, schema, definitions?.type, context);
+  if (!allErrors.length && definitions?.types && context) {
+    return useCustomValidation(value, schema, definitions?.types, context);
   }
 
   return allErrors;

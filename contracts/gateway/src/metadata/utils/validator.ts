@@ -6,7 +6,7 @@ import type { WsHandler } from '../ws/types';
 
 import { getSchemaCustomValidation } from '@ez4/schema';
 
-import { getValidatorName } from './name';
+import { getValidatorName } from '../../utils/validation';
 
 export const attachValidatorLinkedServices = (handler: HttpHandler | AuthHandler | WsHandler, services: LinkedServices) => {
   const { request } = handler;

@@ -56,7 +56,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id") AS "relation_1" ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id" LIMIT 1) AS "relation_1" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2) ` +
@@ -91,7 +91,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id") AS "relation_1" ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id" LIMIT 1) AS "relation_1" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2) ` +
@@ -152,7 +152,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id") AS "relation_1" ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id" LIMIT 1) AS "relation_1" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2 ` +
@@ -190,7 +190,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id") AS "relation_1" ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id" LIMIT 1) AS "relation_1" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1, "relation_1_id" = :2 FROM "Q0" WHERE "U"."id_a" = :3) ` +
@@ -225,7 +225,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id") AS "relation_1" ` +
+        `FROM "table_b" AS "S0" WHERE "S0"."id_b" = "R0"."relation_1_id" LIMIT 1) AS "relation_1" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1, "relation_1_id" = null FROM "Q0" WHERE "U"."id_a" = :2) ` +
@@ -276,7 +276,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id") AS "relation_2" ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id" LIMIT 1) AS "relation_2" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2) ` +
@@ -311,7 +311,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id") AS "relation_2" ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id" LIMIT 1) AS "relation_2" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2) ` +
@@ -372,7 +372,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id") AS "relation_2" ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id" LIMIT 1) AS "relation_2" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1 FROM "Q0" WHERE "U"."id_a" = :2 ` +
@@ -409,7 +409,7 @@ describe('update secondary relations', () => {
       statement,
       `WITH ` +
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id") AS "relation_2" ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id" LIMIT 1) AS "relation_2" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1, "relation_2_id" = :2 FROM "Q0" WHERE "U"."id_a" = :3) ` +
@@ -444,7 +444,7 @@ describe('update secondary relations', () => {
       `WITH ` +
         // Select
         `"Q0" AS (SELECT "R0"."value", (SELECT jsonb_build_object('value', "S0"."value") ` +
-        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id") AS "relation_2" ` +
+        `FROM "table_c" AS "S0" WHERE "S0"."unique_2_id" = "R0"."relation_2_id" LIMIT 1) AS "relation_2" ` +
         `FROM "table_a" AS "R0" WHERE "R0"."id_a" = :0), ` +
         // Main record
         `"Q1" AS (UPDATE ONLY "table_a" AS "U" SET "value" = :1, "relation_2_id" = null FROM "Q0" WHERE "U"."id_a" = :2) ` +

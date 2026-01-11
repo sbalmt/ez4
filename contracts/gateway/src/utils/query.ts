@@ -14,7 +14,7 @@ export const prepareQueryStrings = <T extends Http.QueryStrings>(input: T, schem
   }
 
   const context = createTransformContext({
-    inputStyle: preferences?.namingStyle,
+    outputStyle: preferences?.namingStyle,
     convert: false
   });
 
@@ -47,9 +47,9 @@ export const resolveQueryStrings = async <T extends Http.QueryStrings>(
   const validationErrors = await validate(payload, schema, validationContext);
 
   if (validationErrors.length) {
-    const messages = getUniqueErrorMessages(validationErrors);
-
-    throw new HttpBadRequestError('Malformed query strings.', messages);
+    throw new HttpBadRequestError('Malformed query strings.', {
+      details: getUniqueErrorMessages(validationErrors)
+    });
   }
 
   return payload as T;

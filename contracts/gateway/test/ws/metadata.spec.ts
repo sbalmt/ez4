@@ -27,6 +27,7 @@ describe('ws metadata', () => {
   it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service variables', () => testFile('variables'));
   it('assert :: service event', () => testFile('event'));
+  it('assert :: service validation', () => testFile('validation'));
   it('assert :: connection authorizers', () => testFile('authorizer'));
   it('assert :: connection query', () => testFile('query'));
   it('assert :: target headers', () => testFile('headers'));

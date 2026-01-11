@@ -2,7 +2,7 @@ import { ServiceError } from '@ez4/common';
 
 export class MalformedMessageError extends ServiceError {
   constructor(details: string[]) {
-    super('Malformed queue message payload.', details);
+    super('Malformed queue message payload.', { details });
   }
 }
 

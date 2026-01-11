@@ -56,7 +56,7 @@ export const getReferenceSchema = (
       ...schema.definitions,
       ...type.definitions,
       ...(type.definitions.custom && {
-        type: declaration.name
+        types: [declaration.name]
       })
     };
   }

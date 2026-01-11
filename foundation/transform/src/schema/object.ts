@@ -60,30 +60,31 @@ export const transformObject = (value: unknown, schema: ObjectSchema, context = 
     return undefined;
   }
 
+  const allowExtraProperties = definitions?.extensible;
+  const preservePropertyName = definitions?.preserve;
+
   if (schema.additional) {
     const { value: propertySchema } = schema.additional;
 
-    for (const propertyName of allProperties) {
-      const rawValue = objectValue[propertyName];
+    for (const propertyKey of allProperties) {
+      const rawValue = objectValue[propertyKey];
       const newValue = transformAny(rawValue, propertySchema, localContext);
 
       if (newValue !== undefined) {
-        const outputPropertyName = getPropertyName(propertyName, outputStyle);
+        const outputPropertyName = preservePropertyName ? propertyKey : getPropertyName(propertyKey, outputStyle);
 
         output[outputPropertyName] = newValue;
 
-        allProperties.delete(propertyName);
+        allProperties.delete(propertyKey);
       }
     }
   }
 
-  const allowExtraProperties = definitions?.extensible;
-
   if (allowExtraProperties) {
-    for (const propertyName of allProperties) {
-      const outputPropertyName = getPropertyName(propertyName, outputStyle);
+    for (const propertyKey of allProperties) {
+      const outputPropertyName = preservePropertyName ? propertyKey : getPropertyName(propertyKey, outputStyle);
 
-      output[outputPropertyName] = objectValue[propertyName];
+      output[outputPropertyName] = objectValue[propertyKey];
     }
   }
 
