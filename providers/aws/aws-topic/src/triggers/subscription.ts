@@ -68,6 +68,7 @@ export const prepareSubscriptions = (
             description: handler.description,
             messageSchema: service.schema,
             context: service.context,
+            release: options.release,
             debug: options.debug,
             tags: options.tags,
             variables: [options.variables, service.variables, subscription.variables],

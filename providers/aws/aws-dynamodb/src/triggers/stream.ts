@@ -29,7 +29,7 @@ export const prepareTableStream = (
     throw new RoleMissingError();
   }
 
-  const { defaults } = options;
+  const { defaults, release } = options;
 
   const {
     handler,
@@ -66,6 +66,7 @@ export const prepareTableStream = (
       variables: [options.variables, service.variables, variables],
       architecture,
       runtime,
+      release,
       timeout,
       memory,
       handler: {

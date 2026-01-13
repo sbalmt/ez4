@@ -71,6 +71,11 @@ export type ProjectOptions = {
   customProviders?: ProjectCustomProviders;
 
   /**
+   * Options for deployment and releases.
+   */
+  deployOptions?: ProjectDeployOptions;
+
+  /**
    * Options for serving the local development.
    */
   serveOptions?: ProjectServeOptions;
@@ -136,26 +141,21 @@ export type ProjectCustomProviders = {
   packages: string[];
 };
 
-export type ProjectDefaultOptions = {
+export type ProjectDeployOptions = {
   /**
-   * Default log retention (in days) for all handlers.
+   * Release version attached to the resources during the deployment.
    */
-  logRetention?: number;
+  version: string;
 
   /**
-   * Default architecture for all handlers.
+   * Name of the variable to hold the latest release version.
    */
-  architecture?: ArchitectureType;
+  variableName?: string;
 
   /**
-   * Default runtime for all handlers.
+   * Name of the tag to hold the latest release version.
    */
-  runtime?: RuntimeType;
-
-  /**
-   * Default amount of memory available (in megabytes) for all handlers.
-   */
-  memory?: number;
+  tagName?: string;
 };
 
 export type ProjectServeOptions = {
@@ -177,4 +177,26 @@ export type ProjectWatchOptions = {
    * Specify additional watch paths.
    */
   additionalPaths: string[];
+};
+
+export type ProjectDefaultOptions = {
+  /**
+   * Default log retention (in days) for all handlers.
+   */
+  logRetention?: number;
+
+  /**
+   * Default architecture for all handlers.
+   */
+  architecture?: ArchitectureType;
+
+  /**
+   * Default runtime for all handlers.
+   */
+  runtime?: RuntimeType;
+
+  /**
+   * Default amount of memory available (in megabytes) for all handlers.
+   */
+  memory?: number;
 };

@@ -36,7 +36,7 @@ export const prepareSubscriptions = (
       const subscriptionName = getFunctionName(service, handler.name, options);
       const dependencies = context.getDependencyFiles(handler.file);
 
-      const { defaults } = options;
+      const { defaults, release } = options;
 
       const {
         runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -62,6 +62,7 @@ export const prepareSubscriptions = (
         timeout: service.timeout ?? Defaults.Timeout,
         architecture,
         runtime,
+        release,
         memory,
         handler: {
           sourceFile: handler.file,
