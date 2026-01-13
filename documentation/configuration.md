@@ -31,6 +31,21 @@ export default {
     remote: true // Set true to store state file remotely
   },
 
+  // Configure the default options for all resources
+  defaultOptions: {
+    logRetention: 15, // Default log retention (in days) for all handlers
+    architecture: ArchitectureType.Arm, // Default architecture for all handlers
+    runtime: RuntimeType.Node24, // Default runtime for all handlers
+    memory: 192 // Default amount of memory available (in megabytes) for all handlers
+  },
+
+  // Configure the deployment options for all resources
+  deployOptions: {
+    tagName: 'Version', // Name of the tag to hold the release version
+    variableName: 'VERSION', // Name of the environment variable to hold the release version
+    version: '0.0.0' // Current release version
+  },
+
   // Configure how to serve the project locally
   serveOptions: {
     localHost: 'localhost', // Host name/address when serving the project
@@ -48,14 +63,6 @@ export default {
   // Configure the test options for the providers
   testOptions: {},
 
-  // Configure the default options for all resources
-  defaultOptions: {
-    logRetention: 15, // Default log retention (in days) for all handlers.
-    architecture: ArchitectureType.Arm, // Default architecture for all handlers.
-    runtime: RuntimeType.Node24, // Default runtime for all handlers.
-    memory: 192 // Default amount of memory available (in megabytes) for all handlers.
-  },
-
   // Environment variables applied to all resources
   variables: {
     DUMMY_API_KEY: 'A-BC123'
@@ -63,7 +70,7 @@ export default {
 
   // Tags applied to all resources
   tags: {
-    Project: 'EZ4' // Use the tag name/value key pair.
+    Project: 'EZ4' // Use the tag name/value key pair
   },
 
   // Configure the imported projects
