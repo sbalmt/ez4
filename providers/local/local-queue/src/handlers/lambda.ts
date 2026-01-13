@@ -5,8 +5,9 @@ import type { AnyObject } from '@ez4/utils';
 import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getRandomUUID } from '@ez4/utils';
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
+import { Runtime } from '@ez4/common/runtime';
+import { getRandomUUID } from '@ez4/utils';
 
 export const processLambdaMessage = async (
   service: QueueService | QueueImport,
@@ -32,13 +33,21 @@ export const processLambdaMessage = async (
 
   let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 
+  const traceId = getRandomUUID();
+
   const request = {
-    requestId: getRandomUUID()
+    requestId: getRandomUUID(),
+    traceId
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   try {
     await onBegin(module, clients, request);

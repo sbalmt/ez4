@@ -37,16 +37,12 @@ export const logQueryError = (statement: PgExecuteStatement, transactionId?: str
   });
 };
 
-const isLocal = () => {
-  return process.env.EZ4_IS_LOCAL === 'true';
-};
-
 const getTransactionId = (transactionId: string | undefined) => {
   return transactionId?.substring(0, 8);
 };
 
 const getDebugParameters = (statement: PgExecuteStatement) => {
-  if (!isLocal() || !statement.variables?.length) {
+  if (!Runtime.getScope()?.isLocal || !statement.variables?.length) {
     return undefined;
   }
 

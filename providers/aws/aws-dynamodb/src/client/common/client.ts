@@ -94,10 +94,6 @@ export const executeTransaction = async (client: DynamoDBDocumentClient, stateme
   }
 };
 
-const isLocal = () => {
-  return process.env.EZ4_IS_LOCAL === 'true';
-};
-
 const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: ConsumedCapacity | undefined, transaction?: boolean) => {
   const parameters = getDebugParameters(input);
 
@@ -132,7 +128,7 @@ const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolea
 };
 
 const getDebugParameters = (input: ExecuteStatementCommandInput) => {
-  if (!isLocal() || !input.Parameters?.length) {
+  if (!Runtime.getScope()?.isLocal || !input.Parameters?.length) {
     return undefined;
   }
 
