@@ -10,5 +10,10 @@ export default {
   },
   stateFile: {
     path: 'ez4-deploy'
+  },
+  deployOptions: {
+    tagName: 'ReleaseVersion',
+    variableName: 'RELEASE_VERSION',
+    version: '1.0.0'
   }
 };
