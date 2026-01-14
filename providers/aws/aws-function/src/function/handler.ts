@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { FunctionState, FunctionResult, FunctionParameters } from './types';
+import type { FunctionState, FunctionResult, FunctionParameters, FunctionRelease } from './types';
 
 import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
@@ -167,7 +167,7 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
     return;
   }
 
-  const { functionName, release } = parameters;
+  const { functionName } = parameters;
 
   const newVariables = await parameters.getFunctionVariables();
   const oldVariables = current.result?.variables ?? newVariables;
@@ -178,25 +178,18 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const oldLogGroup = current.result?.logGroup ?? newLogGroup;
 
-  const { isReleased, ...newResult } = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
-
-  const newTags = parameters.tags ?? {};
-
-  if (isReleased && release) {
-    if (release.variableName) {
-      newVariables[release.variableName] = release.version;
-    }
-
-    if (release.tagName) {
-      newTags[release.tagName] = release.version;
-    }
-  }
+  const { isUpdated, ...newResult } = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
 
   const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
   const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig, context);
-  await checkTagUpdates(result.functionArn, newTags, current.parameters.tags);
+  const newRelease = isUpdated || context.force ? parameters.release : undefined;
+
+  const newTags = parameters.tags;
+  const oldTags = current.parameters.tags;
+
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig, newRelease, context);
+  await checkTagUpdates(result.functionArn, newTags, oldTags, newRelease);
 
   return {
     ...result,
@@ -219,6 +212,7 @@ const checkConfigurationUpdates = async (
   functionName: string,
   candidate: FunctionConfigurationWithVariables,
   current: FunctionConfigurationWithVariables,
+  release: FunctionRelease | undefined,
   context: StepContext
 ) => {
   const { variables, ...configuration } = candidate;
@@ -233,18 +227,39 @@ const checkConfigurationUpdates = async (
       sourceFile: true,
       functionName: true,
       architecture: true,
+      release: true,
       tags: true
     }
   });
 
   if (hasChanges || context.force) {
-    await updateConfiguration(functionName, candidate);
+    await updateConfiguration(functionName, {
+      ...candidate,
+      variables: {
+        ...candidate.variables,
+        ...(release?.variableName && {
+          [release.variableName]: release.version
+        })
+      }
+    });
   }
 };
 
-const checkTagUpdates = async (functionArn: Arn, candidate: ResourceTags, current: ResourceTags | undefined) => {
+const checkTagUpdates = async (
+  functionArn: Arn,
+  candidate: ResourceTags | undefined,
+  current: ResourceTags | undefined,
+  release: FunctionRelease | undefined
+) => {
+  const candidateTags = {
+    ...candidate,
+    ...(release?.tagName && {
+      [release.tagName]: release.version
+    })
+  };
+
   await applyTagUpdates(
-    candidate,
+    candidateTags,
     current,
     (tags) => tagFunction(functionArn, tags),
     (tags) => untagFunction(functionArn, tags)
@@ -272,9 +287,9 @@ const checkSourceCodeUpdates = async (
       Logger.logSkip(FunctionServiceName, `${functionName} source code`);
 
       return {
+        isUpdated: false,
         valuesHash: newValuesHash,
-        sourceHash: newSourceHash,
-        isReleased: false
+        sourceHash: newSourceHash
       };
     }
 
@@ -285,7 +300,7 @@ const checkSourceCodeUpdates = async (
     });
 
     return {
-      isReleased: true,
+      isUpdated: true,
       valuesHash: newValuesHash,
       sourceHash: newSourceHash,
       bundleHash: newBundleHash,
@@ -296,6 +311,6 @@ const checkSourceCodeUpdates = async (
   }
 
   return {
-    isReleased: false
+    isUpdated: false
   };
 };
