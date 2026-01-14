@@ -143,9 +143,20 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     publish: true,
     functionName,
     sourceFile,
-    variables,
     logGroup,
-    roleArn
+    roleArn,
+    variables: {
+      ...variables,
+      ...(release?.variableName && {
+        [release.variableName]: release.version
+      })
+    },
+    tags: {
+      ...parameters.tags,
+      ...(release?.tagName && {
+        [release.tagName]: release.version
+      })
+    }
   });
 
   return {
