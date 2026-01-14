@@ -255,7 +255,8 @@ const checkConfigurationUpdates = async (
 };
 
 const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters, isUpdated: boolean) => {
-  const candidateRelease = isUpdated ? candidate.release : undefined;
+  const hasReleaseChange = isUpdated && candidate.release?.version !== current.release?.version;
+  const candidateRelease = hasReleaseChange ? candidate.release : undefined;
 
   const candidateTags = {
     ...candidate.tags,
