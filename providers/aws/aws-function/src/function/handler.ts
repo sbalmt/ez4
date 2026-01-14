@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { FunctionState, FunctionResult, FunctionParameters, FunctionRelease } from './types';
+import type { Arn } from '@ez4/aws-common';
+import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
 import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
@@ -183,13 +183,8 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
   const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  const newRelease = isUpdated || context.force ? parameters.release : undefined;
-
-  const newTags = parameters.tags;
-  const oldTags = current.parameters.tags;
-
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig, newRelease, context);
-  await checkTagUpdates(result.functionArn, newTags, oldTags, newRelease);
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig, isUpdated, context);
+  await checkTagUpdates(result.functionArn, parameters, current.parameters, isUpdated);
 
   return {
     ...result,
@@ -212,7 +207,7 @@ const checkConfigurationUpdates = async (
   functionName: string,
   candidate: FunctionConfigurationWithVariables,
   current: FunctionConfigurationWithVariables,
-  release: FunctionRelease | undefined,
+  isUpdated: boolean,
   context: StepContext
 ) => {
   const { variables, ...configuration } = candidate;
@@ -222,7 +217,7 @@ const checkConfigurationUpdates = async (
     ...configuration
   };
 
-  const hasChanges = !deepEqual(protectedCandidate, current, {
+  const hasConfigurationChanges = !deepEqual(protectedCandidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,
@@ -232,35 +227,35 @@ const checkConfigurationUpdates = async (
     }
   });
 
-  if (hasChanges || context.force) {
+  const candidateRelease = isUpdated ? candidate.release : current.release;
+  const hasReleaseChange = isUpdated && candidateRelease?.variableName;
+
+  if (hasConfigurationChanges || hasReleaseChange || context.force) {
     await updateConfiguration(functionName, {
       ...candidate,
       variables: {
         ...candidate.variables,
-        ...(release?.variableName && {
-          [release.variableName]: release.version
+        ...(candidateRelease?.variableName && {
+          [candidateRelease.variableName]: candidateRelease.version
         })
       }
     });
   }
 };
 
-const checkTagUpdates = async (
-  functionArn: Arn,
-  candidate: ResourceTags | undefined,
-  current: ResourceTags | undefined,
-  release: FunctionRelease | undefined
-) => {
+const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters, isUpdated: boolean) => {
+  const candidateRelease = isUpdated ? candidate.release : current.release;
+
   const candidateTags = {
-    ...candidate,
-    ...(release?.tagName && {
-      [release.tagName]: release.version
+    ...candidate.tags,
+    ...(candidateRelease?.tagName && {
+      [candidateRelease.tagName]: candidateRelease.version
     })
   };
 
   await applyTagUpdates(
     candidateTags,
-    current,
+    current.tags,
     (tags) => tagFunction(functionArn, tags),
     (tags) => untagFunction(functionArn, tags)
   );
