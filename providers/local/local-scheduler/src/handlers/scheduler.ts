@@ -14,6 +14,14 @@ export const processSchedulerEvent = async (
 ) => {
   const { services, target } = service;
 
+  const clients = await context.makeClients(services);
+  const traceId = getRandomUUID();
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
+
   const module = await createModule({
     listener: target.listener,
     handler: target.handler,
@@ -25,20 +33,11 @@ export const processSchedulerEvent = async (
     }
   });
 
-  const clients = await context.makeClients(services);
-
-  const traceId = getRandomUUID();
-
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
     event: null,
     traceId
   };
-
-  Runtime.setScope({
-    isLocal: true,
-    traceId
-  });
 
   try {
     await onBegin(module, clients, request);

@@ -26,6 +26,12 @@ export const processWsAuthorization = async (
   const services = provider?.services ?? {};
 
   const clients = await context.makeClients(services);
+  const traceId = getRandomUUID();
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   const module = await createModule({
     listener: connect.listener ?? defaults?.listener,
@@ -38,8 +44,6 @@ export const processWsAuthorization = async (
     }
   });
 
-  const traceId = getRandomUUID();
-
   const request: Ws.Incoming<Ws.AuthRequest> = {
     connectionId: event.connection.id,
     requestId: getRandomUUID(),
@@ -50,11 +54,6 @@ export const processWsAuthorization = async (
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
-
-  Runtime.setScope({
-    isLocal: true,
-    traceId
-  });
 
   try {
     await onBegin(module, clients, request);

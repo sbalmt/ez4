@@ -14,6 +14,16 @@ export const processLambdaMessage = async (
   subscription: TopicLambdaSubscription,
   message: AnyObject
 ) => {
+  const { services } = service;
+
+  const clients = await context.makeClients(services);
+  const traceId = getRandomUUID();
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
+
   const module = await createModule({
     listener: subscription.listener,
     handler: subscription.handler,
@@ -25,23 +35,12 @@ export const processLambdaMessage = async (
     }
   });
 
-  const { services } = service;
-
-  const clients = await context.makeClients(services);
-
   let currentRequest: Topic.Incoming<Topic.Message> | undefined;
-
-  const traceId = getRandomUUID();
 
   const request = {
     requestId: getRandomUUID(),
     traceId
   };
-
-  Runtime.setScope({
-    isLocal: true,
-    traceId
-  });
 
   try {
     await onBegin(module, clients, request);
