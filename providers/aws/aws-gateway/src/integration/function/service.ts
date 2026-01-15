@@ -33,6 +33,7 @@ export const createIntegrationFunction = <E extends EntryState>(
     description: parameters.description,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
+    release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
     debug: parameters.debug,

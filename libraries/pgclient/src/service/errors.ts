@@ -5,7 +5,7 @@ export class MalformedRequestError extends ServiceError {
     public field: string,
     details: string[]
   ) {
-    super(`Malformed table schema for field '${field}'.`, details);
+    super(`Malformed table schema for field '${field}'.`, { details });
   }
 }
 

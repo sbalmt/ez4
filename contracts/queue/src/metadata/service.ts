@@ -21,6 +21,7 @@ import { isObjectWith } from '@ez4/utils';
 import { createQueueService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
+import { attachValidatorLinkedServices } from './utils/validator';
 import { getQueueSubscriptionsMetadata } from './subscription';
 import { getQueueDeadLetterMetadata } from './deadletter';
 import { getQueueMessageMetadata } from './message';
@@ -136,6 +137,8 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
       errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
+
+    attachValidatorLinkedServices(service.schema, service.services);
 
     allServices[declaration.name] = service;
   }

@@ -1,6 +1,7 @@
-import { Runtime } from '@ez4/common/runtime';
 import type { PgExecuteStatement } from '@ez4/pgclient';
 import type { AnyObject } from '@ez4/utils';
+
+import { Runtime } from '@ez4/common/runtime';
 
 export const logQuerySuccess = (statement: PgExecuteStatement, transactionId?: string) => {
   const transaction = getTransactionId(transactionId);
@@ -36,16 +37,12 @@ export const logQueryError = (statement: PgExecuteStatement, transactionId?: str
   });
 };
 
-const isLocal = () => {
-  return process.env.EZ4_IS_LOCAL === 'true';
-};
-
 const getTransactionId = (transactionId: string | undefined) => {
   return transactionId?.substring(0, 8);
 };
 
 const getDebugParameters = (statement: PgExecuteStatement) => {
-  if (!isLocal() || !statement.variables?.length) {
+  if (!Runtime.getScope()?.isLocal || !statement.variables?.length) {
     return undefined;
   }
 

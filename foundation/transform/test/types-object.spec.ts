@@ -207,4 +207,35 @@ describe('object type transformation', () => {
 
     deepEqual(transform({ foo: 'true', bar: 123, baz: 'def' }, schema), output);
   });
+
+  it('assert :: object (extensible, additional and preserve)', () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      definitions: {
+        extensible: true,
+        preserve: true
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Boolean
+        }
+      },
+      additional: {
+        property: {
+          type: SchemaType.String
+        },
+        value: {
+          type: SchemaType.Number
+        }
+      }
+    };
+
+    const output = {
+      foo: true,
+      'foo.bar': 123,
+      'foo@baz': 'def'
+    };
+
+    deepEqual(transform({ foo: 'true', 'foo.bar': 123, 'foo@baz': 'def' }, schema), output);
+  });
 });

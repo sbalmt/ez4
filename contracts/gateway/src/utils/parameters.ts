@@ -31,9 +31,9 @@ export const resolvePathParameters = async <T extends Http.PathParameters>(
   const validationErrors = await validate(parameters, schema, validationContext);
 
   if (validationErrors.length) {
-    const messages = getUniqueErrorMessages(validationErrors);
-
-    throw new HttpBadRequestError('Malformed path parameters.', messages);
+    throw new HttpBadRequestError('Malformed path parameters.', {
+      details: getUniqueErrorMessages(validationErrors)
+    });
   }
 
   return parameters as T;

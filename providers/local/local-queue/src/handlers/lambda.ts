@@ -1,9 +1,12 @@
 import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { AnyObject } from '@ez4/utils';
 import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
+import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 export const processLambdaMessage = async (
@@ -30,16 +33,28 @@ export const processLambdaMessage = async (
 
   let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 
+  const traceId = getRandomUUID();
+
   const request = {
-    requestId: getRandomUUID()
+    requestId: getRandomUUID(),
+    traceId
   };
+
+  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+    return resolveValidation(value, clients, context.type);
+  };
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   try {
     await onBegin(module, clients, request);
 
     currentRequest = {
       ...request,
-      message
+      message: await getJsonMessage(message, service.schema, onCustomValidation)
     };
 
     await onReady(module, clients, currentRequest);
@@ -48,6 +63,8 @@ export const processLambdaMessage = async (
     //
   } catch (error) {
     await onError(module, clients, currentRequest ?? request, error);
+
+    throw error;
     //
   } finally {
     await onEnd(module, clients, request);

@@ -58,6 +58,11 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       variables: current.result?.variables,
       sourceHash: current.result?.sourceHash,
       valuesHash: current.result?.valuesHash
+    },
+    {
+      exclude: {
+        release: true
+      }
     }
   );
 
@@ -80,7 +85,7 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
 };
 
 const createResource = async (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
-  const { functionName, ...parameters } = candidate.parameters;
+  const { functionName, release, ...parameters } = candidate.parameters;
 
   const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const roleArn = getRoleArn(FunctionServiceName, functionName, context);
@@ -96,21 +101,29 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
   const bundleHash = await hashFile(sourceFile);
 
   if (importedFunction) {
-    await updateConfiguration(functionName, {
-      ...parameters,
-      variables,
-      logGroup,
-      roleArn
-    });
-
     await updateSourceCode(functionName, {
       architecture: parameters.architecture,
       publish: false,
       sourceFile
     });
 
+    await updateConfiguration(functionName, {
+      ...parameters,
+      logGroup,
+      roleArn,
+      variables: {
+        ...variables,
+        ...(release?.variableName && {
+          [release.variableName]: release.version
+        })
+      }
+    });
+
     await tagFunction(importedFunction.functionArn, {
-      ...parameters.tags
+      ...parameters.tags,
+      ...(release?.tagName && {
+        [release.tagName]: release.version
+      })
     });
 
     return {
@@ -130,9 +143,20 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
     publish: true,
     functionName,
     sourceFile,
-    variables,
     logGroup,
-    roleArn
+    roleArn,
+    variables: {
+      ...variables,
+      ...(release?.variableName && {
+        [release.variableName]: release.version
+      })
+    },
+    tags: {
+      ...parameters.tags,
+      ...(release?.tagName && {
+        [release.tagName]: release.version
+      })
+    }
   });
 
   return {
@@ -154,7 +178,7 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
     return;
   }
 
-  const functionName = parameters.functionName;
+  const { functionName } = parameters;
 
   const newVariables = await parameters.getFunctionVariables();
   const oldVariables = current.result?.variables ?? newVariables;
@@ -165,13 +189,13 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
   const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
   const oldLogGroup = current.result?.logGroup ?? newLogGroup;
 
+  const { isUpdated, ...newResult } = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
+
   const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
   const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig, context);
-  await checkTagUpdates(result.functionArn, parameters, current.parameters);
-
-  const newResult = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
+  await checkConfigurationUpdates(functionName, newConfig, oldConfig, isUpdated, context);
+  await checkTagUpdates(result.functionArn, parameters, current.parameters, isUpdated);
 
   return {
     ...result,
@@ -194,6 +218,7 @@ const checkConfigurationUpdates = async (
   functionName: string,
   candidate: FunctionConfigurationWithVariables,
   current: FunctionConfigurationWithVariables,
+  isUpdated: boolean,
   context: StepContext
 ) => {
   const { variables, ...configuration } = candidate;
@@ -203,23 +228,45 @@ const checkConfigurationUpdates = async (
     ...configuration
   };
 
-  const hasChanges = !deepEqual(protectedCandidate, current, {
+  const hasConfigurationChanges = !deepEqual(protectedCandidate, current, {
     exclude: {
       sourceFile: true,
       functionName: true,
       architecture: true,
+      release: true,
       tags: true
     }
   });
 
-  if (hasChanges || context.force) {
-    await updateConfiguration(functionName, candidate);
+  const candidateRelease = isUpdated ? candidate.release : current.release;
+  const hasReleaseChange = isUpdated && candidateRelease?.variableName;
+
+  if (hasConfigurationChanges || hasReleaseChange || context.force) {
+    await updateConfiguration(functionName, {
+      ...candidate,
+      variables: {
+        ...candidate.variables,
+        ...(candidateRelease?.variableName && {
+          [candidateRelease.variableName]: candidateRelease.version
+        })
+      }
+    });
   }
 };
 
-const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters) => {
+const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters, isUpdated: boolean) => {
+  const hasReleaseChange = isUpdated && candidate.release?.version !== current.release?.version;
+  const candidateRelease = hasReleaseChange ? candidate.release : undefined;
+
+  const candidateTags = {
+    ...candidate.tags,
+    ...(candidateRelease?.tagName && {
+      [candidateRelease.tagName]: candidateRelease.version
+    })
+  };
+
   await applyTagUpdates(
-    candidate.tags,
+    candidateTags,
     current.tags,
     (tags) => tagFunction(functionArn, tags),
     (tags) => untagFunction(functionArn, tags)
@@ -247,6 +294,7 @@ const checkSourceCodeUpdates = async (
       Logger.logSkip(FunctionServiceName, `${functionName} source code`);
 
       return {
+        isUpdated: false,
         valuesHash: newValuesHash,
         sourceHash: newSourceHash
       };
@@ -259,6 +307,7 @@ const checkSourceCodeUpdates = async (
     });
 
     return {
+      isUpdated: true,
       valuesHash: newValuesHash,
       sourceHash: newSourceHash,
       bundleHash: newBundleHash,
@@ -268,5 +317,7 @@ const checkSourceCodeUpdates = async (
     };
   }
 
-  return undefined;
+  return {
+    isUpdated: false
+  };
 };

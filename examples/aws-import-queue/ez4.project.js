@@ -9,11 +9,16 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
-  tags: {
-    Owner: 'EZ4 Examples'
+  deployOptions: {
+    tagName: 'ReleaseVersion',
+    variableName: 'RELEASE_VERSION',
+    version: '1.0.0'
   },
   serveOptions: {
     localPort: 3735
+  },
+  tags: {
+    Owner: 'EZ4 Examples'
   },
   importProjects: {
     'hello-aws-queue': {

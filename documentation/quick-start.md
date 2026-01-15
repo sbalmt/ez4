@@ -13,7 +13,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 nvm install 24
 ```
 
-> For more details and options go to the [NodeJS official](https://nodejs.org/en/download) documentation.
+> See the [NodeJS official](https://nodejs.org/en/download) documentation for more details.
 
 The project will require a `package.json`, let's initialize it:
 
@@ -21,7 +21,7 @@ The project will require a `package.json`, let's initialize it:
 npm init
 ```
 
-Now the primary dependencies can be installed:
+Install the primary dependencies:
 
 ```sh
 npm install -D @ez4/project @types/node@24 typescript
@@ -87,7 +87,7 @@ export default {
 
 ## Code
 
-Since a simple API will be created, let's install the packages to handle API gateways.
+Let's install the packages to build a simple API gateway:
 
 ```sh
 npm install -D @ez4/gateway @ez4/local-gateway
@@ -145,6 +145,8 @@ curl http://localhost:3734/ez4-hello-my-api/say -d '{"say":"hello world"}' -X PO
 ```
 
 > The response should be: `{"echo":"hello world"}`
+
+All done.
 
 ## Examples
 

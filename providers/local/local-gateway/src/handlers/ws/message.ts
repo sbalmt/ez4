@@ -5,6 +5,7 @@ import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { resolveValidation } from '@ez4/gateway/utils';
+import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getIncomingRequestIdentity, getIncomingRequestBody } from '../../utils/request';
@@ -33,15 +34,23 @@ export const processWsMessage = async (
     }
   });
 
+  const traceId = getRandomUUID();
+
   const request: Ws.Incoming<Ws.Request> = {
     connectionId: event.connection.id,
     requestId: getRandomUUID(),
-    timestamp: new Date()
+    timestamp: new Date(),
+    traceId
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   try {
     const { preferences = defaults?.preferences } = message;

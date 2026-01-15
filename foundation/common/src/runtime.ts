@@ -2,6 +2,7 @@ export namespace Runtime {
   let globalScope: Scope | undefined;
 
   export type Scope = {
+    isLocal?: boolean;
     traceId: string;
   };
 

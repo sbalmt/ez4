@@ -66,6 +66,7 @@ export const getAuthorizerFunction = (
       timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,
+      release: options.release,
       debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],

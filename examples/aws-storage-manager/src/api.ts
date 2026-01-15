@@ -1,4 +1,4 @@
-import type { ArchitectureType } from '@ez4/common';
+import type { ArchitectureType } from '@ez4/project';
 import type { Http } from '@ez4/gateway';
 import type { startUploadHandler } from '@/api/endpoints/start-upload';
 import type { startDownloadHandler } from '@/api/endpoints/start-download';

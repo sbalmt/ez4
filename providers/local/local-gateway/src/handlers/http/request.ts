@@ -6,6 +6,7 @@ import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { resolveValidation } from '@ez4/gateway/utils';
+import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 import { getHttpSuccessResponse } from '../../utils/http/response';
@@ -44,17 +45,25 @@ export const processHttpRequest = async (
     }
   });
 
+  const traceId = getRandomUUID();
+
   const request: Http.Incoming<Http.Request> = {
     requestId: getRandomUUID(),
     timestamp: new Date(),
     method: route.method,
     path: route.path,
-    encoded: false
+    encoded: false,
+    traceId
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   try {
     await onBegin(module, clients, request);

@@ -23,4 +23,10 @@ export namespace Object {
     encoded: true;
     type: Type;
   };
+
+  export type Preserve<Type extends AnyObject> = {
+    '@ez4/schema': 'object';
+    preserve: true;
+    type: Type;
+  };
 }

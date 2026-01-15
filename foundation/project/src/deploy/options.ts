@@ -10,6 +10,7 @@ export const getDeployOptions = (input: InputOptions, project: ProjectOptions): 
     projectName: toKebabCase(project.projectName),
     debug: input.debug ?? project.debugMode,
     defaults: project.defaultOptions,
+    release: project.deployOptions,
     variables: project.variables,
     force: input.force,
     tags: project.tags

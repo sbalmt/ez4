@@ -9,6 +9,11 @@ export default {
   stateFile: {
     path: 'ez4-deploy'
   },
+  deployOptions: {
+    tagName: 'ReleaseVersion',
+    variableName: 'RELEASE_VERSION',
+    version: '1.0.0'
+  },
   localOptions: {
     file_db: {
       host: '127.0.0.1',

@@ -21,7 +21,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
-  const { defaults } = options;
+  const { defaults, release } = options;
 
   const {
     handler,
@@ -60,6 +60,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     variables: [options.variables, service.variables, variables],
     architecture,
     runtime,
+    release,
     timeout,
     memory,
     handler: {

@@ -56,23 +56,26 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     allProperties.delete(propertyName);
   }
 
+  const preservePropertyName = definitions?.preserve;
+  const allowExtraProperties = definitions?.extensible;
+
   if (schema.additional) {
     const { property: propertyNameSchema, value: propertyValueSchema } = schema.additional;
 
-    for (const propertyName of allProperties) {
-      const propertyErrors = await validateAny(propertyName, propertyNameSchema);
+    for (const propertyKey of allProperties) {
+      const propertyErrors = await validateAny(propertyKey, propertyNameSchema);
 
       if (!propertyErrors.length) {
-        allProperties.delete(propertyName);
+        allProperties.delete(propertyKey);
       }
 
       if (depth > 0) {
-        const propertyPath = getPropertyName(propertyName, pathStyle);
-        const propertyValue = objectValue[propertyName];
+        const propertyName = preservePropertyName ? propertyKey : getPropertyName(propertyKey, pathStyle);
+        const propertyValue = objectValue[propertyKey];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
           ...currentContext,
-          property: getPropertyPath(propertyPath, parentProperty),
+          property: getPropertyPath(propertyName, parentProperty),
           depth: depth - 1,
           references,
           inputStyle,
@@ -84,18 +87,16 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     }
   }
 
-  const allowExtraProperties = definitions?.extensible;
-
   if (!allowExtraProperties && allProperties.size > 0) {
-    const extraProperties = [...allProperties.values()].map((propertyName) => {
-      return getPropertyPath(propertyName, parentProperty);
+    const extraProperties = [...allProperties.values()].map((propertyKey) => {
+      return preservePropertyName ? propertyKey : getPropertyPath(propertyKey, parentProperty);
     });
 
     allErrors.push(new UnexpectedPropertiesError(extraProperties));
   }
 
-  if (!allErrors.length && definitions?.type && context) {
-    return useCustomValidation(value, schema, definitions.type, context);
+  if (!allErrors.length && definitions?.types && context) {
+    return useCustomValidation(value, schema, definitions.types, context);
   }
 
   return allErrors;

@@ -31,6 +31,7 @@ export type RichTypes = {
 
   encoded?: boolean;
   extensible?: boolean;
+  preserve?: boolean;
   pattern?: string;
 
   minLength?: number;
@@ -79,6 +80,7 @@ export const getRichTypes = (type: TypeObject) => {
       case 'lower':
       case 'encoded':
       case 'extensible':
+      case 'preserve':
         if (isTypeBoolean(type)) {
           richTypes[name] = type.literal;
         }
@@ -163,12 +165,13 @@ export const createRichType = (richTypes: RichTypes) => {
     }
 
     case 'object': {
-      const { encoded, extensible, value, type } = richTypes;
+      const { encoded, extensible, preserve, value, type } = richTypes;
 
       const definitions = {
         ...(value && { default: value }),
+        ...(encoded && { encoded }),
         ...(extensible && { extensible }),
-        ...(encoded && { encoded })
+        ...(preserve && { preserve })
       };
 
       if (type && isRichTypeObject(type)) {

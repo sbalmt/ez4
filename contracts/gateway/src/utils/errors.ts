@@ -1,3 +1,5 @@
+import type { ServiceErrorContext } from '@ez4/common';
+
 import {
   HttpBadRequestError,
   HttpUnauthorizedError,
@@ -14,13 +16,13 @@ import {
  *
  * @returns Returns an error response containing `status`, `message` and `details`.
  */
-export const getJsonError = ({ status, message, details }: HttpError) => {
+export const getJsonError = ({ status, message, context }: HttpError) => {
   return {
     status,
     body: {
       type: 'error',
       message,
-      details
+      context
     }
   };
 };
@@ -30,33 +32,33 @@ export const getJsonError = ({ status, message, details }: HttpError) => {
  *
  * @param status HTTP status code.
  * @param message Exception message.
- * @param details Exception details.
+ * @param context Exception context.
  * @returns Returns the corresponding exception.
  */
-export const getHttpException = (status: number, message: string, details?: string[]) => {
+export const getHttpException = (status: number, message: string, context?: ServiceErrorContext) => {
   switch (status) {
     case 400:
-      return new HttpBadRequestError(message, details);
+      return new HttpBadRequestError(message, context);
 
     case 401:
-      return new HttpUnauthorizedError(message, details);
+      return new HttpUnauthorizedError(message, context);
 
     case 403:
-      return new HttpForbiddenError(message, details);
+      return new HttpForbiddenError(message, context);
 
     case 404:
-      return new HttpNotFoundError(message, details);
+      return new HttpNotFoundError(message, context);
 
     case 409:
-      return new HttpConflictError(message, details);
+      return new HttpConflictError(message, context);
 
     case 415:
-      return new HttpUnsupportedMediaTypeError(message, details);
+      return new HttpUnsupportedMediaTypeError(message, context);
 
     case 422:
-      return new HttpUnprocessableEntityError(message, details);
+      return new HttpUnprocessableEntityError(message, context);
 
     default:
-      return new HttpError(status, message, details);
+      return new HttpError(status, message, context);
   }
 };

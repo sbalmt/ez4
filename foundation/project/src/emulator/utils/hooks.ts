@@ -26,8 +26,6 @@ export const shutdownServices = (emulators: ServiceEmulators) => {
 };
 
 const forEachEmulator = async (emulators: ServiceEmulators, callback: (emulator: ServiceEmulator) => Promise<void>) => {
-  process.env.EZ4_IS_LOCAL = 'true';
-
   for (const identifier in emulators) {
     await callback(emulators[identifier]);
   }

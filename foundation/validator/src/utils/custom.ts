@@ -1,11 +1,15 @@
 import type { AnySchema } from '@ez4/schema';
 import type { ValidationContext } from '../types/context';
 
-export const useCustomValidation = async (value: unknown, schema: AnySchema, type: string, context: ValidationContext) => {
+export const useCustomValidation = async (value: unknown, schema: AnySchema, types: string[], context: ValidationContext) => {
   const { property, onCustomValidation } = context;
 
+  if (!onCustomValidation) {
+    return [];
+  }
+
   try {
-    if (onCustomValidation) {
+    for (const type of types) {
       await onCustomValidation(value, { schema, property, type });
     }
 

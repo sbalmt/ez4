@@ -1,8 +1,9 @@
 import type { SQSEvent, Context, SQSBatchItemFailure, SQSBatchResponse, SQSRecord } from 'aws-lambda';
+import type { ValidationCustomContext } from '@ez4/validator';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import { getJsonMessage } from '@ez4/queue/utils';
+import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
 import { SQSClient, DeleteMessageCommand } from '@aws-sdk/client-sqs';
 import { ServiceEventType } from '@ez4/common';
 import { Runtime } from '@ez4/common/runtime';
@@ -62,7 +63,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       }
 
       const payload = JSON.parse(record.body);
-      const message = await getJsonMessage(payload, schema);
+      const message = await getJsonMessage(payload, schema, onCustomValidation);
 
       const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
@@ -126,6 +127,10 @@ const ackMessage = async (record: SQSRecord) => {
       messageId
     });
   }
+};
+
+const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
+  return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
 const onBegin = async (request: Queue.Request) => {

@@ -38,8 +38,8 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
     }
   }
 
-  if (!allErrors.length && definitions?.type && context) {
-    return useCustomValidation(value, schema, definitions.type, context);
+  if (!allErrors.length && definitions?.types && context) {
+    return useCustomValidation(value, schema, definitions.types, context);
   }
 
   return allErrors;

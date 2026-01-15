@@ -6,8 +6,8 @@ export const getSchemaCustomValidation = (schema: AnySchema) => {
   const validators = new Set<string>();
 
   const collectCustomValidation = (schema: AnySchema) => {
-    if (schema.definitions?.type) {
-      validators.add(schema.definitions.type);
+    if (schema.definitions?.types) {
+      schema.definitions.types.forEach((type) => validators.add(type));
     }
 
     if (isObjectSchema(schema)) {

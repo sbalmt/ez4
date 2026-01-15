@@ -12,11 +12,18 @@ export type GetFunctionVariables = () => Promise<LinkedVariables> | LinkedVariab
 export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
 export type GetFunctionHash = () => Promise<string | undefined> | string | undefined;
 
+export type FunctionRelease = {
+  tagName?: string;
+  variableName?: string;
+  version: string;
+};
+
 export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish' | 'variables'> & {
   getFunctionFiles: GetFunctionFiles;
   getFunctionVariables: GetFunctionVariables;
   getFunctionBundle: GetFunctionBundle;
   getFunctionHash: GetFunctionHash;
+  release?: FunctionRelease;
 };
 
 export type FunctionResult = ImportOrCreateResponse & {
