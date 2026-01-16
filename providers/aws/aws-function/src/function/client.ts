@@ -1,6 +1,6 @@
 import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   LambdaClient,
@@ -21,13 +21,12 @@ import {
   LogFormat
 } from '@aws-sdk/client-lambda';
 
-import { Logger, tryParseArn, waitCreation, waitDeletion } from '@ez4/aws-common';
+import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
 import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
 import { assertVariables } from './helpers/variables';
 import { getZipBuffer } from './helpers/zip';
-import { FunctionServiceName } from './types';
 
 const client = new LambdaClient({});
 
@@ -78,8 +77,12 @@ export type UpdateSourceCodeRequest = {
   publish?: boolean;
 };
 
-export const importFunction = async (functionName: string, version?: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(FunctionServiceName, functionName);
+export const importFunction = async (
+  logger: Logger.OperationLogger,
+  functionName: string,
+  version?: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing function`);
 
   try {
     const response = await client.send(
@@ -105,10 +108,10 @@ export const importFunction = async (functionName: string, version?: string): Pr
   }
 };
 
-export const createFunction = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { functionName, variables } = request;
+export const createFunction = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating function`);
 
-  Logger.logCreate(FunctionServiceName, functionName);
+  const { functionName, variables } = request;
 
   if (variables) {
     assertVariables(variables);
@@ -153,8 +156,6 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
     );
   });
 
-  Logger.logWait(FunctionServiceName, functionName);
-
   await waitUntilFunctionActive(waiter, {
     FunctionName: functionName
   });
@@ -162,7 +163,7 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
   const functionArn = response.FunctionArn as Arn;
 
   if (request.publish) {
-    const functionVersion = await publishFunction(functionName);
+    const functionVersion = await publishFunction(functionName, logger);
 
     return {
       functionVersion,
@@ -175,8 +176,8 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
   };
 };
 
-export const updateSourceCode = async (functionName: string, request: UpdateSourceCodeRequest) => {
-  Logger.logUpdate(FunctionServiceName, `${functionName} source code`);
+export const updateSourceCode = async (logger: Logger.OperationLogger, functionName: string, request: UpdateSourceCodeRequest) => {
+  logger.update(`Updating source code`);
 
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
@@ -191,8 +192,6 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
     })
   );
 
-  Logger.logWait(FunctionServiceName, functionName);
-
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
@@ -200,7 +199,7 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
   const functionArn = response.FunctionArn as Arn;
 
   if (request.publish) {
-    const functionVersion = await publishFunction(functionName);
+    const functionVersion = await publishFunction(functionName, logger);
 
     return {
       functionVersion,
@@ -213,10 +212,10 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
   };
 };
 
-export const updateConfiguration = async (functionName: string, request: UpdateConfigurationRequest) => {
-  const { handlerName, variables } = request;
+export const updateConfiguration = async (logger: Logger.OperationLogger, functionName: string, request: UpdateConfigurationRequest) => {
+  logger.update(`Updating configuration`);
 
-  Logger.logUpdate(FunctionServiceName, `${functionName} configuration`);
+  const { handlerName, variables } = request;
 
   if (variables) {
     assertVariables(variables);
@@ -247,15 +246,13 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     })
   );
 
-  Logger.logWait(FunctionServiceName, functionName);
-
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
 };
 
-export const deleteFunction = async (functionName: string) => {
-  Logger.logDelete(FunctionServiceName, functionName);
+export const deleteFunction = async (functionName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting function`);
 
   // If the function is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
@@ -274,16 +271,14 @@ export const deleteFunction = async (functionName: string) => {
   });
 };
 
-export const publishFunction = async (functionName: string) => {
-  Logger.logPublish(FunctionServiceName, functionName);
+export const publishFunction = async (functionName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Publishing version`);
 
   const response = await client.send(
     new PublishVersionCommand({
       FunctionName: functionName
     })
   );
-
-  Logger.logWait(FunctionServiceName, functionName);
 
   const version = response.Version;
 
@@ -295,10 +290,8 @@ export const publishFunction = async (functionName: string) => {
   return version;
 };
 
-export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
-
-  Logger.logTag(FunctionServiceName, functionName);
+export const tagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag function`);
 
   await client.send(
     new TagResourceCommand({
@@ -311,10 +304,8 @@ export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagFunction = async (functionArn: Arn, tagKeys: string[]) => {
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
-
-  Logger.logUntag(FunctionServiceName, functionName);
+export const untagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag function`);
 
   await client.send(
     new UntagResourceCommand({

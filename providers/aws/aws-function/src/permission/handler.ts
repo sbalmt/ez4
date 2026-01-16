@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { PermissionResult, PermissionState } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 
 import { getFunctionName } from '../function/utils';
 import { createPermission, deletePermission } from './client';
@@ -37,27 +37,36 @@ const createResource = async (candidate: PermissionState, context: StepContext):
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(PermissionServiceName, 'permission', context);
-  const permission = await parameters.getPermission(context);
 
-  const response = await createPermission({
-    action: 'lambda:InvokeFunction',
-    sourceArn: permission.sourceArn,
-    principal: permission.principal,
-    functionName
+  return Logger.logOperation(PermissionServiceName, functionName, 'creation', async (logger) => {
+    const permission = await parameters.getPermission(context);
+
+    const response = await createPermission(logger, {
+      action: 'lambda:InvokeFunction',
+      sourceArn: permission.sourceArn,
+      principal: permission.principal,
+      functionName
+    });
+
+    return {
+      statementId: response.statementId,
+      functionName
+    };
   });
-
-  return {
-    statementId: response.statementId,
-    functionName
-  };
 };
 
 const updateResource = async () => {};
 
-const deleteResource = async (candidate: PermissionState) => {
-  const result = candidate.result;
+const deleteResource = async (current: PermissionState) => {
+  const result = current.result;
 
-  if (result) {
-    await deletePermission(result.functionName, result.statementId);
+  if (!result) {
+    return;
   }
+
+  const { functionName, statementId } = result;
+
+  await Logger.logOperation(PermissionServiceName, functionName, 'deletion', async (logger) => {
+    await deletePermission(logger, functionName, statementId);
+  });
 };

@@ -84,31 +84,66 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
+const createResource = (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
   const { functionName, release, ...parameters } = candidate.parameters;
 
-  const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
-  const roleArn = getRoleArn(FunctionServiceName, functionName, context);
+  return Logger.logOperation(FunctionServiceName, functionName, 'creation', async (logger) => {
+    const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
+    const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-  const [sourceHash, sourceFile, valuesHash, variables] = await Promise.all([
-    getBundleHash(...parameters.getFunctionFiles()),
-    parameters.getFunctionBundle(context),
-    parameters.getFunctionHash(),
-    parameters.getFunctionVariables()
-  ]);
+    const [sourceHash, sourceFile, valuesHash, variables] = await Promise.all([
+      getBundleHash(...parameters.getFunctionFiles()),
+      parameters.getFunctionBundle(context),
+      parameters.getFunctionHash(),
+      parameters.getFunctionVariables()
+    ]);
 
-  const importedFunction = await importFunction(functionName);
-  const bundleHash = await hashFile(sourceFile);
+    const importedFunction = await importFunction(logger, functionName);
+    const bundleHash = await hashFile(sourceFile);
 
-  if (importedFunction) {
-    await updateSourceCode(functionName, {
-      architecture: parameters.architecture,
-      publish: false,
-      sourceFile
-    });
+    if (importedFunction) {
+      await updateSourceCode(logger, functionName, {
+        architecture: parameters.architecture,
+        publish: false,
+        sourceFile
+      });
 
-    await updateConfiguration(functionName, {
+      await updateConfiguration(logger, functionName, {
+        ...parameters,
+        logGroup,
+        roleArn,
+        variables: {
+          ...variables,
+          ...(release?.variableName && {
+            [release.variableName]: release.version
+          })
+        }
+      });
+
+      await tagFunction(logger, importedFunction.functionArn, {
+        ...parameters.tags,
+        ...(release?.tagName && {
+          [release.tagName]: release.version
+        })
+      });
+
+      return {
+        functionArn: importedFunction.functionArn,
+        functionVersion: importedFunction.functionVersion,
+        variables: protectVariables(variables),
+        valuesHash,
+        sourceHash,
+        bundleHash,
+        logGroup,
+        roleArn
+      };
+    }
+
+    const createdFunction = await createFunction(logger, {
       ...parameters,
+      publish: true,
+      functionName,
+      sourceFile,
       logGroup,
       roleArn,
       variables: {
@@ -116,19 +151,18 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
         ...(release?.variableName && {
           [release.variableName]: release.version
         })
+      },
+      tags: {
+        ...parameters.tags,
+        ...(release?.tagName && {
+          [release.tagName]: release.version
+        })
       }
     });
 
-    await tagFunction(importedFunction.functionArn, {
-      ...parameters.tags,
-      ...(release?.tagName && {
-        [release.tagName]: release.version
-      })
-    });
-
     return {
-      functionArn: importedFunction.functionArn,
-      functionVersion: importedFunction.functionVersion,
+      functionArn: createdFunction.functionArn,
+      functionVersion: createdFunction.functionVersion,
       variables: protectVariables(variables),
       valuesHash,
       sourceHash,
@@ -136,42 +170,10 @@ const createResource = async (candidate: FunctionState, context: StepContext): P
       logGroup,
       roleArn
     };
-  }
-
-  const createdFunction = await createFunction({
-    ...parameters,
-    publish: true,
-    functionName,
-    sourceFile,
-    logGroup,
-    roleArn,
-    variables: {
-      ...variables,
-      ...(release?.variableName && {
-        [release.variableName]: release.version
-      })
-    },
-    tags: {
-      ...parameters.tags,
-      ...(release?.tagName && {
-        [release.tagName]: release.version
-      })
-    }
   });
-
-  return {
-    functionArn: createdFunction.functionArn,
-    functionVersion: createdFunction.functionVersion,
-    variables: protectVariables(variables),
-    valuesHash,
-    sourceHash,
-    bundleHash,
-    logGroup,
-    roleArn
-  };
 };
 
-const updateResource = async (candidate: FunctionState, current: FunctionState, context: StepContext) => {
+const updateResource = (candidate: FunctionState, current: FunctionState, context: StepContext) => {
   const { parameters, result } = candidate;
 
   if (!result) {
@@ -180,41 +182,50 @@ const updateResource = async (candidate: FunctionState, current: FunctionState, 
 
   const { functionName } = parameters;
 
-  const newVariables = await parameters.getFunctionVariables();
-  const oldVariables = current.result?.variables ?? newVariables;
+  return Logger.logOperation(FunctionServiceName, functionName, 'updates', async (logger) => {
+    const newVariables = await parameters.getFunctionVariables();
+    const oldVariables = current.result?.variables ?? newVariables;
 
-  const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
-  const oldRoleArn = current.result?.roleArn ?? newRoleArn;
+    const newRoleArn = getRoleArn(FunctionServiceName, functionName, context);
+    const oldRoleArn = current.result?.roleArn ?? newRoleArn;
 
-  const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
-  const oldLogGroup = current.result?.logGroup ?? newLogGroup;
+    const newLogGroup = getLogGroupName(FunctionServiceName, functionName, context);
+    const oldLogGroup = current.result?.logGroup ?? newLogGroup;
 
-  const { isUpdated, ...newResult } = await checkSourceCodeUpdates(functionName, parameters, current.result, context);
+    const { isUpdated, ...newResult } = await checkSourceCodeUpdates(logger, functionName, parameters, current.result, context);
 
-  const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
-  const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
+    const newConfig = { ...parameters, variables: newVariables, roleArn: newRoleArn, logGroup: newLogGroup };
+    const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
-  await checkConfigurationUpdates(functionName, newConfig, oldConfig, isUpdated, context);
-  await checkTagUpdates(result.functionArn, parameters, current.parameters, isUpdated);
+    await checkConfigurationUpdates(logger, functionName, newConfig, oldConfig, isUpdated, context);
+    await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
 
-  return {
-    ...result,
-    ...newResult,
-    variables: protectVariables(newVariables),
-    logGroup: newLogGroup,
-    roleArn: newRoleArn
-  };
+    return {
+      ...result,
+      ...newResult,
+      variables: protectVariables(newVariables),
+      logGroup: newLogGroup,
+      roleArn: newRoleArn
+    };
+  });
 };
 
-const deleteResource = async (candidate: FunctionState) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: FunctionState) => {
+  const { result, parameters } = current;
 
-  if (result) {
-    await deleteFunction(parameters.functionName);
+  if (!result) {
+    return;
   }
+
+  const { functionName } = parameters;
+
+  await Logger.logOperation(FunctionServiceName, functionName, 'deletion', async (logger) => {
+    await deleteFunction(functionName, logger);
+  });
 };
 
 const checkConfigurationUpdates = async (
+  logger: Logger.OperationLogger,
   functionName: string,
   candidate: FunctionConfigurationWithVariables,
   current: FunctionConfigurationWithVariables,
@@ -242,7 +253,7 @@ const checkConfigurationUpdates = async (
   const hasReleaseChange = isUpdated && candidateRelease?.variableName;
 
   if (hasConfigurationChanges || hasReleaseChange || context.force) {
-    await updateConfiguration(functionName, {
+    await updateConfiguration(logger, functionName, {
       ...candidate,
       variables: {
         ...candidate.variables,
@@ -254,7 +265,13 @@ const checkConfigurationUpdates = async (
   }
 };
 
-const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, current: FunctionParameters, isUpdated: boolean) => {
+const checkTagUpdates = async (
+  logger: Logger.OperationLogger,
+  functionArn: Arn,
+  candidate: FunctionParameters,
+  current: FunctionParameters,
+  isUpdated: boolean
+) => {
   const hasReleaseChange = isUpdated && candidate.release?.version !== current.release?.version;
   const candidateRelease = hasReleaseChange ? candidate.release : undefined;
 
@@ -268,12 +285,13 @@ const checkTagUpdates = async (functionArn: Arn, candidate: FunctionParameters, 
   await applyTagUpdates(
     candidateTags,
     current.tags,
-    (tags) => tagFunction(functionArn, tags),
-    (tags) => untagFunction(functionArn, tags)
+    (tags) => tagFunction(logger, functionArn, tags),
+    (tags) => untagFunction(logger, functionArn, tags)
   );
 };
 
 const checkSourceCodeUpdates = async (
+  logger: Logger.OperationLogger,
   functionName: string,
   candidate: FunctionParameters,
   current: FunctionResult | undefined,
@@ -291,7 +309,7 @@ const checkSourceCodeUpdates = async (
     const oldBundleHash = current?.bundleHash;
 
     if (newBundleHash === oldBundleHash && newValuesHash === oldValuesHash) {
-      Logger.logSkip(FunctionServiceName, `${functionName} source code`);
+      logger.update(`Skipping source code update`);
 
       return {
         isUpdated: false,
@@ -300,7 +318,7 @@ const checkSourceCodeUpdates = async (
       };
     }
 
-    const { functionVersion } = await updateSourceCode(functionName, {
+    const { functionVersion } = await updateSourceCode(logger, functionName, {
       architecture: candidate.architecture,
       publish: !current?.functionVersion,
       sourceFile: newSourceFile

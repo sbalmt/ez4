@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { MappingParameters, MappingResult, MappingState } from './types';
 import type { UpdateRequest } from './client';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getFunctionName } from '../function/utils';
@@ -52,28 +52,31 @@ const replaceResource = async (candidate: MappingState, current: MappingState, c
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
+const createResource = (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(MappingServiceName, 'mapping', context);
-  const sourceArn = await parameters.getSourceArn(context);
 
-  const response =
-    (await importMapping(functionName, sourceArn)) ??
-    (await createMapping({
-      ...candidate.parameters,
+  return Logger.logOperation(MappingServiceName, functionName, 'creation', async (logger) => {
+    const sourceArn = await parameters.getSourceArn(context);
+
+    const response =
+      (await importMapping(logger, functionName, sourceArn)) ??
+      (await createMapping(logger, {
+        ...candidate.parameters,
+        functionName,
+        sourceArn
+      }));
+
+    return {
+      eventId: response.eventId,
       functionName,
       sourceArn
-    }));
-
-  return {
-    eventId: response.eventId,
-    functionName,
-    sourceArn
-  };
+    };
+  });
 };
 
-const updateResource = async (candidate: MappingState, current: MappingState, context: StepContext) => {
+const updateResource = (candidate: MappingState, current: MappingState, context: StepContext) => {
   const result = candidate.result;
 
   if (!result) {
@@ -85,35 +88,48 @@ const updateResource = async (candidate: MappingState, current: MappingState, co
   const newFunctionName = getFunctionName(MappingServiceName, 'mapping', context);
   const oldFunctionName = current.result?.functionName ?? result.functionName;
 
-  const newRequest = {
-    ...candidate.parameters,
-    functionName: newFunctionName,
-    sourceArn
-  };
+  return Logger.logOperation(MappingServiceName, oldFunctionName, 'updates', async (logger) => {
+    const newRequest = {
+      ...candidate.parameters,
+      functionName: newFunctionName,
+      sourceArn
+    };
 
-  const oldRequest = {
-    ...current.parameters,
-    functionName: oldFunctionName,
-    sourceArn
-  };
+    const oldRequest = {
+      ...current.parameters,
+      functionName: oldFunctionName,
+      sourceArn
+    };
 
-  await checkGeneralUpdates(result.eventId, newRequest, oldRequest);
+    await checkGeneralUpdates(logger, result.eventId, newRequest, oldRequest);
 
-  return {
-    ...result,
-    functionName: newFunctionName
-  };
+    return {
+      ...result,
+      functionName: newFunctionName
+    };
+  });
 };
 
-const deleteResource = async (candidate: MappingState) => {
-  const result = candidate.result;
+const deleteResource = async (current: MappingState) => {
+  const result = current.result;
 
-  if (result) {
-    await deleteMapping(result.eventId);
+  if (!result) {
+    return;
   }
+
+  const { functionName } = result;
+
+  await Logger.logOperation(MappingServiceName, functionName, 'deletion', async (logger) => {
+    await deleteMapping(logger, result.eventId);
+  });
 };
 
-const checkGeneralUpdates = async (eventId: string, candidate: MappingUpdateParameters, current: MappingUpdateParameters) => {
+const checkGeneralUpdates = async (
+  logger: Logger.OperationLogger,
+  eventId: string,
+  candidate: MappingUpdateParameters,
+  current: MappingUpdateParameters
+) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       getSourceArn: true,
@@ -122,6 +138,6 @@ const checkGeneralUpdates = async (eventId: string, candidate: MappingUpdatePara
   });
 
   if (hasChanges) {
-    await updateMapping(eventId, candidate);
+    await updateMapping(logger, eventId, candidate);
   }
 };

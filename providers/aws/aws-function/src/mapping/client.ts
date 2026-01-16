@@ -1,5 +1,5 @@
 import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest } from '@aws-sdk/client-lambda';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
   LambdaClient,
@@ -13,10 +13,10 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
 
-import { Logger, parseArn } from '@ez4/aws-common';
+import { parseArn } from '@ez4/aws-common';
 import { Wait } from '@ez4/utils';
 
-import { MappingService, MappingServiceName } from './types';
+import { MappingService } from './types';
 
 const client = new LambdaClient({});
 
@@ -39,8 +39,12 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = CreateRequest;
 
-export const importMapping = async (functionName: string, sourceArn: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(MappingServiceName, functionName);
+export const importMapping = async (
+  logger: Logger.OperationLogger,
+  functionName: string,
+  sourceArn: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing mapping`);
 
   const response = await client.send(
     new ListEventSourceMappingsCommand({
@@ -62,10 +66,10 @@ export const importMapping = async (functionName: string, sourceArn: string): Pr
   };
 };
 
-export const createMapping = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { sourceArn, functionName } = request;
+export const createMapping = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating mapping`);
 
-  Logger.logCreate(MappingServiceName, functionName);
+  const { sourceArn, functionName } = request;
 
   const response = await client.send(
     new CreateEventSourceMappingCommand({
@@ -84,10 +88,10 @@ export const createMapping = async (request: CreateRequest): Promise<ImportOrCre
   };
 };
 
-export const updateMapping = async (eventId: string, request: UpdateRequest) => {
-  const { functionName } = request;
+export const updateMapping = async (logger: Logger.OperationLogger, eventId: string, request: UpdateRequest) => {
+  logger.update(`Updating mapping`);
 
-  Logger.logUpdate(MappingServiceName, `${functionName} (${eventId})`);
+  const { functionName } = request;
 
   await client.send(
     new UpdateEventSourceMappingCommand({
@@ -100,8 +104,8 @@ export const updateMapping = async (eventId: string, request: UpdateRequest) => 
   await waitForReadyState(eventId);
 };
 
-export const deleteMapping = async (eventId: string) => {
-  Logger.logDelete(MappingServiceName, eventId);
+export const deleteMapping = async (logger: Logger.OperationLogger, eventId: string) => {
+  logger.update(`Deleting mapping`);
 
   try {
     await client.send(
