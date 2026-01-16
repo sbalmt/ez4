@@ -19,7 +19,7 @@ const planDeploy = async (event: DeployEvent) => {
 };
 
 const applyDeploy = async (event: DeployEvent) => {
-  return deploy(event.newState, event.oldState, event.force);
+  return deploy(event.newState, event.oldState, event.concurrency, event.force);
 };
 
 const loadState = async (event: StateEvent) => {

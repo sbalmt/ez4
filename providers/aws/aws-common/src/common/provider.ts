@@ -35,6 +35,7 @@ export const report = <E extends EntryState>(
 export const deploy = async <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined,
+  concurrency?: number,
   force?: boolean
 ): Promise<ApplyResult<E>> => {
   const serviceName = 'EZ4:Deploy';
@@ -48,6 +49,7 @@ export const deploy = async <E extends EntryState>(
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
     handlers: allProviderHandlers,
+    batchSize: concurrency,
     force
   });
 

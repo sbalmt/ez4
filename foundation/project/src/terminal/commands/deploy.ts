@@ -81,7 +81,7 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     }
   }
 
-  const deployState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
 
   await Logger.execute('✅ Saving state', () => {
     return saveState(project.stateFile, options, deployState.result);
