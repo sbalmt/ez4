@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { CacheState, CacheResult, CacheParameters } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client';
@@ -44,36 +44,55 @@ const replaceResource = async (candidate: CacheState, current: CacheState) => {
   return createResource(candidate);
 };
 
-const createResource = async (candidate: CacheState): Promise<CacheResult> => {
-  const { policyId } = await createCachePolicy(candidate.parameters);
+const createResource = (candidate: CacheState): Promise<CacheResult> => {
+  const { policyName } = candidate.parameters;
 
-  return {
-    policyId
-  };
+  return Logger.logOperation(CacheServiceName, policyName, 'creation', async (logger) => {
+    const { policyId } = await createCachePolicy(logger, candidate.parameters);
+
+    return {
+      policyId
+    };
+  });
 };
 
-const updateResource = async (candidate: CacheState, current: CacheState) => {
+const updateResource = (candidate: CacheState, current: CacheState): Promise<CacheResult | undefined> => {
   const { result, parameters } = candidate;
 
   if (!result) {
-    return;
+    return Promise.resolve(undefined);
   }
 
-  await checkGeneralUpdates(result.policyId, parameters, current.parameters);
+  const policyName = parameters.policyName;
+
+  return Logger.logOperation(CacheServiceName, policyName, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
+
+    return result;
+  });
 };
 
-const deleteResource = async (candidate: CacheState) => {
-  const result = candidate.result;
+const deleteResource = async (current: CacheState) => {
+  const { parameters, result } = current;
 
   if (result) {
-    await deleteCachePolicy(result.policyId);
+    const policyName = parameters.policyName;
+
+    await Logger.logOperation(CacheServiceName, policyName, 'deletion', async (logger) => {
+      await deleteCachePolicy(logger, result.policyId);
+    });
   }
 };
 
-const checkGeneralUpdates = async (policyId: string, candidate: CacheParameters, current: CacheParameters) => {
+const checkGeneralUpdates = async (
+  logger: Logger.OperationLogger,
+  policyId: string,
+  candidate: CacheParameters,
+  current: CacheParameters
+) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateCachePolicy(policyId, candidate);
+    await updateCachePolicy(logger, policyId, candidate);
   }
 };

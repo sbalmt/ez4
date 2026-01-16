@@ -1,6 +1,5 @@
 import type { OriginAccessControlConfig } from '@aws-sdk/client-cloudfront';
-
-import { Logger } from '@ez4/aws-common';
+import type { Logger } from '@ez4/aws-common';
 
 import {
   CloudFrontClient,
@@ -13,8 +12,6 @@ import {
   OriginAccessControlSigningProtocols,
   NoSuchOriginAccessControl
 } from '@aws-sdk/client-cloudfront';
-
-import { AccessServiceName } from './types';
 
 const client = new CloudFrontClient({});
 
@@ -31,8 +28,8 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createOriginAccess = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(AccessServiceName, request.accessName);
+export const createOriginAccess = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating origin access`);
 
   const response = await client.send(
     new CreateOriginAccessControlCommand({
@@ -49,8 +46,8 @@ export const createOriginAccess = async (request: CreateRequest): Promise<Create
   };
 };
 
-export const updateAccess = async (accessId: string, request: UpdateRequest) => {
-  Logger.logUpdate(AccessServiceName, request.accessName);
+export const updateOriginAccess = async (logger: Logger.OperationLogger, accessId: string, request: UpdateRequest) => {
+  logger.update(`Updating origin access`);
 
   const version = await getCurrentAccessVersion(accessId);
 
@@ -65,8 +62,8 @@ export const updateAccess = async (accessId: string, request: UpdateRequest) => 
   );
 };
 
-export const deleteAccess = async (accessId: string) => {
-  Logger.logDelete(AccessServiceName, accessId);
+export const deleteOriginAccess = async (logger: Logger.OperationLogger, accessId: string) => {
+  logger.update(`Deleting origin access`);
 
   const version = await getCurrentAccessVersion(accessId);
 

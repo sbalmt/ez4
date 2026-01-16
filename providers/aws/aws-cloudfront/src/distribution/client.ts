@@ -1,4 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import type { Headers } from '../types/headers';
 
 import type {
@@ -10,8 +10,8 @@ import type {
   Origin
 } from '@aws-sdk/client-cloudfront';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 import { isBucketDomain } from '@ez4/aws-bucket';
+import { getTagList } from '@ez4/aws-common';
 
 import {
   CloudFrontClient,
@@ -34,8 +34,6 @@ import {
   Method,
   NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
-
-import { DistributionServiceName } from './types';
 
 const client = new CloudFrontClient({});
 
@@ -92,8 +90,8 @@ export type UpdateRequest = Omit<CreateRequest, 'tags'>;
 
 export type UpdateResponse = CreateResponse;
 
-export const createDistribution = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(DistributionServiceName, request.distributionName);
+export const createDistribution = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating distribution`);
 
   const response = await client.send(
     new CreateDistributionWithTagsCommand({
@@ -112,10 +110,7 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
   );
 
   const distribution = response.Distribution!;
-
   const distributionId = distribution.Id!;
-
-  Logger.logWait(DistributionServiceName, distributionId);
 
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
@@ -128,8 +123,8 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
   };
 };
 
-export const updateDistribution = async (distributionId: string, request: UpdateRequest) => {
-  Logger.logUpdate(DistributionServiceName, distributionId);
+export const updateDistribution = async (logger: Logger.OperationLogger, distributionId: string, request: UpdateRequest) => {
+  logger.update(`Updating distribution`);
 
   const version = await getCurrentDistributionVersion(distributionId);
 
@@ -143,17 +138,13 @@ export const updateDistribution = async (distributionId: string, request: Update
     })
   );
 
-  Logger.logWait(DistributionServiceName, distributionId);
-
   await waitUntilDistributionDeployed(waiter, {
     Id: distributionId
   });
 };
 
-export const tagDistribution = async (distributionArn: string, tags: ResourceTags) => {
-  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
-
-  Logger.logTag(DistributionServiceName, distributionName);
+export const tagDistribution = async (logger: Logger.OperationLogger, distributionArn: string, tags: ResourceTags) => {
+  logger.update(`Tag distribution`);
 
   await client.send(
     new TagResourceCommand({
@@ -168,10 +159,8 @@ export const tagDistribution = async (distributionArn: string, tags: ResourceTag
   );
 };
 
-export const untagDistribution = async (distributionArn: Arn, tagKeys: string[]) => {
-  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
-
-  Logger.logUntag(DistributionServiceName, distributionName);
+export const untagDistribution = async (logger: Logger.OperationLogger, distributionArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag distribution`);
 
   await client.send(
     new UntagResourceCommand({
@@ -183,8 +172,8 @@ export const untagDistribution = async (distributionArn: Arn, tagKeys: string[])
   );
 };
 
-export const deleteDistribution = async (distributionId: string) => {
-  Logger.logDelete(DistributionServiceName, distributionId);
+export const deleteDistribution = async (logger: Logger.OperationLogger, distributionId: string) => {
+  logger.update(`Deleting distribution`);
 
   try {
     const version = await getCurrentDistributionVersion(distributionId);

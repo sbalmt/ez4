@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { OriginState, OriginResult, OriginParameters } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy } from './client';
@@ -44,36 +44,59 @@ const replaceResource = async (candidate: OriginState, current: OriginState) => 
   return createResource(candidate);
 };
 
-const createResource = async (candidate: OriginState): Promise<OriginResult> => {
-  const { policyId } = await createOriginPolicy(candidate.parameters);
+const createResource = (candidate: OriginState): Promise<OriginResult> => {
+  const { parameters } = candidate;
 
-  return {
-    policyId
-  };
+  const policyName = parameters.policyName;
+
+  return Logger.logOperation(OriginServiceName, policyName, 'creation', async (logger) => {
+    const { policyId } = await createOriginPolicy(logger, parameters);
+
+    return {
+      policyId
+    };
+  });
 };
 
-const updateResource = async (candidate: OriginState, current: OriginState) => {
+const updateResource = async (candidate: OriginState, current: OriginState): Promise<OriginResult | undefined> => {
   const { result, parameters } = candidate;
+
+  if (!result) {
+    return Promise.resolve(undefined);
+  }
+
+  const policyName = parameters.policyName;
+
+  return Logger.logOperation(OriginServiceName, policyName, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
+
+    return result;
+  });
+};
+
+const deleteResource = async (current: OriginState) => {
+  const { parameters, result } = current;
 
   if (!result) {
     return;
   }
 
-  await checkGeneralUpdates(result.policyId, parameters, current.parameters);
+  const policyName = parameters.policyName;
+
+  await Logger.logOperation(OriginServiceName, policyName, 'deletion', async (logger) => {
+    await deleteOriginPolicy(logger, result.policyId);
+  });
 };
 
-const deleteResource = async (candidate: OriginState) => {
-  const result = candidate.result;
-
-  if (result) {
-    await deleteOriginPolicy(result.policyId);
-  }
-};
-
-const checkGeneralUpdates = async (policyId: string, candidate: OriginParameters, current: OriginParameters) => {
+const checkGeneralUpdates = async (
+  logger: Logger.OperationLogger,
+  policyId: string,
+  candidate: OriginParameters,
+  current: OriginParameters
+) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateOriginPolicy(policyId, candidate);
+    await updateOriginPolicy(logger, policyId, candidate);
   }
 };
