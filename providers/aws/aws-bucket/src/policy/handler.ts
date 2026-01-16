@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { PolicyState, PolicyResult } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { ReplaceResourceError, Logger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils';
@@ -49,28 +49,37 @@ const replaceResource = async (candidate: PolicyState, current: PolicyState, con
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: PolicyState, context: StepContext): Promise<PolicyResult> => {
+const createResource = (candidate: PolicyState, context: StepContext): Promise<PolicyResult> => {
   const parameters = candidate.parameters;
 
   const bucketName = getBucketName(PolicyServiceName, 'policy', context);
-  const role = await parameters.getRole(context);
 
-  await createPolicy({
-    bucketName,
-    role
+  return Logger.logOperation(PolicyServiceName, bucketName, 'creation', async (logger) => {
+    const role = await parameters.getRole(context);
+
+    await createPolicy(logger, {
+      bucketName,
+      role
+    });
+
+    return {
+      bucketName
+    };
   });
-
-  return {
-    bucketName
-  };
 };
 
 const updateResource = async () => {};
 
-const deleteResource = async (candidate: PolicyState) => {
-  const result = candidate.result;
+const deleteResource = async (current: PolicyState) => {
+  const result = current.result;
 
-  if (result) {
-    await deletePolicy(result.bucketName);
+  if (!result) {
+    return;
   }
+
+  const { bucketName } = result;
+
+  await Logger.logOperation(PolicyServiceName, bucketName, 'deletion', (logger) => {
+    return deletePolicy(bucketName, logger);
+  });
 };

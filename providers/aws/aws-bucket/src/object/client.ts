@@ -1,14 +1,11 @@
-import type { ResourceTags } from '@ez4/aws-common';
+import type { Logger, ResourceTags } from '@ez4/aws-common';
 
 import { createReadStream } from 'node:fs';
 
 import { S3Client, PutObjectCommand, PutObjectTaggingCommand, DeleteObjectCommand, NoSuchBucket } from '@aws-sdk/client-s3';
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import mime from 'mime';
-
-import { getBucketObjectPath } from './utils';
-import { ObjectServiceName } from './types';
 
 const client = new S3Client({});
 
@@ -21,10 +18,10 @@ export type CreateResponse = {
   objectKey: string;
 };
 
-export const putObject = async (bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
-  const { objectKey, filePath } = request;
+export const putObject = async (bucketName: string, logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating object`);
 
-  Logger.logCreate(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
+  const { objectKey, filePath } = request;
 
   const contentType = mime.getType(filePath);
 
@@ -44,8 +41,8 @@ export const putObject = async (bucketName: string, request: CreateRequest): Pro
   };
 };
 
-export const tagObject = async (bucketName: string, objectKey: string, tags: ResourceTags) => {
-  Logger.logTag(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
+export const updateTags = async (bucketName: string, logger: Logger.OperationLogger, objectKey: string, tags: ResourceTags) => {
+  logger.update(`Updating object tags`);
 
   await client.send(
     new PutObjectTaggingCommand({
@@ -61,8 +58,8 @@ export const tagObject = async (bucketName: string, objectKey: string, tags: Res
   );
 };
 
-export const deleteObject = async (bucketName: string, objectKey: string) => {
-  Logger.logDelete(ObjectServiceName, getBucketObjectPath(bucketName, objectKey));
+export const deleteObject = async (bucketName: string, logger: Logger.OperationLogger, objectKey: string) => {
+  logger.update(`Deleting object`);
 
   try {
     await client.send(

@@ -2,6 +2,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 
 import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { deploy } from '@ez4/aws-common';
@@ -66,13 +67,18 @@ describe('bucket objects', () => {
 
     ok(resource && isBucketObjectState(resource));
 
-    resource.parameters.objectKey = 'update-file.txt';
+    const filePath = join(baseDir, 'object-file.txt');
+    const contents = readFileSync(filePath);
+
+    writeFileSync(filePath, 'UPDATED FILE');
 
     resource.parameters.tags = {
       test2: 'ez4-tag2'
     };
 
     const { state } = await assertDeploy(objectId, localState, lastState);
+
+    writeFileSync(filePath, contents);
 
     lastState = state;
   });

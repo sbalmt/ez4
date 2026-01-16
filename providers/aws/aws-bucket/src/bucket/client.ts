@@ -1,8 +1,9 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { Event } from '@aws-sdk/client-s3';
+import type { Logger } from '@ez4/aws-common';
 import type { Bucket } from '@ez4/storage';
 
-import { getTagList, Logger } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
   S3Client,
@@ -18,8 +19,6 @@ import {
   ExpirationStatus,
   NoSuchBucket
 } from '@aws-sdk/client-s3';
-
-import { BucketServiceName } from './types';
 
 const client = new S3Client({});
 
@@ -37,8 +36,8 @@ export type UpdateNotificationRequest = {
   eventsType: Event[];
 };
 
-export const isBucketEmpty = async (bucketName: string) => {
-  Logger.logFetch(BucketServiceName, bucketName);
+export const isBucketEmpty = async (bucketName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Fetching bucket`);
 
   try {
     const response = await client.send(
@@ -58,10 +57,10 @@ export const isBucketEmpty = async (bucketName: string) => {
   }
 };
 
-export const createBucket = async (request: CreateRequest): Promise<CreateResponse> => {
-  const { bucketName } = request;
+export const createBucket = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating bucket`);
 
-  Logger.logCreate(BucketServiceName, bucketName);
+  const { bucketName } = request;
 
   await client.send(
     new CreateBucketCommand({
@@ -74,8 +73,8 @@ export const createBucket = async (request: CreateRequest): Promise<CreateRespon
   };
 };
 
-export const deleteBucket = async (bucketName: string) => {
-  Logger.logDelete(BucketServiceName, bucketName);
+export const deleteBucket = async (bucketName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting bucket`);
 
   try {
     await client.send(
@@ -94,8 +93,8 @@ export const deleteBucket = async (bucketName: string) => {
   }
 };
 
-export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
-  Logger.logTag(BucketServiceName, bucketName);
+export const tagBucket = async (bucketName: string, logger: Logger.OperationLogger, tags: ResourceTags) => {
+  logger.update(`Tag bucket`);
 
   await client.send(
     new PutBucketTaggingCommand({
@@ -110,8 +109,8 @@ export const tagBucket = async (bucketName: string, tags: ResourceTags) => {
   );
 };
 
-export const updateCorsConfiguration = async (bucketName: string, cors: Bucket.Cors) => {
-  Logger.logUpdate(BucketServiceName, `${bucketName} CORS`);
+export const updateCorsConfiguration = async (bucketName: string, logger: Logger.OperationLogger, cors: Bucket.Cors) => {
+  logger.update(`Updating bucket CORS`);
 
   await client.send(
     new PutBucketCorsCommand({
@@ -132,8 +131,8 @@ export const updateCorsConfiguration = async (bucketName: string, cors: Bucket.C
   );
 };
 
-export const deleteCorsConfiguration = async (bucketName: string) => {
-  Logger.logDelete(BucketServiceName, `${bucketName} CORS`);
+export const deleteCorsConfiguration = async (bucketName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting bucket CORS`);
 
   try {
     await client.send(
@@ -152,8 +151,8 @@ export const deleteCorsConfiguration = async (bucketName: string) => {
   }
 };
 
-export const createLifecycle = async (bucketName: string, autoExpireDays: number) => {
-  Logger.logCreate(BucketServiceName, `${bucketName} lifecycle`);
+export const createLifecycle = async (bucketName: string, logger: Logger.OperationLogger, autoExpireDays: number) => {
+  logger.update(`Creating bucket lifecycle`);
 
   await client.send(
     new PutBucketLifecycleConfigurationCommand({
@@ -176,8 +175,8 @@ export const createLifecycle = async (bucketName: string, autoExpireDays: number
   );
 };
 
-export const deleteLifecycle = async (bucketName: string) => {
-  Logger.logDelete(BucketServiceName, `${bucketName} lifecycle`);
+export const deleteLifecycle = async (bucketName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting bucket lifecycle`);
 
   try {
     await client.send(
@@ -196,8 +195,8 @@ export const deleteLifecycle = async (bucketName: string) => {
   }
 };
 
-export const updateEventNotifications = async (bucketName: string, request: UpdateNotificationRequest) => {
-  Logger.logUpdate(BucketServiceName, `${bucketName} events`);
+export const updateEventNotifications = async (bucketName: string, logger: Logger.OperationLogger, request: UpdateNotificationRequest) => {
+  logger.update(`Update bucket event stream`);
 
   const { functionArn, eventsPath, eventsType } = request;
 

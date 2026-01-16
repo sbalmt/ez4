@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetFunctionArn } from '@ez4/aws-function';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
@@ -62,111 +62,141 @@ const replaceResource = async (candidate: BucketState, current: BucketState, con
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: BucketState, context: StepContext): Promise<BucketResult> => {
+const createResource = (candidate: BucketState, context: StepContext): Promise<BucketResult> => {
   const parameters = candidate.parameters;
 
   const functionArn = tryGetFunctionArn(context);
 
-  const { bucketName } = await createBucket(parameters);
+  return Logger.logOperation(BucketServiceName, parameters.bucketName, 'creation', async (logger) => {
+    const { bucketName } = await createBucket(logger, parameters);
 
-  await checkCorsUpdates(bucketName, parameters, undefined);
-  await checkLifecycleUpdates(bucketName, parameters, undefined);
-  await checkTagUpdates(bucketName, parameters.tags, undefined);
+    await checkCorsUpdates(bucketName, logger, parameters, undefined);
+    await checkLifecycleUpdates(bucketName, logger, parameters, undefined);
+    await checkTagUpdates(bucketName, logger, parameters.tags, undefined);
 
-  const request = {
-    eventsPath: parameters.eventsPath,
-    functionArn
-  };
+    const request = {
+      eventsPath: parameters.eventsPath,
+      functionArn
+    };
 
-  await checkEventUpdates(bucketName, request, {});
+    await checkEventUpdates(bucketName, logger, request, {});
 
-  return {
-    bucketName,
-    functionArn
-  };
+    return {
+      bucketName,
+      functionArn
+    };
+  });
 };
 
-const updateResource = async (candidate: BucketState, current: BucketState, context: StepContext) => {
+const updateResource = (candidate: BucketState, current: BucketState, context: StepContext): Promise<BucketResult | undefined> => {
   const { result, parameters } = candidate;
+
+  if (!result) {
+    return Promise.resolve(undefined);
+  }
+
+  const bucketName = result.bucketName;
+
+  return Logger.logOperation(BucketServiceName, bucketName, 'updates', async (logger) => {
+    const newFunctionArn = tryGetFunctionArn(context);
+    const oldFunctionArn = current.result?.functionArn;
+
+    await checkCorsUpdates(bucketName, logger, parameters, current.parameters);
+    await checkLifecycleUpdates(bucketName, logger, parameters, current.parameters);
+    await checkTagUpdates(bucketName, logger, parameters.tags, current.parameters.tags);
+
+    const newRequest = { eventsPath: parameters.eventsPath, functionArn: newFunctionArn };
+    const oldRequest = { eventsPath: current.parameters.eventsPath, functionArn: oldFunctionArn };
+
+    await checkEventUpdates(bucketName, logger, newRequest, oldRequest);
+
+    return {
+      ...result,
+      functionArn: newFunctionArn
+    };
+  });
+};
+
+const deleteResource = async (current: BucketState) => {
+  const result = current.result;
 
   if (!result) {
     return;
   }
 
-  const bucketName = result.bucketName;
+  const { bucketName } = result;
 
-  const newFunctionArn = tryGetFunctionArn(context);
-  const oldFunctionArn = current.result?.functionArn;
-
-  await checkCorsUpdates(bucketName, parameters, current.parameters);
-  await checkLifecycleUpdates(bucketName, parameters, current.parameters);
-  await checkTagUpdates(bucketName, parameters.tags, current.parameters.tags);
-
-  const newRequest = { eventsPath: parameters.eventsPath, functionArn: newFunctionArn };
-  const oldRequest = { eventsPath: current.parameters.eventsPath, functionArn: oldFunctionArn };
-
-  await checkEventUpdates(bucketName, newRequest, oldRequest);
-
-  return {
-    ...result,
-    functionArn: newFunctionArn
-  };
-};
-
-const deleteResource = async (candidate: BucketState) => {
-  const result = candidate.result;
-
-  if (result) {
-    const isEmpty = await isBucketEmpty(result.bucketName);
+  await Logger.logOperation(BucketServiceName, bucketName, 'deletion', async (logger) => {
+    const isEmpty = await isBucketEmpty(result.bucketName, logger);
 
     if (isEmpty) {
-      await deleteBucket(result.bucketName);
+      await deleteBucket(result.bucketName, logger);
     }
-  }
+  });
 };
 
-const checkCorsUpdates = async (bucketName: string, candidate: BucketParameters, current: BucketParameters | undefined) => {
+const checkCorsUpdates = async (
+  bucketName: string,
+  logger: Logger.OperationLogger,
+  candidate: BucketParameters,
+  current: BucketParameters | undefined
+) => {
   if (candidate.cors && current?.cors && deepEqual(candidate.cors, current.cors)) {
     return;
   }
 
   if (candidate.cors) {
-    return updateCorsConfiguration(bucketName, candidate.cors);
+    return updateCorsConfiguration(bucketName, logger, candidate.cors);
   }
 
   if (current?.cors) {
-    return deleteCorsConfiguration(bucketName);
+    return deleteCorsConfiguration(bucketName, logger);
   }
 };
 
-const checkLifecycleUpdates = async (bucketName: string, candidate: BucketParameters, current: BucketParameters | undefined) => {
+const checkLifecycleUpdates = async (
+  bucketName: string,
+  logger: Logger.OperationLogger,
+  candidate: BucketParameters,
+  current: BucketParameters | undefined
+) => {
   if (candidate.autoExpireDays === current?.autoExpireDays) {
     return;
   }
 
   if (candidate.autoExpireDays) {
-    return createLifecycle(bucketName, candidate.autoExpireDays);
+    return createLifecycle(bucketName, logger, candidate.autoExpireDays);
   }
 
   if (current?.autoExpireDays) {
-    return deleteLifecycle(bucketName);
+    return deleteLifecycle(bucketName, logger);
   }
 };
 
-const checkTagUpdates = async (bucketName: string, candidate: ResourceTags | undefined, current: ResourceTags | undefined) => {
+const checkTagUpdates = async (
+  bucketName: string,
+  logger: Logger.OperationLogger,
+  candidate: ResourceTags | undefined,
+  current: ResourceTags | undefined
+) => {
   const newTags = candidate ?? {};
   const hasChanges = !deepEqual(newTags, current ?? {});
 
   if (hasChanges) {
-    await tagBucket(bucketName, newTags);
+    await tagBucket(bucketName, logger, newTags);
   }
 };
 
-const checkEventUpdates = async (bucketName: string, candidate: NotificationParameters, current: NotificationParameters) => {
+const checkEventUpdates = async (
+  bucketName: string,
+  logger: Logger.OperationLogger,
+  candidate: NotificationParameters,
+  current: NotificationParameters
+) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateEventNotifications(bucketName, {
+    await updateEventNotifications(bucketName, logger, {
       eventsType: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
       ...candidate
     });
