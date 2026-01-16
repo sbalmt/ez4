@@ -7,19 +7,34 @@ export const enum LogLevel {
   Debug = 2
 }
 
-type LoggerContext = {
-  logLevel: LogLevel;
-  capture: number;
-  buffer: string[];
-};
-
 export namespace Logger {
   export type Callback<T> = () => Promise<T> | T;
 
+  type LoggerContext = {
+    logLevel: LogLevel;
+    lineCount: number;
+    capture: number;
+    buffer: string[];
+    name?: string;
+  };
+
   const Context: LoggerContext = {
     logLevel: LogLevel.Warning,
+    lineCount: 0,
     capture: 0,
     buffer: []
+  };
+
+  const OriginalWrite = process.stdout.write.bind(process.stdout);
+
+  process.stdout.write = function (string: Uint8Array | string, ...rest: any[]): boolean {
+    const matches = string.toString().match(/\n/g);
+
+    if (matches) {
+      Context.lineCount += matches.length;
+    }
+
+    return OriginalWrite(string, ...rest);
   };
 
   export const setLevel = (logLevel: LogLevel) => {
@@ -136,5 +151,34 @@ export namespace Logger {
         Context.buffer.push(successLine);
       }
     }
+  };
+
+  export type LogLine = {
+    update: (message: string) => void;
+  };
+
+  export const logLine = (message: string, name?: string): LogLine => {
+    const currentLine = Context.lineCount;
+
+    log(formatLogLine(message, name));
+
+    return {
+      update: (message: string) => {
+        const targetLine = currentLine - Context.lineCount;
+        const promptLine = Context.lineCount - currentLine;
+
+        process.stdout.moveCursor(0, targetLine);
+        process.stdout.clearLine(0);
+
+        log(formatLogLine(message, name));
+        Context.lineCount--;
+
+        process.stdout.moveCursor(0, promptLine);
+      }
+    };
+  };
+
+  const formatLogLine = (message: string, name: string | undefined) => {
+    return name ? `[${name}]: ${message}` : message;
   };
 }
