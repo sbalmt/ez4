@@ -1,6 +1,6 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
   ACMClient,
@@ -13,8 +13,6 @@ import {
   ResourceNotFoundException,
   waitUntilCertificateValidated
 } from '@aws-sdk/client-acm';
-
-import { CertificateServiceName } from './types';
 
 const client = new ACMClient({});
 
@@ -34,10 +32,8 @@ export type CreateResponse = {
   certificateArn: Arn;
 };
 
-export const isCertificateInUse = async (certificateArn: string) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
-
-  Logger.logFetch(CertificateServiceName, certificateName);
+export const isCertificateInUse = async (logger: Logger.OperationLogger, certificateArn: string) => {
+  logger.update(`Fetching  certificate`);
 
   const response = await client.send(
     new DescribeCertificateCommand({
@@ -48,10 +44,10 @@ export const isCertificateInUse = async (certificateArn: string) => {
   return !!response.Certificate?.InUseBy?.length;
 };
 
-export const createCertificate = async (request: CreateRequest): Promise<CreateResponse> => {
-  const { domainName } = request;
+export const createCertificate = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating certificate`);
 
-  Logger.logCreate(CertificateServiceName, domainName);
+  const { domainName } = request;
 
   const response = await client.send(
     new RequestCertificateCommand({
@@ -66,8 +62,6 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
 
   const certificateArn = response.CertificateArn as Arn;
 
-  Logger.logWait(CertificateServiceName, domainName);
-
   await waitUntilCertificateValidated(waiter, {
     CertificateArn: certificateArn
   });
@@ -77,10 +71,8 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
   };
 };
 
-export const deleteCertificate = async (certificateArn: string) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
-
-  Logger.logDelete(CertificateServiceName, certificateName);
+export const deleteCertificate = async (certificateArn: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting certificate`);
 
   try {
     await client.send(
@@ -99,10 +91,8 @@ export const deleteCertificate = async (certificateArn: string) => {
   }
 };
 
-export const tagCertificate = async (certificateArn: string, tags: ResourceTags) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
-
-  Logger.logTag(CertificateServiceName, certificateName);
+export const tagCertificate = async (logger: Logger.OperationLogger, certificateArn: string, tags: ResourceTags) => {
+  logger.update(`Tag certificate`);
 
   await client.send(
     new AddTagsToCertificateCommand({
@@ -115,10 +105,8 @@ export const tagCertificate = async (certificateArn: string, tags: ResourceTags)
   );
 };
 
-export const untagCertificate = async (certificateArn: string, tagKeys: string[]) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
-
-  Logger.logTag(CertificateServiceName, certificateName);
+export const untagCertificate = async (logger: Logger.OperationLogger, certificateArn: string, tagKeys: string[]) => {
+  logger.update(`Untag certificate`);
 
   await client.send(
     new RemoveTagsFromCertificateCommand({
