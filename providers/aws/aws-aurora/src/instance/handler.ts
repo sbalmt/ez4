@@ -55,7 +55,7 @@ const createResource = (candidate: InstanceState, context: StepContext): Promise
 
   return Logger.logOperation(InstanceServiceName, parameters.instanceName, 'creation', async (logger) => {
     const response =
-      (await importInstance(parameters.instanceName, logger)) ??
+      (await importInstance(logger, parameters.instanceName)) ??
       (await createInstance(logger, {
         ...parameters,
         clusterName
@@ -77,7 +77,7 @@ const updateResource = (candidate: InstanceState, current: InstanceState) => {
   }
 
   return Logger.logOperation(InstanceServiceName, parameters.instanceName, 'updates', async (logger) => {
-    await checkTagUpdates(result.instanceArn, logger, parameters, current.parameters);
+    await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
   });
 };
 
@@ -91,20 +91,20 @@ const deleteResource = async (current: InstanceState) => {
   const { instanceName } = result;
 
   await Logger.logOperation(InstanceServiceName, instanceName, 'deletion', async (logger) => {
-    await deleteInstance(instanceName, logger);
+    await deleteInstance(logger, instanceName);
   });
 };
 
 const checkTagUpdates = async (
-  instanceArn: Arn,
   logger: Logger.OperationLogger,
+  instanceArn: Arn,
   candidate: InstanceParameters,
   current: InstanceParameters
 ) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagInstance(instanceArn, logger, tags),
-    (tags) => untagInstance(instanceArn, logger, tags)
+    (tags) => tagInstance(logger, instanceArn, tags),
+    (tags) => untagInstance(logger, instanceArn, tags)
   );
 };

@@ -69,9 +69,9 @@ const createResource = (candidate: ObjectState, context: StepContext): Promise<O
   return Logger.logOperation(ObjectServiceName, objectName, 'creation', async (logger) => {
     const lastModified = await getLastModifiedTime(parameters.filePath);
 
-    const { objectKey } = await putObject(bucketName, logger, parameters);
+    const { objectKey } = await putObject(logger, bucketName, parameters);
 
-    await checkTagUpdates(bucketName, logger, objectKey, parameters.tags, candidate.parameters.tags);
+    await checkTagUpdates(logger, bucketName, objectKey, parameters.tags, candidate.parameters.tags);
 
     return {
       lastModified,
@@ -92,9 +92,9 @@ const updateResource = (candidate: ObjectState, current: ObjectState): Promise<O
   const objectName = getBucketObjectPath(result.bucketName, objectKey);
 
   return Logger.logOperation(ObjectServiceName, objectName, 'updates', async (logger) => {
-    const newResult = checkObjectUpdates(result, logger, parameters, current.parameters);
+    const newResult = checkObjectUpdates(logger, result, parameters, current.parameters);
 
-    await checkTagUpdates(result.bucketName, logger, objectKey, tags, current.parameters.tags);
+    await checkTagUpdates(logger, result.bucketName, objectKey, tags, current.parameters.tags);
 
     return newResult;
   });
@@ -110,7 +110,7 @@ const deleteResource = async (current: ObjectState) => {
   const objectName = getBucketObjectPath(result.bucketName, parameters.objectKey);
 
   await Logger.logOperation(ObjectServiceName, objectName, 'deletion', async (logger) => {
-    await deleteObject(result.bucketName, logger, parameters.objectKey);
+    await deleteObject(logger, result.bucketName, parameters.objectKey);
   });
 };
 
@@ -121,8 +121,8 @@ const getLastModifiedTime = async (filePath: string) => {
 };
 
 const checkObjectUpdates = async (
-  result: ObjectResult,
   logger: Logger.OperationLogger,
+  result: ObjectResult,
   candidate: ObjectParameters,
   current: ObjectParameters
 ) => {
@@ -136,7 +136,7 @@ const checkObjectUpdates = async (
 
   const { objectKey } = current;
 
-  await putObject(bucketName, logger, {
+  await putObject(logger, bucketName, {
     ...candidate,
     objectKey
   });
@@ -148,8 +148,8 @@ const checkObjectUpdates = async (
 };
 
 const checkTagUpdates = async (
-  bucketName: string,
   logger: Logger.OperationLogger,
+  bucketName: string,
   objectKey: string,
   candidate: ResourceTags | undefined,
   current: ResourceTags | undefined
@@ -158,6 +158,6 @@ const checkTagUpdates = async (
   const hasChanges = !deepEqual(newTags, current ?? {});
 
   if (hasChanges) {
-    await updateTags(bucketName, logger, objectKey, newTags);
+    await updateTags(logger, bucketName, objectKey, newTags);
   }
 };

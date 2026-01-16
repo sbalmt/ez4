@@ -18,7 +18,7 @@ export type CreateResponse = {
   objectKey: string;
 };
 
-export const putObject = async (bucketName: string, logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const putObject = async (logger: Logger.OperationLogger, bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating object`);
 
   const { objectKey, filePath } = request;
@@ -41,7 +41,7 @@ export const putObject = async (bucketName: string, logger: Logger.OperationLogg
   };
 };
 
-export const updateTags = async (bucketName: string, logger: Logger.OperationLogger, objectKey: string, tags: ResourceTags) => {
+export const updateTags = async (logger: Logger.OperationLogger, bucketName: string, objectKey: string, tags: ResourceTags) => {
   logger.update(`Updating object tags`);
 
   await client.send(
@@ -58,7 +58,7 @@ export const updateTags = async (bucketName: string, logger: Logger.OperationLog
   );
 };
 
-export const deleteObject = async (bucketName: string, logger: Logger.OperationLogger, objectKey: string) => {
+export const deleteObject = async (logger: Logger.OperationLogger, bucketName: string, objectKey: string) => {
   logger.update(`Deleting object`);
 
   try {

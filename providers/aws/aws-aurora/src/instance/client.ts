@@ -1,5 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { Logger } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList } from '@ez4/aws-common';
 
@@ -35,7 +34,7 @@ export type ImportOrCreateResponse = {
   instanceArn: Arn;
 };
 
-export const importInstance = async (instanceName: string, logger: Logger.OperationLogger): Promise<ImportOrCreateResponse | undefined> => {
+export const importInstance = async (logger: Logger.OperationLogger, instanceName: string): Promise<ImportOrCreateResponse | undefined> => {
   logger.update(`Importing instance`);
 
   try {
@@ -91,7 +90,7 @@ export const createInstance = async (logger: Logger.OperationLogger, request: Cr
   };
 };
 
-export const tagInstance = async (instanceArn: Arn, logger: Logger.OperationLogger, tags: ResourceTags) => {
+export const tagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag instance`);
 
   await client.send(
@@ -105,7 +104,7 @@ export const tagInstance = async (instanceArn: Arn, logger: Logger.OperationLogg
   );
 };
 
-export const untagInstance = async (instanceArn: Arn, logger: Logger.OperationLogger, tagKeys: string[]) => {
+export const untagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag instance`);
 
   await client.send(
@@ -116,7 +115,7 @@ export const untagInstance = async (instanceArn: Arn, logger: Logger.OperationLo
   );
 };
 
-export const deleteInstance = async (instanceName: string, logger: Logger.OperationLogger) => {
+export const deleteInstance = async (logger: Logger.OperationLogger, instanceName: string) => {
   logger.update(`Deleting instance`);
 
   try {

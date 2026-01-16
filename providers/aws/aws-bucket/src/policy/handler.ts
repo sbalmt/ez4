@@ -80,6 +80,6 @@ const deleteResource = async (current: PolicyState) => {
   const { bucketName } = result;
 
   await Logger.logOperation(PolicyServiceName, bucketName, 'deletion', (logger) => {
-    return deletePolicy(bucketName, logger);
+    return deletePolicy(logger, bucketName);
   });
 };

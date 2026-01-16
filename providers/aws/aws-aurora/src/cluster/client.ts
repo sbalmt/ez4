@@ -1,5 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
-import type { Logger } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList } from '@ez4/aws-common';
 
@@ -52,7 +51,10 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 
 export type UpdateResponse = ImportOrCreateResponse;
 
-export const importCluster = async (clusterName: string, logger?: Logger.OperationLogger): Promise<ImportOrCreateResponse | undefined> => {
+export const importCluster = async (
+  logger: Logger.OperationLogger | undefined,
+  clusterName: string
+): Promise<ImportOrCreateResponse | undefined> => {
   logger?.update(`Importing cluster`);
 
   try {
@@ -129,8 +131,8 @@ export const createCluster = async (logger: Logger.OperationLogger, request: Cre
 };
 
 export const updateCluster = async (
-  clusterName: string,
   logger: Logger.OperationLogger,
+  clusterName: string,
   request: UpdateRequest
 ): Promise<UpdateResponse> => {
   logger.update(`Updating cluster`);
@@ -171,7 +173,7 @@ export const updateCluster = async (
   };
 };
 
-export const updateDeletion = async (clusterName: string, logger: Logger.OperationLogger, allowDeletion: boolean) => {
+export const updateDeletion = async (logger: Logger.OperationLogger, clusterName: string, allowDeletion: boolean) => {
   logger.update(`Updating deletion protection`);
 
   await client.send(
@@ -182,8 +184,8 @@ export const updateDeletion = async (clusterName: string, logger: Logger.Operati
   );
 };
 
-export const tagCluster = async (clusterArn: Arn, logger: Logger.OperationLogger, tags: ResourceTags) => {
-  logger.update(`Untag cluster`);
+export const tagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag cluster`);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -196,8 +198,8 @@ export const tagCluster = async (clusterArn: Arn, logger: Logger.OperationLogger
   );
 };
 
-export const untagCluster = async (clusterArn: Arn, logger: Logger.OperationLogger, tagKeys: string[]) => {
-  logger.update(`Tag cluster`);
+export const untagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag cluster`);
 
   await client.send(
     new RemoveTagsFromResourceCommand({
@@ -207,7 +209,7 @@ export const untagCluster = async (clusterArn: Arn, logger: Logger.OperationLogg
   );
 };
 
-export const deleteCluster = async (clusterName: string, logger: Logger.OperationLogger) => {
+export const deleteCluster = async (logger: Logger.OperationLogger, clusterName: string) => {
   logger.update(`Deleting cluster`);
 
   try {
