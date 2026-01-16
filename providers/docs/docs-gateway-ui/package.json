@@ -1,7 +1,7 @@
 {
   "name": "@ez4/docs-gateway-ui",
   "description": "EZ4: Gateway documentation UI",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "author": "Wellington Martins",
   "license": "MIT",
   "type": "module",
@@ -31,9 +31,9 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/docs-gateway": "^0.39.0",
-    "@ez4/gateway": "^0.39.0",
-    "@ez4/project": "^0.39.0",
+    "@ez4/docs-gateway": "^0.40.0",
+    "@ez4/gateway": "^0.40.0",
+    "@ez4/project": "^0.40.0",
     "yaml": "^2.8.2"
   }
 }

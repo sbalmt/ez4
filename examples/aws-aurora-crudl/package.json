@@ -21,17 +21,17 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-aurora": "^0.39.0",
-    "@ez4/aws-gateway": "^0.39.0",
-    "@ez4/common": "^0.39.0",
-    "@ez4/database": "^0.39.0",
-    "@ez4/docs-database": "^0.39.0",
-    "@ez4/docs-gateway": "^0.39.0",
-    "@ez4/gateway": "^0.39.0",
-    "@ez4/local-gateway": "^0.39.0",
-    "@ez4/local-database": "^0.39.0",
-    "@ez4/project": "^0.39.0",
-    "@ez4/schema": "^0.39.0",
-    "@ez4/validation": "^0.39.0"
+    "@ez4/aws-aurora": "^0.40.0",
+    "@ez4/aws-gateway": "^0.40.0",
+    "@ez4/common": "^0.40.0",
+    "@ez4/database": "^0.40.0",
+    "@ez4/docs-database": "^0.40.0",
+    "@ez4/docs-gateway": "^0.40.0",
+    "@ez4/gateway": "^0.40.0",
+    "@ez4/local-gateway": "^0.40.0",
+    "@ez4/local-database": "^0.40.0",
+    "@ez4/project": "^0.40.0",
+    "@ez4/schema": "^0.40.0",
+    "@ez4/validation": "^0.40.0"
   }
 }
