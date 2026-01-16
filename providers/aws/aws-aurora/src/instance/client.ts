@@ -1,6 +1,7 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Logger } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -13,8 +14,6 @@ import {
   DBInstanceNotFoundFault,
   DescribeDBInstancesCommand
 } from '@aws-sdk/client-rds';
-
-import { InstanceServiceName } from './types';
 
 const client = new RDSClient({});
 
@@ -36,8 +35,8 @@ export type ImportOrCreateResponse = {
   instanceArn: Arn;
 };
 
-export const importInstance = async (instanceName: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(InstanceServiceName, instanceName);
+export const importInstance = async (instanceName: string, logger: Logger.OperationLogger): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing instance`);
 
   try {
     const response = await client.send(
@@ -62,15 +61,15 @@ export const importInstance = async (instanceName: string): Promise<ImportOrCrea
   }
 };
 
-export const createInstance = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { instanceName } = request;
+export const createInstance = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating instance`);
 
-  Logger.logCreate(InstanceServiceName, instanceName);
+  const { instanceName, clusterName } = request;
 
   const response = await client.send(
     new CreateDBInstanceCommand({
       DBInstanceIdentifier: instanceName,
-      DBClusterIdentifier: request.clusterName,
+      DBClusterIdentifier: clusterName,
       DBInstanceClass: 'db.serverless',
       Engine: 'aurora-postgresql',
       Tags: getTagList({
@@ -79,8 +78,6 @@ export const createInstance = async (request: CreateRequest): Promise<ImportOrCr
       })
     })
   );
-
-  Logger.logWait(InstanceServiceName, instanceName);
 
   await waitUntilDBInstanceAvailable(waiter, {
     DBInstanceIdentifier: instanceName
@@ -94,10 +91,8 @@ export const createInstance = async (request: CreateRequest): Promise<ImportOrCr
   };
 };
 
-export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
-  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
-
-  Logger.logTag(InstanceServiceName, instanceName);
+export const tagInstance = async (instanceArn: Arn, logger: Logger.OperationLogger, tags: ResourceTags) => {
+  logger.update(`Tag instance`);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -110,10 +105,8 @@ export const tagInstance = async (instanceArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
-  const instanceName = tryParseArn(instanceArn)?.resourceName ?? instanceArn;
-
-  Logger.logUntag(InstanceServiceName, instanceName);
+export const untagInstance = async (instanceArn: Arn, logger: Logger.OperationLogger, tagKeys: string[]) => {
+  logger.update(`Untag instance`);
 
   await client.send(
     new RemoveTagsFromResourceCommand({
@@ -123,8 +116,8 @@ export const untagInstance = async (instanceArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteInstance = async (instanceName: string) => {
-  Logger.logDelete(InstanceServiceName, instanceName);
+export const deleteInstance = async (instanceName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting instance`);
 
   try {
     await client.send(
@@ -133,8 +126,6 @@ export const deleteInstance = async (instanceName: string) => {
         SkipFinalSnapshot: true
       })
     );
-
-    Logger.logWait(InstanceServiceName, instanceName);
 
     await waitUntilDBInstanceDeleted(waiter, {
       DBInstanceIdentifier: instanceName

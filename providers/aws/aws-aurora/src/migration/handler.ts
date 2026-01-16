@@ -2,7 +2,7 @@ import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
 import type { MigrationState, MigrationResult } from './types';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
@@ -53,27 +53,31 @@ const replaceResource = async (candidate: MigrationState, current: MigrationStat
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
+const createResource = (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
   const parameters = candidate.parameters;
 
-  const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
+  const { database } = parameters;
 
-  const request = {
-    ...parameters,
-    clusterArn,
-    secretArn
-  };
+  return Logger.logOperation(MigrationServiceName, database, 'creation', async (logger) => {
+    const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
 
-  await createDatabase(request);
-  await createTables(request);
+    const request = {
+      ...parameters,
+      clusterArn,
+      secretArn
+    };
 
-  return {
-    clusterArn,
-    secretArn
-  };
+    await createDatabase(logger, request);
+    await createTables(logger, request);
+
+    return {
+      clusterArn,
+      secretArn
+    };
+  });
 };
 
-const updateResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
+const updateResource = (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -89,29 +93,37 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
     return;
   }
 
-  await updateTables({
-    database: parameters.database,
-    clusterArn: result.clusterArn,
-    secretArn: result.secretArn,
-    repository: {
-      target: targetRepository,
-      source: sourceRepository
-    }
+  const { database } = parameters;
+
+  return Logger.logOperation(MigrationServiceName, database, 'updates', async (logger) => {
+    await updateTables(logger, {
+      database: parameters.database,
+      clusterArn: result.clusterArn,
+      secretArn: result.secretArn,
+      repository: {
+        target: targetRepository,
+        source: sourceRepository
+      }
+    });
   });
 };
 
-const deleteResource = async (candidate: MigrationState) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: MigrationState) => {
+  const { result, parameters } = current;
 
   if (!result) {
     return;
   }
 
-  const { clusterArn, secretArn } = result;
+  const { database } = parameters;
 
-  await deleteDatabase({
-    database: parameters.database,
-    clusterArn,
-    secretArn
+  await Logger.logOperation(MigrationServiceName, database, 'deletion', async (logger) => {
+    const { clusterArn, secretArn } = result;
+
+    await deleteDatabase(logger, {
+      database: parameters.database,
+      clusterArn,
+      secretArn
+    });
   });
 };

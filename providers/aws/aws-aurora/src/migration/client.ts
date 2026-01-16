@@ -1,13 +1,11 @@
 import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
-import { DatabaseQueries } from '@ez4/pgmigration/library';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
-import { Logger } from '@ez4/aws-common';
+import { DatabaseQueries } from '@ez4/pgmigration/library';
 
 import { DataClientDriver } from '../client/driver';
-import { MigrationServiceName } from './types';
 
 export type ConnectionRequest = {
   database: string;
@@ -30,10 +28,10 @@ export type DeleteTableRequest = ConnectionRequest & {
   repository: PgTableRepository;
 };
 
-export const createDatabase = async (request: ConnectionRequest): Promise<void> => {
-  const { clusterArn, secretArn, database } = request;
+export const createDatabase = async (logger: Logger.OperationLogger, request: ConnectionRequest): Promise<void> => {
+  logger.update(`Creating database`);
 
-  Logger.logCreate(MigrationServiceName, `${database} database`);
+  const { clusterArn, secretArn, database } = request;
 
   const driver = new DataClientDriver({
     database: 'postgres',
@@ -44,10 +42,10 @@ export const createDatabase = async (request: ConnectionRequest): Promise<void> 
   await executeMigrationStatement(driver, DatabaseQueries.prepareCreate(database));
 };
 
-export const createTables = async (request: CreateTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, repository } = request;
+export const createTables = async (logger: Logger.OperationLogger, request: CreateTableRequest): Promise<void> => {
+  logger.update(`Creating tables`);
 
-  Logger.logCreate(MigrationServiceName, `${database} tables`);
+  const { clusterArn, secretArn, database, repository } = request;
 
   const driver = new DataClientDriver({
     resourceArn: clusterArn,
@@ -60,10 +58,10 @@ export const createTables = async (request: CreateTableRequest): Promise<void> =
   await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes]);
 };
 
-export const updateTables = async (request: UpdateTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, repository } = request;
+export const updateTables = async (logger: Logger.OperationLogger, request: UpdateTableRequest): Promise<void> => {
+  logger.update(`Updating tables`);
 
-  Logger.logUpdate(MigrationServiceName, `${database} tables`);
+  const { clusterArn, secretArn, database, repository } = request;
 
   const driver = new DataClientDriver({
     resourceArn: clusterArn,
@@ -77,10 +75,10 @@ export const updateTables = async (request: UpdateTableRequest): Promise<void> =
   await executeMigrationStatements(driver, queries.indexes);
 };
 
-export const deleteTables = async (request: DeleteTableRequest): Promise<void> => {
-  const { clusterArn, secretArn, database, repository } = request;
+export const deleteTables = async (logger: Logger.OperationLogger, request: DeleteTableRequest): Promise<void> => {
+  logger.update(`Deleting tables`);
 
-  Logger.logDelete(MigrationServiceName, `${database} tables`);
+  const { clusterArn, secretArn, database, repository } = request;
 
   const driver = new DataClientDriver({
     resourceArn: clusterArn,
@@ -93,10 +91,10 @@ export const deleteTables = async (request: DeleteTableRequest): Promise<void> =
   await executeMigrationTransaction(driver, queries.tables);
 };
 
-export const deleteDatabase = async (request: ConnectionRequest): Promise<void> => {
-  const { clusterArn, secretArn, database } = request;
+export const deleteDatabase = async (logger: Logger.OperationLogger, request: ConnectionRequest): Promise<void> => {
+  logger.update(`Deleting database`);
 
-  Logger.logDelete(MigrationServiceName, `${database} database`);
+  const { clusterArn, secretArn, database } = request;
 
   const driver = new DataClientDriver({
     database: 'postgres',

@@ -1,6 +1,7 @@
 import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Logger } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
   RDSClient,
@@ -16,7 +17,6 @@ import {
 } from '@aws-sdk/client-rds';
 
 import { getRandomPassword } from '../utils/credentials';
-import { ClusterServiceName } from './types';
 
 const client = new RDSClient({});
 
@@ -52,10 +52,8 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 
 export type UpdateResponse = ImportOrCreateResponse;
 
-export const importCluster = async (clusterName: string, log = true): Promise<ImportOrCreateResponse | undefined> => {
-  if (log) {
-    Logger.logImport(ClusterServiceName, clusterName);
-  }
+export const importCluster = async (clusterName: string, logger?: Logger.OperationLogger): Promise<ImportOrCreateResponse | undefined> => {
+  logger?.update(`Importing cluster`);
 
   try {
     const response = await client.send(
@@ -82,10 +80,10 @@ export const importCluster = async (clusterName: string, log = true): Promise<Im
   }
 };
 
-export const createCluster = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { clusterName, scalability } = request;
+export const createCluster = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating cluster`);
 
-  Logger.logCreate(ClusterServiceName, clusterName);
+  const { clusterName, scalability } = request;
 
   const canPause = scalability?.minCapacity === 0;
 
@@ -116,8 +114,6 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
     })
   );
 
-  Logger.logWait(ClusterServiceName, clusterName);
-
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
   });
@@ -132,8 +128,12 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
   };
 };
 
-export const updateCluster = async (clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
-  Logger.logUpdate(ClusterServiceName, clusterName);
+export const updateCluster = async (
+  clusterName: string,
+  logger: Logger.OperationLogger,
+  request: UpdateRequest
+): Promise<UpdateResponse> => {
+  logger.update(`Updating cluster`);
 
   const { scalability } = request;
 
@@ -157,8 +157,6 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
     })
   );
 
-  Logger.logWait(ClusterServiceName, clusterName);
-
   await waitUntilDBClusterAvailable(waiter, {
     DBClusterIdentifier: clusterName
   });
@@ -173,8 +171,8 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
   };
 };
 
-export const updateDeletion = async (clusterName: string, allowDeletion: boolean) => {
-  Logger.logUpdate(ClusterServiceName, clusterName);
+export const updateDeletion = async (clusterName: string, logger: Logger.OperationLogger, allowDeletion: boolean) => {
+  logger.update(`Updating deletion protection`);
 
   await client.send(
     new ModifyDBClusterCommand({
@@ -184,10 +182,8 @@ export const updateDeletion = async (clusterName: string, allowDeletion: boolean
   );
 };
 
-export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
-  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
-
-  Logger.logTag(ClusterServiceName, clusterName);
+export const tagCluster = async (clusterArn: Arn, logger: Logger.OperationLogger, tags: ResourceTags) => {
+  logger.update(`Untag cluster`);
 
   await client.send(
     new AddTagsToResourceCommand({
@@ -200,10 +196,8 @@ export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
-  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
-
-  Logger.logUntag(ClusterServiceName, clusterName);
+export const untagCluster = async (clusterArn: Arn, logger: Logger.OperationLogger, tagKeys: string[]) => {
+  logger.update(`Tag cluster`);
 
   await client.send(
     new RemoveTagsFromResourceCommand({
@@ -213,8 +207,8 @@ export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteCluster = async (clusterName: string) => {
-  Logger.logDelete(ClusterServiceName, clusterName);
+export const deleteCluster = async (clusterName: string, logger: Logger.OperationLogger) => {
+  logger.update(`Deleting cluster`);
 
   try {
     await client.send(
@@ -223,8 +217,6 @@ export const deleteCluster = async (clusterName: string) => {
         SkipFinalSnapshot: true
       })
     );
-
-    Logger.logWait(ClusterServiceName, clusterName);
 
     await waitUntilDBClusterDeleted(waiter, {
       DBClusterIdentifier: clusterName
