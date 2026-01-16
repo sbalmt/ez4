@@ -1,7 +1,7 @@
 import type { PgExecuteStatement } from '@ez4/pgclient';
 import type { AnyObject } from '@ez4/utils';
 
-import { Runtime } from '@ez4/common/runtime';
+import { Runtime } from '@ez4/common';
 
 export const logQuerySuccess = (statement: PgExecuteStatement, transactionId?: string) => {
   const transaction = getTransactionId(transactionId);

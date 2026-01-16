@@ -6,8 +6,8 @@ import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
+import { Runtime } from '@ez4/common';
 
 export const processLambdaMessage = async (
   service: QueueService | QueueImport,

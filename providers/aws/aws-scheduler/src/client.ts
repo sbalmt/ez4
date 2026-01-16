@@ -15,7 +15,7 @@ import {
 
 import { getRandomUUID, isAnyNumber } from '@ez4/utils';
 import { getJsonEvent } from '@ez4/scheduler/utils';
-import { Runtime } from '@ez4/common/runtime';
+import { Runtime } from '@ez4/common';
 
 const client = new SchedulerClient({});
 

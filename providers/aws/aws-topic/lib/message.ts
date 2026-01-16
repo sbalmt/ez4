@@ -3,8 +3,7 @@ import type { MessageSchema } from '@ez4/topic/utils';
 import type { Topic } from '@ez4/topic';
 
 import { getJsonMessage } from '@ez4/topic/utils';
-import { ServiceEventType } from '@ez4/common';
-import { Runtime } from '@ez4/common/runtime';
+import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
