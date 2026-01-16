@@ -1,5 +1,5 @@
 import type { DynamoDBClient, GlobalSecondaryIndex } from '@aws-sdk/client-dynamodb';
-import type { AttributeSchema, AttributeSchemaGroup } from '../../types/schema';
+import type { AttributeSchemaGroup } from '../../types/schema';
 
 import { DescribeTableCommand, IndexStatus, ProjectionType } from '@aws-sdk/client-dynamodb';
 import { Wait } from '@ez4/utils';
@@ -35,7 +35,7 @@ export const waitForSecondaryIndex = async (client: DynamoDBClient, tableName: s
   });
 };
 
-export const getSecondaryIndexName = (schema: AttributeSchema[]) => {
+export const getSecondaryIndexName = (schema: AttributeSchemaGroup) => {
   const indexParts = schema.map(({ attributeName }) => attributeName);
 
   return getIndexName(indexParts);
