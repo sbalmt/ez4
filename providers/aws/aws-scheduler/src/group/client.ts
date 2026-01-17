@@ -1,4 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   SchedulerClient,
@@ -10,8 +10,7 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-scheduler';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
-import { GroupServiceName } from './types';
+import { getTagList } from '@ez4/aws-common';
 
 const client = new SchedulerClient({});
 
@@ -24,8 +23,8 @@ export type CreateResponse = {
   groupArn: Arn;
 };
 
-export const importGroup = async (groupName: string) => {
-  Logger.logImport(GroupServiceName, groupName);
+export const importGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+  logger.update(`Importing scheduler group`);
 
   try {
     const response = await client.send(
@@ -48,8 +47,8 @@ export const importGroup = async (groupName: string) => {
   }
 };
 
-export const createGroup = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(GroupServiceName, request.groupName);
+export const createGroup = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating scheduler group`);
 
   const response = await client.send(
     new CreateScheduleGroupCommand({
@@ -68,8 +67,8 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const deleteGroup = async (groupName: string) => {
-  Logger.logDelete(GroupServiceName, groupName);
+export const deleteGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+  logger.update(`Deleting scheduler group`);
 
   try {
     await client.send(
@@ -88,10 +87,8 @@ export const deleteGroup = async (groupName: string) => {
   }
 };
 
-export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logTag(GroupServiceName, groupName);
+export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag scheduler group`);
 
   await client.send(
     new TagResourceCommand({
@@ -104,10 +101,8 @@ export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logUntag(GroupServiceName, groupName);
+export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag scheduler group`);
 
   await client.send(
     new UntagResourceCommand({

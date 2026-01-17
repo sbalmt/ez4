@@ -1,5 +1,5 @@
 import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
   SchedulerClient,
@@ -12,9 +12,6 @@ import {
 } from '@aws-sdk/client-scheduler';
 
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
-import { Logger } from '@ez4/aws-common';
-
-import { ScheduleServiceName } from './types';
 
 const client = new SchedulerClient({});
 
@@ -39,8 +36,8 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<Omit<CreateRequest, 'scheduleName'>>;
 
-export const createSchedule = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(ScheduleServiceName, request.scheduleName);
+export const createSchedule = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating scheduler`);
 
   const response = await client.send(
     new CreateScheduleCommand({
@@ -56,8 +53,8 @@ export const createSchedule = async (request: CreateRequest): Promise<CreateResp
   };
 };
 
-export const updateSchedule = async (scheduleName: string, request: UpdateRequest) => {
-  Logger.logUpdate(ScheduleServiceName, scheduleName);
+export const updateSchedule = async (logger: Logger.OperationLogger, scheduleName: string, request: UpdateRequest) => {
+  logger.update(`Updating scheduler`);
 
   await client.send(
     new UpdateScheduleCommand({
@@ -67,8 +64,8 @@ export const updateSchedule = async (scheduleName: string, request: UpdateReques
   );
 };
 
-export const deleteSchedule = async (scheduleName: string) => {
-  Logger.logDelete(ScheduleServiceName, scheduleName);
+export const deleteSchedule = async (logger: Logger.OperationLogger, scheduleName: string) => {
+  logger.update(`Deleting scheduler`);
 
   try {
     await client.send(
