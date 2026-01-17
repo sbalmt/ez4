@@ -1,14 +1,19 @@
 import { performance } from 'node:perf_hooks';
-import { toRed } from './format';
+import { Color, toColor } from './format';
 
 export const enum LogLevel {
   Error = 0,
-  Warning = 1,
-  Debug = 2
+  Warning = 2,
+  Information = 3,
+  Debug = 4
 }
 
 export namespace Logger {
   export type Callback<T> = () => Promise<T> | T;
+
+  export type LogLine = {
+    update: (message: string) => void;
+  };
 
   type LoggerContext = {
     logLevel: LogLevel;
@@ -28,7 +33,14 @@ export namespace Logger {
   const OriginalWrite = process.stdout.write.bind(process.stdout);
 
   process.stdout.write = function (string: Uint8Array | string, ...rest: any[]): boolean {
-    const matches = string.toString().match(/\n/g);
+    const message = string.toString();
+
+    if (Context.capture > 0) {
+      Context.buffer.push(message);
+      return true;
+    }
+
+    const matches = message.match(/\n/g);
 
     if (matches) {
       Context.lineCount += matches.length;
@@ -44,7 +56,7 @@ export namespace Logger {
   export const execute = async <T>(message: string, callback: Callback<T>) => {
     const startTime = performance.now();
 
-    process.stdout.write(`${message} ...`);
+    const logger = logLine(`${message} ...`);
 
     try {
       Context.capture++;
@@ -61,41 +73,18 @@ export namespace Logger {
 
       const elapsedTime = (performance.now() - startTime).toFixed(2);
 
-      process.stdout.write(`\r${message} (${elapsedTime}ms)\n`);
+      logger.update(`${message} (${elapsedTime}ms)`);
 
       if (Context.capture === 0 && Context.buffer.length) {
-        process.stdout.write('\n');
-        process.stdout.write(Context.buffer.join('\n'));
-        process.stdout.write('\n\n');
-
+        log(`\n${Context.buffer.join('')}\n`);
         Context.buffer = [];
       }
     }
   };
 
-  export const clear = () => {
-    if (Context.capture === 0) {
-      process.stdout.write('\x1Bc\r');
-    }
-  };
-
-  export const space = () => {
-    if (Context.capture === 0) {
-      process.stdout.write('\n');
-    } else {
-      Context.buffer.push('');
-    }
-  };
-
   export const log = (message: string) => {
     for (const line of message.split('\n')) {
-      const logMessage = `${line}`;
-
-      if (Context.capture === 0) {
-        process.stdout.write(`${logMessage}\n`);
-      } else {
-        Context.buffer.push(logMessage);
-      }
+      process.stdout.write(`${line}\n`);
     }
   };
 
@@ -105,62 +94,50 @@ export namespace Logger {
     }
   };
 
-  export const warn = (message: string) => {
-    if (Context.logLevel < LogLevel.Warning) {
-      return;
+  export const info = (message: string) => {
+    if (Context.logLevel <= LogLevel.Information) {
+      for (const line of message.split('\n')) {
+        process.stderr.write(`ℹ️  ${line}\n`);
+      }
     }
+  };
 
-    for (const line of message.split('\n')) {
-      const warnLine = `⚠️  ${toRed(line)}`;
-
-      if (Context.capture === 0) {
-        process.stderr.write(`${warnLine}\n`);
-      } else {
-        Context.buffer.push(warnLine);
+  export const warn = (message: string) => {
+    if (Context.logLevel <= LogLevel.Warning) {
+      for (const line of message.split('\n')) {
+        process.stderr.write(`⚠️  ${toColor(Color.Red, line)}\n`);
       }
     }
   };
 
   export const error = (message: string) => {
-    if (Context.logLevel < LogLevel.Error) {
-      return;
-    }
-
-    for (const line of message.split('\n')) {
-      const errorLine = `❌ ${toRed(line)}`;
-
-      if (Context.capture === 0) {
-        process.stderr.write(`${errorLine}\n`);
-      } else {
-        Context.buffer.push(errorLine);
+    if (Context.logLevel <= LogLevel.Error) {
+      for (const line of message.split('\n')) {
+        process.stderr.write(`❌ ${toColor(Color.Red, line)}\n`);
       }
     }
   };
 
   export const success = (message: string) => {
-    if (Context.logLevel < LogLevel.Error) {
-      return;
-    }
-
-    for (const line of message.split('\n')) {
-      const successLine = `✅ ${line}`;
-
-      if (Context.capture === 0) {
-        process.stderr.write(`${successLine}\n`);
-      } else {
-        Context.buffer.push(successLine);
+    if (Context.logLevel <= LogLevel.Error) {
+      for (const line of message.split('\n')) {
+        process.stderr.write(`✅ ${line}\n`);
       }
     }
   };
 
-  export type LogLine = {
-    update: (message: string) => void;
+  export const clear = () => {
+    process.stdout.write('\x1Bc\r');
   };
 
-  export const logLine = (message: string, name?: string): LogLine => {
+  export const space = () => {
+    process.stdout.write('\n');
+  };
+
+  export const logLine = (message: string): LogLine => {
     const currentLine = Context.lineCount;
 
-    log(formatLogLine(message, name));
+    log(message);
 
     return {
       update: (message: string) => {
@@ -170,15 +147,11 @@ export namespace Logger {
         process.stdout.moveCursor(0, targetLine);
         process.stdout.clearLine(0);
 
-        log(formatLogLine(message, name));
-        Context.lineCount--;
+        log(message);
 
         process.stdout.moveCursor(0, promptLine);
+        Context.lineCount--;
       }
     };
-  };
-
-  const formatLogLine = (message: string, name: string | undefined) => {
-    return name ? `[${name}]: ${message}` : message;
   };
 }

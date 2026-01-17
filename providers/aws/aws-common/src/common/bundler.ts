@@ -7,10 +7,9 @@ import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
-import { getTemporaryPath } from '@ez4/project/library';
+import { getTemporaryPath, Logger } from '@ez4/project/library';
 
 import { SourceFileError } from '../errors/bundler';
-import { Logger } from './logger';
 
 const fileCache = new Map<string, string>();
 const hashCache = new Map<string, string>();
@@ -132,11 +131,11 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   ]);
 
   warnings.forEach((message) => {
-    Logger.logWarning(serviceName, message);
+    Logger.warn(`[${serviceName}]: ${message}`);
   });
 
   errors.forEach((message) => {
-    Logger.logError(serviceName, message);
+    Logger.error(`[${serviceName}]: ${message}`);
   });
 
   if (errors.length) {

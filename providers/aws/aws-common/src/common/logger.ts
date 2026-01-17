@@ -1,65 +1,30 @@
-export class Logger {
-  static logInfo(serviceName: string, message: unknown) {
-    console.info(`[${serviceName}]: ${message}`);
-  }
+import { Color, Logger as ProjectLogger, toBold, toColor, toRed } from '@ez4/project/library';
 
-  static logDebug(serviceName: string, message: unknown) {
-    console.debug(`[${serviceName}]: ${message}`);
-  }
+export namespace Logger {
+  export type OperationLogger = ProjectLogger.LogLine;
 
-  static logWarning(serviceName: string, message: unknown) {
-    console.warn(`[${serviceName}]: ${message}`);
-  }
+  export type Callback<T> = (logger: OperationLogger) => T | Promise<T>;
 
-  static logError(serviceName: string, message: unknown) {
-    console.error(`[${serviceName}]: ${message}`);
-  }
+  export const logOperation = async <T>(serviceName: string, resource: string, operation: string, callback: Callback<T>) => {
+    const logger = ProjectLogger.logLine(`▶️  Starting ${toBold(resource)} ${operation} ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
 
-  static logImport(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Importing ${resource}`);
-  }
+    const operationLogger: OperationLogger = {
+      update: (message: string) => {
+        logger.update(`⏳ Resource ${toBold(resource)} ${toColor(Color.BrightBlack, `[${serviceName}: ${message}]`)}`);
+      }
+    };
 
-  static logFetch(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Fetching ${resource}`);
-  }
+    try {
+      const result = await callback(operationLogger);
 
-  static logCreate(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Creating ${resource}`);
-  }
+      logger.update(`✅ Finished ${toBold(resource)} ${operation} ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
 
-  static logUpdate(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Updating ${resource}`);
-  }
+      return result;
+      //
+    } catch (error) {
+      logger.update(toRed(`❌ Finished ${toBold(resource)} ${operation} [${serviceName}: With errors]`));
 
-  static logDelete(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Deleting ${resource}`);
-  }
-
-  static logSkip(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Skipping ${resource}`);
-  }
-
-  static logAttach(serviceName: string, resource: string, attachment: string) {
-    Logger.logInfo(serviceName, `Attaching ${attachment} to ${resource}`);
-  }
-
-  static logDetach(serviceName: string, resource: string, attachment: string) {
-    Logger.logInfo(serviceName, `Detaching ${attachment} from ${resource}`);
-  }
-
-  static logPublish(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Publishing ${resource}`);
-  }
-
-  static logTag(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Tagging ${resource}`);
-  }
-
-  static logUntag(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Untagging ${resource}`);
-  }
-
-  static logWait(serviceName: string, resource: string) {
-    Logger.logInfo(serviceName, `Waiting ${resource}`);
-  }
+      throw error;
+    }
+  };
 }

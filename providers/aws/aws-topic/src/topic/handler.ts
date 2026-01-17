@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { deepCompare } from '@ez4/utils';
 
@@ -46,45 +46,57 @@ const replaceResource = async (candidate: TopicState, current: TopicState) => {
   return createResource(candidate);
 };
 
-const createResource = async (candidate: TopicState): Promise<TopicResult> => {
-  const parameters = candidate.parameters;
+const createResource = (candidate: TopicState): Promise<TopicResult> => {
+  const { parameters } = candidate;
 
-  if (parameters.import) {
-    const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
+  return Logger.logOperation(TopicServiceName, parameters.topicName, 'creation', async (logger) => {
+    if (parameters.import) {
+      const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
+
+      return {
+        topicArn: buildTopicArn(parameters.topicName, region, accountId)
+      };
+    }
+
+    const { topicArn } = await createTopic(logger, parameters);
 
     return {
-      topicArn: buildTopicArn(parameters.topicName, region, accountId)
+      topicArn
     };
-  }
-
-  const { topicArn } = await createTopic(parameters);
-
-  return {
-    topicArn
-  };
+  });
 };
 
-const updateResource = async (candidate: TopicState, current: TopicState) => {
+const updateResource = (candidate: TopicState, current: TopicState) => {
   const { result, parameters } = candidate;
 
-  if (result && !parameters.import) {
-    await checkTagUpdates(result.topicArn, parameters, current.parameters);
+  if (!result || parameters.import) {
+    return;
   }
+
+  return Logger.logOperation(TopicServiceName, parameters.topicName, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
+
+    return result;
+  });
 };
 
-const deleteResource = async (candidate: TopicState) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: TopicState) => {
+  const { result, parameters } = current;
 
-  if (result && !parameters.import) {
-    await deleteTopic(result.topicArn);
+  if (!result || parameters.import) {
+    return;
   }
+
+  await Logger.logOperation(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
+    await deleteTopic(logger, result.topicArn);
+  });
 };
 
-const checkTagUpdates = async (topicArn: string, candidate: TopicParameters, current: TopicParameters) => {
+const checkTagUpdates = async (logger: Logger.OperationLogger, topicArn: string, candidate: TopicParameters, current: TopicParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagTopic(topicArn, tags),
-    (tags) => untagTopic(topicArn, tags)
+    (tags) => tagTopic(logger, topicArn, tags),
+    (tags) => untagTopic(logger, topicArn, tags)
   );
 };

@@ -5,7 +5,7 @@ import { StepAction } from '@ez4/stateful';
 import { triggerAllAsync } from '@ez4/project/library';
 import { deepCompare } from '@ez4/utils';
 
-import { toBold, toGray, toGreen, toRed, toYellow } from '../utils/format';
+import { Color, toBold, toColor, toGreen, toRed, toYellow } from '../utils/format';
 import { MissingActionProviderError } from '../errors/provider';
 import { MissingEntryResourceError } from '../errors/resource';
 
@@ -100,7 +100,7 @@ const printResourceChanges = (entryId: string, type: string, changes: ObjectComp
 
     console.log('');
 
-    console.group(`# ${toBold(type)} ${toGray(`(${entryId} / ${name})`)} ${action}`);
+    console.group(`# ${toBold(type)} ${toColor(Color.BrightBlack, `(${entryId} / ${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
   }
@@ -123,7 +123,7 @@ const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?
     const name = getOutputName(property);
     const size = length + (path ? path.length + 1 : 0);
 
-    return `${name.padEnd(size, ' ')} = ${toGray(formatValue(value))}`;
+    return `${name.padEnd(size, ' ')} = ${toColor(Color.BrightBlack, formatValue(value))}`;
   };
 
   const createSign = toGreen(`+`);

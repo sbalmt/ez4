@@ -1,9 +1,9 @@
 import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
 
 import { applySteps, planSteps } from '@ez4/stateful';
+import { Logger } from '@ez4/project/library';
 
 import { DuplicateProviderError } from '../errors/providers';
-import { Logger } from './logger';
 
 const allProviderHandlers: StepHandlers<any> = {};
 
@@ -38,9 +38,7 @@ export const deploy = async <E extends EntryState>(
   concurrency?: number,
   force?: boolean
 ): Promise<ApplyResult<E>> => {
-  const serviceName = 'EZ4:Deploy';
-
-  Logger.logInfo(serviceName, 'Started');
+  Logger.log(`🚀 Deploy started`);
 
   const plannedSteps = await planSteps(newState, oldState, {
     handlers: allProviderHandlers,
@@ -53,11 +51,11 @@ export const deploy = async <E extends EntryState>(
     force
   });
 
-  resultState.errors.forEach((error) => {
-    Logger.logError('EZ4:Deploy', error.message);
-  });
+  Logger.info(`Deploy finished`);
 
-  Logger.logInfo(serviceName, 'Finished');
+  resultState.errors.forEach((error) => {
+    Logger.error(error.message);
+  });
 
   return resultState;
 };

@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { SubscriptionState, SubscriptionResult } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getSubscriptionProtocol } from './helpers/protocol';
@@ -51,29 +51,35 @@ const replaceResource = async (candidate: SubscriptionState, current: Subscripti
 };
 
 const createResource = async (candidate: SubscriptionState, context: StepContext): Promise<SubscriptionResult> => {
-  const parameters = candidate.parameters;
+  const { parameters } = candidate;
 
-  const [topicArn, endpoint] = await Promise.all([parameters.getTopicArn(context), parameters.getEndpoint(context)]);
+  return Logger.logOperation(SubscriptionServiceName, parameters.fromService, 'creation', async (logger) => {
+    const [topicArn, endpoint] = await Promise.all([parameters.getTopicArn(context), parameters.getEndpoint(context)]);
 
-  const { subscriptionArn } = await createSubscription({
-    protocol: getSubscriptionProtocol(SubscriptionServiceName, endpoint),
-    topicArn,
-    endpoint
+    const { subscriptionArn } = await createSubscription(logger, {
+      protocol: getSubscriptionProtocol(SubscriptionServiceName, endpoint),
+      topicArn,
+      endpoint
+    });
+
+    return {
+      subscriptionArn,
+      topicArn,
+      endpoint
+    };
   });
-
-  return {
-    subscriptionArn,
-    topicArn,
-    endpoint
-  };
 };
 
 const updateResource = async () => {};
 
-const deleteResource = async (candidate: SubscriptionState) => {
-  const { result } = candidate;
+const deleteResource = async (current: SubscriptionState) => {
+  const { result, parameters } = current;
 
-  if (result) {
-    await deleteSubscription(result.subscriptionArn);
+  if (!result) {
+    return;
   }
+
+  await Logger.logOperation(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
+    await deleteSubscription(logger, result.subscriptionArn);
+  });
 };
