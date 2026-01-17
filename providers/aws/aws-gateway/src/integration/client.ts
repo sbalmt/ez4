@@ -7,8 +7,6 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { waitUpdates } from '@ez4/aws-common';
-
 import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
@@ -54,20 +52,18 @@ export const updateIntegration = async (logger: Logger.OperationLogger, apiId: s
 
   const { http, functionArn, vpcId, timeout, description } = request;
 
-  await waitUpdates(() => {
-    return getApiGatewayV2Client().send(
-      new UpdateIntegrationCommand({
-        ApiId: apiId,
-        IntegrationId: integrationId,
-        Description: description,
-        IntegrationUri: functionArn,
-        PayloadFormatVersion: http ? '2.0' : undefined,
-        ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
-        TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
-        ConnectionId: vpcId
-      })
-    );
-  });
+  return getApiGatewayV2Client().send(
+    new UpdateIntegrationCommand({
+      ApiId: apiId,
+      IntegrationId: integrationId,
+      Description: description,
+      IntegrationUri: functionArn,
+      PayloadFormatVersion: http ? '2.0' : undefined,
+      ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
+      TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
+      ConnectionId: vpcId
+    })
+  );
 };
 
 export const deleteIntegration = async (logger: Logger.OperationLogger, apiId: string, integrationId: string) => {
