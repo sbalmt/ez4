@@ -1,4 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import type { PolicyDocument } from '../types/policy';
 
 import {
@@ -13,10 +13,9 @@ import {
   NoSuchEntityException
 } from '@aws-sdk/client-iam';
 
-import { Logger, getTagList, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import { getPolicyArn } from '../utils/policy';
-import { PolicyServiceName } from './types';
 
 const client = new IAMClient({});
 
@@ -36,8 +35,8 @@ export type CreateVersionResponse = {
   versionId: string;
 };
 
-export const importPolicy = async (policyName: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(PolicyServiceName, policyName);
+export const importPolicy = async (logger: Logger.OperationLogger, policyName: string): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing IAM policy`);
 
   const policyArn = await getPolicyArn(policyName);
 
@@ -78,15 +77,15 @@ export const importPolicy = async (policyName: string): Promise<ImportOrCreateRe
   }
 };
 
-export const createPolicy = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { policyName } = request;
+export const createPolicy = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating IAM policy`);
 
-  Logger.logCreate(PolicyServiceName, policyName);
+  const { policyName, policyDocument } = request;
 
   const response = await client.send(
     new CreatePolicyCommand({
       PolicyName: policyName,
-      PolicyDocument: JSON.stringify(request.policyDocument),
+      PolicyDocument: JSON.stringify(policyDocument),
       Tags: getTagList({
         ...request.tags,
         ManagedBy: 'EZ4'
@@ -103,10 +102,8 @@ export const createPolicy = async (request: CreateRequest): Promise<ImportOrCrea
   };
 };
 
-export const tagPolicy = async (policyArn: Arn, tags: ResourceTags) => {
-  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
-
-  Logger.logTag(PolicyServiceName, policyName);
+export const tagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag IAM policy`);
 
   await client.send(
     new TagPolicyCommand({
@@ -119,10 +116,8 @@ export const tagPolicy = async (policyArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagPolicy = async (policyArn: Arn, tagKeys: string[]) => {
-  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
-
-  Logger.logUntag(PolicyServiceName, policyName);
+export const untagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag IAM policy`);
 
   await client.send(
     new UntagPolicyCommand({
@@ -132,10 +127,12 @@ export const untagPolicy = async (policyArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const createPolicyVersion = async (policyArn: Arn, document: PolicyDocument): Promise<CreateVersionResponse> => {
-  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
-
-  Logger.logCreate(PolicyServiceName, `${policyName} version`);
+export const createPolicyVersion = async (
+  logger: Logger.OperationLogger,
+  policyArn: Arn,
+  document: PolicyDocument
+): Promise<CreateVersionResponse> => {
+  logger.update(`Creating policy version`);
 
   const response = await client.send(
     new CreatePolicyVersionCommand({
@@ -154,10 +151,8 @@ export const createPolicyVersion = async (policyArn: Arn, document: PolicyDocume
   };
 };
 
-export const deletePolicyVersion = async (policyArn: Arn, versionId: string) => {
-  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
-
-  Logger.logDelete(PolicyServiceName, `${policyName} version ${versionId}`);
+export const deletePolicyVersion = async (logger: Logger.OperationLogger, policyArn: Arn, versionId: string) => {
+  logger.update(`Deleting policy version`);
 
   try {
     await client.send(
@@ -177,10 +172,8 @@ export const deletePolicyVersion = async (policyArn: Arn, versionId: string) => 
   }
 };
 
-export const deletePolicy = async (policyArn: Arn) => {
-  const policyName = tryParseArn(policyArn)?.resourceName ?? policyArn;
-
-  Logger.logDelete(PolicyServiceName, policyName);
+export const deletePolicy = async (logger: Logger.OperationLogger, policyArn: Arn) => {
+  logger.update(`Deleting IAM policy`);
 
   try {
     await client.send(
