@@ -1,10 +1,7 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import { CloudWatchLogsClient, PutResourcePolicyCommand, DeleteResourcePolicyCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
-import { Logger, tryParseArn } from '@ez4/aws-common';
-
-import { LogPolicyServiceName } from './types';
 
 const client = new CloudWatchLogsClient({});
 
@@ -16,10 +13,8 @@ export type AttachResponse = {
   revisionId: string;
 };
 
-export const attachPolicy = async (groupArn: Arn, request: AttachRequest) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logAttach(LogPolicyServiceName, groupName, `policy`);
+export const attachPolicy = async (logger: Logger.OperationLogger, groupArn: Arn, request: AttachRequest) => {
+  logger.update(`Attaching log group policy`);
 
   const statement = createRoleStatement(
     {
@@ -45,10 +40,8 @@ export const attachPolicy = async (groupArn: Arn, request: AttachRequest) => {
   };
 };
 
-export const detachPolicy = async (groupArn: Arn, revisionId: string) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logDetach(LogPolicyServiceName, groupName, `policy`);
+export const detachPolicy = async (logger: Logger.OperationLogger, groupArn: Arn, revisionId: string) => {
+  logger.update(`Detaching log group policy`);
 
   await client.send(
     new DeleteResourcePolicyCommand({

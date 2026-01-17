@@ -1,4 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   CloudWatchLogsClient,
@@ -12,10 +12,9 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-cloudwatch-logs';
 
-import { Logger, tryParseArn, waitCreation } from '@ez4/aws-common';
+import { waitCreation } from '@ez4/aws-common';
 
 import { getLogGroupArn } from '../utils/group';
-import { LogGroupServiceName } from './types';
 
 const client = new CloudWatchLogsClient({});
 
@@ -28,10 +27,10 @@ export type CreateResponse = {
   groupArn: Arn;
 };
 
-export const createGroup = async (request: CreateRequest): Promise<CreateResponse> => {
-  const { groupName } = request;
+export const createGroup = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating log group`);
 
-  Logger.logCreate(LogGroupServiceName, groupName);
+  const { groupName } = request;
 
   try {
     await client.send(
@@ -56,8 +55,8 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const createRetention = async (groupName: string, retention: number) => {
-  Logger.logCreate(LogGroupServiceName, `${groupName} retention`);
+export const createRetention = async (logger: Logger.OperationLogger, groupName: string, retention: number) => {
+  logger.update(`Updating log group retention`);
 
   await waitCreation(() => {
     return client.send(
@@ -69,8 +68,8 @@ export const createRetention = async (groupName: string, retention: number) => {
   });
 };
 
-export const deleteRetention = async (groupName: string) => {
-  Logger.logDelete(LogGroupServiceName, `${groupName} retention`);
+export const deleteRetention = async (logger: Logger.OperationLogger, groupName: string) => {
+  logger.update(`Deleting log group retention`);
 
   await client.send(
     new DeleteRetentionPolicyCommand({
@@ -79,10 +78,8 @@ export const deleteRetention = async (groupName: string) => {
   );
 };
 
-export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logTag(LogGroupServiceName, groupName);
+export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag log group`);
 
   await client.send(
     new TagResourceCommand({
@@ -95,10 +92,8 @@ export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
-
-  Logger.logUntag(LogGroupServiceName, groupName);
+export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag log group`);
 
   await client.send(
     new UntagResourceCommand({
@@ -108,8 +103,8 @@ export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteGroup = async (groupName: string) => {
-  Logger.logDelete(LogGroupServiceName, groupName);
+export const deleteGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+  logger.update(`Deleting log group`);
 
   try {
     await client.send(
