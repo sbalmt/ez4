@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { QueueState, QueueResult, QueueParameters } from './types';
 import type { CreateRequest, DeadLetter, UpdateRequest } from './client';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { fetchQueue, createQueue, deleteQueue, tagQueue, untagQueue, updateQueue } from './client';
@@ -84,14 +84,19 @@ const createResource = async (candidate: QueueState, context: StepContext): Prom
   });
 };
 
-const updateResource = (candidate: QueueState, current: QueueState, context: StepContext) => {
+const updateResource = (candidate: QueueState, current: QueueState, context: StepContext): Promise<QueueResult> => {
   const { result, parameters } = candidate;
+  const { queueName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (!result) {
+    throw new CorruptedResourceError(QueueServiceName, queueName);
   }
 
-  return Logger.logOperation(QueueServiceName, parameters.queueName, 'updates', async (logger) => {
+  if (parameters.import) {
+    return Promise.resolve(result);
+  }
+
+  return Logger.logOperation(QueueServiceName, queueName, 'updates', async (logger) => {
     const { deadLetter: newDeadLetter, ...newParameters } = candidate.parameters;
     const { deadLetter: oldDeadLetter, ...oldParameters } = current.parameters;
 

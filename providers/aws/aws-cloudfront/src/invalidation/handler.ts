@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { InvalidationState, InvalidationResult } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getDistributionId } from '../distribution/utils';
@@ -47,15 +47,11 @@ const createResource = (_candidate: InvalidationState, context: StepContext): In
   };
 };
 
-const updateResource = (
-  candidate: InvalidationState,
-  current: InvalidationState,
-  context: StepContext
-): Promise<InvalidationResult | void> => {
+const updateResource = (candidate: InvalidationState, current: InvalidationState, context: StepContext): Promise<InvalidationResult> => {
   const { result, parameters } = candidate;
 
   if (!result) {
-    return Promise.resolve(undefined);
+    throw new CorruptedResourceError(InvalidationServiceName, 'invalidation');
   }
 
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);

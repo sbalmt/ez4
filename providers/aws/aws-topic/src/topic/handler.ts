@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { deepCompare } from '@ez4/utils';
 
@@ -66,14 +66,19 @@ const createResource = (candidate: TopicState): Promise<TopicResult> => {
   });
 };
 
-const updateResource = (candidate: TopicState, current: TopicState) => {
+const updateResource = (candidate: TopicState, current: TopicState): Promise<TopicResult> => {
   const { result, parameters } = candidate;
+  const { topicName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (!result) {
+    throw new CorruptedResourceError(TopicServiceName, topicName);
   }
 
-  return Logger.logOperation(TopicServiceName, parameters.topicName, 'updates', async (logger) => {
+  if (parameters.import) {
+    return Promise.resolve(result);
+  }
+
+  return Logger.logOperation(TopicServiceName, topicName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
 
     return result;

@@ -2,7 +2,7 @@ import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
 import type { MigrationState, MigrationResult } from './types';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
@@ -77,11 +77,12 @@ const createResource = (candidate: MigrationState, context: StepContext): Promis
   });
 };
 
-const updateResource = (candidate: MigrationState, current: MigrationState, context: StepContext) => {
+const updateResource = (candidate: MigrationState, current: MigrationState, context: StepContext): Promise<MigrationResult> => {
   const { result, parameters } = candidate;
+  const { database } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(MigrationServiceName, database);
   }
 
   const targetRepository = parameters.repository;
@@ -90,10 +91,8 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
   if (!databaseChanges.counts) {
-    return;
+    return Promise.resolve(result);
   }
-
-  const { database } = parameters;
 
   return Logger.logOperation(MigrationServiceName, database, 'updates', async (logger) => {
     await updateTables(logger, {
@@ -105,6 +104,8 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
         source: sourceRepository
       }
     });
+
+    return result;
   });
 };
 

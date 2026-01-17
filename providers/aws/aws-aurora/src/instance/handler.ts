@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { InstanceState, InstanceResult, InstanceParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, ReplaceResourceError } from '@ez4/aws-common';
 import { Logger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
@@ -69,15 +69,18 @@ const createResource = (candidate: InstanceState, context: StepContext): Promise
   });
 };
 
-const updateResource = (candidate: InstanceState, current: InstanceState) => {
+const updateResource = (candidate: InstanceState, current: InstanceState): Promise<InstanceResult> => {
   const { result, parameters } = candidate;
+  const { instanceName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(InstanceServiceName, instanceName);
   }
 
-  return Logger.logOperation(InstanceServiceName, parameters.instanceName, 'updates', async (logger) => {
+  return Logger.logOperation(InstanceServiceName, instanceName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
+
+    return result;
   });
 };
 

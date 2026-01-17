@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { AccessState, AccessResult, AccessParameters } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createOriginAccess, updateOriginAccess, deleteOriginAccess } from './client';
@@ -58,14 +58,13 @@ const createResource = (candidate: AccessState): Promise<AccessResult> => {
   });
 };
 
-const updateResource = (candidate: AccessState, current: AccessState) => {
+const updateResource = (candidate: AccessState, current: AccessState): Promise<AccessResult> => {
   const { result, parameters } = candidate;
+  const { accessName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(AccessServiceName, accessName);
   }
-
-  const accessName = parameters.accessName;
 
   return Logger.logOperation(AccessServiceName, accessName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);

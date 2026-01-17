@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client';
@@ -58,17 +58,18 @@ const createResource = (candidate: CertificateState): Promise<CertificateResult>
   });
 };
 
-const updateResource = (candidate: CertificateState, current: CertificateState) => {
+const updateResource = (candidate: CertificateState, current: CertificateState): Promise<CertificateResult> => {
   const { result, parameters } = candidate;
+  const { domainName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(CertificateServiceName, domainName);
   }
-
-  const domainName = parameters.domainName;
 
   return Logger.logOperation(CertificateServiceName, domainName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
+
+    return result;
   });
 };
 

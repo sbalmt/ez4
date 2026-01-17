@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
@@ -62,14 +62,13 @@ const createResource = (candidate: ClusterState): Promise<ClusterResult> => {
   });
 };
 
-const updateResource = (candidate: ClusterState, current: ClusterState) => {
+const updateResource = (candidate: ClusterState, current: ClusterState): Promise<ClusterResult> => {
   const { result, parameters } = candidate;
+  const { clusterName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(ClusterServiceName, clusterName);
   }
-
-  const { clusterName } = parameters;
 
   return Logger.logOperation(ClusterServiceName, clusterName, 'updates', async (logger) => {
     const newResult = await checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);

@@ -4,7 +4,7 @@ import type { ObjectState, ObjectResult, ObjectParameters } from './types';
 
 import { stat } from 'node:fs/promises';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils';
@@ -80,14 +80,13 @@ const createResource = (candidate: ObjectState, context: StepContext): Promise<O
   });
 };
 
-const updateResource = (candidate: ObjectState, current: ObjectState): Promise<ObjectResult | undefined> => {
+const updateResource = (candidate: ObjectState, current: ObjectState): Promise<ObjectResult> => {
   const { result, parameters } = candidate;
+  const { objectKey, tags } = parameters;
 
   if (!result) {
-    return Promise.resolve(undefined);
+    throw new CorruptedResourceError(ObjectServiceName, objectKey);
   }
-
-  const { objectKey, tags } = parameters;
 
   const objectName = getBucketObjectPath(result.bucketName, objectKey);
 

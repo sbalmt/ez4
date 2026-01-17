@@ -1,7 +1,7 @@
 import type { StepHandler } from '@ez4/stateful';
 import type { CacheState, CacheResult, CacheParameters } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client';
@@ -56,14 +56,13 @@ const createResource = (candidate: CacheState): Promise<CacheResult> => {
   });
 };
 
-const updateResource = (candidate: CacheState, current: CacheState): Promise<CacheResult | undefined> => {
+const updateResource = (candidate: CacheState, current: CacheState): Promise<CacheResult> => {
   const { result, parameters } = candidate;
+  const { policyName } = parameters;
 
   if (!result) {
-    return Promise.resolve(undefined);
+    throw new CorruptedResourceError(CacheServiceName, policyName);
   }
-
-  const policyName = parameters.policyName;
 
   return Logger.logOperation(CacheServiceName, policyName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);

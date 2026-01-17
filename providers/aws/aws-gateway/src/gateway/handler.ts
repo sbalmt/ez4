@@ -2,7 +2,7 @@ import type { StepHandler } from '@ez4/stateful';
 import type { Arn } from '@ez4/aws-common';
 import type { GatewayState, GatewayResult, GatewayParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createGateway, deleteCorsConfiguration, deleteGateway, fetchGateway, tagGateway, untagGateway, updateGateway } from './client';
@@ -69,18 +69,25 @@ const createResource = async (candidate: GatewayState): Promise<GatewayResult> =
   });
 };
 
-const updateResource = (candidate: GatewayState, current: GatewayState) => {
+const updateResource = (candidate: GatewayState, current: GatewayState): Promise<GatewayResult> => {
   const { result, parameters } = candidate;
+  const { gatewayName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (!result) {
+    throw new CorruptedResourceError(GatewayServiceName, gatewayName);
   }
 
-  return Logger.logOperation(GatewayServiceName, parameters.gatewayName, 'updates', async (logger) => {
+  if (parameters.import) {
+    return Promise.resolve(result);
+  }
+
+  return Logger.logOperation(GatewayServiceName, gatewayName, 'updates', async (logger) => {
     const { apiId, apiArn } = result;
 
     await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
     await checkTagUpdates(logger, apiArn, parameters, current.parameters);
+
+    return result;
   });
 };
 

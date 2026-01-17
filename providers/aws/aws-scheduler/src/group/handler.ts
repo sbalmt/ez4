@@ -2,7 +2,7 @@ import type { Arn } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
 import type { GroupState, GroupResult, GroupParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createGroup, deleteGroup, importGroup, tagGroup, untagGroup } from './client';
@@ -57,14 +57,15 @@ const createResource = async (candidate: GroupState): Promise<GroupResult> => {
   });
 };
 
-const updateResource = (candidate: GroupState, current: GroupState) => {
+const updateResource = (candidate: GroupState, current: GroupState): Promise<GroupResult> => {
   const { result, parameters } = candidate;
+  const { groupName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(GroupServiceName, groupName);
   }
 
-  return Logger.logOperation(GroupServiceName, parameters.groupName, 'updates', async (logger) => {
+  return Logger.logOperation(GroupServiceName, groupName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
 
     return result;

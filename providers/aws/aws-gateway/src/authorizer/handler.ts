@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types';
 
 import { getFunctionArn } from '@ez4/aws-function';
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { GatewayProtocol } from '../gateway/types';
@@ -64,14 +64,15 @@ const createResource = async (candidate: AuthorizerState, context: StepContext):
   });
 };
 
-const updateResource = (candidate: AuthorizerState, current: AuthorizerState, context: StepContext) => {
+const updateResource = (candidate: AuthorizerState, current: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
   const { result, parameters } = candidate;
+  const { name } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(AuthorizerServiceName, name);
   }
 
-  return Logger.logOperation(AuthorizerServiceName, parameters.name, 'updates', async (logger) => {
+  return Logger.logOperation(AuthorizerServiceName, name, 'updates', async (logger) => {
     const authorizerId = result.authorizerId;
 
     const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);

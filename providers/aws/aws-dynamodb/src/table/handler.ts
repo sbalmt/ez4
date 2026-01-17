@@ -3,7 +3,7 @@ import type { Arn } from '@ez4/aws-common';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
 import type { TableState, TableResult, TableParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepEqual, deepCompare } from '@ez4/utils';
 
 import {
@@ -83,14 +83,13 @@ const createResource = (candidate: TableState): Promise<TableResult> => {
   });
 };
 
-const updateResource = (candidate: TableState, current: TableState) => {
+const updateResource = (candidate: TableState, current: TableState): Promise<TableResult> => {
   const { result, parameters } = candidate;
+  const { tableName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(TableServiceName, tableName);
   }
-
-  const { tableName, tableArn } = result;
 
   return Logger.logOperation(TableServiceName, tableName, 'updates', async (logger) => {
     const newResult = await checkStreamsUpdates(logger, tableName, parameters, current.parameters);
@@ -99,7 +98,7 @@ const updateResource = (candidate: TableState, current: TableState) => {
     await checkDeletionUpdates(logger, tableName, parameters, current.parameters);
     await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
     await checkIndexUpdates(logger, tableName, parameters, current.parameters);
-    await checkTagUpdates(logger, tableArn, parameters, current.parameters);
+    await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
 
     return {
       ...result,

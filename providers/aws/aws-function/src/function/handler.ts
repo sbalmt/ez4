@@ -3,7 +3,7 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
-import { applyTagUpdates, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
@@ -173,14 +173,13 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
   });
 };
 
-const updateResource = (candidate: FunctionState, current: FunctionState, context: StepContext) => {
+const updateResource = (candidate: FunctionState, current: FunctionState, context: StepContext): Promise<FunctionResult> => {
   const { parameters, result } = candidate;
+  const { functionName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(FunctionServiceName, functionName);
   }
-
-  const { functionName } = parameters;
 
   return Logger.logOperation(FunctionServiceName, functionName, 'updates', async (logger) => {
     const newVariables = await parameters.getFunctionVariables();

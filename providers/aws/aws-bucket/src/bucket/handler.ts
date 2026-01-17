@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetFunctionArn } from '@ez4/aws-function';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
@@ -88,14 +88,13 @@ const createResource = (candidate: BucketState, context: StepContext): Promise<B
   });
 };
 
-const updateResource = (candidate: BucketState, current: BucketState, context: StepContext): Promise<BucketResult | undefined> => {
+const updateResource = (candidate: BucketState, current: BucketState, context: StepContext): Promise<BucketResult> => {
   const { result, parameters } = candidate;
+  const { bucketName } = parameters;
 
   if (!result) {
-    return Promise.resolve(undefined);
+    throw new CorruptedResourceError(BucketServiceName, bucketName);
   }
-
-  const bucketName = result.bucketName;
 
   return Logger.logOperation(BucketServiceName, bucketName, 'updates', async (logger) => {
     const newFunctionArn = tryGetFunctionArn(context);

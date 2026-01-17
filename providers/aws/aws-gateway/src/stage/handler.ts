@@ -3,7 +3,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { StageState, StageResult, StageParameters } from './types';
 
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetLogGroupArn } from '@ez4/aws-logs';
 
 import { getGatewayId } from '../gateway/utils';
@@ -80,21 +80,22 @@ const createResource = async (candidate: StageState, context: StepContext): Prom
   });
 };
 
-const updateResource = (candidate: StageState, current: StageState, context: StepContext) => {
+const updateResource = (candidate: StageState, current: StageState, context: StepContext): Promise<StageResult> => {
   const { parameters: newParameters, result } = candidate;
+  const { stageName } = newParameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(StageServiceName, stageName);
   }
 
-  return Logger.logOperation(StageServiceName, newParameters.stageName, 'updates', async (logger) => {
+  return Logger.logOperation(StageServiceName, stageName, 'updates', async (logger) => {
     const { parameters: oldParameters } = current;
 
     const newLogGroupArn = tryGetLogGroupArn(context);
     const oldLogGroupArn = current.result?.logGroupArn;
 
-    await checkAccessLogUpdates(logger, result.apiId, result.stageName, newLogGroupArn, oldLogGroupArn);
-    await checkGeneralUpdates(logger, result.apiId, result.stageName, newParameters, oldParameters);
+    await checkAccessLogUpdates(logger, result.apiId, stageName, newLogGroupArn, oldLogGroupArn);
+    await checkGeneralUpdates(logger, result.apiId, stageName, newParameters, oldParameters);
 
     return {
       ...result,
