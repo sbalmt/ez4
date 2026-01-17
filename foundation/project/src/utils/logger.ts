@@ -89,13 +89,13 @@ export namespace Logger {
   };
 
   export const debug = (message: string) => {
-    if (Context.logLevel <= LogLevel.Debug) {
+    if (Context.logLevel >= LogLevel.Debug) {
       log(message);
     }
   };
 
   export const info = (message: string) => {
-    if (Context.logLevel <= LogLevel.Information) {
+    if (Context.logLevel >= LogLevel.Information) {
       for (const line of message.split('\n')) {
         process.stderr.write(`ℹ️  ${line}\n`);
       }
@@ -103,7 +103,7 @@ export namespace Logger {
   };
 
   export const warn = (message: string) => {
-    if (Context.logLevel <= LogLevel.Warning) {
+    if (Context.logLevel >= LogLevel.Warning) {
       for (const line of message.split('\n')) {
         process.stderr.write(`⚠️  ${toColor(Color.Red, line)}\n`);
       }
@@ -111,7 +111,7 @@ export namespace Logger {
   };
 
   export const error = (message: string) => {
-    if (Context.logLevel <= LogLevel.Error) {
+    if (Context.logLevel >= LogLevel.Error) {
       for (const line of message.split('\n')) {
         process.stderr.write(`❌ ${toColor(Color.Red, line)}\n`);
       }
@@ -119,7 +119,7 @@ export namespace Logger {
   };
 
   export const success = (message: string) => {
-    if (Context.logLevel <= LogLevel.Error) {
+    if (Context.logLevel >= LogLevel.Error) {
       for (const line of message.split('\n')) {
         process.stderr.write(`✅ ${line}\n`);
       }

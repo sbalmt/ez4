@@ -53,9 +53,5 @@ export const deploy = async <E extends EntryState>(
 
   Logger.log(`ℹ️  Deploy finished`);
 
-  resultState.errors.forEach((error) => {
-    Logger.error(error.message);
-  });
-
   return resultState;
 };
