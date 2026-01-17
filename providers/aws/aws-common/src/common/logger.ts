@@ -22,7 +22,7 @@ export namespace Logger {
       return result;
       //
     } catch (error) {
-      logger.update(toRed(`❌ Finished ${toBold(resource)} ${operation} [${serviceName}: With errors]`));
+      logger.update(`❌ Finished ${toRed(toBold(resource))} ${operation} with errors ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
 
       throw error;
     }
