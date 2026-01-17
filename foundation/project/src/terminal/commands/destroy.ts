@@ -25,7 +25,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
   });
 
   if (options.force) {
-    Logger.log('‼️  Force option is enabled');
+    Logger.log('❗ Force option is enabled');
   }
 
   warnUnsupportedFlags(input, {
