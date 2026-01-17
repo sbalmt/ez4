@@ -1,7 +1,6 @@
 import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   CreateAuthorizerCommand,
   UpdateAuthorizerCommand,
   DeleteAuthorizerCommand,
@@ -11,9 +10,8 @@ import {
 
 import { waitUpdates } from '@ez4/aws-common';
 
+import { getApiGatewayV2Client } from '../utils/deploy';
 import { getAuthorizerUri } from './utils';
-
-const client = new ApiGatewayV2Client({});
 
 export type CreateRequest = {
   name: string;
@@ -35,7 +33,7 @@ export const createAuthorizer = async (logger: Logger.OperationLogger, apiId: st
 
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateAuthorizerCommand({
       Name: name,
       ApiId: apiId,
@@ -64,6 +62,8 @@ export const updateAuthorizer = async (logger: Logger.OperationLogger, apiId: st
 
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
+  const client = getApiGatewayV2Client();
+
   await waitUpdates(async () => {
     return client.send(
       new UpdateAuthorizerCommand({
@@ -91,7 +91,7 @@ export const deleteAuthorizer = async (logger: Logger.OperationLogger, apiId: st
   logger.update(`Deleting authorizer`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteAuthorizerCommand({
         ApiId: apiId,
         AuthorizerId: authorizerId

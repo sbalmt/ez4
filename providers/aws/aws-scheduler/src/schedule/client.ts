@@ -2,7 +2,6 @@ import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-s
 import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
-  SchedulerClient,
   CreateScheduleCommand,
   UpdateScheduleCommand,
   DeleteScheduleCommand,
@@ -13,7 +12,7 @@ import {
 
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
-const client = new SchedulerClient({});
+import { getSchedulerClient } from '../utils/deploy';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -39,7 +38,7 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'scheduleName'>>;
 export const createSchedule = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler`);
 
-  const response = await client.send(
+  const response = await getSchedulerClient().send(
     new CreateScheduleCommand({
       Name: request.scheduleName,
       ...upsertScheduleRequest(request)
@@ -56,7 +55,7 @@ export const createSchedule = async (logger: Logger.OperationLogger, request: Cr
 export const updateSchedule = async (logger: Logger.OperationLogger, scheduleName: string, request: UpdateRequest) => {
   logger.update(`Updating scheduler`);
 
-  await client.send(
+  await getSchedulerClient().send(
     new UpdateScheduleCommand({
       Name: scheduleName,
       ...upsertScheduleRequest(request)
@@ -68,7 +67,7 @@ export const deleteSchedule = async (logger: Logger.OperationLogger, scheduleNam
   logger.update(`Deleting scheduler`);
 
   try {
-    await client.send(
+    await getSchedulerClient().send(
       new DeleteScheduleCommand({
         Name: scheduleName
       })

@@ -1,7 +1,6 @@
 import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
-  SchedulerClient,
   GetScheduleGroupCommand,
   CreateScheduleGroupCommand,
   DeleteScheduleGroupCommand,
@@ -12,7 +11,7 @@ import {
 
 import { getTagList } from '@ez4/aws-common';
 
-const client = new SchedulerClient({});
+import { getSchedulerClient } from '../utils/deploy';
 
 export type CreateRequest = {
   groupName: string;
@@ -27,7 +26,7 @@ export const importGroup = async (logger: Logger.OperationLogger, groupName: str
   logger.update(`Importing scheduler group`);
 
   try {
-    const response = await client.send(
+    const response = await getSchedulerClient().send(
       new GetScheduleGroupCommand({
         Name: groupName
       })
@@ -50,7 +49,7 @@ export const importGroup = async (logger: Logger.OperationLogger, groupName: str
 export const createGroup = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler group`);
 
-  const response = await client.send(
+  const response = await getSchedulerClient().send(
     new CreateScheduleGroupCommand({
       Name: request.groupName,
       Tags: getTagList({
@@ -71,7 +70,7 @@ export const deleteGroup = async (logger: Logger.OperationLogger, groupName: str
   logger.update(`Deleting scheduler group`);
 
   try {
-    await client.send(
+    await getSchedulerClient().send(
       new DeleteScheduleGroupCommand({
         Name: groupName
       })
@@ -90,7 +89,7 @@ export const deleteGroup = async (logger: Logger.OperationLogger, groupName: str
 export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag scheduler group`);
 
-  await client.send(
+  await getSchedulerClient().send(
     new TagResourceCommand({
       ResourceArn: groupArn,
       Tags: getTagList({
@@ -104,7 +103,7 @@ export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, ta
 export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag scheduler group`);
 
-  await client.send(
+  await getSchedulerClient().send(
     new UntagResourceCommand({
       ResourceArn: groupArn,
       TagKeys: tagKeys

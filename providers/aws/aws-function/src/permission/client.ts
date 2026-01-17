@@ -1,9 +1,8 @@
 import type { Logger } from '@ez4/aws-common';
 import type { Arn } from '@ez4/aws-common';
 
-import { LambdaClient, AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
-
-const client = new LambdaClient({});
+import { AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
+import { getLambdaClient } from '../utils/deploy';
 
 export type CreateRequest = {
   functionName: string;
@@ -22,7 +21,7 @@ export const createPermission = async (logger: Logger.OperationLogger, request: 
 
   const statementId = request.statementId ?? `ID${Date.now()}`;
 
-  await client.send(
+  await getLambdaClient().send(
     new AddPermissionCommand({
       StatementId: statementId,
       FunctionName: request.functionName,
@@ -41,7 +40,7 @@ export const deletePermission = async (logger: Logger.OperationLogger, functionN
   logger.update(`Deleting permission`);
 
   try {
-    await client.send(
+    await getLambdaClient().send(
       new RemovePermissionCommand({
         FunctionName: functionName,
         StatementId: statementId

@@ -1,9 +1,11 @@
 import type { RoleDocument } from '@ez4/aws-identity';
 import type { Logger } from '@ez4/aws-common';
 
-import { S3Client, PutBucketPolicyCommand, DeleteBucketPolicyCommand, NoSuchBucket } from '@aws-sdk/client-s3';
+import { PutBucketPolicyCommand, DeleteBucketPolicyCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 
-const client = new S3Client({});
+import { getS3Client } from '../utils/deploy';
+
+const client = getS3Client();
 
 export type CreateRequest = {
   bucketName: string;

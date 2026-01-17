@@ -3,7 +3,6 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
-  LambdaClient,
   GetFunctionCommand,
   CreateFunctionCommand,
   DeleteFunctionCommand,
@@ -23,19 +22,11 @@ import {
 
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
+import { getLambdaClient, getLambdaWaiter } from '../utils/deploy';
 import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
 import { assertVariables } from './helpers/variables';
 import { getZipBuffer } from './helpers/zip';
-
-const client = new LambdaClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -85,7 +76,7 @@ export const importFunction = async (
   logger.update(`Importing function`);
 
   try {
-    const response = await client.send(
+    const response = await getLambdaClient().send(
       new GetFunctionCommand({
         FunctionName: functionName,
         Qualifier: version
@@ -122,6 +113,8 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
 
   const { description, memory, timeout, architecture, runtime, debug, roleArn, logGroup } = request;
 
+  const client = getLambdaClient();
+
   // If the given roleArn is new and still propagating on AWS, the creation will fail.
   // The `waitCreation` will keep retrying until max attempts.
   const response = await waitCreation(() => {
@@ -156,7 +149,7 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
     );
   });
 
-  await waitUntilFunctionActive(waiter, {
+  await waitUntilFunctionActive(getLambdaWaiter(client), {
     FunctionName: functionName
   });
 
@@ -183,6 +176,8 @@ export const updateSourceCode = async (logger: Logger.OperationLogger, functionN
 
   const { publish, architecture } = request;
 
+  const client = getLambdaClient();
+
   const response = await client.send(
     new UpdateFunctionCodeCommand({
       Architectures: architecture && [getFunctionArchitecture(architecture)],
@@ -192,7 +187,7 @@ export const updateSourceCode = async (logger: Logger.OperationLogger, functionN
     })
   );
 
-  await waitUntilFunctionUpdated(waiter, {
+  await waitUntilFunctionUpdated(getLambdaWaiter(client), {
     FunctionName: functionName
   });
 
@@ -223,6 +218,8 @@ export const updateConfiguration = async (logger: Logger.OperationLogger, functi
 
   const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
 
+  const client = getLambdaClient();
+
   await client.send(
     new UpdateFunctionConfigurationCommand({
       Runtime: runtime && getFunctionRuntime(runtime),
@@ -246,13 +243,15 @@ export const updateConfiguration = async (logger: Logger.OperationLogger, functi
     })
   );
 
-  await waitUntilFunctionUpdated(waiter, {
+  await waitUntilFunctionUpdated(getLambdaWaiter(client), {
     FunctionName: functionName
   });
 };
 
 export const deleteFunction = async (functionName: string, logger: Logger.OperationLogger) => {
   logger.update(`Deleting function`);
+
+  const client = getLambdaClient();
 
   // If the function is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
@@ -274,6 +273,8 @@ export const deleteFunction = async (functionName: string, logger: Logger.Operat
 export const publishFunction = async (functionName: string, logger: Logger.OperationLogger) => {
   logger.update(`Publishing version`);
 
+  const client = getLambdaClient();
+
   const response = await client.send(
     new PublishVersionCommand({
       FunctionName: functionName
@@ -282,7 +283,7 @@ export const publishFunction = async (functionName: string, logger: Logger.Opera
 
   const version = response.Version;
 
-  await waitUntilPublishedVersionActive(waiter, {
+  await waitUntilPublishedVersionActive(getLambdaWaiter(client), {
     FunctionName: functionName,
     Qualifier: version
   });
@@ -293,7 +294,7 @@ export const publishFunction = async (functionName: string, logger: Logger.Opera
 export const tagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag function`);
 
-  await client.send(
+  await getLambdaClient().send(
     new TagResourceCommand({
       Resource: functionArn,
       Tags: {
@@ -307,7 +308,7 @@ export const tagFunction = async (logger: Logger.OperationLogger, functionArn: A
 export const untagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag function`);
 
-  await client.send(
+  await getLambdaClient().send(
     new UntagResourceCommand({
       Resource: functionArn,
       TagKeys: tagKeys

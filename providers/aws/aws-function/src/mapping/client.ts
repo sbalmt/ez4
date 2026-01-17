@@ -2,7 +2,6 @@ import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest }
 import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
-  LambdaClient,
   GetEventSourceMappingCommand,
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
@@ -16,9 +15,8 @@ import {
 import { parseArn } from '@ez4/aws-common';
 import { Wait } from '@ez4/utils';
 
+import { getLambdaClient } from '../utils/deploy';
 import { MappingService } from './types';
-
-const client = new LambdaClient({});
 
 export type BatchOptions = {
   maxWait?: number;
@@ -46,7 +44,7 @@ export const importMapping = async (
 ): Promise<ImportOrCreateResponse | undefined> => {
   logger.update(`Importing mapping`);
 
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new ListEventSourceMappingsCommand({
       FunctionName: functionName,
       EventSourceArn: sourceArn
@@ -71,7 +69,7 @@ export const createMapping = async (logger: Logger.OperationLogger, request: Cre
 
   const { sourceArn, functionName } = request;
 
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new CreateEventSourceMappingCommand({
       FunctionName: functionName,
       EventSourceArn: sourceArn,
@@ -93,6 +91,8 @@ export const updateMapping = async (logger: Logger.OperationLogger, eventId: str
 
   const { functionName } = request;
 
+  const client = getLambdaClient();
+
   await client.send(
     new UpdateEventSourceMappingCommand({
       UUID: eventId,
@@ -108,7 +108,7 @@ export const deleteMapping = async (logger: Logger.OperationLogger, eventId: str
   logger.update(`Deleting mapping`);
 
   try {
-    await client.send(
+    await getLambdaClient().send(
       new DeleteEventSourceMappingCommand({
         UUID: eventId
       })
@@ -125,7 +125,7 @@ export const deleteMapping = async (logger: Logger.OperationLogger, eventId: str
 };
 
 const getMappingState = async (eventId: string) => {
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new GetEventSourceMappingCommand({
       UUID: eventId
     })

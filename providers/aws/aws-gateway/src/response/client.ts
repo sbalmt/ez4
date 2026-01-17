@@ -1,14 +1,13 @@
 import type { Logger } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   CreateRouteResponseCommand,
   UpdateRouteResponseCommand,
   DeleteRouteResponseCommand,
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-const client = new ApiGatewayV2Client({});
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   responseKey: string;
@@ -30,7 +29,7 @@ export const createResponse = async (
 
   const { responseKey } = request;
 
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateRouteResponseCommand({
       RouteResponseKey: responseKey,
       RouteId: routeId,
@@ -56,7 +55,7 @@ export const updateResponse = async (
 
   const { responseKey } = request;
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateRouteResponseCommand({
       RouteResponseKey: responseKey,
       RouteResponseId: responseId,
@@ -70,7 +69,7 @@ export const deleteResponse = async (logger: Logger.OperationLogger, apiId: stri
   logger.update(`Deleting response`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteRouteResponseCommand({
         RouteResponseId: responseId,
         RouteId: routeId,

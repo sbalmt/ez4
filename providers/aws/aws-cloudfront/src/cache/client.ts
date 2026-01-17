@@ -2,7 +2,6 @@ import type { CachePolicyConfig } from '@aws-sdk/client-cloudfront';
 import type { Logger } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   GetCachePolicyCommand,
   CreateCachePolicyCommand,
   UpdateCachePolicyCommand,
@@ -13,7 +12,7 @@ import {
   NoSuchCachePolicy
 } from '@aws-sdk/client-cloudfront';
 
-const client = new CloudFrontClient({});
+import { getCloudFrontClient } from '../utils/deploy';
 
 export type CacheKeys = {
   headers?: string[];
@@ -42,7 +41,7 @@ export type UpdateResponse = CreateResponse;
 export const createCachePolicy = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating cache policy`);
 
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new CreateCachePolicyCommand({
       CachePolicyConfig: {
         ...upsertPolicyRequest(request)
@@ -62,7 +61,7 @@ export const updateCachePolicy = async (logger: Logger.OperationLogger, policyId
 
   const version = await getCurrentPolicyVersion(policyId);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new UpdateCachePolicyCommand({
       Id: policyId,
       IfMatch: version,
@@ -79,7 +78,7 @@ export const deleteCachePolicy = async (logger: Logger.OperationLogger, policyId
   try {
     const version = await getCurrentPolicyVersion(policyId);
 
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteCachePolicyCommand({
         Id: policyId,
         IfMatch: version
@@ -97,7 +96,7 @@ export const deleteCachePolicy = async (logger: Logger.OperationLogger, policyId
 };
 
 const getCurrentPolicyVersion = async (policyId: string) => {
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new GetCachePolicyCommand({
       Id: policyId
     })

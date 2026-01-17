@@ -2,7 +2,6 @@ import type { Arn, Logger } from '@ez4/aws-common';
 import type { Variables } from '../types/variables';
 
 import {
-  ApiGatewayV2Client,
   GetStageCommand,
   CreateStageCommand,
   UpdateStageCommand,
@@ -13,8 +12,7 @@ import {
 
 import { assertVariables } from './helpers/variables';
 import { StageServiceName } from './types';
-
-const client = new ApiGatewayV2Client({});
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   stageName: string;
@@ -31,10 +29,10 @@ export const importStage = async (
   apiId: string,
   stageName: string
 ): Promise<ImportOrCreateResponse | undefined> => {
-  logger.update(`Importing stage`);
+  logger.update(`Importing API stage`);
 
   try {
-    const response = await client.send(
+    const response = await getApiGatewayV2Client().send(
       new GetStageCommand({
         ApiId: apiId,
         StageName: stageName
@@ -58,7 +56,7 @@ export const createStage = async (
   apiId: string,
   request: CreateRequest
 ): Promise<ImportOrCreateResponse> => {
-  logger.update(`Creating stage`);
+  logger.update(`Creating API stage`);
 
   const { stageName, stageVariables, autoDeploy } = request;
 
@@ -66,7 +64,7 @@ export const createStage = async (
     assertVariables(StageServiceName, stageVariables);
   }
 
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -81,7 +79,7 @@ export const createStage = async (
 };
 
 export const updateStage = async (logger: Logger.OperationLogger, apiId: string, stageName: string, request: Partial<CreateRequest>) => {
-  logger.update(`Updating stage`);
+  logger.update(`Updating API stage`);
 
   const { stageVariables, autoDeploy } = request;
 
@@ -89,7 +87,7 @@ export const updateStage = async (logger: Logger.OperationLogger, apiId: string,
     assertVariables(StageServiceName, stageVariables);
   }
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -100,9 +98,9 @@ export const updateStage = async (logger: Logger.OperationLogger, apiId: string,
 };
 
 export const enableAccessLogs = async (logger: Logger.OperationLogger, apiId: string, stageName: string, logGroupArn: Arn) => {
-  logger.update(`Enabling access logs`);
+  logger.update(`Enabling API access logs`);
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -130,9 +128,9 @@ export const enableAccessLogs = async (logger: Logger.OperationLogger, apiId: st
 };
 
 export const disableAccessLogs = async (logger: Logger.OperationLogger, apiId: string, stageName: string) => {
-  logger.update(`Disabling access logs`);
+  logger.update(`Disabling API access logs`);
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new DeleteAccessLogSettingsCommand({
       ApiId: apiId,
       StageName: stageName
@@ -141,10 +139,10 @@ export const disableAccessLogs = async (logger: Logger.OperationLogger, apiId: s
 };
 
 export const deleteStage = async (logger: Logger.OperationLogger, apiId: string, stageName: string) => {
-  logger.update(`Deleting stage`);
+  logger.update(`Deleting API stage`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteStageCommand({
         ApiId: apiId,
         StageName: stageName

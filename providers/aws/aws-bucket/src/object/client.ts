@@ -2,12 +2,12 @@ import type { Logger, ResourceTags } from '@ez4/aws-common';
 
 import { createReadStream } from 'node:fs';
 
-import { S3Client, PutObjectCommand, PutObjectTaggingCommand, DeleteObjectCommand, NoSuchBucket } from '@aws-sdk/client-s3';
+import { PutObjectCommand, PutObjectTaggingCommand, DeleteObjectCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 import { getTagList } from '@ez4/aws-common';
 
-import mime from 'mime';
+import { getS3Client } from '../utils/deploy';
 
-const client = new S3Client({});
+import mime from 'mime';
 
 export type CreateRequest = {
   filePath: string;
@@ -25,7 +25,7 @@ export const putObject = async (logger: Logger.OperationLogger, bucketName: stri
 
   const contentType = mime.getType(filePath);
 
-  await client.send(
+  await getS3Client().send(
     new PutObjectCommand({
       Bucket: bucketName,
       Key: objectKey,
@@ -44,7 +44,7 @@ export const putObject = async (logger: Logger.OperationLogger, bucketName: stri
 export const updateTags = async (logger: Logger.OperationLogger, bucketName: string, objectKey: string, tags: ResourceTags) => {
   logger.update(`Updating object tags`);
 
-  await client.send(
+  await getS3Client().send(
     new PutObjectTaggingCommand({
       Bucket: bucketName,
       Key: objectKey,
@@ -62,7 +62,7 @@ export const deleteObject = async (logger: Logger.OperationLogger, bucketName: s
   logger.update(`Deleting object`);
 
   try {
-    await client.send(
+    await getS3Client().send(
       new DeleteObjectCommand({
         Bucket: bucketName,
         Key: objectKey

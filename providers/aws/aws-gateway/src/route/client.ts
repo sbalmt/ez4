@@ -1,7 +1,7 @@
+import type { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2';
 import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   GetRoutesCommand,
   CreateRouteCommand,
   UpdateRouteCommand,
@@ -11,8 +11,7 @@ import {
 } from '@aws-sdk/client-apigatewayv2';
 
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
-
-const client = new ApiGatewayV2Client({});
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   routePath: string;
@@ -35,6 +34,8 @@ export const importRoute = async (
 ): Promise<ImportOrCreateResponse | undefined> => {
   logger.update(`Importing route`);
 
+  const client = getApiGatewayV2Client();
+
   const response = await client.send(
     new GetRoutesCommand({
       ApiId: apiId,
@@ -49,7 +50,7 @@ export const importRoute = async (
   }
 
   const routeId = route.RouteId!;
-  const routeArn = await getRouteArn(apiId, routeId);
+  const routeArn = await getRouteArn(client, apiId, routeId);
 
   return {
     routeArn,
@@ -65,6 +66,8 @@ export const createRoute = async (
   logger.update(`Creating route`);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
+
+  const client = getApiGatewayV2Client();
 
   // If multiple routes are created at the same time, a conflict error occurs.
   // The `waitCreation` will keep retrying until max attempts.
@@ -84,7 +87,7 @@ export const createRoute = async (
   });
 
   const routeId = response.RouteId!;
-  const routeArn = await getRouteArn(apiId, routeId);
+  const routeArn = await getRouteArn(client, apiId, routeId);
 
   return {
     routeArn,
@@ -99,7 +102,7 @@ export const updateRoute = async (logger: Logger.OperationLogger, apiId: string,
 
   const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateRouteCommand({
       ApiId: apiId,
       RouteId: routeId,
@@ -116,6 +119,8 @@ export const updateRoute = async (logger: Logger.OperationLogger, apiId: string,
 
 export const deleteRoute = async (logger: Logger.OperationLogger, apiId: string, routeId: string) => {
   logger.update(`Deleting route`);
+
+  const client = getApiGatewayV2Client();
 
   // If the multiple routes being deleted triggers the conflict error,
   // keep retrying until max attempts.
@@ -135,7 +140,7 @@ export const deleteRoute = async (logger: Logger.OperationLogger, apiId: string,
   });
 };
 
-const getRouteArn = async (apiId: string, routeId: string) => {
+const getRouteArn = async (client: ApiGatewayV2Client, apiId: string, routeId: string) => {
   const region = await client.config.region();
 
   return `arn:aws:apigateway:${region}::/apis/${apiId}/routes/${routeId}` as Arn;

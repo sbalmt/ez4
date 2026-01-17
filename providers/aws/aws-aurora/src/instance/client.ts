@@ -3,7 +3,6 @@ import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import { getTagList } from '@ez4/aws-common';
 
 import {
-  RDSClient,
   CreateDBInstanceCommand,
   DeleteDBInstanceCommand,
   AddTagsToResourceCommand,
@@ -14,14 +13,7 @@ import {
   DescribeDBInstancesCommand
 } from '@aws-sdk/client-rds';
 
-const client = new RDSClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
+import { getRDSClient, getRDSWaiter } from '../utils/deploy';
 
 export type CreateRequest = {
   instanceName: string;
@@ -38,7 +30,7 @@ export const importInstance = async (logger: Logger.OperationLogger, instanceNam
   logger.update(`Importing instance`);
 
   try {
-    const response = await client.send(
+    const response = await getRDSClient().send(
       new DescribeDBInstancesCommand({
         DBInstanceIdentifier: instanceName,
         MaxRecords: 20
@@ -65,6 +57,8 @@ export const createInstance = async (logger: Logger.OperationLogger, request: Cr
 
   const { instanceName, clusterName } = request;
 
+  const client = getRDSClient();
+
   const response = await client.send(
     new CreateDBInstanceCommand({
       DBInstanceIdentifier: instanceName,
@@ -78,7 +72,7 @@ export const createInstance = async (logger: Logger.OperationLogger, request: Cr
     })
   );
 
-  await waitUntilDBInstanceAvailable(waiter, {
+  await waitUntilDBInstanceAvailable(getRDSWaiter(client), {
     DBInstanceIdentifier: instanceName
   });
 
@@ -93,7 +87,7 @@ export const createInstance = async (logger: Logger.OperationLogger, request: Cr
 export const tagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag instance`);
 
-  await client.send(
+  await getRDSClient().send(
     new AddTagsToResourceCommand({
       ResourceName: instanceArn,
       Tags: getTagList({
@@ -107,7 +101,7 @@ export const tagInstance = async (logger: Logger.OperationLogger, instanceArn: A
 export const untagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag instance`);
 
-  await client.send(
+  await getRDSClient().send(
     new RemoveTagsFromResourceCommand({
       ResourceName: instanceArn,
       TagKeys: tagKeys
@@ -119,6 +113,8 @@ export const deleteInstance = async (logger: Logger.OperationLogger, instanceNam
   logger.update(`Deleting instance`);
 
   try {
+    const client = getRDSClient();
+
     await client.send(
       new DeleteDBInstanceCommand({
         DBInstanceIdentifier: instanceName,
@@ -126,7 +122,7 @@ export const deleteInstance = async (logger: Logger.OperationLogger, instanceNam
       })
     );
 
-    await waitUntilDBInstanceDeleted(waiter, {
+    await waitUntilDBInstanceDeleted(getRDSWaiter(client), {
       DBInstanceIdentifier: instanceName
     });
 

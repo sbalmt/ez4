@@ -1,8 +1,8 @@
 import type { Arn, Logger } from '@ez4/aws-common';
 
-import { NotFoundException, SNSClient, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
+import { NotFoundException, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
 
-const client = new SNSClient({});
+import { getSNSClient } from '../utils/deploy';
 
 export const enum SubscriptionProtocol {
   Lambda = 'lambda',
@@ -24,7 +24,7 @@ export const createSubscription = async (logger: Logger.OperationLogger, request
 
   const { topicArn, protocol, endpoint } = request;
 
-  const response = await client.send(
+  const response = await getSNSClient().send(
     new SubscribeCommand({
       TopicArn: topicArn,
       Protocol: protocol,
@@ -47,7 +47,7 @@ export const deleteSubscription = async (logger: Logger.OperationLogger, subscri
   logger.update(`Deleting topic subscription`);
 
   try {
-    await client.send(
+    await getSNSClient().send(
       new UnsubscribeCommand({
         SubscriptionArn: subscriptionArn
       })

@@ -1,7 +1,6 @@
 import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   CreateIntegrationCommand,
   UpdateIntegrationCommand,
   DeleteIntegrationCommand,
@@ -10,7 +9,7 @@ import {
 
 import { waitUpdates } from '@ez4/aws-common';
 
-const client = new ApiGatewayV2Client({});
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   http: boolean;
@@ -31,7 +30,7 @@ export const createIntegration = async (logger: Logger.OperationLogger, apiId: s
 
   const { http, functionArn, vpcId, timeout, description } = request;
 
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateIntegrationCommand({
       ApiId: apiId,
       Description: description,
@@ -56,7 +55,7 @@ export const updateIntegration = async (logger: Logger.OperationLogger, apiId: s
   const { http, functionArn, vpcId, timeout, description } = request;
 
   await waitUpdates(() => {
-    return client.send(
+    return getApiGatewayV2Client().send(
       new UpdateIntegrationCommand({
         ApiId: apiId,
         IntegrationId: integrationId,
@@ -75,7 +74,7 @@ export const deleteIntegration = async (logger: Logger.OperationLogger, apiId: s
   logger.update(`Deleting integration`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteIntegrationCommand({
         ApiId: apiId,
         IntegrationId: integrationId

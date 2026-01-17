@@ -2,7 +2,6 @@ import type { OriginAccessControlConfig } from '@aws-sdk/client-cloudfront';
 import type { Logger } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   GetOriginAccessControlCommand,
   CreateOriginAccessControlCommand,
   UpdateOriginAccessControlCommand,
@@ -13,7 +12,7 @@ import {
   NoSuchOriginAccessControl
 } from '@aws-sdk/client-cloudfront';
 
-const client = new CloudFrontClient({});
+import { getCloudFrontClient } from '../utils/deploy';
 
 export type CreateRequest = {
   accessName: string;
@@ -31,7 +30,7 @@ export type UpdateResponse = CreateResponse;
 export const createOriginAccess = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating origin access`);
 
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new CreateOriginAccessControlCommand({
       OriginAccessControlConfig: {
         ...upsertAccessRequest(request)
@@ -51,7 +50,7 @@ export const updateOriginAccess = async (logger: Logger.OperationLogger, accessI
 
   const version = await getCurrentAccessVersion(accessId);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new UpdateOriginAccessControlCommand({
       Id: accessId,
       IfMatch: version,
@@ -68,7 +67,7 @@ export const deleteOriginAccess = async (logger: Logger.OperationLogger, accessI
   const version = await getCurrentAccessVersion(accessId);
 
   try {
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteOriginAccessControlCommand({
         Id: accessId,
         IfMatch: version
@@ -86,7 +85,7 @@ export const deleteOriginAccess = async (logger: Logger.OperationLogger, accessI
 };
 
 const getCurrentAccessVersion = async (accessId: string) => {
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new GetOriginAccessControlCommand({
       Id: accessId
     })

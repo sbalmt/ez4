@@ -14,7 +14,6 @@ import { isBucketDomain } from '@ez4/aws-bucket';
 import { getTagList } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   GetDistributionCommand,
   CreateDistributionWithTagsCommand,
   UpdateDistributionCommand,
@@ -35,14 +34,7 @@ import {
   NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
 
-const client = new CloudFrontClient({});
-
-const waiter = {
-  minDelay: 30,
-  maxWaitTime: 3600,
-  maxDelay: 120,
-  client
-};
+import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
 
 export type DefaultOrigin = {
   id: string;
@@ -93,6 +85,8 @@ export type UpdateResponse = CreateResponse;
 export const createDistribution = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating distribution`);
 
+  const client = getCloudFrontClient();
+
   const response = await client.send(
     new CreateDistributionWithTagsCommand({
       DistributionConfigWithTags: {
@@ -112,7 +106,7 @@ export const createDistribution = async (logger: Logger.OperationLogger, request
   const distribution = response.Distribution!;
   const distributionId = distribution.Id!;
 
-  await waitUntilDistributionDeployed(waiter, {
+  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
     Id: distributionId
   });
 
@@ -126,7 +120,9 @@ export const createDistribution = async (logger: Logger.OperationLogger, request
 export const updateDistribution = async (logger: Logger.OperationLogger, distributionId: string, request: UpdateRequest) => {
   logger.update(`Updating distribution`);
 
-  const version = await getCurrentDistributionVersion(distributionId);
+  const version = await getCurrentDistributionVersion(logger, distributionId);
+
+  const client = getCloudFrontClient();
 
   await client.send(
     new UpdateDistributionCommand({
@@ -138,7 +134,7 @@ export const updateDistribution = async (logger: Logger.OperationLogger, distrib
     })
   );
 
-  await waitUntilDistributionDeployed(waiter, {
+  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
     Id: distributionId
   });
 };
@@ -146,7 +142,7 @@ export const updateDistribution = async (logger: Logger.OperationLogger, distrib
 export const tagDistribution = async (logger: Logger.OperationLogger, distributionArn: string, tags: ResourceTags) => {
   logger.update(`Tag distribution`);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new TagResourceCommand({
       Resource: distributionArn,
       Tags: {
@@ -162,7 +158,7 @@ export const tagDistribution = async (logger: Logger.OperationLogger, distributi
 export const untagDistribution = async (logger: Logger.OperationLogger, distributionArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag distribution`);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new UntagResourceCommand({
       Resource: distributionArn,
       TagKeys: {
@@ -176,9 +172,9 @@ export const deleteDistribution = async (logger: Logger.OperationLogger, distrib
   logger.update(`Deleting distribution`);
 
   try {
-    const version = await getCurrentDistributionVersion(distributionId);
+    const version = await getCurrentDistributionVersion(logger, distributionId);
 
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteDistributionCommand({
         Id: distributionId,
         IfMatch: version
@@ -195,8 +191,10 @@ export const deleteDistribution = async (logger: Logger.OperationLogger, distrib
   }
 };
 
-const getCurrentDistributionVersion = async (distributionId: string) => {
-  const response = await client.send(
+const getCurrentDistributionVersion = async (logger: Logger.OperationLogger, distributionId: string) => {
+  logger.update(`Fetching distribution`);
+
+  const response = await getCloudFrontClient().send(
     new GetDistributionCommand({
       Id: distributionId
     })

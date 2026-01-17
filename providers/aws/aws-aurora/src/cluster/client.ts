@@ -3,7 +3,6 @@ import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import { getTagList } from '@ez4/aws-common';
 
 import {
-  RDSClient,
   CreateDBClusterCommand,
   DescribeDBClustersCommand,
   ModifyDBClusterCommand,
@@ -15,16 +14,8 @@ import {
   DBClusterNotFoundFault
 } from '@aws-sdk/client-rds';
 
+import { getRDSClient, getRDSWaiter } from '../utils/deploy';
 import { getRandomPassword } from '../utils/credentials';
-
-const client = new RDSClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
 
 export type Scalability = {
   minCapacity: number;
@@ -58,7 +49,7 @@ export const importCluster = async (
   logger?.update(`Importing cluster`);
 
   try {
-    const response = await client.send(
+    const response = await getRDSClient().send(
       new DescribeDBClustersCommand({
         DBClusterIdentifier: clusterName,
         MaxRecords: 20
@@ -88,6 +79,7 @@ export const createCluster = async (logger: Logger.OperationLogger, request: Cre
   const { clusterName, scalability } = request;
 
   const canPause = scalability?.minCapacity === 0;
+  const client = getRDSClient();
 
   const response = await client.send(
     new CreateDBClusterCommand({
@@ -116,7 +108,7 @@ export const createCluster = async (logger: Logger.OperationLogger, request: Cre
     })
   );
 
-  await waitUntilDBClusterAvailable(waiter, {
+  await waitUntilDBClusterAvailable(getRDSWaiter(client), {
     DBClusterIdentifier: clusterName
   });
 
@@ -140,6 +132,7 @@ export const updateCluster = async (
   const { scalability } = request;
 
   const canPause = scalability?.minCapacity === 0;
+  const client = getRDSClient();
 
   const response = await client.send(
     new ModifyDBClusterCommand({
@@ -159,7 +152,7 @@ export const updateCluster = async (
     })
   );
 
-  await waitUntilDBClusterAvailable(waiter, {
+  await waitUntilDBClusterAvailable(getRDSWaiter(client), {
     DBClusterIdentifier: clusterName
   });
 
@@ -176,7 +169,7 @@ export const updateCluster = async (
 export const updateDeletion = async (logger: Logger.OperationLogger, clusterName: string, allowDeletion: boolean) => {
   logger.update(`Updating deletion protection`);
 
-  await client.send(
+  await getRDSClient().send(
     new ModifyDBClusterCommand({
       DBClusterIdentifier: clusterName,
       DeletionProtection: !allowDeletion
@@ -187,7 +180,7 @@ export const updateDeletion = async (logger: Logger.OperationLogger, clusterName
 export const tagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag cluster`);
 
-  await client.send(
+  await getRDSClient().send(
     new AddTagsToResourceCommand({
       ResourceName: clusterArn,
       Tags: getTagList({
@@ -201,7 +194,7 @@ export const tagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn
 export const untagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag cluster`);
 
-  await client.send(
+  await getRDSClient().send(
     new RemoveTagsFromResourceCommand({
       ResourceName: clusterArn,
       TagKeys: tagKeys
@@ -213,6 +206,8 @@ export const deleteCluster = async (logger: Logger.OperationLogger, clusterName:
   logger.update(`Deleting cluster`);
 
   try {
+    const client = getRDSClient();
+
     await client.send(
       new DeleteDBClusterCommand({
         DBClusterIdentifier: clusterName,
@@ -220,7 +215,7 @@ export const deleteCluster = async (logger: Logger.OperationLogger, clusterName:
       })
     );
 
-    await waitUntilDBClusterDeleted(waiter, {
+    await waitUntilDBClusterDeleted(getRDSWaiter(client), {
       DBClusterIdentifier: clusterName
     });
 

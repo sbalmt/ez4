@@ -2,7 +2,6 @@ import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import type { RoleDocument } from '../types/role';
 
 import {
-  IAMClient,
   GetRoleCommand,
   CreateRoleCommand,
   UpdateRoleCommand,
@@ -16,8 +15,7 @@ import {
 } from '@aws-sdk/client-iam';
 
 import { getTagList } from '@ez4/aws-common';
-
-const client = new IAMClient({});
+import { getIAMClient } from '../utils/deploy';
 
 export type CreateRequest = {
   roleName: string;
@@ -35,7 +33,7 @@ export const importRole = async (logger: Logger.OperationLogger, roleName: strin
   logger.update(`Importing IAM role`);
 
   try {
-    const response = await client.send(
+    const response = await getIAMClient().send(
       new GetRoleCommand({
         RoleName: roleName
       })
@@ -61,7 +59,7 @@ export const createRole = async (logger: Logger.OperationLogger, request: Create
 
   const { roleName, description, roleDocument } = request;
 
-  const response = await client.send(
+  const response = await getIAMClient().send(
     new CreateRoleCommand({
       RoleName: roleName,
       Description: description,
@@ -84,7 +82,7 @@ export const createRole = async (logger: Logger.OperationLogger, request: Create
 export const updateRole = async (logger: Logger.OperationLogger, roleName: string, description: string | undefined) => {
   logger.update(`Updating IAM role`);
 
-  await client.send(
+  await getIAMClient().send(
     new UpdateRoleCommand({
       RoleName: roleName,
       Description: description ?? ''
@@ -95,7 +93,7 @@ export const updateRole = async (logger: Logger.OperationLogger, roleName: strin
 export const updateAssumeRole = async (logger: Logger.OperationLogger, roleName: string, roleDocument: RoleDocument) => {
   logger.update(`Updating IAM assume role`);
 
-  await client.send(
+  await getIAMClient().send(
     new UpdateAssumeRolePolicyCommand({
       RoleName: roleName,
       PolicyDocument: JSON.stringify(roleDocument)
@@ -106,7 +104,7 @@ export const updateAssumeRole = async (logger: Logger.OperationLogger, roleName:
 export const tagRole = async (logger: Logger.OperationLogger, roleName: string, tags: ResourceTags) => {
   logger.update(`Tag IAM role`);
 
-  await client.send(
+  await getIAMClient().send(
     new TagRoleCommand({
       RoleName: roleName,
       Tags: getTagList({
@@ -120,7 +118,7 @@ export const tagRole = async (logger: Logger.OperationLogger, roleName: string, 
 export const untagRole = async (logger: Logger.OperationLogger, roleName: string, tagsKeys: string[]) => {
   logger.update(`Untag IAM role`);
 
-  await client.send(
+  await getIAMClient().send(
     new UntagRoleCommand({
       RoleName: roleName,
       TagKeys: tagsKeys
@@ -131,7 +129,7 @@ export const untagRole = async (logger: Logger.OperationLogger, roleName: string
 export const attachPolicy = async (logger: Logger.OperationLogger, roleName: string, policyArn: string) => {
   logger.update(`Attaching IAM policy`);
 
-  await client.send(
+  await getIAMClient().send(
     new AttachRolePolicyCommand({
       RoleName: roleName,
       PolicyArn: policyArn
@@ -143,7 +141,7 @@ export const detachPolicy = async (logger: Logger.OperationLogger, roleName: str
   logger.update(`Detaching IAM policy`);
 
   try {
-    await client.send(
+    await getIAMClient().send(
       new DetachRolePolicyCommand({
         RoleName: roleName,
         PolicyArn: policyArn
@@ -164,7 +162,7 @@ export const deleteRole = async (logger: Logger.OperationLogger, roleName: strin
   logger.update(`Deleting IAM role`);
 
   try {
-    await client.send(
+    await getIAMClient().send(
       new DeleteRoleCommand({
         RoleName: roleName
       })

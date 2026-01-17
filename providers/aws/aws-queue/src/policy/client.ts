@@ -1,12 +1,11 @@
 import type { Arn, Logger } from '@ez4/aws-common';
 
-import { SQSClient, SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
+import { SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
 import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
 
 import { parseQueueUrl } from '../queue/helpers/url';
+import { getSQSClient } from '../utils/deploy';
 import { buildQueueArn } from '../utils/arn';
-
-const client = new SQSClient({});
 
 export type AttachRequest = {
   principal: string;
@@ -40,7 +39,7 @@ export const attachPolicies = async (
     );
   });
 
-  await client.send(
+  await getSQSClient().send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
       Attributes: {
@@ -57,7 +56,7 @@ export const attachPolicies = async (
 export const detachPolicy = async (logger: Logger.OperationLogger, queueUrl: string) => {
   logger.update(`Detaching queue policies`);
 
-  await client.send(
+  await getSQSClient().send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
       Attributes: {
