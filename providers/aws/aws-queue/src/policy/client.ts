@@ -1,13 +1,10 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import { SQSClient, SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
-
 import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
-import { Logger, tryParseArn } from '@ez4/aws-common';
 
 import { parseQueueUrl } from '../queue/helpers/url';
 import { buildQueueArn } from '../utils/arn';
-import { QueuePolicyServiceName } from './types';
 
 const client = new SQSClient({});
 
@@ -20,15 +17,17 @@ export type AttachResponse = {
   sourceArns: Arn[];
 };
 
-export const attachPolicies = async (queueUrl: string, policies: AttachRequest[]): Promise<AttachResponse> => {
+export const attachPolicies = async (
+  logger: Logger.OperationLogger,
+  queueUrl: string,
+  policies: AttachRequest[]
+): Promise<AttachResponse> => {
+  logger.update(`Attaching queue policies`);
+
   const { queueName, accountId, region } = parseQueueUrl(queueUrl);
   const sourceArns = new Set<Arn>();
 
   const statements = policies.map(({ principal, sourceArn }) => {
-    const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
-
-    Logger.logAttach(QueuePolicyServiceName, queueName, sourceName);
-
     sourceArns.add(sourceArn);
 
     return createRoleStatement(
@@ -55,14 +54,8 @@ export const attachPolicies = async (queueUrl: string, policies: AttachRequest[]
   };
 };
 
-export const detachPolicy = async (queueUrl: string, sourceArns: Arn[]) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  sourceArns.forEach((sourceArn) => {
-    const sourceName = tryParseArn(sourceArn)?.resourceName ?? sourceArn;
-
-    Logger.logDetach(QueuePolicyServiceName, queueName, sourceName);
-  });
+export const detachPolicy = async (logger: Logger.OperationLogger, queueUrl: string) => {
+  logger.update(`Detaching queue policies`);
 
   await client.send(
     new SetQueueAttributesCommand({

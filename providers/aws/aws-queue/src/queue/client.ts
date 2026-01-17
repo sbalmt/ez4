@@ -1,5 +1,5 @@
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   SQSClient,
@@ -12,11 +12,8 @@ import {
   QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
-import { Logger, waitCreation } from '@ez4/aws-common';
+import { waitCreation } from '@ez4/aws-common';
 import { isEmptyObject } from '@ez4/utils';
-
-import { parseQueueUrl } from './helpers/url';
-import { QueueServiceName } from './types';
 
 const client = new SQSClient({});
 
@@ -42,8 +39,8 @@ export type CreateResponse = {
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay' | 'deadLetter'>;
 
-export const fetchQueue = async (queueName: string) => {
-  Logger.logFetch(QueueServiceName, queueName);
+export const fetchQueue = async (logger: Logger.OperationLogger, queueName: string) => {
+  logger.update(`Fetching queue`);
 
   const response = await client.send(
     new GetQueueUrlCommand({
@@ -56,10 +53,10 @@ export const fetchQueue = async (queueName: string) => {
   };
 };
 
-export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
-  const { queueName, fifoMode } = request;
+export const createQueue = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating queue`);
 
-  Logger.logCreate(QueueServiceName, queueName);
+  const { queueName, fifoMode } = request;
 
   // If the queue was deleted less than 1 minute ago, the creation will fail.
   // The `waitCreation` will keep retrying until max attempts.
@@ -89,10 +86,8 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logUpdate(QueueServiceName, queueName);
+export const updateQueue = async (logger: Logger.OperationLogger, queueUrl: string, request: UpdateRequest) => {
+  logger.update(`Updating queue`);
 
   const attributes = upsertQueueAttributes(request);
 
@@ -108,10 +103,8 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
   );
 };
 
-export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logTag(QueueServiceName, queueName);
+export const tagQueue = async (logger: Logger.OperationLogger, queueUrl: string, tags: ResourceTags) => {
+  logger.update(`Tag queue`);
 
   await client.send(
     new TagQueueCommand({
@@ -124,10 +117,8 @@ export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
   );
 };
 
-export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logUntag(QueueServiceName, queueName);
+export const untagQueue = async (logger: Logger.OperationLogger, queueUrl: string, tagKeys: string[]) => {
+  logger.update(`Untag queue`);
 
   await client.send(
     new UntagQueueCommand({
@@ -137,10 +128,8 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
   );
 };
 
-export const deleteQueue = async (queueUrl: string) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logDelete(QueueServiceName, queueName);
+export const deleteQueue = async (logger: Logger.OperationLogger, queueUrl: string) => {
+  logger.update(`Delete queue`);
 
   try {
     await client.send(
