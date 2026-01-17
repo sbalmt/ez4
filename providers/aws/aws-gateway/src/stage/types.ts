@@ -7,7 +7,7 @@ export const StageServiceName = 'AWS:API/Stage';
 export const StageServiceType = 'aws:api.stage';
 
 export type StageParameters = Omit<CreateRequest, 'stageName' | 'access'> & {
-  stageName: string;
+  stageName?: string;
 };
 
 export type StageResult = ImportOrCreateResponse & {

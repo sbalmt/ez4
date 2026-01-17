@@ -44,7 +44,7 @@ const replaceResource = async (candidate: StageState, current: StageState, conte
 const createResource = async (candidate: StageState, context: StepContext): Promise<StageResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(StageServiceName, parameters.stageName, 'creation', async (logger) => {
+  return Logger.logOperation(StageServiceName, getStageName(parameters), 'creation', async (logger) => {
     const stageName = getStageName(parameters);
     const apiId = getGatewayId(StageServiceName, stageName, context);
     const logGroupArn = tryGetLogGroupArn(context);
@@ -82,20 +82,19 @@ const createResource = async (candidate: StageState, context: StepContext): Prom
 
 const updateResource = (candidate: StageState, current: StageState, context: StepContext): Promise<StageResult> => {
   const { parameters: newParameters, result } = candidate;
-  const { stageName } = newParameters;
 
   if (!result) {
-    throw new CorruptedResourceError(StageServiceName, stageName);
+    throw new CorruptedResourceError(StageServiceName, getStageName(newParameters));
   }
 
-  return Logger.logOperation(StageServiceName, stageName, 'updates', async (logger) => {
+  return Logger.logOperation(StageServiceName, getStageName(newParameters), 'updates', async (logger) => {
     const { parameters: oldParameters } = current;
 
     const newLogGroupArn = tryGetLogGroupArn(context);
     const oldLogGroupArn = current.result?.logGroupArn;
 
-    await checkAccessLogUpdates(logger, result.apiId, stageName, newLogGroupArn, oldLogGroupArn);
-    await checkGeneralUpdates(logger, result.apiId, stageName, newParameters, oldParameters);
+    await checkAccessLogUpdates(logger, result.apiId, result.stageName, newLogGroupArn, oldLogGroupArn);
+    await checkGeneralUpdates(logger, result.apiId, result.stageName, newParameters, oldParameters);
 
     return {
       ...result,
@@ -111,7 +110,7 @@ const deleteResource = async (current: StageState) => {
     return;
   }
 
-  await Logger.logOperation(StageServiceName, parameters.stageName, 'deletion', async (logger) => {
+  await Logger.logOperation(StageServiceName, getStageName(parameters), 'deletion', async (logger) => {
     await deleteStage(logger, result.apiId, result.stageName);
   });
 };
