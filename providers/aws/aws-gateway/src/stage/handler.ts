@@ -3,7 +3,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { StageState, StageResult, StageParameters } from './types';
 
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetLogGroupArn } from '@ez4/aws-logs';
 
 import { getGatewayId } from '../gateway/utils';
@@ -42,71 +42,86 @@ const replaceResource = async (candidate: StageState, current: StageState, conte
 };
 
 const createResource = async (candidate: StageState, context: StepContext): Promise<StageResult> => {
-  const parameters = candidate.parameters;
+  const { parameters } = candidate;
 
-  const stageName = getStageName(parameters);
-  const logGroupArn = tryGetLogGroupArn(context);
-  const apiId = getGatewayId(StageServiceName, stageName, context);
+  return Logger.logOperation(StageServiceName, parameters.stageName, 'creation', async (logger) => {
+    const stageName = getStageName(parameters);
+    const apiId = getGatewayId(StageServiceName, stageName, context);
+    const logGroupArn = tryGetLogGroupArn(context);
 
-  const importedStage = await importStage(apiId, stageName);
+    const importedStage = await importStage(logger, apiId, stageName);
 
-  if (importedStage) {
+    if (importedStage) {
+      if (logGroupArn) {
+        await enableAccessLogs(logger, apiId, stageName, logGroupArn);
+      }
+
+      return {
+        stageName: importedStage.stageName,
+        logGroupArn,
+        apiId
+      };
+    }
+
+    const createdStage = await createStage(logger, apiId, {
+      ...parameters,
+      stageName
+    });
+
     if (logGroupArn) {
-      await enableAccessLogs(apiId, stageName, logGroupArn);
+      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
     }
 
     return {
-      stageName: importedStage.stageName,
+      stageName: createdStage.stageName,
       logGroupArn,
       apiId
     };
-  }
-
-  const createdStage = await createStage(apiId, {
-    ...parameters,
-    stageName
   });
-
-  if (logGroupArn) {
-    await enableAccessLogs(apiId, stageName, logGroupArn);
-  }
-
-  return {
-    stageName: createdStage.stageName,
-    logGroupArn,
-    apiId
-  };
 };
 
-const updateResource = async (candidate: StageState, current: StageState, context: StepContext) => {
+const updateResource = (candidate: StageState, current: StageState, context: StepContext) => {
   const { parameters: newParameters, result } = candidate;
-  const { parameters: oldParameters } = current;
 
   if (!result) {
     return;
   }
 
-  const newLogGroupArn = tryGetLogGroupArn(context);
-  const oldLogGroupArn = current.result?.logGroupArn;
+  return Logger.logOperation(StageServiceName, newParameters.stageName, 'updates', async (logger) => {
+    const { parameters: oldParameters } = current;
 
-  await checkAccessLogUpdates(result.apiId, result.stageName, newLogGroupArn, oldLogGroupArn);
-  await checkGeneralUpdates(result.apiId, result.stageName, newParameters, oldParameters);
+    const newLogGroupArn = tryGetLogGroupArn(context);
+    const oldLogGroupArn = current.result?.logGroupArn;
 
-  return {
-    ...result,
-    logGroupArn: newLogGroupArn
-  };
+    await checkAccessLogUpdates(logger, result.apiId, result.stageName, newLogGroupArn, oldLogGroupArn);
+    await checkGeneralUpdates(logger, result.apiId, result.stageName, newParameters, oldParameters);
+
+    return {
+      ...result,
+      logGroupArn: newLogGroupArn
+    };
+  });
 };
 
-const deleteResource = async (candidate: StageState) => {
-  const result = candidate.result;
+const deleteResource = async (current: StageState) => {
+  const { result, parameters } = current;
 
-  if (result) {
-    await deleteStage(result.apiId, result.stageName);
+  if (!result) {
+    return;
   }
+
+  await Logger.logOperation(StageServiceName, parameters.stageName, 'deletion', async (logger) => {
+    await deleteStage(logger, result.apiId, result.stageName);
+  });
 };
 
-const checkGeneralUpdates = async (apiId: string, stageName: string, candidate: StageParameters, current: StageParameters) => {
+const checkGeneralUpdates = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  stageName: string,
+  candidate: StageParameters,
+  current: StageParameters
+) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       stageName: true
@@ -114,18 +129,24 @@ const checkGeneralUpdates = async (apiId: string, stageName: string, candidate: 
   });
 
   if (hasChanges) {
-    await updateStage(apiId, stageName, candidate);
+    await updateStage(logger, apiId, stageName, candidate);
   }
 };
 
-const checkAccessLogUpdates = async (apiId: string, stageName: string, candidate: Arn | undefined, current: Arn | undefined) => {
+const checkAccessLogUpdates = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  stageName: string,
+  candidate: Arn | undefined,
+  current: Arn | undefined
+) => {
   if (candidate !== current) {
     if (candidate) {
-      return enableAccessLogs(apiId, stageName, candidate);
+      return enableAccessLogs(logger, apiId, stageName, candidate);
     }
 
     if (current) {
-      return disableAccessLogs(apiId, stageName);
+      return disableAccessLogs(logger, apiId, stageName);
     }
   }
 };

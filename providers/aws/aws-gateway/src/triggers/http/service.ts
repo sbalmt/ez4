@@ -48,6 +48,7 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
     const logGroupState = createAccessLog(state, service, gatewayState, options);
 
     createStage(state, gatewayState, logGroupState, {
+      stageName: '$default',
       autoDeploy: true
     });
 

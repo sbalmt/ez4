@@ -1,4 +1,4 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
@@ -10,9 +10,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, waitCreation, waitDeletion } from '@ez4/aws-common';
-
-import { RouteServiceName } from './types';
+import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
 const client = new ApiGatewayV2Client({});
 
@@ -30,8 +28,12 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const importRoute = async (apiId: string, routePath: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(RouteServiceName, routePath);
+export const importRoute = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  routePath: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing route`);
 
   const response = await client.send(
     new GetRoutesCommand({
@@ -55,8 +57,12 @@ export const importRoute = async (apiId: string, routePath: string): Promise<Imp
   };
 };
 
-export const createRoute = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  Logger.logCreate(RouteServiceName, request.routePath);
+export const createRoute = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  request: CreateRequest
+): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating route`);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
 
@@ -86,10 +92,10 @@ export const createRoute = async (apiId: string, request: CreateRequest): Promis
   };
 };
 
-export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
-  const { integrationId, authorizerId, operationName, routePath } = request;
+export const updateRoute = async (logger: Logger.OperationLogger, apiId: string, routeId: string, request: UpdateRequest) => {
+  logger.update(`Update route`);
 
-  Logger.logUpdate(RouteServiceName, `${routeId} ${routePath}`);
+  const { integrationId, authorizerId, operationName, routePath } = request;
 
   const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
 
@@ -108,8 +114,8 @@ export const updateRoute = async (apiId: string, routeId: string, request: Updat
   );
 };
 
-export const deleteRoute = async (apiId: string, routeId: string) => {
-  Logger.logDelete(RouteServiceName, routeId);
+export const deleteRoute = async (logger: Logger.OperationLogger, apiId: string, routeId: string) => {
+  logger.update(`Deleting route`);
 
   // If the multiple routes being deleted triggers the conflict error,
   // keep retrying until max attempts.

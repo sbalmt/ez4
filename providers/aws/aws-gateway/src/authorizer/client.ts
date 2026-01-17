@@ -1,4 +1,4 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
@@ -9,9 +9,8 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, waitUpdates } from '@ez4/aws-common';
+import { waitUpdates } from '@ez4/aws-common';
 
-import { AuthorizerServiceName } from './types';
 import { getAuthorizerUri } from './utils';
 
 const client = new ApiGatewayV2Client({});
@@ -31,15 +30,15 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createAuthorizer = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
-  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
+export const createAuthorizer = async (logger: Logger.OperationLogger, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating authorizer`);
 
-  Logger.logCreate(AuthorizerServiceName, name);
+  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
   const response = await client.send(
     new CreateAuthorizerCommand({
+      Name: name,
       ApiId: apiId,
-      Name: request.name,
       AuthorizerUri: await getAuthorizerUri(functionArn),
       AuthorizerPayloadFormatVersion: http ? '2.0' : undefined,
       AuthorizerType: AuthorizerType.REQUEST,
@@ -60,16 +59,16 @@ export const createAuthorizer = async (apiId: string, request: CreateRequest): P
   };
 };
 
-export const updateAuthorizer = async (apiId: string, authorizerId: string, request: UpdateRequest) => {
-  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
+export const updateAuthorizer = async (logger: Logger.OperationLogger, apiId: string, authorizerId: string, request: UpdateRequest) => {
+  logger.update(`Updating authorizer`);
 
-  Logger.logUpdate(AuthorizerServiceName, name ?? authorizerId);
+  const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
   await waitUpdates(async () => {
     return client.send(
       new UpdateAuthorizerCommand({
+        Name: name,
         ApiId: apiId,
-        Name: request.name,
         AuthorizerId: authorizerId,
         AuthorizerResultTtlInSeconds: cacheTTL,
         ...(functionArn && {
@@ -88,8 +87,8 @@ export const updateAuthorizer = async (apiId: string, authorizerId: string, requ
   });
 };
 
-export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {
-  Logger.logDelete(AuthorizerServiceName, authorizerId);
+export const deleteAuthorizer = async (logger: Logger.OperationLogger, apiId: string, authorizerId: string) => {
+  logger.update(`Deleting authorizer`);
 
   try {
     await client.send(

@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types';
 
 import { getFunctionArn } from '@ez4/aws-function';
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { Logger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { GatewayProtocol } from '../gateway/types';
@@ -41,59 +41,70 @@ const replaceResource = async (candidate: AuthorizerState, current: AuthorizerSt
 };
 
 const createResource = async (candidate: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
-  const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
-  const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
-  const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
+  const { parameters } = candidate;
 
-  const http = protocol === GatewayProtocol.Http;
+  return Logger.logOperation(AuthorizerServiceName, parameters.name, 'creation', async (logger) => {
+    const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
+    const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
+    const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
 
-  const response = await createAuthorizer(apiId, {
-    ...candidate.parameters,
-    functionArn,
-    http
+    const http = protocol === GatewayProtocol.Http;
+
+    const response = await createAuthorizer(logger, apiId, {
+      ...parameters,
+      functionArn,
+      http
+    });
+
+    return {
+      apiId,
+      authorizerId: response.authorizerId,
+      functionArn
+    };
   });
-
-  return {
-    apiId,
-    authorizerId: response.authorizerId,
-    functionArn
-  };
 };
 
-const updateResource = async (candidate: AuthorizerState, current: AuthorizerState, context: StepContext) => {
-  const result = candidate.result;
+const updateResource = (candidate: AuthorizerState, current: AuthorizerState, context: StepContext) => {
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const authorizerId = result.authorizerId;
+  return Logger.logOperation(AuthorizerServiceName, parameters.name, 'updates', async (logger) => {
+    const authorizerId = result.authorizerId;
 
-  const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);
-  const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
+    const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);
+    const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
 
-  const newRequest = { ...candidate.parameters, functionArn: newFunctionArn };
-  const oldRequest = { ...current.parameters, functionArn: oldFunctionArn };
+    const newRequest = { ...parameters, functionArn: newFunctionArn };
+    const oldRequest = { ...current.parameters, functionArn: oldFunctionArn };
 
-  const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
+    const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
 
-  await checkGeneralUpdates(result.apiId, authorizerId, protocol, newRequest, oldRequest, context);
+    await checkGeneralUpdates(logger, result.apiId, authorizerId, protocol, newRequest, oldRequest, context);
 
-  return {
-    ...result,
-    functionArn: newFunctionArn
-  };
+    return {
+      ...result,
+      functionArn: newFunctionArn
+    };
+  });
 };
 
-const deleteResource = async (candidate: AuthorizerState) => {
-  const result = candidate.result;
+const deleteResource = async (current: AuthorizerState) => {
+  const { result, parameters } = current;
 
-  if (result) {
-    await deleteAuthorizer(result.apiId, result.authorizerId);
+  if (!result) {
+    return;
   }
+
+  await Logger.logOperation(AuthorizerServiceName, parameters.name, 'deletion', async (logger) => {
+    await deleteAuthorizer(logger, result.apiId, result.authorizerId);
+  });
 };
 
 const checkGeneralUpdates = async (
+  logger: Logger.OperationLogger,
   apiId: string,
   authorizerId: string,
   protocol: GatewayProtocol,
@@ -106,7 +117,7 @@ const checkGeneralUpdates = async (
   if (hasChanges || context.force) {
     const http = protocol === GatewayProtocol.Http;
 
-    await updateAuthorizer(apiId, authorizerId, {
+    await updateAuthorizer(logger, apiId, authorizerId, {
       ...candidate,
       http
     });

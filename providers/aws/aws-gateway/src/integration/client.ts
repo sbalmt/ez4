@@ -1,4 +1,4 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, Logger } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
@@ -8,9 +8,7 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, tryParseArn, waitUpdates } from '@ez4/aws-common';
-
-import { IntegrationServiceName } from './types';
+import { waitUpdates } from '@ez4/aws-common';
 
 const client = new ApiGatewayV2Client({});
 
@@ -28,12 +26,10 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+export const createIntegration = async (logger: Logger.OperationLogger, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating integration`);
+
   const { http, functionArn, vpcId, timeout, description } = request;
-
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
-
-  Logger.logCreate(IntegrationServiceName, functionName);
 
   const response = await client.send(
     new CreateIntegrationCommand({
@@ -54,10 +50,10 @@ export const createIntegration = async (apiId: string, request: CreateRequest): 
   };
 };
 
-export const updateIntegration = async (apiId: string, integrationId: string, request: UpdateRequest) => {
-  const { http, functionArn, vpcId, timeout, description } = request;
+export const updateIntegration = async (logger: Logger.OperationLogger, apiId: string, integrationId: string, request: UpdateRequest) => {
+  logger.update(`Updating integration`);
 
-  Logger.logUpdate(IntegrationServiceName, integrationId);
+  const { http, functionArn, vpcId, timeout, description } = request;
 
   await waitUpdates(() => {
     return client.send(
@@ -75,8 +71,8 @@ export const updateIntegration = async (apiId: string, integrationId: string, re
   });
 };
 
-export const deleteIntegration = async (apiId: string, integrationId: string) => {
-  Logger.logDelete(IntegrationServiceName, integrationId);
+export const deleteIntegration = async (logger: Logger.OperationLogger, apiId: string, integrationId: string) => {
+  logger.update(`Deleting integration`);
 
   try {
     await client.send(

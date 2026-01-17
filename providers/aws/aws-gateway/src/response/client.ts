@@ -1,4 +1,4 @@
-import { Logger } from '@ez4/aws-common';
+import type { Logger } from '@ez4/aws-common';
 
 import {
   ApiGatewayV2Client,
@@ -7,8 +7,6 @@ import {
   DeleteRouteResponseCommand,
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
-
-import { ResponseServiceName } from './types';
 
 const client = new ApiGatewayV2Client({});
 
@@ -22,10 +20,15 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const createResponse = async (apiId: string, routeId: string, request: CreateRequest): Promise<CreateResponse> => {
-  const { responseKey } = request;
+export const createResponse = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  routeId: string,
+  request: CreateRequest
+): Promise<CreateResponse> => {
+  logger.update(`Creating response`);
 
-  Logger.logCreate(ResponseServiceName, responseKey);
+  const { responseKey } = request;
 
   const response = await client.send(
     new CreateRouteResponseCommand({
@@ -42,10 +45,16 @@ export const createResponse = async (apiId: string, routeId: string, request: Cr
   };
 };
 
-export const updateResponse = async (apiId: string, routeId: string, responseId: string, request: UpdateRequest) => {
-  const { responseKey } = request;
+export const updateResponse = async (
+  logger: Logger.OperationLogger,
+  apiId: string,
+  routeId: string,
+  responseId: string,
+  request: UpdateRequest
+) => {
+  logger.update(`Updating response`);
 
-  Logger.logUpdate(ResponseServiceName, responseId);
+  const { responseKey } = request;
 
   await client.send(
     new UpdateRouteResponseCommand({
@@ -57,8 +66,8 @@ export const updateResponse = async (apiId: string, routeId: string, responseId:
   );
 };
 
-export const deleteResponse = async (apiId: string, routeId: string, responseId: string) => {
-  Logger.logDelete(ResponseServiceName, responseId);
+export const deleteResponse = async (logger: Logger.OperationLogger, apiId: string, routeId: string, responseId: string) => {
+  logger.update(`Deleting response`);
 
   try {
     await client.send(

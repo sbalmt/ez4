@@ -1,5 +1,5 @@
 import type { ProtocolType } from '@aws-sdk/client-apigatewayv2';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import type { Http } from '@ez4/gateway';
 
 import {
@@ -14,9 +14,7 @@ import {
   GetApisCommand
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, tryParseArn } from '@ez4/aws-common';
-
-import { GatewayProtocol, GatewayServiceName } from './types';
+import { GatewayProtocol } from './types';
 
 const client = new ApiGatewayV2Client({});
 
@@ -49,8 +47,8 @@ export type CreateResponse = {
   endpoint?: string;
 };
 
-export const fetchGateway = async (gatewayName: string) => {
-  Logger.logFetch(GatewayServiceName, gatewayName);
+export const fetchGateway = async (logger: Logger.OperationLogger, gatewayName: string) => {
+  logger.update(`Fetching gateway`);
 
   const [region, { Items }] = await Promise.all([client.config.region(), client.send(new GetApisCommand({}))]);
 
@@ -67,8 +65,8 @@ export const fetchGateway = async (gatewayName: string) => {
   };
 };
 
-export const createGateway = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(GatewayServiceName, request.gatewayName);
+export const createGateway = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating gateway`);
 
   const { gatewayName, description, protocol, tags } = request;
 
@@ -108,8 +106,8 @@ export const createGateway = async (request: CreateRequest): Promise<CreateRespo
   };
 };
 
-export const updateGateway = async (apiId: string, request: UpdateRequest) => {
-  Logger.logUpdate(GatewayServiceName, apiId);
+export const updateGateway = async (logger: Logger.OperationLogger, apiId: string, request: UpdateRequest) => {
+  logger.update(`Updating gateway`);
 
   const { gatewayName, description, protocol } = request;
 
@@ -137,8 +135,8 @@ export const updateGateway = async (apiId: string, request: UpdateRequest) => {
   );
 };
 
-export const deleteCorsConfiguration = async (apiId: string) => {
-  Logger.logDelete(GatewayServiceName, `${apiId} CORS`);
+export const deleteCorsConfiguration = async (logger: Logger.OperationLogger, apiId: string) => {
+  logger.update(`Deleting gateway CORS`);
 
   try {
     await client.send(
@@ -157,10 +155,8 @@ export const deleteCorsConfiguration = async (apiId: string) => {
   }
 };
 
-export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
-  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
-
-  Logger.logTag(GatewayServiceName, apiName);
+export const tagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag gateway`);
 
   await client.send(
     new TagResourceCommand({
@@ -173,10 +169,8 @@ export const tagGateway = async (apiArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
-  const apiName = tryParseArn(apiArn)?.resourceName ?? apiArn;
-
-  Logger.logUntag(GatewayServiceName, apiName);
+export const untagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag gateway`);
 
   await client.send(
     new UntagResourceCommand({
@@ -186,8 +180,8 @@ export const untagGateway = async (apiArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteGateway = async (apiId: string) => {
-  Logger.logDelete(GatewayServiceName, apiId);
+export const deleteGateway = async (logger: Logger.OperationLogger, apiId: string) => {
+  logger.update(`Deleting gateway`);
 
   try {
     await client.send(
