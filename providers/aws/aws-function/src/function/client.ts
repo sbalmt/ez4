@@ -111,7 +111,7 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  const { description, memory, timeout, architecture, runtime, debug, roleArn, logGroup } = request;
+  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup } = request;
 
   const client = getLambdaClient();
 
@@ -125,6 +125,7 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
         MemorySize: memory,
         Timeout: timeout,
         Role: roleArn,
+        Publish: publish,
         Handler: handlerName,
         Architectures: [getFunctionArchitecture(architecture)],
         Runtime: getFunctionRuntime(runtime),
@@ -149,23 +150,27 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
     );
   });
 
-  await waitUntilFunctionActive(getLambdaWaiter(client), {
+  const functionArn = response.FunctionArn as Arn;
+  const functionVersion = response.Version;
+
+  const waiter = getLambdaWaiter(client);
+
+  await waitUntilFunctionActive(waiter, {
     FunctionName: functionName
   });
 
-  const functionArn = response.FunctionArn as Arn;
-
-  if (request.publish) {
-    const functionVersion = await publishFunction(functionName, logger);
-
-    return {
-      functionVersion,
-      functionArn
-    };
+  if (publish) {
+    await waitUntilPublishedVersionActive(waiter, {
+      FunctionName: functionName,
+      Qualifier: functionVersion
+    });
   }
 
   return {
-    functionArn
+    functionArn,
+    ...(publish && {
+      functionVersion
+    })
   };
 };
 
@@ -187,23 +192,27 @@ export const updateSourceCode = async (logger: Logger.OperationLogger, functionN
     })
   );
 
-  await waitUntilFunctionUpdated(getLambdaWaiter(client), {
+  const functionArn = response.FunctionArn as Arn;
+  const functionVersion = response.Version;
+
+  const waiter = getLambdaWaiter(client);
+
+  await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
 
-  const functionArn = response.FunctionArn as Arn;
-
-  if (request.publish) {
-    const functionVersion = await publishFunction(functionName, logger);
-
-    return {
-      functionVersion,
-      functionArn
-    };
+  if (publish) {
+    await waitUntilPublishedVersionActive(waiter, {
+      FunctionName: functionName,
+      Qualifier: functionVersion
+    });
   }
 
   return {
-    functionArn
+    functionArn,
+    ...(publish && {
+      functionVersion
+    })
   };
 };
 
@@ -270,7 +279,7 @@ export const deleteFunction = async (functionName: string, logger: Logger.Operat
   });
 };
 
-export const publishFunction = async (functionName: string, logger: Logger.OperationLogger) => {
+export const publishFunction = async (logger: Logger.OperationLogger, functionName: string) => {
   logger.update(`Publishing version`);
 
   const client = getLambdaClient();
