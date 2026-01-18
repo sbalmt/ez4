@@ -1,10 +1,8 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { getAwsClientOptions } from '@ez4/aws-common';
 
 export const getDynamoDBClient = () => {
-  return new DynamoDBClient({
-    retryMode: 'adaptive',
-    maxAttempts: 10
-  });
+  return new DynamoDBClient(getAwsClientOptions());
 };
 
 export const getDynamoDBWaiter = (client: DynamoDBClient) => {

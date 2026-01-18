@@ -1,10 +1,8 @@
+import { getAwsClientOptions } from '@ez4/aws-common';
 import { RDSClient } from '@aws-sdk/client-rds';
 
 export const getRDSClient = () => {
-  return new RDSClient({
-    retryMode: 'adaptive',
-    maxAttempts: 10
-  });
+  return new RDSClient(getAwsClientOptions());
 };
 
 export const getRDSWaiter = (client: RDSClient) => {

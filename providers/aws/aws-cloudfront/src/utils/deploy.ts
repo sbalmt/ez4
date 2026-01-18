@@ -1,10 +1,8 @@
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
+import { getAwsClientOptions } from '@ez4/aws-common';
 
 export const getCloudFrontClient = () => {
-  return new CloudFrontClient({
-    retryMode: 'adaptive',
-    maxAttempts: 10
-  });
+  return new CloudFrontClient(getAwsClientOptions());
 };
 
 export const getCloudFrontWaiter = (client: CloudFrontClient) => {
