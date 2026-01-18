@@ -149,6 +149,7 @@ export type ProjectDeployOptions = {
 
   /**
    * Determines the maximum amount of resources changes at the same time.
+   * Default is: `15`
    */
   maxConcurrency: number;
 };

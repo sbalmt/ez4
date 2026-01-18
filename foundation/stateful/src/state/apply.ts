@@ -28,7 +28,7 @@ export const applySteps = async <E extends EntryState>(
     throw new EntriesNotFoundError();
   }
 
-  const { handlers, batchSize = 10, force = false } = options;
+  const { handlers, batchSize = 15, force = false } = options;
 
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
