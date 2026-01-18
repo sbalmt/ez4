@@ -5,3 +5,11 @@ export const getAwsClientOptions = () => {
     maxAttempts: 10
   };
 };
+
+export const getAwsClientWaiter = () => {
+  return {
+    maxWaitTime: 3600,
+    maxDelay: 10,
+    minDelay: 2
+  };
+};

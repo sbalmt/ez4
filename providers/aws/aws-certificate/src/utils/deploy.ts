@@ -1,4 +1,4 @@
-import { getAwsClientOptions } from '@ez4/aws-common';
+import { getAwsClientOptions, getAwsClientWaiter } from '@ez4/aws-common';
 import { ACMClient } from '@aws-sdk/client-acm';
 
 export const getACMClient = () => {
@@ -7,9 +7,7 @@ export const getACMClient = () => {
 
 export const getACMWaiter = (client: ACMClient) => {
   return {
-    minDelay: 15,
-    maxWaitTime: 3600,
-    maxDelay: 90,
+    ...getAwsClientWaiter(),
     client
   };
 };

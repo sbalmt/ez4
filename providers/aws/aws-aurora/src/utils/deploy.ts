@@ -1,4 +1,4 @@
-import { getAwsClientOptions } from '@ez4/aws-common';
+import { getAwsClientOptions, getAwsClientWaiter } from '@ez4/aws-common';
 import { RDSClient } from '@aws-sdk/client-rds';
 
 export const getRDSClient = () => {
@@ -7,9 +7,7 @@ export const getRDSClient = () => {
 
 export const getRDSWaiter = (client: RDSClient) => {
   return {
-    minDelay: 15,
-    maxWaitTime: 1800,
-    maxDelay: 60,
+    ...getAwsClientWaiter(),
     client
   };
 };
