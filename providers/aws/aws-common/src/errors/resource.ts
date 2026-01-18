@@ -17,3 +17,12 @@ export class ReplaceResourceError extends Error {
     super(`[${serviceName}]: Impossible to replace ${resourceA} with ${resourceB}.`);
   }
 }
+
+export class CorruptedResourceError extends Error {
+  constructor(
+    public serviceName: string,
+    public resourceName: string
+  ) {
+    super(`[${serviceName}]: Resource ${resourceName} is corrupted.`);
+  }
+}

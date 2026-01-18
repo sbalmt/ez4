@@ -29,5 +29,6 @@ export * from './types/options';
 export * from './storage/utils';
 
 export * from './utils/definitions';
+export * from './utils/format';
 export * from './utils/service';
 export * from './utils/logger';

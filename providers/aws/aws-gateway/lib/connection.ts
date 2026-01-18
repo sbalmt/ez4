@@ -12,8 +12,7 @@ import type {
 } from 'aws-lambda';
 
 import { resolveHeaders, resolveIdentity, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
-import { ServiceEventType } from '@ez4/common';
-import { Runtime } from '@ez4/common/runtime';
+import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 type RequestEvent = APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2> &

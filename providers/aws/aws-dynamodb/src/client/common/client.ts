@@ -5,7 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 import { ReturnConsumedCapacity } from '@aws-sdk/client-dynamodb';
 import { ExecuteTransactionCommand } from '@aws-sdk/lib-dynamodb';
 import { ExecuteStatementCommand } from '@aws-sdk/lib-dynamodb';
-import { Runtime } from '@ez4/common/runtime';
+import { Runtime } from '@ez4/common';
 
 export type StatementResult = {
   cursor?: string;

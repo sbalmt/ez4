@@ -41,9 +41,14 @@ export default {
 
   // Configure the deployment options for all resources
   deployOptions: {
-    tagName: 'Version', // Name of the tag to hold the release version
-    variableName: 'VERSION', // Name of the environment variable to hold the release version
-    version: '0.0.0' // Current release version
+    maxConcurrency: 10, // Maximum amount of resource changes at the same time.
+
+    // Configure the deployment release
+    release: {
+      tagName: 'Version', // Name of the tag to hold the release version
+      variableName: 'VERSION', // Name of the environment variable to hold the release version
+      version: '0.0.0' // Current release version
+    }
   },
 
   // Configure how to serve the project locally

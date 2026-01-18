@@ -1,3 +1,6 @@
+/**
+ * Access to the current runtime settings.
+ */
 export namespace Runtime {
   let globalScope: Scope | undefined;
 

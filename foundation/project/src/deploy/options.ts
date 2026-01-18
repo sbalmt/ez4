@@ -6,11 +6,12 @@ import { toKebabCase } from '@ez4/utils';
 
 export const getDeployOptions = (input: InputOptions, project: ProjectOptions): DeployOptions => {
   return {
-    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
     projectName: toKebabCase(project.projectName),
+    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
+    concurrency: project.deployOptions?.maxConcurrency,
     debug: input.debug ?? project.debugMode,
+    release: project.deployOptions?.release,
     defaults: project.defaultOptions,
-    release: project.deployOptions,
     variables: project.variables,
     force: input.force,
     tags: project.tags

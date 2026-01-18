@@ -52,7 +52,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
     });
   }
 
-  const cluster = await importCluster(getClusterName(service, options), false);
+  const cluster = await importCluster(undefined, getClusterName(service, options));
 
   if (!cluster) {
     throw new ClusterDatabaseNotFoundError(service.name);

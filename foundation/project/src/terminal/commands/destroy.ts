@@ -25,7 +25,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
   });
 
   if (options.force) {
-    Logger.log('‼️  Force option is enabled');
+    Logger.log('❗ Force option is enabled');
   }
 
   warnUnsupportedFlags(input, {
@@ -52,7 +52,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     }
   }
 
-  const deployState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
 
   await Logger.execute('✅ Saving state', () => {
     return saveState(project.stateFile, options, deployState.result);

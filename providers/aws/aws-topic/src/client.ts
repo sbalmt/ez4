@@ -5,8 +5,8 @@ import type { AnyObject } from '@ez4/utils';
 
 import { getJsonStringMessage, MissingMessageGroupError } from '@ez4/topic/utils';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
-import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
+import { Runtime } from '@ez4/common';
 
 type FifoParameters = Pick<PublishInput, 'MessageGroupId' | 'MessageDeduplicationId'>;
 

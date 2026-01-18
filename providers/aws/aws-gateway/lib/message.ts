@@ -14,8 +14,7 @@ import type {
 import { resolveIdentity, getJsonError, resolveRequestBody, resolveResponseBody, resolveValidation } from '@ez4/gateway/utils';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
-import { ServiceEventType } from '@ez4/common';
-import { Runtime } from '@ez4/common/runtime';
+import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 type RequestEvent = APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2> &

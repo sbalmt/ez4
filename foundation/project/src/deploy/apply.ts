@@ -4,8 +4,8 @@ import { triggerAllAsync } from '@ez4/project/library';
 
 import { MissingActionProviderError } from '../errors/provider';
 
-export const applyDeploy = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
-  const result = await triggerAllAsync('deploy:apply', (handler) => handler({ newState, oldState, force }));
+export const applyDeploy = async (newState: EntryStates, oldState: EntryStates, concurrency?: number, force?: boolean) => {
+  const result = await triggerAllAsync('deploy:apply', (handler) => handler({ newState, oldState, concurrency, force }));
 
   if (!result) {
     throw new MissingActionProviderError('deploy:apply');

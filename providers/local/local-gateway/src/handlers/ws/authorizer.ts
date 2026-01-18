@@ -5,8 +5,8 @@ import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { resolveValidation } from '@ez4/gateway/utils';
-import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
+import { Runtime } from '@ez4/common';
 
 import { getIncomingRequestHeaders, getIncomingRequestQuery } from '../../utils/request';
 
@@ -26,6 +26,12 @@ export const processWsAuthorization = async (
   const services = provider?.services ?? {};
 
   const clients = await context.makeClients(services);
+  const traceId = getRandomUUID();
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   const module = await createModule({
     listener: connect.listener ?? defaults?.listener,
@@ -38,8 +44,6 @@ export const processWsAuthorization = async (
     }
   });
 
-  const traceId = getRandomUUID();
-
   const request: Ws.Incoming<Ws.AuthRequest> = {
     connectionId: event.connection.id,
     requestId: getRandomUUID(),
@@ -50,11 +54,6 @@ export const processWsAuthorization = async (
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
-
-  Runtime.setScope({
-    isLocal: true,
-    traceId
-  });
 
   try {
     await onBegin(module, clients, request);

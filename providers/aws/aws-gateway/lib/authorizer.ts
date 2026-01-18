@@ -13,8 +13,7 @@ import type {
 
 import { resolveHeaders, resolvePathParameters, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
-import { ServiceEventType } from '@ez4/common';
-import { Runtime } from '@ez4/common/runtime';
+import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 type IncomingRequest = Http.Incoming<Http.AuthRequest> | Ws.Incoming<Ws.AuthRequest>;
