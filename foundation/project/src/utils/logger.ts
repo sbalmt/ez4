@@ -11,9 +11,10 @@ export const enum LogLevel {
 export namespace Logger {
   export type Callback<T> = () => Promise<T> | T;
 
-  export type LogLine = {
+  export interface LogLine {
+    readonly message: string;
     update: (message: string) => void;
-  };
+  }
 
   type LoggerContext = {
     logLevel: LogLevel;
@@ -137,20 +138,26 @@ export namespace Logger {
   export const logLine = (message: string): LogLine => {
     const currentLine = Context.lineCount;
 
-    log(message);
+    let lastMessage = message;
 
-    return {
-      update: (message: string) => {
+    log(lastMessage);
+
+    return new (class {
+      update(message: string) {
         const difference = Context.lineCount - currentLine;
 
         process.stdout.moveCursor(0, -difference);
         process.stdout.clearLine(0);
 
-        log(message);
+        log((lastMessage = message));
 
         process.stdout.moveCursor(0, difference);
         Context.lineCount--;
       }
-    };
+
+      get message() {
+        return lastMessage;
+      }
+    })();
   };
 }
