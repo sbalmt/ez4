@@ -141,15 +141,14 @@ export namespace Logger {
 
     return {
       update: (message: string) => {
-        const targetLine = currentLine - Context.lineCount;
-        const promptLine = Context.lineCount - currentLine;
+        const difference = Context.lineCount - currentLine;
 
-        process.stdout.moveCursor(0, targetLine);
+        process.stdout.moveCursor(0, -difference);
         process.stdout.clearLine(0);
 
         log(message);
 
-        process.stdout.moveCursor(0, promptLine);
+        process.stdout.moveCursor(0, difference);
         Context.lineCount--;
       }
     };
