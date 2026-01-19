@@ -5,7 +5,7 @@ import { TTY } from '../utils/tty';
 
 let currentLevel: LogLevel = LogLevel.Debug;
 
-export namespace BasicLogger {
+export namespace Logger {
   export const setLevel = (logLevel: LogLevel) => {
     currentLevel = logLevel;
   };

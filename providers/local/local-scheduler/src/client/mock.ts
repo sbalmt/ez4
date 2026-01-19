@@ -1,6 +1,6 @@
 import type { Client, Cron, ScheduleEvent } from '@ez4/scheduler';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export type ClientMockOptions<T extends Cron.Event> = {
   events?: Record<string, ScheduleEvent<T>>;
@@ -48,7 +48,6 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
       if (!schedulerMemory[identifier]) {
         if (!options?.default) {
           Logger.warn(`Event ${identifier} not found.`);
-
           return Promise.resolve(false);
         }
 

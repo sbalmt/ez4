@@ -2,8 +2,9 @@ import type { Client, Queue, SendOptions } from '@ez4/queue';
 import type { CommonOptions } from '@ez4/project/library';
 import type { MessageSchema } from '@ez4/queue/utils';
 
-import { getServiceName, Logger } from '@ez4/project/library';
+import { getServiceName } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/queue/utils';
+import { Logger } from '@ez4/logger';
 
 export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;

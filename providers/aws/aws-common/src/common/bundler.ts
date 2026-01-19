@@ -8,7 +8,8 @@ import { existsSync } from 'node:fs';
 import { cpus } from 'node:os';
 
 import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
-import { getTemporaryPath, Logger } from '@ez4/project/library';
+import { getTemporaryPath } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { SourceFileError } from '../errors/bundler';
 

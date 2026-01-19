@@ -2,8 +2,9 @@ import type { CommonOptions } from '@ez4/project/library';
 import type { MessageSchema } from '@ez4/topic/utils';
 import type { Client, Topic } from '@ez4/topic';
 
-import { getServiceName, Logger } from '@ez4/project/library';
 import { getJsonStringMessage } from '@ez4/topic/utils';
+import { getServiceName } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { getTopicServiceHost, sendTopicServiceRequest } from '../utils/topic';
 

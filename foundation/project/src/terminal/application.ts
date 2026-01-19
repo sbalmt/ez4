@@ -1,6 +1,7 @@
 import { loadEnvFile } from 'node:process';
 
-import { Logger } from '../utils/logger';
+import { Logger } from '@ez4/logger';
+
 import { tryLoadProject } from '../config/project';
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';

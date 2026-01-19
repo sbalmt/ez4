@@ -1,6 +1,6 @@
-import { Logger } from '@ez4/project/library';
 import { ServiceError } from '@ez4/common';
 import { isAnyArray } from '@ez4/utils';
+import { Logger } from '@ez4/logger';
 
 export const logErrorDetails = (error: unknown) => {
   if (error instanceof Error) {

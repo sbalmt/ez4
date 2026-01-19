@@ -1,4 +1,4 @@
-import { Color, Logger as ProjectLogger, toBold, toColor, toRed } from '@ez4/project/library';
+import { DynamicLogger, LogFormat, LogColor } from '@ez4/logger';
 
 export namespace Logger {
   export type Callback<T> = (logger: OperationLogger) => T | Promise<T>;
@@ -8,23 +8,32 @@ export namespace Logger {
   };
 
   export const logOperation = async <T>(serviceName: string, resource: string, operation: string, callback: Callback<T>) => {
-    const logger = ProjectLogger.logLine(`▶️  Starting ${toBold(resource)} ${operation} ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
+    const logger = DynamicLogger.logLine(
+      `▶️  Starting ${LogFormat.toBold(resource)} ${operation} ${LogFormat.toColor(LogColor.BrightBlack, `[${serviceName}]`)}`
+    );
 
     const operationLogger: OperationLogger = {
       update: (message: string) => {
-        logger.update(`⏳ Resource ${toBold(resource)} ${toColor(Color.BrightBlack, `[${serviceName}: ${message}]`)}`);
+        logger.update(
+          `⏳ Resource ${LogFormat.toBold(resource)} ${LogFormat.toColor(LogColor.BrightBlack, `[${serviceName}: ${message}]`)}`
+        );
       }
     };
 
     try {
       const result = await callback(operationLogger);
 
-      logger.update(`✅ Finished ${toBold(resource)} ${operation} ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
+      logger.update(
+        `✅ Finished ${LogFormat.toBold(resource)} ${operation} ${LogFormat.toColor(LogColor.BrightBlack, `[${serviceName}]`)}`
+      );
 
       return result;
       //
     } catch (error) {
-      logger.update(`❌ Finished ${toRed(toBold(resource))} ${operation} with errors ${toColor(Color.BrightBlack, `[${serviceName}]`)}`);
+      logger.update(
+        `❌ Finished ${LogFormat.toColor(LogColor.Red, LogFormat.toBold(resource))} ${operation}` +
+          ` with errors ${LogFormat.toColor(LogColor.BrightBlack, `[${serviceName}]`)}`
+      );
 
       throw error;
     }

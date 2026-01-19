@@ -2,7 +2,7 @@ import type { Client, ScheduleEvent } from '@ez4/scheduler';
 import type { EventSchema } from '@ez4/scheduler/utils';
 
 import { getJsonEvent } from '@ez4/scheduler/utils';
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { InMemoryScheduler } from '../service/scheduler';
 

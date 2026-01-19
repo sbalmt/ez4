@@ -1,6 +1,6 @@
 import type { LinkedVariables } from '@ez4/project/library';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';

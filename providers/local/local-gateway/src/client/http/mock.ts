@@ -4,8 +4,8 @@ import { mock } from 'node:test';
 
 import { getHttpException } from '@ez4/gateway/utils';
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
-import { Logger } from '@ez4/project/library';
 import { isAnyString } from '@ez4/utils';
+import { Logger } from '@ez4/logger';
 
 export type HttpClientMockOperation = (request: HttpClientRequest) => Promise<HttpClientResponse>;
 

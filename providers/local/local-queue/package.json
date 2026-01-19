@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@ez4/common": "^0.40.0",
+    "@ez4/logger": "^0.40.0",
     "@ez4/local-common": "^0.40.0",
     "@ez4/project": "^0.40.0",
     "@ez4/queue": "^0.40.0",

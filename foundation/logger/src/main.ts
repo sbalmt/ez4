@@ -1,6 +1,5 @@
-export * from './services/basic';
+export * from './services/logger';
 export * from './services/dynamic';
-export * from './services/measured';
 
 export * from './types/color';
 export * from './types/level';

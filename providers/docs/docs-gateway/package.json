@@ -45,6 +45,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
+    "@ez4/logger": "^0.40.0",
     "@ez4/project": "^0.40.0",
     "@ez4/gateway": "^0.40.0",
     "@ez4/schema": "^0.40.0",

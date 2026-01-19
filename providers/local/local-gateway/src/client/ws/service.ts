@@ -4,7 +4,7 @@ import type { Ws, WsClient } from '@ez4/gateway';
 import type { AnySchema } from '@ez4/schema';
 
 import { resolveResponseBody } from '@ez4/gateway/utils';
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export type WsServiceClientOptions = {
   preferences?: WsPreferences;

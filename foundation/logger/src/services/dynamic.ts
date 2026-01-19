@@ -1,7 +1,7 @@
 import type { DynamicLogLine } from '../types/line';
 
 import { TTY } from '../utils/tty';
-import { BasicLogger } from './basic';
+import { Logger } from './logger';
 
 export namespace DynamicLogger {
   /**
@@ -15,7 +15,7 @@ export namespace DynamicLogger {
 
     let lastMessage = message;
 
-    BasicLogger.log(lastMessage);
+    Logger.log(lastMessage);
 
     return new (class {
       update(message: string) {
@@ -32,6 +32,32 @@ export namespace DynamicLogger {
         return lastMessage;
       }
     })();
+  };
+
+  export const logExecution = async <T>(message: string, callback: () => Promise<T> | T) => {
+    const startTime = performance.now();
+
+    const logger = DynamicLogger.logLine(`${message} ...`);
+
+    try {
+      TTY.startBuffer();
+
+      return await callback();
+      //
+    } catch (error) {
+      throw error;
+      //
+    } finally {
+      TTY.stopBuffer();
+
+      const elapsedTime = (performance.now() - startTime).toFixed(2);
+
+      logger.update(`${message} (${elapsedTime}ms)`);
+
+      if (TTY.hasBuffer()) {
+        Logger.log(`\n${TTY.getBuffer().join('')}\n`);
+      }
+    }
   };
 
   TTY.setup();

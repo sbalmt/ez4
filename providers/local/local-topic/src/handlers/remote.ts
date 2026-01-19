@@ -1,7 +1,7 @@
 import type { AnyObject } from '@ez4/utils';
 import type { TopicRemoteSubscription } from '../types/subscription';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const processRemoteMessage = async (subscription: TopicRemoteSubscription, message: AnyObject) => {
   const { serviceName, serviceHost } = subscription;

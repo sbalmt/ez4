@@ -1,11 +1,11 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { EntryStates } from '@ez4/stateful';
 
-import { StepAction } from '@ez4/stateful';
 import { triggerAllAsync } from '@ez4/project/library';
+import { Logger, LogColor, LogFormat } from '@ez4/logger';
+import { StepAction } from '@ez4/stateful';
 import { deepCompare } from '@ez4/utils';
 
-import { Color, toBold, toColor, toGreen, toRed, toYellow } from '../utils/format';
 import { MissingActionProviderError } from '../errors/provider';
 import { MissingEntryResourceError } from '../errors/resource';
 
@@ -38,7 +38,7 @@ export const reportResourceChanges = async (newState: EntryStates, oldState: Ent
   }
 
   if (changes > 0) {
-    console.log('');
+    Logger.space();
 
     return true;
   }
@@ -98,9 +98,9 @@ const printResourceChanges = (entryId: string, type: string, changes: ObjectComp
   if (output.length > 0) {
     const name = 'name' in changes ? changes.name : 'unnamed';
 
-    console.log('');
+    Logger.space();
 
-    console.group(`# ${toBold(type)} ${toColor(Color.BrightBlack, `(${entryId} / ${name})`)} ${action}`);
+    console.group(`# ${LogFormat.toBold(type)} ${LogFormat.toColor(LogColor.BrightBlack, `(${entryId} / ${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
   }
@@ -123,12 +123,12 @@ const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?
     const name = getOutputName(property);
     const size = length + (path ? path.length + 1 : 0);
 
-    return `${name.padEnd(size, ' ')} = ${toColor(Color.BrightBlack, formatValue(value))}`;
+    return `${name.padEnd(size, ' ')} = ${LogFormat.toColor(LogColor.BrightBlack, formatValue(value))}`;
   };
 
-  const createSign = toGreen(`+`);
-  const renameSign = toYellow(`~`);
-  const removeSign = toRed(`-`);
+  const createSign = LogFormat.toColor(LogColor.Green, `+`);
+  const renameSign = LogFormat.toColor(LogColor.Yellow, `~`);
+  const removeSign = LogFormat.toColor(LogColor.Red, `-`);
 
   const output: string[] = [];
 

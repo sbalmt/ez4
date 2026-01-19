@@ -2,10 +2,11 @@ import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library'
 import type { HttpClient, HttpClientRequest, Http } from '@ez4/gateway';
 import type { CommonOptions } from '@ez4/project/library';
 
-import { getServiceName, Logger } from '@ez4/project/library';
 import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
+import { getServiceName } from '@ez4/project/library';
 import { isAnyString } from '@ez4/utils';
 import { HttpError } from '@ez4/gateway';
+import { Logger } from '@ez4/logger';
 
 export type HttpServiceClientOptions = CommonOptions & {
   authorization?: ClientAuthorization;

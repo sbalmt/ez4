@@ -2,8 +2,8 @@ import type { Client, Content } from '@ez4/storage';
 
 import { Readable } from 'node:stream';
 
-import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
+import { Logger } from '@ez4/logger';
 
 export type ClientMockOptions = {
   keys?: Record<string, Buffer>;

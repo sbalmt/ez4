@@ -1,7 +1,7 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { ExpressionType, parseExpression } from '../utils/expression';
 import { InMemoryScheduler } from '../service/scheduler';

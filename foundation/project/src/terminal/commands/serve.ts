@@ -3,7 +3,7 @@ import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
-import { Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { createServer } from 'node:http';
 
@@ -26,7 +26,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports, namespacePath] = await Logger.execute('⚡ Initializing', () => {
+  const [aliasPaths, allImports, namespacePath] = await DynamicLogger.logExecution('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
@@ -53,7 +53,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
         Logger.space();
       }
 
-      emulators = await Logger.execute('🔄️ Loading emulators', () => {
+      emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
         return getServiceEmulators(metadata, options);
       });
 

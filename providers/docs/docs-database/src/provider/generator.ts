@@ -1,7 +1,7 @@
 import type { GenerateResourceEvent, MetadataReflection } from '@ez4/project/library';
 
-import { Logger } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
+import { Logger } from '@ez4/logger';
 
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';

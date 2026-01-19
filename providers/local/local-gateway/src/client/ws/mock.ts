@@ -1,6 +1,6 @@
 import type { Ws, WsClient } from '@ez4/gateway';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const createWsClientMock = <T extends Ws.JsonBody>(serviceName: string): WsClient<T> => {
   return new (class {

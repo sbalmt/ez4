@@ -1,4 +1,4 @@
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const assertNoErrors = (errors: Error[]) => {
   if (errors.length) {

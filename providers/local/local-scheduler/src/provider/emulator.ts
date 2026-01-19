@@ -4,7 +4,8 @@ import type { CronService } from '@ez4/scheduler/library';
 import { getJsonEvent, MalformedEventError } from '@ez4/scheduler/utils';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { isDynamicCronService } from '@ez4/scheduler/library';
-import { getServiceName, Logger } from '@ez4/project/library';
+import { getServiceName } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { processTimerEvent } from '../handlers/timer';
 import { processSchedulerEvent } from '../handlers/scheduler';

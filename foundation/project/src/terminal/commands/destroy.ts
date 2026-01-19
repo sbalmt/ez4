@@ -2,7 +2,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { applyDeploy } from '../../deploy/apply';
 import { warnUnsupportedFlags } from '../../utils/flags';
@@ -20,7 +20,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     Logger.setLevel(LogLevel.Debug);
   }
 
-  await Logger.execute('⚡ Initializing', () => {
+  await DynamicLogger.logExecution('⚡ Initializing', () => {
     return loadProviders(project);
   });
 
@@ -32,7 +32,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     force: true
   });
 
-  const oldState = await Logger.execute('🔄️ Loading state', () => {
+  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
     return loadState(project.stateFile, options);
   });
 
@@ -54,7 +54,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
 
   const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
 
-  await Logger.execute('✅ Saving state', () => {
+  await DynamicLogger.logExecution('✅ Saving state', () => {
     return saveState(project.stateFile, options, deployState.result);
   });
 
