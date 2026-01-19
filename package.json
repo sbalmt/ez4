@@ -14,6 +14,7 @@
     "foundation/stateful",
     "foundation/reflection",
     "foundation/project",
+    "foundation/logger",
     "foundation/common",
     "foundation/schema",
     "foundation/validator",
