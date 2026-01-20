@@ -40,6 +40,8 @@ export const deploy = async <E extends EntryState>(
 ): Promise<ApplyResult<E>> => {
   Logger.log(`🚀 Deploy started`);
 
+  const startTime = performance.now();
+
   const plannedSteps = await planSteps(newState, oldState, {
     handlers: allProviderHandlers,
     force
@@ -51,7 +53,9 @@ export const deploy = async <E extends EntryState>(
     force
   });
 
-  Logger.log(`ℹ️  Deploy finished`);
+  const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
+
+  Logger.log(`ℹ️  Deploy finished (${plannedSteps.length} steps in ${elapsedTime}s)`);
 
   return resultState;
 };
