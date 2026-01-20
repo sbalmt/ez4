@@ -14,7 +14,7 @@ import { ArchitectureType, RuntimeType } from '@ez4/project';
  */
 export default {
   prefix: 'dev', // Project prefix
-  projectName: 'backend', // Project name (Mandatory)
+  projectName: 'backend', // Project name (required)
   sourceFiles: ['./src/api.ts'], // Entry-point source files
 
   tsconfigFile: 'tsconfig.json', // Specify a new tsconfig.json location
@@ -22,16 +22,16 @@ export default {
 
   confirmMode: true, // Ask for deploy confirmation when it's true
   debugMode: true, // See more logs when serving and in the deployed resources
-  localMode: true, // Enable the local mode for the resources
-  resetMode: true, // Enable the reset mode for the local resources
+  localMode: true, // Enable the local mode for the resources when serving
+  resetMode: true, // Enable the reset mode for the local resources when serving
 
   // Configure how the state file is stored
   stateFile: {
     path: 'ez4-state', // Path to the state file
-    remote: true // Set true to store state file remotely
+    remote: true // Enable remote storage (in your cloud account) for the state file
   },
 
-  // Configure the default options for all resources
+  // Configure the default options for all resource contracts
   defaultOptions: {
     logRetention: 15, // Default log retention (in days) for all handlers
     architecture: ArchitectureType.Arm, // Default architecture for all handlers
@@ -68,12 +68,12 @@ export default {
   // Configure the test options for the providers
   testOptions: {},
 
-  // Environment variables applied to all resources
+  // Environment variables shared with all resources
   variables: {
     DUMMY_API_KEY: 'A-BC123'
   },
 
-  // Tags applied to all resources
+  // Tags shared with all resources
   tags: {
     Project: 'EZ4' // Use the tag name/value key pair
   },
@@ -88,7 +88,7 @@ export default {
 
   // Configure the custom providers
   customProviders: {
-    packages: ['@my-project/custom'] // List of package names that have custom providers
+    packages: ['@my-project/custom'] // List of installed package that have custom providers
   }
 };
 ```
