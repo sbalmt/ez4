@@ -67,7 +67,7 @@ describe('sql where empty tests', () => {
       .from('test')
       .where({
         bar: {
-          isIn: []
+          isIn: [[]]
         }
       });
 
@@ -75,7 +75,7 @@ describe('sql where empty tests', () => {
 
     assert.deepEqual(variables, [[]]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "bar" <@ :0');
+    assert.equal(statement, 'SELECT * FROM "test" WHERE ("bar" <@ :0)');
   });
 
   it('assert :: where empty array (contains)', ({ assert }) => {

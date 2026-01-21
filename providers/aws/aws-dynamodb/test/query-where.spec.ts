@@ -105,12 +105,12 @@ describe('dynamodb query (where)', () => {
 
   it('assert :: prepare where (is in array)', () => {
     const [whereStatement, variables] = getWhereOperation({
-      qux: { isIn: [1, 2] }
+      qux: { isIn: [[1, 2], [3]] }
     });
 
-    equal(whereStatement, `WHERE ? IN "qux" AND ? IN "qux"`);
+    equal(whereStatement, `WHERE ((? IN "qux" AND ? IN "qux") OR (? IN "qux"))`);
 
-    deepEqual(variables, [1, 2]);
+    deepEqual(variables, [1, 2, 3]);
   });
 
   it('assert :: prepare where (is in empty)', () => {

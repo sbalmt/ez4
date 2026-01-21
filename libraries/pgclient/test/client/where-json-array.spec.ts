@@ -101,13 +101,19 @@ describe('client where json array', async () => {
       where: {
         json: {
           array: {
-            isIn: ['foo', 'bar', 'baz']
+            isIn: [
+              ['baz', 'baz'],
+              [2, 3]
+            ]
           }
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, json: { array: ['foo', 'bar', 'baz'] } }]);
+    deepEqual(records, [
+      { integer: 1, json: { array: [1, 2, 3] } },
+      { integer: 2, json: { array: ['foo', 'bar', 'baz'] } }
+    ]);
   });
 
   it('assert :: where json array (contains)', async () => {
