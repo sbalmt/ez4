@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { InstanceState, InstanceResult, InstanceParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, ReplaceResourceError } from '@ez4/aws-common';
-import { Logger } from '@ez4/aws-common';
+import { OperationLogger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createInstance, deleteInstance, importInstance, tagInstance, untagInstance } from './client';
@@ -53,7 +53,7 @@ const createResource = (candidate: InstanceState, context: StepContext): Promise
 
   const clusterName = getClusterName(InstanceServiceName, parameters.instanceName, context);
 
-  return Logger.logOperation(InstanceServiceName, parameters.instanceName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(InstanceServiceName, parameters.instanceName, 'creation', async (logger) => {
     const response =
       (await importInstance(logger, parameters.instanceName)) ??
       (await createInstance(logger, {
@@ -77,7 +77,7 @@ const updateResource = (candidate: InstanceState, current: InstanceState): Promi
     throw new CorruptedResourceError(InstanceServiceName, instanceName);
   }
 
-  return Logger.logOperation(InstanceServiceName, instanceName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
 
     return result;
@@ -93,17 +93,12 @@ const deleteResource = async (current: InstanceState) => {
 
   const { instanceName } = result;
 
-  await Logger.logOperation(InstanceServiceName, instanceName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
     await deleteInstance(logger, instanceName);
   });
 };
 
-const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
-  instanceArn: Arn,
-  candidate: InstanceParameters,
-  current: InstanceParameters
-) => {
+const checkTagUpdates = async (logger: OperationLogLine, instanceArn: Arn, candidate: InstanceParameters, current: InstanceParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

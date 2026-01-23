@@ -1,8 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types';
 
 import { getFunctionArn } from '@ez4/aws-function';
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { GatewayProtocol } from '../gateway/types';
@@ -40,10 +41,10 @@ const replaceResource = async (candidate: IntegrationState, current: Integration
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
+const createResource = (candidate: IntegrationState, context: StepContext): Promise<IntegrationResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(IntegrationServiceName, parameters.fromService, 'creation', async (logger) => {
+  return OperationLogger.logExecution(IntegrationServiceName, parameters.fromService, 'creation', async (logger) => {
     const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
     const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
     const protocol = getGatewayProtocol(IntegrationServiceName, 'integration', context);
@@ -64,14 +65,14 @@ const createResource = async (candidate: IntegrationState, context: StepContext)
   });
 };
 
-const updateResource = async (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
+const updateResource = (candidate: IntegrationState, current: IntegrationState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  return Logger.logOperation(IntegrationServiceName, parameters.fromService, 'updates', async (logger) => {
+  return OperationLogger.logExecution(IntegrationServiceName, parameters.fromService, 'updates', async (logger) => {
     const integrationId = result.integrationId;
 
     const newFunctionArn = getFunctionArn(IntegrationServiceName, integrationId, context);
@@ -98,13 +99,13 @@ const deleteResource = async (current: IntegrationState) => {
     return;
   }
 
-  await Logger.logOperation(IntegrationServiceName, parameters.fromService, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(IntegrationServiceName, parameters.fromService, 'deletion', async (logger) => {
     await deleteIntegration(logger, result.apiId, result.integrationId);
   });
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   integrationId: string,
   protocol: GatewayProtocol,

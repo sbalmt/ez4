@@ -1,8 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
@@ -48,7 +48,7 @@ const replaceResource = async (candidate: ClusterState, current: ClusterState) =
 const createResource = (candidate: ClusterState): Promise<ClusterResult> => {
   const { clusterName } = candidate.parameters;
 
-  return Logger.logOperation(ClusterServiceName, clusterName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(ClusterServiceName, clusterName, 'creation', async (logger) => {
     const response = (await importCluster(logger, clusterName)) ?? (await createCluster(logger, candidate.parameters));
 
     const { clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
@@ -70,7 +70,7 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
     throw new CorruptedResourceError(ClusterServiceName, clusterName);
   }
 
-  return Logger.logOperation(ClusterServiceName, clusterName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
     const newResult = await checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
 
     await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
@@ -91,7 +91,7 @@ const deleteResource = async (current: ClusterState, context: StepContext) => {
 
   const clusterName = parameters.clusterName;
 
-  await Logger.logOperation(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
     if (!allowDeletion) {
       await updateDeletion(logger, clusterName, true);
     }
@@ -101,7 +101,7 @@ const deleteResource = async (current: ClusterState, context: StepContext) => {
 };
 
 const checkDeletionUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   clusterName: string,
   candidate: ClusterParameters,
   current: ClusterParameters
@@ -114,7 +114,7 @@ const checkDeletionUpdates = async (
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   clusterName: string,
   result: ClusterResult,
   candidate: ClusterParameters,
@@ -134,12 +134,7 @@ const checkGeneralUpdates = async (
   return result;
 };
 
-const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
-  clusterArn: Arn,
-  candidate: ClusterParameters,
-  current: ClusterParameters
-) => {
+const checkTagUpdates = async (logger: OperationLogLine, clusterArn: Arn, candidate: ClusterParameters, current: ClusterParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

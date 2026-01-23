@@ -1,4 +1,4 @@
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
   CreateAuthorizerCommand,
@@ -26,7 +26,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createAuthorizer = async (logger: Logger.OperationLogger, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+export const createAuthorizer = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating authorizer`);
 
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
@@ -55,7 +55,7 @@ export const createAuthorizer = async (logger: Logger.OperationLogger, apiId: st
   };
 };
 
-export const updateAuthorizer = async (logger: Logger.OperationLogger, apiId: string, authorizerId: string, request: UpdateRequest) => {
+export const updateAuthorizer = async (logger: OperationLogLine, apiId: string, authorizerId: string, request: UpdateRequest) => {
   logger.update(`Updating authorizer`);
 
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
@@ -81,7 +81,7 @@ export const updateAuthorizer = async (logger: Logger.OperationLogger, apiId: st
   );
 };
 
-export const deleteAuthorizer = async (logger: Logger.OperationLogger, apiId: string, authorizerId: string) => {
+export const deleteAuthorizer = async (logger: OperationLogLine, apiId: string, authorizerId: string) => {
   logger.update(`Deleting authorizer`);
 
   try {

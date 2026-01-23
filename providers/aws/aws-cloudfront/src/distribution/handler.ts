@@ -1,5 +1,5 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { CreateRequest, UpdateRequest } from './client';
 
 import type {
@@ -11,7 +11,7 @@ import type {
   DistributionAdditionalOrigin
 } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getOriginAccessId } from '../access/utils';
@@ -79,7 +79,7 @@ const createResource = (candidate: DistributionState, context: StepContext): Pro
 
   const distributionName = parameters.distributionName;
 
-  return Logger.logOperation(DistributionServiceName, distributionName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(DistributionServiceName, distributionName, 'creation', async (logger) => {
     const certificateArn = tryGetCertificateArn(context);
     const originAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
 
@@ -109,7 +109,7 @@ const createResource = (candidate: DistributionState, context: StepContext): Pro
   });
 };
 
-const updateResource = async (
+const updateResource = (
   candidate: DistributionState,
   current: DistributionState,
   context: StepContext
@@ -122,7 +122,7 @@ const updateResource = async (
 
   const distributionName = parameters.distributionName;
 
-  return Logger.logOperation(DistributionServiceName, distributionName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(DistributionServiceName, distributionName, 'updates', async (logger) => {
     const newCertificateArn = tryGetCertificateArn(context);
     const oldCertificateArn = current.result?.certificateArn;
 
@@ -175,7 +175,7 @@ const deleteResource = async (current: DistributionState) => {
 
   const { distributionName } = parameters;
 
-  await Logger.logOperation(DistributionServiceName, distributionName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(DistributionServiceName, distributionName, 'deletion', async (logger) => {
     const { distributionId, originAccessId } = result;
 
     // Only disabled distributions can be deleted.
@@ -251,7 +251,7 @@ const bindOriginsData = (parameters: DistributionParameters, originsData: Distri
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   distributionId: string,
   candidate: GeneralUpdateParameters,
   current: GeneralUpdateParameters
@@ -268,7 +268,7 @@ const checkGeneralUpdates = async (
 };
 
 const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   distributionArn: Arn,
   candidate: DistributionParameters,
   current: DistributionParameters

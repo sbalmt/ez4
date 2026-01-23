@@ -1,7 +1,8 @@
 import type { StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { deepCompare } from '@ez4/utils';
 
@@ -49,7 +50,7 @@ const replaceResource = async (candidate: TopicState, current: TopicState) => {
 const createResource = (candidate: TopicState): Promise<TopicResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(TopicServiceName, parameters.topicName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'creation', async (logger) => {
     if (parameters.import) {
       const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
 
@@ -78,7 +79,7 @@ const updateResource = (candidate: TopicState, current: TopicState): Promise<Top
     return Promise.resolve(result);
   }
 
-  return Logger.logOperation(TopicServiceName, topicName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
 
     return result;
@@ -92,12 +93,12 @@ const deleteResource = async (current: TopicState) => {
     return;
   }
 
-  await Logger.logOperation(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
     await deleteTopic(logger, result.topicArn);
   });
 };
 
-const checkTagUpdates = async (logger: Logger.OperationLogger, topicArn: string, candidate: TopicParameters, current: TopicParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, topicArn: string, candidate: TopicParameters, current: TopicParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

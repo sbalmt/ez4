@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { SubscriptionState, SubscriptionResult } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getSubscriptionProtocol } from './helpers/protocol';
@@ -50,10 +50,10 @@ const replaceResource = async (candidate: SubscriptionState, current: Subscripti
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: SubscriptionState, context: StepContext): Promise<SubscriptionResult> => {
+const createResource = (candidate: SubscriptionState, context: StepContext): Promise<SubscriptionResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(SubscriptionServiceName, parameters.fromService, 'creation', async (logger) => {
+  return OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'creation', async (logger) => {
     const [topicArn, endpoint] = await Promise.all([parameters.getTopicArn(context), parameters.getEndpoint(context)]);
 
     const { subscriptionArn } = await createSubscription(logger, {
@@ -79,7 +79,7 @@ const deleteResource = async (current: SubscriptionState) => {
     return;
   }
 
-  await Logger.logOperation(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
     await deleteSubscription(logger, result.subscriptionArn);
   });
 };

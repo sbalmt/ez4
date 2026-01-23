@@ -1,5 +1,5 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { ProtocolType } from '@aws-sdk/client-apigatewayv2';
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 import type { Http } from '@ez4/gateway';
 
 import {
@@ -45,7 +45,7 @@ export type CreateResponse = {
   endpoint?: string;
 };
 
-export const fetchGateway = async (logger: Logger.OperationLogger, gatewayName: string) => {
+export const fetchGateway = async (logger: OperationLogLine, gatewayName: string) => {
   logger.update(`Fetching gateway`);
 
   const client = getApiGatewayV2Client();
@@ -65,7 +65,7 @@ export const fetchGateway = async (logger: Logger.OperationLogger, gatewayName: 
   };
 };
 
-export const createGateway = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createGateway = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating gateway`);
 
   const { gatewayName, description, protocol, tags } = request;
@@ -108,7 +108,7 @@ export const createGateway = async (logger: Logger.OperationLogger, request: Cre
   };
 };
 
-export const updateGateway = async (logger: Logger.OperationLogger, apiId: string, request: UpdateRequest) => {
+export const updateGateway = async (logger: OperationLogLine, apiId: string, request: UpdateRequest) => {
   logger.update(`Updating gateway`);
 
   const { gatewayName, description, protocol } = request;
@@ -137,7 +137,7 @@ export const updateGateway = async (logger: Logger.OperationLogger, apiId: strin
   );
 };
 
-export const deleteCorsConfiguration = async (logger: Logger.OperationLogger, apiId: string) => {
+export const deleteCorsConfiguration = async (logger: OperationLogLine, apiId: string) => {
   logger.update(`Deleting gateway CORS`);
 
   try {
@@ -157,7 +157,7 @@ export const deleteCorsConfiguration = async (logger: Logger.OperationLogger, ap
   }
 };
 
-export const tagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, tags: ResourceTags) => {
+export const tagGateway = async (logger: OperationLogLine, apiArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag gateway`);
 
   await getApiGatewayV2Client().send(
@@ -171,7 +171,7 @@ export const tagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, ta
   );
 };
 
-export const untagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, tagKeys: string[]) => {
+export const untagGateway = async (logger: OperationLogLine, apiArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag gateway`);
 
   await getApiGatewayV2Client().send(
@@ -182,7 +182,7 @@ export const untagGateway = async (logger: Logger.OperationLogger, apiArn: Arn, 
   );
 };
 
-export const deleteGateway = async (logger: Logger.OperationLogger, apiId: string) => {
+export const deleteGateway = async (logger: OperationLogLine, apiId: string) => {
   logger.update(`Deleting gateway`);
 
   try {

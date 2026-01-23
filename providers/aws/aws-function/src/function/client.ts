@@ -1,6 +1,6 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   GetFunctionCommand,
@@ -69,7 +69,7 @@ export type UpdateSourceCodeRequest = {
 };
 
 export const importFunction = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   functionName: string,
   version?: string
 ): Promise<ImportOrCreateResponse | undefined> => {
@@ -99,7 +99,7 @@ export const importFunction = async (
   }
 };
 
-export const createFunction = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createFunction = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating function`);
 
   const { functionName, variables } = request;
@@ -174,7 +174,7 @@ export const createFunction = async (logger: Logger.OperationLogger, request: Cr
   };
 };
 
-export const updateSourceCode = async (logger: Logger.OperationLogger, functionName: string, request: UpdateSourceCodeRequest) => {
+export const updateSourceCode = async (logger: OperationLogLine, functionName: string, request: UpdateSourceCodeRequest) => {
   logger.update(`Updating source code`);
 
   const sourceFile = await getSourceZipFile(request.sourceFile);
@@ -216,7 +216,7 @@ export const updateSourceCode = async (logger: Logger.OperationLogger, functionN
   };
 };
 
-export const updateConfiguration = async (logger: Logger.OperationLogger, functionName: string, request: UpdateConfigurationRequest) => {
+export const updateConfiguration = async (logger: OperationLogLine, functionName: string, request: UpdateConfigurationRequest) => {
   logger.update(`Updating configuration`);
 
   const { handlerName, variables } = request;
@@ -257,7 +257,7 @@ export const updateConfiguration = async (logger: Logger.OperationLogger, functi
   });
 };
 
-export const deleteFunction = async (functionName: string, logger: Logger.OperationLogger) => {
+export const deleteFunction = async (functionName: string, logger: OperationLogLine) => {
   logger.update(`Deleting function`);
 
   const client = getLambdaClient();
@@ -279,7 +279,7 @@ export const deleteFunction = async (functionName: string, logger: Logger.Operat
   });
 };
 
-export const publishFunction = async (logger: Logger.OperationLogger, functionName: string) => {
+export const publishFunction = async (logger: OperationLogLine, functionName: string) => {
   logger.update(`Publishing version`);
 
   const client = getLambdaClient();
@@ -300,7 +300,7 @@ export const publishFunction = async (logger: Logger.OperationLogger, functionNa
   return version;
 };
 
-export const tagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tags: ResourceTags) => {
+export const tagFunction = async (logger: OperationLogLine, functionArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag function`);
 
   await getLambdaClient().send(
@@ -314,7 +314,7 @@ export const tagFunction = async (logger: Logger.OperationLogger, functionArn: A
   );
 };
 
-export const untagFunction = async (logger: Logger.OperationLogger, functionArn: Arn, tagKeys: string[]) => {
+export const untagFunction = async (logger: OperationLogLine, functionArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag function`);
 
   await getLambdaClient().send(

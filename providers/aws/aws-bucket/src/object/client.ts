@@ -1,4 +1,4 @@
-import type { Logger, ResourceTags } from '@ez4/aws-common';
+import type { OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import { createReadStream } from 'node:fs';
 
@@ -18,7 +18,7 @@ export type CreateResponse = {
   objectKey: string;
 };
 
-export const putObject = async (logger: Logger.OperationLogger, bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
+export const putObject = async (logger: OperationLogLine, bucketName: string, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating object`);
 
   const { objectKey, filePath } = request;
@@ -41,7 +41,7 @@ export const putObject = async (logger: Logger.OperationLogger, bucketName: stri
   };
 };
 
-export const updateTags = async (logger: Logger.OperationLogger, bucketName: string, objectKey: string, tags: ResourceTags) => {
+export const updateTags = async (logger: OperationLogLine, bucketName: string, objectKey: string, tags: ResourceTags) => {
   logger.update(`Updating object tags`);
 
   await getS3Client().send(
@@ -58,7 +58,7 @@ export const updateTags = async (logger: Logger.OperationLogger, bucketName: str
   );
 };
 
-export const deleteObject = async (logger: Logger.OperationLogger, bucketName: string, objectKey: string) => {
+export const deleteObject = async (logger: OperationLogLine, bucketName: string, objectKey: string) => {
   logger.update(`Deleting object`);
 
   try {

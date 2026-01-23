@@ -1,4 +1,4 @@
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
   CreateIntegrationCommand,
@@ -23,7 +23,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createIntegration = async (logger: Logger.OperationLogger, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+export const createIntegration = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating integration`);
 
   const { http, functionArn, vpcId, timeout, description } = request;
@@ -47,7 +47,7 @@ export const createIntegration = async (logger: Logger.OperationLogger, apiId: s
   };
 };
 
-export const updateIntegration = async (logger: Logger.OperationLogger, apiId: string, integrationId: string, request: UpdateRequest) => {
+export const updateIntegration = async (logger: OperationLogLine, apiId: string, integrationId: string, request: UpdateRequest) => {
   logger.update(`Updating integration`);
 
   const { http, functionArn, vpcId, timeout, description } = request;
@@ -66,7 +66,7 @@ export const updateIntegration = async (logger: Logger.OperationLogger, apiId: s
   );
 };
 
-export const deleteIntegration = async (logger: Logger.OperationLogger, apiId: string, integrationId: string) => {
+export const deleteIntegration = async (logger: OperationLogLine, apiId: string, integrationId: string) => {
   logger.update(`Deleting integration`);
 
   try {

@@ -1,8 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client';
@@ -49,7 +49,7 @@ const createResource = (candidate: CertificateState): Promise<CertificateResult>
   const parameters = candidate.parameters;
   const domainName = parameters.domainName;
 
-  return Logger.logOperation(CertificateServiceName, domainName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(CertificateServiceName, domainName, 'creation', async (logger) => {
     const { certificateArn } = await createCertificate(logger, parameters);
 
     return {
@@ -66,7 +66,7 @@ const updateResource = (candidate: CertificateState, current: CertificateState):
     throw new CorruptedResourceError(CertificateServiceName, domainName);
   }
 
-  return Logger.logOperation(CertificateServiceName, domainName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
 
     return result;
@@ -82,7 +82,7 @@ const deleteResource = async (current: CertificateState, context: StepContext) =
 
   const domainName = parameters.domainName;
 
-  await Logger.logOperation(CertificateServiceName, domainName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
     const isInUse = await isCertificateInUse(logger, result.certificateArn);
 
     if (!isInUse) {
@@ -92,7 +92,7 @@ const deleteResource = async (current: CertificateState, context: StepContext) =
 };
 
 const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   certificateArn: Arn,
   candidate: CertificateParameters,
   current: CertificateParameters

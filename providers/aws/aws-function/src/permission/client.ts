@@ -1,4 +1,4 @@
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { Arn } from '@ez4/aws-common';
 
 import { AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
@@ -16,7 +16,7 @@ export type CreateResponse = {
   statementId: string;
 };
 
-export const createPermission = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createPermission = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating permission`);
 
   const statementId = request.statementId ?? `ID${Date.now()}`;
@@ -36,7 +36,7 @@ export const createPermission = async (logger: Logger.OperationLogger, request: 
   };
 };
 
-export const deletePermission = async (logger: Logger.OperationLogger, functionName: string, statementId: string) => {
+export const deletePermission = async (logger: OperationLogLine, functionName: string, statementId: string) => {
   logger.update(`Deleting permission`);
 
   try {

@@ -1,10 +1,10 @@
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import { CreateInvalidationCommand, waitUntilInvalidationCompleted } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
 
-export const createInvalidation = async (logger: Logger.OperationLogger, distributionId: string, paths: string[]) => {
+export const createInvalidation = async (logger: OperationLogLine, distributionId: string, paths: string[]) => {
   logger.update(`Invalidating distribution cache`);
 
   const client = getCloudFrontClient();

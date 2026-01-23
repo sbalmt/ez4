@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList } from '@ez4/aws-common';
 
@@ -43,7 +43,7 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 export type UpdateResponse = ImportOrCreateResponse;
 
 export const importCluster = async (
-  logger: Logger.OperationLogger | undefined,
+  logger: OperationLogLine | undefined,
   clusterName: string
 ): Promise<ImportOrCreateResponse | undefined> => {
   logger?.update(`Importing cluster`);
@@ -73,7 +73,7 @@ export const importCluster = async (
   }
 };
 
-export const createCluster = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createCluster = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating cluster`);
 
   const { clusterName, scalability } = request;
@@ -122,11 +122,7 @@ export const createCluster = async (logger: Logger.OperationLogger, request: Cre
   };
 };
 
-export const updateCluster = async (
-  logger: Logger.OperationLogger,
-  clusterName: string,
-  request: UpdateRequest
-): Promise<UpdateResponse> => {
+export const updateCluster = async (logger: OperationLogLine, clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
   logger.update(`Updating cluster`);
 
   const { scalability } = request;
@@ -166,7 +162,7 @@ export const updateCluster = async (
   };
 };
 
-export const updateDeletion = async (logger: Logger.OperationLogger, clusterName: string, allowDeletion: boolean) => {
+export const updateDeletion = async (logger: OperationLogLine, clusterName: string, allowDeletion: boolean) => {
   logger.update(`Updating deletion protection`);
 
   await getRDSClient().send(
@@ -177,7 +173,7 @@ export const updateDeletion = async (logger: Logger.OperationLogger, clusterName
   );
 };
 
-export const tagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tags: ResourceTags) => {
+export const tagCluster = async (logger: OperationLogLine, clusterArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag cluster`);
 
   await getRDSClient().send(
@@ -191,7 +187,7 @@ export const tagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn
   );
 };
 
-export const untagCluster = async (logger: Logger.OperationLogger, clusterArn: Arn, tagKeys: string[]) => {
+export const untagCluster = async (logger: OperationLogLine, clusterArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag cluster`);
 
   await getRDSClient().send(
@@ -202,7 +198,7 @@ export const untagCluster = async (logger: Logger.OperationLogger, clusterArn: A
   );
 };
 
-export const deleteCluster = async (logger: Logger.OperationLogger, clusterName: string) => {
+export const deleteCluster = async (logger: OperationLogLine, clusterName: string) => {
   logger.update(`Deleting cluster`);
 
   try {

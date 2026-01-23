@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { Event } from '@aws-sdk/client-s3';
 import type { Bucket } from '@ez4/storage';
 
@@ -34,7 +34,7 @@ export type UpdateNotificationRequest = {
   eventsType: Event[];
 };
 
-export const isBucketEmpty = async (logger: Logger.OperationLogger, bucketName: string) => {
+export const isBucketEmpty = async (logger: OperationLogLine, bucketName: string) => {
   logger.update(`Fetching bucket`);
 
   try {
@@ -55,7 +55,7 @@ export const isBucketEmpty = async (logger: Logger.OperationLogger, bucketName: 
   }
 };
 
-export const createBucket = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createBucket = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating bucket`);
 
   const { bucketName } = request;
@@ -71,7 +71,7 @@ export const createBucket = async (logger: Logger.OperationLogger, request: Crea
   };
 };
 
-export const deleteBucket = async (logger: Logger.OperationLogger, bucketName: string) => {
+export const deleteBucket = async (logger: OperationLogLine, bucketName: string) => {
   logger.update(`Deleting bucket`);
 
   try {
@@ -91,7 +91,7 @@ export const deleteBucket = async (logger: Logger.OperationLogger, bucketName: s
   }
 };
 
-export const tagBucket = async (logger: Logger.OperationLogger, bucketName: string, tags: ResourceTags) => {
+export const tagBucket = async (logger: OperationLogLine, bucketName: string, tags: ResourceTags) => {
   logger.update(`Tag bucket`);
 
   await getS3Client().send(
@@ -107,7 +107,7 @@ export const tagBucket = async (logger: Logger.OperationLogger, bucketName: stri
   );
 };
 
-export const updateCorsConfiguration = async (logger: Logger.OperationLogger, bucketName: string, cors: Bucket.Cors) => {
+export const updateCorsConfiguration = async (logger: OperationLogLine, bucketName: string, cors: Bucket.Cors) => {
   logger.update(`Updating bucket CORS`);
 
   await getS3Client().send(
@@ -129,7 +129,7 @@ export const updateCorsConfiguration = async (logger: Logger.OperationLogger, bu
   );
 };
 
-export const deleteCorsConfiguration = async (logger: Logger.OperationLogger, bucketName: string) => {
+export const deleteCorsConfiguration = async (logger: OperationLogLine, bucketName: string) => {
   logger.update(`Deleting bucket CORS`);
 
   try {
@@ -149,7 +149,7 @@ export const deleteCorsConfiguration = async (logger: Logger.OperationLogger, bu
   }
 };
 
-export const createLifecycle = async (logger: Logger.OperationLogger, bucketName: string, autoExpireDays: number) => {
+export const createLifecycle = async (logger: OperationLogLine, bucketName: string, autoExpireDays: number) => {
   logger.update(`Creating bucket lifecycle`);
 
   await getS3Client().send(
@@ -173,7 +173,7 @@ export const createLifecycle = async (logger: Logger.OperationLogger, bucketName
   );
 };
 
-export const deleteLifecycle = async (logger: Logger.OperationLogger, bucketName: string) => {
+export const deleteLifecycle = async (logger: OperationLogLine, bucketName: string) => {
   logger.update(`Deleting bucket lifecycle`);
 
   try {
@@ -193,7 +193,7 @@ export const deleteLifecycle = async (logger: Logger.OperationLogger, bucketName
   }
 };
 
-export const updateEventNotifications = async (logger: Logger.OperationLogger, bucketName: string, request: UpdateNotificationRequest) => {
+export const updateEventNotifications = async (logger: OperationLogLine, bucketName: string, request: UpdateNotificationRequest) => {
   logger.update(`Update bucket event stream`);
 
   const { functionArn, eventsPath, eventsType } = request;

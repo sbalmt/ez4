@@ -1,4 +1,4 @@
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { PutResourcePolicyCommand, DeleteResourcePolicyCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
@@ -13,7 +13,7 @@ export type AttachResponse = {
   revisionId: string;
 };
 
-export const attachPolicy = async (logger: Logger.OperationLogger, groupArn: Arn, request: AttachRequest) => {
+export const attachPolicy = async (logger: OperationLogLine, groupArn: Arn, request: AttachRequest) => {
   logger.update(`Attaching log group policy`);
 
   const statement = createRoleStatement(
@@ -40,7 +40,7 @@ export const attachPolicy = async (logger: Logger.OperationLogger, groupArn: Arn
   };
 };
 
-export const detachPolicy = async (logger: Logger.OperationLogger, groupArn: Arn, revisionId: string) => {
+export const detachPolicy = async (logger: OperationLogLine, groupArn: Arn, revisionId: string) => {
   logger.update(`Detaching log group policy`);
 
   await getCloudWatchLogsClient().send(

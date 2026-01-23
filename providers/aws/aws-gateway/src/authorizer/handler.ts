@@ -1,9 +1,10 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types';
 
-import { getFunctionArn } from '@ez4/aws-function';
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
+import { getFunctionArn } from '@ez4/aws-function';
 
 import { GatewayProtocol } from '../gateway/types';
 import { getGatewayId, getGatewayProtocol } from '../gateway/utils';
@@ -40,10 +41,10 @@ const replaceResource = async (candidate: AuthorizerState, current: AuthorizerSt
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
+const createResource = (candidate: AuthorizerState, context: StepContext): Promise<AuthorizerResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(AuthorizerServiceName, parameters.name, 'creation', async (logger) => {
+  return OperationLogger.logExecution(AuthorizerServiceName, parameters.name, 'creation', async (logger) => {
     const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
     const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
     const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
@@ -72,7 +73,7 @@ const updateResource = (candidate: AuthorizerState, current: AuthorizerState, co
     throw new CorruptedResourceError(AuthorizerServiceName, name);
   }
 
-  return Logger.logOperation(AuthorizerServiceName, name, 'updates', async (logger) => {
+  return OperationLogger.logExecution(AuthorizerServiceName, name, 'updates', async (logger) => {
     const authorizerId = result.authorizerId;
 
     const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);
@@ -99,13 +100,13 @@ const deleteResource = async (current: AuthorizerState) => {
     return;
   }
 
-  await Logger.logOperation(AuthorizerServiceName, parameters.name, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(AuthorizerServiceName, parameters.name, 'deletion', async (logger) => {
     await deleteAuthorizer(logger, result.apiId, result.authorizerId);
   });
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   authorizerId: string,
   protocol: GatewayProtocol,

@@ -1,4 +1,4 @@
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { SetQueueAttributesCommand } from '@aws-sdk/client-sqs';
 import { createRoleDocument, createRoleStatement } from '@ez4/aws-identity';
@@ -16,11 +16,7 @@ export type AttachResponse = {
   sourceArns: Arn[];
 };
 
-export const attachPolicies = async (
-  logger: Logger.OperationLogger,
-  queueUrl: string,
-  policies: AttachRequest[]
-): Promise<AttachResponse> => {
+export const attachPolicies = async (logger: OperationLogLine, queueUrl: string, policies: AttachRequest[]): Promise<AttachResponse> => {
   logger.update(`Attaching queue policies`);
 
   const { queueName, accountId, region } = parseQueueUrl(queueUrl);
@@ -53,7 +49,7 @@ export const attachPolicies = async (
   };
 };
 
-export const detachPolicy = async (logger: Logger.OperationLogger, queueUrl: string) => {
+export const detachPolicy = async (logger: OperationLogLine, queueUrl: string) => {
   logger.update(`Detaching queue policies`);
 
   await getSQSClient().send(

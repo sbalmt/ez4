@@ -1,8 +1,8 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
 import type { GroupState, GroupResult, GroupParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createGroup, deleteGroup, importGroup, tagGroup, untagGroup } from './client';
@@ -45,10 +45,10 @@ const replaceResource = async (candidate: GroupState, current: GroupState) => {
   return createResource(candidate);
 };
 
-const createResource = async (candidate: GroupState): Promise<GroupResult> => {
+const createResource = (candidate: GroupState): Promise<GroupResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(GroupServiceName, parameters.groupName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'creation', async (logger) => {
     const { groupArn } = (await importGroup(logger, parameters.groupName)) ?? (await createGroup(logger, parameters));
 
     return {
@@ -65,7 +65,7 @@ const updateResource = (candidate: GroupState, current: GroupState): Promise<Gro
     throw new CorruptedResourceError(GroupServiceName, groupName);
   }
 
-  return Logger.logOperation(GroupServiceName, groupName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(GroupServiceName, groupName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
 
     return result;
@@ -79,12 +79,12 @@ const deleteResource = async (current: GroupState) => {
     return;
   }
 
-  await Logger.logOperation(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
     await deleteGroup(logger, parameters.groupName);
   });
 };
 
-const checkTagUpdates = async (logger: Logger.OperationLogger, groupArn: Arn, candidate: GroupParameters, current: GroupParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, groupArn: Arn, candidate: GroupParameters, current: GroupParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

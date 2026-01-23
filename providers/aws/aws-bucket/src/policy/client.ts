@@ -1,5 +1,5 @@
 import type { RoleDocument } from '@ez4/aws-identity';
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import { PutBucketPolicyCommand, DeleteBucketPolicyCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 
@@ -16,7 +16,7 @@ export type CreateResponse = {
   bucketName: string;
 };
 
-export const createPolicy = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createPolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating bucket policy`);
 
   const { bucketName, role } = request;
@@ -33,7 +33,7 @@ export const createPolicy = async (logger: Logger.OperationLogger, request: Crea
   };
 };
 
-export const deletePolicy = async (logger: Logger.OperationLogger, bucketName: string) => {
+export const deletePolicy = async (logger: OperationLogLine, bucketName: string) => {
   logger.update(`Deleting bucket policy`);
 
   try {

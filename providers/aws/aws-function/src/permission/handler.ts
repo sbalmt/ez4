@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { PermissionResult, PermissionState } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 
 import { getFunctionName } from '../function/utils';
 import { createPermission, deletePermission } from './client';
@@ -33,12 +33,12 @@ const replaceResource = async (candidate: PermissionState, current: PermissionSt
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: PermissionState, context: StepContext): Promise<PermissionResult> => {
+const createResource = (candidate: PermissionState, context: StepContext): Promise<PermissionResult> => {
   const parameters = candidate.parameters;
 
   const functionName = getFunctionName(PermissionServiceName, 'permission', context);
 
-  return Logger.logOperation(PermissionServiceName, functionName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(PermissionServiceName, functionName, 'creation', async (logger) => {
     const permission = await parameters.getPermission(context);
 
     const response = await createPermission(logger, {
@@ -66,7 +66,7 @@ const deleteResource = async (current: PermissionState) => {
 
   const { functionName, statementId } = result;
 
-  await Logger.logOperation(PermissionServiceName, functionName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(PermissionServiceName, functionName, 'deletion', async (logger) => {
     await deletePermission(logger, functionName, statementId);
   });
 };

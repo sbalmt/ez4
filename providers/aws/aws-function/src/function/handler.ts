@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Arn } from '@ez4/aws-common';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, getBundleHash, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, getBundleHash, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
@@ -87,7 +87,7 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
 const createResource = (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
   const { functionName, release, ...parameters } = candidate.parameters;
 
-  return Logger.logOperation(FunctionServiceName, functionName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(FunctionServiceName, functionName, 'creation', async (logger) => {
     const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
     const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
@@ -181,7 +181,7 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
     throw new CorruptedResourceError(FunctionServiceName, functionName);
   }
 
-  return Logger.logOperation(FunctionServiceName, functionName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(FunctionServiceName, functionName, 'updates', async (logger) => {
     const newVariables = await parameters.getFunctionVariables();
     const oldVariables = current.result?.variables ?? newVariables;
 
@@ -218,13 +218,13 @@ const deleteResource = async (current: FunctionState) => {
 
   const { functionName } = parameters;
 
-  await Logger.logOperation(FunctionServiceName, functionName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
     await deleteFunction(functionName, logger);
   });
 };
 
 const checkConfigurationUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   functionName: string,
   candidate: FunctionConfigurationWithVariables,
   current: FunctionConfigurationWithVariables,
@@ -265,7 +265,7 @@ const checkConfigurationUpdates = async (
 };
 
 const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   functionArn: Arn,
   candidate: FunctionParameters,
   current: FunctionParameters,
@@ -290,7 +290,7 @@ const checkTagUpdates = async (
 };
 
 const checkSourceCodeUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   functionName: string,
   candidate: FunctionParameters,
   current: FunctionResult | undefined,

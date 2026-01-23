@@ -1,5 +1,5 @@
 import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest } from '@aws-sdk/client-lambda';
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
   GetEventSourceMappingCommand,
@@ -38,7 +38,7 @@ export type ImportOrCreateResponse = {
 export type UpdateRequest = CreateRequest;
 
 export const importMapping = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   functionName: string,
   sourceArn: string
 ): Promise<ImportOrCreateResponse | undefined> => {
@@ -64,7 +64,7 @@ export const importMapping = async (
   };
 };
 
-export const createMapping = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createMapping = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating mapping`);
 
   const { sourceArn, functionName } = request;
@@ -86,7 +86,7 @@ export const createMapping = async (logger: Logger.OperationLogger, request: Cre
   };
 };
 
-export const updateMapping = async (logger: Logger.OperationLogger, eventId: string, request: UpdateRequest) => {
+export const updateMapping = async (logger: OperationLogLine, eventId: string, request: UpdateRequest) => {
   logger.update(`Updating mapping`);
 
   const { functionName } = request;
@@ -104,7 +104,7 @@ export const updateMapping = async (logger: Logger.OperationLogger, eventId: str
   await waitForReadyState(eventId);
 };
 
-export const deleteMapping = async (logger: Logger.OperationLogger, eventId: string) => {
+export const deleteMapping = async (logger: OperationLogLine, eventId: string) => {
   logger.update(`Deleting mapping`);
 
   try {

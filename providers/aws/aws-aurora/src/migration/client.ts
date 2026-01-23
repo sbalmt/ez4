@@ -1,6 +1,6 @@
 import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
@@ -28,7 +28,7 @@ export type DeleteTableRequest = ConnectionRequest & {
   repository: PgTableRepository;
 };
 
-export const createDatabase = async (logger: Logger.OperationLogger, request: ConnectionRequest): Promise<void> => {
+export const createDatabase = async (logger: OperationLogLine, request: ConnectionRequest): Promise<void> => {
   logger.update(`Creating database`);
 
   const { clusterArn, secretArn, database } = request;
@@ -42,7 +42,7 @@ export const createDatabase = async (logger: Logger.OperationLogger, request: Co
   await executeMigrationStatement(driver, DatabaseQueries.prepareCreate(database));
 };
 
-export const createTables = async (logger: Logger.OperationLogger, request: CreateTableRequest): Promise<void> => {
+export const createTables = async (logger: OperationLogLine, request: CreateTableRequest): Promise<void> => {
   logger.update(`Creating tables`);
 
   const { clusterArn, secretArn, database, repository } = request;
@@ -58,7 +58,7 @@ export const createTables = async (logger: Logger.OperationLogger, request: Crea
   await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes]);
 };
 
-export const updateTables = async (logger: Logger.OperationLogger, request: UpdateTableRequest): Promise<void> => {
+export const updateTables = async (logger: OperationLogLine, request: UpdateTableRequest): Promise<void> => {
   logger.update(`Updating tables`);
 
   const { clusterArn, secretArn, database, repository } = request;
@@ -75,7 +75,7 @@ export const updateTables = async (logger: Logger.OperationLogger, request: Upda
   await executeMigrationStatements(driver, queries.indexes);
 };
 
-export const deleteTables = async (logger: Logger.OperationLogger, request: DeleteTableRequest): Promise<void> => {
+export const deleteTables = async (logger: OperationLogLine, request: DeleteTableRequest): Promise<void> => {
   logger.update(`Deleting tables`);
 
   const { clusterArn, secretArn, database, repository } = request;
@@ -91,7 +91,7 @@ export const deleteTables = async (logger: Logger.OperationLogger, request: Dele
   await executeMigrationTransaction(driver, queries.tables);
 };
 
-export const deleteDatabase = async (logger: Logger.OperationLogger, request: ConnectionRequest): Promise<void> => {
+export const deleteDatabase = async (logger: OperationLogLine, request: ConnectionRequest): Promise<void> => {
   logger.update(`Deleting database`);
 
   const { clusterArn, secretArn, database } = request;

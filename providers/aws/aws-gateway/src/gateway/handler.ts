@@ -1,8 +1,8 @@
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
 import type { GatewayState, GatewayResult, GatewayParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createGateway, deleteCorsConfiguration, deleteGateway, fetchGateway, tagGateway, untagGateway, updateGateway } from './client';
@@ -45,10 +45,10 @@ const replaceResource = async (candidate: GatewayState, current: GatewayState) =
   return createResource(candidate);
 };
 
-const createResource = async (candidate: GatewayState): Promise<GatewayResult> => {
+const createResource = (candidate: GatewayState): Promise<GatewayResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(GatewayServiceName, parameters.gatewayName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(GatewayServiceName, parameters.gatewayName, 'creation', async (logger) => {
     if (parameters.import) {
       const { apiId, apiArn, endpoint } = await fetchGateway(logger, parameters.gatewayName);
 
@@ -81,7 +81,7 @@ const updateResource = (candidate: GatewayState, current: GatewayState): Promise
     return Promise.resolve(result);
   }
 
-  return Logger.logOperation(GatewayServiceName, gatewayName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'updates', async (logger) => {
     const { apiId, apiArn } = result;
 
     await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
@@ -98,17 +98,12 @@ const deleteResource = async (current: GatewayState) => {
     return;
   }
 
-  await Logger.logOperation(GatewayServiceName, parameters.gatewayName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(GatewayServiceName, parameters.gatewayName, 'deletion', async (logger) => {
     await deleteGateway(logger, result.apiId);
   });
 };
 
-const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
-  apiId: string,
-  candidate: GatewayParameters,
-  current: GatewayParameters
-) => {
+const checkGeneralUpdates = async (logger: OperationLogLine, apiId: string, candidate: GatewayParameters, current: GatewayParameters) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       tags: true
@@ -124,7 +119,7 @@ const checkGeneralUpdates = async (
   }
 };
 
-const checkTagUpdates = async (logger: Logger.OperationLogger, apiArn: Arn, candidate: GatewayParameters, current: GatewayParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, apiArn: Arn, candidate: GatewayParameters, current: GatewayParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,

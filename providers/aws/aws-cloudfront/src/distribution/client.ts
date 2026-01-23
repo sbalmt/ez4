@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { Headers } from '../types/headers';
 
 import type {
@@ -82,7 +82,7 @@ export type UpdateRequest = Omit<CreateRequest, 'tags'>;
 
 export type UpdateResponse = CreateResponse;
 
-export const createDistribution = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createDistribution = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating distribution`);
 
   const client = getCloudFrontClient();
@@ -117,7 +117,7 @@ export const createDistribution = async (logger: Logger.OperationLogger, request
   };
 };
 
-export const updateDistribution = async (logger: Logger.OperationLogger, distributionId: string, request: UpdateRequest) => {
+export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
   logger.update(`Updating distribution`);
 
   const version = await getCurrentDistributionVersion(logger, distributionId);
@@ -139,7 +139,7 @@ export const updateDistribution = async (logger: Logger.OperationLogger, distrib
   });
 };
 
-export const tagDistribution = async (logger: Logger.OperationLogger, distributionArn: string, tags: ResourceTags) => {
+export const tagDistribution = async (logger: OperationLogLine, distributionArn: string, tags: ResourceTags) => {
   logger.update(`Tag distribution`);
 
   await getCloudFrontClient().send(
@@ -155,7 +155,7 @@ export const tagDistribution = async (logger: Logger.OperationLogger, distributi
   );
 };
 
-export const untagDistribution = async (logger: Logger.OperationLogger, distributionArn: Arn, tagKeys: string[]) => {
+export const untagDistribution = async (logger: OperationLogLine, distributionArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag distribution`);
 
   await getCloudFrontClient().send(
@@ -168,7 +168,7 @@ export const untagDistribution = async (logger: Logger.OperationLogger, distribu
   );
 };
 
-export const deleteDistribution = async (logger: Logger.OperationLogger, distributionId: string) => {
+export const deleteDistribution = async (logger: OperationLogLine, distributionId: string) => {
   logger.update(`Deleting distribution`);
 
   try {
@@ -191,7 +191,7 @@ export const deleteDistribution = async (logger: Logger.OperationLogger, distrib
   }
 };
 
-const getCurrentDistributionVersion = async (logger: Logger.OperationLogger, distributionId: string) => {
+const getCurrentDistributionVersion = async (logger: OperationLogLine, distributionId: string) => {
   logger.update(`Fetching distribution`);
 
   const response = await getCloudFrontClient().send(

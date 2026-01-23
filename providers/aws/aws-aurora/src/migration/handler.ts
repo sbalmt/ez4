@@ -2,7 +2,7 @@ import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
 import type { MigrationState, MigrationResult } from './types';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
@@ -58,7 +58,7 @@ const createResource = (candidate: MigrationState, context: StepContext): Promis
 
   const { database } = parameters;
 
-  return Logger.logOperation(MigrationServiceName, database, 'creation', async (logger) => {
+  return OperationLogger.logExecution(MigrationServiceName, database, 'creation', async (logger) => {
     const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
 
     const request = {
@@ -94,7 +94,7 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
     return Promise.resolve(result);
   }
 
-  return Logger.logOperation(MigrationServiceName, database, 'updates', async (logger) => {
+  return OperationLogger.logExecution(MigrationServiceName, database, 'updates', async (logger) => {
     await updateTables(logger, {
       database: parameters.database,
       clusterArn: result.clusterArn,
@@ -118,7 +118,7 @@ const deleteResource = async (current: MigrationState) => {
 
   const { database } = parameters;
 
-  await Logger.logOperation(MigrationServiceName, database, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
     const { clusterArn, secretArn } = result;
 
     await deleteDatabase(logger, {

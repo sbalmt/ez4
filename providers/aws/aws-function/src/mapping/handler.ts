@@ -1,8 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { MappingParameters, MappingResult, MappingState } from './types';
 import type { UpdateRequest } from './client';
 
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getFunctionName } from '../function/utils';
@@ -57,7 +58,7 @@ const createResource = (candidate: MappingState, context: StepContext): Promise<
 
   const functionName = getFunctionName(MappingServiceName, 'mapping', context);
 
-  return Logger.logOperation(MappingServiceName, functionName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(MappingServiceName, functionName, 'creation', async (logger) => {
     const sourceArn = await parameters.getSourceArn(context);
 
     const response =
@@ -84,7 +85,7 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
     throw new CorruptedResourceError(MappingServiceName, 'mapping');
   }
 
-  return Logger.logOperation(MappingServiceName, fromService, 'updates', async (logger) => {
+  return OperationLogger.logExecution(MappingServiceName, fromService, 'updates', async (logger) => {
     const newFunctionName = getFunctionName(MappingServiceName, 'mapping', context);
     const oldFunctionName = current.result?.functionName ?? result.functionName;
 
@@ -120,13 +121,13 @@ const deleteResource = async (current: MappingState) => {
 
   const { functionName } = result;
 
-  await Logger.logOperation(MappingServiceName, functionName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(MappingServiceName, functionName, 'deletion', async (logger) => {
     await deleteMapping(logger, result.eventId);
   });
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   eventId: string,
   candidate: MappingUpdateParameters,
   current: MappingUpdateParameters

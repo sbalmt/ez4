@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { PolicyState, PolicyResult } from './types';
 
-import { ReplaceResourceError, Logger } from '@ez4/aws-common';
+import { ReplaceResourceError, OperationLogger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils';
@@ -54,7 +54,7 @@ const createResource = (candidate: PolicyState, context: StepContext): Promise<P
 
   const bucketName = getBucketName(PolicyServiceName, 'policy', context);
 
-  return Logger.logOperation(PolicyServiceName, bucketName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(PolicyServiceName, bucketName, 'creation', async (logger) => {
     const role = await parameters.getRole(context);
 
     await createPolicy(logger, {
@@ -79,7 +79,7 @@ const deleteResource = async (current: PolicyState) => {
 
   const { bucketName } = result;
 
-  await Logger.logOperation(PolicyServiceName, bucketName, 'deletion', (logger) => {
+  await OperationLogger.logExecution(PolicyServiceName, bucketName, 'deletion', (logger) => {
     return deletePolicy(logger, bucketName);
   });
 };

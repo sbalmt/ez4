@@ -1,4 +1,4 @@
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
   CreateRouteResponseCommand,
@@ -20,7 +20,7 @@ export type CreateResponse = {
 export type UpdateRequest = Partial<CreateRequest>;
 
 export const createResponse = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   routeId: string,
   request: CreateRequest
@@ -45,7 +45,7 @@ export const createResponse = async (
 };
 
 export const updateResponse = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   routeId: string,
   responseId: string,
@@ -65,7 +65,7 @@ export const updateResponse = async (
   );
 };
 
-export const deleteResponse = async (logger: Logger.OperationLogger, apiId: string, routeId: string, responseId: string) => {
+export const deleteResponse = async (logger: OperationLogLine, apiId: string, routeId: string, responseId: string) => {
   logger.update(`Deleting response`);
 
   try {

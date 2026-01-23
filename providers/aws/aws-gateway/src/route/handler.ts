@@ -1,7 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { RouteState, RouteResult, RouteParameters } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils';
@@ -47,10 +48,10 @@ const replaceResource = async (candidate: RouteState, current: RouteState, conte
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: RouteState, context: StepContext): Promise<RouteResult> => {
+const createResource = (candidate: RouteState, context: StepContext): Promise<RouteResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(RouteServiceName, parameters.routePath, 'creation', async (logger) => {
+  return OperationLogger.logExecution(RouteServiceName, parameters.routePath, 'creation', async (logger) => {
     const apiId = getGatewayId(RouteServiceName, 'route', context);
     const integrationId = getIntegrationId(RouteServiceName, 'route', context);
     const authorizerId = tryGetAuthorizerId(context);
@@ -73,14 +74,14 @@ const createResource = async (candidate: RouteState, context: StepContext): Prom
   });
 };
 
-const updateResource = async (candidate: RouteState, current: RouteState, context: StepContext) => {
+const updateResource = (candidate: RouteState, current: RouteState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  return Logger.logOperation(RouteServiceName, parameters.routePath, 'updates', async (logger) => {
+  return OperationLogger.logExecution(RouteServiceName, parameters.routePath, 'updates', async (logger) => {
     const newAuthorizerId = tryGetAuthorizerId(context);
     const oldAuthorizerId = current.result?.authorizerId;
 
@@ -109,20 +110,20 @@ const updateResource = async (candidate: RouteState, current: RouteState, contex
   });
 };
 
-const deleteResource = async (current: RouteState) => {
+const deleteResource = (current: RouteState) => {
   const { result, parameters } = current;
 
   if (!result) {
     return;
   }
 
-  return Logger.logOperation(RouteServiceName, parameters.routePath, 'deletion', async (logger) => {
+  return OperationLogger.logExecution(RouteServiceName, parameters.routePath, 'deletion', async (logger) => {
     await deleteRoute(logger, result.apiId, result.routeId);
   });
 };
 
 const checkGeneralUpdates = async <T extends RouteParameters>(
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   routeId: string,
   candidate: T,

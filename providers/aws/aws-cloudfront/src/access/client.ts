@@ -1,5 +1,5 @@
 import type { OriginAccessControlConfig } from '@aws-sdk/client-cloudfront';
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
   GetOriginAccessControlCommand,
@@ -27,7 +27,7 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createOriginAccess = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createOriginAccess = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating origin access`);
 
   const response = await getCloudFrontClient().send(
@@ -45,7 +45,7 @@ export const createOriginAccess = async (logger: Logger.OperationLogger, request
   };
 };
 
-export const updateOriginAccess = async (logger: Logger.OperationLogger, accessId: string, request: UpdateRequest) => {
+export const updateOriginAccess = async (logger: OperationLogLine, accessId: string, request: UpdateRequest) => {
   logger.update(`Updating origin access`);
 
   const version = await getCurrentAccessVersion(accessId);
@@ -61,7 +61,7 @@ export const updateOriginAccess = async (logger: Logger.OperationLogger, accessI
   );
 };
 
-export const deleteOriginAccess = async (logger: Logger.OperationLogger, accessId: string) => {
+export const deleteOriginAccess = async (logger: OperationLogLine, accessId: string) => {
   logger.update(`Deleting origin access`);
 
   const version = await getCurrentAccessVersion(accessId);

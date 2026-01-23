@@ -1,5 +1,5 @@
 import type { CachePolicyConfig } from '@aws-sdk/client-cloudfront';
-import type { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
   GetCachePolicyCommand,
@@ -38,7 +38,7 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createCachePolicy = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createCachePolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating cache policy`);
 
   const response = await getCloudFrontClient().send(
@@ -56,7 +56,7 @@ export const createCachePolicy = async (logger: Logger.OperationLogger, request:
   };
 };
 
-export const updateCachePolicy = async (logger: Logger.OperationLogger, policyId: string, request: UpdateRequest) => {
+export const updateCachePolicy = async (logger: OperationLogLine, policyId: string, request: UpdateRequest) => {
   logger.update(`Updating cache policy`);
 
   const version = await getCurrentPolicyVersion(policyId);
@@ -72,7 +72,7 @@ export const updateCachePolicy = async (logger: Logger.OperationLogger, policyId
   );
 };
 
-export const deleteCachePolicy = async (logger: Logger.OperationLogger, policyId: string) => {
+export const deleteCachePolicy = async (logger: OperationLogLine, policyId: string) => {
   logger.update(`Deleting cache policy`);
 
   try {

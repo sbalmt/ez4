@@ -1,7 +1,8 @@
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
 import type { AccessState, AccessResult, AccessParameters } from './types';
 
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createOriginAccess, updateOriginAccess, deleteOriginAccess } from './client';
@@ -49,7 +50,7 @@ const createResource = (candidate: AccessState): Promise<AccessResult> => {
 
   const accessName = parameters.accessName;
 
-  return Logger.logOperation(AccessServiceName, accessName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(AccessServiceName, accessName, 'creation', async (logger) => {
     const { accessId } = await createOriginAccess(logger, candidate.parameters);
 
     return {
@@ -66,7 +67,7 @@ const updateResource = (candidate: AccessState, current: AccessState): Promise<A
     throw new CorruptedResourceError(AccessServiceName, accessName);
   }
 
-  return Logger.logOperation(AccessServiceName, accessName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(AccessServiceName, accessName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
 
     return result;
@@ -82,17 +83,12 @@ const deleteResource = async (current: AccessState) => {
 
   const accessName = parameters.accessName;
 
-  await Logger.logOperation(AccessServiceName, accessName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(AccessServiceName, accessName, 'deletion', async (logger) => {
     await deleteOriginAccess(logger, result.accessId);
   });
 };
 
-const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
-  accessId: string,
-  candidate: AccessParameters,
-  current: AccessParameters
-) => {
+const checkGeneralUpdates = async (logger: OperationLogLine, accessId: string, candidate: AccessParameters, current: AccessParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

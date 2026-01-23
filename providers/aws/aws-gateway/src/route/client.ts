@@ -1,5 +1,5 @@
 import type { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2';
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
   GetRoutesCommand,
@@ -28,7 +28,7 @@ export type ImportOrCreateResponse = {
 export type UpdateRequest = Partial<CreateRequest>;
 
 export const importRoute = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   apiId: string,
   routePath: string
 ): Promise<ImportOrCreateResponse | undefined> => {
@@ -58,11 +58,7 @@ export const importRoute = async (
   };
 };
 
-export const createRoute = async (
-  logger: Logger.OperationLogger,
-  apiId: string,
-  request: CreateRequest
-): Promise<ImportOrCreateResponse> => {
+export const createRoute = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating route`);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
@@ -95,7 +91,7 @@ export const createRoute = async (
   };
 };
 
-export const updateRoute = async (logger: Logger.OperationLogger, apiId: string, routeId: string, request: UpdateRequest) => {
+export const updateRoute = async (logger: OperationLogLine, apiId: string, routeId: string, request: UpdateRequest) => {
   logger.update(`Update route`);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
@@ -117,7 +113,7 @@ export const updateRoute = async (logger: Logger.OperationLogger, apiId: string,
   );
 };
 
-export const deleteRoute = async (logger: Logger.OperationLogger, apiId: string, routeId: string) => {
+export const deleteRoute = async (logger: OperationLogLine, apiId: string, routeId: string) => {
   logger.update(`Deleting route`);
 
   const client = getApiGatewayV2Client();

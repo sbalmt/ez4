@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { QueuePolicyResult, QueuePolicyState } from './types';
 
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 
 import { getQueueUrl } from '../queue/utils';
 import { attachPolicies, detachPolicy } from './client';
@@ -33,10 +33,10 @@ const replaceResource = async (candidate: QueuePolicyState, current: QueuePolicy
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: QueuePolicyState, context: StepContext): Promise<QueuePolicyResult> => {
+const createResource = (candidate: QueuePolicyState, context: StepContext): Promise<QueuePolicyResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(QueuePolicyServiceName, parameters.fromService, 'creation', async (logger) => {
+  return OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'creation', async (logger) => {
     const queueUrl = getQueueUrl(QueuePolicyServiceName, 'subscription', context);
     const permissions = await Promise.all(parameters.policyGetters.map((getPolicy) => getPolicy(context)));
 
@@ -58,7 +58,7 @@ const deleteResource = async (current: QueuePolicyState) => {
     return;
   }
 
-  await Logger.logOperation(QueuePolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
     await detachPolicy(logger, result.queueUrl);
   });
 };

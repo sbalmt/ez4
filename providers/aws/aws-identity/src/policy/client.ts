@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { PolicyDocument } from '../types/policy';
 
 import {
@@ -33,7 +33,7 @@ export type CreateVersionResponse = {
   versionId: string;
 };
 
-export const importPolicy = async (logger: Logger.OperationLogger, policyName: string): Promise<ImportOrCreateResponse | undefined> => {
+export const importPolicy = async (logger: OperationLogLine, policyName: string): Promise<ImportOrCreateResponse | undefined> => {
   logger.update(`Importing IAM policy`);
 
   const policyArn = await getPolicyArn(policyName);
@@ -75,7 +75,7 @@ export const importPolicy = async (logger: Logger.OperationLogger, policyName: s
   }
 };
 
-export const createPolicy = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createPolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating IAM policy`);
 
   const { policyName, policyDocument } = request;
@@ -100,7 +100,7 @@ export const createPolicy = async (logger: Logger.OperationLogger, request: Crea
   };
 };
 
-export const tagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn, tags: ResourceTags) => {
+export const tagPolicy = async (logger: OperationLogLine, policyArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag IAM policy`);
 
   await getIAMClient().send(
@@ -114,7 +114,7 @@ export const tagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn, 
   );
 };
 
-export const untagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn, tagKeys: string[]) => {
+export const untagPolicy = async (logger: OperationLogLine, policyArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag IAM policy`);
 
   await getIAMClient().send(
@@ -126,7 +126,7 @@ export const untagPolicy = async (logger: Logger.OperationLogger, policyArn: Arn
 };
 
 export const createPolicyVersion = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   policyArn: Arn,
   document: PolicyDocument
 ): Promise<CreateVersionResponse> => {
@@ -149,7 +149,7 @@ export const createPolicyVersion = async (
   };
 };
 
-export const deletePolicyVersion = async (logger: Logger.OperationLogger, policyArn: Arn, versionId: string) => {
+export const deletePolicyVersion = async (logger: OperationLogLine, policyArn: Arn, versionId: string) => {
   logger.update(`Deleting policy version`);
 
   try {
@@ -170,7 +170,7 @@ export const deletePolicyVersion = async (logger: Logger.OperationLogger, policy
   }
 };
 
-export const deletePolicy = async (logger: Logger.OperationLogger, policyArn: Arn) => {
+export const deletePolicy = async (logger: OperationLogLine, policyArn: Arn) => {
   logger.update(`Deleting IAM policy`);
 
   try {

@@ -1,5 +1,5 @@
 import type { CreateScheduleInput, UpdateScheduleInput } from '@aws-sdk/client-scheduler';
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
   CreateScheduleCommand,
@@ -35,7 +35,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Partial<Omit<CreateRequest, 'scheduleName'>>;
 
-export const createSchedule = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createSchedule = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler`);
 
   const response = await getSchedulerClient().send(
@@ -52,7 +52,7 @@ export const createSchedule = async (logger: Logger.OperationLogger, request: Cr
   };
 };
 
-export const updateSchedule = async (logger: Logger.OperationLogger, scheduleName: string, request: UpdateRequest) => {
+export const updateSchedule = async (logger: OperationLogLine, scheduleName: string, request: UpdateRequest) => {
   logger.update(`Updating scheduler`);
 
   await getSchedulerClient().send(
@@ -63,7 +63,7 @@ export const updateSchedule = async (logger: Logger.OperationLogger, scheduleNam
   );
 };
 
-export const deleteSchedule = async (logger: Logger.OperationLogger, scheduleName: string) => {
+export const deleteSchedule = async (logger: OperationLogLine, scheduleName: string) => {
   logger.update(`Deleting scheduler`);
 
   try {

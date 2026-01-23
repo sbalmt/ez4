@@ -1,7 +1,8 @@
 import type { StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { CacheState, CacheResult, CacheParameters } from './types';
 
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client';
@@ -47,7 +48,7 @@ const replaceResource = async (candidate: CacheState, current: CacheState) => {
 const createResource = (candidate: CacheState): Promise<CacheResult> => {
   const { policyName } = candidate.parameters;
 
-  return Logger.logOperation(CacheServiceName, policyName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(CacheServiceName, policyName, 'creation', async (logger) => {
     const { policyId } = await createCachePolicy(logger, candidate.parameters);
 
     return {
@@ -64,7 +65,7 @@ const updateResource = (candidate: CacheState, current: CacheState): Promise<Cac
     throw new CorruptedResourceError(CacheServiceName, policyName);
   }
 
-  return Logger.logOperation(CacheServiceName, policyName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(CacheServiceName, policyName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
 
     return result;
@@ -77,18 +78,13 @@ const deleteResource = async (current: CacheState) => {
   if (result) {
     const policyName = parameters.policyName;
 
-    await Logger.logOperation(CacheServiceName, policyName, 'deletion', async (logger) => {
+    await OperationLogger.logExecution(CacheServiceName, policyName, 'deletion', async (logger) => {
       await deleteCachePolicy(logger, result.policyId);
     });
   }
 };
 
-const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
-  policyId: string,
-  candidate: CacheParameters,
-  current: CacheParameters
-) => {
+const checkGeneralUpdates = async (logger: OperationLogLine, policyId: string, candidate: CacheParameters, current: CacheParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {

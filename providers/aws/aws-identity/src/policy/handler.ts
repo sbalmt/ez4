@@ -1,9 +1,9 @@
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
 import type { PolicyDocument } from '../types/policy';
 import type { PolicyState, PolicyResult, PolicyParameters } from './types';
 
-import { applyTagUpdates, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy, importPolicy } from './client';
@@ -46,10 +46,10 @@ const replaceResource = async (candidate: PolicyState, current: PolicyState) => 
   return createResource(candidate);
 };
 
-const createResource = async (candidate: PolicyState): Promise<PolicyResult> => {
+const createResource = (candidate: PolicyState): Promise<PolicyResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(PolicyServiceName, parameters.policyName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'creation', async (logger) => {
     const importedPolicy = await importPolicy(logger, parameters.policyName);
 
     if (importedPolicy) {
@@ -72,14 +72,14 @@ const createResource = async (candidate: PolicyState): Promise<PolicyResult> => 
   });
 };
 
-const updateResource = async (candidate: PolicyState, current: PolicyState) => {
+const updateResource = (candidate: PolicyState, current: PolicyState) => {
   const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  return Logger.logOperation(PolicyServiceName, parameters.policyName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.policyArn, candidate.parameters, current.parameters);
 
     const newResult = await checkDocumentUpdates(logger, result, candidate.parameters, current.parameters);
@@ -98,7 +98,7 @@ const deleteResource = async (current: PolicyState) => {
     return;
   }
 
-  await Logger.logOperation(PolicyServiceName, parameters.policyName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'deletion', async (logger) => {
     // Can only remove the policy after deleting all its versions.
     if (result.versionHistory.length) {
       await deleteVersions(logger, result.policyArn, result.versionHistory);
@@ -109,7 +109,7 @@ const deleteResource = async (current: PolicyState) => {
 };
 
 const checkDocumentUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   result: PolicyResult,
   candidate: PolicyParameters,
   current: PolicyParameters
@@ -128,7 +128,7 @@ const checkDocumentUpdates = async (
   return result;
 };
 
-const checkTagUpdates = async (logger: Logger.OperationLogger, policyArn: Arn, candidate: PolicyParameters, current: PolicyParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, policyArn: Arn, candidate: PolicyParameters, current: PolicyParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
@@ -137,7 +137,7 @@ const checkTagUpdates = async (logger: Logger.OperationLogger, policyArn: Arn, c
   );
 };
 
-const createVersion = async (logger: Logger.OperationLogger, result: PolicyResult, policyDocument: PolicyDocument) => {
+const createVersion = async (logger: OperationLogLine, result: PolicyResult, policyDocument: PolicyDocument) => {
   const { policyArn, currentVersion, versionHistory } = result;
 
   // A managed policy can have up to 5 versions (1 current + 4 history)
@@ -159,7 +159,7 @@ const createVersion = async (logger: Logger.OperationLogger, result: PolicyResul
   };
 };
 
-const deleteVersions = async (logger: Logger.OperationLogger, policyArn: Arn, versionHistory: string[]) => {
+const deleteVersions = async (logger: OperationLogLine, policyArn: Arn, versionHistory: string[]) => {
   const operations = versionHistory.map((versionId) => {
     return deletePolicyVersion(logger, policyArn, versionId);
   });

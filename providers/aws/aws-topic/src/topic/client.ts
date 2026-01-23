@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import { CreateTopicCommand, DeleteTopicCommand, TagResourceCommand, UntagResourceCommand, NotFoundException } from '@aws-sdk/client-sns';
 import { getTagList } from '@ez4/aws-common';
@@ -15,7 +15,7 @@ export type CreateResponse = {
   topicArn: Arn;
 };
 
-export const createTopic = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createTopic = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating topic`);
 
   const { topicName, fifoMode } = request;
@@ -42,7 +42,7 @@ export const createTopic = async (logger: Logger.OperationLogger, request: Creat
   };
 };
 
-export const deleteTopic = async (logger: Logger.OperationLogger, topicArn: string) => {
+export const deleteTopic = async (logger: OperationLogLine, topicArn: string) => {
   logger.update(`Deleting topic`);
 
   try {
@@ -62,7 +62,7 @@ export const deleteTopic = async (logger: Logger.OperationLogger, topicArn: stri
   }
 };
 
-export const tagTopic = async (logger: Logger.OperationLogger, topicArn: string, tags: ResourceTags) => {
+export const tagTopic = async (logger: OperationLogLine, topicArn: string, tags: ResourceTags) => {
   logger.update(`Tag topic`);
 
   await getSNSClient().send(
@@ -76,7 +76,7 @@ export const tagTopic = async (logger: Logger.OperationLogger, topicArn: string,
   );
 };
 
-export const untagTopic = async (logger: Logger.OperationLogger, topicArn: string, tagKeys: string[]) => {
+export const untagTopic = async (logger: OperationLogLine, topicArn: string, tagKeys: string[]) => {
   logger.update(`Untag topic`);
 
   await getSNSClient().send(

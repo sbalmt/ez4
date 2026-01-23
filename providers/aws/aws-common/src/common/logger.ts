@@ -2,12 +2,12 @@ import type { DynamicLogLine } from '@ez4/logger';
 
 import { DynamicLogger, LogFormat, LogColor, Logger as ProjectLogger } from '@ez4/logger';
 
-export namespace Logger {
-  export type Callback<T> = (logger: OperationLogger) => T | Promise<T>;
+export type OperationLogLine = {
+  update: (message: string) => void;
+};
 
-  export type OperationLogger = {
-    update: (message: string) => void;
-  };
+export namespace OperationLogger {
+  export type Callback<T> = (logger: OperationLogLine) => T | Promise<T>;
 
   type InternalLogger = {
     instance: DynamicLogLine;
@@ -39,7 +39,7 @@ export namespace Logger {
     STATE.limit = Math.max(2, limit);
   };
 
-  export const logOperation = async <T>(serviceName: string, resource: string, operation: string, callback: Callback<T>) => {
+  export const logExecution = async <T>(serviceName: string, resource: string, operation: string, callback: Callback<T>) => {
     const token = STATE.tokens++;
 
     updateLogLine(
@@ -47,7 +47,7 @@ export namespace Logger {
       `▶️  Starting ${LogFormat.toBold(resource)} ${operation} ${LogFormat.toColor(LogColor.BrightBlack, `[${serviceName}]`)}`
     );
 
-    const logger: OperationLogger = {
+    const logger: OperationLogLine = {
       update: (message: string) => {
         updateLogLine(
           token,
@@ -83,7 +83,13 @@ export namespace Logger {
     const hidden = buffers.length;
     const total = loggers.length + hidden;
 
-    process.stdout.write(` (processing ${total} changes, ${hidden} hidden)\r`);
+    process.stdout.clearLine(0);
+
+    if (hidden > 0) {
+      process.stdout.write(` (processing ${total} changes, ${hidden} hidden)\r`);
+    } else {
+      process.stdout.write(` (processing ${total} changes)\r`);
+    }
   };
 
   const updateLogLine = (token: number, message: string) => {
@@ -123,9 +129,12 @@ export namespace Logger {
     const tokenLine = loggers.find((current) => current.token === token);
     const firstLine = loggers.shift();
 
+    removeLogBuffer(token);
+
     if (!firstLine) {
       ProjectLogger.log(message);
       restoreLogBuffer();
+      updateLogStats();
       return;
     }
 
@@ -135,12 +144,13 @@ export namespace Logger {
         tokenLine.token = firstLine.token;
       } else {
         updateLogBuffer(firstLine.token, firstLine.instance.message);
-        removeLogBuffer(token);
       }
     }
 
     firstLine.instance.update(message);
+
     restoreLogBuffer();
+    updateLogStats();
   };
 
   const updateLogBuffer = (token: number, message: string) => {

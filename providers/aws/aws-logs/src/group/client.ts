@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import {
   CreateLogGroupCommand,
@@ -23,7 +23,7 @@ export type CreateResponse = {
   groupArn: Arn;
 };
 
-export const createGroup = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createGroup = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating log group`);
 
   const { groupName } = request;
@@ -51,7 +51,7 @@ export const createGroup = async (logger: Logger.OperationLogger, request: Creat
   };
 };
 
-export const createRetention = async (logger: Logger.OperationLogger, groupName: string, retention: number) => {
+export const createRetention = async (logger: OperationLogLine, groupName: string, retention: number) => {
   logger.update(`Updating log group retention`);
 
   return getCloudWatchLogsClient().send(
@@ -62,7 +62,7 @@ export const createRetention = async (logger: Logger.OperationLogger, groupName:
   );
 };
 
-export const deleteRetention = async (logger: Logger.OperationLogger, groupName: string) => {
+export const deleteRetention = async (logger: OperationLogLine, groupName: string) => {
   logger.update(`Deleting log group retention`);
 
   await getCloudWatchLogsClient().send(
@@ -72,7 +72,7 @@ export const deleteRetention = async (logger: Logger.OperationLogger, groupName:
   );
 };
 
-export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tags: ResourceTags) => {
+export const tagGroup = async (logger: OperationLogLine, groupArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag log group`);
 
   await getCloudWatchLogsClient().send(
@@ -86,7 +86,7 @@ export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, ta
   );
 };
 
-export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tagKeys: string[]) => {
+export const untagGroup = async (logger: OperationLogLine, groupArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag log group`);
 
   await getCloudWatchLogsClient().send(
@@ -97,7 +97,7 @@ export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, 
   );
 };
 
-export const deleteGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+export const deleteGroup = async (logger: OperationLogLine, groupName: string) => {
   logger.update(`Deleting log group`);
 
   try {

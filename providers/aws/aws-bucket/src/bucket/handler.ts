@@ -1,8 +1,8 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
-import { CorruptedResourceError, Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { tryGetFunctionArn } from '@ez4/aws-function';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
@@ -67,7 +67,7 @@ const createResource = (candidate: BucketState, context: StepContext): Promise<B
 
   const functionArn = tryGetFunctionArn(context);
 
-  return Logger.logOperation(BucketServiceName, parameters.bucketName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(BucketServiceName, parameters.bucketName, 'creation', async (logger) => {
     const { bucketName } = await createBucket(logger, parameters);
 
     await checkCorsUpdates(logger, bucketName, parameters, undefined);
@@ -96,7 +96,7 @@ const updateResource = (candidate: BucketState, current: BucketState, context: S
     throw new CorruptedResourceError(BucketServiceName, bucketName);
   }
 
-  return Logger.logOperation(BucketServiceName, bucketName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(BucketServiceName, bucketName, 'updates', async (logger) => {
     const newFunctionArn = tryGetFunctionArn(context);
     const oldFunctionArn = current.result?.functionArn;
 
@@ -125,7 +125,7 @@ const deleteResource = async (current: BucketState) => {
 
   const { bucketName } = result;
 
-  await Logger.logOperation(BucketServiceName, bucketName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(BucketServiceName, bucketName, 'deletion', async (logger) => {
     const isEmpty = await isBucketEmpty(logger, result.bucketName);
 
     if (isEmpty) {
@@ -135,7 +135,7 @@ const deleteResource = async (current: BucketState) => {
 };
 
 const checkCorsUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   bucketName: string,
   candidate: BucketParameters,
   current: BucketParameters | undefined
@@ -154,7 +154,7 @@ const checkCorsUpdates = async (
 };
 
 const checkLifecycleUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   bucketName: string,
   candidate: BucketParameters,
   current: BucketParameters | undefined
@@ -173,7 +173,7 @@ const checkLifecycleUpdates = async (
 };
 
 const checkTagUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   bucketName: string,
   candidate: ResourceTags | undefined,
   current: ResourceTags | undefined
@@ -187,7 +187,7 @@ const checkTagUpdates = async (
 };
 
 const checkEventUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   bucketName: string,
   candidate: NotificationParameters,
   current: NotificationParameters

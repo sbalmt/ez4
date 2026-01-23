@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList } from '@ez4/aws-common';
 
@@ -26,7 +26,7 @@ export type ImportOrCreateResponse = {
   instanceArn: Arn;
 };
 
-export const importInstance = async (logger: Logger.OperationLogger, instanceName: string): Promise<ImportOrCreateResponse | undefined> => {
+export const importInstance = async (logger: OperationLogLine, instanceName: string): Promise<ImportOrCreateResponse | undefined> => {
   logger.update(`Importing instance`);
 
   try {
@@ -52,7 +52,7 @@ export const importInstance = async (logger: Logger.OperationLogger, instanceNam
   }
 };
 
-export const createInstance = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createInstance = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating instance`);
 
   const { instanceName, clusterName } = request;
@@ -84,7 +84,7 @@ export const createInstance = async (logger: Logger.OperationLogger, request: Cr
   };
 };
 
-export const tagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tags: ResourceTags) => {
+export const tagInstance = async (logger: OperationLogLine, instanceArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag instance`);
 
   await getRDSClient().send(
@@ -98,7 +98,7 @@ export const tagInstance = async (logger: Logger.OperationLogger, instanceArn: A
   );
 };
 
-export const untagInstance = async (logger: Logger.OperationLogger, instanceArn: Arn, tagKeys: string[]) => {
+export const untagInstance = async (logger: OperationLogLine, instanceArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag instance`);
 
   await getRDSClient().send(
@@ -109,7 +109,7 @@ export const untagInstance = async (logger: Logger.OperationLogger, instanceArn:
   );
 };
 
-export const deleteInstance = async (logger: Logger.OperationLogger, instanceName: string) => {
+export const deleteInstance = async (logger: OperationLogLine, instanceName: string) => {
   logger.update(`Deleting instance`);
 
   try {

@@ -1,9 +1,10 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types';
 
-import { getFunctionArn } from '@ez4/aws-function';
-import { Logger, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
+import { getFunctionArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import { tryGetGroupName } from '../group/utils';
@@ -47,10 +48,10 @@ const replaceResource = async (candidate: ScheduleState, current: ScheduleState,
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: ScheduleState, context: StepContext): Promise<ScheduleResult> => {
+const createResource = (candidate: ScheduleState, context: StepContext): Promise<ScheduleResult> => {
   const { parameters } = candidate;
 
-  return Logger.logOperation(ScheduleServiceName, parameters.scheduleName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(ScheduleServiceName, parameters.scheduleName, 'creation', async (logger) => {
     const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
     const functionArn = getFunctionArn(ScheduleServiceName, 'schedule', context);
     const groupName = tryGetGroupName(context);
@@ -77,7 +78,7 @@ const createResource = async (candidate: ScheduleState, context: StepContext): P
   });
 };
 
-const updateResource = async (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
+const updateResource = (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
   const { result, parameters } = candidate;
 
   if (!result) {
@@ -86,7 +87,7 @@ const updateResource = async (candidate: ScheduleState, current: ScheduleState, 
 
   const { scheduleName } = parameters;
 
-  return Logger.logOperation(ScheduleServiceName, scheduleName, 'updates', async (logger) => {
+  return OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'updates', async (logger) => {
     const newRoleArn = getRoleArn(ScheduleServiceName, scheduleName, context);
     const newFunctionArn = getFunctionArn(ScheduleServiceName, scheduleName, context);
     const newGroupName = tryGetGroupName(context);
@@ -131,13 +132,13 @@ const deleteResource = async (current: ScheduleState) => {
 
   const { scheduleName } = parameters;
 
-  await Logger.logOperation(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
+  await OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
     await deleteSchedule(logger, scheduleName);
   });
 };
 
 const checkGeneralUpdates = async (
-  logger: Logger.OperationLogger,
+  logger: OperationLogLine,
   scheduleName: string,
   candidate: ScheduleParameters,
   current: ScheduleParameters

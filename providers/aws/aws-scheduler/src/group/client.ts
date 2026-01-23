@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import {
   GetScheduleGroupCommand,
@@ -22,7 +22,7 @@ export type CreateResponse = {
   groupArn: Arn;
 };
 
-export const importGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+export const importGroup = async (logger: OperationLogLine, groupName: string) => {
   logger.update(`Importing scheduler group`);
 
   try {
@@ -46,7 +46,7 @@ export const importGroup = async (logger: Logger.OperationLogger, groupName: str
   }
 };
 
-export const createGroup = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createGroup = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler group`);
 
   const response = await getSchedulerClient().send(
@@ -66,7 +66,7 @@ export const createGroup = async (logger: Logger.OperationLogger, request: Creat
   };
 };
 
-export const deleteGroup = async (logger: Logger.OperationLogger, groupName: string) => {
+export const deleteGroup = async (logger: OperationLogLine, groupName: string) => {
   logger.update(`Deleting scheduler group`);
 
   try {
@@ -86,7 +86,7 @@ export const deleteGroup = async (logger: Logger.OperationLogger, groupName: str
   }
 };
 
-export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tags: ResourceTags) => {
+export const tagGroup = async (logger: OperationLogLine, groupArn: Arn, tags: ResourceTags) => {
   logger.update(`Tag scheduler group`);
 
   await getSchedulerClient().send(
@@ -100,7 +100,7 @@ export const tagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, ta
   );
 };
 
-export const untagGroup = async (logger: Logger.OperationLogger, groupArn: Arn, tagKeys: string[]) => {
+export const untagGroup = async (logger: OperationLogLine, groupArn: Arn, tagKeys: string[]) => {
   logger.update(`Untag scheduler group`);
 
   await getSchedulerClient().send(

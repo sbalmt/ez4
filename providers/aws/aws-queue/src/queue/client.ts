@@ -1,5 +1,5 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
 
 import {
   GetQueueUrlCommand,
@@ -38,7 +38,7 @@ export type CreateResponse = {
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay' | 'deadLetter'>;
 
-export const fetchQueue = async (logger: Logger.OperationLogger, queueName: string) => {
+export const fetchQueue = async (logger: OperationLogLine, queueName: string) => {
   logger.update(`Fetching queue`);
 
   const response = await getSQSClient().send(
@@ -52,7 +52,7 @@ export const fetchQueue = async (logger: Logger.OperationLogger, queueName: stri
   };
 };
 
-export const createQueue = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createQueue = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating queue`);
 
   const { queueName, fifoMode } = request;
@@ -87,7 +87,7 @@ export const createQueue = async (logger: Logger.OperationLogger, request: Creat
   };
 };
 
-export const updateQueue = async (logger: Logger.OperationLogger, queueUrl: string, request: UpdateRequest) => {
+export const updateQueue = async (logger: OperationLogLine, queueUrl: string, request: UpdateRequest) => {
   logger.update(`Updating queue`);
 
   const attributes = upsertQueueAttributes(request);
@@ -104,7 +104,7 @@ export const updateQueue = async (logger: Logger.OperationLogger, queueUrl: stri
   );
 };
 
-export const tagQueue = async (logger: Logger.OperationLogger, queueUrl: string, tags: ResourceTags) => {
+export const tagQueue = async (logger: OperationLogLine, queueUrl: string, tags: ResourceTags) => {
   logger.update(`Tag queue`);
 
   await getSQSClient().send(
@@ -118,7 +118,7 @@ export const tagQueue = async (logger: Logger.OperationLogger, queueUrl: string,
   );
 };
 
-export const untagQueue = async (logger: Logger.OperationLogger, queueUrl: string, tagKeys: string[]) => {
+export const untagQueue = async (logger: OperationLogLine, queueUrl: string, tagKeys: string[]) => {
   logger.update(`Untag queue`);
 
   await getSQSClient().send(
@@ -129,7 +129,7 @@ export const untagQueue = async (logger: Logger.OperationLogger, queueUrl: strin
   );
 };
 
-export const deleteQueue = async (logger: Logger.OperationLogger, queueUrl: string) => {
+export const deleteQueue = async (logger: OperationLogLine, queueUrl: string) => {
   logger.update(`Delete queue`);
 
   try {

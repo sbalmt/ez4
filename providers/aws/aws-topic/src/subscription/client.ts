@@ -1,4 +1,4 @@
-import type { Arn, Logger } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { NotFoundException, SubscribeCommand, UnsubscribeCommand } from '@aws-sdk/client-sns';
 
@@ -19,7 +19,7 @@ export type CreateResponse = {
   subscriptionArn: Arn;
 };
 
-export const createSubscription = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createSubscription = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating topic subscription`);
 
   const { topicArn, protocol, endpoint } = request;
@@ -43,7 +43,7 @@ export const createSubscription = async (logger: Logger.OperationLogger, request
   };
 };
 
-export const deleteSubscription = async (logger: Logger.OperationLogger, subscriptionArn: string) => {
+export const deleteSubscription = async (logger: OperationLogLine, subscriptionArn: string) => {
   logger.update(`Deleting topic subscription`);
 
   try {

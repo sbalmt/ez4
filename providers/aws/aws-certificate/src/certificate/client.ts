@@ -1,4 +1,4 @@
-import type { Arn, Logger, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import { getTagList } from '@ez4/aws-common';
 
@@ -24,7 +24,7 @@ export type CreateResponse = {
   certificateArn: Arn;
 };
 
-export const isCertificateInUse = async (logger: Logger.OperationLogger, certificateArn: string) => {
+export const isCertificateInUse = async (logger: OperationLogLine, certificateArn: string) => {
   logger.update(`Fetching  certificate`);
 
   const response = await getACMClient().send(
@@ -36,7 +36,7 @@ export const isCertificateInUse = async (logger: Logger.OperationLogger, certifi
   return !!response.Certificate?.InUseBy?.length;
 };
 
-export const createCertificate = async (logger: Logger.OperationLogger, request: CreateRequest): Promise<CreateResponse> => {
+export const createCertificate = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating certificate`);
 
   const { domainName } = request;
@@ -65,7 +65,7 @@ export const createCertificate = async (logger: Logger.OperationLogger, request:
   };
 };
 
-export const deleteCertificate = async (certificateArn: string, logger: Logger.OperationLogger) => {
+export const deleteCertificate = async (certificateArn: string, logger: OperationLogLine) => {
   logger.update(`Deleting certificate`);
 
   try {
@@ -85,7 +85,7 @@ export const deleteCertificate = async (certificateArn: string, logger: Logger.O
   }
 };
 
-export const tagCertificate = async (logger: Logger.OperationLogger, certificateArn: string, tags: ResourceTags) => {
+export const tagCertificate = async (logger: OperationLogLine, certificateArn: string, tags: ResourceTags) => {
   logger.update(`Tag certificate`);
 
   await getACMClient().send(
@@ -99,7 +99,7 @@ export const tagCertificate = async (logger: Logger.OperationLogger, certificate
   );
 };
 
-export const untagCertificate = async (logger: Logger.OperationLogger, certificateArn: string, tagKeys: string[]) => {
+export const untagCertificate = async (logger: OperationLogLine, certificateArn: string, tagKeys: string[]) => {
   logger.update(`Untag certificate`);
 
   await getACMClient().send(
