@@ -24,7 +24,7 @@ export namespace DynamicLogger {
         process.stdout.moveCursor(0, -difference);
         process.stdout.clearLine(0);
 
-        process.stdout.write(`${(lastMessage = message)}\r`);
+        process.stdout.write(`\r${(lastMessage = message)}`);
         process.stdout.moveCursor(0, difference);
       }
 
