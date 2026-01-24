@@ -7,7 +7,7 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 
-describe('migration :: create update tests', () => {
+describe('migration :: update constraint tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties) => {
     return getTableRepository([
       {

@@ -12,7 +12,7 @@ import { constraintExists, tableExists } from './common/queries';
 import { runMigration } from './common/migration';
 
 describe('migration :: client tables tests', async () => {
-  const client = await Client.make({
+  const client = Client.make({
     debug: false,
     repository: {},
     connection: {

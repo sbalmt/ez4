@@ -1,4 +1,5 @@
 import type { PgIndexRepository } from '@ez4/pgclient/library';
+import type { ObjectComparison } from '@ez4/utils';
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { PgMigrationQueries } from '../types/query';
@@ -33,7 +34,6 @@ export namespace IndexQueries {
 
         case Index.Primary: {
           const name = getPrimaryKeyName(table, indexName);
-
           const query = builder.table(table).alter().existing().constraint(name).primary(columns);
 
           statements.constraints.push({
@@ -46,7 +46,6 @@ export namespace IndexQueries {
 
         case Index.Unique: {
           const name = getUniqueKeyName(table, indexName);
-
           const query = builder.table(table).alter().existing().constraint(name).unique(columns);
 
           statements.constraints.push({
@@ -73,6 +72,41 @@ export namespace IndexQueries {
 
           break;
         }
+      }
+    }
+
+    return statements;
+  };
+
+  export const prepareUpdate = (
+    builder: SqlBuilder,
+    table: string,
+    schema: ObjectSchema,
+    sourceIndexes: PgIndexRepository,
+    targetIndexes: PgIndexRepository,
+    changes: Record<string, ObjectComparison>,
+    concurrent: boolean
+  ) => {
+    const statements: IndexMigrationQueries = {
+      constraints: [],
+      indexes: []
+    };
+
+    for (const indexName in changes) {
+      const { update, create, remove } = changes[indexName];
+
+      if (remove || update) {
+        const operation = prepareDelete(builder, table, { [indexName]: sourceIndexes[indexName] });
+
+        statements.constraints.push(...operation.constraints);
+        statements.indexes.push(...operation.indexes);
+      }
+
+      if (create || update) {
+        const operation = prepareCreate(builder, table, schema, { [indexName]: targetIndexes[indexName] }, concurrent);
+
+        statements.constraints.push(...operation.constraints);
+        statements.indexes.push(...operation.indexes);
       }
     }
 
@@ -153,7 +187,6 @@ export namespace IndexQueries {
 
         case Index.Primary: {
           const name = getPrimaryKeyName(table, indexName);
-
           const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
           statements.constraints.push({
@@ -165,7 +198,6 @@ export namespace IndexQueries {
 
         case Index.Unique: {
           const name = getUniqueKeyName(table, indexName);
-
           const query = builder.table(table).alter().existing().constraint(name).drop().existing();
 
           statements.constraints.push({
@@ -177,7 +209,6 @@ export namespace IndexQueries {
 
         case Index.Secondary: {
           const name = getSecondaryKeyName(table, indexName);
-
           const query = builder.index(name).drop().existing().concurrent();
 
           statements.indexes.push({
