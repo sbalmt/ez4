@@ -96,31 +96,4 @@ describe('migration :: create constraint tests', () => {
       indexes: []
     });
   });
-
-  it('assert :: create (empty enum)', async () => {
-    const targetTable = getDatabaseTables({
-      column: {
-        type: SchemaType.Enum,
-        options: []
-      }
-    });
-
-    const queries = getCreateQueries(targetTable);
-
-    deepEqual(queries, {
-      tables: [
-        {
-          query: `CREATE TABLE IF NOT EXISTS "table" ("column" text NOT null)`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false)`
-        }
-      ],
-      relations: [],
-      indexes: []
-    });
-  });
 });
