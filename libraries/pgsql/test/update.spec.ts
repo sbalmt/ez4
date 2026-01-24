@@ -97,6 +97,23 @@ describe('sql update tests', () => {
           properties: {
             bar: {
               type: SchemaType.String
+            },
+            baz: {
+              type: SchemaType.Object,
+              properties: {
+                baz_foo: {
+                  type: SchemaType.Number
+                }
+              }
+            },
+            qux: {
+              type: SchemaType.Object,
+              nullable: true,
+              properties: {
+                qux_foo: {
+                  type: SchemaType.Boolean
+                }
+              }
             }
           }
         }
@@ -108,15 +125,29 @@ describe('sql update tests', () => {
       .only('table')
       .record({
         foo: {
-          bar: 'baz'
+          bar: 'bar',
+          baz: {
+            baz_foo: 123
+          },
+          qux: {
+            qux_foo: false
+          }
         }
       });
 
     const [statement, variables] = query.build();
 
-    deepEqual(variables, ['baz']);
+    deepEqual(variables, ['bar', 123, false]);
 
-    equal(statement, `UPDATE ONLY "table" SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object('bar', :0)`);
+    equal(
+      statement,
+      `UPDATE ONLY "table" ` +
+        `SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object(` +
+        `'bar', :0, ` +
+        `'baz', jsonb_build_object('baz_foo', :1), ` +
+        `'qux', COALESCE("foo"['qux'], '{}'::jsonb) || jsonb_build_object('qux_foo', :2)` +
+        `)`
+    );
   });
 
   it('assert :: update with inner select record', async () => {

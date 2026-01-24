@@ -18,6 +18,7 @@ export type SqlUpdateContext = {
   variables: unknown[];
   coalesce?: boolean;
   parent?: string;
+  inner?: boolean;
 };
 
 export const getUpdateColumns = (
@@ -26,12 +27,12 @@ export const getUpdateColumns = (
   schema: ObjectSchema | UnionSchema | undefined,
   context: SqlUpdateContext
 ): string[] => {
-  const { variables, references, options, coalesce, parent } = context;
+  const { variables, references, options, coalesce, parent, inner } = context;
 
   const columns = [];
 
   const pushUpdate = (fieldName: string, fieldValue: string) => {
-    if (!coalesce) {
+    if (!inner) {
       columns.push(`${mergeSqlPath(fieldName, parent)} = ${fieldValue}`);
     } else {
       columns.push(`'${fieldName}', ${fieldValue}`);
@@ -90,14 +91,16 @@ export const getUpdateColumns = (
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
+        inner: inner || canCombine,
         coalesce: canCombine,
         parent: columnName
       });
 
       if (canCombine) {
         const columnPath = mergeSqlAlias(columnName, source.alias);
-
-        columns.push(`${columnName} = COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(',')})`);
+        pushUpdate(fieldName, `COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(', ')})`);
+      } else if (inner) {
+        pushUpdate(fieldName, `jsonb_build_object(${jsonValue.join(', ')})`);
       } else {
         columns.push(...jsonValue);
       }
