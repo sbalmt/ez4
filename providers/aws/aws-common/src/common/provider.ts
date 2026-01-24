@@ -4,6 +4,7 @@ import { applySteps, planSteps } from '@ez4/stateful';
 import { Logger } from '@ez4/logger';
 
 import { DuplicateProviderError } from '../errors/providers';
+import { OperationLogger } from './logger';
 
 const allProviderHandlers: StepHandlers<any> = {};
 
@@ -49,8 +50,11 @@ export const deploy = async <E extends EntryState>(
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
     handlers: allProviderHandlers,
-    batchSize: concurrency,
-    force
+    concurrency,
+    force,
+    onProgress: (applied, total) => {
+      OperationLogger.setStats(`  ${((100 / total) * applied).toFixed(2)}%`);
+    }
   });
 
   const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);

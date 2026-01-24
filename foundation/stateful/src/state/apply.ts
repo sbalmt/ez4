@@ -3,8 +3,8 @@ import type { StepHandlers, StepState } from '../types/step';
 
 import { Tasks } from '@ez4/utils';
 
-import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
 import { getEntry, getEntryDependencies, getEntryConnections, getEntryDependents } from './entry';
+import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
 import { StepAction } from './step';
 
 export type ApplyResult<E extends EntryState = EntryState> = {
@@ -13,8 +13,9 @@ export type ApplyResult<E extends EntryState = EntryState> = {
 };
 
 export type ApplyOptions<E extends EntryState> = {
+  onProgress?: (applied: number, total: number) => void;
   handlers: StepHandlers<E>;
-  batchSize?: number;
+  concurrency?: number;
   force?: boolean;
 };
 
@@ -28,14 +29,17 @@ export const applySteps = async <E extends EntryState>(
     throw new EntriesNotFoundError();
   }
 
-  const { handlers, batchSize = 15, force = false } = options;
+  const { handlers, onProgress, concurrency = 15, force = false } = options;
 
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
 
   const allEntries: EntryStates<E> = {};
-
   const errorList: Error[] = [];
+
+  const totalSteps = stepList.length;
+
+  let appliedSteps = 0;
 
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
@@ -48,7 +52,10 @@ export const applySteps = async <E extends EntryState>(
       return applyPendingStep(entry, allNewEntries, allOldEntries, allEntries, handlers, errorList, force);
     });
 
-    const taskResults = await Tasks.run(stepTasks, batchSize);
+    const taskResults = await Tasks.run(stepTasks, {
+      onProgress: () => onProgress?.(++appliedSteps, totalSteps),
+      concurrency
+    });
 
     for (const entry of taskResults) {
       // Don't include deleted entries.

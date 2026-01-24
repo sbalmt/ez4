@@ -25,6 +25,7 @@ export namespace OperationLogger {
     random: number;
     tokens: number;
     limit: number;
+    stats: string;
   };
 
   const STATE: InternalState = {
@@ -32,11 +33,16 @@ export namespace OperationLogger {
     loggers: [],
     buffers: [],
     random: 0,
-    tokens: 0
+    tokens: 0,
+    stats: ''
   };
 
   export const maxLines = (limit: number) => {
     STATE.limit = Math.max(2, limit);
+  };
+
+  export const setStats = (stats: string) => {
+    STATE.stats = stats;
   };
 
   export const logExecution = async <T>(serviceName: string, resource: string, operation: string, callback: Callback<T>) => {
@@ -78,7 +84,7 @@ export namespace OperationLogger {
   };
 
   const updateLogStats = () => {
-    const { loggers, buffers } = STATE;
+    const { loggers, buffers, stats } = STATE;
 
     const hidden = buffers.length;
     const total = loggers.length + hidden;
@@ -86,9 +92,9 @@ export namespace OperationLogger {
     process.stdout.clearLine(0);
 
     if (hidden > 0) {
-      process.stdout.write(` (processing ${total} changes, ${hidden} hidden)\r`);
+      process.stdout.write(`${stats} (processing ${total} changes, ${hidden} hidden)\r`);
     } else {
-      process.stdout.write(` (processing ${total} changes)\r`);
+      process.stdout.write(`${stats} (processing ${total} changes)\r`);
     }
   };
 
