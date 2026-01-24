@@ -1,68 +1,81 @@
-type OutputState = {
-  capture: number;
-  buffer: string[];
-  lines: number;
-};
-
-const OUTPUT: OutputState = {
-  capture: 0,
-  buffer: [],
-  lines: 0
-};
-
 export namespace TTY {
+  type InternalState = {
+    capture: number;
+    buffer: string[];
+    lines: number;
+  };
+
+  const STATE: InternalState = {
+    capture: 0,
+    buffer: [],
+    lines: 0
+  };
+
   export const startBuffer = () => {
-    OUTPUT.capture++;
+    STATE.capture++;
   };
 
   export const isBuffering = () => {
-    return OUTPUT.capture > 0;
+    return STATE.capture > 0;
   };
 
   export const hasBuffer = () => {
-    return OUTPUT.capture === 0 && OUTPUT.buffer.length > 0;
+    return STATE.capture === 0 && STATE.buffer.length > 0;
   };
 
   export const getBuffer = () => {
-    const buffer = OUTPUT.buffer;
+    const buffer = STATE.buffer;
 
-    OUTPUT.buffer = [];
+    STATE.buffer = [];
 
     return buffer;
   };
 
   export const stopBuffer = () => {
-    if (OUTPUT.capture > 0) {
-      OUTPUT.capture--;
+    if (STATE.capture > 0) {
+      STATE.capture--;
     }
   };
 
   export const getCurrentLine = () => {
-    return OUTPUT.lines;
+    return STATE.lines;
   };
 
   export const setup = () => {
-    if (process.stdout.write !== safeWrite) {
-      process.stdout.write = safeWrite;
+    if (process.stdout.write !== safeOutputWrite) {
+      process.stdout.write = safeOutputWrite;
+    }
+
+    if (process.stderr.write !== safeErrorWrite) {
+      process.stderr.write = safeErrorWrite;
     }
   };
 
-  const rawWrite = process.stdout.write.bind(process.stdout);
+  const rawOutputWrite = process.stdout.write.bind(process.stdout);
+  const rawErrorWrite = process.stderr.write.bind(process.stderr);
 
-  const safeWrite = (string: Uint8Array | string, ...rest: any[]) => {
+  const safeOutputWrite = (string: Uint8Array | string, ...rest: any[]) => {
+    return safeWrite(string, () => rawOutputWrite(string, ...rest));
+  };
+
+  const safeErrorWrite = (string: Uint8Array | string, ...rest: any[]) => {
+    return safeWrite(string, () => rawErrorWrite(string, ...rest));
+  };
+
+  const safeWrite = (string: Uint8Array | string, rawWrite: () => boolean) => {
     const message = string.toString();
 
-    if (OUTPUT.capture > 0) {
-      OUTPUT.buffer.push(message);
+    if (STATE.capture > 0) {
+      STATE.buffer.push(message);
       return true;
     }
 
     const matches = message.match(/\n/g);
 
     if (matches) {
-      OUTPUT.lines += matches.length;
+      STATE.lines += matches.length;
     }
 
-    return rawWrite(string, ...rest);
+    return rawWrite();
   };
 }
