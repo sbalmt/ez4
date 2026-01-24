@@ -102,8 +102,8 @@ describe('client where json array', async () => {
         json: {
           array: {
             isIn: [
-              ['baz', 'baz'],
-              [2, 3]
+              ['foo', 'bar', 'baz', 'qux'],
+              [1, 2, 3, 4]
             ]
           }
         }
