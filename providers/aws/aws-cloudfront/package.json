@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-cloudfront",
   "description": "EZ4: Self-managed AWS CloudFront provider",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,7 @@
   ],
   "scripts": {
     "lint": "eslint --cache",
-    "clean": "rm -f *.tsbuildinfo && rm -rf dist/*",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
     "build": "tsc && node tools/bundler.mjs",
     "test": "npm run build && ez4 test  -e ../../../local.env",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
@@ -48,13 +48,13 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.958.0",
-    "@ez4/aws-bucket": "^0.39.0",
-    "@ez4/aws-certificate": "^0.39.0",
-    "@ez4/aws-common": "^0.39.0",
-    "@ez4/aws-identity": "^0.39.0",
-    "@ez4/distribution": "^0.39.0",
-    "@ez4/project": "^0.39.0",
-    "@ez4/stateful": "^0.39.0",
-    "@ez4/utils": "^0.39.0"
+    "@ez4/aws-bucket": "^0.40.0",
+    "@ez4/aws-certificate": "^0.40.0",
+    "@ez4/aws-common": "^0.40.0",
+    "@ez4/aws-identity": "^0.40.0",
+    "@ez4/distribution": "^0.40.0",
+    "@ez4/project": "^0.40.0",
+    "@ez4/stateful": "^0.40.0",
+    "@ez4/utils": "^0.40.0"
   }
 }

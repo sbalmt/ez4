@@ -1,8 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
@@ -45,40 +45,43 @@ const replaceResource = async (candidate: ClusterState, current: ClusterState) =
   return createResource(candidate);
 };
 
-const createResource = async (candidate: ClusterState): Promise<ClusterResult> => {
+const createResource = (candidate: ClusterState): Promise<ClusterResult> => {
   const { clusterName } = candidate.parameters;
 
-  const response = (await importCluster(clusterName)) ?? (await createCluster(candidate.parameters));
+  return OperationLogger.logExecution(ClusterServiceName, clusterName, 'creation', async (logger) => {
+    const response = (await importCluster(logger, clusterName)) ?? (await createCluster(logger, candidate.parameters));
 
-  const { clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
+    const { clusterArn, writerEndpoint, readerEndpoint, secretArn } = response;
 
-  return {
-    clusterArn,
-    writerEndpoint,
-    readerEndpoint,
-    secretArn
-  };
+    return {
+      clusterArn,
+      writerEndpoint,
+      readerEndpoint,
+      secretArn
+    };
+  });
 };
 
-const updateResource = async (candidate: ClusterState, current: ClusterState) => {
+const updateResource = (candidate: ClusterState, current: ClusterState): Promise<ClusterResult> => {
   const { result, parameters } = candidate;
-
-  if (!result) {
-    return;
-  }
-
   const { clusterName } = parameters;
 
-  const newResult = await checkGeneralUpdates(clusterName, result, parameters, current.parameters);
+  if (!result) {
+    throw new CorruptedResourceError(ClusterServiceName, clusterName);
+  }
 
-  await checkDeletionUpdates(clusterName, parameters, current.parameters);
-  await checkTagUpdates(result.clusterArn, parameters, current.parameters);
+  return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
+    const newResult = await checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
 
-  return newResult;
+    await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
+    await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
+
+    return newResult;
+  });
 };
 
-const deleteResource = async (candidate: ClusterState, context: StepContext) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: ClusterState, context: StepContext) => {
+  const { result, parameters } = current;
 
   const allowDeletion = !!parameters.allowDeletion;
 
@@ -86,22 +89,32 @@ const deleteResource = async (candidate: ClusterState, context: StepContext) => 
     return;
   }
 
-  if (!allowDeletion) {
-    await updateDeletion(parameters.clusterName, true);
-  }
+  const clusterName = parameters.clusterName;
 
-  await deleteCluster(parameters.clusterName);
+  await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+    if (!allowDeletion) {
+      await updateDeletion(logger, clusterName, true);
+    }
+
+    await deleteCluster(logger, clusterName);
+  });
 };
 
-const checkDeletionUpdates = async (clusterName: string, candidate: ClusterParameters, current: ClusterParameters) => {
+const checkDeletionUpdates = async (
+  logger: OperationLogLine,
+  clusterName: string,
+  candidate: ClusterParameters,
+  current: ClusterParameters
+) => {
   const allowDeletion = !!candidate.allowDeletion;
 
   if (allowDeletion !== !!current.allowDeletion) {
-    await updateDeletion(clusterName, allowDeletion);
+    await updateDeletion(logger, clusterName, allowDeletion);
   }
 };
 
 const checkGeneralUpdates = async (
+  logger: OperationLogLine,
   clusterName: string,
   result: ClusterResult,
   candidate: ClusterParameters,
@@ -115,17 +128,17 @@ const checkGeneralUpdates = async (
   });
 
   if (hasChanges) {
-    return updateCluster(clusterName, candidate);
+    return updateCluster(logger, clusterName, candidate);
   }
 
   return result;
 };
 
-const checkTagUpdates = async (clusterArn: Arn, candidate: ClusterParameters, current: ClusterParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, clusterArn: Arn, candidate: ClusterParameters, current: ClusterParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagCluster(clusterArn, tags),
-    (tags) => untagCluster(clusterArn, tags)
+    (tags) => tagCluster(logger, clusterArn, tags),
+    (tags) => untagCluster(logger, clusterArn, tags)
   );
 };

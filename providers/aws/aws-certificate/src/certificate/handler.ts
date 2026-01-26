@@ -1,8 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client';
@@ -45,47 +45,62 @@ const replaceResource = async (candidate: CertificateState, current: Certificate
   return createResource(candidate);
 };
 
-const createResource = async (candidate: CertificateState): Promise<CertificateResult> => {
+const createResource = (candidate: CertificateState): Promise<CertificateResult> => {
   const parameters = candidate.parameters;
+  const domainName = parameters.domainName;
 
-  const { certificateArn } = await createCertificate(parameters);
+  return OperationLogger.logExecution(CertificateServiceName, domainName, 'creation', async (logger) => {
+    const { certificateArn } = await createCertificate(logger, parameters);
 
-  return {
-    certificateArn
-  };
+    return {
+      certificateArn
+    };
+  });
 };
 
-const updateResource = async (candidate: CertificateState, current: CertificateState) => {
+const updateResource = (candidate: CertificateState, current: CertificateState): Promise<CertificateResult> => {
   const { result, parameters } = candidate;
+  const { domainName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(CertificateServiceName, domainName);
   }
 
-  const certificateArn = result.certificateArn;
+  return OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
 
-  await checkTagUpdates(certificateArn, parameters, current.parameters);
+    return result;
+  });
 };
 
-const deleteResource = async (candidate: CertificateState, context: StepContext) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: CertificateState, context: StepContext) => {
+  const { result, parameters } = current;
 
   if (!result || (!parameters.allowDeletion && !context.force)) {
     return;
   }
 
-  const isInUse = await isCertificateInUse(result.certificateArn);
+  const domainName = parameters.domainName;
 
-  if (!isInUse) {
-    await deleteCertificate(result.certificateArn);
-  }
+  await OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
+    const isInUse = await isCertificateInUse(logger, result.certificateArn);
+
+    if (!isInUse) {
+      await deleteCertificate(result.certificateArn, logger);
+    }
+  });
 };
 
-const checkTagUpdates = async (certificateArn: Arn, candidate: CertificateParameters, current: CertificateParameters) => {
+const checkTagUpdates = async (
+  logger: OperationLogLine,
+  certificateArn: Arn,
+  candidate: CertificateParameters,
+  current: CertificateParameters
+) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagCertificate(certificateArn, tags),
-    (tags) => untagCertificate(certificateArn, tags)
+    (tags) => tagCertificate(logger, certificateArn, tags),
+    (tags) => untagCertificate(logger, certificateArn, tags)
   );
 };

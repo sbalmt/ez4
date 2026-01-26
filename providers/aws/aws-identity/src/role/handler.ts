@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { PolicyState } from '../policy/types';
 import type { RoleState, RoleResult, RoleParameters } from './types';
 
-import { applyTagUpdates, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, OperationLogger, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { attachPolicy, createRole, deleteRole, detachPolicy, importRole, tagRole, untagRole, updateAssumeRole, updateRole } from './client';
@@ -47,61 +47,67 @@ const replaceResource = async (candidate: RoleState, current: RoleState, context
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: RoleState, context: StepContext): Promise<RoleResult> => {
-  const parameters = candidate.parameters;
+const createResource = (candidate: RoleState, context: StepContext): Promise<RoleResult> => {
+  const { parameters } = candidate;
 
-  const response = (await importRole(parameters.roleName)) || (await createRole(parameters));
+  return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'creation', async (logger) => {
+    const response = (await importRole(logger, parameters.roleName)) || (await createRole(logger, parameters));
 
-  const policies = context.getDependencies<PolicyState>(PolicyServiceType);
-  const policyArns = getPolicyArns(response.roleName, policies);
+    const policies = context.getDependencies<PolicyState>(PolicyServiceType);
+    const policyArns = getPolicyArns(response.roleName, policies);
 
-  if (policyArns.length) {
-    await attachPolicies(response.roleName, policyArns);
-  }
+    if (policyArns.length) {
+      await attachPolicies(logger, response.roleName, policyArns);
+    }
 
-  return {
-    roleName: response.roleName,
-    roleArn: response.roleArn,
-    policyArns
-  };
+    return {
+      roleName: response.roleName,
+      roleArn: response.roleArn,
+      policyArns
+    };
+  });
 };
 
-const updateResource = async (candidate: RoleState, current: RoleState, context: StepContext) => {
-  const result = candidate.result;
+const updateResource = (candidate: RoleState, current: RoleState, context: StepContext) => {
+  const { result, parameters } = candidate;
 
   if (!result) {
     return;
   }
 
-  const policies = context.getDependencies<PolicyState>(PolicyServiceType);
-  const policyArns = getPolicyArns(result.roleName, policies);
+  return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'updates', async (logger) => {
+    const policies = context.getDependencies<PolicyState>(PolicyServiceType);
+    const policyArns = getPolicyArns(result.roleName, policies);
 
-  await Promise.all([
-    checkGeneralUpdates(result.roleName, candidate.parameters, current.parameters),
-    checkDocumentUpdates(result.roleName, candidate.parameters, current.parameters),
-    checkPolicyUpdates(result.roleName, policyArns, result.policyArns),
-    checkTagUpdates(result.roleName, candidate.parameters, current.parameters)
-  ]);
+    await Promise.all([
+      checkGeneralUpdates(logger, result.roleName, candidate.parameters, current.parameters),
+      checkDocumentUpdates(logger, result.roleName, candidate.parameters, current.parameters),
+      checkPolicyUpdates(logger, result.roleName, policyArns, result.policyArns),
+      checkTagUpdates(logger, result.roleName, candidate.parameters, current.parameters)
+    ]);
 
-  return {
-    ...result,
-    policyArns
-  };
+    return {
+      ...result,
+      policyArns
+    };
+  });
 };
 
-const deleteResource = async (candidate: RoleState) => {
-  const result = candidate.result;
+const deleteResource = (current: RoleState) => {
+  const { result, parameters } = current;
 
   if (!result) {
     return;
   }
 
-  // Can only remove role after detaching all its policies.
-  if (result.policyArns.length) {
-    await detachPolicies(result.roleName, result.policyArns);
-  }
+  return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'deletion', async (logger) => {
+    // Can only remove role after detaching all its policies.
+    if (result.policyArns.length) {
+      await detachPolicies(logger, result.roleName, result.policyArns);
+    }
 
-  await deleteRole(result.roleName);
+    await deleteRole(logger, result.roleName);
+  });
 };
 
 const getPolicyArns = (roleName: string, policyStates: PolicyState[]) => {
@@ -114,44 +120,45 @@ const getPolicyArns = (roleName: string, policyStates: PolicyState[]) => {
   });
 };
 
-const checkGeneralUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
+const checkGeneralUpdates = async (logger: OperationLogLine, roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   if (candidate.description !== current.description) {
-    await updateRole(roleName, candidate.description);
+    await updateRole(logger, roleName, candidate.description);
   }
 };
 
-const checkDocumentUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
+const checkDocumentUpdates = async (logger: OperationLogLine, roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   const hasChanges = !deepEqual(candidate.roleDocument, current.roleDocument);
 
   if (hasChanges) {
-    await updateAssumeRole(roleName, candidate.roleDocument);
+    await updateAssumeRole(logger, roleName, candidate.roleDocument);
   }
 };
 
-const checkPolicyUpdates = async (roleName: string, newPolicyArns: Arn[], oldPolicyArns: Arn[]) => {
+const checkPolicyUpdates = async (logger: OperationLogLine, roleName: string, newPolicyArns: Arn[], oldPolicyArns: Arn[]) => {
   const newPolicyArnSet = new Set(newPolicyArns);
   const oldPolicyArnSet = new Set(oldPolicyArns);
 
   const policiesToAttach = newPolicyArns.filter((policyArn) => !oldPolicyArnSet.has(policyArn));
   const policiesToDetach = oldPolicyArns.filter((policyArn) => !newPolicyArnSet.has(policyArn));
 
-  await Promise.all([attachPolicies(roleName, policiesToAttach), detachPolicies(roleName, policiesToDetach)]);
+  await attachPolicies(logger, roleName, policiesToAttach);
+  await detachPolicies(logger, roleName, policiesToDetach);
 
   return newPolicyArns;
 };
 
-const checkTagUpdates = async (roleName: string, candidate: RoleParameters, current: RoleParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, roleName: string, candidate: RoleParameters, current: RoleParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagRole(roleName, tags),
-    (tags) => untagRole(roleName, tags)
+    (tags) => tagRole(logger, roleName, tags),
+    (tags) => untagRole(logger, roleName, tags)
   );
 };
 
-const attachPolicies = async (roleName: string, policyArns: Arn[]) => {
+const attachPolicies = async (logger: OperationLogLine, roleName: string, policyArns: Arn[]) => {
   const operations = policyArns.map(async (policyArn) => {
-    await attachPolicy(roleName, policyArn);
+    await attachPolicy(logger, roleName, policyArn);
 
     return policyArn;
   });
@@ -159,9 +166,9 @@ const attachPolicies = async (roleName: string, policyArns: Arn[]) => {
   return Promise.all(operations);
 };
 
-const detachPolicies = async (roleName: string, policyArns: Arn[]) => {
+const detachPolicies = async (logger: OperationLogLine, roleName: string, policyArns: Arn[]) => {
   const operations = policyArns.map(async (policyArn) => {
-    await detachPolicy(roleName, policyArn);
+    await detachPolicy(logger, roleName, policyArn);
 
     return policyArn;
   });

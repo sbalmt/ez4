@@ -1,7 +1,7 @@
-import type { Arn } from '@ez4/aws-common';
+import type { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   GetRoutesCommand,
   CreateRouteCommand,
   UpdateRouteCommand,
@@ -10,11 +10,8 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, waitCreation, waitDeletion } from '@ez4/aws-common';
-
-import { RouteServiceName } from './types';
-
-const client = new ApiGatewayV2Client({});
+import { waitCreation, waitDeletion } from '@ez4/aws-common';
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   routePath: string;
@@ -30,8 +27,14 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = Partial<CreateRequest>;
 
-export const importRoute = async (apiId: string, routePath: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(RouteServiceName, routePath);
+export const importRoute = async (
+  logger: OperationLogLine,
+  apiId: string,
+  routePath: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing route`);
+
+  const client = getApiGatewayV2Client();
 
   const response = await client.send(
     new GetRoutesCommand({
@@ -47,7 +50,7 @@ export const importRoute = async (apiId: string, routePath: string): Promise<Imp
   }
 
   const routeId = route.RouteId!;
-  const routeArn = await getRouteArn(apiId, routeId);
+  const routeArn = await getRouteArn(client, apiId, routeId);
 
   return {
     routeArn,
@@ -55,10 +58,12 @@ export const importRoute = async (apiId: string, routePath: string): Promise<Imp
   };
 };
 
-export const createRoute = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  Logger.logCreate(RouteServiceName, request.routePath);
+export const createRoute = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating route`);
 
   const { integrationId, authorizerId, operationName, routePath } = request;
+
+  const client = getApiGatewayV2Client();
 
   // If multiple routes are created at the same time, a conflict error occurs.
   // The `waitCreation` will keep retrying until max attempts.
@@ -78,7 +83,7 @@ export const createRoute = async (apiId: string, request: CreateRequest): Promis
   });
 
   const routeId = response.RouteId!;
-  const routeArn = await getRouteArn(apiId, routeId);
+  const routeArn = await getRouteArn(client, apiId, routeId);
 
   return {
     routeArn,
@@ -86,14 +91,14 @@ export const createRoute = async (apiId: string, request: CreateRequest): Promis
   };
 };
 
-export const updateRoute = async (apiId: string, routeId: string, request: UpdateRequest) => {
-  const { integrationId, authorizerId, operationName, routePath } = request;
+export const updateRoute = async (logger: OperationLogLine, apiId: string, routeId: string, request: UpdateRequest) => {
+  logger.update(`Update route`);
 
-  Logger.logUpdate(RouteServiceName, `${routeId} ${routePath}`);
+  const { integrationId, authorizerId, operationName, routePath } = request;
 
   const authorizationType = authorizerId ? AuthorizationType.CUSTOM : AuthorizationType.NONE;
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateRouteCommand({
       ApiId: apiId,
       RouteId: routeId,
@@ -108,8 +113,10 @@ export const updateRoute = async (apiId: string, routeId: string, request: Updat
   );
 };
 
-export const deleteRoute = async (apiId: string, routeId: string) => {
-  Logger.logDelete(RouteServiceName, routeId);
+export const deleteRoute = async (logger: OperationLogLine, apiId: string, routeId: string) => {
+  logger.update(`Deleting route`);
+
+  const client = getApiGatewayV2Client();
 
   // If the multiple routes being deleted triggers the conflict error,
   // keep retrying until max attempts.
@@ -129,7 +136,7 @@ export const deleteRoute = async (apiId: string, routeId: string) => {
   });
 };
 
-const getRouteArn = async (apiId: string, routeId: string) => {
+const getRouteArn = async (client: ApiGatewayV2Client, apiId: string, routeId: string) => {
   const region = await client.config.region();
 
   return `arn:aws:apigateway:${region}::/apis/${apiId}/routes/${routeId}` as Arn;

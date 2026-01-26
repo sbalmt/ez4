@@ -1,9 +1,7 @@
 import type { OriginRequestPolicyConfig } from '@aws-sdk/client-cloudfront';
-
-import { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   CreateOriginRequestPolicyCommand,
   OriginRequestPolicyCookieBehavior,
   OriginRequestPolicyHeaderBehavior,
@@ -14,9 +12,7 @@ import {
   NoSuchOriginRequestPolicy
 } from '@aws-sdk/client-cloudfront';
 
-import { OriginServiceName } from './types';
-
-const client = new CloudFrontClient({});
+import { getCloudFrontClient } from '../utils/deploy';
 
 export type CreateRequest = {
   policyName: string;
@@ -31,10 +27,10 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createOriginPolicy = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(OriginServiceName, request.policyName);
+export const createOriginPolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating origin policy`);
 
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new CreateOriginRequestPolicyCommand({
       OriginRequestPolicyConfig: {
         ...upsertPolicyRequest(request)
@@ -49,12 +45,12 @@ export const createOriginPolicy = async (request: CreateRequest): Promise<Create
   };
 };
 
-export const updateOriginPolicy = async (policyId: string, request: UpdateRequest) => {
-  Logger.logUpdate(OriginServiceName, request.policyName);
+export const updateOriginPolicy = async (logger: OperationLogLine, policyId: string, request: UpdateRequest) => {
+  logger.update(`Updating origin policy`);
 
-  const version = await getCurrentPolicyVersion(policyId);
+  const version = await getCurrentPolicyVersion(logger, policyId);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new UpdateOriginRequestPolicyCommand({
       Id: policyId,
       IfMatch: version,
@@ -65,13 +61,13 @@ export const updateOriginPolicy = async (policyId: string, request: UpdateReques
   );
 };
 
-export const deleteOriginPolicy = async (policyId: string) => {
-  Logger.logDelete(OriginServiceName, policyId);
+export const deleteOriginPolicy = async (logger: OperationLogLine, policyId: string) => {
+  logger.update(`Deleting origin policy`);
 
   try {
-    const version = await getCurrentPolicyVersion(policyId);
+    const version = await getCurrentPolicyVersion(logger, policyId);
 
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteOriginRequestPolicyCommand({
         Id: policyId,
         IfMatch: version
@@ -88,8 +84,10 @@ export const deleteOriginPolicy = async (policyId: string) => {
   }
 };
 
-const getCurrentPolicyVersion = async (policyId: string) => {
-  const response = await client.send(
+const getCurrentPolicyVersion = async (logger: OperationLogLine, policyId: string) => {
+  logger.update(`Fetching origin policy`);
+
+  const response = await getCloudFrontClient().send(
     new GetOriginRequestPolicyCommand({
       Id: policyId
     })

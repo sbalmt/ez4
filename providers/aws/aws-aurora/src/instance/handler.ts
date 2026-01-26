@@ -1,8 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { InstanceState, InstanceResult, InstanceParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createInstance, deleteInstance, importInstance, tagInstance, untagInstance } from './client';
@@ -47,45 +48,61 @@ const replaceResource = async (candidate: InstanceState, current: InstanceState,
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: InstanceState, context: StepContext): Promise<InstanceResult> => {
+const createResource = (candidate: InstanceState, context: StepContext): Promise<InstanceResult> => {
   const parameters = candidate.parameters;
 
   const clusterName = getClusterName(InstanceServiceName, parameters.instanceName, context);
 
-  const response = (await importInstance(parameters.instanceName)) ?? (await createInstance({ ...parameters, clusterName }));
+  return OperationLogger.logExecution(InstanceServiceName, parameters.instanceName, 'creation', async (logger) => {
+    const response =
+      (await importInstance(logger, parameters.instanceName)) ??
+      (await createInstance(logger, {
+        ...parameters,
+        clusterName
+      }));
 
-  return {
-    instanceName: response.instanceName,
-    instanceArn: response.instanceArn,
-    clusterName
-  };
+    return {
+      instanceName: response.instanceName,
+      instanceArn: response.instanceArn,
+      clusterName
+    };
+  });
 };
 
-const updateResource = async (candidate: InstanceState, current: InstanceState) => {
+const updateResource = (candidate: InstanceState, current: InstanceState): Promise<InstanceResult> => {
   const { result, parameters } = candidate;
+  const { instanceName } = parameters;
+
+  if (!result) {
+    throw new CorruptedResourceError(InstanceServiceName, instanceName);
+  }
+
+  return OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
+
+    return result;
+  });
+};
+
+const deleteResource = async (current: InstanceState) => {
+  const { result } = current;
 
   if (!result) {
     return;
   }
 
-  await checkTagUpdates(result.instanceArn, parameters, current.parameters);
+  const { instanceName } = result;
+
+  await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
+    await deleteInstance(logger, instanceName);
+  });
 };
 
-const deleteResource = async (candidate: InstanceState) => {
-  const { result } = candidate;
-
-  if (!result) {
-    return;
-  }
-
-  await deleteInstance(result.instanceName);
-};
-
-const checkTagUpdates = async (instanceArn: Arn, candidate: InstanceParameters, current: InstanceParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, instanceArn: Arn, candidate: InstanceParameters, current: InstanceParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagInstance(instanceArn, tags),
-    (tags) => untagInstance(instanceArn, tags)
+    (tags) => tagInstance(logger, instanceArn, tags),
+    (tags) => untagInstance(logger, instanceArn, tags)
   );
 };

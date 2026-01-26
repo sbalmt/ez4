@@ -1,7 +1,7 @@
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { buildMetadata } from '../../library/metadata';
@@ -17,7 +17,7 @@ export const generateCommand = async (input: InputOptions, project: ProjectOptio
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths] = await Logger.execute('⚡ Initializing', () => {
+  const [aliasPaths] = await DynamicLogger.logExecution('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadProviders(project)]);
   });
 
@@ -25,7 +25,7 @@ export const generateCommand = async (input: InputOptions, project: ProjectOptio
     arguments: true
   });
 
-  const { metadata } = await Logger.execute('🔄️ Loading metadata', () => {
+  const { metadata } = await DynamicLogger.logExecution('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
       aliasPaths
     });
@@ -33,7 +33,7 @@ export const generateCommand = async (input: InputOptions, project: ProjectOptio
 
   const parameters = input.arguments ?? [];
 
-  await Logger.execute('📦 Generating resources', () => {
+  await DynamicLogger.logExecution('📦 Generating resources', () => {
     return generateResources(parameters, metadata, options);
   });
 };

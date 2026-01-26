@@ -1,29 +1,19 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
-  ACMClient,
   DescribeCertificateCommand,
   RequestCertificateCommand,
   DeleteCertificateCommand,
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
-  ValidationMethod,
   ResourceNotFoundException,
-  waitUntilCertificateValidated
+  waitUntilCertificateValidated,
+  ValidationMethod
 } from '@aws-sdk/client-acm';
 
-import { CertificateServiceName } from './types';
-
-const client = new ACMClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
+import { getACMClient, getACMWaiter } from '../utils/deploy';
 
 export type CreateRequest = {
   domainName: string;
@@ -34,12 +24,10 @@ export type CreateResponse = {
   certificateArn: Arn;
 };
 
-export const isCertificateInUse = async (certificateArn: string) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+export const isCertificateInUse = async (logger: OperationLogLine, certificateArn: string) => {
+  logger.update(`Fetching  certificate`);
 
-  Logger.logFetch(CertificateServiceName, certificateName);
-
-  const response = await client.send(
+  const response = await getACMClient().send(
     new DescribeCertificateCommand({
       CertificateArn: certificateArn
     })
@@ -48,10 +36,12 @@ export const isCertificateInUse = async (certificateArn: string) => {
   return !!response.Certificate?.InUseBy?.length;
 };
 
-export const createCertificate = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createCertificate = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating certificate`);
+
   const { domainName } = request;
 
-  Logger.logCreate(CertificateServiceName, domainName);
+  const client = getACMClient();
 
   const response = await client.send(
     new RequestCertificateCommand({
@@ -66,9 +56,7 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
 
   const certificateArn = response.CertificateArn as Arn;
 
-  Logger.logWait(CertificateServiceName, domainName);
-
-  await waitUntilCertificateValidated(waiter, {
+  await waitUntilCertificateValidated(getACMWaiter(client), {
     CertificateArn: certificateArn
   });
 
@@ -77,13 +65,11 @@ export const createCertificate = async (request: CreateRequest): Promise<CreateR
   };
 };
 
-export const deleteCertificate = async (certificateArn: string) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
-
-  Logger.logDelete(CertificateServiceName, certificateName);
+export const deleteCertificate = async (certificateArn: string, logger: OperationLogLine) => {
+  logger.update(`Deleting certificate`);
 
   try {
-    await client.send(
+    await getACMClient().send(
       new DeleteCertificateCommand({
         CertificateArn: certificateArn
       })
@@ -99,12 +85,10 @@ export const deleteCertificate = async (certificateArn: string) => {
   }
 };
 
-export const tagCertificate = async (certificateArn: string, tags: ResourceTags) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+export const tagCertificate = async (logger: OperationLogLine, certificateArn: string, tags: ResourceTags) => {
+  logger.update(`Tag certificate`);
 
-  Logger.logTag(CertificateServiceName, certificateName);
-
-  await client.send(
+  await getACMClient().send(
     new AddTagsToCertificateCommand({
       CertificateArn: certificateArn,
       Tags: getTagList({
@@ -115,12 +99,10 @@ export const tagCertificate = async (certificateArn: string, tags: ResourceTags)
   );
 };
 
-export const untagCertificate = async (certificateArn: string, tagKeys: string[]) => {
-  const certificateName = tryParseArn(certificateArn)?.resourceName ?? certificateArn;
+export const untagCertificate = async (logger: OperationLogLine, certificateArn: string, tagKeys: string[]) => {
+  logger.update(`Untag certificate`);
 
-  Logger.logTag(CertificateServiceName, certificateName);
-
-  await client.send(
+  await getACMClient().send(
     new RemoveTagsFromCertificateCommand({
       CertificateArn: certificateArn,
       Tags: tagKeys.map((tagKey) => ({

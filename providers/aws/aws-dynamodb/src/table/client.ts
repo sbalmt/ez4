@@ -1,10 +1,9 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { AttributeSchemaGroup } from '../types/schema';
 
-import { getTagList, Logger, tryParseArn, waitDeletion } from '@ez4/aws-common';
+import { getTagList, waitDeletion } from '@ez4/aws-common';
 
 import {
-  DynamoDBClient,
   DescribeTableCommand,
   CreateTableCommand,
   UpdateTableCommand,
@@ -19,19 +18,10 @@ import {
   BillingMode
 } from '@aws-sdk/client-dynamodb';
 
-import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema';
+import { getDynamoDBClient, getDynamoDBWaiter } from '../utils/deploy';
 import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex } from './helpers/indexes';
+import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema';
 import { waitForTimeToLive } from './helpers/ttl';
-import { TableServiceName } from './types';
-
-const client = new DynamoDBClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 3600,
-  maxDelay: 60,
-  client
-};
 
 export type CapacityUnits = {
   maxReadUnits: number;
@@ -63,8 +53,8 @@ export type UpdateTimeToLiveRequest = {
   attributeName: string;
 };
 
-export const createTable = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(TableServiceName, request.tableName);
+export const createTable = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating table`);
 
   const { attributeSchema, capacityUnits, enableStreams } = request;
 
@@ -74,6 +64,8 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   const maxRU = capacityUnits?.maxReadUnits;
 
   const hasMaximumRWU = maxWU && maxRU;
+
+  const client = getDynamoDBClient();
 
   const response = await client.send(
     new CreateTableCommand({
@@ -107,9 +99,7 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   const tableDescription = response.TableDescription!;
   const tableName = tableDescription.TableName!;
 
-  Logger.logWait(TableServiceName, tableName);
-
-  await waitUntilTableExists(waiter, {
+  await waitUntilTableExists(getDynamoDBWaiter(client), {
     TableName: tableName
   });
 
@@ -120,10 +110,10 @@ export const createTable = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const updateStreams = async (tableName: string, enableStreams: boolean) => {
-  Logger.logUpdate(TableServiceName, tableName);
+export const updateStreams = async (logger: OperationLogLine, tableName: string, enableStreams: boolean) => {
+  logger.update(`Updating table event stream`);
 
-  const response = await client.send(
+  const response = await getDynamoDBClient().send(
     new UpdateTableCommand({
       TableName: tableName,
       StreamSpecification: {
@@ -142,10 +132,10 @@ export const updateStreams = async (tableName: string, enableStreams: boolean) =
   };
 };
 
-export const updateCapacity = async (tableName: string, request: CapacityUnits | undefined) => {
-  Logger.logUpdate(TableServiceName, tableName);
+export const updateCapacity = async (logger: OperationLogLine, tableName: string, request: CapacityUnits | undefined) => {
+  logger.update(`Updating table capacity`);
 
-  await client.send(
+  await getDynamoDBClient().send(
     new UpdateTableCommand({
       TableName: tableName,
       BillingMode: BillingMode.PAY_PER_REQUEST,
@@ -157,10 +147,10 @@ export const updateCapacity = async (tableName: string, request: CapacityUnits |
   );
 };
 
-export const updateDeletion = async (tableName: string, allowDeletion: boolean) => {
-  Logger.logUpdate(TableServiceName, tableName);
+export const updateDeletion = async (logger: OperationLogLine, tableName: string, allowDeletion: boolean) => {
+  logger.update(`Updating deletion protection`);
 
-  await client.send(
+  await getDynamoDBClient().send(
     new UpdateTableCommand({
       TableName: tableName,
       DeletionProtectionEnabled: !allowDeletion
@@ -168,10 +158,12 @@ export const updateDeletion = async (tableName: string, allowDeletion: boolean) 
   );
 };
 
-export const updateTimeToLive = async (tableName: string, request: UpdateTimeToLiveRequest) => {
-  Logger.logUpdate(TableServiceName, tableName);
+export const updateTimeToLive = async (logger: OperationLogLine, tableName: string, request: UpdateTimeToLiveRequest) => {
+  logger.update(`Updating table TTL`);
 
   const { enabled, attributeName } = request;
+
+  const client = getDynamoDBClient();
 
   await client.send(
     new UpdateTimeToLiveCommand({
@@ -186,13 +178,13 @@ export const updateTimeToLive = async (tableName: string, request: UpdateTimeToL
   await waitForTimeToLive(client, tableName);
 };
 
-export const importIndex = async (tableName: string, request: AttributeSchemaGroup) => {
+export const importIndex = async (logger: OperationLogLine, tableName: string, request: AttributeSchemaGroup) => {
   const indexName = getSecondaryIndexName(request);
 
-  Logger.logImport(TableServiceName, `${tableName} global index ${indexName}`);
+  logger.update(`Importing global index ${indexName}`);
 
   try {
-    const response = await client.send(
+    const response = await getDynamoDBClient().send(
       new DescribeTableCommand({
         TableName: tableName
       })
@@ -210,12 +202,13 @@ export const importIndex = async (tableName: string, request: AttributeSchemaGro
   }
 };
 
-export const createIndex = async (tableName: string, request: AttributeSchemaGroup) => {
+export const createIndex = async (logger: OperationLogLine, tableName: string, request: AttributeSchemaGroup) => {
   const [globalIndex] = getSecondaryIndexes(request);
 
   const indexName = globalIndex.IndexName!;
+  const client = getDynamoDBClient();
 
-  Logger.logCreate(TableServiceName, `${tableName} global index ${indexName}`);
+  logger.update(`Creating global index ${indexName}`);
 
   await client.send(
     new UpdateTableCommand({
@@ -229,17 +222,14 @@ export const createIndex = async (tableName: string, request: AttributeSchemaGro
     })
   );
 
-  Logger.logWait(TableServiceName, `${tableName} global index ${indexName}`);
-
   await waitForSecondaryIndex(client, tableName, indexName);
 };
 
-export const deleteIndex = async (tableName: string, request: AttributeSchemaGroup) => {
-  const [globalIndex] = getSecondaryIndexes(request);
+export const deleteIndex = async (logger: OperationLogLine, tableName: string, request: AttributeSchemaGroup) => {
+  const indexName = getSecondaryIndexName(request);
+  const client = getDynamoDBClient();
 
-  const indexName = globalIndex.IndexName!;
-
-  Logger.logDelete(TableServiceName, `${tableName} global index ${indexName}`);
+  logger.update(`Deleting global index ${indexName}`);
 
   try {
     await client.send(
@@ -255,8 +245,6 @@ export const deleteIndex = async (tableName: string, request: AttributeSchemaGro
       })
     );
 
-    Logger.logWait(TableServiceName, `${tableName} index ${indexName}`);
-
     await waitForSecondaryIndex(client, tableName, indexName);
 
     return true;
@@ -269,12 +257,10 @@ export const deleteIndex = async (tableName: string, request: AttributeSchemaGro
   }
 };
 
-export const tagTable = async (tableArn: string, tags: ResourceTags) => {
-  const tableName = tryParseArn(tableArn)?.resourceName ?? tableArn;
+export const tagTable = async (logger: OperationLogLine, tableArn: string, tags: ResourceTags) => {
+  logger.update(`Tag table`);
 
-  Logger.logTag(TableServiceName, tableName);
-
-  await client.send(
+  await getDynamoDBClient().send(
     new TagResourceCommand({
       ResourceArn: tableArn,
       Tags: getTagList({
@@ -285,12 +271,10 @@ export const tagTable = async (tableArn: string, tags: ResourceTags) => {
   );
 };
 
-export const untagTable = async (tableArn: Arn, tagKeys: string[]) => {
-  const tableName = tryParseArn(tableArn)?.resourceName ?? tableArn;
+export const untagTable = async (logger: OperationLogLine, tableArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag table`);
 
-  Logger.logUntag(TableServiceName, tableName);
-
-  await client.send(
+  await getDynamoDBClient().send(
     new UntagResourceCommand({
       ResourceArn: tableArn,
       TagKeys: tagKeys
@@ -298,8 +282,10 @@ export const untagTable = async (tableArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteTable = async (tableName: string) => {
-  Logger.logDelete(TableServiceName, tableName);
+export const deleteTable = async (logger: OperationLogLine, tableName: string) => {
+  logger.update(`Deleting table`);
+
+  const client = getDynamoDBClient();
 
   // If the table is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
@@ -317,9 +303,7 @@ export const deleteTable = async (tableName: string) => {
     }
   });
 
-  Logger.logWait(TableServiceName, tableName);
-
-  await waitUntilTableNotExists(waiter, {
+  await waitUntilTableNotExists(getDynamoDBWaiter(client), {
     TableName: tableName
   });
 };

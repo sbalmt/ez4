@@ -5,14 +5,14 @@ import { loadProviders } from '../../config/providers';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getGeneratorOptions } from '../../generator/options';
 import { getGeneratorsUsageHelp } from '../../generator/help';
-import { Logger } from '../../utils/logger';
-import { toBold } from '../../utils/format';
+
+import { Logger, LogFormat } from '@ez4/logger';
 
 const HELP_LINES = [
-  toBold('Usage:'),
+  LogFormat.toBold('Usage:'),
   '  ez4 [command] [options] [ -p ez4.project.js ] [ -- arguments ]',
   '',
-  toBold('Commands:'),
+  LogFormat.toBold('Commands:'),
   '  deploy    Create and publish all resources for the given project',
   '  destroy   Remove all resources from the last deploy for the given project',
   '  output    Display the last deploy output for the given project',
@@ -22,7 +22,7 @@ const HELP_LINES = [
   '  test      Run test suites for the given project',
   '  help      Display the command line options',
   '',
-  toBold('Options:'),
+  LogFormat.toBold('Options:'),
   '  --                 Specify test patterns, scripts to run, or generator arguments',
   '  --project, -p      Specify the project configuration file (Default is ez4.project.js)',
   '  --environment, -e  Specify the environment variables file to load',
@@ -41,7 +41,7 @@ export const helpCommand = async (input: InputOptions, project: ProjectOptions) 
   await generatorsHelp(input, project);
 
   if (warnUnsupportedFlags(input)) {
-    Logger.log('');
+    Logger.space();
   }
 };
 
@@ -69,10 +69,8 @@ const generatorsHelp = async (input: InputOptions, project: ProjectOptions) => {
   }
 
   if (helpLines.length) {
-    Logger.log(toBold('Generators:'));
-
+    Logger.log(LogFormat.toBold('Generators:'));
     helpLines.forEach((line) => Logger.log(line));
-
-    Logger.log('');
+    Logger.space();
   }
 };

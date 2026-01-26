@@ -2,7 +2,7 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { applyDeploy } from '../../deploy/apply';
 import { getEventContext } from '../../deploy/context';
@@ -28,12 +28,12 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+  const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
   if (options.force) {
-    Logger.log('‼️  Force option is enabled');
+    Logger.log('❗ Force option is enabled');
   }
 
   warnUnsupportedFlags(input, {
@@ -42,13 +42,13 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
 
   options.imports = allImports;
 
-  const { metadata, dependencies } = await Logger.execute('🔄️ Loading metadata', () => {
+  const { metadata, dependencies } = await DynamicLogger.logExecution('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
       aliasPaths
     });
   });
 
-  const oldState = await Logger.execute('🔄️ Loading state', () => {
+  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
     return loadState(project.stateFile, options);
   });
 
@@ -81,9 +81,9 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     }
   }
 
-  const deployState = await applyDeploy(newState, oldState, options.force);
+  const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
 
-  await Logger.execute('✅ Saving state', () => {
+  await DynamicLogger.logExecution('✅ Saving state', () => {
     return saveState(project.stateFile, options, deployState.result);
   });
 

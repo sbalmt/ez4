@@ -1,8 +1,9 @@
-import type { AnySchema, EnumSchemaOption, ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { AnySchema, EnumSchema, ObjectSchema, ObjectSchemaProperties, ScalarSchema } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
-import { isEnumSchema } from '@ez4/schema';
+import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
+import { isNotNullish } from '@ez4/utils';
 
 import { getCheckConstraintQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
@@ -14,16 +15,14 @@ export namespace ConstraintQuery {
     for (const columnName in columns) {
       const columnSchema = columns[columnName];
 
-      if (!isEnumSchema(columnSchema)) {
-        continue;
+      if (isEnumSchema(columnSchema) || (isScalarSchema(columnSchema) && isNotNullish(columnSchema.definitions?.value))) {
+        const name = getConstraintName(table, columnName);
+
+        statements.push({
+          check: getCheckConstraintQuery(builder, name),
+          query: getCreateQuery(builder, table, name, columnName, columnSchema).build()
+        });
       }
-
-      const name = getConstraintName(table, columnName);
-
-      statements.push({
-        check: getCheckConstraintQuery(builder, name),
-        query: getCreateQuery(builder, table, name, columnName, columnSchema.options).build()
-      });
     }
 
     return statements;
@@ -41,10 +40,10 @@ export namespace ConstraintQuery {
     for (const columnName in changes) {
       const { update, create, remove } = changes[columnName];
 
-      if (remove) {
+      if (remove || update) {
         const schema = sourceSchema.properties[columnName];
 
-        if (isEnumSchema(schema)) {
+        if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
 
           statements.push({
@@ -53,33 +52,15 @@ export namespace ConstraintQuery {
         }
       }
 
-      if (update) {
-        const source = sourceSchema.properties[columnName];
-        const target = targetSchema.properties[columnName];
-
-        if (isEnumSchema(source) && isEnumSchema(target)) {
-          const name = getConstraintName(table, columnName);
-
-          statements.push(
-            {
-              query: getDeleteQuery(builder, table, name).build()
-            },
-            {
-              query: getCreateQuery(builder, table, name, columnName, target.options).build()
-            }
-          );
-        }
-      }
-
-      if (create) {
+      if (create || update) {
         const schema = targetSchema.properties[columnName];
 
-        if (isEnumSchema(schema)) {
+        if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
 
           statements.push({
             check: getCheckConstraintQuery(builder, name),
-            query: getCreateQuery(builder, table, name, columnName, schema.options).build()
+            query: getCreateQuery(builder, table, name, columnName, schema).build()
           });
         }
       }
@@ -94,19 +75,17 @@ export namespace ConstraintQuery {
     for (const columnName in columns) {
       const columnSchema = columns[columnName];
 
-      if (!isEnumSchema(columnSchema)) {
-        continue;
+      if (isConstrainedSchema(columnSchema)) {
+        const oldName = getConstraintName(fromTable, columnName);
+        const newName = getConstraintName(toTable, columnName);
+
+        const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
+
+        statements.push({
+          check: getCheckConstraintQuery(builder, newName),
+          query: query.build()
+        });
       }
-
-      const oldName = getConstraintName(fromTable, columnName);
-      const newName = getConstraintName(toTable, columnName);
-
-      const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
-
-      statements.push({
-        check: getCheckConstraintQuery(builder, newName),
-        query: query.build()
-      });
     }
 
     return statements;
@@ -124,19 +103,17 @@ export namespace ConstraintQuery {
       const toColum = changes[fromColumn];
       const toSchema = columns[toColum];
 
-      if (!isEnumSchema(toSchema)) {
-        continue;
+      if (isConstrainedSchema(toSchema)) {
+        const oldName = getConstraintName(table, fromColumn);
+        const newName = getConstraintName(table, toColum);
+
+        const query = builder.table(table).alter().existing().constraint(oldName).rename(newName);
+
+        statements.push({
+          check: getCheckConstraintQuery(builder, newName),
+          query: query.build()
+        });
       }
-
-      const oldName = getConstraintName(table, fromColumn);
-      const newName = getConstraintName(table, toColum);
-
-      const query = builder.table(table).alter().existing().constraint(oldName).rename(newName);
-
-      statements.push({
-        check: getCheckConstraintQuery(builder, newName),
-        query: query.build()
-      });
     }
 
     return statements;
@@ -148,36 +125,55 @@ export namespace ConstraintQuery {
     for (const columnName in columns) {
       const columnSchema = columns[columnName];
 
-      if (!isEnumSchema(columnSchema)) {
-        continue;
+      if (isConstrainedSchema(columnSchema)) {
+        const name = getConstraintName(table, columnName);
+
+        statements.push({
+          query: getDeleteQuery(builder, table, name).build()
+        });
       }
-
-      const name = getConstraintName(table, columnName);
-
-      statements.push({
-        query: getDeleteQuery(builder, table, name).build()
-      });
     }
 
     return statements;
+  };
+
+  const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {
+    return isEnumSchema(schema) || (isScalarSchema(schema) && isNotNullish(schema.definitions?.value));
   };
 
   const getDeleteQuery = (builder: SqlBuilder, table: string, name: string) => {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
-  const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, options: EnumSchemaOption[]) => {
-    const values = options.map(({ value }) => `${value}`);
+  const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, schema: EnumSchema | ScalarSchema) => {
+    const query = builder.table(table).alter().existing().constraint(name);
 
-    return builder
-      .table(table)
-      .alter()
-      .existing()
-      .constraint(name)
-      .check({
-        [column]: {
-          isIn: values
-        }
-      });
+    switch (schema.type) {
+      case SchemaType.Enum: {
+        const values = schema.options.map(({ value }) => `${value}`);
+
+        query.check({
+          [column]: {
+            isIn: values
+          }
+        });
+
+        break;
+      }
+
+      case SchemaType.Boolean:
+      case SchemaType.Number:
+      case SchemaType.String: {
+        query.check({
+          [column]: {
+            equal: schema.definitions?.value
+          }
+        });
+
+        break;
+      }
+    }
+
+    return query;
   };
 }

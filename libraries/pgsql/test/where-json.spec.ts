@@ -239,20 +239,18 @@ describe('sql where json tests', () => {
       .from('test')
       .where({
         foo: {
-          isIn: ['abc']
+          isIn: [['abc'], ['def']]
         },
         bar: {
-          isIn: {
-            abc: 123
-          }
+          isIn: [{ abc: 123 }]
         }
       });
 
     const [statement, variables] = query.build();
 
-    assert.deepEqual(variables, [['abc'], { abc: 123 }]);
+    assert.deepEqual(variables, [['abc'], ['def'], { abc: 123 }]);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" <@ :0 AND "bar" <@ :1`);
+    assert.equal(statement, `SELECT * FROM "test" WHERE ("foo" <@ :0 OR "foo" <@ :1) AND ("bar" <@ :2)`);
   });
 
   it('assert :: where is between (with json value)', ({ assert }) => {

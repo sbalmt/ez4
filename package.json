@@ -13,6 +13,7 @@
     "foundation/utils",
     "foundation/stateful",
     "foundation/reflection",
+    "foundation/logger",
     "foundation/project",
     "foundation/common",
     "foundation/schema",

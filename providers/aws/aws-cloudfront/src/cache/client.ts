@@ -1,9 +1,7 @@
 import type { CachePolicyConfig } from '@aws-sdk/client-cloudfront';
-
-import { Logger } from '@ez4/aws-common';
+import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   GetCachePolicyCommand,
   CreateCachePolicyCommand,
   UpdateCachePolicyCommand,
@@ -14,9 +12,7 @@ import {
   NoSuchCachePolicy
 } from '@aws-sdk/client-cloudfront';
 
-import { CacheServiceName } from './types';
-
-const client = new CloudFrontClient({});
+import { getCloudFrontClient } from '../utils/deploy';
 
 export type CacheKeys = {
   headers?: string[];
@@ -42,10 +38,10 @@ export type UpdateRequest = CreateRequest;
 
 export type UpdateResponse = CreateResponse;
 
-export const createCachePolicy = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(CacheServiceName, request.policyName);
+export const createCachePolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating cache policy`);
 
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new CreateCachePolicyCommand({
       CachePolicyConfig: {
         ...upsertPolicyRequest(request)
@@ -60,12 +56,12 @@ export const createCachePolicy = async (request: CreateRequest): Promise<CreateR
   };
 };
 
-export const updateCachePolicy = async (policyId: string, request: UpdateRequest) => {
-  Logger.logUpdate(CacheServiceName, request.policyName);
+export const updateCachePolicy = async (logger: OperationLogLine, policyId: string, request: UpdateRequest) => {
+  logger.update(`Updating cache policy`);
 
   const version = await getCurrentPolicyVersion(policyId);
 
-  await client.send(
+  await getCloudFrontClient().send(
     new UpdateCachePolicyCommand({
       Id: policyId,
       IfMatch: version,
@@ -76,13 +72,13 @@ export const updateCachePolicy = async (policyId: string, request: UpdateRequest
   );
 };
 
-export const deleteCachePolicy = async (policyId: string) => {
-  Logger.logDelete(CacheServiceName, policyId);
+export const deleteCachePolicy = async (logger: OperationLogLine, policyId: string) => {
+  logger.update(`Deleting cache policy`);
 
   try {
     const version = await getCurrentPolicyVersion(policyId);
 
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteCachePolicyCommand({
         Id: policyId,
         IfMatch: version
@@ -100,7 +96,7 @@ export const deleteCachePolicy = async (policyId: string) => {
 };
 
 const getCurrentPolicyVersion = async (policyId: string) => {
-  const response = await client.send(
+  const response = await getCloudFrontClient().send(
     new GetCachePolicyCommand({
       Id: policyId
     })

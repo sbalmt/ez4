@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { LogPolicyResult, LogPolicyState } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 
 import { getLogGroupArn } from '../group/utils';
 import { attachPolicy, detachPolicy } from './client';
@@ -33,27 +33,32 @@ const replaceResource = async (candidate: LogPolicyState, current: LogPolicyStat
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: LogPolicyState, context: StepContext): Promise<LogPolicyResult> => {
-  const parameters = candidate.parameters;
+const createResource = (candidate: LogPolicyState, context: StepContext): Promise<LogPolicyResult> => {
+  const { parameters } = candidate;
 
-  const groupArn = getLogGroupArn(LogPolicyServiceName, 'policy', context);
-  const permissions = await parameters.policyGetter(context);
+  return OperationLogger.logExecution(LogPolicyServiceName, parameters.fromService, 'creation', async (logger) => {
+    const groupArn = getLogGroupArn(LogPolicyServiceName, 'policy', context);
+    const permissions = await parameters.policyGetter(context);
 
-  const { revisionId } = await attachPolicy(groupArn, permissions);
+    const { revisionId } = await attachPolicy(logger, groupArn, permissions);
 
-  return {
-    revisionId,
-    groupArn
-  };
+    return {
+      revisionId,
+      groupArn
+    };
+  });
 };
 
 const updateResource = async () => {};
 
-const deleteResource = async ({ result }: LogPolicyState) => {
-  const revisionId = result?.revisionId;
-  const groupArn = result?.groupArn;
+const deleteResource = async (current: LogPolicyState) => {
+  const { result, parameters } = current;
 
-  if (groupArn && revisionId) {
-    await detachPolicy(groupArn, revisionId);
+  if (!result) {
+    return;
   }
+
+  await OperationLogger.logExecution(LogPolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
+    await detachPolicy(logger, result.groupArn, result.revisionId);
+  });
 };

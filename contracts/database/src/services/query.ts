@@ -19,7 +19,6 @@ import type {
   IsUndefined,
   IsObjectEmpty,
   IsObject,
-  IsArray,
   Prettify
 } from '@ez4/utils';
 
@@ -300,7 +299,7 @@ export namespace Query {
     /**
      * Check whether the entity value is in the given ones.
      */
-    isIn: IsArray<V> extends true ? V : IsObject<V> extends true ? V : Exclude<V, undefined>[];
+    isIn: Exclude<V, undefined>[];
   };
 
   type WhereBetween<V> = {
@@ -333,7 +332,7 @@ export namespace Query {
 
   type WhereContains<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
     /**
-     * Check whether the entity value contains all the given ones.
+     * Check whether the entity value contains the given one.
      */
     contains: IsObject<V> extends true ? Partial<V> : V;
   };

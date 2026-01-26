@@ -3,8 +3,8 @@ import type { ServiceEmulators } from '../emulator/service';
 import type { EmulatorResponse } from '../emulator/types';
 import type { ServeOptions } from '../types/options';
 
-import { toRed } from '../utils/format';
-import { Logger } from '../utils/logger';
+import { Logger, LogFormat, LogColor } from '@ez4/logger';
+
 import { getIncomingService } from './incoming';
 
 export const requestHandler = (request: IncomingMessage, stream: ServerResponse, emulators: ServiceEmulators, options: ServeOptions) => {
@@ -70,7 +70,7 @@ const sendSuccessResponse = (stream: ServerResponse<IncomingMessage>, request: I
 };
 
 const sendErrorResponse = (stream: ServerResponse<IncomingMessage>, request: IncomingMessage, status: number, message: string) => {
-  Logger.log(toRed(`⬅️  ${status} ${request.url ?? '/'}`));
+  Logger.log(LogFormat.toColor(LogColor.Red, `⬅️  ${status} ${request.url ?? '/'}`));
 
   writeResponse(stream, {
     status,

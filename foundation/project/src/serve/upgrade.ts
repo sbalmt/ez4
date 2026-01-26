@@ -3,12 +3,11 @@ import type { Stream } from 'node:stream';
 import type { ServiceEmulators } from '../emulator/service';
 import type { ServeOptions } from '../types/options';
 
+import { Logger, LogFormat, LogColor } from '@ez4/logger';
 import { getRandomUUID } from '@ez4/utils';
 
 import { createHash } from 'node:crypto';
 
-import { toRed } from '../utils/format';
-import { Logger } from '../utils/logger';
 import { WebSocketFrame, WebSocketOpcode } from '../utils/websocket';
 import { getIncomingService } from './incoming';
 
@@ -154,7 +153,6 @@ export const upgradeHandler = async (
 
   socket.on('end', async () => {
     Logger.log(`🟥 WS connection closed [${emulator.name}]`);
-
     await connection.close();
   });
 };
@@ -175,7 +173,7 @@ const sendSuccessResponse = (socket: Stream.Duplex, request: IncomingMessage, st
 };
 
 const sendErrorResponse = (socket: Stream.Duplex, request: IncomingMessage, status: number, message: string) => {
-  Logger.log(toRed(`⬅️  ${status} ${request.url ?? '/'}`));
+  Logger.log(LogFormat.toColor(LogColor.Red, `⬅️  ${status} ${request.url ?? '/'}`));
 
   const body = JSON.stringify({
     type: 'error',

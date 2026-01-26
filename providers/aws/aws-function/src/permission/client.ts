@@ -1,11 +1,8 @@
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { Arn } from '@ez4/aws-common';
 
-import { LambdaClient, AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
-import { Logger } from '@ez4/aws-common';
-
-import { PermissionServiceName } from './types';
-
-const client = new LambdaClient({});
+import { AddPermissionCommand, RemovePermissionCommand, ResourceNotFoundException } from '@aws-sdk/client-lambda';
+import { getLambdaClient } from '../utils/deploy';
 
 export type CreateRequest = {
   functionName: string;
@@ -19,12 +16,12 @@ export type CreateResponse = {
   statementId: string;
 };
 
-export const createPermission = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(PermissionServiceName, request.functionName);
+export const createPermission = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating permission`);
 
   const statementId = request.statementId ?? `ID${Date.now()}`;
 
-  await client.send(
+  await getLambdaClient().send(
     new AddPermissionCommand({
       StatementId: statementId,
       FunctionName: request.functionName,
@@ -39,11 +36,11 @@ export const createPermission = async (request: CreateRequest): Promise<CreateRe
   };
 };
 
-export const deletePermission = async (functionName: string, statementId: string) => {
-  Logger.logDelete(PermissionServiceName, functionName);
+export const deletePermission = async (logger: OperationLogLine, functionName: string, statementId: string) => {
+  logger.update(`Deleting permission`);
 
   try {
-    await client.send(
+    await getLambdaClient().send(
       new RemovePermissionCommand({
         FunctionName: functionName,
         StatementId: statementId

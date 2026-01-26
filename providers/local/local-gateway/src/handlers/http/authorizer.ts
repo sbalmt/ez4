@@ -6,8 +6,8 @@ import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { resolveValidation } from '@ez4/gateway/utils';
-import { Runtime } from '@ez4/common/runtime';
 import { getRandomUUID } from '@ez4/utils';
+import { Runtime } from '@ez4/common';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../../utils/request';
 
@@ -25,6 +25,12 @@ export const processHttpAuthorization = async (
   const services = provider?.services ?? {};
 
   const clients = await context.makeClients(services);
+  const traceId = getRandomUUID();
+
+  Runtime.setScope({
+    isLocal: true,
+    traceId
+  });
 
   const module = await createModule({
     listener: route.listener ?? service.defaults?.listener,
@@ -38,8 +44,6 @@ export const processHttpAuthorization = async (
     }
   });
 
-  const traceId = getRandomUUID();
-
   const request: Http.Incoming<Http.AuthRequest> = {
     requestId: getRandomUUID(),
     timestamp: new Date(),
@@ -51,11 +55,6 @@ export const processHttpAuthorization = async (
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
     return resolveValidation(value, clients, context.type);
   };
-
-  Runtime.setScope({
-    isLocal: true,
-    traceId
-  });
 
   try {
     await onBegin(module, clients, request);

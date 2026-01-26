@@ -1,8 +1,7 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { QueueAttributeName } from '@aws-sdk/client-sqs';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import {
-  SQSClient,
   GetQueueUrlCommand,
   CreateQueueCommand,
   DeleteQueueCommand,
@@ -12,13 +11,10 @@ import {
   QueueDoesNotExist
 } from '@aws-sdk/client-sqs';
 
-import { Logger, waitCreation } from '@ez4/aws-common';
+import { waitCreation } from '@ez4/aws-common';
 import { isEmptyObject } from '@ez4/utils';
 
-import { parseQueueUrl } from './helpers/url';
-import { QueueServiceName } from './types';
-
-const client = new SQSClient({});
+import { getSQSClient } from '../utils/deploy';
 
 export type DeadLetter = {
   targetQueueArn: Arn;
@@ -42,10 +38,10 @@ export type CreateResponse = {
 
 export type UpdateRequest = Pick<CreateRequest, 'timeout' | 'retention' | 'polling' | 'delay' | 'deadLetter'>;
 
-export const fetchQueue = async (queueName: string) => {
-  Logger.logFetch(QueueServiceName, queueName);
+export const fetchQueue = async (logger: OperationLogLine, queueName: string) => {
+  logger.update(`Fetching queue`);
 
-  const response = await client.send(
+  const response = await getSQSClient().send(
     new GetQueueUrlCommand({
       QueueName: queueName
     })
@@ -56,10 +52,12 @@ export const fetchQueue = async (queueName: string) => {
   };
 };
 
-export const createQueue = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createQueue = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating queue`);
+
   const { queueName, fifoMode } = request;
 
-  Logger.logCreate(QueueServiceName, queueName);
+  const client = getSQSClient();
 
   // If the queue was deleted less than 1 minute ago, the creation will fail.
   // The `waitCreation` will keep retrying until max attempts.
@@ -89,10 +87,8 @@ export const createQueue = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logUpdate(QueueServiceName, queueName);
+export const updateQueue = async (logger: OperationLogLine, queueUrl: string, request: UpdateRequest) => {
+  logger.update(`Updating queue`);
 
   const attributes = upsertQueueAttributes(request);
 
@@ -100,7 +96,7 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
     return;
   }
 
-  await client.send(
+  await getSQSClient().send(
     new SetQueueAttributesCommand({
       QueueUrl: queueUrl,
       Attributes: attributes
@@ -108,12 +104,10 @@ export const updateQueue = async (queueUrl: string, request: UpdateRequest) => {
   );
 };
 
-export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
-  const { queueName } = parseQueueUrl(queueUrl);
+export const tagQueue = async (logger: OperationLogLine, queueUrl: string, tags: ResourceTags) => {
+  logger.update(`Tag queue`);
 
-  Logger.logTag(QueueServiceName, queueName);
-
-  await client.send(
+  await getSQSClient().send(
     new TagQueueCommand({
       QueueUrl: queueUrl,
       Tags: {
@@ -124,12 +118,10 @@ export const tagQueue = async (queueUrl: string, tags: ResourceTags) => {
   );
 };
 
-export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
-  const { queueName } = parseQueueUrl(queueUrl);
+export const untagQueue = async (logger: OperationLogLine, queueUrl: string, tagKeys: string[]) => {
+  logger.update(`Untag queue`);
 
-  Logger.logUntag(QueueServiceName, queueName);
-
-  await client.send(
+  await getSQSClient().send(
     new UntagQueueCommand({
       QueueUrl: queueUrl,
       TagKeys: tagKeys
@@ -137,13 +129,11 @@ export const untagQueue = async (queueUrl: string, tagKeys: string[]) => {
   );
 };
 
-export const deleteQueue = async (queueUrl: string) => {
-  const { queueName } = parseQueueUrl(queueUrl);
-
-  Logger.logDelete(QueueServiceName, queueName);
+export const deleteQueue = async (logger: OperationLogLine, queueUrl: string) => {
+  logger.update(`Delete queue`);
 
   try {
-    await client.send(
+    await getSQSClient().send(
       new DeleteQueueCommand({
         QueueUrl: queueUrl
       })

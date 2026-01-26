@@ -1,8 +1,7 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { Variables } from '../types/variables';
 
 import {
-  ApiGatewayV2Client,
   GetStageCommand,
   CreateStageCommand,
   UpdateStageCommand,
@@ -11,12 +10,9 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger } from '@ez4/aws-common';
-
+import { getApiGatewayV2Client } from '../utils/deploy';
 import { assertVariables } from './helpers/variables';
 import { StageServiceName } from './types';
-
-const client = new ApiGatewayV2Client({});
 
 export type CreateRequest = {
   stageName: string;
@@ -28,11 +24,15 @@ export type ImportOrCreateResponse = {
   stageName: string;
 };
 
-export const importStage = async (apiId: string, stageName: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(StageServiceName, stageName);
+export const importStage = async (
+  logger: OperationLogLine,
+  apiId: string,
+  stageName: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing API stage`);
 
   try {
-    const response = await client.send(
+    const response = await getApiGatewayV2Client().send(
       new GetStageCommand({
         ApiId: apiId,
         StageName: stageName
@@ -51,16 +51,16 @@ export const importStage = async (apiId: string, stageName: string): Promise<Imp
   }
 };
 
-export const createStage = async (apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { stageName, stageVariables, autoDeploy } = request;
+export const createStage = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating API stage`);
 
-  Logger.logCreate(StageServiceName, stageName);
+  const { stageName, stageVariables, autoDeploy } = request;
 
   if (stageVariables) {
     assertVariables(StageServiceName, stageVariables);
   }
 
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -74,8 +74,8 @@ export const createStage = async (apiId: string, request: CreateRequest): Promis
   };
 };
 
-export const updateStage = async (apiId: string, stageName: string, request: Partial<CreateRequest>) => {
-  Logger.logUpdate(StageServiceName, stageName);
+export const updateStage = async (logger: OperationLogLine, apiId: string, stageName: string, request: Partial<CreateRequest>) => {
+  logger.update(`Updating API stage`);
 
   const { stageVariables, autoDeploy } = request;
 
@@ -83,7 +83,7 @@ export const updateStage = async (apiId: string, stageName: string, request: Par
     assertVariables(StageServiceName, stageVariables);
   }
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -93,10 +93,10 @@ export const updateStage = async (apiId: string, stageName: string, request: Par
   );
 };
 
-export const enableAccessLogs = async (apiId: string, stageName: string, logGroupArn: Arn) => {
-  Logger.logAttach(StageServiceName, stageName, 'access logs');
+export const enableAccessLogs = async (logger: OperationLogLine, apiId: string, stageName: string, logGroupArn: Arn) => {
+  logger.update(`Enabling API access logs`);
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new UpdateStageCommand({
       ApiId: apiId,
       StageName: stageName,
@@ -123,10 +123,10 @@ export const enableAccessLogs = async (apiId: string, stageName: string, logGrou
   );
 };
 
-export const disableAccessLogs = async (apiId: string, stageName: string) => {
-  Logger.logDetach(StageServiceName, stageName, 'access logs');
+export const disableAccessLogs = async (logger: OperationLogLine, apiId: string, stageName: string) => {
+  logger.update(`Disabling API access logs`);
 
-  await client.send(
+  await getApiGatewayV2Client().send(
     new DeleteAccessLogSettingsCommand({
       ApiId: apiId,
       StageName: stageName
@@ -134,11 +134,11 @@ export const disableAccessLogs = async (apiId: string, stageName: string) => {
   );
 };
 
-export const deleteStage = async (apiId: string, stageName: string) => {
-  Logger.logDelete(StageServiceName, stageName);
+export const deleteStage = async (logger: OperationLogLine, apiId: string, stageName: string) => {
+  logger.update(`Deleting API stage`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteStageCommand({
         ApiId: apiId,
         StageName: stageName

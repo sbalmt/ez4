@@ -1,8 +1,8 @@
 import type { StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client';
@@ -45,54 +45,70 @@ const replaceResource = async (candidate: LogGroupState, current: LogGroupState)
   return createResource(candidate);
 };
 
-const createResource = async (candidate: LogGroupState): Promise<LogGroupResult> => {
-  const parameters = candidate.parameters;
+const createResource = (candidate: LogGroupState): Promise<LogGroupResult> => {
+  const { parameters } = candidate;
 
-  const { groupArn } = await createGroup(parameters);
+  return OperationLogger.logExecution(LogGroupServiceName, parameters.groupName, 'creation', async (logger) => {
+    const { groupArn } = await createGroup(logger, parameters);
 
-  await checkGeneralUpdates(parameters.groupName, parameters);
+    await checkGeneralUpdates(logger, parameters.groupName, parameters);
 
-  return {
-    groupArn
-  };
+    return {
+      groupArn
+    };
+  });
 };
 
-const updateResource = async (candidate: LogGroupState, current: LogGroupState) => {
-  const parameters = candidate.parameters;
-  const result = candidate.result;
+const updateResource = (candidate: LogGroupState, current: LogGroupState): Promise<LogGroupResult> => {
+  const { result, parameters } = candidate;
+  const { groupName } = parameters;
 
-  if (result) {
-    await checkGeneralUpdates(parameters.groupName, parameters, current.parameters);
-    await checkTagUpdates(result.groupArn, parameters, current.parameters);
+  if (!result) {
+    throw new CorruptedResourceError(LogGroupServiceName, groupName);
   }
+
+  return OperationLogger.logExecution(LogGroupServiceName, groupName, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
+    await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+
+    return result;
+  });
 };
 
-const deleteResource = async (candidate: LogGroupState) => {
-  const parameters = candidate.parameters;
-  const result = candidate.result;
+const deleteResource = async (current: LogGroupState) => {
+  const { parameters, result } = current;
 
-  if (result) {
-    await deleteGroup(parameters.groupName);
+  if (!result) {
+    return;
   }
+
+  await OperationLogger.logExecution(LogGroupServiceName, parameters.groupName, 'deletion', async (logger) => {
+    await deleteGroup(logger, parameters.groupName);
+  });
 };
 
-const checkTagUpdates = async (policyArn: Arn, candidate: LogGroupParameters, current: LogGroupParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, policyArn: Arn, candidate: LogGroupParameters, current: LogGroupParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagGroup(policyArn, tags),
-    (tags) => untagGroup(policyArn, tags)
+    (tags) => tagGroup(logger, policyArn, tags),
+    (tags) => untagGroup(logger, policyArn, tags)
   );
 };
 
-const checkGeneralUpdates = async (groupName: string, candidate: LogGroupParameters, current?: LogGroupParameters) => {
+const checkGeneralUpdates = async (
+  logger: OperationLogLine,
+  groupName: string,
+  candidate: LogGroupParameters,
+  current?: LogGroupParameters
+) => {
   if (candidate.retention === current?.retention) {
     return;
   }
 
   if (candidate.retention) {
-    return createRetention(groupName, candidate.retention);
+    return createRetention(logger, groupName, candidate.retention);
   }
 
-  return deleteRetention(groupName);
+  return deleteRetention(logger, groupName);
 };

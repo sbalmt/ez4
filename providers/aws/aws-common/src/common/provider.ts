@@ -1,9 +1,10 @@
 import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
 
 import { applySteps, planSteps } from '@ez4/stateful';
+import { Logger } from '@ez4/logger';
 
 import { DuplicateProviderError } from '../errors/providers';
-import { Logger } from './logger';
+import { OperationLogger } from './logger';
 
 const allProviderHandlers: StepHandlers<any> = {};
 
@@ -35,11 +36,12 @@ export const report = <E extends EntryState>(
 export const deploy = async <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined,
+  concurrency?: number,
   force?: boolean
 ): Promise<ApplyResult<E>> => {
-  const serviceName = 'EZ4:Deploy';
+  Logger.log(`🚀 Deploy started`);
 
-  Logger.logInfo(serviceName, 'Started');
+  const startTime = performance.now();
 
   const plannedSteps = await planSteps(newState, oldState, {
     handlers: allProviderHandlers,
@@ -48,14 +50,16 @@ export const deploy = async <E extends EntryState>(
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
     handlers: allProviderHandlers,
-    force
+    concurrency,
+    force,
+    onProgress: (applied, total) => {
+      OperationLogger.setStats(`  ${((100 / total) * applied).toFixed(2)}%`);
+    }
   });
 
-  resultState.errors.forEach((error) => {
-    Logger.logError('EZ4:Deploy', error.message);
-  });
+  const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
 
-  Logger.logInfo(serviceName, 'Finished');
+  Logger.log(`ℹ️  Deploy finished (${plannedSteps.length} steps in ${elapsedTime}s)`);
 
   return resultState;
 };

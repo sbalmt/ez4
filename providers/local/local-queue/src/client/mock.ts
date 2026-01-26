@@ -1,6 +1,6 @@
 import type { Client, Queue, SendOptions } from '@ez4/queue';
 
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const createClientMock = <T extends Queue.Service<any>>(serviceName: string): Client<T> => {
   return new (class {

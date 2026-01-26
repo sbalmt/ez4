@@ -1,9 +1,8 @@
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { ArchitectureType, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
-import type { Arn, ResourceTags } from '@ez4/aws-common';
 
 import {
-  LambdaClient,
   GetFunctionCommand,
   CreateFunctionCommand,
   DeleteFunctionCommand,
@@ -21,22 +20,13 @@ import {
   LogFormat
 } from '@aws-sdk/client-lambda';
 
-import { Logger, tryParseArn, waitCreation, waitDeletion } from '@ez4/aws-common';
+import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
+import { getLambdaClient, getLambdaWaiter } from '../utils/deploy';
 import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
 import { assertVariables } from './helpers/variables';
 import { getZipBuffer } from './helpers/zip';
-import { FunctionServiceName } from './types';
-
-const client = new LambdaClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -78,11 +68,15 @@ export type UpdateSourceCodeRequest = {
   publish?: boolean;
 };
 
-export const importFunction = async (functionName: string, version?: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(FunctionServiceName, functionName);
+export const importFunction = async (
+  logger: OperationLogLine,
+  functionName: string,
+  version?: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing function`);
 
   try {
-    const response = await client.send(
+    const response = await getLambdaClient().send(
       new GetFunctionCommand({
         FunctionName: functionName,
         Qualifier: version
@@ -105,10 +99,10 @@ export const importFunction = async (functionName: string, version?: string): Pr
   }
 };
 
-export const createFunction = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
-  const { functionName, variables } = request;
+export const createFunction = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating function`);
 
-  Logger.logCreate(FunctionServiceName, functionName);
+  const { functionName, variables } = request;
 
   if (variables) {
     assertVariables(variables);
@@ -117,7 +111,9 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  const { description, memory, timeout, architecture, runtime, debug, roleArn, logGroup } = request;
+  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup } = request;
+
+  const client = getLambdaClient();
 
   // If the given roleArn is new and still propagating on AWS, the creation will fail.
   // The `waitCreation` will keep retrying until max attempts.
@@ -129,6 +125,7 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
         MemorySize: memory,
         Timeout: timeout,
         Role: roleArn,
+        Publish: publish,
         Handler: handlerName,
         Architectures: [getFunctionArchitecture(architecture)],
         Runtime: getFunctionRuntime(runtime),
@@ -153,34 +150,38 @@ export const createFunction = async (request: CreateRequest): Promise<ImportOrCr
     );
   });
 
-  Logger.logWait(FunctionServiceName, functionName);
+  const functionArn = response.FunctionArn as Arn;
+  const functionVersion = response.Version;
+
+  const waiter = getLambdaWaiter(client);
 
   await waitUntilFunctionActive(waiter, {
     FunctionName: functionName
   });
 
-  const functionArn = response.FunctionArn as Arn;
-
-  if (request.publish) {
-    const functionVersion = await publishFunction(functionName);
-
-    return {
-      functionVersion,
-      functionArn
-    };
+  if (publish) {
+    await waitUntilPublishedVersionActive(waiter, {
+      FunctionName: functionName,
+      Qualifier: functionVersion
+    });
   }
 
   return {
-    functionArn
+    functionArn,
+    ...(publish && {
+      functionVersion
+    })
   };
 };
 
-export const updateSourceCode = async (functionName: string, request: UpdateSourceCodeRequest) => {
-  Logger.logUpdate(FunctionServiceName, `${functionName} source code`);
+export const updateSourceCode = async (logger: OperationLogLine, functionName: string, request: UpdateSourceCodeRequest) => {
+  logger.update(`Updating source code`);
 
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
   const { publish, architecture } = request;
+
+  const client = getLambdaClient();
 
   const response = await client.send(
     new UpdateFunctionCodeCommand({
@@ -191,38 +192,42 @@ export const updateSourceCode = async (functionName: string, request: UpdateSour
     })
   );
 
-  Logger.logWait(FunctionServiceName, functionName);
+  const functionArn = response.FunctionArn as Arn;
+  const functionVersion = response.Version;
+
+  const waiter = getLambdaWaiter(client);
 
   await waitUntilFunctionUpdated(waiter, {
     FunctionName: functionName
   });
 
-  const functionArn = response.FunctionArn as Arn;
-
-  if (request.publish) {
-    const functionVersion = await publishFunction(functionName);
-
-    return {
-      functionVersion,
-      functionArn
-    };
+  if (publish) {
+    await waitUntilPublishedVersionActive(waiter, {
+      FunctionName: functionName,
+      Qualifier: functionVersion
+    });
   }
 
   return {
-    functionArn
+    functionArn,
+    ...(publish && {
+      functionVersion
+    })
   };
 };
 
-export const updateConfiguration = async (functionName: string, request: UpdateConfigurationRequest) => {
-  const { handlerName, variables } = request;
+export const updateConfiguration = async (logger: OperationLogLine, functionName: string, request: UpdateConfigurationRequest) => {
+  logger.update(`Updating configuration`);
 
-  Logger.logUpdate(FunctionServiceName, `${functionName} configuration`);
+  const { handlerName, variables } = request;
 
   if (variables) {
     assertVariables(variables);
   }
 
   const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
+
+  const client = getLambdaClient();
 
   await client.send(
     new UpdateFunctionConfigurationCommand({
@@ -247,15 +252,15 @@ export const updateConfiguration = async (functionName: string, request: UpdateC
     })
   );
 
-  Logger.logWait(FunctionServiceName, functionName);
-
-  await waitUntilFunctionUpdated(waiter, {
+  await waitUntilFunctionUpdated(getLambdaWaiter(client), {
     FunctionName: functionName
   });
 };
 
-export const deleteFunction = async (functionName: string) => {
-  Logger.logDelete(FunctionServiceName, functionName);
+export const deleteFunction = async (functionName: string, logger: OperationLogLine) => {
+  logger.update(`Deleting function`);
+
+  const client = getLambdaClient();
 
   // If the function is still in use due to a prior change that's not
   // done yet, keep retrying until max attempts.
@@ -274,8 +279,10 @@ export const deleteFunction = async (functionName: string) => {
   });
 };
 
-export const publishFunction = async (functionName: string) => {
-  Logger.logPublish(FunctionServiceName, functionName);
+export const publishFunction = async (logger: OperationLogLine, functionName: string) => {
+  logger.update(`Publishing version`);
+
+  const client = getLambdaClient();
 
   const response = await client.send(
     new PublishVersionCommand({
@@ -283,11 +290,9 @@ export const publishFunction = async (functionName: string) => {
     })
   );
 
-  Logger.logWait(FunctionServiceName, functionName);
-
   const version = response.Version;
 
-  await waitUntilPublishedVersionActive(waiter, {
+  await waitUntilPublishedVersionActive(getLambdaWaiter(client), {
     FunctionName: functionName,
     Qualifier: version
   });
@@ -295,12 +300,10 @@ export const publishFunction = async (functionName: string) => {
   return version;
 };
 
-export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
+export const tagFunction = async (logger: OperationLogLine, functionArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag function`);
 
-  Logger.logTag(FunctionServiceName, functionName);
-
-  await client.send(
+  await getLambdaClient().send(
     new TagResourceCommand({
       Resource: functionArn,
       Tags: {
@@ -311,12 +314,10 @@ export const tagFunction = async (functionArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagFunction = async (functionArn: Arn, tagKeys: string[]) => {
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
+export const untagFunction = async (logger: OperationLogLine, functionArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag function`);
 
-  Logger.logUntag(FunctionServiceName, functionName);
-
-  await client.send(
+  await getLambdaClient().send(
     new UntagResourceCommand({
       Resource: functionArn,
       TagKeys: tagKeys

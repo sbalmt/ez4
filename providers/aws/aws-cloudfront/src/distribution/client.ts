@@ -1,4 +1,4 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { Headers } from '../types/headers';
 
 import type {
@@ -10,11 +10,10 @@ import type {
   Origin
 } from '@aws-sdk/client-cloudfront';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
 import { isBucketDomain } from '@ez4/aws-bucket';
+import { getTagList } from '@ez4/aws-common';
 
 import {
-  CloudFrontClient,
   GetDistributionCommand,
   CreateDistributionWithTagsCommand,
   UpdateDistributionCommand,
@@ -35,16 +34,7 @@ import {
   NoSuchDistribution
 } from '@aws-sdk/client-cloudfront';
 
-import { DistributionServiceName } from './types';
-
-const client = new CloudFrontClient({});
-
-const waiter = {
-  minDelay: 30,
-  maxWaitTime: 3600,
-  maxDelay: 120,
-  client
-};
+import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
 
 export type DefaultOrigin = {
   id: string;
@@ -92,8 +82,10 @@ export type UpdateRequest = Omit<CreateRequest, 'tags'>;
 
 export type UpdateResponse = CreateResponse;
 
-export const createDistribution = async (request: CreateRequest): Promise<CreateResponse> => {
-  Logger.logCreate(DistributionServiceName, request.distributionName);
+export const createDistribution = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating distribution`);
+
+  const client = getCloudFrontClient();
 
   const response = await client.send(
     new CreateDistributionWithTagsCommand({
@@ -112,12 +104,9 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
   );
 
   const distribution = response.Distribution!;
-
   const distributionId = distribution.Id!;
 
-  Logger.logWait(DistributionServiceName, distributionId);
-
-  await waitUntilDistributionDeployed(waiter, {
+  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
     Id: distributionId
   });
 
@@ -128,10 +117,12 @@ export const createDistribution = async (request: CreateRequest): Promise<Create
   };
 };
 
-export const updateDistribution = async (distributionId: string, request: UpdateRequest) => {
-  Logger.logUpdate(DistributionServiceName, distributionId);
+export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
+  logger.update(`Updating distribution`);
 
-  const version = await getCurrentDistributionVersion(distributionId);
+  const version = await getCurrentDistributionVersion(logger, distributionId);
+
+  const client = getCloudFrontClient();
 
   await client.send(
     new UpdateDistributionCommand({
@@ -143,19 +134,15 @@ export const updateDistribution = async (distributionId: string, request: Update
     })
   );
 
-  Logger.logWait(DistributionServiceName, distributionId);
-
-  await waitUntilDistributionDeployed(waiter, {
+  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
     Id: distributionId
   });
 };
 
-export const tagDistribution = async (distributionArn: string, tags: ResourceTags) => {
-  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+export const tagDistribution = async (logger: OperationLogLine, distributionArn: string, tags: ResourceTags) => {
+  logger.update(`Tag distribution`);
 
-  Logger.logTag(DistributionServiceName, distributionName);
-
-  await client.send(
+  await getCloudFrontClient().send(
     new TagResourceCommand({
       Resource: distributionArn,
       Tags: {
@@ -168,12 +155,10 @@ export const tagDistribution = async (distributionArn: string, tags: ResourceTag
   );
 };
 
-export const untagDistribution = async (distributionArn: Arn, tagKeys: string[]) => {
-  const distributionName = tryParseArn(distributionArn)?.resourceName ?? distributionArn;
+export const untagDistribution = async (logger: OperationLogLine, distributionArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag distribution`);
 
-  Logger.logUntag(DistributionServiceName, distributionName);
-
-  await client.send(
+  await getCloudFrontClient().send(
     new UntagResourceCommand({
       Resource: distributionArn,
       TagKeys: {
@@ -183,13 +168,13 @@ export const untagDistribution = async (distributionArn: Arn, tagKeys: string[])
   );
 };
 
-export const deleteDistribution = async (distributionId: string) => {
-  Logger.logDelete(DistributionServiceName, distributionId);
+export const deleteDistribution = async (logger: OperationLogLine, distributionId: string) => {
+  logger.update(`Deleting distribution`);
 
   try {
-    const version = await getCurrentDistributionVersion(distributionId);
+    const version = await getCurrentDistributionVersion(logger, distributionId);
 
-    await client.send(
+    await getCloudFrontClient().send(
       new DeleteDistributionCommand({
         Id: distributionId,
         IfMatch: version
@@ -206,8 +191,10 @@ export const deleteDistribution = async (distributionId: string) => {
   }
 };
 
-const getCurrentDistributionVersion = async (distributionId: string) => {
-  const response = await client.send(
+const getCurrentDistributionVersion = async (logger: OperationLogLine, distributionId: string) => {
+  logger.update(`Fetching distribution`);
+
+  const response = await getCloudFrontClient().send(
     new GetDistributionCommand({
       Id: distributionId
     })

@@ -1,7 +1,8 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { ResponseState, ResponseResult, ResponseParameters } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getRouteId } from '../route/utils';
@@ -46,38 +47,49 @@ const replaceResource = async (candidate: ResponseState, current: ResponseState,
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: ResponseState, context: StepContext): Promise<ResponseResult> => {
-  const parameters = candidate.parameters;
+const createResource = (candidate: ResponseState, context: StepContext): Promise<ResponseResult> => {
+  const { parameters } = candidate;
 
-  const routeId = getRouteId(ResponseServiceName, 'response', context);
-  const apiId = getGatewayId(ResponseServiceName, 'response', context);
+  return OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'creation', async (logger) => {
+    const routeId = getRouteId(ResponseServiceName, 'response', context);
+    const apiId = getGatewayId(ResponseServiceName, 'response', context);
 
-  const { responseId } = await createResponse(apiId, routeId, parameters);
+    const { responseId } = await createResponse(logger, apiId, routeId, parameters);
 
-  return {
-    responseId,
-    routeId,
-    apiId
-  };
+    return {
+      responseId,
+      routeId,
+      apiId
+    };
+  });
 };
 
-const updateResource = async (candidate: ResponseState, current: ResponseState) => {
-  const result = candidate.result;
+const updateResource = (candidate: ResponseState, current: ResponseState) => {
+  const { result, parameters } = candidate;
 
-  if (result) {
-    await checkGeneralUpdates(result.apiId, result.routeId, result.responseId, candidate.parameters, current.parameters);
+  if (!result) {
+    return;
   }
+
+  return OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, result.apiId, result.routeId, result.responseId, candidate.parameters, current.parameters);
+  });
 };
 
-const deleteResource = async (candidate: ResponseState) => {
-  const result = candidate.result;
+const deleteResource = async (current: ResponseState) => {
+  const { result, parameters } = current;
 
-  if (result) {
-    await deleteResponse(result.apiId, result.routeId, result.responseId);
+  if (!result) {
+    return;
   }
+
+  await OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'deletion', async (logger) => {
+    await deleteResponse(logger, result.apiId, result.routeId, result.responseId);
+  });
 };
 
 const checkGeneralUpdates = async <T extends ResponseParameters>(
+  logger: OperationLogLine,
   apiId: string,
   routeId: string,
   responseId: string,
@@ -87,6 +99,6 @@ const checkGeneralUpdates = async <T extends ResponseParameters>(
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateResponse(apiId, routeId, responseId, candidate);
+    await updateResponse(logger, apiId, routeId, responseId, candidate);
   }
 };

@@ -125,14 +125,30 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
       return [`${path} <= ?`, value];
 
     case 'isIn': {
-      if (!isEmptyArray(value)) {
+      if (schema?.type !== SchemaType.Array && schema?.type !== SchemaType.Tuple) {
         const values = sanitizeValues(value);
 
-        if (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple) {
-          return [values.map(() => `? IN ${path}`).join(' AND '), ...values];
+        if (!isEmptyArray(values)) {
+          return [`${path} IN [${values.map(() => '?').join(', ')}]`, ...values];
         }
 
-        return [`${path} IN [${values.map(() => '?').join(', ')}]`, ...values];
+        //
+      } else {
+        const conditions = [];
+        const variables = [];
+
+        for (const operand of value) {
+          const values = sanitizeValues(operand);
+
+          if (!isEmptyArray(values)) {
+            conditions.push(`(${values.map(() => `? IN ${path}`).join(' AND ')})`);
+            variables.push(...values);
+          }
+        }
+
+        if (!isEmptyArray(conditions)) {
+          return [`(${conditions.join(' OR ')})`, ...variables];
+        }
       }
 
       // Force no results for empty arrays
@@ -152,18 +168,18 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
       return [`begins_with(${path}, ?)`, value];
 
     case 'contains': {
-      if (isAnyArray(value)) {
-        const values = sanitizeValues(value);
-
-        if (!isEmptyArray(values) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
-          return [values.map(() => `contains(${path}, ?)`).join(' AND '), ...values];
-        }
-
-        // Force any results for empty arrays
-        return [`1 = 1`];
+      if (!isAnyArray(value)) {
+        return [`contains(${path}, ?)`, value];
       }
 
-      return [`contains(${path}, ?)`, value];
+      const values = sanitizeValues(value);
+
+      if (!isEmptyArray(values) && (schema?.type === SchemaType.Array || schema?.type === SchemaType.Tuple)) {
+        return [values.map(() => `contains(${path}, ?)`).join(' AND '), ...values];
+      }
+
+      // Force any results for empty arrays
+      return [`1 = 1`];
     }
   }
 

@@ -2,7 +2,7 @@ import { Wait } from '@ez4/utils';
 
 export type ActionAttempter<T> = () => Promise<T>;
 
-const DefaultRetryErrors = ['TooManyRequestsException', 'ConflictException', 'InvalidParameterValueException'];
+const DefaultRetryErrors = ['ConflictException', 'InvalidParameterValueException'];
 
 /**
  * Try to create a resource using the given function, and if the creation fails,

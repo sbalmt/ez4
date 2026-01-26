@@ -1,8 +1,7 @@
 import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest } from '@aws-sdk/client-lambda';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
-  LambdaClient,
   GetEventSourceMappingCommand,
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
@@ -13,12 +12,11 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-lambda';
 
-import { Logger, parseArn } from '@ez4/aws-common';
+import { parseArn } from '@ez4/aws-common';
 import { Wait } from '@ez4/utils';
 
-import { MappingService, MappingServiceName } from './types';
-
-const client = new LambdaClient({});
+import { getLambdaClient } from '../utils/deploy';
+import { MappingService } from './types';
 
 export type BatchOptions = {
   maxWait?: number;
@@ -39,10 +37,14 @@ export type ImportOrCreateResponse = {
 
 export type UpdateRequest = CreateRequest;
 
-export const importMapping = async (functionName: string, sourceArn: string): Promise<ImportOrCreateResponse | undefined> => {
-  Logger.logImport(MappingServiceName, functionName);
+export const importMapping = async (
+  logger: OperationLogLine,
+  functionName: string,
+  sourceArn: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing mapping`);
 
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new ListEventSourceMappingsCommand({
       FunctionName: functionName,
       EventSourceArn: sourceArn
@@ -62,12 +64,12 @@ export const importMapping = async (functionName: string, sourceArn: string): Pr
   };
 };
 
-export const createMapping = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createMapping = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating mapping`);
+
   const { sourceArn, functionName } = request;
 
-  Logger.logCreate(MappingServiceName, functionName);
-
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new CreateEventSourceMappingCommand({
       FunctionName: functionName,
       EventSourceArn: sourceArn,
@@ -84,10 +86,12 @@ export const createMapping = async (request: CreateRequest): Promise<ImportOrCre
   };
 };
 
-export const updateMapping = async (eventId: string, request: UpdateRequest) => {
+export const updateMapping = async (logger: OperationLogLine, eventId: string, request: UpdateRequest) => {
+  logger.update(`Updating mapping`);
+
   const { functionName } = request;
 
-  Logger.logUpdate(MappingServiceName, `${functionName} (${eventId})`);
+  const client = getLambdaClient();
 
   await client.send(
     new UpdateEventSourceMappingCommand({
@@ -100,11 +104,11 @@ export const updateMapping = async (eventId: string, request: UpdateRequest) => 
   await waitForReadyState(eventId);
 };
 
-export const deleteMapping = async (eventId: string) => {
-  Logger.logDelete(MappingServiceName, eventId);
+export const deleteMapping = async (logger: OperationLogLine, eventId: string) => {
+  logger.update(`Deleting mapping`);
 
   try {
-    await client.send(
+    await getLambdaClient().send(
       new DeleteEventSourceMappingCommand({
         UUID: eventId
       })
@@ -121,7 +125,7 @@ export const deleteMapping = async (eventId: string) => {
 };
 
 const getMappingState = async (eventId: string) => {
-  const response = await client.send(
+  const response = await getLambdaClient().send(
     new GetEventSourceMappingCommand({
       UUID: eventId
     })

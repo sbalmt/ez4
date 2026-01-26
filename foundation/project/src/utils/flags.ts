@@ -1,6 +1,6 @@
 import type { InputOptions } from '../terminal/options';
 
-import { Logger } from './logger';
+import { Logger } from '@ez4/logger';
 
 const OPTION_FLAGS = ['force', 'inspect', 'coverage', 'suppress', 'reset', 'local'] as const;
 

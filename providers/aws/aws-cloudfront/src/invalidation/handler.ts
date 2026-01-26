@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { InvalidationState, InvalidationResult } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getDistributionId } from '../distribution/utils';
@@ -47,26 +47,24 @@ const createResource = (_candidate: InvalidationState, context: StepContext): In
   };
 };
 
-const updateResource = async (
-  candidate: InvalidationState,
-  current: InvalidationState,
-  context: StepContext
-): Promise<InvalidationResult | void> => {
+const updateResource = (candidate: InvalidationState, current: InvalidationState, context: StepContext): Promise<InvalidationResult> => {
   const { result, parameters } = candidate;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(InvalidationServiceName, 'invalidation');
   }
 
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
-  if (parameters.contentVersion !== current.parameters.contentVersion) {
-    await createInvalidation(distributionId, ['/*']);
-  }
+  return OperationLogger.logExecution(InvalidationServiceName, distributionId, 'invalidation', async (logger) => {
+    if (parameters.contentVersion !== current.parameters.contentVersion) {
+      await createInvalidation(logger, distributionId, ['/*']);
+    }
 
-  return {
-    distributionId
-  };
+    return {
+      distributionId
+    };
+  });
 };
 
 const deleteResource = async () => {

@@ -1,19 +1,9 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
-import {
-  SNSClient,
-  CreateTopicCommand,
-  DeleteTopicCommand,
-  TagResourceCommand,
-  UntagResourceCommand,
-  NotFoundException
-} from '@aws-sdk/client-sns';
+import { CreateTopicCommand, DeleteTopicCommand, TagResourceCommand, UntagResourceCommand, NotFoundException } from '@aws-sdk/client-sns';
+import { getTagList } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
-
-import { TopicServiceName } from './types';
-
-const client = new SNSClient({});
+import { getSNSClient } from '../utils/deploy';
 
 export type CreateRequest = {
   topicName: string;
@@ -25,12 +15,12 @@ export type CreateResponse = {
   topicArn: Arn;
 };
 
-export const createTopic = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createTopic = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating topic`);
+
   const { topicName, fifoMode } = request;
 
-  Logger.logCreate(TopicServiceName, topicName);
-
-  const response = await client.send(
+  const response = await getSNSClient().send(
     new CreateTopicCommand({
       Name: topicName,
       Attributes: {
@@ -52,13 +42,11 @@ export const createTopic = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const deleteTopic = async (topicArn: string) => {
-  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
-
-  Logger.logDelete(TopicServiceName, topicName);
+export const deleteTopic = async (logger: OperationLogLine, topicArn: string) => {
+  logger.update(`Deleting topic`);
 
   try {
-    await client.send(
+    await getSNSClient().send(
       new DeleteTopicCommand({
         TopicArn: topicArn
       })
@@ -74,12 +62,10 @@ export const deleteTopic = async (topicArn: string) => {
   }
 };
 
-export const tagTopic = async (topicArn: string, tags: ResourceTags) => {
-  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
+export const tagTopic = async (logger: OperationLogLine, topicArn: string, tags: ResourceTags) => {
+  logger.update(`Tag topic`);
 
-  Logger.logTag(TopicServiceName, topicName);
-
-  await client.send(
+  await getSNSClient().send(
     new TagResourceCommand({
       ResourceArn: topicArn,
       Tags: getTagList({
@@ -90,12 +76,10 @@ export const tagTopic = async (topicArn: string, tags: ResourceTags) => {
   );
 };
 
-export const untagTopic = async (topicArn: string, tagKeys: string[]) => {
-  const topicName = tryParseArn(topicArn)?.resourceName ?? topicArn;
+export const untagTopic = async (logger: OperationLogLine, topicArn: string, tagKeys: string[]) => {
+  logger.update(`Untag topic`);
 
-  Logger.logUntag(TopicServiceName, topicName);
-
-  await client.send(
+  await getSNSClient().send(
     new UntagResourceCommand({
       ResourceArn: topicArn,
       TagKeys: tagKeys

@@ -2,7 +2,8 @@ import type { AllType, ReflectionTypes } from '@ez4/reflection';
 import type { MetadataDependencies, MetadataReflection } from '../types/metadata';
 
 import { getReflectionFiles, TypeName } from '@ez4/reflection';
-import { Logger, triggerAllSync } from '@ez4/project/library';
+import { triggerAllSync } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { assertNoErrors } from '../utils/errors';
 import { DuplicateMetadataError } from '../errors/metadata';

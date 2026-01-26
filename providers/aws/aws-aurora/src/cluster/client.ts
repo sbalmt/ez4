@@ -1,9 +1,8 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
-import { getTagList, Logger, tryParseArn } from '@ez4/aws-common';
+import { getTagList } from '@ez4/aws-common';
 
 import {
-  RDSClient,
   CreateDBClusterCommand,
   DescribeDBClustersCommand,
   ModifyDBClusterCommand,
@@ -15,17 +14,8 @@ import {
   DBClusterNotFoundFault
 } from '@aws-sdk/client-rds';
 
+import { getRDSClient, getRDSWaiter } from '../utils/deploy';
 import { getRandomPassword } from '../utils/credentials';
-import { ClusterServiceName } from './types';
-
-const client = new RDSClient({});
-
-const waiter = {
-  minDelay: 15,
-  maxWaitTime: 1800,
-  maxDelay: 60,
-  client
-};
 
 export type Scalability = {
   minCapacity: number;
@@ -52,13 +42,14 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'clusterName' | 'databas
 
 export type UpdateResponse = ImportOrCreateResponse;
 
-export const importCluster = async (clusterName: string, log = true): Promise<ImportOrCreateResponse | undefined> => {
-  if (log) {
-    Logger.logImport(ClusterServiceName, clusterName);
-  }
+export const importCluster = async (
+  logger: OperationLogLine | undefined,
+  clusterName: string
+): Promise<ImportOrCreateResponse | undefined> => {
+  logger?.update(`Importing cluster`);
 
   try {
-    const response = await client.send(
+    const response = await getRDSClient().send(
       new DescribeDBClustersCommand({
         DBClusterIdentifier: clusterName,
         MaxRecords: 20
@@ -82,12 +73,13 @@ export const importCluster = async (clusterName: string, log = true): Promise<Im
   }
 };
 
-export const createCluster = async (request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createCluster = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+  logger.update(`Creating cluster`);
+
   const { clusterName, scalability } = request;
 
-  Logger.logCreate(ClusterServiceName, clusterName);
-
   const canPause = scalability?.minCapacity === 0;
+  const client = getRDSClient();
 
   const response = await client.send(
     new CreateDBClusterCommand({
@@ -116,9 +108,7 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
     })
   );
 
-  Logger.logWait(ClusterServiceName, clusterName);
-
-  await waitUntilDBClusterAvailable(waiter, {
+  await waitUntilDBClusterAvailable(getRDSWaiter(client), {
     DBClusterIdentifier: clusterName
   });
 
@@ -132,12 +122,13 @@ export const createCluster = async (request: CreateRequest): Promise<ImportOrCre
   };
 };
 
-export const updateCluster = async (clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
-  Logger.logUpdate(ClusterServiceName, clusterName);
+export const updateCluster = async (logger: OperationLogLine, clusterName: string, request: UpdateRequest): Promise<UpdateResponse> => {
+  logger.update(`Updating cluster`);
 
   const { scalability } = request;
 
   const canPause = scalability?.minCapacity === 0;
+  const client = getRDSClient();
 
   const response = await client.send(
     new ModifyDBClusterCommand({
@@ -157,9 +148,7 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
     })
   );
 
-  Logger.logWait(ClusterServiceName, clusterName);
-
-  await waitUntilDBClusterAvailable(waiter, {
+  await waitUntilDBClusterAvailable(getRDSWaiter(client), {
     DBClusterIdentifier: clusterName
   });
 
@@ -173,10 +162,10 @@ export const updateCluster = async (clusterName: string, request: UpdateRequest)
   };
 };
 
-export const updateDeletion = async (clusterName: string, allowDeletion: boolean) => {
-  Logger.logUpdate(ClusterServiceName, clusterName);
+export const updateDeletion = async (logger: OperationLogLine, clusterName: string, allowDeletion: boolean) => {
+  logger.update(`Updating deletion protection`);
 
-  await client.send(
+  await getRDSClient().send(
     new ModifyDBClusterCommand({
       DBClusterIdentifier: clusterName,
       DeletionProtection: !allowDeletion
@@ -184,12 +173,10 @@ export const updateDeletion = async (clusterName: string, allowDeletion: boolean
   );
 };
 
-export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
-  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+export const tagCluster = async (logger: OperationLogLine, clusterArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag cluster`);
 
-  Logger.logTag(ClusterServiceName, clusterName);
-
-  await client.send(
+  await getRDSClient().send(
     new AddTagsToResourceCommand({
       ResourceName: clusterArn,
       Tags: getTagList({
@@ -200,12 +187,10 @@ export const tagCluster = async (clusterArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
-  const clusterName = tryParseArn(clusterArn)?.resourceName ?? clusterArn;
+export const untagCluster = async (logger: OperationLogLine, clusterArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag cluster`);
 
-  Logger.logUntag(ClusterServiceName, clusterName);
-
-  await client.send(
+  await getRDSClient().send(
     new RemoveTagsFromResourceCommand({
       ResourceName: clusterArn,
       TagKeys: tagKeys
@@ -213,10 +198,12 @@ export const untagCluster = async (clusterArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteCluster = async (clusterName: string) => {
-  Logger.logDelete(ClusterServiceName, clusterName);
+export const deleteCluster = async (logger: OperationLogLine, clusterName: string) => {
+  logger.update(`Deleting cluster`);
 
   try {
+    const client = getRDSClient();
+
     await client.send(
       new DeleteDBClusterCommand({
         DBClusterIdentifier: clusterName,
@@ -224,9 +211,7 @@ export const deleteCluster = async (clusterName: string) => {
       })
     );
 
-    Logger.logWait(ClusterServiceName, clusterName);
-
-    await waitUntilDBClusterDeleted(waiter, {
+    await waitUntilDBClusterDeleted(getRDSWaiter(client), {
       DBClusterIdentifier: clusterName
     });
 

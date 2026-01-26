@@ -2,8 +2,7 @@ import type { EntryStates, EntryState } from '@ez4/stateful';
 
 import { triggerAllSync } from '@ez4/project/library';
 import { isEmptyObject, isNullish } from '@ez4/utils';
-
-import { toBold } from '../utils/format';
+import { LogFormat, Logger } from '@ez4/logger';
 
 export type ResourceOutputEvent = {
   service: EntryState;
@@ -45,12 +44,12 @@ export const reportResourcesOutput = (state: EntryStates) => {
   const outputs = getResourcesOutput(state);
 
   if (outputs) {
-    console.log(``);
+    Logger.space();
 
     for (const label in outputs) {
-      console.log(`${toBold(label)}: ${outputs[label]}`);
+      Logger.log(`${LogFormat.toBold(label)}: ${outputs[label]}`);
     }
 
-    console.log('');
+    Logger.space();
   }
 };

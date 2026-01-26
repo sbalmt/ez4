@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
 import type { TableState, TableResult, TableParameters } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepEqual, deepCompare } from '@ez4/utils';
 
 import {
@@ -60,48 +60,55 @@ const replaceResource = async (candidate: TableState, current: TableState) => {
   return createResource(candidate);
 };
 
-const createResource = async (candidate: TableState): Promise<TableResult> => {
+const createResource = (candidate: TableState): Promise<TableResult> => {
   const parameters = candidate.parameters;
 
-  const response = await createTable(parameters);
+  const { tableName, ttlAttribute } = parameters;
 
-  if (parameters.ttlAttribute) {
-    await updateTimeToLive(response.tableName, {
-      attributeName: parameters.ttlAttribute,
-      enabled: true
-    });
-  }
+  return OperationLogger.logExecution(TableServiceName, tableName, 'creation', async (logger) => {
+    const response = await createTable(logger, parameters);
 
-  return {
-    tableName: response.tableName,
-    streamArn: response.streamArn,
-    tableArn: response.tableArn
-  };
+    if (ttlAttribute) {
+      await updateTimeToLive(logger, response.tableName, {
+        attributeName: ttlAttribute,
+        enabled: true
+      });
+    }
+
+    return {
+      tableName: response.tableName,
+      streamArn: response.streamArn,
+      tableArn: response.tableArn
+    };
+  });
 };
 
-const updateResource = async (candidate: TableState, current: TableState) => {
+const updateResource = (candidate: TableState, current: TableState): Promise<TableResult> => {
   const { result, parameters } = candidate;
+  const { tableName } = parameters;
 
   if (!result) {
-    return;
+    throw new CorruptedResourceError(TableServiceName, tableName);
   }
 
-  const newResult = await checkStreamsUpdates(result.tableName, parameters, current.parameters);
+  return OperationLogger.logExecution(TableServiceName, tableName, 'updates', async (logger) => {
+    const newResult = await checkStreamsUpdates(logger, tableName, parameters, current.parameters);
 
-  await checkCapacityUpdates(result.tableName, parameters, current.parameters);
-  await checkDeletionUpdates(result.tableName, parameters, current.parameters);
-  await checkTimeToLiveUpdates(result.tableName, parameters, current.parameters);
-  await checkIndexUpdates(result.tableName, parameters, current.parameters);
-  await checkTagUpdates(result.tableArn, parameters, current.parameters);
+    await checkCapacityUpdates(logger, tableName, parameters, current.parameters);
+    await checkDeletionUpdates(logger, tableName, parameters, current.parameters);
+    await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
+    await checkIndexUpdates(logger, tableName, parameters, current.parameters);
+    await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
 
-  return {
-    ...result,
-    ...newResult
-  };
+    return {
+      ...result,
+      ...newResult
+    };
+  });
 };
 
-const deleteResource = async (candidate: TableState, context: StepContext) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: TableState, context: StepContext) => {
+  const { result, parameters } = current;
 
   const allowDeletion = !!parameters.allowDeletion;
 
@@ -109,45 +116,54 @@ const deleteResource = async (candidate: TableState, context: StepContext) => {
     return;
   }
 
-  if (!allowDeletion) {
-    await updateDeletion(result.tableName, true);
-  }
+  const { tableName } = result;
 
-  await deleteTable(result.tableName);
+  await OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
+    if (!allowDeletion) {
+      await updateDeletion(logger, tableName, true);
+    }
+
+    await deleteTable(logger, tableName);
+  });
 };
 
-const checkStreamsUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+const checkStreamsUpdates = async (logger: OperationLogLine, tableName: string, candidate: TableParameters, current: TableParameters) => {
   const enableStreams = !!candidate.enableStreams;
 
   if (enableStreams !== !!current.enableStreams) {
-    return updateStreams(tableName, enableStreams);
+    return updateStreams(logger, tableName, enableStreams);
   }
 
   return undefined;
 };
 
-const checkCapacityUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+const checkCapacityUpdates = async (logger: OperationLogLine, tableName: string, candidate: TableParameters, current: TableParameters) => {
   const hasChanges = !deepEqual(candidate.capacityUnits ?? {}, current.capacityUnits ?? {});
 
   if (hasChanges) {
-    await updateCapacity(tableName, candidate.capacityUnits);
+    await updateCapacity(logger, tableName, candidate.capacityUnits);
   }
 };
 
-const checkDeletionUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+const checkDeletionUpdates = async (logger: OperationLogLine, tableName: string, candidate: TableParameters, current: TableParameters) => {
   const allowDeletion = !!candidate.allowDeletion;
 
   if (allowDeletion !== !!current.allowDeletion) {
-    await updateDeletion(tableName, allowDeletion);
+    await updateDeletion(logger, tableName, allowDeletion);
   }
 };
 
-const checkTimeToLiveUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+const checkTimeToLiveUpdates = async (
+  logger: OperationLogLine,
+  tableName: string,
+  candidate: TableParameters,
+  current: TableParameters
+) => {
   const newAttributeName = candidate.ttlAttribute;
   const oldAttributeName = current.ttlAttribute;
 
   if (newAttributeName !== oldAttributeName && (newAttributeName || oldAttributeName)) {
-    await updateTimeToLive(tableName, {
+    await updateTimeToLive(logger, tableName, {
       attributeName: newAttributeName ?? oldAttributeName!,
       enabled: !!newAttributeName
     });
@@ -165,7 +181,7 @@ const getAttributeSchemaMap = (attributeSchemas: AttributeSchemaGroup[]): Record
   }, {});
 };
 
-const checkIndexUpdates = async (tableName: string, candidate: TableParameters, current: TableParameters) => {
+const checkIndexUpdates = async (logger: OperationLogLine, tableName: string, candidate: TableParameters, current: TableParameters) => {
   const [, ...targetAttributeSchema] = candidate.attributeSchema;
   const [, ...sourceAttributeSchema] = current.attributeSchema;
 
@@ -176,33 +192,33 @@ const checkIndexUpdates = async (tableName: string, candidate: TableParameters, 
 
   if (attributeSchemaChanges.create) {
     for (const indexName in attributeSchemaChanges.create) {
-      const exists = await importIndex(tableName, targetAttributeSchemaMap[indexName]);
+      const exists = await importIndex(logger, tableName, targetAttributeSchemaMap[indexName]);
 
       if (!exists) {
-        await createIndex(tableName, targetAttributeSchemaMap[indexName]);
+        await createIndex(logger, tableName, targetAttributeSchemaMap[indexName]);
       }
     }
   }
 
   if (attributeSchemaChanges.update) {
     for (const indexName in attributeSchemaChanges.update) {
-      await deleteIndex(tableName, sourceAttributeSchemaMap[indexName]);
-      await createIndex(tableName, targetAttributeSchemaMap[indexName]);
+      await deleteIndex(logger, tableName, sourceAttributeSchemaMap[indexName]);
+      await createIndex(logger, tableName, targetAttributeSchemaMap[indexName]);
     }
   }
 
   if (attributeSchemaChanges.remove) {
     for (const indexName in attributeSchemaChanges.remove) {
-      await deleteIndex(tableName, sourceAttributeSchemaMap[indexName]);
+      await deleteIndex(logger, tableName, sourceAttributeSchemaMap[indexName]);
     }
   }
 };
 
-const checkTagUpdates = async (tableArn: Arn, candidate: TableParameters, current: TableParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, tableArn: Arn, candidate: TableParameters, current: TableParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagTable(tableArn, tags),
-    (tags) => untagTable(tableArn, tags)
+    (tags) => tagTable(logger, tableArn, tags),
+    (tags) => untagTable(logger, tableArn, tags)
   );
 };

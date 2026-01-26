@@ -1,7 +1,8 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 
-import { getServiceName, Logger, triggerAllAsync } from '@ez4/project/library';
+import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await getDatabaseClient(service, options);

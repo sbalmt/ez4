@@ -6,7 +6,8 @@ import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { isAnyObject, toKebabCase } from '@ez4/utils';
-import { getServiceName, Logger } from '@ez4/project/library';
+import { getServiceName } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
   const storageIdentifier = getServiceName(serviceName, serveOptions);

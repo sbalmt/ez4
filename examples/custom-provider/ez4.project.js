@@ -12,8 +12,10 @@ export default {
     path: 'ez4-deploy'
   },
   deployOptions: {
-    tagName: 'ReleaseVersion',
-    variableName: 'RELEASE_VERSION',
-    version: '1.0.0'
+    release: {
+      tagName: 'ReleaseVersion',
+      variableName: 'RELEASE_VERSION',
+      version: '1.0.0'
+    }
   }
 };

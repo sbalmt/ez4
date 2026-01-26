@@ -7,7 +7,7 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 
-describe('migration :: create update tests', () => {
+describe('migration :: update constraint tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties) => {
     return getTableRepository([
       {
@@ -66,6 +66,7 @@ describe('migration :: create update tests', () => {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
         },
         {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456'))`
         }
       ],

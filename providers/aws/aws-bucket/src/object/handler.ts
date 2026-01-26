@@ -1,14 +1,15 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { ResourceTags } from '@ez4/aws-common';
+import type { OperationLogLine, ResourceTags } from '@ez4/aws-common';
 import type { ObjectState, ObjectResult, ObjectParameters } from './types';
 
 import { stat } from 'node:fs/promises';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getBucketName } from '../bucket/utils';
-import { putObject, deleteObject, tagObject } from './client';
+import { putObject, deleteObject, updateTags } from './client';
+import { getBucketObjectPath } from './utils';
 import { ObjectServiceName } from './types';
 
 export const getObjectHandler = (): StepHandler<ObjectState> => ({
@@ -59,45 +60,57 @@ const replaceResource = async (candidate: ObjectState, current: ObjectState, con
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: ObjectState, context: StepContext): Promise<ObjectResult> => {
+const createResource = (candidate: ObjectState, context: StepContext): Promise<ObjectResult> => {
   const parameters = candidate.parameters;
 
   const bucketName = getBucketName(ObjectServiceName, 'bucket', context);
+  const objectName = getBucketObjectPath(bucketName, parameters.objectKey);
 
-  const lastModified = await getLastModifiedTime(parameters.filePath);
+  return OperationLogger.logExecution(ObjectServiceName, objectName, 'creation', async (logger) => {
+    const lastModified = await getLastModifiedTime(parameters.filePath);
 
-  const { objectKey } = await putObject(bucketName, parameters);
+    const { objectKey } = await putObject(logger, bucketName, parameters);
 
-  await checkTagUpdates(bucketName, objectKey, parameters.tags, candidate.parameters.tags);
+    await checkTagUpdates(logger, bucketName, objectKey, parameters.tags, candidate.parameters.tags);
 
-  return {
-    lastModified,
-    bucketName
-  };
+    return {
+      lastModified,
+      bucketName
+    };
+  });
 };
 
-const updateResource = async (candidate: ObjectState, current: ObjectState): Promise<ObjectResult | undefined> => {
+const updateResource = (candidate: ObjectState, current: ObjectState): Promise<ObjectResult> => {
   const { result, parameters } = candidate;
+  const { objectKey, tags } = parameters;
+
+  if (!result) {
+    throw new CorruptedResourceError(ObjectServiceName, objectKey);
+  }
+
+  const objectName = getBucketObjectPath(result.bucketName, objectKey);
+
+  return OperationLogger.logExecution(ObjectServiceName, objectName, 'updates', async (logger) => {
+    const newResult = checkObjectUpdates(logger, result, parameters, current.parameters);
+
+    await checkTagUpdates(logger, result.bucketName, objectKey, tags, current.parameters.tags);
+
+    return newResult;
+  });
+};
+
+const deleteResource = async (current: ObjectState) => {
+  const { result, parameters } = current;
 
   if (!result) {
     return;
   }
 
-  const { objectKey, tags } = parameters;
+  const objectName = getBucketObjectPath(result.bucketName, parameters.objectKey);
 
-  const newResult = checkObjectUpdates(result, parameters, current.parameters);
-
-  await checkTagUpdates(result.bucketName, objectKey, tags, current.parameters.tags);
-
-  return newResult;
-};
-
-const deleteResource = async (candidate: ObjectState) => {
-  const { result, parameters } = candidate;
-
-  if (result) {
-    await deleteObject(result.bucketName, parameters.objectKey);
-  }
+  await OperationLogger.logExecution(ObjectServiceName, objectName, 'deletion', async (logger) => {
+    await deleteObject(logger, result.bucketName, parameters.objectKey);
+  });
 };
 
 const getLastModifiedTime = async (filePath: string) => {
@@ -106,7 +119,12 @@ const getLastModifiedTime = async (filePath: string) => {
   return mtime.getTime();
 };
 
-const checkObjectUpdates = async (result: ObjectResult, candidate: ObjectParameters, current: ObjectParameters) => {
+const checkObjectUpdates = async (
+  logger: OperationLogLine,
+  result: ObjectResult,
+  candidate: ObjectParameters,
+  current: ObjectParameters
+) => {
   const lastModified = await getLastModifiedTime(candidate.filePath);
 
   if (lastModified <= result.lastModified && candidate.filePath === current.filePath) {
@@ -117,7 +135,7 @@ const checkObjectUpdates = async (result: ObjectResult, candidate: ObjectParamet
 
   const { objectKey } = current;
 
-  await putObject(bucketName, {
+  await putObject(logger, bucketName, {
     ...candidate,
     objectKey
   });
@@ -129,6 +147,7 @@ const checkObjectUpdates = async (result: ObjectResult, candidate: ObjectParamet
 };
 
 const checkTagUpdates = async (
+  logger: OperationLogLine,
   bucketName: string,
   objectKey: string,
   candidate: ResourceTags | undefined,
@@ -138,6 +157,6 @@ const checkTagUpdates = async (
   const hasChanges = !deepEqual(newTags, current ?? {});
 
   if (hasChanges) {
-    await tagObject(bucketName, objectKey, newTags);
+    await updateTags(logger, bucketName, objectKey, newTags);
   }
 };

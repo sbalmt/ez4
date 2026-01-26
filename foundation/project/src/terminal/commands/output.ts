@@ -1,7 +1,7 @@
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadProviders } from '../../config/providers';
@@ -16,13 +16,13 @@ export const outputCommand = async (input: InputOptions, project: ProjectOptions
     Logger.setLevel(LogLevel.Debug);
   }
 
-  await Logger.execute('⚡ Initializing', () => {
+  await DynamicLogger.logExecution('⚡ Initializing', () => {
     return loadProviders(project);
   });
 
   warnUnsupportedFlags(input);
 
-  const currentState = await Logger.execute('🔄️ Loading state', () => {
+  const currentState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
     return loadState(project.stateFile, options);
   });
 

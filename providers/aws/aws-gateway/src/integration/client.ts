@@ -1,18 +1,13 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   CreateIntegrationCommand,
   UpdateIntegrationCommand,
   DeleteIntegrationCommand,
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, tryParseArn, waitUpdates } from '@ez4/aws-common';
-
-import { IntegrationServiceName } from './types';
-
-const client = new ApiGatewayV2Client({});
+import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
   http: boolean;
@@ -28,14 +23,12 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createIntegration = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+export const createIntegration = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating integration`);
+
   const { http, functionArn, vpcId, timeout, description } = request;
 
-  const functionName = tryParseArn(functionArn)?.resourceName ?? functionArn;
-
-  Logger.logCreate(IntegrationServiceName, functionName);
-
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateIntegrationCommand({
       ApiId: apiId,
       Description: description,
@@ -54,32 +47,30 @@ export const createIntegration = async (apiId: string, request: CreateRequest): 
   };
 };
 
-export const updateIntegration = async (apiId: string, integrationId: string, request: UpdateRequest) => {
+export const updateIntegration = async (logger: OperationLogLine, apiId: string, integrationId: string, request: UpdateRequest) => {
+  logger.update(`Updating integration`);
+
   const { http, functionArn, vpcId, timeout, description } = request;
 
-  Logger.logUpdate(IntegrationServiceName, integrationId);
-
-  await waitUpdates(() => {
-    return client.send(
-      new UpdateIntegrationCommand({
-        ApiId: apiId,
-        IntegrationId: integrationId,
-        Description: description,
-        IntegrationUri: functionArn,
-        PayloadFormatVersion: http ? '2.0' : undefined,
-        ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
-        TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
-        ConnectionId: vpcId
-      })
-    );
-  });
+  return getApiGatewayV2Client().send(
+    new UpdateIntegrationCommand({
+      ApiId: apiId,
+      IntegrationId: integrationId,
+      Description: description,
+      IntegrationUri: functionArn,
+      PayloadFormatVersion: http ? '2.0' : undefined,
+      ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
+      TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
+      ConnectionId: vpcId
+    })
+  );
 };
 
-export const deleteIntegration = async (apiId: string, integrationId: string) => {
-  Logger.logDelete(IntegrationServiceName, integrationId);
+export const deleteIntegration = async (logger: OperationLogLine, apiId: string, integrationId: string) => {
+  logger.update(`Deleting integration`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteIntegrationCommand({
         ApiId: apiId,
         IntegrationId: integrationId

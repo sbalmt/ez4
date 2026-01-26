@@ -143,12 +143,25 @@ export type ProjectCustomProviders = {
 
 export type ProjectDeployOptions = {
   /**
-   * Release version attached to the resources during the deployment.
+   * Specify the deployment release.
+   */
+  release?: ProjectDeployReleaseOptions;
+
+  /**
+   * Determines the maximum amount of resources changes at the same time.
+   * Default is: `15`
+   */
+  maxConcurrency: number;
+};
+
+export type ProjectDeployReleaseOptions = {
+  /**
+   * Version attached to the resources during the deployment.
    */
   version: string;
 
   /**
-   * Name of the variable to hold the latest release version.
+   * Name of the environment variable to hold the latest release version.
    */
   variableName?: string;
 

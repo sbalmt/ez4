@@ -1,7 +1,6 @@
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
-  ApiGatewayV2Client,
   CreateAuthorizerCommand,
   UpdateAuthorizerCommand,
   DeleteAuthorizerCommand,
@@ -9,12 +8,8 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
-import { Logger, waitUpdates } from '@ez4/aws-common';
-
-import { AuthorizerServiceName } from './types';
+import { getApiGatewayV2Client } from '../utils/deploy';
 import { getAuthorizerUri } from './utils';
-
-const client = new ApiGatewayV2Client({});
 
 export type CreateRequest = {
   name: string;
@@ -31,15 +26,15 @@ export type CreateResponse = {
 
 export type UpdateRequest = Omit<CreateRequest, 'functionArn'> & Partial<Pick<CreateRequest, 'functionArn'>>;
 
-export const createAuthorizer = async (apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+export const createAuthorizer = async (logger: OperationLogLine, apiId: string, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating authorizer`);
+
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
-  Logger.logCreate(AuthorizerServiceName, name);
-
-  const response = await client.send(
+  const response = await getApiGatewayV2Client().send(
     new CreateAuthorizerCommand({
+      Name: name,
       ApiId: apiId,
-      Name: request.name,
       AuthorizerUri: await getAuthorizerUri(functionArn),
       AuthorizerPayloadFormatVersion: http ? '2.0' : undefined,
       AuthorizerType: AuthorizerType.REQUEST,
@@ -60,39 +55,37 @@ export const createAuthorizer = async (apiId: string, request: CreateRequest): P
   };
 };
 
-export const updateAuthorizer = async (apiId: string, authorizerId: string, request: UpdateRequest) => {
+export const updateAuthorizer = async (logger: OperationLogLine, apiId: string, authorizerId: string, request: UpdateRequest) => {
+  logger.update(`Updating authorizer`);
+
   const { name, http, functionArn, headerNames, queryNames, cacheTTL } = request;
 
-  Logger.logUpdate(AuthorizerServiceName, name ?? authorizerId);
-
-  await waitUpdates(async () => {
-    return client.send(
-      new UpdateAuthorizerCommand({
-        ApiId: apiId,
-        Name: request.name,
-        AuthorizerId: authorizerId,
-        AuthorizerResultTtlInSeconds: cacheTTL,
-        ...(functionArn && {
-          AuthorizerUri: await getAuthorizerUri(functionArn)
-        }),
-        ...(http && {
-          EnableSimpleResponses: false
-        }),
-        IdentitySource: getIdentitySources({
-          headerNames,
-          queryNames,
-          http
-        })
+  return getApiGatewayV2Client().send(
+    new UpdateAuthorizerCommand({
+      Name: name,
+      ApiId: apiId,
+      AuthorizerId: authorizerId,
+      AuthorizerResultTtlInSeconds: cacheTTL,
+      ...(functionArn && {
+        AuthorizerUri: await getAuthorizerUri(functionArn)
+      }),
+      ...(http && {
+        EnableSimpleResponses: false
+      }),
+      IdentitySource: getIdentitySources({
+        headerNames,
+        queryNames,
+        http
       })
-    );
-  });
+    })
+  );
 };
 
-export const deleteAuthorizer = async (apiId: string, authorizerId: string) => {
-  Logger.logDelete(AuthorizerServiceName, authorizerId);
+export const deleteAuthorizer = async (logger: OperationLogLine, apiId: string, authorizerId: string) => {
+  logger.update(`Deleting authorizer`);
 
   try {
-    await client.send(
+    await getApiGatewayV2Client().send(
       new DeleteAuthorizerCommand({
         ApiId: apiId,
         AuthorizerId: authorizerId

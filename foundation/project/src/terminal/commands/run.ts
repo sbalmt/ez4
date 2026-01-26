@@ -1,7 +1,8 @@
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { Runner, Logger, LogLevel } from '@ez4/project/library';
+import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
+import { Runner } from '@ez4/project/library';
 
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
@@ -22,7 +23,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports] = await Logger.execute('⚡ Initializing', () => {
+  const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
     return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
   });
 
@@ -36,7 +37,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
   options.imports = allImports;
   options.suppress = true;
 
-  const emulators = await Logger.execute('🔄️ Loading emulators', () => {
+  const emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
       aliasPaths
     });
@@ -47,7 +48,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
   const allScriptFiles = input.arguments ?? [];
   const workingDirectory = process.cwd();
 
-  await Logger.execute('▶️  Running script', async () => {
+  await DynamicLogger.logExecution('▶️  Running script', async () => {
     Runner.configure(emulators, options);
 
     await prepareServices(emulators);

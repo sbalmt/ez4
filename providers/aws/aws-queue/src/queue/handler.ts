@@ -1,8 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { QueueState, QueueResult, QueueParameters } from './types';
 import type { CreateRequest, DeadLetter, UpdateRequest } from './client';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { fetchQueue, createQueue, deleteQueue, tagQueue, untagQueue, updateQueue } from './client';
@@ -48,91 +49,109 @@ const replaceResource = async (candidate: QueueState, current: QueueState, conte
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: QueueState, context: StepContext): Promise<QueueResult> => {
+const createResource = (candidate: QueueState, context: StepContext): Promise<QueueResult> => {
   const { deadLetter, ...parameters } = candidate.parameters;
 
-  const deadLetterArn = deadLetter && getQueueArn(QueueServiceName, 'dead-letter', context);
+  return OperationLogger.logExecution(QueueServiceName, parameters.queueName, 'creation', async (logger) => {
+    const deadLetterArn = deadLetter && getQueueArn(QueueServiceName, 'dead-letter', context);
 
-  const request = {
-    ...parameters,
-    ...(deadLetterArn && {
-      deadLetter: {
-        ...deadLetter,
-        targetQueueArn: deadLetterArn
-      }
-    })
-  };
+    const request = {
+      ...parameters,
+      ...(deadLetterArn && {
+        deadLetter: {
+          ...deadLetter,
+          targetQueueArn: deadLetterArn
+        }
+      })
+    };
 
-  if (parameters.import) {
-    const { queueUrl } = await fetchQueue(parameters.queueName);
+    if (parameters.import) {
+      const { queueUrl } = await fetchQueue(logger, parameters.queueName);
 
-    await updateQueue(queueUrl, request);
+      await updateQueue(logger, queueUrl, request);
+
+      return {
+        deadLetterArn,
+        queueUrl
+      };
+    }
+
+    const { queueUrl } = await createQueue(logger, request);
 
     return {
       deadLetterArn,
       queueUrl
     };
-  }
-
-  const { queueUrl } = await createQueue(request);
-
-  return {
-    deadLetterArn,
-    queueUrl
-  };
+  });
 };
 
-const updateResource = async (candidate: QueueState, current: QueueState, context: StepContext) => {
+const updateResource = (candidate: QueueState, current: QueueState, context: StepContext): Promise<QueueResult> => {
   const { result, parameters } = candidate;
+  const { queueName } = parameters;
+
+  if (!result) {
+    throw new CorruptedResourceError(QueueServiceName, queueName);
+  }
+
+  if (parameters.import) {
+    return Promise.resolve(result);
+  }
+
+  return OperationLogger.logExecution(QueueServiceName, queueName, 'updates', async (logger) => {
+    const { deadLetter: newDeadLetter, ...newParameters } = candidate.parameters;
+    const { deadLetter: oldDeadLetter, ...oldParameters } = current.parameters;
+
+    const newDeadLetterArn = newDeadLetter && getQueueArn(QueueServiceName, 'dead-letter', context);
+    const oldDeadLetterArn = oldDeadLetter && current.result?.deadLetterArn;
+
+    const newRequest = {
+      ...newParameters,
+      ...(newDeadLetterArn && {
+        deadLetter: {
+          ...newDeadLetter,
+          targetQueueArn: newDeadLetterArn
+        } as DeadLetter
+      })
+    };
+
+    const oldRequest = {
+      ...oldParameters,
+      ...(oldDeadLetterArn && {
+        deadLetter: {
+          ...oldDeadLetter,
+          targetQueueArn: oldDeadLetterArn
+        }
+      })
+    };
+
+    await checkGeneralUpdates(logger, result.queueUrl, newRequest, oldRequest);
+    await checkTagUpdates(logger, result.queueUrl, parameters, current.parameters);
+
+    return {
+      ...result,
+      deadLetterArn: newDeadLetterArn
+    };
+  });
+};
+
+const deleteResource = (current: QueueState) => {
+  const { result, parameters } = current;
 
   if (!result || parameters.import) {
     return;
   }
 
-  const { deadLetter: newDeadLetter, ...newParameters } = candidate.parameters;
-  const { deadLetter: oldDeadLetter, ...oldParameters } = current.parameters;
-
-  const newDeadLetterArn = newDeadLetter && getQueueArn(QueueServiceName, 'dead-letter', context);
-  const oldDeadLetterArn = oldDeadLetter && current.result?.deadLetterArn;
-
-  const newRequest = {
-    ...newParameters,
-    ...(newDeadLetterArn && {
-      deadLetter: {
-        ...newDeadLetter,
-        targetQueueArn: newDeadLetterArn
-      } as DeadLetter
-    })
-  };
-
-  const oldRequest = {
-    ...oldParameters,
-    ...(oldDeadLetterArn && {
-      deadLetter: {
-        ...oldDeadLetter,
-        targetQueueArn: oldDeadLetterArn
-      }
-    })
-  };
-
-  await checkGeneralUpdates(result.queueUrl, newRequest, oldRequest);
-  await checkTagUpdates(result.queueUrl, parameters, current.parameters);
-
-  return {
-    ...result,
-    deadLetterArn: newDeadLetterArn
-  };
+  return OperationLogger.logExecution(QueueServiceName, parameters.queueName, 'deletion', async (logger) => {
+    await deleteQueue(logger, result.queueUrl);
+  });
 };
 
-const deleteResource = async (candidate: QueueState) => {
-  const { result, parameters } = candidate;
-
-  if (result && !parameters.import) {
-    await deleteQueue(result.queueUrl);
-  }
-};
-
-const checkGeneralUpdates = async (queueUrl: string, candidate: GeneralUpdateParameters, current: GeneralUpdateParameters) => {
+const checkGeneralUpdates = async (
+  logger: OperationLogLine,
+  queueUrl: string,
+  candidate: GeneralUpdateParameters,
+  current: GeneralUpdateParameters
+) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       queueName: true,
@@ -141,15 +160,15 @@ const checkGeneralUpdates = async (queueUrl: string, candidate: GeneralUpdatePar
   });
 
   if (hasChanges) {
-    await updateQueue(queueUrl, candidate);
+    await updateQueue(logger, queueUrl, candidate);
   }
 };
 
-const checkTagUpdates = async (queueUrl: string, candidate: QueueParameters, current: QueueParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, queueUrl: string, candidate: QueueParameters, current: QueueParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagQueue(queueUrl, tags),
-    (tags) => untagQueue(queueUrl, tags)
+    (tags) => tagQueue(logger, queueUrl, tags),
+    (tags) => untagQueue(logger, queueUrl, tags)
   );
 };

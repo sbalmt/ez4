@@ -1,5 +1,5 @@
 import type { StepContext, StepHandler } from '@ez4/stateful';
-import type { Arn } from '@ez4/aws-common';
+import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { CreateRequest, UpdateRequest } from './client';
 
 import type {
@@ -11,7 +11,7 @@ import type {
   DistributionAdditionalOrigin
 } from './types';
 
-import { applyTagUpdates, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getOriginAccessId } from '../access/utils';
@@ -74,39 +74,42 @@ const replaceResource = async (candidate: DistributionState, current: Distributi
   return createResource(candidate, context);
 };
 
-const createResource = async (candidate: DistributionState, context: StepContext): Promise<DistributionResult> => {
+const createResource = (candidate: DistributionState, context: StepContext): Promise<DistributionResult> => {
   const parameters = candidate.parameters;
-  const resourceId = parameters.distributionName;
 
-  const certificateArn = tryGetCertificateArn(context);
-  const originAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
+  const distributionName = parameters.distributionName;
 
-  const originsData = await getOriginsData(parameters, context);
-  const allOrigins = bindOriginsData(parameters, originsData);
+  return OperationLogger.logExecution(DistributionServiceName, distributionName, 'creation', async (logger) => {
+    const certificateArn = tryGetCertificateArn(context);
+    const originAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
 
-  const { distributionId, distributionArn, endpoint } = await createDistribution({
-    ...parameters,
-    ...allOrigins,
-    originAccessId,
-    certificateArn
+    const originsData = await getOriginsData(parameters, context);
+    const allOrigins = bindOriginsData(parameters, originsData);
+
+    const { distributionId, distributionArn, endpoint } = await createDistribution(logger, {
+      ...parameters,
+      ...allOrigins,
+      originAccessId,
+      certificateArn
+    });
+
+    lockSensitiveData(candidate);
+
+    const [defaultOrigin, ...origins] = originsData;
+
+    return {
+      endpoint,
+      distributionId,
+      distributionArn,
+      certificateArn,
+      originAccessId,
+      defaultOrigin,
+      origins
+    };
   });
-
-  lockSensitiveData(candidate);
-
-  const [defaultOrigin, ...origins] = originsData;
-
-  return {
-    endpoint,
-    distributionId,
-    distributionArn,
-    certificateArn,
-    originAccessId,
-    defaultOrigin,
-    origins
-  };
 };
 
-const updateResource = async (
+const updateResource = (
   candidate: DistributionState,
   current: DistributionState,
   context: StepContext
@@ -114,76 +117,82 @@ const updateResource = async (
   const { result, parameters } = candidate;
 
   if (!result) {
-    return;
+    return Promise.resolve(undefined);
   }
 
-  const resourceId = parameters.distributionName;
+  const distributionName = parameters.distributionName;
 
-  const newCertificateArn = tryGetCertificateArn(context);
-  const oldCertificateArn = current.result?.certificateArn;
+  return OperationLogger.logExecution(DistributionServiceName, distributionName, 'updates', async (logger) => {
+    const newCertificateArn = tryGetCertificateArn(context);
+    const oldCertificateArn = current.result?.certificateArn;
 
-  const newOriginAccessId = getOriginAccessId(DistributionServiceName, resourceId, context);
-  const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
+    const newOriginAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
+    const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
 
-  const newOriginsData = await getOriginsData(parameters, context);
-  const newAllOrigins = bindOriginsData(parameters, newOriginsData);
+    const newOriginsData = await getOriginsData(parameters, context);
+    const newAllOrigins = bindOriginsData(parameters, newOriginsData);
 
-  const newRequest = {
-    ...parameters,
-    ...newAllOrigins,
-    originAccessId: newOriginAccessId,
-    certificateArn: newCertificateArn
-  };
+    const newRequest = {
+      ...parameters,
+      ...newAllOrigins,
+      originAccessId: newOriginAccessId,
+      certificateArn: newCertificateArn
+    };
 
-  const oldOriginsData = [result.defaultOrigin, ...result.origins];
-  const oldAllOrigins = bindOriginsData(current.parameters, oldOriginsData);
+    const oldOriginsData = [result.defaultOrigin, ...result.origins];
+    const oldAllOrigins = bindOriginsData(current.parameters, oldOriginsData);
 
-  const oldRequest = {
-    ...current.parameters,
-    ...oldAllOrigins,
-    originAccessId: oldOriginAccessId,
-    certificateArn: oldCertificateArn
-  };
+    const oldRequest = {
+      ...current.parameters,
+      ...oldAllOrigins,
+      originAccessId: oldOriginAccessId,
+      certificateArn: oldCertificateArn
+    };
 
-  await checkGeneralUpdates(result.distributionId, newRequest, oldRequest);
-  await checkTagUpdates(result.distributionArn, parameters, current.parameters);
+    await checkGeneralUpdates(logger, result.distributionId, newRequest, oldRequest);
+    await checkTagUpdates(logger, result.distributionArn, parameters, current.parameters);
 
-  lockSensitiveData(candidate);
+    lockSensitiveData(candidate);
 
-  const [defaultOrigin, ...origins] = newOriginsData;
+    const [defaultOrigin, ...origins] = newOriginsData;
 
-  return {
-    ...result,
-    certificateArn: newCertificateArn,
-    originAccessId: newOriginAccessId,
-    defaultOrigin,
-    origins
-  };
+    return {
+      ...result,
+      certificateArn: newCertificateArn,
+      originAccessId: newOriginAccessId,
+      defaultOrigin,
+      origins
+    };
+  });
 };
 
-const deleteResource = async (candidate: DistributionState) => {
-  const { result, parameters } = candidate;
+const deleteResource = async (current: DistributionState) => {
+  const { result, parameters } = current;
 
   if (!result) {
     return;
   }
 
-  const { distributionId, originAccessId } = result;
+  const { distributionName } = parameters;
 
-  // Only disabled distributions can be deleted.
-  if (parameters.enabled) {
-    const originsData = [result.defaultOrigin, ...result.origins];
-    const allOrigins = bindOriginsData(parameters, originsData);
+  await OperationLogger.logExecution(DistributionServiceName, distributionName, 'deletion', async (logger) => {
+    const { distributionId, originAccessId } = result;
 
-    await updateDistribution(distributionId, {
-      ...parameters,
-      ...allOrigins,
-      originAccessId,
-      enabled: false
-    });
-  }
+    // Only disabled distributions can be deleted.
+    if (parameters.enabled) {
+      const originsData = [result.defaultOrigin, ...result.origins];
+      const allOrigins = bindOriginsData(parameters, originsData);
 
-  await deleteDistribution(distributionId);
+      await updateDistribution(logger, distributionId, {
+        ...parameters,
+        ...allOrigins,
+        originAccessId,
+        enabled: false
+      });
+    }
+
+    await deleteDistribution(logger, distributionId);
+  });
 };
 
 const protectOriginHeaders = <T extends (DistributionDefaultOrigin | DistributionAdditionalOrigin)[]>(origins: T) => {
@@ -241,7 +250,12 @@ const bindOriginsData = (parameters: DistributionParameters, originsData: Distri
   };
 };
 
-const checkGeneralUpdates = async (distributionId: string, candidate: GeneralUpdateParameters, current: GeneralUpdateParameters) => {
+const checkGeneralUpdates = async (
+  logger: OperationLogLine,
+  distributionId: string,
+  candidate: GeneralUpdateParameters,
+  current: GeneralUpdateParameters
+) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
       tags: true
@@ -249,15 +263,20 @@ const checkGeneralUpdates = async (distributionId: string, candidate: GeneralUpd
   });
 
   if (hasChanges) {
-    await updateDistribution(distributionId, candidate);
+    await updateDistribution(logger, distributionId, candidate);
   }
 };
 
-const checkTagUpdates = async (distributionArn: Arn, candidate: DistributionParameters, current: DistributionParameters) => {
+const checkTagUpdates = async (
+  logger: OperationLogLine,
+  distributionArn: Arn,
+  candidate: DistributionParameters,
+  current: DistributionParameters
+) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagDistribution(distributionArn, tags),
-    (tags) => untagDistribution(distributionArn, tags)
+    (tags) => tagDistribution(logger, distributionArn, tags),
+    (tags) => untagDistribution(logger, distributionArn, tags)
   );
 };

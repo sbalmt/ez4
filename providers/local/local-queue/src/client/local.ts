@@ -4,7 +4,7 @@ import type { MessageSchema } from '@ez4/queue/utils';
 import type { AnyObject } from '@ez4/utils';
 
 import { getJsonMessage } from '@ez4/queue/utils';
-import { Logger } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 export type LocalClientOptions = ServeOptions & {
   handler: (message: AnyObject) => Promise<void>;

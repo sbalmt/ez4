@@ -106,6 +106,7 @@ export type EmulatorFallbackRequestEvent = {
 export type DeployEvent = {
   newState: EntryStates;
   oldState: EntryStates;
+  concurrency?: number;
   force?: boolean;
 };
 

@@ -1,7 +1,6 @@
-import type { Arn, ResourceTags } from '@ez4/aws-common';
+import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
 
 import {
-  CloudWatchLogsClient,
   CreateLogGroupCommand,
   DeleteLogGroupCommand,
   PutRetentionPolicyCommand,
@@ -12,12 +11,8 @@ import {
   ResourceNotFoundException
 } from '@aws-sdk/client-cloudwatch-logs';
 
-import { Logger, tryParseArn, waitCreation } from '@ez4/aws-common';
-
+import { getCloudWatchLogsClient } from '../utils/deploy';
 import { getLogGroupArn } from '../utils/group';
-import { LogGroupServiceName } from './types';
-
-const client = new CloudWatchLogsClient({});
 
 export type CreateRequest = {
   groupName: string;
@@ -28,13 +23,13 @@ export type CreateResponse = {
   groupArn: Arn;
 };
 
-export const createGroup = async (request: CreateRequest): Promise<CreateResponse> => {
+export const createGroup = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+  logger.update(`Creating log group`);
+
   const { groupName } = request;
 
-  Logger.logCreate(LogGroupServiceName, groupName);
-
   try {
-    await client.send(
+    await getCloudWatchLogsClient().send(
       new CreateLogGroupCommand({
         logGroupName: groupName,
         tags: {
@@ -56,35 +51,31 @@ export const createGroup = async (request: CreateRequest): Promise<CreateRespons
   };
 };
 
-export const createRetention = async (groupName: string, retention: number) => {
-  Logger.logCreate(LogGroupServiceName, `${groupName} retention`);
+export const createRetention = async (logger: OperationLogLine, groupName: string, retention: number) => {
+  logger.update(`Updating log group retention`);
 
-  await waitCreation(() => {
-    return client.send(
-      new PutRetentionPolicyCommand({
-        retentionInDays: retention,
-        logGroupName: groupName
-      })
-    );
-  });
+  return getCloudWatchLogsClient().send(
+    new PutRetentionPolicyCommand({
+      retentionInDays: retention,
+      logGroupName: groupName
+    })
+  );
 };
 
-export const deleteRetention = async (groupName: string) => {
-  Logger.logDelete(LogGroupServiceName, `${groupName} retention`);
+export const deleteRetention = async (logger: OperationLogLine, groupName: string) => {
+  logger.update(`Deleting log group retention`);
 
-  await client.send(
+  await getCloudWatchLogsClient().send(
     new DeleteRetentionPolicyCommand({
       logGroupName: groupName
     })
   );
 };
 
-export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
+export const tagGroup = async (logger: OperationLogLine, groupArn: Arn, tags: ResourceTags) => {
+  logger.update(`Tag log group`);
 
-  Logger.logTag(LogGroupServiceName, groupName);
-
-  await client.send(
+  await getCloudWatchLogsClient().send(
     new TagResourceCommand({
       resourceArn: groupArn,
       tags: {
@@ -95,12 +86,10 @@ export const tagGroup = async (groupArn: Arn, tags: ResourceTags) => {
   );
 };
 
-export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
-  const groupName = tryParseArn(groupArn)?.resourceName ?? groupArn;
+export const untagGroup = async (logger: OperationLogLine, groupArn: Arn, tagKeys: string[]) => {
+  logger.update(`Untag log group`);
 
-  Logger.logUntag(LogGroupServiceName, groupName);
-
-  await client.send(
+  await getCloudWatchLogsClient().send(
     new UntagResourceCommand({
       resourceArn: groupArn,
       tagKeys
@@ -108,11 +97,11 @@ export const untagGroup = async (groupArn: Arn, tagKeys: string[]) => {
   );
 };
 
-export const deleteGroup = async (groupName: string) => {
-  Logger.logDelete(LogGroupServiceName, groupName);
+export const deleteGroup = async (logger: OperationLogLine, groupName: string) => {
+  logger.update(`Deleting log group`);
 
   try {
-    await client.send(
+    await getCloudWatchLogsClient().send(
       new DeleteLogGroupCommand({
         logGroupName: groupName
       })

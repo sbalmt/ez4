@@ -2,6 +2,7 @@ export * from './triggers/register';
 
 export * from './utils/waiter';
 export * from './utils/resource';
+export * from './utils/clients';
 export * from './utils/names';
 
 export * from './errors/bundler';

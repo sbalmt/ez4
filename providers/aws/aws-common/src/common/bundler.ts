@@ -5,12 +5,13 @@ import { readFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
+import { cpus } from 'node:os';
 
 import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
+import { Logger } from '@ez4/logger';
 
 import { SourceFileError } from '../errors/bundler';
-import { Logger } from './logger';
 
 const fileCache = new Map<string, string>();
 const hashCache = new Map<string, string>();
@@ -78,7 +79,46 @@ export const getBundleHash = async (sourceFile: string, dependencyFiles: string[
   return bundleHash;
 };
 
+const maxTokens = Math.max(1, Math.floor(cpus().length / 2));
+
+const scheduleQueue: {
+  serviceName: string;
+  options: BundlerOptions;
+  resolve: (outputFile: string) => void;
+  reject: (reason?: any) => void;
+}[] = [];
+
+let activeTokens = 0;
+
 export const getFunctionBundle = async (serviceName: string, options: BundlerOptions) => {
+  if (activeTokens < maxTokens) {
+    try {
+      activeTokens++;
+      return await buildFunctionBundle(serviceName, options);
+    } finally {
+      activeTokens--;
+
+      const next = scheduleQueue.shift();
+
+      if (next) {
+        const { serviceName, options, resolve, reject } = next;
+
+        getFunctionBundle(serviceName, options).then(resolve).catch(reject);
+      }
+    }
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    scheduleQueue.push({
+      serviceName,
+      options,
+      resolve,
+      reject
+    });
+  });
+};
+
+export const buildFunctionBundle = async (serviceName: string, options: BundlerOptions) => {
   const { sourceFile, functionName } = options.handler;
 
   const cacheKey = `${sourceFile}:${functionName}`;
@@ -132,11 +172,11 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   ]);
 
   warnings.forEach((message) => {
-    Logger.logWarning(serviceName, message);
+    Logger.warn(`[${serviceName}]: ${message}`);
   });
 
   errors.forEach((message) => {
-    Logger.logError(serviceName, message);
+    Logger.error(`[${serviceName}]: ${message}`);
   });
 
   if (errors.length) {

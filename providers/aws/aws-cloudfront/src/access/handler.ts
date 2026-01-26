@@ -1,10 +1,11 @@
+import type { OperationLogLine } from '@ez4/aws-common';
 import type { StepHandler } from '@ez4/stateful';
 import type { AccessState, AccessResult, AccessParameters } from './types';
 
-import { ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createOriginAccess, updateAccess, deleteAccess } from './client';
+import { createOriginAccess, updateOriginAccess, deleteOriginAccess } from './client';
 import { AccessServiceName } from './types';
 
 export const getAccessHandler = (): StepHandler<AccessState> => ({
@@ -44,36 +45,53 @@ const replaceResource = async (candidate: AccessState, current: AccessState) => 
   return createResource(candidate);
 };
 
-const createResource = async (candidate: AccessState): Promise<AccessResult> => {
-  const { accessId } = await createOriginAccess(candidate.parameters);
+const createResource = (candidate: AccessState): Promise<AccessResult> => {
+  const { parameters } = candidate;
 
-  return {
-    accessId
-  };
+  const accessName = parameters.accessName;
+
+  return OperationLogger.logExecution(AccessServiceName, accessName, 'creation', async (logger) => {
+    const { accessId } = await createOriginAccess(logger, candidate.parameters);
+
+    return {
+      accessId
+    };
+  });
 };
 
-const updateResource = async (candidate: AccessState, current: AccessState) => {
+const updateResource = (candidate: AccessState, current: AccessState): Promise<AccessResult> => {
   const { result, parameters } = candidate;
+  const { accessName } = parameters;
+
+  if (!result) {
+    throw new CorruptedResourceError(AccessServiceName, accessName);
+  }
+
+  return OperationLogger.logExecution(AccessServiceName, accessName, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
+
+    return result;
+  });
+};
+
+const deleteResource = async (current: AccessState) => {
+  const { parameters, result } = current;
 
   if (!result) {
     return;
   }
 
-  await checkGeneralUpdates(result.accessId, parameters, current.parameters);
+  const accessName = parameters.accessName;
+
+  await OperationLogger.logExecution(AccessServiceName, accessName, 'deletion', async (logger) => {
+    await deleteOriginAccess(logger, result.accessId);
+  });
 };
 
-const deleteResource = async (candidate: AccessState) => {
-  const result = candidate.result;
-
-  if (result) {
-    await deleteAccess(result.accessId);
-  }
-};
-
-const checkGeneralUpdates = async (accessId: string, candidate: AccessParameters, current: AccessParameters) => {
+const checkGeneralUpdates = async (logger: OperationLogLine, accessId: string, candidate: AccessParameters, current: AccessParameters) => {
   const hasChanges = !deepEqual(candidate, current);
 
   if (hasChanges) {
-    await updateAccess(accessId, candidate);
+    await updateOriginAccess(logger, accessId, candidate);
   }
 };
