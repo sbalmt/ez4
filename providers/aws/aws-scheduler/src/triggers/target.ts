@@ -17,14 +17,16 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     throw new RoleMissingError();
   }
 
+  const defaults = options.defaults;
+
   const {
     handler,
     listener,
     variables,
-    runtime = options.defaults?.runtime ?? Defaults.Runtime,
-    architecture = options.defaults?.architecture ?? Defaults.Architecture,
-    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
-    memory = options.defaults?.memory ?? Defaults.Memory,
+    runtime = defaults?.runtime ?? Defaults.Runtime,
+    architecture = defaults?.architecture ?? Defaults.Architecture,
+    logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+    memory = defaults?.memory ?? Defaults.Memory,
     timeout = Defaults.Timeout
   } = service.target;
 
