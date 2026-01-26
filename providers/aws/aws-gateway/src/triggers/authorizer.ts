@@ -4,10 +4,11 @@ import type { EntryStates } from '@ez4/stateful';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
-import { createLogGroup } from '@ez4/aws-logs';
 import { tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { createLogGroup } from '@ez4/aws-logs';
+import { deepMerge } from '@ez4/utils';
 
 import { Defaults } from '../utils/defaults';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service';
@@ -31,14 +32,16 @@ export const getAuthorizerFunction = (
     throw new RoleMissingError();
   }
 
+  const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
+
   const {
     authorizer,
-    listener = service.defaults?.listener,
-    runtime = options.defaults?.runtime ?? Defaults.Runtime,
-    architecture = options.defaults?.architecture ?? Defaults.Architecture,
-    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
-    timeout = service.defaults?.timeout ?? Defaults.Timeout,
-    memory = options.defaults?.memory ?? Defaults.Memory
+    listener = defaults.listener,
+    runtime = defaults.runtime ?? Defaults.Runtime,
+    architecture = defaults.architecture ?? Defaults.Architecture,
+    logRetention = defaults.logRetention ?? Defaults.LogRetention,
+    timeout = defaults.timeout ?? Defaults.Timeout,
+    memory = defaults.memory ?? Defaults.Memory
   } = target;
 
   const internalName = getInternalName(service, authorizer.name);
