@@ -4,16 +4,23 @@ import type { ReflectionTypes } from '@ez4/reflection';
 import { createServiceMetadata, getServiceName } from '@ez4/project/library';
 
 import { Client } from '../client';
-import { ServiceName, ServiceType } from '../metadata/types';
+import { ServiceName, ServiceType, isCommonService } from '../metadata/types';
+import { createVirtualState } from '../virtual/service';
 import { prepareLinkedClient } from './client';
-import { isCommonService } from './utils';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
   return isCommonService(event.service) ? prepareLinkedClient() : null;
 };
 
 export const prepareCommonServices = (event: PrepareResourceEvent) => {
-  return isCommonService(event.service);
+  const { service, options, context } = event;
+
+  if (isCommonService(service)) {
+    context.setVirtualServiceState(service, options, createVirtualState(service));
+    return true;
+  }
+
+  return false;
 };
 
 export const getCommonServices = (_reflection: ReflectionTypes) => {
