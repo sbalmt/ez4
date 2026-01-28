@@ -11,7 +11,7 @@ export const prepareLinkedClient = (context: EventContext, service: BucketServic
     module: 'Client',
     from: '@ez4/aws-bucket/client',
     constructor: `@{EZ4_MODULE_IMPORT}.make('${bucketState.parameters.bucketName}')`,
-    connectionIds: [bucketId],
-    dependencyIds: [bucketId]
+    dependencyIds: [bucketId],
+    connectionIds: [bucketId]
   };
 };
