@@ -82,7 +82,7 @@ export const prepareTableStream = (
       }
     });
 
-    context.setServiceState(handlerState, internalName, options);
+    context.setServiceState(internalName, options, handlerState);
   }
 
   createMapping(state, tableState, handlerState, {

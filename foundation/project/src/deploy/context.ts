@@ -9,7 +9,7 @@ export const getEventContext = (dependencies: MetadataDependencies, role: EntryS
 
   return {
     role,
-    setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => {
+    setServiceState: (service: ServiceMetadata | string, options: DeployOptions, state: EntryState) => {
       setServiceState(aliases, state, service, options);
     },
     tryGetServiceState: (service: ServiceMetadata | string, options: DeployOptions) => {

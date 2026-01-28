@@ -73,7 +73,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     }
   });
 
-  context.setServiceState(handlerState, internalName, options);
+  context.setServiceState(internalName, options, handlerState);
 
   return handlerState;
 };

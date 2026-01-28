@@ -134,7 +134,7 @@ const getIntegrationFunction = (
       }
     });
 
-    context.setServiceState(handlerState, internalName, options);
+    context.setServiceState(internalName, options, handlerState);
   }
 
   const getPriorVariables = handlerState.parameters.getFunctionVariables;

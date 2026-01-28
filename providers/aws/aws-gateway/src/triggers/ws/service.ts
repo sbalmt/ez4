@@ -55,7 +55,7 @@ export const prepareWsServices = (event: PrepareResourceEvent) => {
     createDisconnectAction(state, service, gatewayState, options, context);
     createMessageAction(state, service, gatewayState, options, context);
 
-    context.setServiceState(gatewayState, service, options);
+    context.setServiceState(service, options, gatewayState);
 
     return true;
   }

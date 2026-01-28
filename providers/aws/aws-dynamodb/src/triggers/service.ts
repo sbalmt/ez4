@@ -91,7 +91,7 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
 
     const internalName = getInternalName(service, table);
 
-    context.setServiceState(tableState, internalName, options);
+    context.setServiceState(internalName, options, tableState);
 
     prepareTableStream(state, service, table, tableState, options, context);
   }

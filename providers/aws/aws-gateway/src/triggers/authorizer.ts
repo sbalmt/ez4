@@ -93,7 +93,7 @@ export const getAuthorizerFunction = (
       }
     });
 
-    context.setServiceState(authorizerState, internalName, options);
+    context.setServiceState(internalName, options, authorizerState);
   }
 
   const getPriorVariables = authorizerState.parameters.getFunctionVariables;

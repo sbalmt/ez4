@@ -45,7 +45,7 @@ export const prepareHttpImports = (event: PrepareResourceEvent) => {
       import: true
     });
 
-    context.setServiceState(gatewayState, service, options);
+    context.setServiceState(service, options, gatewayState);
 
     return true;
   }

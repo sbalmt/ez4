@@ -45,7 +45,7 @@ export const prepareImports = (event: PrepareResourceEvent) => {
     import: true
   });
 
-  context.setServiceState(queueState, service, options);
+  context.setServiceState(service, options, queueState);
 
   prepareSubscriptions(state, service, queueState, options, context);
 

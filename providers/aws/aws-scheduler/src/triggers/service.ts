@@ -51,7 +51,7 @@ export const prepareCronServices = (event: PrepareResourceEvent) => {
     maxAge
   });
 
-  context.setServiceState(scheduleState, service, options);
+  context.setServiceState(service, options, scheduleState);
 
   return true;
 };
