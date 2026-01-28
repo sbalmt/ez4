@@ -22,7 +22,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
     throw new MissingImportedProjectError(project);
   }
 
-  return prepareLinkedClient(context, service, imports[project]);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareImports = (event: PrepareResourceEvent) => {
