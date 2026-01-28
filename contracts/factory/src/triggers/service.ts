@@ -2,6 +2,8 @@ import type { EmulateServiceEvent, PrepareResourceEvent, ServiceEvent } from '@e
 import type { TypeClass } from '@ez4/reflection';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
+import { ServiceType } from '@ez4/common/library';
+import { hashData } from '@ez4/utils';
 
 import { isFactoryServiceDeclaration } from '../metadata/service';
 import { isFactoryService } from '../metadata/types';
@@ -22,7 +24,20 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 };
 
 export const prepareResources = (event: PrepareResourceEvent) => {
-  return isFactoryService(event.service);
+  const { service, options, context } = event;
+
+  if (isFactoryService(event.service)) {
+    return false;
+  }
+
+  context.setServiceState(service, options, {
+    entryId: hashData(ServiceType, service.name),
+    type: ServiceType,
+    dependencies: [],
+    parameters: null
+  });
+
+  return true;
 };
 
 export const getEmulatorService = (event: EmulateServiceEvent) => {

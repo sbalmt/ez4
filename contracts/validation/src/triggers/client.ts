@@ -1,19 +1,10 @@
-import type { DeployOptions, EventContext } from '@ez4/project/library';
+import type { DeployOptions, EventContext, LinkedServices } from '@ez4/project/library';
 import type { ValidationService } from '../metadata/types';
+
+import { isValidationState } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: ValidationService, options: DeployOptions) => {
   const { handler, schema, variables, services } = service;
-
-  const connectionIds = [];
-
-  for (const serviceName in services) {
-    const identity = services[serviceName];
-    const state = context.tryGetServiceState(identity, options);
-
-    if (state) {
-      connectionIds.push(state.entryId);
-    }
-  }
 
   return {
     module: handler.name,
@@ -34,9 +25,29 @@ export const prepareLinkedClient = (context: EventContext, service: ValidationSe
           return ${JSON.stringify(schema)};
         }
       })`,
-
-    connectionIds,
+    connectionIds: getAllConnections(services, context, options),
     variables,
     services
   };
+};
+
+const getAllConnections = (services: LinkedServices, context: EventContext, options: DeployOptions): string[] => {
+  const connectionIds = [];
+
+  for (const serviceName in services) {
+    const identity = services[serviceName];
+    const serviceState = context.tryGetServiceState(identity, options);
+
+    if (!serviceState) {
+      continue;
+    }
+
+    if (isValidationState(serviceState)) {
+      connectionIds.push(...getAllConnections(serviceState.parameters.services, context, options));
+    } else {
+      connectionIds.push(serviceState.entryId);
+    }
+  }
+
+  return connectionIds;
 };

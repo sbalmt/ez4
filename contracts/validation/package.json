@@ -57,6 +57,7 @@
     "@ez4/project": "^0.40.0",
     "@ez4/reflection": "^0.40.0",
     "@ez4/schema": "^0.40.0",
+    "@ez4/stateful": "^0.40.0",
     "@ez4/utils": "^0.40.0",
     "@ez4/validator": "^0.40.0"
   }
