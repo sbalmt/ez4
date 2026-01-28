@@ -26,7 +26,7 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
 export const prepareResources = (event: PrepareResourceEvent) => {
   const { service, options, context } = event;
 
-  if (isFactoryService(event.service)) {
+  if (!isFactoryService(event.service)) {
     return false;
   }
 
