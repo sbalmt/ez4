@@ -24,6 +24,12 @@ export const getServiceName = (service: ServiceMetadata | string, options: Commo
   return servicePrefix;
 };
 
+export const tryGetServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: CommonOptions) => {
+  const serviceName = getServiceName(service, options);
+
+  return aliases[serviceName];
+};
+
 export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: CommonOptions) => {
   const serviceName = getServiceName(service, options);
 

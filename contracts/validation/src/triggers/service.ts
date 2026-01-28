@@ -10,10 +10,10 @@ export const getLinkedService = (declaration: TypeClass): string | null => {
 };
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service } = event;
+  const { service, options, context } = event;
 
   if (isValidationService(service)) {
-    return prepareLinkedClient(service);
+    return prepareLinkedClient(context, service, options);
   }
 
   return null;

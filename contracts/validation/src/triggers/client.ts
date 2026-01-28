@@ -1,7 +1,19 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { ValidationService } from '../metadata/types';
 
-export const prepareLinkedClient = (service: ValidationService) => {
+export const prepareLinkedClient = (context: EventContext, service: ValidationService, options: DeployOptions) => {
   const { handler, schema, variables, services } = service;
+
+  const connectionIds = [];
+
+  for (const serviceName in services) {
+    const identity = services[serviceName];
+    const state = context.tryGetServiceState(identity, options);
+
+    if (state) {
+      connectionIds.push(state.entryId);
+    }
+  }
 
   return {
     module: handler.name,
@@ -23,6 +35,7 @@ export const prepareLinkedClient = (service: ValidationService) => {
         }
       })`,
 
+    connectionIds,
     variables,
     services
   };
