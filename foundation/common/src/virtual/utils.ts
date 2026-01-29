@@ -2,7 +2,7 @@ import type { DeployOptions, EventContext, LinkedServices } from '@ez4/project/l
 
 import { isVirtualState } from './types';
 
-export const getLinkedConnections = (services: LinkedServices, context: EventContext, options: DeployOptions): string[] => {
+export const getVirtualConnections = (services: LinkedServices, context: EventContext, options: DeployOptions): string[] => {
   const connectionIds = [];
 
   for (const serviceName in services) {
@@ -18,7 +18,7 @@ export const getLinkedConnections = (services: LinkedServices, context: EventCon
 
       if (serviceState.parameters.services) {
         const linkedServices = serviceState.parameters.services;
-        const linkedConnections = getLinkedConnections(linkedServices, context, options);
+        const linkedConnections = getVirtualConnections(linkedServices, context, options);
 
         connectionIds.push(...linkedConnections);
       }
