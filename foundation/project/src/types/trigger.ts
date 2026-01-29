@@ -53,8 +53,10 @@ export type AsyncEvent = {
 
 export type EventContext = {
   role: EntryState | null;
-  setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+  setServiceState: (service: ServiceMetadata | string, options: DeployOptions, state: EntryState) => void;
   getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
+  setVirtualServiceState: (service: ServiceMetadata | string, options: DeployOptions, state: EntryState) => void;
+  getVirtualServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState | undefined;
   getDependencyFiles: (fileName: string) => string[];
 };
 

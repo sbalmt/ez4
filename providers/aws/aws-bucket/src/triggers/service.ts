@@ -40,7 +40,7 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     cors
   });
 
-  context.setServiceState(bucketState, service, options);
+  context.setServiceState(service, options, bucketState);
 
   if (localPath) {
     await prepareLocalContent(state, bucketState, localPath);

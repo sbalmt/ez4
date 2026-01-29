@@ -76,7 +76,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     }
   });
 
-  context.setServiceState(handlerState, internalName, options);
+  context.setServiceState(internalName, options, handlerState);
 
   return handlerState;
 };
