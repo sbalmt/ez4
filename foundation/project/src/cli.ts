@@ -34,7 +34,12 @@ if (options?.command === CommandType.Serve || options?.command === CommandType.T
   }
 }
 
-spawn(
+process.on('SIGINT', () => {
+  childProcess.removeAllListeners('exit');
+  childProcess.once('exit', () => process.exit(0));
+});
+
+const childProcess = spawn(
   'node',
   [
     // Invocation options

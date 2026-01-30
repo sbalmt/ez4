@@ -4,9 +4,8 @@ import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
-import { lockDeploy } from '../../deploy/lock';
 import { applyDeploy } from '../../deploy/apply';
-import { unlockDeploy } from '../../deploy/unlock';
+import { performDeploy } from '../../deploy/perform';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState, saveState } from '../../utils/state';
 import { reportResourceChanges } from '../../deploy/changes';
@@ -51,12 +50,16 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     }
   }
 
-  await lockDeploy(options);
+  const deployState = await performDeploy(options, async () => {
+    const { result, errors } = await applyDeploy(newState, oldState, options);
 
-  const deployState = await applyDeploy(newState, oldState, options);
+    await saveState(project.stateFile, options, result);
 
-  await saveState(project.stateFile, options, deployState.result);
-  await unlockDeploy(options);
+    return {
+      result,
+      errors
+    };
+  });
 
   assertNoErrors(deployState.errors);
 };

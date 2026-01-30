@@ -4,9 +4,8 @@ import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
-import { lockDeploy } from '../../deploy/lock';
 import { applyDeploy } from '../../deploy/apply';
-import { unlockDeploy } from '../../deploy/unlock';
+import { performDeploy } from '../../deploy/perform';
 import { getEventContext } from '../../deploy/context';
 import { prepareExecutionRole } from '../../deploy/identity';
 import { prepareLinkedServices } from '../../deploy/services';
@@ -81,14 +80,17 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     }
   }
 
-  await lockDeploy(options);
+  const deployState = await performDeploy(options, async () => {
+    const { result, errors } = await applyDeploy(newState, oldState, options);
 
-  const deployState = await applyDeploy(newState, oldState, options);
+    await saveState(project.stateFile, options, result);
 
-  await saveState(project.stateFile, options, deployState.result);
-  await unlockDeploy(options);
+    return {
+      result,
+      errors
+    };
+  });
 
   reportResourcesOutput(deployState.result);
-
   assertNoErrors(deployState.errors);
 };
