@@ -9,11 +9,11 @@ export const performDeploy = async <T>(options: DeployOptions, callback: () => P
   process.on('SIGINT', async () => {
     process.stdin.resume();
 
-    await DynamicLogger.logExecution('\r🔓 WAIT! (Releasing lock for graceful shutdown)', () => {
+    await DynamicLogger.logExecution('\r🔓 Releasing lock (for graceful shutdown)', () => {
       return triggerAllAsync('deploy:unlock', (handler) => handler({ lockId }));
     });
 
-    Logger.warn('Deploy aborted');
+    Logger.warn('Deploy interrupted (side effects may have occurred)');
 
     process.exit(0);
   });
