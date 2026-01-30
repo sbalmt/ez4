@@ -32,7 +32,7 @@ export const prepareServices = (event: PrepareResourceEvent) => {
     tags: options.tags
   });
 
-  context.setServiceState(topicState, service, options);
+  context.setServiceState(service, options, topicState);
 
   prepareSubscriptions(state, service, topicState, options, context);
 

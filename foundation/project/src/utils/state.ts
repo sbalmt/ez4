@@ -7,6 +7,7 @@ import { triggerAllAsync } from '@ez4/project/library';
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { basename } from 'node:path';
+import { DynamicLogger } from '@ez4/logger';
 
 export const mergeState = (newState: EntryStates, oldState: EntryStates) => {
   for (const entityId in newState) {
@@ -17,50 +18,54 @@ export const mergeState = (newState: EntryStates, oldState: EntryStates) => {
 };
 
 export const loadState = async (stateOptions: ProjectStateOptions, deployOptions: DeployOptions) => {
-  if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path);
+  return DynamicLogger.logExecution('🔄️ Loading state', async () => {
+    if (!stateOptions.remote) {
+      const path = getPath('.', stateOptions.path);
 
-    if (existsSync(path)) {
-      return unpackState(await readFile(path));
+      if (existsSync(path)) {
+        return unpackState(await readFile(path));
+      }
+
+      return {};
+    }
+
+    const path = getPath(deployOptions.projectName, stateOptions.path);
+
+    const data = await triggerAllAsync('state:load', (handler) =>
+      handler({
+        options: deployOptions,
+        path
+      })
+    );
+
+    if (data) {
+      return unpackState(data);
     }
 
     return {};
-  }
-
-  const path = getPath(deployOptions.projectName, stateOptions.path);
-
-  const data = await triggerAllAsync('state:load', (handler) =>
-    handler({
-      options: deployOptions,
-      path
-    })
-  );
-
-  if (data) {
-    return unpackState(data);
-  }
-
-  return {};
+  });
 };
 
-export const saveState = (stateOptions: ProjectStateOptions, deployOptions: DeployOptions, state: EntryStates) => {
-  const data = packState(state);
+export const saveState = async (stateOptions: ProjectStateOptions, deployOptions: DeployOptions, state: EntryStates) => {
+  await DynamicLogger.logExecution('✅ Saving state', () => {
+    const data = packState(state);
 
-  if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path);
+    if (!stateOptions.remote) {
+      const path = getPath('.', stateOptions.path);
 
-    return writeFile(path, data);
-  }
+      return writeFile(path, data);
+    }
 
-  const path = getPath(deployOptions.projectName, stateOptions.path);
+    const path = getPath(deployOptions.projectName, stateOptions.path);
 
-  return triggerAllAsync('state:save', (handler) =>
-    handler({
-      options: deployOptions,
-      contents: data,
-      path
-    })
-  );
+    return triggerAllAsync('state:save', (handler) =>
+      handler({
+        options: deployOptions,
+        contents: data,
+        path
+      })
+    );
+  });
 };
 
 const getPath = (baseDirectory: string, filePath: string) => {

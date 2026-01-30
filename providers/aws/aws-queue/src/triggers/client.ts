@@ -19,7 +19,7 @@ export const prepareLinkedClient = (context: EventContext, service: QueueService
     module: 'Client',
     from: '@ez4/aws-queue/client',
     constructor: `@{EZ4_MODULE_IMPORT}.make(${queueUrl}, ${schema}, ${fifoMode})`,
-    connectionIds: [queueId],
-    dependencyIds: [queueId]
+    dependencyIds: [queueId],
+    connectionIds: [queueId]
   };
 };

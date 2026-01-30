@@ -77,7 +77,7 @@ export const prepareSubscriptions = (
         }
       });
 
-      context.setServiceState(handlerState, internalName, options);
+      context.setServiceState(internalName, options, handlerState);
     }
 
     const { batch = Defaults.Batch, concurrency } = subscription;

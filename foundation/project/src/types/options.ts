@@ -20,6 +20,7 @@ export type DeployOptions = CommonOptions & {
   variables?: LinkedVariables;
   tags?: Record<string, string>;
   concurrency?: number;
+  lockId: string;
 };
 
 export type DestroyOptions = CommonOptions & {

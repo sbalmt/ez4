@@ -1,5 +1,5 @@
 import type { QueueImport, QueueService } from '@ez4/queue/library';
-import type { DeployOptions } from '@ez4/project/library';
+import type { CommonOptions } from '@ez4/project/library';
 
 import { isQueueImport } from '@ez4/queue/library';
 import { getServiceName } from '@ez4/project/library';
@@ -9,11 +9,11 @@ export const getMaxWaitForBatchSize = (batchSize: number) => {
   return Math.min(Math.round(batchSize / 21), 10);
 };
 
-export const getQueueName = (service: QueueService | QueueImport, options: DeployOptions) => {
+export const getQueueName = (service: QueueService | QueueImport, options: CommonOptions) => {
   return getServiceName(isQueueImport(service) ? service.reference : service, options);
 };
 
-export const getDeadLetterQueueName = (service: QueueService, options: DeployOptions) => {
+export const getDeadLetterQueueName = (service: QueueService, options: CommonOptions) => {
   return `${getServiceName(service, options)}-deadletter`;
 };
 
@@ -21,6 +21,6 @@ export const getInternalName = (service: QueueService | QueueImport, suffixName:
   return `${toKebabCase(service.name)}-${toKebabCase(suffixName)}`;
 };
 
-export const getFunctionName = (service: QueueService | QueueImport, handlerName: string, options: DeployOptions) => {
+export const getFunctionName = (service: QueueService | QueueImport, handlerName: string, options: CommonOptions) => {
   return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
 };

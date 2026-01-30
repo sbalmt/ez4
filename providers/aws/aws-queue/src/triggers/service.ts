@@ -42,7 +42,7 @@ export const prepareServices = (event: PrepareResourceEvent) => {
     delay
   });
 
-  context.setServiceState(queueState, service, options);
+  context.setServiceState(service, options, queueState);
 
   prepareSubscriptions(state, service, queueState, options, context);
 

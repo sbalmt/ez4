@@ -1,6 +1,9 @@
+import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { ValidationService } from '../metadata/types';
 
-export const prepareLinkedClient = (service: ValidationService) => {
+import { getVirtualConnections } from '@ez4/common/library';
+
+export const prepareLinkedClient = (context: EventContext, service: ValidationService, options: DeployOptions) => {
   const { handler, schema, variables, services } = service;
 
   return {
@@ -22,7 +25,7 @@ export const prepareLinkedClient = (service: ValidationService) => {
           return ${JSON.stringify(schema)};
         }
       })`,
-
+    connectionIds: getVirtualConnections(services, context, options),
     variables,
     services
   };

@@ -47,14 +47,18 @@ export type AsyncEvent = {
   'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
   'deploy:plan': (event: DeployEvent) => AsyncEventResult<StepState[]>;
   'deploy:apply': (event: DeployEvent) => AsyncEventResult<ApplyResult>;
+  'deploy:lock': (event: DeployLockEvent) => AsyncEventResult<void>;
+  'deploy:unlock': (event: DeployLockEvent) => AsyncEventResult<void>;
   'state:load': (event: StateEvent) => AsyncEventResult<Buffer>;
   'state:save': (event: StateEvent) => AsyncEventResult<void>;
 };
 
 export type EventContext = {
   role: EntryState | null;
-  setServiceState: (state: EntryState, service: ServiceMetadata | string, options: DeployOptions) => void;
+  setServiceState: (service: ServiceMetadata | string, options: DeployOptions, state: EntryState) => void;
   getServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState;
+  setVirtualServiceState: (service: ServiceMetadata | string, options: DeployOptions, state: EntryState) => void;
+  getVirtualServiceState: (service: ServiceMetadata | string, options: DeployOptions) => EntryState | undefined;
   getDependencyFiles: (fileName: string) => string[];
 };
 
@@ -108,6 +112,10 @@ export type DeployEvent = {
   oldState: EntryStates;
   concurrency?: number;
   force?: boolean;
+};
+
+export type DeployLockEvent = {
+  lockId: string;
 };
 
 export type StateEvent = {

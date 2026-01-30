@@ -1,10 +1,12 @@
 import type { DatabaseService } from '@ez4/database/library';
-import { getServiceName, type DeployOptions } from '@ez4/project/library';
+import type { CommonOptions } from '@ez4/project/library';
+
+import { getServiceName } from '@ez4/project/library';
 
 import { getTableIndexes } from './indexes';
 import { getTableName } from './table';
 
-export const getTableRepository = (service: DatabaseService, options: DeployOptions) => {
+export const getTableRepository = (service: DatabaseService, options: CommonOptions) => {
   const tablePrefix = getServiceName(service, options);
 
   return service.tables.reduce((current, table) => {

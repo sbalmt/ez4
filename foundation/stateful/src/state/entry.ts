@@ -132,21 +132,33 @@ export const getEntryDependencies = <E extends EntryState>(entryMap: EntryStates
 };
 
 export const getEntryConnections = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {
+  const connectionCache = new WeakSet<E>();
   const connectionList: E[] = [];
 
-  entry.connections?.forEach((connectionId) => {
-    const connection = entryMap[connectionId];
+  const buildConnections = (entryId: string, connections: string[]) => {
+    connections.forEach((connectionId) => {
+      const connectionEntry = entryMap[connectionId];
 
-    if (!connection) {
-      throw new ConnectionNotFoundError(entry.entryId, connectionId);
-    }
+      if (!connectionEntry) {
+        throw new ConnectionNotFoundError(entryId, connectionId);
+      }
 
-    if (isEntryType(connection, type)) {
-      connectionList.push(connection);
-    }
-  });
+      if (isEntryType(connectionEntry, type) && !connectionCache.has(connectionEntry)) {
+        connectionCache.add(connectionEntry);
+        connectionList.push(connectionEntry);
 
-  return connectionList;
+        if (connectionEntry.connections) {
+          buildConnections(connectionEntry.entryId, connectionEntry.connections);
+        }
+      }
+    });
+  };
+
+  if (entry.connections) {
+    buildConnections(entry.entryId, entry.connections);
+  }
+
+  return [...connectionList];
 };
 
 export const getEntryDependents = <E extends EntryState>(entryMap: EntryStates, entry: EntryState, type?: EntryTypes<E>): E[] => {

@@ -49,11 +49,13 @@ export const prepareSubscriptions = (
           const subscriptionName = getFunctionName(service, handler.name, options);
           const dependencies = context.getDependencyFiles(handler.file);
 
+          const defaults = options.defaults;
+
           const {
-            runtime = options.defaults?.runtime ?? Defaults.Runtime,
-            architecture = options.defaults?.architecture ?? Defaults.Architecture,
-            logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
-            memory = options.defaults?.memory ?? Defaults.Memory,
+            runtime = defaults?.runtime ?? Defaults.Runtime,
+            architecture = defaults?.architecture ?? Defaults.Architecture,
+            logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+            memory = defaults?.memory ?? Defaults.Memory,
             timeout = Defaults.Timeout
           } = subscription;
 
@@ -89,7 +91,7 @@ export const prepareSubscriptions = (
             }
           });
 
-          context.setServiceState(handlerState, internalName, options);
+          context.setServiceState(internalName, options, handlerState);
         }
 
         createSubscription(state, topicState, handlerState, {

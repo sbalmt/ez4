@@ -2,6 +2,7 @@ import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@
 
 import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import { getServiceName, linkServiceContext } from '@ez4/project/library';
+import { createVirtualState } from '@ez4/common/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 
@@ -91,10 +92,12 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
 
     const internalName = getInternalName(service, table);
 
-    context.setServiceState(tableState, internalName, options);
+    context.setServiceState(internalName, options, tableState);
 
     prepareTableStream(state, service, table, tableState, options, context);
   }
+
+  context.setVirtualServiceState(service, options, createVirtualState(service));
 
   return true;
 };

@@ -22,7 +22,7 @@ export const prepareLinkedImports = (event: ServiceEvent) => {
     throw new MissingImportedProjectError(project);
   }
 
-  return prepareLinkedClient(context, service, imports[project]);
+  return prepareLinkedClient(context, service, options);
 };
 
 export const prepareImports = (event: PrepareResourceEvent) => {
@@ -45,7 +45,7 @@ export const prepareImports = (event: PrepareResourceEvent) => {
     import: true
   });
 
-  context.setServiceState(topicState, service, options);
+  context.setServiceState(service, options, topicState);
 
   prepareSubscriptions(state, service, topicState, options, context);
 

@@ -4,10 +4,15 @@ import type { DeployOptions } from '../types/options';
 
 import { toKebabCase } from '@ez4/utils';
 
+const DEFAULT_PREFIX = 'ez4';
+
 export const getDeployOptions = (input: InputOptions, project: ProjectOptions): DeployOptions => {
+  const resourcePrefix = project.prefix ?? DEFAULT_PREFIX;
+
   return {
     projectName: toKebabCase(project.projectName),
-    resourcePrefix: toKebabCase(project.prefix ?? 'ez4'),
+    resourcePrefix: toKebabCase(resourcePrefix),
+    lockId: toKebabCase(`${resourcePrefix}-${project.projectName}`),
     concurrency: project.deployOptions?.maxConcurrency,
     debug: input.debug ?? project.debugMode,
     release: project.deployOptions?.release,
