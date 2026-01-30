@@ -4,7 +4,9 @@ import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
+import { lockDeploy } from '../../deploy/lock';
 import { applyDeploy } from '../../deploy/apply';
+import { unlockDeploy } from '../../deploy/unlock';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState, saveState } from '../../utils/state';
 import { reportResourceChanges } from '../../deploy/changes';
@@ -32,13 +34,10 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     force: true
   });
 
-  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
-    return loadState(project.stateFile, options);
-  });
-
+  const oldState = await loadState(project.stateFile, options);
   const newState: EntryStates = {};
 
-  const hasChanges = await reportResourceChanges(newState, oldState);
+  const hasChanges = await reportResourceChanges(newState, oldState, options);
 
   if (!hasChanges) {
     return Logger.log('ℹ️  No changes');
@@ -52,11 +51,12 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     }
   }
 
-  const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
+  await lockDeploy(options);
 
-  await DynamicLogger.logExecution('✅ Saving state', () => {
-    return saveState(project.stateFile, options, deployState.result);
-  });
+  const deployState = await applyDeploy(newState, oldState, options);
+
+  await saveState(project.stateFile, options, deployState.result);
+  await unlockDeploy(options);
 
   assertNoErrors(deployState.errors);
 };

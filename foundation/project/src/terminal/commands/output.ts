@@ -22,9 +22,7 @@ export const outputCommand = async (input: InputOptions, project: ProjectOptions
 
   warnUnsupportedFlags(input);
 
-  const currentState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
-    return loadState(project.stateFile, options);
-  });
+  const currentState = await loadState(project.stateFile, options);
 
   reportResourcesOutput(currentState);
 };

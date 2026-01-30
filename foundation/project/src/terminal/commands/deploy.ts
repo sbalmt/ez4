@@ -4,7 +4,9 @@ import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
+import { lockDeploy } from '../../deploy/lock';
 import { applyDeploy } from '../../deploy/apply';
+import { unlockDeploy } from '../../deploy/unlock';
 import { getEventContext } from '../../deploy/context';
 import { prepareExecutionRole } from '../../deploy/identity';
 import { prepareLinkedServices } from '../../deploy/services';
@@ -48,9 +50,7 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     });
   });
 
-  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
-    return loadState(project.stateFile, options);
-  });
+  const oldState = await loadState(project.stateFile, options);
 
   const newState: EntryStates = {};
 
@@ -64,7 +64,7 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
 
   mergeState(newState, oldState);
 
-  const hasChanges = await reportResourceChanges(newState, oldState, options.force);
+  const hasChanges = await reportResourceChanges(newState, oldState, options);
 
   if (!hasChanges && !options.force) {
     Logger.log('ℹ️  No changes');
@@ -81,11 +81,12 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     }
   }
 
-  const deployState = await applyDeploy(newState, oldState, options.concurrency, options.force);
+  await lockDeploy(options);
 
-  await DynamicLogger.logExecution('✅ Saving state', () => {
-    return saveState(project.stateFile, options, deployState.result);
-  });
+  const deployState = await applyDeploy(newState, oldState, options);
+
+  await saveState(project.stateFile, options, deployState.result);
+  await unlockDeploy(options);
 
   reportResourcesOutput(deployState.result);
 
