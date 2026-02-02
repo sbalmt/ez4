@@ -7,7 +7,7 @@ export type LinkedVariables = Record<string, string>;
 
 export type LinkedServices = Record<string, string>;
 
-export type ServiceAliases = Record<string, EntryState>;
+export type ServiceStates = Record<string, EntryState>;
 
 export type ServiceMetadata = {
   type: string;

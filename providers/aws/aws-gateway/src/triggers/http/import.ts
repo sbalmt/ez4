@@ -18,7 +18,7 @@ export const prepareHttpLinkedImport = (event: ServiceEvent) => {
       throw new MissingImportedProjectError(project);
     }
 
-    return prepareLinkedClient(context, service, imports[project]);
+    return prepareLinkedClient(context, service, options);
   }
 
   return null;
@@ -45,7 +45,7 @@ export const prepareHttpImports = (event: PrepareResourceEvent) => {
       import: true
     });
 
-    context.setServiceState(gatewayState, service, imports[project]);
+    context.setServiceState(service, options, gatewayState);
 
     return true;
   }

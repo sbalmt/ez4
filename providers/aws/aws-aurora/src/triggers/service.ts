@@ -51,7 +51,7 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
     database: getDatabaseName(service, options)
   });
 
-  context.setServiceState(clusterState, service, options);
+  context.setServiceState(service, options, clusterState);
 
   return true;
 };

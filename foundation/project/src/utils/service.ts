@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ContextSource, LinkedServices, ServiceAliases, ServiceMetadata } from '../types/service';
+import type { ContextSource, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
 import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/stateful';
@@ -24,10 +24,16 @@ export const getServiceName = (service: ServiceMetadata | string, options: Commo
   return servicePrefix;
 };
 
-export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadata | string, options: CommonOptions) => {
+export const tryGetServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: CommonOptions) => {
   const serviceName = getServiceName(service, options);
 
-  const serviceState = aliases[serviceName];
+  return services[serviceName];
+};
+
+export const getServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: CommonOptions) => {
+  const serviceName = getServiceName(service, options);
+
+  const serviceState = services[serviceName];
 
   if (!serviceState) {
     throw new Error(`Service ${serviceName} wasn't found.`);
@@ -36,14 +42,14 @@ export const getServiceState = (aliases: ServiceAliases, service: ServiceMetadat
   return serviceState;
 };
 
-export const setServiceState = (aliases: ServiceAliases, state: EntryState, service: ServiceMetadata | string, options: CommonOptions) => {
+export const setServiceState = (services: ServiceStates, state: EntryState, service: ServiceMetadata | string, options: CommonOptions) => {
   const serviceName = getServiceName(service, options);
 
-  if (aliases[serviceName]) {
+  if (services[serviceName]) {
     throw new Error(`Service ${serviceName} can't be set twice.`);
   }
 
-  aliases[serviceName] = state;
+  services[serviceName] = state;
 };
 
 export const linkServiceContext = (state: EntryStates, entryId: string, context: Record<string, ContextSource>) => {

@@ -118,7 +118,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     if (updateRecords[0]?.__EZ4_OK) {
       delete updateRecords[0]?.__EZ4_OK;
 
-      return updateRecords[0] as Query.UpsertOneResult<S, T>;
+      return {
+        record: updateRecords[0],
+        inserted: false
+      } as Query.UpsertOneResult<S, T>;
     }
 
     const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
@@ -128,7 +131,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records: insertRecords } = await this.sendStatement(insertStatement);
 
-    return insertRecords[0] as Query.UpsertOneResult<S, T>;
+    return {
+      record: insertRecords[0],
+      inserted: true
+    } as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

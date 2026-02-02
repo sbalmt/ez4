@@ -2,6 +2,7 @@ import type { EmulateServiceEvent, PrepareResourceEvent, ServiceEvent } from '@e
 import type { TypeClass } from '@ez4/reflection';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
+import { createVirtualState } from '@ez4/common/library';
 
 import { isFactoryServiceDeclaration } from '../metadata/service';
 import { isFactoryService } from '../metadata/types';
@@ -12,17 +13,24 @@ export const getLinkedService = (declaration: TypeClass): string | null => {
 };
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service } = event;
+  const { service, options, context } = event;
 
   if (isFactoryService(service)) {
-    return prepareLinkedClient(service);
+    return prepareLinkedClient(context, service, options);
   }
 
   return null;
 };
 
 export const prepareResources = (event: PrepareResourceEvent) => {
-  return isFactoryService(event.service);
+  const { service, options, context } = event;
+
+  if (isFactoryService(service)) {
+    context.setVirtualServiceState(service, options, createVirtualState(service));
+    return true;
+  }
+
+  return false;
 };
 
 export const getEmulatorService = (event: EmulateServiceEvent) => {

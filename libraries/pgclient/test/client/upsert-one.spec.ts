@@ -35,13 +35,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      boolean: true
+      inserted: true,
+      record: {
+        boolean: true
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      boolean: true
+      inserted: false,
+      record: {
+        boolean: true
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -80,13 +86,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      integer: 122333
+      inserted: true,
+      record: {
+        integer: 122333
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      integer: 122333
+      inserted: false,
+      record: {
+        integer: 122333
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -125,13 +137,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      decimal: 9.01234
+      inserted: true,
+      record: {
+        decimal: 9.01234
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      decimal: 9.01234
+      inserted: false,
+      record: {
+        decimal: 9.01234
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -170,13 +188,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      string: 'abc'
+      inserted: true,
+      record: {
+        string: 'abc'
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      string: 'abc'
+      inserted: false,
+      record: {
+        string: 'abc'
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -215,13 +239,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      datetime: '1991-04-23T23:59:30.000Z'
+      inserted: true,
+      record: {
+        datetime: '1991-04-23T23:59:30.000Z'
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      datetime: '1991-04-23T23:59:30.000Z'
+      inserted: false,
+      record: {
+        datetime: '1991-04-23T23:59:30.000Z'
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -260,13 +290,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      date: '1991-04-23'
+      inserted: true,
+      record: {
+        date: '1991-04-23'
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      date: '1991-04-23'
+      inserted: false,
+      record: {
+        date: '1991-04-23'
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -304,13 +340,19 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      time: '23:59:30.000Z'
+      inserted: true,
+      record: {
+        time: '23:59:30.000Z'
+      }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      time: '23:59:30.000Z'
+      inserted: false,
+      record: {
+        time: '23:59:30.000Z'
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({
@@ -359,22 +401,28 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      json: {
-        boolean: true,
-        string: 'abc',
-        number: null,
-        datetime: '2024-07-01T08:00:00.000Z'
+      inserted: true,
+      record: {
+        json: {
+          boolean: true,
+          string: 'abc',
+          number: null,
+          datetime: '2024-07-01T08:00:00.000Z'
+        }
       }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      json: {
-        boolean: true,
-        string: 'abc',
-        number: null,
-        datetime: '2024-07-01T08:00:00.000Z'
+      inserted: false,
+      record: {
+        json: {
+          boolean: true,
+          string: 'abc',
+          number: null,
+          datetime: '2024-07-01T08:00:00.000Z'
+        }
       }
     });
 
@@ -428,16 +476,22 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      json: {
-        number: 123
+      inserted: true,
+      record: {
+        json: {
+          number: 123
+        }
       }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      json: {
-        number: 123
+      inserted: false,
+      record: {
+        json: {
+          number: 123
+        }
       }
     });
 
@@ -495,18 +549,24 @@ describe('client upsert one', async () => {
     const current = await upsert();
 
     deepEqual(current, {
-      json: {
-        string: 'abc',
-        number: 123
+      inserted: true,
+      record: {
+        json: {
+          string: 'abc',
+          number: 123
+        }
       }
     });
 
     const previous = await upsert();
 
     deepEqual(previous, {
-      json: {
-        string: 'abc',
-        number: 123
+      inserted: false,
+      record: {
+        json: {
+          string: 'abc',
+          number: 123
+        }
       }
     });
 
@@ -548,7 +608,10 @@ describe('client upsert one', async () => {
     });
 
     deepEqual(current, {
-      json: null
+      inserted: true,
+      record: {
+        json: null
+      }
     });
 
     const previous = await client.ez4_test_table.upsertOne({
@@ -572,7 +635,10 @@ describe('client upsert one', async () => {
     });
 
     deepEqual(previous, {
-      json: null
+      inserted: false,
+      record: {
+        json: null
+      }
     });
 
     const changes = await client.ez4_test_table.findOne({

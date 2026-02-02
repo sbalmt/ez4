@@ -34,8 +34,8 @@ const prepareLinkedContext = async (
   const getLinkedContext = async (services: LinkedServices) => {
     const linkedContext: Record<string, LinkedContext> = {};
 
-    for (const alias in services) {
-      const identity = services[alias];
+    for (const serviceName in services) {
+      const identity = services[serviceName];
       const service = metadata[identity];
 
       const linkedService = await triggerAllAsync('deploy:prepareLinkedService', (handler) => {
@@ -49,7 +49,7 @@ const prepareLinkedContext = async (
           assignServiceVariables(target, variables);
         }
 
-        linkedContext[alias] = {
+        linkedContext[serviceName] = {
           context: services && (await getLinkedContext(services)),
           ...remaining
         };

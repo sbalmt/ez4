@@ -3,10 +3,10 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { GatewayState } from '../gateway/types';
 
-import { isRoleState } from '@ez4/aws-identity';
 import { tryGetFunctionState } from '@ez4/aws-function';
+import { deepMerge, isAnyObject } from '@ez4/utils';
+import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
-import { isAnyObject } from '@ez4/utils';
 
 import { Defaults } from '../utils/defaults';
 import { IntegrationFunctionType } from '../integration/function/types';
@@ -61,16 +61,16 @@ const getIntegrationFunction = (
     throw new RoleMissingError();
   }
 
-  const defaults = service.defaults ?? {};
+  const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
 
   const {
     handler,
-    listener = service.defaults?.listener,
-    runtime = options.defaults?.runtime ?? Defaults.Runtime,
-    architecture = options.defaults?.architecture ?? Defaults.Architecture,
-    logRetention = options.defaults?.logRetention ?? Defaults.LogRetention,
-    timeout = service.defaults?.timeout ?? Defaults.Timeout,
-    memory = options.defaults?.memory ?? Defaults.Memory
+    listener = defaults.listener,
+    runtime = defaults.runtime ?? Defaults.Runtime,
+    architecture = defaults.architecture ?? Defaults.Architecture,
+    logRetention = defaults.logRetention ?? Defaults.LogRetention,
+    timeout = defaults.timeout ?? Defaults.Timeout,
+    memory = defaults.memory ?? Defaults.Memory
   } = target;
 
   const provider = 'provider' in handler ? handler.provider : undefined;
@@ -134,7 +134,7 @@ const getIntegrationFunction = (
       }
     });
 
-    context.setServiceState(handlerState, internalName, options);
+    context.setServiceState(internalName, options, handlerState);
   }
 
   const getPriorVariables = handlerState.parameters.getFunctionVariables;

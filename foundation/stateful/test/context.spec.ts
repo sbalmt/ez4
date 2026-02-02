@@ -25,6 +25,7 @@ const baseState: EntryStates<TestEntryState> = {
   entryC: {
     type: TestEntryType.C,
     entryId: 'entryC',
+    connections: ['entryD'],
     dependencies: [],
     parameters: {}
   },
@@ -52,7 +53,7 @@ const checkConnections = (context: StepContext) => {
   equal(context.getConnections(TestEntryType.C).length, 1);
 
   // Everything
-  equal(context.getConnections().length, 3);
+  equal(context.getConnections().length, 4);
 };
 
 const checkDependents = (context: StepContext) => {

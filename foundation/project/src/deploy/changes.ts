@@ -1,5 +1,6 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { EntryStates } from '@ez4/stateful';
+import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 import { Logger, LogColor, LogFormat } from '@ez4/logger';
@@ -9,8 +10,12 @@ import { deepCompare } from '@ez4/utils';
 import { MissingActionProviderError } from '../errors/provider';
 import { MissingEntryResourceError } from '../errors/resource';
 
-export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, force?: boolean) => {
-  const steps = await triggerAllAsync('deploy:plan', (handler) => handler({ newState, oldState, force }));
+export const reportResourceChanges = async (newState: EntryStates, oldState: EntryStates, options: DeployOptions) => {
+  const { force } = options;
+
+  const steps = await triggerAllAsync('deploy:plan', (handler) => {
+    return handler({ newState, oldState, force });
+  });
 
   if (!steps) {
     throw new MissingActionProviderError('deploy:plan');

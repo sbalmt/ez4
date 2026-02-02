@@ -183,21 +183,30 @@ describe('dynamodb client (one operation)', () => {
     const insertResult = await dbClient.testTable.upsertOne(query);
 
     deepEqual(insertResult, {
-      value: 'initial'
+      inserted: true,
+      record: {
+        value: 'initial'
+      }
     });
 
     // Return the last value
     const update1Result = await dbClient.testTable.upsertOne(query);
 
     deepEqual(update1Result, {
-      value: 'initial'
+      inserted: false,
+      record: {
+        value: 'initial'
+      }
     });
 
     // Return the last value
     const update2Result = await dbClient.testTable.upsertOne(query);
 
     deepEqual(update2Result, {
-      value: 'updated'
+      inserted: false,
+      record: {
+        value: 'updated'
+      }
     });
   });
 

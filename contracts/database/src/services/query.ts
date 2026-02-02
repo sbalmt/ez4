@@ -98,7 +98,8 @@ export namespace Query {
 
   export type FindOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
-  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>;
+  export type UpsertOneResult<S extends AnyObject, T extends TableMetadata> =
+    SelectInput<T> extends S ? { inserted: boolean } : { inserted: boolean; record: Record<S, T> };
 
   export type DeleteOneResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T> | undefined;
 
