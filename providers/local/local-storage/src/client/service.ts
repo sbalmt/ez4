@@ -8,6 +8,7 @@ import { existsSync } from 'node:fs';
 import { isAnyObject, toKebabCase } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
+import { fileTypeFromFile } from 'file-type';
 
 export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
   const storageIdentifier = getServiceName(serviceName, serveOptions);
@@ -58,11 +59,12 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       const filePath = join(storageDirectory, key);
 
       try {
-        const fileStat = await stat(filePath);
+        const type = await fileTypeFromFile(filePath);
+        const stats = await stat(filePath);
 
         return {
-          type: 'application/octet-stream',
-          size: fileStat.size
+          type: type?.mime ?? 'application/octet-stream',
+          size: stats.size
         };
       } catch (error) {
         if (!isAnyObject(error) || error.code !== 'ENOENT') {

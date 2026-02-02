@@ -4,6 +4,7 @@ import { Readable } from 'node:stream';
 
 import { toKebabCase } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
+import { fileTypeFromBuffer } from 'file-type';
 
 export type ClientMockOptions = {
   keys?: Record<string, Buffer>;
@@ -76,10 +77,12 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
         throw new Error(`Key ${key} not found.`);
       }
 
-      return Promise.resolve({
-        type: 'application/octet-stream',
+      const fileType = await fileTypeFromBuffer(content);
+
+      return {
+        type: fileType?.mime ?? 'application/octet-stream',
         size: content.byteLength
-      });
+      };
     }
   })();
 };
