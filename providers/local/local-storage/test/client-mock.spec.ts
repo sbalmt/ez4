@@ -49,9 +49,10 @@ describe('local storage tests', () => {
   it('assert :: key stats (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    rejects(() => client.getStats('random-key'));
+    const stats = await client.getStats('random-key');
 
     equal(client.getStats.mock.callCount(), 1);
+    equal(stats, undefined);
   });
 
   it('assert :: key stats (from default)', async () => {
@@ -226,6 +227,17 @@ describe('local storage tests', () => {
     });
 
     equal(client.getWriteUrl.mock.callCount(), 1);
+    equal(url, 'http://bucket/foo');
+  });
+
+  it('assert :: get stats url', async () => {
+    const client = BucketTester.getClientMock('bucket');
+
+    const url = await client.getStatsUrl('foo', {
+      expiresIn: 123
+    });
+
+    equal(client.getStatsUrl.mock.callCount(), 1);
     equal(url, 'http://bucket/foo');
   });
 });

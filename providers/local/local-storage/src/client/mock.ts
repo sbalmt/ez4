@@ -1,4 +1,4 @@
-import type { Client, Content } from '@ez4/storage';
+import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
 import { Readable } from 'node:stream';
 
@@ -62,11 +62,15 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
-    async getWriteUrl(key: string): Promise<string> {
+    async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
 
-    async getReadUrl(key: string): Promise<string> {
+    async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
+      return Promise.resolve(`http://${storageIdentifier}/${key}`);
+    }
+
+    async getStatsUrl(key: string, _options: SignReadOptions): Promise<string> {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
 
@@ -74,7 +78,7 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       const content = storageMemory[key] ?? options?.default;
 
       if (!content) {
-        throw new Error(`Key ${key} not found.`);
+        return undefined;
       }
 
       const fileType = await fileTypeFromBuffer(content);
