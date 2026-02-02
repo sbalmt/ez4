@@ -299,21 +299,30 @@ describe('aurora client operations', () => {
     const insertResult = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(insertResult, {
-      foo: 'initial'
+      inserted: true,
+      record: {
+        foo: 'initial'
+      }
     });
 
     // Return the last value
     const update1Result = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(update1Result, {
-      foo: 'initial'
+      inserted: false,
+      record: {
+        foo: 'initial'
+      }
     });
 
     // Return the last value
     const update2Result = await dbClient.ez4_test_operations.upsertOne(query);
 
     deepEqual(update2Result, {
-      foo: 'updated'
+      inserted: false,
+      record: {
+        foo: 'updated'
+      }
     });
   });
 

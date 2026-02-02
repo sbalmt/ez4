@@ -117,10 +117,15 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       await this.insertOne({ data: query.insert });
 
       if (query.select) {
-        return deepClone<any, any, any>(query.insert, { include: query.select }) as Query.UpsertOneResult<S, T>;
+        return {
+          record: deepClone<any, any, any>(query.insert, { include: query.select }),
+          inserted: true
+        } as Query.UpsertOneResult<S, T>;
       }
 
-      return undefined as Query.UpsertOneResult<S, T>;
+      return {
+        inserted: true
+      } as Query.UpsertOneResult<S, T>;
     }
 
     await this.updateMany({
@@ -129,7 +134,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       limit: 1
     });
 
-    return previous as Query.UpsertOneResult<S, T>;
+    return {
+      record: previous,
+      inserted: false
+    } as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
