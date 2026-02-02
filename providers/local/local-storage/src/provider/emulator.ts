@@ -56,7 +56,7 @@ const loadFile = async (client: StorageClient, path: string) => {
     status: 200,
     body: buffer,
     headers: {
-      ['content-type']: stat?.type ?? 'application/octet-stream',
+      ['content-type']: stat?.type ?? 'application/octet-stream'
     }
   };
 };
