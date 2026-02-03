@@ -51,15 +51,15 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
-    "@ez4/validation": "^0.41.0"
+    "@ez4/validation": "^0.41.1"
   },
   "dependencies": {
-    "@ez4/common": "^0.41.0",
-    "@ez4/project": "^0.41.0",
-    "@ez4/reflection": "^0.41.0",
-    "@ez4/schema": "^0.41.0",
-    "@ez4/transform": "^0.41.0",
-    "@ez4/utils": "^0.41.0",
-    "@ez4/validator": "^0.41.0"
+    "@ez4/common": "^0.41.1",
+    "@ez4/project": "^0.41.1",
+    "@ez4/reflection": "^0.41.1",
+    "@ez4/schema": "^0.41.1",
+    "@ez4/transform": "^0.41.1",
+    "@ez4/utils": "^0.41.1",
+    "@ez4/validator": "^0.41.1"
   }
 }
