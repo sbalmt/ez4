@@ -6,7 +6,7 @@ export const getRoleDocument = (distributionArn: string, bucketName: string): Ro
   return createRoleDocument([
     createRoleStatement(
       {
-        permissions: ['s3:ListBucket', 's3:GetObject', 's3:HeadObject'],
+        permissions: ['s3:ListBucket', 's3:GetObject'],
         resourceIds: [`arn:aws:s3:::${bucketName}`, `arn:aws:s3:::${bucketName}/*`]
       },
       [
