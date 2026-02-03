@@ -20,15 +20,15 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-dynamodb": "^0.41.0",
-    "@ez4/aws-gateway": "^0.41.0",
-    "@ez4/common": "^0.41.0",
-    "@ez4/database": "^0.41.0",
-    "@ez4/docs-gateway": "^0.41.0",
-    "@ez4/gateway": "^0.41.1",
-    "@ez4/local-database": "^0.41.0",
-    "@ez4/local-gateway": "^0.41.0",
-    "@ez4/project": "^0.41.0",
-    "@ez4/schema": "^0.41.0"
+    "@ez4/aws-dynamodb": "^0.42.0",
+    "@ez4/aws-gateway": "^0.42.0",
+    "@ez4/common": "^0.42.0",
+    "@ez4/database": "^0.42.0",
+    "@ez4/docs-gateway": "^0.42.0",
+    "@ez4/gateway": "^0.42.0",
+    "@ez4/local-database": "^0.42.0",
+    "@ez4/local-gateway": "^0.42.0",
+    "@ez4/project": "^0.42.0",
+    "@ez4/schema": "^0.42.0"
   }
 }
