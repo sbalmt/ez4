@@ -1,7 +1,7 @@
 {
   "name": "@ez4/pgclient",
   "description": "EZ4: A PostgreSQL client",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

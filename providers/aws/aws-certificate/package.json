@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-certificate",
   "description": "EZ4: Self-managed AWS certificate provider",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

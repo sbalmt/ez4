@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-gateway",
   "description": "EZ4: Local gateway emulator",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-common",
   "description": "EZ4: Common components for self-managed AWS providers",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

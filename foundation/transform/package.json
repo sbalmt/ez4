@@ -1,7 +1,7 @@
 {
   "name": "@ez4/transform",
   "description": "EZ4: Transform data according to a given schema",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
