@@ -20,7 +20,7 @@
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            36,
+            39,
             1
           ],
           "response": {
@@ -35,7 +35,7 @@
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            42,
+            45,
             1
           ],
           "response": {
@@ -46,6 +46,20 @@
         "memory": 512,
         "variables": {
           "TEST_VAR": "test-literal-value"
+        }
+      },
+      {
+        "path": "HEAD /test-route-3",
+        "handler": {
+          "name": "testRoute3",
+          "file": "test/http/input/output-route.ts",
+          "position": [
+            57,
+            1
+          ],
+          "response": {
+            "status": 204
+          }
         }
       }
     ]

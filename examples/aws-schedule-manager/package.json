@@ -29,7 +29,7 @@
     "@ez4/docs-topology": "^0.41.0",
     "@ez4/docs-gateway": "^0.41.0",
     "@ez4/factory": "^0.41.0",
-    "@ez4/gateway": "^0.41.0",
+    "@ez4/gateway": "^0.41.1",
     "@ez4/local-database": "^0.41.0",
     "@ez4/local-gateway": "^0.41.0",
     "@ez4/local-scheduler": "^0.41.0",
