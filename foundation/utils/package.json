@@ -1,7 +1,7 @@
 {
   "name": "@ez4/utils",
   "description": "EZ4: General utilities to use across several packages",
-  "version": "0.41.1",
+  "version": "0.40.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

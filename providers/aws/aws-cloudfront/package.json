@@ -49,12 +49,12 @@
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.958.0",
     "@ez4/aws-bucket": "^0.41.1",
-    "@ez4/aws-certificate": "^0.41.1",
-    "@ez4/aws-common": "^0.41.1",
-    "@ez4/aws-identity": "^0.41.1",
-    "@ez4/distribution": "^0.41.1",
-    "@ez4/project": "^0.41.1",
-    "@ez4/stateful": "^0.41.1",
-    "@ez4/utils": "^0.41.1"
+    "@ez4/aws-certificate": "^0.40.0",
+    "@ez4/aws-common": "^0.40.0",
+    "@ez4/aws-identity": "^0.40.0",
+    "@ez4/distribution": "^0.40.0",
+    "@ez4/project": "^0.40.0",
+    "@ez4/stateful": "^0.40.0",
+    "@ez4/utils": "^0.40.0"
   }
 }
