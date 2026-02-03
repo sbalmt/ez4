@@ -44,9 +44,9 @@
   "dependencies": {
     "@aws-sdk/client-iam": "^3.958.0",
     "@aws-sdk/client-sts": "^3.958.0",
-    "@ez4/aws-common": "^0.40.0",
-    "@ez4/project": "^0.40.0",
-    "@ez4/stateful": "^0.40.0",
-    "@ez4/utils": "^0.40.0"
+    "@ez4/aws-common": "^0.41.0",
+    "@ez4/project": "^0.41.0",
+    "@ez4/stateful": "^0.41.0",
+    "@ez4/utils": "^0.41.0"
   }
 }

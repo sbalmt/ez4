@@ -19,9 +19,9 @@
   "dependencies": {
     "@ez4/aws-bucket": "^0.41.1",
     "@ez4/aws-cloudfront": "^0.41.1",
-    "@ez4/common": "^0.40.0",
-    "@ez4/distribution": "^0.40.0",
-    "@ez4/project": "^0.40.0",
+    "@ez4/common": "^0.41.0",
+    "@ez4/distribution": "^0.41.0",
+    "@ez4/project": "^0.41.0",
     "@ez4/storage": "^0.41.1"
   }
 }

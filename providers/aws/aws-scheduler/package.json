@@ -51,15 +51,15 @@
   },
   "dependencies": {
     "@aws-sdk/client-scheduler": "^3.958.0",
-    "@ez4/aws-common": "^0.40.0",
-    "@ez4/aws-function": "^0.40.0",
-    "@ez4/aws-identity": "^0.40.0",
-    "@ez4/aws-logs": "^0.40.0",
-    "@ez4/common": "^0.40.0",
-    "@ez4/project": "^0.40.0",
-    "@ez4/schema": "^0.40.0",
-    "@ez4/scheduler": "^0.40.0",
-    "@ez4/stateful": "^0.40.0",
-    "@ez4/utils": "^0.40.0"
+    "@ez4/aws-common": "^0.41.0",
+    "@ez4/aws-function": "^0.41.0",
+    "@ez4/aws-identity": "^0.41.0",
+    "@ez4/aws-logs": "^0.41.0",
+    "@ez4/common": "^0.41.0",
+    "@ez4/project": "^0.41.0",
+    "@ez4/schema": "^0.41.0",
+    "@ez4/scheduler": "^0.41.0",
+    "@ez4/stateful": "^0.41.0",
+    "@ez4/utils": "^0.41.0"
   }
 }

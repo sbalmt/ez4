@@ -43,9 +43,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.958.0",
-    "@ez4/aws-common": "^0.40.0",
-    "@ez4/stateful": "^0.40.0",
-    "@ez4/utils": "^0.40.0",
+    "@ez4/aws-common": "^0.41.0",
+    "@ez4/stateful": "^0.41.0",
+    "@ez4/utils": "^0.41.0",
     "mime": "^3.0.0"
   }
 }
