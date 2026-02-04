@@ -117,7 +117,7 @@ const updateResource = (candidate: BucketState, current: BucketState, context: S
 };
 
 const deleteResource = async (current: BucketState) => {
-  const result = current.result;
+  const { result } = current;
 
   if (!result) {
     return;
