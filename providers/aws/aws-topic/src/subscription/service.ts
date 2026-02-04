@@ -46,6 +46,7 @@ export const createSubscription = <E extends EntryState>(
   if (isQueueState(endpointState)) {
     const policyState = attachQueuePolicy(state, endpointState, topicState, {
       fromService: parameters.fromService,
+      toService: topicName,
       policyGetters: [
         async () => {
           const [region, account] = await Promise.all([getRegion(), getAccountId()]);

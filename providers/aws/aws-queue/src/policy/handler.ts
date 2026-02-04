@@ -2,6 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { QueuePolicyResult, QueuePolicyState } from './types';
 
 import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare } from '@ez4/utils';
 
 import { getQueueUrl } from '../queue/utils';
 import { attachPolicies, detachPolicy } from './client';
@@ -20,9 +21,24 @@ const equalsResource = (candidate: QueuePolicyState, current: QueuePolicyState) 
   return !!candidate.result && candidate.result.queueUrl === current.result?.queueUrl;
 };
 
-const previewResource = (_candidate: QueuePolicyState, _current: QueuePolicyState) => {
-  // Policy is generated dynamically, no changes to compare.
-  return undefined;
+const previewResource = (candidate: QueuePolicyState, current: QueuePolicyState) => {
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source, {
+    exclude: {
+      policyGetters: true
+    }
+  });
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
 const replaceResource = async (candidate: QueuePolicyState, current: QueuePolicyState, context: StepContext) => {
@@ -38,6 +54,7 @@ const createResource = (candidate: QueuePolicyState, context: StepContext): Prom
 
   return OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'creation', async (logger) => {
     const queueUrl = getQueueUrl(QueuePolicyServiceName, 'subscription', context);
+
     const permissions = await Promise.all(parameters.policyGetters.map((getPolicy) => getPolicy(context)));
 
     const { sourceArns } = await attachPolicies(logger, queueUrl, permissions);
@@ -49,7 +66,22 @@ const createResource = (candidate: QueuePolicyState, context: StepContext): Prom
   });
 };
 
-const updateResource = async () => {};
+const updateResource = (candidate: QueuePolicyState, _current: QueuePolicyState, context: StepContext): Promise<QueuePolicyResult> => {
+  const { parameters } = candidate;
+
+  return OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'updates', async (logger) => {
+    const queueUrl = getQueueUrl(QueuePolicyServiceName, 'subscription', context);
+
+    const permissions = await Promise.all(parameters.policyGetters.map((getPolicy) => getPolicy(context)));
+
+    const { sourceArns } = await attachPolicies(logger, queueUrl, permissions);
+
+    return {
+      sourceArns,
+      queueUrl
+    };
+  });
+};
 
 const deleteResource = async (current: QueuePolicyState) => {
   const { result, parameters } = current;
@@ -58,7 +90,10 @@ const deleteResource = async (current: QueuePolicyState) => {
     return;
   }
 
-  await OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
-    await detachPolicy(logger, result.queueUrl);
+  const { fromService } = parameters;
+  const { queueUrl } = result;
+
+  await OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'deletion', async (logger) => {
+    await detachPolicy(logger, queueUrl);
   });
 };
