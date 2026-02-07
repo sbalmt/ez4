@@ -34,6 +34,7 @@ Read the [quick start](./documentation/quick-start.md) guide and check out some 
 - [Get started with Scheduler](./examples/hello-aws-scheduler)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [Get started with Topic](./examples/hello-aws-topic)
+- [Get started with Email](./examples/hello-aws-email)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
 - [API Gateway websocket](./examples/aws-gateway-websocket)
 - [Aurora RDS CRUDL](./examples/aws-aurora-crudl)
@@ -59,6 +60,7 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)          | [Topic](./providers/aws/aws-topic/)                                                  |
 | [Queue](./contracts/queue/)               | [Queue](./providers/local/local-queue/)          | [Queue](./providers/aws/aws-queue/)                                                  |
 | [Distribution](./contracts/distribution/) | N/A                                              | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
+| [Email](./contracts/email/)               | N/A                                              | [Email](./providers/aws/aws-email/)                                                  |
 | [Validation](./contracts/validation/)     | N/A                                              | N/A                                                                                  |
 | [Factory](./contracts/factory/)           | N/A                                              | N/A                                                                                  |
 

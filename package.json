@@ -28,6 +28,7 @@
     "contracts/topic",
     "contracts/factory",
     "contracts/validation",
+    "contracts/email",
     "libraries/pgsql",
     "libraries/pgclient",
     "libraries/pgmigration",
@@ -55,6 +56,7 @@
     "providers/aws/aws-topic",
     "providers/aws/aws-certificate",
     "providers/aws/aws-cloudfront",
+    "providers/aws/aws-email",
     "examples/*"
   ],
   "scripts": {
