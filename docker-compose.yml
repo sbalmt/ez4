@@ -1,5 +1,10 @@
 name: ez4
 services:
+  valkey:
+    image: valkey/valkey:8
+    restart: always
+    ports:
+      - 6379:6379
   dynamodb:
     image: amazon/dynamodb-local
     restart: always

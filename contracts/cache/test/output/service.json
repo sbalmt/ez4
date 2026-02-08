@@ -1,0 +1,18 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestCache": {
+    "type": "@ez4/cache",
+    "name": "TestCache",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "description": "First test cache.",
+    "engine": {
+      "name": "test"
+    }
+  }
+}
