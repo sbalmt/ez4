@@ -17,7 +17,7 @@ export const getConnectionOptions = (service: DatabaseService, options: ServeOpt
     throw new LocalOptionsNotFoundError(optionsName, service.name);
   }
 
-  const { host = 'localhost', port = '8000' } = serviceOptions;
+  const { host = 'localhost', port = 8000 } = serviceOptions;
 
   return {
     endpoint: `http://${host}:${port}`

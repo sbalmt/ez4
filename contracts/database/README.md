@@ -82,7 +82,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | ----------- | ------------------------- | ------------------------------------------------ |
 | scalability | Database.UseScalability<> | Scalability configuration.                       |
 | tables      | Database.UseTable<>       | Describe all available tables for the service.   |
-| engine      | object                    | Determines which database engine to use.         |
+| engine      | Database.UseEngine<>      | Determines which database engine to use.         |
 | variables   | object                    | Environment variables associated to all streams. |
 | services    | object                    | Injected services associated to all streams.     |
 
