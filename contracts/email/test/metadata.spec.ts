@@ -21,7 +21,5 @@ const testFile = (fileName: string, overwrite = false) => {
 describe('email metadata', () => {
   registerTriggers();
 
-  process.env.TEST_ENV_VAR = 'test-env-var-value';
-
   it('assert :: email service', () => testFile('service'));
 });
