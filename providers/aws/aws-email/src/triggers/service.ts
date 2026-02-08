@@ -6,17 +6,17 @@ import { createIdentity } from '../identity/service';
 import { prepareLinkedClient } from './client';
 
 export const prepareLinkedServices = (event: ServiceEvent) => {
-  const { service } = event;
+  const { service, options, context } = event;
 
   if (isEmailService(service)) {
-    return prepareLinkedClient();
+    return prepareLinkedClient(context, service, options);
   }
 
   return null;
 };
 
 export const prepareServices = (event: PrepareResourceEvent) => {
-  const { state, service, options } = event;
+  const { state, service, options, context } = event;
 
   if (!isEmailService(service)) {
     return false;
@@ -24,10 +24,12 @@ export const prepareServices = (event: PrepareResourceEvent) => {
 
   const { domain } = service;
 
-  createIdentity(state, {
+  const identityState = createIdentity(state, {
     identity: domain,
     tags: options.tags
   });
+
+  context.setServiceState(service, options, identityState);
 
   return true;
 };
