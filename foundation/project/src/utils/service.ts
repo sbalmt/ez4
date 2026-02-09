@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates } from '@ez4/stateful';
-import type { ContextSource, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
+import type { ContextSource, LinkedContext, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
 import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/stateful';
@@ -74,4 +74,16 @@ export const buildServiceContext = (context: Record<string, ContextSource>, serv
   }
 
   return serviceContext;
+};
+
+export const isLinkedContextVpcRequired = (context: Record<string, LinkedContext>, services?: LinkedServices) => {
+  for (const serviceName in services ?? context) {
+    const { requireVpc, context: innerContext } = context[serviceName];
+
+    if (requireVpc || (innerContext && isLinkedContextVpcRequired(innerContext))) {
+      return true;
+    }
+  }
+
+  return false;
 };

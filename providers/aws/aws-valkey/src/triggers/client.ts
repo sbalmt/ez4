@@ -22,7 +22,8 @@ export const prepareLinkedClient = (context: EventContext, service: CacheService
     from: '@ez4/aws-valkey/client',
     constructor: `@{EZ4_MODULE_IMPORT}.make({ endpoint: ${endpoint}, debug: ${options.debug ?? false}})`,
     connectionIds: [cacheId],
-    dependencyIds: [cacheId]
+    dependencyIds: [cacheId],
+    requireVpc: true
   };
 };
 

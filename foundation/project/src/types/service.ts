@@ -22,6 +22,7 @@ export type ContextSource = {
   variables?: LinkedVariables;
   dependencyIds?: string[];
   connectionIds?: string[];
+  requireVpc?: boolean;
   constructor: string;
   module: string;
   from: string;
@@ -31,6 +32,7 @@ export type LinkedContext = {
   context?: Record<string, LinkedContext>;
   dependencyIds?: string[];
   connectionIds?: string[];
+  requireVpc?: boolean;
   constructor: string;
   module: string;
   from: string;

@@ -2,8 +2,8 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { EntryStates } from '@ez4/stateful';
 
+import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
-import { linkServiceContext } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
@@ -89,4 +89,8 @@ export const connectTarget = (state: EntryStates, service: CronService, options:
   const handlerState = getFunctionState(context, internalName, options);
 
   linkServiceContext(state, handlerState.entryId, service.context);
+
+  if (!handlerState.parameters.useVpc) {
+    handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context);
+  }
 };

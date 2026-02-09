@@ -3,7 +3,7 @@ import type { QueueService, QueueImport } from '@ez4/queue/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types';
 
-import { linkServiceContext } from '@ez4/project/library';
+import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -109,5 +109,9 @@ export const connectSubscriptions = (
     const handlerState = getFunctionState(context, internalName, options);
 
     linkServiceContext(state, handlerState.entryId, service.context);
+
+    if (!handlerState.parameters.useVpc) {
+      handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context);
+    }
   }
 };

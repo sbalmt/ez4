@@ -2,9 +2,10 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryState, StepContext } from '@ez4/stateful';
 import type { FunctionState } from './types';
 
+import { getDefaultSecurityGroupId, getDefaultSubnetIds, getDefaultVpcId } from '@ez4/aws-vpc';
 import { IncompleteResourceError } from '@ez4/aws-common';
 
-import { FunctionNotFoundError } from './errors';
+import { DefaultVpcDetailsError, FunctionNotFoundError } from './errors';
 import { FunctionServiceType } from './types';
 
 export const isFunctionState = (resource: EntryState): resource is FunctionState => {
@@ -57,4 +58,23 @@ export const getFunctionArn = (serviceName: string, resourceId: string, context:
   }
 
   return functionArn;
+};
+
+export const getDefaultVpcConfig = async () => {
+  const defaultVpcId = await getDefaultVpcId();
+
+  if (!defaultVpcId) {
+    throw new DefaultVpcDetailsError();
+  }
+
+  const [subnetIds, securityGroupId] = await Promise.all([getDefaultSubnetIds(defaultVpcId), getDefaultSecurityGroupId(defaultVpcId)]);
+
+  if (!subnetIds?.length || !securityGroupId) {
+    throw new DefaultVpcDetailsError();
+  }
+
+  return {
+    subnetIds: subnetIds.slice(0, 2),
+    securityGroupId
+  };
 };
