@@ -48,6 +48,7 @@
     "providers/aws/aws-common",
     "providers/aws/aws-identity",
     "providers/aws/aws-logs",
+    "providers/aws/aws-vpc",
     "providers/aws/aws-function",
     "providers/aws/aws-scheduler",
     "providers/aws/aws-dynamodb",
