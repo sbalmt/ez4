@@ -48,10 +48,10 @@ export const sendClientRequest = async (url: string, method: string, request: Cl
   const payload = body ? prepareRequestBody(body, bodySchema, { namingStyle }) : undefined;
 
   const controller = new AbortController();
-  const timerId = setTimeout(() => controller?.abort('Request timed out'), timeout * 1000);
+  const timerId = setTimeout(() => controller.abort('Request timed out'), timeout * 1000);
 
   const result = await fetch(url, {
-    signal: controller?.signal,
+    signal: controller.signal,
     body: payload?.body,
     method,
     headers: {
