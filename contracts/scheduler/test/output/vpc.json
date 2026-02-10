@@ -1,0 +1,26 @@
+{
+  "TestScheduler1": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-vpc.ts",
+        "position": [
+          12,
+          1
+        ]
+      },
+      "vpc": true
+    }
+  }
+}

@@ -41,6 +41,7 @@
       "authorizer": {
         "name": "authorizerHandler",
         "file": "test/ws/input/output-authorizer.ts",
+        "isolated": true,
         "position": [
           43,
           1

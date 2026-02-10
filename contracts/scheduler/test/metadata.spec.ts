@@ -33,5 +33,6 @@ describe('scheduler metadata', () => {
   it('assert :: basic scheduler', () => testFile('service'));
   it('assert :: dynamic scheduler', () => testFile('dynamic'));
   it('assert :: target listener', () => testFile('listener'));
+  it('assert :: target vpc', () => testFile('vpc'));
   it('assert :: scheduler event', () => testFile('event'));
 });

@@ -42,5 +42,6 @@ describe('http metadata', () => {
   it('assert :: route query', () => testFile('query'));
   it('assert :: route body', () => testFile('body'));
   it('assert :: route errors', () => testFile('errors'));
+  it('assert :: route vpc', () => testFile('vpc'));
   it('assert :: import api', () => testFile('import'));
 });

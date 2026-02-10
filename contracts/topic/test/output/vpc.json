@@ -1,0 +1,33 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestTopic": {
+    "type": "@ez4/topic",
+    "name": "TestTopic",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "type": "lambda",
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-vpc.ts",
+          "position": [
+            12,
+            1
+          ]
+        },
+        "vpc": true
+      }
+    ]
+  }
+}

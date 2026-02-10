@@ -80,6 +80,7 @@
         "authorizer": {
           "name": "testHeaderAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
+          "isolated": true,
           "position": [
             66,
             1
