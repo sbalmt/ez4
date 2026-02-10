@@ -20,6 +20,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
   const defaults = options.defaults;
 
   const {
+    vpc,
     handler,
     listener,
     variables,
@@ -60,6 +61,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     runtime,
     timeout,
     memory,
+    vpc,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -90,7 +92,7 @@ export const connectTarget = (state: EntryStates, service: CronService, options:
 
   linkServiceContext(state, handlerState.entryId, service.context);
 
-  if (!handlerState.parameters.useVpc) {
-    handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context);
+  if (!handlerState.parameters.vpc) {
+    handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context);
   }
 };

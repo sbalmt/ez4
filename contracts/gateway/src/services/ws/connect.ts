@@ -23,4 +23,9 @@ export interface WsConnect<T extends WsEvent, U extends AuthRequest> extends Web
    * Entry-point handler function for the event.
    */
   readonly handler: WsHandler<T>;
+
+  /**
+   * Determines whether or not VPC is enabled for the event.
+   */
+  readonly vpc?: boolean;
 }

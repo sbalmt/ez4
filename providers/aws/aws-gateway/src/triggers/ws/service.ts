@@ -81,8 +81,8 @@ export const connectWsServices = (event: ConnectResourceEvent) => {
 
       linkServiceContext(state, handlerState.entryId, service.context);
 
-      if (!handlerState.parameters.useVpc) {
-        handlerState.parameters.useVpc = vpcRequired;
+      if (!handlerState.parameters.vpc) {
+        handlerState.parameters.vpc = vpcRequired;
       }
     }
 
@@ -92,8 +92,8 @@ export const connectWsServices = (event: ConnectResourceEvent) => {
 
       linkServiceContext(state, authorizerState.entryId, service.context);
 
-      if (!authorizerState.parameters.useVpc) {
-        authorizerState.parameters.useVpc = vpcRequired;
+      if (!authorizerState.parameters.vpc) {
+        authorizerState.parameters.vpc = vpcRequired;
       }
     }
   }

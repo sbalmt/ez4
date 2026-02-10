@@ -29,11 +29,13 @@ export type WsConnection = WsDefaults & {
   handler: WsHandler;
   authorizer?: AuthHandler;
   variables?: LinkedVariables;
+  vpc?: boolean;
 };
 
 export type WsMessage = WsDefaults & {
   handler: WsHandler;
   variables?: LinkedVariables;
+  vpc?: boolean;
 };
 
 export type WsHandler = FunctionSignature & {

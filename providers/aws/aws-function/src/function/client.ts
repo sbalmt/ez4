@@ -42,8 +42,8 @@ export type CreateRequest = {
   timeout?: number;
   memory?: number;
   publish?: boolean;
-  useVpc?: boolean;
   debug?: boolean;
+  vpc?: boolean;
   tags?: ResourceTags;
 };
 
@@ -61,8 +61,8 @@ export type UpdateConfigurationRequest = {
   runtime?: RuntimeType;
   timeout?: number;
   memory?: number;
-  useVpc?: boolean;
   debug?: boolean;
+  vpc?: boolean;
 };
 
 export type UpdateSourceCodeRequest = {
@@ -111,7 +111,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
     assertVariables(variables);
   }
 
-  const vpcConfig = request.useVpc ? await getDefaultVpcConfig() : undefined;
+  const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
@@ -234,7 +234,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
     assertVariables(variables);
   }
 
-  const vpcConfig = request.useVpc ? await getDefaultVpcConfig() : undefined;
+  const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
   const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
 

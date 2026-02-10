@@ -52,6 +52,7 @@ export const prepareSubscriptions = (
           const defaults = options.defaults;
 
           const {
+            vpc,
             runtime = defaults?.runtime ?? Defaults.Runtime,
             architecture = defaults?.architecture ?? Defaults.Architecture,
             logRetention = defaults?.logRetention ?? Defaults.LogRetention,
@@ -78,6 +79,7 @@ export const prepareSubscriptions = (
             runtime,
             timeout,
             memory,
+            vpc,
             handler: {
               sourceFile: handler.file,
               functionName: handler.name,
@@ -137,8 +139,8 @@ export const connectSubscriptions = (
 
         linkServiceContext(state, handlerState.entryId, service.context);
 
-        if (!handlerState.parameters.useVpc) {
-          handlerState.parameters.useVpc = vpcRequired;
+        if (!handlerState.parameters.vpc) {
+          handlerState.parameters.vpc = vpcRequired;
         }
 
         break;

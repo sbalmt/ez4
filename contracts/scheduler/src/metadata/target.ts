@@ -13,6 +13,7 @@ import {
   getServiceListener,
   getServiceArchitecture,
   getServiceRuntime,
+  getPropertyBoolean,
   getReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
@@ -90,11 +91,6 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'listener': {
-        target.listener = getServiceListener(member.value, errorList);
-        break;
-      }
-
       case 'memory':
       case 'logRetention':
       case 'timeout': {
@@ -109,6 +105,16 @@ const getTypeFromMembers = (
 
       case 'runtime': {
         target[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'vpc': {
+        target[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'listener': {
+        target.listener = getServiceListener(member.value, errorList);
         break;
       }
 

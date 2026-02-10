@@ -69,6 +69,7 @@ export type TableStream = {
   logRetention?: number;
   timeout?: number;
   memory?: number;
+  vpc?: boolean;
 };
 
 export const isDatabaseService = (service: ServiceMetadata): service is DatabaseService => {

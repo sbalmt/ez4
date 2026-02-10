@@ -60,6 +60,7 @@ export type QueueSubscription = {
   concurrency?: number;
   batch?: number;
   memory?: number;
+  vpc?: boolean;
 };
 
 export const isQueueService = (service: ServiceMetadata): service is QueueService => {

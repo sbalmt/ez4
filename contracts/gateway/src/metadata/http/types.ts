@@ -80,8 +80,9 @@ export type HttpRoute = HttpDefaults & {
   handler: HttpHandler;
   authorizer?: AuthHandler;
   variables?: LinkedVariables;
-  cors?: boolean;
   disabled?: boolean;
+  cors?: boolean;
+  vpc?: boolean;
 };
 
 export type HttpDefaults = {

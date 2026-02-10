@@ -24,6 +24,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const { defaults, release } = options;
 
   const {
+    vpc,
     handler,
     listener,
     variables,
@@ -63,6 +64,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     release,
     timeout,
     memory,
+    vpc,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -97,7 +99,7 @@ export const connectEvents = (state: EntryStates, service: BucketService, option
 
   linkServiceContext(state, handlerState.entryId, service.context);
 
-  if (!handlerState.parameters.useVpc) {
-    handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context);
+  if (!handlerState.parameters.vpc) {
+    handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context);
   }
 };

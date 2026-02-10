@@ -35,6 +35,7 @@ export const getAuthorizerFunction = (
   const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
 
   const {
+    vpc,
     authorizer,
     listener = defaults.listener,
     runtime = defaults.runtime ?? Defaults.Runtime,
@@ -76,6 +77,7 @@ export const getAuthorizerFunction = (
       architecture,
       runtime,
       memory,
+      vpc,
       preferences: {
         ...service.defaults?.preferences,
         ...target.preferences

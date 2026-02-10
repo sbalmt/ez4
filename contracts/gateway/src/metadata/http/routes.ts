@@ -193,6 +193,7 @@ const getTypeFromMembers = (
         break;
       }
 
+      case 'vpc':
       case 'cors':
       case 'disabled': {
         route[member.name] = getPropertyBoolean(member);

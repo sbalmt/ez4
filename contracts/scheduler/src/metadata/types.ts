@@ -39,6 +39,7 @@ export type CronTarget = {
   logRetention?: number;
   timeout?: number;
   memory?: number;
+  vpc?: boolean;
 };
 
 export const isCronService = (service: ServiceMetadata): service is CronService => {

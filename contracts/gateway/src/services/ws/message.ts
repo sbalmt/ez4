@@ -16,4 +16,9 @@ export interface WsMessage<T extends WsEvent> extends WebTarget {
    * Entry-point handler function for the event.
    */
   readonly handler: WsHandler<T>;
+
+  /**
+   * Determines whether or not VPC is enabled for the event.
+   */
+  readonly vpc?: boolean;
 }

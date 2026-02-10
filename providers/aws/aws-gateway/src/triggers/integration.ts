@@ -64,6 +64,7 @@ const getIntegrationFunction = (
   const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
 
   const {
+    vpc,
     handler,
     listener = defaults.listener,
     runtime = defaults.runtime ?? Defaults.Runtime,
@@ -113,6 +114,7 @@ const getIntegrationFunction = (
       runtime,
       memory,
       type,
+      vpc,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

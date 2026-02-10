@@ -52,4 +52,9 @@ export interface QueueSubscription<T extends QueueMessage> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Determines whether or not VPC is enabled for the subscription.
+   */
+  readonly vpc?: boolean;
 }

@@ -47,4 +47,9 @@ export interface CronTarget<T extends CronEvent | null> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Determines whether or not VPC is enabled for the target.
+   */
+  readonly vpc?: boolean;
 }

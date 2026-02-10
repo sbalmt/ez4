@@ -127,8 +127,8 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
 
     linkServiceContext(state, handlerState.entryId, service.context);
 
-    if (!handlerState.parameters.useVpc) {
-      handlerState.parameters.useVpc = vpcRequired;
+    if (!handlerState.parameters.vpc) {
+      handlerState.parameters.vpc = vpcRequired;
     }
   }
 };

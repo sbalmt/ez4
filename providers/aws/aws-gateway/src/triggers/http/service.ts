@@ -79,8 +79,8 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
 
       linkServiceContext(state, handlerState.entryId, service.context);
 
-      if (!handlerState.parameters.useVpc && handler.isolated) {
-        handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context, handler.provider?.services);
+      if (!handlerState.parameters.vpc && handler.isolated) {
+        handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context, handler.provider?.services);
       }
 
       if (authorizer) {
@@ -89,8 +89,8 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
 
         linkServiceContext(state, authorizerState.entryId, service.context);
 
-        if (!authorizerState.parameters.useVpc && authorizer.isolated) {
-          authorizerState.parameters.useVpc = isLinkedContextVpcRequired(service.context, authorizer.provider?.services);
+        if (!authorizerState.parameters.vpc && authorizer.isolated) {
+          authorizerState.parameters.vpc = isLinkedContextVpcRequired(service.context, authorizer.provider?.services);
         }
       }
     }

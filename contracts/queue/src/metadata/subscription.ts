@@ -14,6 +14,7 @@ import {
   getServiceListener,
   getServiceArchitecture,
   getServiceRuntime,
+  getPropertyBoolean,
   getReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
@@ -127,6 +128,11 @@ const getTypeFromMembers = (
 
       case 'runtime': {
         subscription[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'vpc': {
+        subscription[member.name] = getPropertyBoolean(member);
         break;
       }
 

@@ -39,6 +39,7 @@ export const prepareSubscriptions = (
       const { defaults, release } = options;
 
       const {
+        vpc,
         runtime = defaults?.runtime ?? Defaults.Runtime,
         architecture = defaults?.architecture ?? Defaults.Architecture,
         logRetention = defaults?.logRetention ?? Defaults.LogRetention,
@@ -64,6 +65,7 @@ export const prepareSubscriptions = (
         runtime,
         release,
         memory,
+        vpc,
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,
@@ -110,8 +112,8 @@ export const connectSubscriptions = (
 
     linkServiceContext(state, handlerState.entryId, service.context);
 
-    if (!handlerState.parameters.useVpc) {
-      handlerState.parameters.useVpc = isLinkedContextVpcRequired(service.context);
+    if (!handlerState.parameters.vpc) {
+      handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context);
     }
   }
 };

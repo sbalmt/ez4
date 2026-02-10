@@ -50,4 +50,9 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
    * Determines whether or not CORS is enabled for the route.
    */
   readonly cors?: boolean;
+
+  /**
+   * Determines whether or not VPC is enabled for the route.
+   */
+  readonly vpc?: boolean;
 }
