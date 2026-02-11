@@ -63,7 +63,7 @@ export const createCache = async (logger: OperationLogLine, request: CreateReque
 
   const client = getCacheClient();
 
-  const response = await client.send(
+  await client.send(
     new CreateServerlessCacheCommand({
       ServerlessCacheName: name,
       Description: description,
@@ -78,7 +78,13 @@ export const createCache = async (logger: OperationLogLine, request: CreateReque
 
   await waitForServerlessCache(client, name);
 
-  const { ARN, Endpoint, ReaderEndpoint } = response.ServerlessCache!;
+  const response = await getCacheClient().send(
+    new DescribeServerlessCachesCommand({
+      ServerlessCacheName: name
+    })
+  );
+
+  const { ARN, Endpoint, ReaderEndpoint } = response.ServerlessCaches?.[0]!;
 
   return {
     cacheArn: ARN as Arn,
