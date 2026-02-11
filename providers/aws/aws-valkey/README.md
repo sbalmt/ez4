@@ -36,18 +36,15 @@ Ensure the user performing deployments has the permissions below:
       "Action": [
         "ec2:CreateVpcEndpoint",
         "ec2:DescribeVpcEndpoints",
-        "ec2:ModifyVpcEndpoint",
-        "ec2:DeleteVpcEndpoints",
-        "ec2:CreateTags",
-        "ec2:DeleteTags"
+        "ec2:CreateTags"
       ],
-      "Resource": "*"
+      "Resource": ["*"]
     },
     {
       "Sid": "CacheLinkRole",
       "Action": "iam:CreateServiceLinkedRole",
       "Effect": "Allow",
-      "Resource": "arn:aws:iam::*:role/aws-service-role/elasticache.amazonaws.com/AWSServiceRoleForElastiCache",
+      "Resource": ["arn:aws:iam::*:role/aws-service-role/elasticache.amazonaws.com/AWSServiceRoleForElastiCache"],
       "Condition": {
         "StringLike": {
           "iam:AWSServiceName": "elasticache.amazonaws.com"
