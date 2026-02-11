@@ -87,12 +87,12 @@ export const createCache = async (logger: OperationLogLine, request: CreateReque
   };
 };
 
-export const tagCache = async (logger: OperationLogLine, cacheName: string, tags: ResourceTags) => {
+export const tagCache = async (logger: OperationLogLine, cacheArn: string, tags: ResourceTags) => {
   logger.update(`Tag cache`);
 
   await getCacheClient().send(
     new AddTagsToResourceCommand({
-      ResourceName: cacheName,
+      ResourceName: cacheArn,
       Tags: getTagList({
         ...tags,
         ManagedBy: 'EZ4'
@@ -101,12 +101,12 @@ export const tagCache = async (logger: OperationLogLine, cacheName: string, tags
   );
 };
 
-export const untagCache = async (logger: OperationLogLine, cacheName: string, tagKeys: string[]) => {
+export const untagCache = async (logger: OperationLogLine, cacheArn: string, tagKeys: string[]) => {
   logger.update(`Untag cache`);
 
   await getCacheClient().send(
     new RemoveTagsFromResourceCommand({
-      ResourceName: cacheName,
+      ResourceName: cacheArn,
       TagKeys: tagKeys
     })
   );

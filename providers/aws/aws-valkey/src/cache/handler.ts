@@ -69,7 +69,7 @@ const updateResource = (candidate: CacheState, current: CacheState): Promise<Cac
   }
 
   return OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
-    await checkTagUpdates(logger, name, parameters, current.parameters);
+    await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
 
     return result;
   });
@@ -91,11 +91,11 @@ const deleteResource = (current: CacheState, context: StepContext) => {
   });
 };
 
-const checkTagUpdates = async (logger: OperationLogLine, CacheUrl: string, candidate: CacheParameters, current: CacheParameters) => {
+const checkTagUpdates = async (logger: OperationLogLine, cacheArn: string, candidate: CacheParameters, current: CacheParameters) => {
   await applyTagUpdates(
     candidate.tags,
     current.tags,
-    (tags) => tagCache(logger, CacheUrl, tags),
-    (tags) => untagCache(logger, CacheUrl, tags)
+    (tags) => tagCache(logger, cacheArn, tags),
+    (tags) => untagCache(logger, cacheArn, tags)
   );
 };
