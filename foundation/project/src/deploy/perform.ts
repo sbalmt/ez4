@@ -18,19 +18,21 @@ export const performDeploy = async <T>(options: DeployOptions, callback: () => P
     process.exit(0);
   };
 
-  process.on('SIGINT', handleInterruption);
+  try {
+    process.on('SIGINT', handleInterruption);
 
-  await DynamicLogger.logExecution('🔒 Acquiring lock', () => {
-    return triggerAllAsync('deploy:lock', (handler) => handler({ lockId }));
-  });
+    await DynamicLogger.logExecution('🔒 Acquiring lock', () => {
+      return triggerAllAsync('deploy:lock', (handler) => handler({ lockId }));
+    });
 
-  const result = await callback();
+    return await callback();
+  } catch (error) {
+    throw error;
+  } finally {
+    await DynamicLogger.logExecution('🔓 Releasing lock', () => {
+      return triggerAllAsync('deploy:unlock', (handler) => handler({ lockId }));
+    });
 
-  await DynamicLogger.logExecution('🔓 Releasing lock', () => {
-    return triggerAllAsync('deploy:unlock', (handler) => handler({ lockId }));
-  });
-
-  process.off('SIGINT', handleInterruption);
-
-  return result;
+    process.off('SIGINT', handleInterruption);
+  }
 };
