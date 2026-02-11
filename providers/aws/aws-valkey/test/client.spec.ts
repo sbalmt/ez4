@@ -1,61 +1,80 @@
-import type { Client as EmailClient } from '@ez4/email';
-import type { EntryStates } from '@ez4/stateful';
-
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createIdentity, isIdentityState, registerTriggers } from '@ez4/aws-email';
-import { Client } from '@ez4/aws-email/client';
-import { deploy } from '@ez4/aws-common';
+import { Client } from '@ez4/aws-valkey/client';
+import { setTimeout } from 'node:timers/promises';
 
-describe('email client', () => {
-  let lastState: EntryStates | undefined;
-  let identityId: string | undefined;
-  let emailClient: EmailClient;
-
-  registerTriggers();
-
-  it('assert :: deploy', async () => {
-    const localState: EntryStates = {};
-
-    const resource = createIdentity(localState, {
-      identity: 'test.easyfor.dev'
-    });
-
-    identityId = resource.entryId;
-
-    const { result } = await deploy(localState, undefined);
-
-    const resultResource = result[identityId];
-
-    ok(resultResource && isIdentityState(resultResource));
-    ok(resultResource.result);
-
-    emailClient = Client.make();
-
-    lastState = result;
+describe('cache client', () => {
+  const cacheClient = Client.make({
+    endpoint: '127.0.0.1',
+    port: 6379,
+    tls: false
   });
 
-  it('assert :: send email', async () => {
-    ok(emailClient);
+  it('assert :: set operation', async () => {
+    ok(cacheClient);
 
-    await emailClient.send({
-      from: 'sender@test.easyfor.dev',
-      to: ['receiver@test.easyfor.dev'],
-      subject: 'Test email',
-      body: {
-        text: 'Email sent with EZ4'
-      }
+    await cacheClient.set('Key-A', 'foo');
+  });
+
+  it('assert :: set operation (with TTL)', async () => {
+    ok(cacheClient);
+
+    await cacheClient.set('Key-B', 'bar', {
+      ttl: 5
     });
   });
 
-  it('assert :: destroy', async () => {
-    ok(identityId && lastState);
+  it('assert :: get operation', async () => {
+    ok(cacheClient);
 
-    ok(lastState[identityId]);
+    const valueA = await cacheClient.get('Key-A');
+    const valueB = await cacheClient.get('Key-B');
+    const valueC = await cacheClient.get('Key-C');
 
-    const { result } = await deploy(undefined, lastState);
+    equal(valueA, 'foo');
+    equal(valueB, 'bar');
+    equal(valueC, undefined);
+  });
 
-    equal(result[identityId], undefined);
+  it('assert :: delete operation', async () => {
+    ok(cacheClient);
+
+    const result = await cacheClient.delete('Key-B', 'Key-C');
+
+    equal(result, 1);
+  });
+
+  it('assert :: exists operation', async () => {
+    ok(cacheClient);
+
+    const result = await cacheClient.exists('Key-B', 'Key-C');
+
+    equal(result, 0);
+  });
+
+  it('assert :: expire operation', async () => {
+    ok(cacheClient);
+
+    const resultA = await cacheClient.expire('Key-A', 10);
+    const resultB = await cacheClient.expire('Key-B', 5);
+
+    equal(resultA, true);
+    equal(resultB, false);
+  });
+
+  it('assert :: reconnection', async () => {
+    ok(cacheClient);
+
+    // Make the first connection
+    await cacheClient.set('Key-Z', 'foo');
+
+    // Wait for internal idle timeout to close the connection
+    await setTimeout(2000);
+
+    // Make the second connection
+    const result = await cacheClient.get('Key-Z');
+
+    equal(result, 'foo');
   });
 });

@@ -1,6 +1,8 @@
-import type { Client as CacheClient } from '@ez4/cache';
+import type { Client as CacheClient, SetOptions } from '@ez4/cache';
 
-import Valkey from 'iovalkey';
+import { isAnyNumber } from '@ez4/utils';
+
+import { createCacheContext } from './client';
 
 export type ClientContext = {
   endpoint: string;
@@ -11,21 +13,41 @@ export type ClientContext = {
 
 export namespace Client {
   export const make = (context: ClientContext): CacheClient => {
-    const client = new Valkey({
-      host: context.endpoint,
-      port: context.port,
-      ...(context.tls !== false && {
-        tls: {}
-      })
-    });
+    const cache = createCacheContext(context);
 
     return new (class {
       async get(key: string) {
-        return (await client.get(key)) ?? undefined;
+        return cache.execute(async (client) => {
+          return (await client.get(key)) ?? undefined;
+        });
       }
 
-      async set(key: string, value: string) {
-        await client.set(key, value);
+      async set(key: string, value: string, options?: SetOptions) {
+        return cache.execute(async (client) => {
+          if (isAnyNumber(options?.ttl)) {
+            await client.setex(key, options.ttl, value);
+          } else {
+            await client.set(key, value);
+          }
+        });
+      }
+
+      async expire(key: string, ttl: number) {
+        return cache.execute(async (client) => {
+          return !!(await client.expire(key, ttl));
+        });
+      }
+
+      async delete(...keys: string[]) {
+        return cache.execute((client) => {
+          return client.del(...keys);
+        });
+      }
+
+      async exists(...keys: string[]) {
+        return cache.execute((client) => {
+          return client.exists(...keys);
+        });
       }
     })();
   };

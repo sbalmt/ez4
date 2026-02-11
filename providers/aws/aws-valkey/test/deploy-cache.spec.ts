@@ -3,7 +3,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
-import { createIdentity, isIdentityState, registerTriggers } from '@ez4/aws-email';
+import { createCache, isCacheState, registerTriggers } from '@ez4/aws-valkey';
 import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
@@ -13,11 +13,13 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   const resource = state[resourceId];
 
   ok(resource?.result);
-  ok(isIdentityState(resource));
+  ok(isCacheState(resource));
 
-  const { identityArn } = resource.result;
+  const { cacheArn, readerEndpoint, writerEndpoint } = resource.result;
 
-  ok(identityArn);
+  ok(cacheArn);
+  ok(readerEndpoint);
+  ok(writerEndpoint);
 
   return {
     result: resource.result,
@@ -25,55 +27,57 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('email', () => {
+describe('deploy cache', () => {
   let lastState: EntryStates | undefined;
-  let identityId: string | undefined;
+  let cacheId: string | undefined;
 
   registerTriggers();
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createIdentity(localState, {
-      identity: 'test.ez4.dev',
+    const resource = createCache(localState, {
+      name: 'ez4-valkey-cache',
+      description: 'EZ4 Valkey cache test',
+      allowDeletion: true,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'
       }
     });
 
-    identityId = resource.entryId;
+    cacheId = resource.entryId;
 
-    const { state } = await assertDeploy(identityId, localState, undefined);
+    const { state } = await assertDeploy(cacheId, localState, undefined);
 
     lastState = state;
   });
 
   it('assert :: update tags', async () => {
-    ok(identityId && lastState);
+    ok(cacheId && lastState);
 
     const localState = deepClone(lastState);
-    const resource = localState[identityId];
+    const resource = localState[cacheId];
 
-    ok(resource && isIdentityState(resource));
+    ok(resource && isCacheState(resource));
 
     resource.parameters.tags = {
       test2: 'ez4-tag2',
       test3: 'ez4-tag3'
     };
 
-    const { state } = await assertDeploy(identityId, localState, lastState);
+    const { state } = await assertDeploy(cacheId, localState, lastState);
 
     lastState = state;
   });
 
   it('assert :: destroy', async () => {
-    ok(identityId && lastState);
+    ok(cacheId && lastState);
 
-    ok(lastState[identityId]);
+    ok(lastState[cacheId]);
 
     const { result } = await deploy(undefined, lastState);
 
-    equal(result[identityId], undefined);
+    equal(result[cacheId], undefined);
   });
 });

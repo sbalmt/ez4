@@ -78,7 +78,9 @@ const updateResource = (candidate: CacheState, current: CacheState): Promise<Cac
 const deleteResource = (current: CacheState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result || !context.force) {
+  const allowDeletion = !!parameters.allowDeletion;
+
+  if (!result || (!allowDeletion && !context.force)) {
     return;
   }
 

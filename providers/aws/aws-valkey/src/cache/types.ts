@@ -5,7 +5,9 @@ export const CacheServiceName = 'AWS:Cache/Valkey';
 
 export const CacheServiceType = 'aws:cache.valkey';
 
-export type CacheParameters = CreateRequest;
+export type CacheParameters = CreateRequest & {
+  allowDeletion?: boolean;
+};
 
 export type CacheResult = ImportOrCreateResponse;
 
