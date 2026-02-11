@@ -5,6 +5,7 @@ import { tryCreateTrigger } from '@ez4/project/library';
 
 import { registerCacheProvider } from '../cache/provider';
 import { prepareLinkedServices, prepareServices } from './service';
+import { prepareEmulatorReset } from './migration';
 import { prepareEmulatorClient } from './client';
 
 export const registerTriggers = () => {
@@ -15,7 +16,8 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/aws-email', {
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareServices,
-    'emulator:getClient': prepareEmulatorClient
+    'emulator:getClient': prepareEmulatorClient,
+    'emulator:resetService': prepareEmulatorReset
   });
 
   registerCacheProvider();

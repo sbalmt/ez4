@@ -6,9 +6,17 @@ import { setTimeout } from 'node:timers/promises';
 
 describe('cache client', () => {
   const cacheClient = Client.make({
-    endpoint: '127.0.0.1',
-    port: 6379,
-    tls: false
+    connection: {
+      endpoint: '127.0.0.1',
+      port: 6379,
+      tls: false
+    }
+  });
+
+  it('assert :: flush operation', async () => {
+    ok(cacheClient);
+
+    await cacheClient.flush();
   });
 
   it('assert :: set operation', async () => {
@@ -53,14 +61,54 @@ describe('cache client', () => {
     equal(result, 0);
   });
 
-  it('assert :: expire operation', async () => {
+  it('assert :: set TTL operation', async () => {
     ok(cacheClient);
 
-    const resultA = await cacheClient.expire('Key-A', 10);
-    const resultB = await cacheClient.expire('Key-B', 5);
+    const resultA = await cacheClient.setTTL('Key-A', 10);
+    const resultB = await cacheClient.setTTL('Key-B', 5);
 
     equal(resultA, true);
     equal(resultB, false);
+  });
+
+  it('assert :: get TTL operation', async () => {
+    ok(cacheClient);
+
+    const resultA = await cacheClient.getTTL('Key-A');
+    const resultB = await cacheClient.getTTL('Key-B');
+
+    equal(resultA, 10);
+    equal(resultB, undefined);
+  });
+
+  it('assert :: rename operation', async () => {
+    ok(cacheClient);
+
+    const resultA = await cacheClient.rename('Key-A', 'Key-A');
+    const resultB = await cacheClient.rename('Key-A', 'Key-B');
+
+    equal(resultA, false);
+    equal(resultB, true);
+  });
+
+  it('assert :: increment operation', async () => {
+    ok(cacheClient);
+
+    const resultA = await cacheClient.increment('Key-N');
+    const resultB = await cacheClient.increment('Key-N', 5);
+
+    equal(resultA, 1);
+    equal(resultB, 6);
+  });
+
+  it('assert :: decrement operation', async () => {
+    ok(cacheClient);
+
+    const resultA = await cacheClient.decrement('Key-N');
+    const resultB = await cacheClient.decrement('Key-N', 5);
+
+    equal(resultA, 5);
+    equal(resultB, 0);
   });
 
   it('assert :: reconnection', async () => {

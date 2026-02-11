@@ -3,6 +3,11 @@
  */
 export interface Client {
   /**
+   * Clear the entire cache removing all its keys.
+   */
+  flush(): Promise<void>;
+
+  /**
    * Get the value corresponding to the given key.
    *
    * @param key Key name.
@@ -23,10 +28,27 @@ export interface Client {
    * Set the expiration TTL for the given key.
    *
    * @param key Key name.
-   * @param ttl TTL for the key.
+   * @param ttl TTL for the key (in seconds).
    * @returns Returns the `true` when the TTL is applied, `false` otherwise.
    */
-  expire(key: string, ttl: number): Promise<boolean>;
+  setTTL(key: string, ttl: number): Promise<boolean>;
+
+  /**
+   * Get the current TTL for the given key.
+   *
+   * @param key Key name.
+   * @returns Returns the current TTL or `undefined` when there's none.
+   */
+  getTTL(key: string): Promise<number | undefined>;
+
+  /**
+   * Rename the given key.
+   *
+   * @param key Key name.
+   * @param newkey New key name.
+   * @returns Returns `true` when the key is renamed, `false` otherwise.
+   */
+  rename(key: string, newkey: string): Promise<boolean>;
 
   /**
    * Delete all the given keys.
@@ -43,6 +65,24 @@ export interface Client {
    * @returns Returns the number of existing keys.
    */
   exists(...keys: string[]): Promise<number>;
+
+  /**
+   * Increment the current value for the given key.
+   *
+   * @param key Key name.
+   * @param value Optional increment value. (Default is `1`)
+   * @returns Returns the final value.
+   */
+  increment(key: string, value?: number): Promise<number>;
+
+  /**
+   * Decrement the current value for the given key.
+   *
+   * @param key Key name.
+   * @param value Optional decrement value. (Default is `1`)
+   * @returns Returns the final value.
+   */
+  decrement(key: string, value?: number): Promise<number>;
 }
 
 /**
