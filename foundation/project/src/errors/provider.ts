@@ -11,3 +11,9 @@ export class MissingActionProviderError extends Error {
     super(`No action providers for '${resourceName}' were found.`);
   }
 }
+
+export class ProviderVersionMismatchError extends Error {
+  constructor() {
+    super(`All providers must be on the same version.`);
+  }
+}
