@@ -13,8 +13,10 @@ import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadImports } from '../../config/imports';
 
-import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { readdir } from 'node:fs/promises';
+import { spec } from 'node:test/reporters';
+import { run } from 'node:test';
 
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
@@ -63,18 +65,27 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
       recursive: true
     });
 
-    return allFiles.filter((file) => {
+    const testFiles = allFiles.filter((file) => {
       if (TestFilePattern.test(file)) {
         return !filePatterns || filePatterns.some((filePattern) => file.includes(filePattern));
       }
 
       return false;
     });
+
+    return testFiles.map((testFile) => {
+      return join(workingDirectory, testFile);
+    });
   });
 
-  for (const testFile of testFiles) {
-    await import(join(workingDirectory, testFile));
-  }
+  const testRunner = run({
+    files: testFiles,
+    coverage: input.coverage,
+    isolation: 'none',
+    forceExit: true
+  });
+
+  testRunner.compose(spec).pipe(process.stdout);
 
   await shutdownServices(emulators);
 };
