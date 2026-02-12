@@ -1,3 +1,6 @@
+import { Runtime } from '@ez4/common';
+import { Logger } from '@ez4/logger';
+
 import Valkey from 'iovalkey';
 
 export type ClientOperationCallback<T> = (client: Valkey) => Promise<T>;
@@ -8,8 +11,8 @@ export type ClientConnection = {
   tls?: boolean;
 };
 
-export const createCacheContext = (context: ClientConnection) => {
-  const { endpoint, port, tls } = context;
+export const createCacheContext = (connection: ClientConnection, debug?: boolean) => {
+  const { tls, endpoint, port = 6379 } = connection;
 
   const client = new Valkey({
     keepAlive: 0,
@@ -28,6 +31,10 @@ export const createCacheContext = (context: ClientConnection) => {
 
   const ensureConnection = async () => {
     if (!connected) {
+      if (debug && Runtime.getScope()?.isLocal) {
+        Logger.info(`Connecting to Valkey at ${endpoint}:${port}`);
+      }
+
       await client.connect();
       connected = true;
     }
@@ -37,6 +44,10 @@ export const createCacheContext = (context: ClientConnection) => {
     if (connected) {
       client.disconnect();
       connected = false;
+
+      if (debug && Runtime.getScope()?.isLocal) {
+        Logger.info(`Valkey at ${endpoint}:${port} was disconnected`);
+      }
     }
   };
 

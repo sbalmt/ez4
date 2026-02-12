@@ -12,7 +12,9 @@ export type ClientContext = {
 
 export namespace Client {
   export const make = (context: ClientContext): CacheClient => {
-    const cache = createCacheContext(context.connection);
+    const { connection, debug } = context;
+
+    const cache = createCacheContext(connection, debug);
 
     return new (class {
       get(key: string) {
