@@ -5,17 +5,20 @@ import Valkey from 'iovalkey';
 
 export type ClientOperationCallback<T> = (client: Valkey) => Promise<T>;
 
+export type CacheOperator = {
+  execute: <T>(operation: ClientOperationCallback<T>) => Promise<T>;
+};
+
 export type ClientConnection = {
   endpoint: string;
   port?: number;
   tls?: boolean;
 };
 
-export const createCacheContext = (connection: ClientConnection, debug?: boolean) => {
+export const createCacheOperator = (connection: ClientConnection, debug?: boolean): CacheOperator => {
   const { tls, endpoint, port = 6379 } = connection;
 
   const client = new Valkey({
-    keepAlive: 0,
     connectTimeout: 10000,
     lazyConnect: true,
     host: endpoint,
@@ -25,54 +28,54 @@ export const createCacheContext = (connection: ClientConnection, debug?: boolean
     })
   });
 
-  let timeout: NodeJS.Timeout | undefined;
+  if (Runtime.isRemote()) {
+    return {
+      execute: <T>(operation: ClientOperationCallback<T>) => {
+        return operation(client);
+      }
+    };
+  }
 
-  let connected = false;
+  let timerId: NodeJS.Timeout | undefined;
+
+  client.on('ready', () => {
+    if (debug && Runtime.isLocal()) {
+      Logger.info(`Connected to Valkey at ${endpoint}:${port}`);
+    }
+  });
+
+  client.on('close', () => {
+    if (debug && Runtime.isLocal()) {
+      Logger.info(`Valkey at ${endpoint}:${port} was disconnected`);
+    }
+  });
 
   const ensureConnection = async () => {
-    if (!connected) {
-      if (debug && Runtime.getScope()?.isLocal) {
-        Logger.info(`Connecting to Valkey at ${endpoint}:${port}`);
-      }
-
+    if (client.status === 'wait' || client.status === 'end' || client.status === 'close') {
       await client.connect();
-      connected = true;
     }
   };
 
-  const forceDisconnect = () => {
-    if (connected) {
-      client.disconnect();
-      connected = false;
-
-      if (debug && Runtime.getScope()?.isLocal) {
-        Logger.info(`Valkey at ${endpoint}:${port} was disconnected`);
-      }
-    }
+  const stopIdleTimer = () => {
+    clearTimeout(timerId);
   };
 
-  const startIdleTimeout = () => {
-    timeout = setTimeout(forceDisconnect, 1000);
-  };
-
-  const stopIdleTimeout = () => {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+  const startIdleTimer = () => {
+    timerId = setTimeout(() => client.disconnect(false), 1000);
   };
 
   return {
     execute: async <T>(operation: ClientOperationCallback<T>) => {
-      await ensureConnection();
+      stopIdleTimer();
 
-      stopIdleTimeout();
+      await ensureConnection();
 
       try {
         return await operation(client);
       } catch (error) {
         throw error;
       } finally {
-        startIdleTimeout();
+        startIdleTimer();
       }
     }
   };
