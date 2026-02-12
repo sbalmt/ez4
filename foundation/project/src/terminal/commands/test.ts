@@ -80,9 +80,10 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   const runner = run({
     coverage: input.coverage,
+    coverageIncludeGlobs: [`${workingDirectory}/**/*`],
     isolation: 'none',
-    forceExit: true,
-    files: testFiles
+    files: testFiles,
+    forceExit: true
   });
 
   runner.compose(spec).pipe(process.stdout);
