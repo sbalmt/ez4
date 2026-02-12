@@ -128,7 +128,7 @@ const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolea
 };
 
 const getDebugParameters = (input: ExecuteStatementCommandInput) => {
-  if (!Runtime.getScope()?.isLocal || !input.Parameters?.length) {
+  if (Runtime.isRemote() || !input.Parameters?.length) {
     return undefined;
   }
 

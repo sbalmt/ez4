@@ -147,7 +147,8 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
     bundle: true,
     target,
     define: {
-      ...options.define
+      ...options.define,
+      EZ4_IS_REMOTE_RUNTIME: 'true'
     },
     stdin: {
       resolveDir: process.cwd(),

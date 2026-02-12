@@ -42,7 +42,7 @@ const getTransactionId = (transactionId: string | undefined) => {
 };
 
 const getDebugParameters = (statement: PgExecuteStatement) => {
-  if (!Runtime.getScope()?.isLocal || !statement.variables?.length) {
+  if (Runtime.isRemote() || !statement.variables?.length) {
     return undefined;
   }
 

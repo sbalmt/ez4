@@ -29,7 +29,6 @@ export const processWsAuthorization = async (
   const traceId = getRandomUUID();
 
   Runtime.setScope({
-    isLocal: true,
     traceId
   });
 

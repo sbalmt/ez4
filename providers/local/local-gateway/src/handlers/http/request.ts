@@ -35,7 +35,6 @@ export const processHttpRequest = async (
   const traceId = getRandomUUID();
 
   Runtime.setScope({
-    isLocal: true,
     traceId
   });
 

@@ -20,7 +20,6 @@ export const processLambdaMessage = async (
   const traceId = getRandomUUID();
 
   Runtime.setScope({
-    isLocal: true,
     traceId
   });
 
