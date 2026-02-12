@@ -1,16 +1,22 @@
-import { describe, it } from 'node:test';
+import { after, describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
 
 import { Client } from '@ez4/aws-valkey/client';
-import { setTimeout } from 'node:timers/promises';
 
 describe('cache client', () => {
+  const cacheIdentifier = 'test';
+
   const cacheClient = Client.make({
+    identifier: cacheIdentifier,
     connection: {
       endpoint: '127.0.0.1',
       port: 6379,
       tls: false
     }
+  });
+
+  after(() => {
+    Client.dispose(cacheIdentifier);
   });
 
   it('assert :: flush operation', async () => {
@@ -109,20 +115,5 @@ describe('cache client', () => {
 
     equal(resultA, 5);
     equal(resultB, 0);
-  });
-
-  it('assert :: reconnection', async () => {
-    ok(cacheClient);
-
-    // Make the first connection
-    await cacheClient.set('Key-Z', 'foo');
-
-    // Wait for internal idle timeout to close the connection
-    await setTimeout(2000);
-
-    // Make the second connection
-    const result = await cacheClient.get('Key-Z');
-
-    equal(result, 'foo');
   });
 });

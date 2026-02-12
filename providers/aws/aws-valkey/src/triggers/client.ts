@@ -13,6 +13,7 @@ import { getCacheName, isValkeyService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: CacheService, options: DeployOptions): ContextSource => {
   const cacheState = getCacheState(context, service.name, options);
+  const cacheName = getCacheName(service, options);
   const cacheId = cacheState.entryId;
 
   const endpoint = getDefinitionName<CacheState>(cacheId, 'writerEndpoint');
@@ -20,7 +21,12 @@ export const prepareLinkedClient = (context: EventContext, service: CacheService
   return {
     module: 'Client',
     from: '@ez4/aws-valkey/client',
-    constructor: `@{EZ4_MODULE_IMPORT}.make({ connection: { endpoint: ${endpoint} }, debug: ${options.debug ?? false}})`,
+    constructor:
+      `@{EZ4_MODULE_IMPORT}.make({ ` +
+      `identifier: "${cacheName}", ` +
+      `connection: { endpoint: ${endpoint} }, ` +
+      `debug: ${options.debug ?? false} ` +
+      `})`,
     connectionIds: [cacheId],
     dependencyIds: [cacheId],
     requireVpc: true
@@ -38,6 +44,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
     const connection = getConnectionOptions(service, options);
 
     return Client.make({
+      identifier: service.name,
       debug: options.debug,
       connection: {
         endpoint: connection.endpoint,
@@ -54,6 +61,7 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
   }
 
   return Client.make({
+    identifier: service.name,
     debug: options.debug,
     connection: {
       endpoint: cache.writerEndpoint

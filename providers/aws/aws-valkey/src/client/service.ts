@@ -3,10 +3,12 @@ import type { ClientConnection, CacheOperator } from './client';
 
 import { isAnyNumber } from '@ez4/utils';
 
+import { CacheOperatorNotFoundError } from './errors';
 import { createCacheOperator } from './client';
 
 export type ClientContext = {
   connection: ClientConnection;
+  identifier: string;
   debug?: boolean;
 };
 
@@ -14,14 +16,13 @@ const CACHE_OPERATORS: Record<string, CacheOperator> = {};
 
 export namespace Client {
   export const make = (context: ClientContext): CacheClient => {
-    const { connection, debug } = context;
-    const { endpoint } = connection;
+    const { connection, identifier, debug } = context;
 
-    if (!CACHE_OPERATORS[endpoint]) {
-      CACHE_OPERATORS[endpoint] = createCacheOperator(connection, debug);
+    if (!CACHE_OPERATORS[identifier]) {
+      CACHE_OPERATORS[identifier] = createCacheOperator(connection, debug);
     }
 
-    const operator = CACHE_OPERATORS[endpoint];
+    const operator = CACHE_OPERATORS[identifier];
 
     return new (class {
       get(key: string) {
@@ -89,5 +90,17 @@ export namespace Client {
         });
       }
     })();
+  };
+
+  export const dispose = (identifier: string) => {
+    const operator = CACHE_OPERATORS[identifier];
+
+    if (!operator) {
+      throw new CacheOperatorNotFoundError(identifier);
+    }
+
+    delete CACHE_OPERATORS[identifier];
+
+    operator.dispose();
   };
 }
