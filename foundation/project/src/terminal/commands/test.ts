@@ -78,14 +78,16 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     });
   });
 
-  const testRunner = run({
-    files: testFiles,
+  const runner = run({
     coverage: input.coverage,
     isolation: 'none',
-    forceExit: true
+    forceExit: true,
+    files: testFiles
   });
 
-  testRunner.compose(spec).pipe(process.stdout);
+  runner.compose(spec).pipe(process.stdout);
 
-  await shutdownServices(emulators);
+  runner.on('test:summary', () => {
+    shutdownServices(emulators);
+  });
 };
