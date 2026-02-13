@@ -78,7 +78,7 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     });
   });
 
-  const runner = run({
+  const testRunner = run({
     coverage: input.coverage,
     coverageIncludeGlobs: [`${workingDirectory}/**/*`],
     isolation: 'none',
@@ -86,9 +86,14 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     forceExit: true
   });
 
-  runner.compose(spec).pipe(process.stdout);
+  testRunner.compose(spec).pipe(process.stdout);
 
-  runner.on('test:summary', () => {
-    shutdownServices(emulators);
+  let testCount = 0;
+
+  // Ensure an active service won't hold the tests.
+  testRunner.on('test:complete', ({ details }) => {
+    if (details.type === 'suite' && ++testCount >= testFiles.length) {
+      shutdownServices(emulators);
+    }
   });
 };

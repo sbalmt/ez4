@@ -19,7 +19,10 @@ export const registerCacheEmulator = async (service: CacheService, options: Serv
       return runCacheReset(service, options, context);
     },
     bootstrapHandler: async () => {
-      await runCacheMigration(service, options, context);
+      await runStartCache(service, options, context);
+    },
+    shutdownHandler: async () => {
+      await runStopCache(service, options, context);
     },
     exportHandler: () => {
       return client;
@@ -41,8 +44,18 @@ const runCacheReset = async (service: CacheService, options: ServeOptions, conte
   }
 };
 
-const runCacheMigration = (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
+const runStartCache = (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
   return triggerAllAsync('emulator:startService', (handler) =>
+    handler({
+      service,
+      options,
+      context
+    })
+  );
+};
+
+const runStopCache = (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
+  return triggerAllAsync('emulator:stopService', (handler) =>
     handler({
       service,
       options,

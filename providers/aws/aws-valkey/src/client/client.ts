@@ -44,7 +44,9 @@ export const createCacheOperator = (connection: ClientConnection, debug?: boolea
   }
 
   return {
-    dispose: () => client.disconnect(),
+    dispose: () => {
+      client.disconnect(false);
+    },
     execute: async <T>(operation: ClientOperationCallback<T>) => {
       try {
         return await operation(client);
