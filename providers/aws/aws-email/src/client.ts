@@ -56,12 +56,12 @@ export namespace Client {
   };
 
   const buildAttachments = (attachments: EmailAttachment[]): Attachment[] => {
-    return attachments.map(({ fileName, content, contentType, description, inlineId }) => ({
+    return attachments.map(({ fileName, content, contentType, description, contentId }) => ({
       FileName: fileName,
       RawContent: content,
       ContentType: contentType,
       ContentDescription: description,
-      ContentId: inlineId
+      ContentId: contentId
     }));
   };
 

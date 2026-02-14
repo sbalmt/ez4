@@ -59,7 +59,7 @@ export type EmailAttachment = {
   /**
    * When specified the attachment is treated as inline.
    */
-  inlineId?: string;
+  contentId?: string;
 };
 
 /**
