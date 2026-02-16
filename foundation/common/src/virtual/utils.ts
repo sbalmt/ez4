@@ -10,27 +10,23 @@ export const getVirtualConnections = (services: LinkedServices, context: EventCo
     for (const serviceName in services) {
       const identity = services[serviceName];
 
-      if (serviceCache.has(identity)) {
-        continue;
-      }
+      if (!serviceCache.has(identity)) {
+        serviceCache.add(identity);
 
-      serviceCache.add(identity);
+        const serviceState = context.getVirtualServiceState(identity, options) ?? context.getServiceState(identity, options);
 
-      const serviceState = context.getVirtualServiceState(identity, options) ?? context.getServiceState(identity, options);
+        if (serviceState) {
+          if (!isVirtualState(serviceState)) {
+            connectionIds.push(serviceState.entryId);
+            continue;
+          }
 
-      if (!serviceState) {
-        continue;
-      }
+          const { services: linkedServices } = serviceState.parameters;
 
-      if (!isVirtualState(serviceState)) {
-        connectionIds.push(serviceState.entryId);
-        continue;
-      }
-
-      const { services: linkedServices } = serviceState.parameters;
-
-      if (linkedServices) {
-        getAllConnections(linkedServices);
+          if (linkedServices) {
+            getAllConnections(linkedServices);
+          }
+        }
       }
     }
   };
