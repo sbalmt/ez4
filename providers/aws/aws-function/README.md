@@ -35,6 +35,17 @@ Ensure the user performing deployments has the permissions below:
         "lambda:UntagResource"
       ],
       "Resource": ["arn:aws:lambda:*:{account-id}:function:{prefix}-*"]
+    },
+    {
+      "Sid": "AuthorizeLambdaServices",
+      "Effect": "Allow",
+      "Action": ["iam:PassRole"],
+      "Resource": ["arn:aws:iam::{account-id}:role/{prefix}-*"],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": ["lambda.amazonaws.com"]
+        }
+      }
     }
   ]
 }

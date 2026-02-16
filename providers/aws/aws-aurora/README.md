@@ -72,7 +72,7 @@ Ensure the user performing deployments has the permissions below:
       "Sid": "AuroraLinkRole",
       "Action": "iam:CreateServiceLinkedRole",
       "Effect": "Allow",
-      "Resource": "arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
+      "Resource": ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"],
       "Condition": {
         "StringLike": {
           "iam:AWSServiceName": "rds.amazonaws.com"

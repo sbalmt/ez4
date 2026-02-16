@@ -19,12 +19,12 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
-import { createDatabaseService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
 import { getDatabaseScalabilityMetadata } from './scalability';
 import { getDatabaseEngineMetadata } from './engine';
 import { getDatabaseTableMetadata } from './table';
+import { createDatabaseService } from './types';
 
 export const isDatabaseServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Database.Service');

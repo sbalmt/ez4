@@ -41,6 +41,9 @@ const handleRequest = async (client: StorageClient, request: EmulatorRequestEven
       return storeFile(client, path, body);
     }
 
+    case 'HEAD':
+      return headFile(client, path);
+
     default:
       throw new Error('Unsupported storage request.');
   }
@@ -53,7 +56,7 @@ const loadFile = async (client: StorageClient, path: string) => {
     status: 200,
     body: buffer,
     headers: {
-      ['content-type']: stat
+      ['content-type']: stat?.type ?? 'application/octet-stream'
     }
   };
 };
@@ -63,5 +66,17 @@ const storeFile = async (client: StorageClient, path: string, buffer: Buffer) =>
 
   return {
     status: 204
+  };
+};
+
+const headFile = async (client: StorageClient, path: string) => {
+  const stat = await client.getStats(path);
+
+  return {
+    status: 200,
+    headers: {
+      ['content-type']: stat?.type ?? 'application/octet-stream',
+      ['content-length']: stat?.size.toString() ?? '0'
+    }
   };
 };

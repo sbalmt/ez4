@@ -25,7 +25,6 @@ export const processWsMessage = async (
   const traceId = getRandomUUID();
 
   Runtime.setScope({
-    isLocal: true,
     traceId
   });
 

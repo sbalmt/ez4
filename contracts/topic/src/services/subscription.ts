@@ -60,4 +60,9 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Determines whether or not VPC is enabled for the stream.
+   */
+  readonly vpc?: boolean;
 }

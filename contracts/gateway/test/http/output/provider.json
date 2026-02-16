@@ -18,6 +18,7 @@
         "handler": {
           "name": "testRouteA",
           "file": "test/http/input/output-provider.ts",
+          "isolated": true,
           "position": [
             34,
             1
@@ -38,6 +39,7 @@
         "handler": {
           "name": "testRouteB",
           "file": "test/http/input/output-provider.ts",
+          "isolated": true,
           "position": [
             40,
             1

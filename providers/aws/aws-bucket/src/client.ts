@@ -110,6 +110,19 @@ export namespace Client {
           return undefined;
         }
       }
+
+      async getStatsUrl(key: string, options: SignReadOptions): Promise<string> {
+        const { expiresIn } = options;
+
+        const command = new HeadObjectCommand({
+          Bucket: bucketName,
+          Key: key
+        });
+
+        return getSignedUrl(client, command, {
+          expiresIn
+        });
+      }
     })();
   };
 }

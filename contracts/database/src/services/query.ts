@@ -342,13 +342,7 @@ export namespace Query {
 
   type AtomicDataInput<T extends AnyObject> = AtomicRequiredFields<T> & AtomicOptionalFields<T>;
 
-  type AtomicDataField<T> = T extends number
-    ? AtomicOperation | T
-    : T extends AnyObject
-      ? AtomicDataInput<T>
-      : NonNullable<T> extends AnyObject
-        ? null | AtomicDataInput<NonNullable<T>>
-        : T;
+  type AtomicDataField<T> = T extends number ? AtomicOperation | T : IsObject<T> extends true ? null | AtomicDataInput<NonNullable<T>> : T;
 
   type AtomicRequiredFields<T extends AnyObject> = {
     [P in keyof T as IsUndefined<T[P]> extends true ? never : P]: AtomicDataField<T[P]>;

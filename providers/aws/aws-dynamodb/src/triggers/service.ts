@@ -1,7 +1,7 @@
 import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
-import { getServiceName, linkServiceContext } from '@ez4/project/library';
+import { getServiceName, isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { createVirtualState } from '@ez4/common/library';
 import { getFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
@@ -113,6 +113,8 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
     throw new RoleMissingError();
   }
 
+  const vpcRequired = isLinkedContextVpcRequired(service.context);
+
   for (const table of service.tables) {
     if (!table.stream) {
       continue;
@@ -124,5 +126,9 @@ export const connectDatabaseServices = (event: ConnectResourceEvent) => {
     const handlerState = getFunctionState(context, internalName, options);
 
     linkServiceContext(state, handlerState.entryId, service.context);
+
+    if (!handlerState.parameters.vpc) {
+      handlerState.parameters.vpc = vpcRequired;
+    }
   }
 };

@@ -40,6 +40,7 @@ export const getHttpHandlerMetadata = (
 
     if (contextType && !external) {
       handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
+      handler.isolated = true;
     }
   }
 

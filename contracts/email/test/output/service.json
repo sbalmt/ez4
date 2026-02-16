@@ -1,0 +1,16 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestEmail": {
+    "type": "@ez4/email",
+    "name": "TestEmail",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "description": "First test email.",
+    "domain": "test.ez4.dev"
+  }
+}

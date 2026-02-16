@@ -7,6 +7,10 @@ export const getPolicyDocument = async (resourcePrefix: string) => {
     {
       permissions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
       resourceIds: [`arn:aws:logs:${region}:${accountId}:log-group:${resourcePrefix}-*:*`]
+    },
+    {
+      permissions: ['ec2:CreateNetworkInterface', 'ec2:DescribeNetworkInterfaces', 'ec2:DeleteNetworkInterface'],
+      resourceIds: ['*']
     }
   ]);
 };

@@ -12,6 +12,7 @@ export type QueuePolicyGetter = (context: StepContext) => Promise<QueuePolicy> |
 export type QueuePolicyParameters = {
   policyGetters: QueuePolicyGetter[];
   fromService: string;
+  toService: string;
 };
 
 export type QueuePolicyResult = AttachResponse & {

@@ -3,7 +3,7 @@ import { equal } from 'assert/strict';
 
 import { BucketTester } from '@ez4/local-storage/test';
 
-describe('aws storage manage', () => {
+describe('aws storage manager', () => {
   it('upload a file', async () => {
     const client = BucketTester.getClient('FileStorage');
 

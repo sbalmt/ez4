@@ -3,3 +3,9 @@ export class FunctionNotFoundError extends Error {
     super(`Function ${bucketName} wasn't found.`);
   }
 }
+
+export class DefaultVpcDetailsError extends Error {
+  constructor() {
+    super(`Unable to get the default VPC details.`);
+  }
+}

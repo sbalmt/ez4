@@ -2,7 +2,6 @@ import type { CreateEventSourceMappingRequest, UpdateEventSourceMappingRequest }
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import {
-  GetEventSourceMappingCommand,
   CreateEventSourceMappingCommand,
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
@@ -13,9 +12,9 @@ import {
 } from '@aws-sdk/client-lambda';
 
 import { parseArn } from '@ez4/aws-common';
-import { Wait } from '@ez4/utils';
 
 import { getLambdaClient } from '../utils/deploy';
+import { waitForReadyState } from './helpers/state';
 import { MappingService } from './types';
 
 export type BatchOptions = {
@@ -69,7 +68,9 @@ export const createMapping = async (logger: OperationLogLine, request: CreateReq
 
   const { sourceArn, functionName } = request;
 
-  const response = await getLambdaClient().send(
+  const client = getLambdaClient();
+
+  const response = await client.send(
     new CreateEventSourceMappingCommand({
       FunctionName: functionName,
       EventSourceArn: sourceArn,
@@ -79,7 +80,7 @@ export const createMapping = async (logger: OperationLogLine, request: CreateReq
 
   const eventId = response.UUID!;
 
-  await waitForReadyState(eventId);
+  await waitForReadyState(client, eventId);
 
   return {
     eventId
@@ -101,7 +102,7 @@ export const updateMapping = async (logger: OperationLogLine, eventId: string, r
     })
   );
 
-  await waitForReadyState(eventId);
+  await waitForReadyState(client, eventId);
 };
 
 export const deleteMapping = async (logger: OperationLogLine, eventId: string) => {
@@ -122,30 +123,6 @@ export const deleteMapping = async (logger: OperationLogLine, eventId: string) =
 
     return false;
   }
-};
-
-const getMappingState = async (eventId: string) => {
-  const response = await getLambdaClient().send(
-    new GetEventSourceMappingCommand({
-      UUID: eventId
-    })
-  );
-
-  return response.State!;
-};
-
-const waitForReadyState = async (eventId: string) => {
-  const readyState = new Set(['Enabled', 'Disabled']);
-
-  await Wait.until(async () => {
-    const state = await getMappingState(eventId);
-
-    if (!readyState.has(state)) {
-      return Wait.RetryAttempt;
-    }
-
-    return true;
-  });
 };
 
 const upsertMappingRequest = (

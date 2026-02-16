@@ -6,6 +6,7 @@ export type AuthHandler = FunctionSignature & {
   provider?: AuthProvider;
   response?: AuthResponse;
   request?: AuthRequest;
+  isolated?: boolean;
 };
 
 export type AuthResponse = {

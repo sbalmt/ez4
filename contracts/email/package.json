@@ -1,0 +1,54 @@
+{
+  "name": "@ez4/email",
+  "description": "EZ4: Components to build email services",
+  "version": "0.42.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "contracts/email"
+  },
+  "engines": {
+    "node": ">=22.7"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "require": "./dist/library.cjs",
+      "import": "./dist/library.mjs"
+    }
+  },
+  "sideEffects": [
+    "./dist/library.cjs",
+    "./dist/library.mjs"
+  ],
+  "workspaces": [
+    "foundation/*",
+    "contracts/*"
+  ],
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "build": "tsc && node tools/bundler.mjs",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/email",
+    "live:publish": "npm run build && npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/common": "^0.42.0",
+    "@ez4/project": "^0.42.0",
+    "@ez4/reflection": "^0.42.0",
+    "@ez4/utils": "^0.42.0"
+  }
+}

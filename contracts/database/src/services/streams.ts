@@ -47,6 +47,11 @@ export interface TableStream<T extends TableSchema> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Determines whether or not VPC is enabled for the stream.
+   */
+  readonly vpc?: boolean;
 }
 
 /**

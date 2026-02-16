@@ -37,6 +37,7 @@ export type BucketEvent = {
   logRetention?: number;
   timeout?: number;
   memory?: number;
+  vpc?: boolean;
 };
 
 export const isBucketService = (service: ServiceMetadata): service is BucketService => {

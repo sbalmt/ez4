@@ -67,6 +67,7 @@ export type HttpHandler = FunctionSignature & {
   provider?: HttpProvider;
   response: HttpResponse;
   request?: HttpRequest;
+  isolated?: boolean;
 };
 
 export type HttpErrors = {
@@ -79,8 +80,9 @@ export type HttpRoute = HttpDefaults & {
   handler: HttpHandler;
   authorizer?: AuthHandler;
   variables?: LinkedVariables;
-  cors?: boolean;
   disabled?: boolean;
+  cors?: boolean;
+  vpc?: boolean;
 };
 
 export type HttpDefaults = {

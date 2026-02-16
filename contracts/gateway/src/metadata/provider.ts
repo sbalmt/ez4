@@ -63,7 +63,7 @@ const getTypeFromMembers = (
   reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
-  const context: HttpProvider = {};
+  const provider: HttpProvider = {};
   const properties = new Set(['services']);
 
   for (const member of members) {
@@ -73,12 +73,12 @@ const getTypeFromMembers = (
 
     switch (member.name) {
       case 'variables': {
-        context.variables = getLinkedVariableList(member, errorList);
+        provider.variables = getLinkedVariableList(member, errorList);
         break;
       }
 
       case 'services': {
-        if ((context.services = getLinkedServiceList(member, reflection, errorList))) {
+        if ((provider.services = getLinkedServiceList(member, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;
@@ -86,10 +86,10 @@ const getTypeFromMembers = (
     }
   }
 
-  if (!isCompleteProvider(context)) {
+  if (!isCompleteProvider(provider)) {
     errorList.push(new IncompleteProviderError([...properties], type.file));
     return undefined;
   }
 
-  return context;
+  return provider;
 };

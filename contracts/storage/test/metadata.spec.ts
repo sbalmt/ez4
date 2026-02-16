@@ -35,4 +35,5 @@ describe('storage metadata', () => {
   it('assert :: storage cors', () => testFile('cors'));
   it('assert :: service variables', () => testFile('variables'));
   it('assert :: events listener', () => testFile('listener'));
+  it('assert :: events vpc', () => testFile('vpc'));
 });

@@ -24,6 +24,7 @@
         "handler": {
           "name": "testRoute",
           "file": "test/http/input/output-variables.ts",
+          "isolated": true,
           "position": [
             27,
             1

@@ -15,6 +15,7 @@ import {
   getServiceArchitecture,
   getServiceRuntime,
   getReferenceType,
+  getPropertyBoolean,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -84,11 +85,6 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
-      case 'listener': {
-        event.listener = getServiceListener(member.value, errorList);
-        break;
-      }
-
       case 'handler': {
         event.handler = getEventHandlerMetadata(member.value, errorList);
         break;
@@ -108,6 +104,16 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'runtime': {
         event[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'vpc': {
+        event[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'listener': {
+        event.listener = getServiceListener(member.value, errorList);
         break;
       }
 

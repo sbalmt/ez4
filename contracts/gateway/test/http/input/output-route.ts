@@ -13,7 +13,10 @@ export declare class TestService extends Http.Service {
     }>,
 
     // Route reference.
-    TestRoute
+    TestRoute,
+
+    // HEAD route.
+    TestHeadRoute
   ];
 }
 
@@ -40,6 +43,18 @@ async function testRoute1(): Promise<Http.SuccessEmptyResponse> {
 }
 
 function testRoute2(): Http.SuccessEmptyResponse {
+  return {
+    status: 204
+  };
+}
+
+declare class TestHeadRoute implements Http.Route {
+  path: 'HEAD /test-route-3';
+
+  handler: typeof testRoute3;
+}
+
+function testRoute3(): Http.SuccessEmptyResponse {
   return {
     status: 204
   };

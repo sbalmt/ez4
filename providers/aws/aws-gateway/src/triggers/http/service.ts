@@ -3,7 +3,7 @@ import type { HttpService } from '@ez4/gateway/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { GatewayState } from '../../gateway/types';
 
-import { getServiceName, linkServiceContext } from '@ez4/project/library';
+import { getServiceName, isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { createLogGroup, createLogPolicy } from '@ez4/aws-logs';
 import { getFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
@@ -79,11 +79,19 @@ export const connectHttpServices = (event: ConnectResourceEvent) => {
 
       linkServiceContext(state, handlerState.entryId, service.context);
 
+      if (!handlerState.parameters.vpc && handler.isolated) {
+        handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context, handler.provider?.services);
+      }
+
       if (authorizer) {
         const authorizerName = getInternalName(service, authorizer.name);
         const authorizerState = getFunctionState(context, authorizerName, options);
 
         linkServiceContext(state, authorizerState.entryId, service.context);
+
+        if (!authorizerState.parameters.vpc && authorizer.isolated) {
+          authorizerState.parameters.vpc = isLinkedContextVpcRequired(service.context, authorizer.provider?.services);
+        }
       }
     }
   }

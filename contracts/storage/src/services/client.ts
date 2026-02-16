@@ -87,4 +87,11 @@ export interface Client {
    * @returns Returns the corresponding object stats or undefined when the given object doesn't exists.
    */
   getStats(key: string): Promise<ObjectStats | undefined>;
+
+  /**
+   * Get an URL to retrieve stats (metadata) from the specified object in the bucket.
+   * @param key Object key.
+   * @param options Sign options.
+   */
+  getStatsUrl(key: string, options: SignReadOptions): Promise<string>;
 }

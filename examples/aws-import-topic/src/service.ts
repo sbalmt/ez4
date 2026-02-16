@@ -21,6 +21,9 @@ export declare class ImportedSns extends Topic.Import<Sns> {
     Topic.UseSubscription<{
       listener: typeof serviceListener;
       handler: typeof messageHandlerA;
+    }>,
+    Topic.UseSubscription<{
+      service: Environment.Service<Sqs>;
     }>
   ];
 }

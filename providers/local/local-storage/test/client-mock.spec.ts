@@ -6,6 +6,13 @@ import { BucketTester } from '@ez4/local-storage/test';
 describe('local storage tests', () => {
   const defaultContent = 'This is a mocked content';
 
+  // Minimal valid PNG (1x1 transparent pixel)
+  const pngContent = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63,
+    0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+  ]);
+
   it('assert :: key exists (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
@@ -42,9 +49,10 @@ describe('local storage tests', () => {
   it('assert :: key stats (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    rejects(() => client.getStats('random-key'));
+    const stats = await client.getStats('random-key');
 
     equal(client.getStats.mock.callCount(), 1);
+    equal(stats, undefined);
   });
 
   it('assert :: key stats (from default)', async () => {
@@ -76,6 +84,23 @@ describe('local storage tests', () => {
     deepEqual(stats, {
       type: 'application/octet-stream',
       size: 24
+    });
+  });
+
+  it('assert :: key stats (mime type detection)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      keys: {
+        'image.png': pngContent
+      }
+    });
+
+    const stats = await client.getStats('image.png');
+
+    equal(client.getStats.mock.callCount(), 1);
+
+    deepEqual(stats, {
+      type: 'image/png',
+      size: pngContent.length
     });
   });
 
@@ -202,6 +227,17 @@ describe('local storage tests', () => {
     });
 
     equal(client.getWriteUrl.mock.callCount(), 1);
+    equal(url, 'http://bucket/foo');
+  });
+
+  it('assert :: get stats url', async () => {
+    const client = BucketTester.getClientMock('bucket');
+
+    const url = await client.getStatsUrl('foo', {
+      expiresIn: 123
+    });
+
+    equal(client.getStatsUrl.mock.callCount(), 1);
     equal(url, 'http://bucket/foo');
   });
 });

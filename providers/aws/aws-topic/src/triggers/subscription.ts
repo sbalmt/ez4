@@ -3,9 +3,9 @@ import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { EntryStates } from '@ez4/stateful';
 import type { TopicState } from '../topic/types';
 
-import { linkServiceContext } from '@ez4/project/library';
-import { TopicSubscriptionType } from '@ez4/topic/library';
+import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
+import { TopicSubscriptionType } from '@ez4/topic/library';
 import { InvalidParameterError } from '@ez4/aws-common';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
@@ -52,6 +52,7 @@ export const prepareSubscriptions = (
           const defaults = options.defaults;
 
           const {
+            vpc,
             runtime = defaults?.runtime ?? Defaults.Runtime,
             architecture = defaults?.architecture ?? Defaults.Architecture,
             logRetention = defaults?.logRetention ?? Defaults.LogRetention,
@@ -78,6 +79,7 @@ export const prepareSubscriptions = (
             runtime,
             timeout,
             memory,
+            vpc,
             handler: {
               sourceFile: handler.file,
               functionName: handler.name,
@@ -124,6 +126,8 @@ export const connectSubscriptions = (
     throw new RoleMissingError();
   }
 
+  const vpcRequired = isLinkedContextVpcRequired(service.context);
+
   for (const subscription of service.subscriptions) {
     switch (subscription.type) {
       default:
@@ -134,6 +138,11 @@ export const connectSubscriptions = (
         const handlerState = getFunctionState(context, internalName, options);
 
         linkServiceContext(state, handlerState.entryId, service.context);
+
+        if (!handlerState.parameters.vpc) {
+          handlerState.parameters.vpc = vpcRequired;
+        }
+
         break;
       }
 

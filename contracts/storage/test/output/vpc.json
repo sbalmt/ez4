@@ -1,0 +1,21 @@
+{
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "events": {
+      "path": "uploads/*",
+      "handler": {
+        "name": "eventHandler",
+        "file": "test/input/output-vpc.ts",
+        "position": [
+          11,
+          1
+        ]
+      },
+      "vpc": true
+    }
+  }
+}

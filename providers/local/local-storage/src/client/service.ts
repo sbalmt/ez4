@@ -1,5 +1,5 @@
 import type { ServeOptions } from '@ez4/project/library';
-import type { Client, Content } from '@ez4/storage';
+import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
 import { mkdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -8,6 +8,7 @@ import { existsSync } from 'node:fs';
 import { isAnyObject, toKebabCase } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
+import { fileTypeFromFile } from 'file-type';
 
 export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
   const storageIdentifier = getServiceName(serviceName, serveOptions);
@@ -46,11 +47,15 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       Logger.debug(`ℹ️  File ${key} deleted.`);
     }
 
-    async getWriteUrl(key: string): Promise<string> {
+    async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
-    async getReadUrl(key: string): Promise<string> {
+    async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
+      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
+    }
+
+    async getStatsUrl(key: string, _options: SignReadOptions): Promise<string> {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
@@ -58,11 +63,12 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       const filePath = join(storageDirectory, key);
 
       try {
-        const fileStat = await stat(filePath);
+        const type = await fileTypeFromFile(filePath);
+        const stats = await stat(filePath);
 
         return {
-          type: 'application/octet-stream',
-          size: fileStat.size
+          type: type?.mime ?? 'application/octet-stream',
+          size: stats.size
         };
       } catch (error) {
         if (!isAnyObject(error) || error.code !== 'ENOENT') {

@@ -32,6 +32,7 @@ export const prepareTableStream = (
   const { defaults, release } = options;
 
   const {
+    vpc,
     handler,
     listener,
     variables,
@@ -69,6 +70,7 @@ export const prepareTableStream = (
       release,
       timeout,
       memory,
+      vpc,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

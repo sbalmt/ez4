@@ -18,7 +18,6 @@ export const processSchedulerEvent = async (
   const traceId = getRandomUUID();
 
   Runtime.setScope({
-    isLocal: true,
     traceId
   });
 

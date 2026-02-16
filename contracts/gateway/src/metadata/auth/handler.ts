@@ -39,6 +39,7 @@ export const getAuthHandlerMetadata = (
 
     if (contextType) {
       handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, namespace);
+      handler.isolated = true;
     }
   }
 

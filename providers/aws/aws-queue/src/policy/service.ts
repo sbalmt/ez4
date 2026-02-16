@@ -2,7 +2,7 @@ import type { EntryState, EntryStates } from '@ez4/stateful';
 import type { QueueState } from '../queue/types';
 import type { QueuePolicyParameters, QueuePolicyState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry, tryLinkEntryDependency } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
 import { QueuePolicyServiceType } from './types';
@@ -48,8 +48,11 @@ export const attachQueuePolicy = <E extends EntryState>(
     return createQueuePolicy(state, queueState, sourceState, parameters);
   }
 
+  policyState.parameters.toService += `, ${parameters.toService}`;
   policyState.parameters.fromService += `, ${parameters.fromService}`;
   policyState.parameters.policyGetters.push(...parameters.policyGetters);
+
+  tryLinkEntryDependency(state, policyState.entryId, sourceState.entryId);
 
   return policyState;
 };

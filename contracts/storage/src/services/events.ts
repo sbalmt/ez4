@@ -52,4 +52,9 @@ export interface BucketEvents {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Determines whether or not VPC is enabled for the event.
+   */
+  readonly vpc?: boolean;
 }

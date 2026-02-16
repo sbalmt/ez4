@@ -51,6 +51,7 @@ export type TopicLambdaSubscription = {
   logRetention?: number;
   timeout?: number;
   memory?: number;
+  vpc?: boolean;
 };
 
 export type TopicQueueSubscription = {

@@ -1,15 +1,18 @@
 import type { ProjectOptions } from '../types/project';
+import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
 
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
+import { ProviderVersionMismatchError } from '../errors/provider';
+
 export const loadProviders = async (options: ProjectOptions) => {
   const packageFile = options.packageFile ?? 'package.json';
   const packagePath = join(process.cwd(), packageFile);
 
-  const { namespace, providers } = await fetchProviderPackages(packagePath);
+  const { namespace, providers } = await fetchAllProviderPackages(packagePath);
 
   if (options.customProviders) {
     providers.push(...options.customProviders.packages);
@@ -28,7 +31,7 @@ export const loadProviders = async (options: ProjectOptions) => {
   return namespace;
 };
 
-const fetchProviderPackages = async (packagePath: string) => {
+const fetchAllProviderPackages = async (packagePath: string) => {
   const packageUrl = pathToFileURL(packagePath).href;
 
   const { default: packageJson } = await import(packageUrl, {
@@ -37,21 +40,39 @@ const fetchProviderPackages = async (packagePath: string) => {
     }
   });
 
+  const namespace = packageJson.name?.split('/', 2)[0];
+
+  return {
+    providers: filterAllProviderPackages(packageJson),
+    namespace
+  };
+};
+
+const filterAllProviderPackages = (packageJson: AnyObject) => {
+  let currentVersion: string | undefined;
+
+  const allProviders = [];
+
   const allDependencies = {
     ...packageJson.devDependencies,
     ...packageJson.dependencies
   };
 
-  const providers = Object.keys(allDependencies).filter((packageName) => {
-    return packageName.startsWith('@ez4/');
-  });
+  for (const packageName in allDependencies) {
+    const packageVersion = allDependencies[packageName];
 
-  const namespace = packageJson.name?.split('/', 2)[0];
+    if (packageName.startsWith('@ez4/')) {
+      allProviders.push(packageName);
 
-  return {
-    namespace,
-    providers
-  };
+      if (currentVersion && currentVersion !== packageVersion) {
+        throw new ProviderVersionMismatchError();
+      } else {
+        currentVersion = packageVersion;
+      }
+    }
+  }
+
+  return allProviders;
 };
 
 const tryImportProvider = async (packageNames: string[]) => {

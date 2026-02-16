@@ -1,0 +1,50 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestService1": {
+    "type": "@ez4/ws",
+    "name": "TestService1",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-vpc.ts",
+        "position": [
+          18,
+          1
+        ]
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-vpc.ts",
+        "position": [
+          20,
+          1
+        ]
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-vpc.ts",
+        "position": [
+          22,
+          1
+        ]
+      },
+      "vpc": true
+    }
+  }
+}

@@ -37,6 +37,17 @@ Ensure the user performing deployments has the permissions below:
         "arn:aws:scheduler:us-east-1:295077813784:schedule-group/{prefix}-*",
         "arn:aws:scheduler:us-east-1:295077813784:schedule-group/{prefix}-*/*"
       ]
+    },
+    {
+      "Sid": "AuthorizeSchedulerServices",
+      "Effect": "Allow",
+      "Action": ["iam:PassRole"],
+      "Resource": ["arn:aws:iam::{account-id}:role/{prefix}-*"],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": ["scheduler.amazonaws.com"]
+        }
+      }
     }
   ]
 }

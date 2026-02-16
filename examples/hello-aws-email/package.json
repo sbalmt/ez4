@@ -1,0 +1,31 @@
+{
+  "name": "hello-aws-email",
+  "description": "Example of a service using AWS SES.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.7"
+  },
+  "workspaces": [
+    "examples/*"
+  ],
+  "scripts": {
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env",
+    "serve": "ez4 serve -e local.env",
+    "output": "ez4 output -e local.env"
+  },
+  "dependencies": {
+    "@ez4/aws-email": "^0.42.0",
+    "@ez4/aws-gateway": "^0.42.0",
+    "@ez4/common": "^0.42.0",
+    "@ez4/email": "^0.42.0",
+    "@ez4/local-gateway": "^0.42.0",
+    "@ez4/gateway": "^0.42.0",
+    "@ez4/project": "^0.42.0",
+    "@ez4/schema": "^0.42.0"
+  }
+}

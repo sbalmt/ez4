@@ -33,7 +33,7 @@ export declare class MyDb extends Database.Service {
 
   tables: [
     Database.UseTable<{
-      name: 'my_table';
+      name: 'test_table';
       schema: MyTableSchema;
       indexes: {
         foo: Index.Primary;
@@ -48,14 +48,14 @@ export declare class MyDb extends Database.Service {
 ```ts
 // file: handler.ts
 import type { Service } from '@ez4/common';
-import type { MyDb } from './db';
+import type { myDb } from './db';
 
 // Any other handler that has injected MyDb service
 export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
-  const { MyDb } = context;
+  const { myDb } = context;
 
   // Insert one record
-  await MyDb.my_table.insertOne({
+  await myDb.test_table.insertOne({
     data: {
       foo: 'foo',
       bar: 123
@@ -63,7 +63,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
   });
 
   // Find one record
-  const result = await MyDb.my_table.findOne({
+  const result = await myDb.test_table.findOne({
     select: {
       bar: true
     },
@@ -82,7 +82,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | ----------- | ------------------------- | ------------------------------------------------ |
 | scalability | Database.UseScalability<> | Scalability configuration.                       |
 | tables      | Database.UseTable<>       | Describe all available tables for the service.   |
-| engine      | object                    | Determines which database engine to use.         |
+| engine      | Database.UseEngine<>      | Determines which database engine to use.         |
 | variables   | object                    | Environment variables associated to all streams. |
 | services    | object                    | Injected services associated to all streams.     |
 

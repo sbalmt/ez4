@@ -1,0 +1,34 @@
+{
+  "name": "hello-aws-cache",
+  "description": "Example of a service using AWS ElastiCache.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.7"
+  },
+  "workspaces": [
+    "examples/*"
+  ],
+  "scripts": {
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env",
+    "serve": "ez4 serve -e local.env",
+    "output": "ez4 output -e local.env",
+    "test": "ez4 test -e local.env"
+  },
+  "dependencies": {
+    "@ez4/aws-gateway": "^0.42.0",
+    "@ez4/aws-valkey": "^0.42.0",
+    "@ez4/cache": "^0.42.0",
+    "@ez4/common": "^0.42.0",
+    "@ez4/local-cache": "^0.42.0",
+    "@ez4/local-gateway": "^0.42.0",
+    "@ez4/gateway": "^0.42.0",
+    "@ez4/project": "^0.42.0",
+    "@ez4/schema": "^0.42.0",
+    "@ez4/utils": "^0.42.0"
+  }
+}

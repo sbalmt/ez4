@@ -31,9 +31,11 @@ Read the [quick start](./documentation/quick-start.md) guide and check out some 
 - [Get started with CloudFront](./examples/hello-aws-cloudfront)
 - [Get started with DynamoDB](./examples/hello-aws-dynamodb)
 - [Get started with Aurora RDS](./examples/hello-aws-aurora)
+- [Get started with Cache](./examples/hello-aws-cache)
 - [Get started with Scheduler](./examples/hello-aws-scheduler)
 - [Get started with Queue](./examples/hello-aws-queue)
 - [Get started with Topic](./examples/hello-aws-topic)
+- [Get started with Email](./examples/hello-aws-email)
 - [API Gateway authorizer](./examples/aws-gateway-authorizer)
 - [API Gateway websocket](./examples/aws-gateway-websocket)
 - [Aurora RDS CRUDL](./examples/aws-aurora-crudl)
@@ -54,11 +56,13 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | [Gateway](./contracts/gateway/)           | [Gateway](./providers/local/local-gateway/)      | [API Gateway](./providers/aws/aws-gateway/)                                          |
 | [Database](./contracts/database/)         | [Database](./providers/local/local-database/)    | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
+| [Cache](./contracts/database/)            | [Cache](./providers/local/local-cache/)          | [Valkey](./providers/aws/aws-valkey/)                                                |
 | [Scheduler](./contracts/scheduler/)       | [Scheduler](./providers//local/local-scheduler/) | [Scheduler](./providers/aws/aws-scheduler/)                                          |
 | [Storage](./contracts/storage/)           | [Storage](./providers/local/local-storage/)      | [Bucket](./providers/aws/aws-bucket/)                                                |
 | [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)          | [Topic](./providers/aws/aws-topic/)                                                  |
 | [Queue](./contracts/queue/)               | [Queue](./providers/local/local-queue/)          | [Queue](./providers/aws/aws-queue/)                                                  |
 | [Distribution](./contracts/distribution/) | N/A                                              | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
+| [Email](./contracts/email/)               | N/A                                              | [Email](./providers/aws/aws-email/)                                                  |
 | [Validation](./contracts/validation/)     | N/A                                              | N/A                                                                                  |
 | [Factory](./contracts/factory/)           | N/A                                              | N/A                                                                                  |
 

@@ -3,7 +3,7 @@ import type { BucketService } from '@ez4/storage/library';
 import type { EntryStates } from '@ez4/stateful';
 
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
-import { linkServiceContext } from '@ez4/project/library';
+import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
@@ -24,6 +24,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const { defaults, release } = options;
 
   const {
+    vpc,
     handler,
     listener,
     variables,
@@ -63,6 +64,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     release,
     timeout,
     memory,
+    vpc,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -96,4 +98,8 @@ export const connectEvents = (state: EntryStates, service: BucketService, option
   const handlerState = getFunctionState(context, internalName, options);
 
   linkServiceContext(state, handlerState.entryId, service.context);
+
+  if (!handlerState.parameters.vpc) {
+    handlerState.parameters.vpc = isLinkedContextVpcRequired(service.context);
+  }
 };

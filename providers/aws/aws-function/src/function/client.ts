@@ -27,6 +27,7 @@ import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
 import { assertVariables } from './helpers/variables';
 import { getZipBuffer } from './helpers/zip';
+import { getDefaultVpcConfig } from './utils';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -42,6 +43,7 @@ export type CreateRequest = {
   memory?: number;
   publish?: boolean;
   debug?: boolean;
+  vpc?: boolean;
   tags?: ResourceTags;
 };
 
@@ -60,6 +62,7 @@ export type UpdateConfigurationRequest = {
   timeout?: number;
   memory?: number;
   debug?: boolean;
+  vpc?: boolean;
 };
 
 export type UpdateSourceCodeRequest = {
@@ -108,6 +111,8 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
     assertVariables(variables);
   }
 
+  const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
+
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
@@ -130,6 +135,10 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
         Architectures: [getFunctionArchitecture(architecture)],
         Runtime: getFunctionRuntime(runtime),
         PackageType: 'Zip',
+        VpcConfig: {
+          SecurityGroupIds: vpcConfig ? [vpcConfig.securityGroupId] : [],
+          SubnetIds: vpcConfig ? vpcConfig.subnetIds : []
+        },
         LoggingConfig: {
           LogGroup: logGroup,
           ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
@@ -225,6 +234,8 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
     assertVariables(variables);
   }
 
+  const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
+
   const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
 
   const client = getLambdaClient();
@@ -240,6 +251,10 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
       ...(handlerName && {
         Handler: getSourceHandlerName(handlerName)
       }),
+      VpcConfig: {
+        SecurityGroupIds: vpcConfig ? [vpcConfig.securityGroupId] : [],
+        SubnetIds: vpcConfig ? vpcConfig.subnetIds : []
+      },
       LoggingConfig: {
         LogGroup: logGroup,
         ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
