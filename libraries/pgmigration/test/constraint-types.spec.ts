@@ -48,7 +48,7 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123'))`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123')) NOT VALID`
         }
       ],
       relations: [],
@@ -75,7 +75,7 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false)`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`
         }
       ],
       relations: [],
@@ -104,7 +104,7 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true)`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true) NOT VALID`
         }
       ],
       relations: [],
@@ -133,7 +133,7 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123)`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123) NOT VALID`
         }
       ],
       relations: [],
@@ -162,7 +162,7 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo')`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo') NOT VALID`
         }
       ],
       relations: [],

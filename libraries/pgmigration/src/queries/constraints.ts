@@ -152,24 +152,26 @@ export namespace ConstraintQuery {
       case SchemaType.Enum: {
         const values = schema.options.map(({ value }) => `${value}`);
 
-        query.check({
+        const constraint = query.check({
           [column]: {
             isIn: values
           }
         });
 
+        constraint.validate(false);
         break;
       }
 
       case SchemaType.Boolean:
       case SchemaType.Number:
       case SchemaType.String: {
-        query.check({
+        const constraint = query.check({
           [column]: {
             equal: schema.definitions?.value
           }
         });
 
+        constraint.validate(false);
         break;
       }
     }
