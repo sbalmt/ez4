@@ -7,6 +7,7 @@ import { MissingClauseError } from '../errors';
 
 export class SqlCheckConstraintClause {
   #state: {
+    validate?: boolean;
     constraint: SqlConstraintClause;
     filters: SqlConditions;
   };
@@ -27,8 +28,14 @@ export class SqlCheckConstraintClause {
     return this;
   }
 
+  validate(validate?: boolean) {
+    this.#state.validate = validate;
+
+    return this;
+  }
+
   build() {
-    const { constraint, filters } = this.#state;
+    const { validate, constraint, filters } = this.#state;
 
     if (!constraint.building) {
       return constraint.build();
@@ -43,6 +50,10 @@ export class SqlCheckConstraintClause {
     const clause = ['ADD', 'CONSTRAINT', escapeSqlName(constraint.name)];
 
     clause.push('CHECK', `(${conditions[0]})`);
+
+    if (validate === false) {
+      clause.push('NOT', 'VALID');
+    }
 
     return clause.join(' ');
   }

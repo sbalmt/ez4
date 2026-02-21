@@ -44,6 +44,7 @@ describe('migration :: delete table tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });

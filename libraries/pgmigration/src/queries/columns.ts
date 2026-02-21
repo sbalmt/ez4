@@ -57,7 +57,7 @@ export namespace ColumnQuery {
           query.default(getColumnDefault(columnSchema, columnIsPrimary));
         }
 
-        if (columnOptional !== undefined) {
+        if (!columnIsPrimary && columnOptional !== undefined) {
           query.optional(columnOptional);
         }
       }
@@ -75,7 +75,7 @@ export namespace ColumnQuery {
           query.default(getColumnDefault(columnSchema, columnIsPrimary));
         }
 
-        if (columnOptional !== undefined) {
+        if (!columnIsPrimary && columnOptional !== undefined) {
           query.optional(columnOptional);
         }
       }
@@ -88,7 +88,7 @@ export namespace ColumnQuery {
           query.default(null);
         }
 
-        if (columnOptional !== undefined) {
+        if (!columnIsPrimary && columnOptional !== undefined) {
           query.optional(columnOptional);
         }
       }

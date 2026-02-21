@@ -87,6 +87,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -118,6 +119,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -152,6 +154,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -183,6 +186,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -215,6 +219,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -245,6 +250,7 @@ describe('migration :: update column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -299,6 +305,7 @@ describe('migration :: update column tests', () => {
           query: `ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_enumerable_ck" TO "table_enumerable_renamed_ck"`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });

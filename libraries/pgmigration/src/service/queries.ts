@@ -16,6 +16,7 @@ export const getCreateQueries = (target: PgTableRepository) => {
   const queries: PgMigrationQueries = {
     tables: [],
     constraints: [],
+    validations: [],
     relations: [],
     indexes: []
   };
@@ -24,9 +25,9 @@ export const getCreateQueries = (target: PgTableRepository) => {
     const { name, schema, indexes, relations } = target[table];
 
     queries.tables.push(TableQuery.prepareCreate(builder, name, schema, indexes));
-    queries.constraints.push(...ConstraintQuery.prepareCreate(builder, name, schema.properties));
     queries.relations.push(...RelationQuery.prepareCreate(builder, name, schema, relations));
 
+    combineQueries(queries, ConstraintQuery.prepareCreate(builder, name, schema.properties));
     combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes, false));
   }
 
@@ -40,6 +41,7 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
   const queries: PgMigrationQueries = {
     tables: [],
     constraints: [],
+    validations: [],
     relations: [],
     indexes: []
   };
@@ -85,12 +87,12 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
 
       if (targetColumns?.create) {
         queries.tables.push(ColumnQuery.prepareCreate(builder, table, targetIndexes, targetColumns.create));
-        queries.constraints.push(...ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
+        combineQueries(queries, ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
       }
 
       if (targetColumns?.nested) {
         queries.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
-        queries.constraints.push(...ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
+        combineQueries(queries, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
         queries.relations.push(...RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
       }
 
@@ -142,6 +144,7 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   const queries: PgMigrationQueries = {
     tables: [],
     constraints: [],
+    validations: [],
     relations: [],
     indexes: []
   };
@@ -156,19 +159,23 @@ export const getDeleteQueries = (target: PgTableRepository) => {
 };
 
 const combineQueries = (target: PgMigrationQueries, source: Partial<PgMigrationQueries>) => {
-  if (source.indexes) {
-    target.indexes.push(...source.indexes);
+  if (source.tables) {
+    target.tables.push(...source.tables);
   }
 
   if (source.constraints) {
     target.constraints.push(...source.constraints);
   }
 
+  if (source.validations) {
+    target.validations.push(...source.validations);
+  }
+
   if (source.relations) {
     target.relations.push(...source.relations);
   }
 
-  if (source.tables) {
-    target.tables.push(...source.tables);
+  if (source.indexes) {
+    target.indexes.push(...source.indexes);
   }
 };
