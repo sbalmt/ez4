@@ -4,6 +4,7 @@ import type { PgRelationRepositoryWithSchema } from './repository';
 
 export type PgExecuteOptions = {
   transactionId?: string;
+  noTimeout?: boolean;
   debug?: boolean;
 };
 

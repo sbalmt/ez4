@@ -131,7 +131,7 @@ const executeMigrationStatements = async (driver: DataClientDriver, statements: 
 };
 
 const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
-  const { check, query } = statement;
+  const { check, ...query } = statement;
 
   if (check) {
     const { records } = await driver.executeStatement({
@@ -145,8 +145,8 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
     }
   }
 
-  await driver.executeStatement({
-    query
+  await driver.executeStatement(query, {
+    noTimeout: true
   });
 
   return true;
