@@ -54,6 +54,7 @@ describe('migration :: update index tests', () => {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
         }
       ],
+      validations: [],
       relations: [],
       indexes: [
         {
@@ -77,6 +78,7 @@ describe('migration :: update index tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: [
         {

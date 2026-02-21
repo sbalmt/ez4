@@ -58,6 +58,9 @@ describe('migration :: create relation tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
+      constraints: [],
+      validations: [],
       relations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -69,9 +72,7 @@ describe('migration :: create relation tests', () => {
             `NOT VALID`
         }
       ],
-      constraints: [],
-      indexes: [],
-      tables: []
+      indexes: []
     });
   });
 
@@ -92,6 +93,9 @@ describe('migration :: create relation tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
+      constraints: [],
+      validations: [],
       relations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -103,9 +107,7 @@ describe('migration :: create relation tests', () => {
             `NOT VALID`
         }
       ],
-      constraints: [],
-      indexes: [],
-      tables: []
+      indexes: []
     });
   });
 });

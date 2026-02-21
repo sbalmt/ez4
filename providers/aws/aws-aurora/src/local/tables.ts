@@ -28,6 +28,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   });
 
   await runAllStatements(client, queries.indexes);
+  await runAllStatements(client, queries.validations);
 
   await saveRepositoryState(database, repository);
 };

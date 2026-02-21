@@ -1,6 +1,7 @@
 import type { AnySchema, EnumSchema, ObjectSchema, ObjectSchemaProperties, ScalarSchema } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
+import type { PgMigrationQueries } from '../types/query';
 
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
@@ -8,9 +9,14 @@ import { isNotNullish } from '@ez4/utils';
 import { getCheckConstraintQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
+type ConstraintMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
+
 export namespace ConstraintQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, columns: Record<string, AnySchema>) => {
-    const statements = [];
+    const statements: ConstraintMigrationQueries = {
+      constraints: [],
+      validations: []
+    };
 
     for (const columnName in columns) {
       const columnSchema = columns[columnName];
@@ -18,9 +24,13 @@ export namespace ConstraintQuery {
       if (isEnumSchema(columnSchema) || (isScalarSchema(columnSchema) && isNotNullish(columnSchema.definitions?.value))) {
         const name = getConstraintName(table, columnName);
 
-        statements.push({
+        statements.constraints.push({
           check: getCheckConstraintQuery(builder, name),
           query: getCreateQuery(builder, table, name, columnName, columnSchema).build()
+        });
+
+        statements.validations.push({
+          query: getValidationQuery(builder, table, name).build()
         });
       }
     }
@@ -35,7 +45,10 @@ export namespace ConstraintQuery {
     sourceSchema: ObjectSchema,
     changes: Record<string, ObjectComparison>
   ) => {
-    const statements = [];
+    const statements: ConstraintMigrationQueries = {
+      constraints: [],
+      validations: []
+    };
 
     for (const columnName in changes) {
       const { update, create, remove } = changes[columnName];
@@ -46,7 +59,7 @@ export namespace ConstraintQuery {
         if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
 
-          statements.push({
+          statements.constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
@@ -58,9 +71,13 @@ export namespace ConstraintQuery {
         if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
 
-          statements.push({
+          statements.constraints.push({
             check: getCheckConstraintQuery(builder, name),
             query: getCreateQuery(builder, table, name, columnName, schema).build()
+          });
+
+          statements.validations.push({
+            query: getValidationQuery(builder, table, name).build()
           });
         }
       }
@@ -143,6 +160,10 @@ export namespace ConstraintQuery {
 
   const getDeleteQuery = (builder: SqlBuilder, table: string, name: string) => {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
+  };
+
+  const getValidationQuery = (builder: SqlBuilder, table: string, name: string) => {
+    return builder.table(table).alter().existing().constraint(name).validate();
   };
 
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, schema: EnumSchema | ScalarSchema) => {

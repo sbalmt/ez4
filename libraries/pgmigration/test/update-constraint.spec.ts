@@ -70,6 +70,11 @@ describe('migration :: update constraint tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456')) NOT VALID`
         }
       ],
+      validations: [
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
+        }
+      ],
       relations: [],
       indexes: []
     });

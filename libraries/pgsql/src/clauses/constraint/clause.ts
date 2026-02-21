@@ -104,7 +104,7 @@ export class SqlConstraintClause {
       this.#state.clause = new SqlValidateConstraintClause(this);
     }
 
-    return this.#state.clause as SqlRenameConstraintClause;
+    return this.#state.clause as SqlValidateConstraintClause;
   }
 
   drop() {

@@ -52,6 +52,7 @@ describe('migration :: delete constraint tests', () => {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -92,6 +93,7 @@ describe('migration :: delete constraint tests', () => {
           query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });

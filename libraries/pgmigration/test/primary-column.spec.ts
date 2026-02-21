@@ -57,6 +57,7 @@ describe('migration :: primary column tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -111,6 +112,7 @@ describe('migration :: primary column tests', () => {
           query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -167,6 +169,7 @@ describe('migration :: primary column tests', () => {
           query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });

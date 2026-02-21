@@ -61,6 +61,8 @@ describe('migration :: update relation tests', () => {
           query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
         }
       ],
+      constraints: [],
+      validations: [],
       relations: [
         {
           query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
@@ -74,7 +76,6 @@ describe('migration :: update relation tests', () => {
             `NOT VALID`
         }
       ],
-      constraints: [],
       indexes: []
     });
   });
@@ -92,6 +93,8 @@ describe('migration :: update relation tests', () => {
           query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
         }
       ],
+      constraints: [],
+      validations: [],
       relations: [
         {
           query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
@@ -105,7 +108,6 @@ describe('migration :: update relation tests', () => {
             `NOT VALID`
         }
       ],
-      constraints: [],
       indexes: []
     });
   });

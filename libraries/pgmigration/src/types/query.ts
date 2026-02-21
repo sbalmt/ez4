@@ -6,6 +6,7 @@ export type PgMigrationStatement = {
 export type PgMigrationQueries = {
   tables: PgMigrationStatement[];
   constraints: PgMigrationStatement[];
+  validations: PgMigrationStatement[];
   relations: PgMigrationStatement[];
   indexes: PgMigrationStatement[];
 };

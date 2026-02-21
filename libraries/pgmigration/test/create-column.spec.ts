@@ -68,6 +68,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -110,6 +111,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -152,6 +154,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -191,6 +194,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -237,6 +241,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -279,6 +284,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -321,6 +327,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -363,6 +370,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -405,6 +413,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -480,6 +489,20 @@ describe('migration :: create column tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false) NOT VALID`
         }
       ],
+      validations: [
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"'
+        }
+      ],
       relations: [],
       indexes: []
     });
@@ -526,6 +549,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -574,6 +598,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -623,6 +648,7 @@ describe('migration :: create column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });

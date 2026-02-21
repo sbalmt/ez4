@@ -65,6 +65,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -110,6 +111,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -155,6 +157,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -197,6 +200,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -246,6 +250,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -291,6 +296,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -336,6 +342,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -381,6 +388,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -426,6 +434,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -504,6 +513,20 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_id_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"'
+        },
+        {
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"'
+        }
+      ],
       relations: [],
       indexes: []
     });
@@ -553,6 +576,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -604,6 +628,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });
@@ -656,6 +681,7 @@ describe('migration :: create table tests', () => {
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_id_pk" PRIMARY KEY ("id")`
         }
       ],
+      validations: [],
       relations: [],
       indexes: []
     });

@@ -92,6 +92,7 @@ describe('migration :: update table tests', () => {
           query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_column_b_uk" TO "renamed_table_column_b_uk"'
         }
       ],
+      validations: [],
       relations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_relation_fk'`,
