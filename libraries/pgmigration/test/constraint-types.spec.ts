@@ -53,7 +53,7 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          check: `SELECT convalidated FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
           query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
@@ -86,7 +86,7 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          check: `SELECT convalidated FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
           query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
@@ -121,7 +121,7 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          check: `SELECT convalidated FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
           query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
@@ -156,7 +156,7 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          check: `SELECT convalidated FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
           query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
@@ -191,7 +191,7 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          check: `SELECT convalidated FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
           query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
