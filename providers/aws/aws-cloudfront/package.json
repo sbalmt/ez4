@@ -47,7 +47,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.958.0",
+    "@aws-sdk/client-cloudfront": "^3.996.0",
     "@ez4/aws-bucket": "^0.42.0",
     "@ez4/aws-certificate": "^0.42.0",
     "@ez4/aws-common": "^0.42.0",

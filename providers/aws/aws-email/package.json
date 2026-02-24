@@ -47,7 +47,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-sesv2": "^3.948.0",
+    "@aws-sdk/client-sesv2": "^3.996.0",
     "@ez4/aws-common": "^0.42.0",
     "@ez4/aws-identity": "^0.42.0",
     "@ez4/common": "^0.42.0",

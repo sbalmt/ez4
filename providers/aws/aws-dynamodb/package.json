@@ -55,9 +55,9 @@
     "@types/aws-lambda": "^8.10.156"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.958.0",
-    "@aws-sdk/lib-dynamodb": "^3.958.0",
-    "@aws-sdk/util-dynamodb": "^3.958.0",
+    "@aws-sdk/client-dynamodb": "^3.996.0",
+    "@aws-sdk/lib-dynamodb": "^3.996.0",
+    "@aws-sdk/util-dynamodb": "^3.996.0",
     "@ez4/aws-common": "^0.42.0",
     "@ez4/aws-function": "^0.42.0",
     "@ez4/aws-identity": "^0.42.0",

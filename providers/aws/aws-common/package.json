@@ -40,10 +40,10 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.958.0",
-    "@aws-sdk/lib-dynamodb": "^3.958.0",
-    "@aws-sdk/client-s3": "^3.958.0",
-    "@aws-sdk/client-sts": "^3.958.0",
+    "@aws-sdk/client-dynamodb": "^3.996.0",
+    "@aws-sdk/lib-dynamodb": "^3.996.0",
+    "@aws-sdk/client-s3": "^3.996.0",
+    "@aws-sdk/client-sts": "^3.996.0",
     "@ez4/logger": "^0.42.0",
     "@ez4/project": "^0.42.0",
     "@ez4/reflection": "^0.42.0",
