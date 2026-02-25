@@ -10,6 +10,7 @@ import {
   getModelMembers,
   getServiceListener,
   getServiceArchitecture,
+  getServiceLogLevel,
   getServiceRuntime,
   tryGetReferenceType,
   hasHeritageType
@@ -80,9 +81,14 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
       }
 
       case 'memory':
-      case 'logRetention':
-      case 'timeout': {
+      case 'timeout':
+      case 'logRetention': {
         defaults[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        defaults[member.name] = getServiceLogLevel(member);
         break;
       }
 

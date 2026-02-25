@@ -1,6 +1,6 @@
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema } from '@ez4/schema';
 import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
 import type { Index } from '../types/index';
@@ -67,6 +67,7 @@ export type TableStream = {
   architecture?: ArchitectureType;
   runtime?: RuntimeType;
   logRetention?: number;
+  logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
   vpc?: boolean;

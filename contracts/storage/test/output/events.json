@@ -11,6 +11,7 @@
       "path": "uploads/*",
       "architecture": "arm",
       "runtime": "node24",
+      "logLevel": "warning",
       "logRetention": 14,
       "memory": 128,
       "timeout": 5,
@@ -19,7 +20,7 @@
         "name": "eventHandler",
         "file": "test/input/output-events.ts",
         "position": [
-          29,
+          30,
           1
         ]
       },

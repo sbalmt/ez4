@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Service, Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
@@ -15,6 +15,7 @@ export declare class TestQueue extends Queue.Service<TestMessage> {
     Queue.UseSubscription<{
       handler: typeof testHandler;
       architecture: ArchitectureType.Arm;
+      logLevel: LogLevel.Error;
       logRetention: 7;
       concurrency: 2;
       batch: 5;

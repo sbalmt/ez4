@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
@@ -35,6 +35,7 @@ export declare class TestService2 extends Ws.Service<TestData> {
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
     architecture: ArchitectureType.Arm;
+    logLevel: LogLevel.Information;
     logRetention: 15;
     memory: 128;
   }>;

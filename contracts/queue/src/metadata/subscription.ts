@@ -11,11 +11,12 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getPropertyTuple,
-  getServiceListener,
-  getServiceArchitecture,
-  getServiceRuntime,
   getPropertyBoolean,
   getReferenceType,
+  getServiceListener,
+  getServiceArchitecture,
+  getServiceLogLevel,
+  getServiceRuntime,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -113,11 +114,16 @@ const getTypeFromMembers = (
         break;
       }
 
+      case 'batch':
       case 'memory':
-      case 'logRetention':
       case 'concurrency':
-      case 'batch': {
+      case 'logRetention': {
         subscription[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        subscription[member.name] = getServiceLogLevel(member);
         break;
       }
 

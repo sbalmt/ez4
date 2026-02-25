@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { BucketListener } from './listener';
 import type { BucketHandler } from './handler';
@@ -32,6 +32,11 @@ export interface BucketEvents {
    * Log retention (in days) for the handler.
    */
   readonly logRetention?: number;
+
+  /**
+   * Log level for the handler.
+   */
+  readonly logLevel?: LogLevel;
 
   /**
    * Max execution time (in seconds) for the handler.

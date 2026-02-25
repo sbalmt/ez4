@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
@@ -193,6 +193,11 @@ export type ProjectWatchOptions = {
 };
 
 export type ProjectDefaultOptions = {
+  /**
+   * Default log level for all handlers.
+   */
+  logLevel?: LogLevel;
+
   /**
    * Default log retention (in days) for all handlers.
    */

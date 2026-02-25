@@ -21,12 +21,13 @@
         "name": "targetHandler",
         "file": "test/input/output-service.ts",
         "position": [
-          42,
+          43,
           1
         ]
       },
       "architecture": "arm",
       "runtime": "node24",
+      "logLevel": "debug",
       "logRetention": 14,
       "timeout": 30,
       "memory": 128,

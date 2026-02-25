@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
@@ -8,6 +8,7 @@ export declare class TestService extends Http.Service {
       path: 'ANY /test-route-1';
       handler: typeof testRoute1;
       runtime: RuntimeType.Node24;
+      logLevel: LogLevel.Debug;
       logRetention: 7;
       disabled: true;
     }>,

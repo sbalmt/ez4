@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { WebPreferences } from './preferences';
 
 /**
@@ -11,9 +11,14 @@ export interface WebDefaults {
   readonly preferences?: WebPreferences;
 
   /**
-   * Default log retention (in days) for the handlers.
+   * Default log retention (in days) for all handlers.
    */
   readonly logRetention?: number;
+
+  /**
+   * Log level for all handlers.
+   */
+  readonly logLevel?: LogLevel;
 
   /**
    * Default execution time (in seconds) for handlers.
@@ -21,7 +26,7 @@ export interface WebDefaults {
   readonly timeout?: number;
 
   /**
-   * Default amount of memory available (in megabytes) for handlers.
+   * Default amount of memory available (in megabytes) for all handlers.
    */
   readonly memory?: number;
 

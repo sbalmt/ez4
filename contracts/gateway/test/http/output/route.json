@@ -13,6 +13,7 @@
     "routes": [
       {
         "path": "ANY /test-route-1",
+        "logLevel": "debug",
         "logRetention": 7,
         "disabled": true,
         "runtime": "node24",
@@ -20,7 +21,7 @@
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            39,
+            40,
             1
           ],
           "response": {
@@ -35,7 +36,7 @@
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            45,
+            46,
             1
           ],
           "response": {
@@ -54,7 +55,7 @@
           "name": "testRoute3",
           "file": "test/http/input/output-route.ts",
           "position": [
-            57,
+            58,
             1
           ],
           "response": {

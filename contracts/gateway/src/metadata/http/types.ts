@@ -1,7 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { LinkedServices, LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AuthorizationType } from '../../services/http/authorization';
 import type { HttpPath } from '../../services/http/path';
 import type { AuthHandler } from '../auth/types';
@@ -92,6 +92,7 @@ export type HttpDefaults = {
   architecture?: ArchitectureType;
   runtime?: RuntimeType;
   logRetention?: number;
+  logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
 };

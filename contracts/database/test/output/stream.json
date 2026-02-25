@@ -36,10 +36,11 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              55,
+              56,
               1
             ]
           },
+          "logLevel": "debug",
           "logRetention": 14,
           "timeout": 10,
           "memory": 256
@@ -64,7 +65,7 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              55,
+              56,
               1
             ]
           },

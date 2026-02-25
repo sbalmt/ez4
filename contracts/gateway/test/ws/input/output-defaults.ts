@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
@@ -9,6 +9,7 @@ export declare class TestService extends Ws.Service<{}> {
     listener: typeof testListener;
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
+    logLevel: LogLevel.Warning;
     logRetention: 14;
     timeout: 15;
     memory: 192;

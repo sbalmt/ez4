@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { WebPreferences } from './preferences';
 
@@ -12,9 +12,14 @@ export interface WebTarget {
   readonly preferences?: WebPreferences;
 
   /**
-   * Default log retention (in days) for the handlers.
+   * Default log retention (in days) for the handler.
    */
   readonly logRetention?: number;
+
+  /**
+   * Log level for the handler.
+   */
+  readonly logLevel?: LogLevel;
 
   /**
    * Variables associated to the event.

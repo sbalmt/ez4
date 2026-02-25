@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { QueueSubscriptionListener } from './listener';
 import type { QueueSubscriptionHandler } from './handler';
@@ -37,6 +37,11 @@ export interface QueueSubscription<T extends QueueMessage> {
    * Log retention (in days) for the handler.
    */
   readonly logRetention?: number;
+
+  /**
+   * Log level for the handler.
+   */
+  readonly logLevel?: LogLevel;
 
   /**
    * Amount of memory available (in megabytes) for the handler.

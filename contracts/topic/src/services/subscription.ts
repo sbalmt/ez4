@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 import type { TopicSubscriptionListener } from './listener';
@@ -40,6 +40,11 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
    * Log retention (in days) for the handler.
    */
   readonly logRetention?: number;
+
+  /**
+   * Log level for the handler.
+   */
+  readonly logLevel?: LogLevel;
 
   /**
    * Maximum execution time (in seconds) for the handler.
