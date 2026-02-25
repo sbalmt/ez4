@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 
 import {
@@ -23,9 +23,11 @@ import {
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
 import { getLambdaClient, getLambdaWaiter } from '../utils/deploy';
-import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
+import { getFunctionRuntime } from '../utils/runtime';
+import { FunctionDefaults } from '../utils/defaults';
 import { assertVariables } from './helpers/variables';
+import { getLogLevel } from './helpers/logging';
 import { getZipBuffer } from './helpers/zip';
 import { getDefaultVpcConfig } from './utils';
 
@@ -36,6 +38,7 @@ export type CreateRequest = {
   handlerName: string;
   description?: string;
   logGroup?: string;
+  logLevel?: LogLevel;
   variables?: LinkedVariables;
   architecture: ArchitectureType;
   runtime: RuntimeType;
@@ -116,7 +119,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
   const handlerName = getSourceHandlerName(request.handlerName);
   const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup } = request;
+  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -141,7 +144,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
         },
         LoggingConfig: {
           LogGroup: logGroup,
-          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
           SystemLogLevel: SystemLogLevel.Warn,
           LogFormat: LogFormat.Json
         },

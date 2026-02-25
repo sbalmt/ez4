@@ -52,12 +52,13 @@ export const prepareSubscriptions = (
           const defaults = options.defaults;
 
           const {
-            vpc,
             runtime = defaults?.runtime ?? Defaults.Runtime,
             architecture = defaults?.architecture ?? Defaults.Architecture,
             logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+            logLevel = defaults?.logLevel ?? Defaults.LogLevel,
             memory = defaults?.memory ?? Defaults.Memory,
-            timeout = Defaults.Timeout
+            timeout = Defaults.Timeout,
+            vpc
           } = subscription;
 
           const logGroupState = createLogGroup(state, {
@@ -76,6 +77,7 @@ export const prepareSubscriptions = (
             tags: options.tags,
             variables: [options.variables, service.variables, subscription.variables],
             architecture,
+            logLevel,
             runtime,
             timeout,
             memory,

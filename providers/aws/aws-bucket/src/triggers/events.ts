@@ -24,15 +24,16 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const { defaults, release } = options;
 
   const {
-    vpc,
-    handler,
-    listener,
-    variables,
     runtime = defaults?.runtime ?? Defaults.Runtime,
     architecture = defaults?.architecture ?? Defaults.Architecture,
     logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+    logLevel = defaults?.logLevel ?? Defaults.LogLevel,
     memory = defaults?.memory ?? Defaults.Memory,
-    timeout = Defaults.Timeout
+    timeout = Defaults.Timeout,
+    variables,
+    listener,
+    handler,
+    vpc
   } = service.events;
 
   const internalName = getInternalName(service, handler.name);
@@ -60,6 +61,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     tags: options.tags,
     variables: [options.variables, service.variables, variables],
     architecture,
+    logLevel,
     runtime,
     release,
     timeout,
