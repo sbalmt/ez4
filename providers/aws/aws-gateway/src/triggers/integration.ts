@@ -61,7 +61,7 @@ const getIntegrationFunction = (
     throw new RoleMissingError();
   }
 
-  const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
+  const defaults = deepMerge(options.defaults ?? {}, service.defaults ?? {});
 
   const {
     runtime = defaults.runtime ?? Defaults.Runtime,
