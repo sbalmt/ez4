@@ -1,6 +1,7 @@
 import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { PgExecuteOptions } from '@ez4/pgclient';
 
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
@@ -82,7 +83,7 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
   await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations]);
   await executeMigrationStatements(driver, queries.indexes);
 
-  await executeMigrationValidations(driver, queries.validations);
+  await executeMigrationValidations(logger, driver, queries.validations);
 };
 
 export const deleteTables = async (logger: OperationLogLine, request: DeleteTableRequest): Promise<void> => {
@@ -133,29 +134,36 @@ const executeMigrationTransaction = async (driver: DataClientDriver, statements:
   }
 };
 
-const executeMigrationValidations = async (driver: DataClientDriver, validations: PgMigrationStatement[]) => {
+const executeMigrationValidations = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
+  let counter = 0;
+
   for (const statement of validations) {
+    logger.update(`Validating constraints (${++counter} of ${validations.length})`);
+
     await Wait.until(async (attempt) => {
       try {
-        if (attempt === 1) {
-          return await executeMigrationStatement(driver, statement, true);
+        if (attempt > 1) {
+          if (!statement.check) {
+            throw new Error(`Missing validation check query.`);
+          }
+
+          const { records } = await driver.executeStatement({
+            query: statement.check
+          });
+
+          const [isValidated] = records;
+
+          if (!isValidated) {
+            return Wait.RetryAttempt;
+          }
+
+          return true;
         }
 
-        if (!statement.check) {
-          throw new Error(`Missing validation check query.`);
-        }
-
-        const { records } = await driver.executeStatement({
-          query: statement.check
+        return await executeMigrationStatement(driver, statement, {
+          noErrorLog: true,
+          noTimeout: true
         });
-
-        const [isValidated] = records;
-
-        if (!isValidated) {
-          return Wait.RetryAttempt;
-        }
-
-        return true;
         //
       } catch (error) {
         if (error instanceof StatementTimeoutException) {
@@ -168,7 +176,11 @@ const executeMigrationValidations = async (driver: DataClientDriver, validations
   }
 };
 
-const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement, noTimeout?: boolean) => {
+const executeMigrationStatement = async (
+  driver: DataClientDriver,
+  statement: PgMigrationStatement,
+  options?: Pick<PgExecuteOptions, 'noErrorLog' | 'noTimeout'>
+) => {
   const { check, ...query } = statement;
 
   if (check) {
@@ -183,9 +195,7 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
     }
   }
 
-  await driver.executeStatement(query, {
-    noTimeout
-  });
+  await driver.executeStatement(query, options);
 
   return true;
 };

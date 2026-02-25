@@ -50,7 +50,9 @@ export class ClientDriver implements PgClientDriver {
         rows
       };
     } catch (error) {
-      logQueryError(statement, transactionId);
+      if (!options?.noErrorLog) {
+        logQueryError(statement, transactionId);
+      }
 
       throw error;
       //
