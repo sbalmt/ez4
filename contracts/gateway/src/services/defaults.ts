@@ -21,6 +21,16 @@ export interface WebDefaults {
   readonly logLevel?: LogLevel;
 
   /**
+   * Default architecture for all the API functions.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Default runtime for all the API functions.
+   */
+  readonly runtime?: RuntimeType;
+
+  /**
    * Default execution time (in seconds) for handlers.
    */
   readonly timeout?: number;
@@ -31,12 +41,7 @@ export interface WebDefaults {
   readonly memory?: number;
 
   /**
-   * Default architecture for all the API functions.
+   * Additional resources files for the bundler.
    */
-  readonly architecture?: ArchitectureType;
-
-  /**
-   * Default runtime for all the API functions.
-   */
-  readonly runtime?: RuntimeType;
+  readonly files?: string[];
 }

@@ -36,7 +36,7 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              56,
+              58,
               1
             ]
           },
@@ -65,10 +65,14 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              56,
+              58,
               1
             ]
           },
+          "files": [
+            "path/to/file-a.txt",
+            "path/to/file-b.json"
+          ],
           "variables": {
             "TEST_VAR": "test-literal-value"
           }

@@ -9,11 +9,12 @@ import { isObjectWith } from '@ez4/utils';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
-  getPropertyNumber,
-  getObjectMembers,
   getModelMembers,
+  getLinkedVariableList,
+  getObjectMembers,
   getReferenceType,
+  getPropertyNumber,
+  getPropertyStringList,
   getPropertyBoolean,
   getServiceListener,
   getServiceArchitecture,
@@ -119,6 +120,11 @@ const getTypeFromMembers = (
 
       case 'vpc': {
         target[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        target[member.name] = getPropertyStringList(member);
         break;
       }
 

@@ -71,6 +71,7 @@ export type TableStream = {
   timeout?: number;
   memory?: number;
   vpc?: boolean;
+  files?: string[];
 };
 
 export const isDatabaseService = (service: ServiceMetadata): service is DatabaseService => {

@@ -6,6 +6,7 @@ export declare class TestService extends Http.Service {
 
   defaults: Http.UseDefaults<{
     listener: typeof testListener;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.x86;
     runtime: RuntimeType.Node22;
     logLevel: LogLevel.Error;

@@ -21,7 +21,7 @@
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            40,
+            42,
             1
           ],
           "response": {
@@ -36,7 +36,7 @@
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            46,
+            48,
             1
           ],
           "response": {
@@ -45,6 +45,10 @@
         },
         "timeout": 30,
         "memory": 512,
+        "files": [
+          "path/to/file-a.txt",
+          "path/to/file-b.json"
+        ],
         "variables": {
           "TEST_VAR": "test-literal-value"
         }
@@ -55,7 +59,7 @@
           "name": "testRoute3",
           "file": "test/http/input/output-route.ts",
           "position": [
-            58,
+            60,
             1
           ],
           "response": {

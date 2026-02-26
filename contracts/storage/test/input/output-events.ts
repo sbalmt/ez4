@@ -6,6 +6,7 @@ export declare class TestStorage extends Bucket.Service {
   events: Bucket.UseEvents<{
     path: 'uploads/*';
     handler: typeof eventHandler;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
     logLevel: LogLevel.Warning;

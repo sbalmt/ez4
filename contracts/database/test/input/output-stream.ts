@@ -45,6 +45,8 @@ declare class TestStream implements Database.Stream<TestSchema> {
 
   runtime: RuntimeType.Node24;
 
+  files: ['path/to/file-a.txt', 'path/to/file-b.json'];
+
   variables: {
     TEST_VAR: 'test-literal-value';
   };

@@ -34,6 +34,16 @@ export interface CronTarget<T extends CronEvent | null> {
   readonly logLevel?: LogLevel;
 
   /**
+   * Architecture for the handler.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the handler.
+   */
+  readonly runtime?: RuntimeType;
+
+  /**
    * Max execution time (in seconds) for the handler.
    */
   readonly timeout?: number;
@@ -44,14 +54,9 @@ export interface CronTarget<T extends CronEvent | null> {
   readonly memory?: number;
 
   /**
-   * Architecture for the handler.
+   * Additional resources files for the bundler.
    */
-  readonly architecture?: ArchitectureType;
-
-  /**
-   * Runtime for the handler.
-   */
-  readonly runtime?: RuntimeType;
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the target.

@@ -33,22 +33,26 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            47,
+            49,
             1
           ]
         }
       },
       {
+        "runtime": "node24",
+        "memory": 128,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            47,
+            49,
             1
           ]
         },
-        "runtime": "node24",
-        "memory": 128,
+        "files": [
+          "path/to/file-a.txt",
+          "path/to/file-b.json"
+        ],
         "variables": {
           "TEST_VAR": "test-literal-value"
         }

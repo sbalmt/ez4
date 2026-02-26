@@ -5,9 +5,10 @@ import type { WsDefaults } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getPropertyNumber,
-  getObjectMembers,
   getModelMembers,
+  getObjectMembers,
+  getPropertyNumber,
+  getPropertyStringList,
   getServiceListener,
   getServiceArchitecture,
   getServiceLogLevel,
@@ -99,6 +100,11 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'runtime': {
         defaults[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'files': {
+        defaults[member.name] = getPropertyStringList(member);
         break;
       }
 

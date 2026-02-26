@@ -7,9 +7,10 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
   getPropertyNumber,
+  getPropertyStringList,
   getPropertyBoolean,
   getReferenceType,
   getServiceListener,
@@ -111,6 +112,11 @@ const getTypeFromMembers = (
 
       case 'runtime': {
         target[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'files': {
+        target[member.name] = getPropertyStringList(member);
         break;
       }
 

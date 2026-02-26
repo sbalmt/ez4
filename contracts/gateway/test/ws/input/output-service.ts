@@ -42,6 +42,7 @@ export declare class TestService2 extends Ws.Service<TestData> {
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     runtime: RuntimeType.Node24;
     preferences: {
       namingStyle: NamingStyle.SnakeCase;

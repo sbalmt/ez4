@@ -24,6 +24,7 @@ export declare class TestScheduler extends Cron.Service {
 
   target: Cron.UseTarget<{
     handler: typeof targetHandler;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
     logLevel: LogLevel.Debug;

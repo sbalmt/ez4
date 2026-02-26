@@ -12,6 +12,11 @@ export interface WebTarget {
   readonly preferences?: WebPreferences;
 
   /**
+   * Variables associated to the event.
+   */
+  readonly variables?: LinkedVariables;
+
+  /**
    * Default log retention (in days) for the handler.
    */
   readonly logRetention?: number;
@@ -22,9 +27,14 @@ export interface WebTarget {
   readonly logLevel?: LogLevel;
 
   /**
-   * Variables associated to the event.
+   * Architecture for the API function.
    */
-  readonly variables?: LinkedVariables;
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the API function.
+   */
+  readonly runtime?: RuntimeType;
 
   /**
    * Max execution time (in seconds) for the event.
@@ -37,12 +47,7 @@ export interface WebTarget {
   readonly memory?: number;
 
   /**
-   * Architecture for the API function.
+   * Additional resources files for the bundler.
    */
-  readonly architecture?: ArchitectureType;
-
-  /**
-   * Runtime for the API function.
-   */
-  readonly runtime?: RuntimeType;
+  readonly files?: string[];
 }

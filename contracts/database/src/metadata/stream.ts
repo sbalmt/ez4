@@ -10,6 +10,7 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
+  getPropertyStringList,
   getPropertyBoolean,
   getReferenceType,
   getServiceListener,
@@ -115,6 +116,11 @@ const getTypeFromMembers = (
 
       case 'vpc': {
         stream[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        stream[member.name] = getPropertyStringList(member);
         break;
       }
 

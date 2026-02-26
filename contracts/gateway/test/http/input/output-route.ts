@@ -32,6 +32,8 @@ declare class TestRoute implements Http.Route {
 
   architecture: ArchitectureType.Arm;
 
+  files: ['path/to/file-a.txt', 'path/to/file-b.json'];
+
   variables: {
     TEST_VAR: 'test-literal-value';
   };

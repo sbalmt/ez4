@@ -61,6 +61,7 @@ export type QueueSubscription = {
   concurrency?: number;
   batch?: number;
   memory?: number;
+  files?: string[];
   vpc?: boolean;
 };
 

@@ -38,6 +38,7 @@ export type BucketEvent = {
   logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
+  files?: string[];
   vpc?: boolean;
 };
 

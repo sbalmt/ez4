@@ -40,6 +40,7 @@ export type CronTarget = {
   logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
+  files?: string[];
   vpc?: boolean;
 };
 

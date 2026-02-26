@@ -11,9 +11,10 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
-  getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
+  getPropertyStringList,
+  getPropertyBoolean,
   getObjectMembers,
   getModelMembers,
   getReferenceType,
@@ -203,6 +204,11 @@ const getTypeFromMembers = (
       case 'cors':
       case 'disabled': {
         route[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        route[member.name] = getPropertyStringList(member);
         break;
       }
 

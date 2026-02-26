@@ -7,11 +7,12 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
   getPropertyNumber,
-  getPropertyTuple,
+  getPropertyStringList,
   getPropertyBoolean,
+  getPropertyTuple,
   getReferenceType,
   getServiceListener,
   getServiceArchitecture,
@@ -139,6 +140,11 @@ const getTypeFromMembers = (
 
       case 'vpc': {
         subscription[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        subscription[member.name] = getPropertyStringList(member);
         break;
       }
 

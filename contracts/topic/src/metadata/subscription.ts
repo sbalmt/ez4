@@ -8,12 +8,13 @@ import {
   isModelDeclaration,
   getLinkedServiceName,
   getLinkedVariableList,
-  getModelMembers,
   getObjectMembers,
-  getPropertyNumber,
-  getPropertyTuple,
-  getPropertyBoolean,
+  getModelMembers,
   getReferenceType,
+  getPropertyNumber,
+  getPropertyStringList,
+  getPropertyBoolean,
+  getPropertyTuple,
   getServiceListener,
   getServiceArchitecture,
   getServiceLogLevel,
@@ -182,6 +183,11 @@ const getLambdaSubscription = (
 
       case 'vpc': {
         subscription[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        subscription[member.name] = getPropertyStringList(member);
         break;
       }
 

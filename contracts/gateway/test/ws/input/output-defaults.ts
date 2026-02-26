@@ -7,6 +7,7 @@ export declare class TestService extends Ws.Service<{}> {
 
   defaults: Ws.UseDefaults<{
     listener: typeof testListener;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
     logLevel: LogLevel.Warning;

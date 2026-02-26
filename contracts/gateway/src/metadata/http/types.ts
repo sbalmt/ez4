@@ -95,6 +95,7 @@ export type HttpDefaults = {
   logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
+  files?: string[];
 };
 
 export type HttpCache = {

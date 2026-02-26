@@ -29,7 +29,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          62,
+          63,
           1
         ]
       }
@@ -39,7 +39,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          65,
           1
         ]
       }
@@ -49,7 +49,7 @@
         "name": "messageHandler1",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          66,
+          67,
           1
         ]
       }
@@ -84,7 +84,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          62,
+          63,
           1
         ]
       }
@@ -94,11 +94,15 @@
       "preferences": {
         "namingStyle": "snake"
       },
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
       "handler": {
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          65,
           1
         ]
       }
@@ -114,7 +118,7 @@
         "name": "messageHandler2",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          74,
+          75,
           1
         ],
         "response": {

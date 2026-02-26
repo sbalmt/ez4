@@ -6,6 +6,7 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getPropertyNumber,
+  getPropertyStringList,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
@@ -105,6 +106,11 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'runtime': {
         defaults[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'files': {
+        defaults[member.name] = getPropertyStringList(member);
         break;
       }
 

@@ -24,16 +24,6 @@ export interface TableStream<T extends TableSchema> {
   readonly variables?: LinkedVariables;
 
   /**
-   * Architecture for the stream function.
-   */
-  readonly architecture?: ArchitectureType;
-
-  /**
-   * Runtime for the stream function.
-   */
-  readonly runtime?: RuntimeType;
-
-  /**
    * Log retention (in days) for the handler.
    */
   readonly logRetention?: number;
@@ -44,6 +34,16 @@ export interface TableStream<T extends TableSchema> {
   readonly logLevel?: LogLevel;
 
   /**
+   * Architecture for the stream function.
+   */
+  readonly architecture?: ArchitectureType;
+
+  /**
+   * Runtime for the stream function.
+   */
+  readonly runtime?: RuntimeType;
+
+  /**
    * Max execution time (in seconds) for the handler.
    */
   readonly timeout?: number;
@@ -52,6 +52,11 @@ export interface TableStream<T extends TableSchema> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the stream.
