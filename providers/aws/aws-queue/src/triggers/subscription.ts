@@ -44,6 +44,7 @@ export const prepareSubscriptions = (
         logRetention = defaults?.logRetention ?? Defaults.LogRetention,
         logLevel = defaults?.logLevel ?? Defaults.LogLevel,
         memory = defaults?.memory ?? Defaults.Memory,
+        files,
         vpc
       } = subscription;
 
@@ -67,6 +68,7 @@ export const prepareSubscriptions = (
         runtime,
         release,
         memory,
+        files,
         vpc,
         handler: {
           sourceFile: handler.file,

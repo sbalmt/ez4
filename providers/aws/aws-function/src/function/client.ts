@@ -33,6 +33,7 @@ import { getDefaultVpcConfig } from './utils';
 
 export type CreateRequest = {
   roleArn: Arn;
+  files?: string[];
   sourceFile: string;
   functionName: string;
   handlerName: string;
@@ -69,8 +70,9 @@ export type UpdateConfigurationRequest = {
 };
 
 export type UpdateSourceCodeRequest = {
-  architecture?: ArchitectureType;
+  files?: string[];
   sourceFile: string;
+  architecture?: ArchitectureType;
   publish?: boolean;
 };
 
@@ -116,8 +118,8 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
 
   const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
+  const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
   const handlerName = getSourceHandlerName(request.handlerName);
-  const sourceFile = await getSourceZipFile(request.sourceFile);
 
   const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup, logLevel } = request;
 
@@ -189,7 +191,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
 export const updateSourceCode = async (logger: OperationLogLine, functionName: string, request: UpdateSourceCodeRequest) => {
   logger.update(`Updating source code`);
 
-  const sourceFile = await getSourceZipFile(request.sourceFile);
+  const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
 
   const { publish, architecture } = request;
 
@@ -343,8 +345,8 @@ export const untagFunction = async (logger: OperationLogLine, functionArn: Arn, 
   );
 };
 
-const getSourceZipFile = (sourceFile: string) => {
-  return getZipBuffer(sourceFile, `main.mjs`);
+const getSourceZipFile = (sourceFile: string, additionalFiles?: string[]) => {
+  return getZipBuffer(sourceFile, `main.mjs`, additionalFiles);
 };
 
 const getSourceHandlerName = (handlerName: string) => {

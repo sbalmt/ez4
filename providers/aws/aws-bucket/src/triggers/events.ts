@@ -33,6 +33,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     variables,
     listener,
     handler,
+    files,
     vpc
   } = service.events;
 
@@ -66,6 +67,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     release,
     timeout,
     memory,
+    files,
     vpc,
     handler: {
       sourceFile: handler.file,

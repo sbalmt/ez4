@@ -41,6 +41,7 @@ export const prepareTableStream = (
     variables,
     listener,
     handler,
+    files,
     vpc
   } = table.stream;
 
@@ -72,6 +73,7 @@ export const prepareTableStream = (
       release,
       timeout,
       memory,
+      files,
       vpc,
       handler: {
         sourceFile: handler.file,

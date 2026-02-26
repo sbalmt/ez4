@@ -27,6 +27,7 @@ export const createStreamFunction = <E extends EntryState>(
     release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
+    files: parameters.files,
     debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {

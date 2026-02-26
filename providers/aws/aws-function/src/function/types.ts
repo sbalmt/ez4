@@ -31,6 +31,7 @@ export type FunctionResult = ImportOrCreateResponse & {
   valuesHash?: string;
   sourceHash: string;
   bundleHash: string;
+  filesHash?: string;
   logGroup?: string;
   roleArn: Arn;
 };

@@ -43,6 +43,7 @@ export const getAuthorizerFunction = (
     memory = defaults.memory ?? Defaults.Memory,
     listener = defaults.listener,
     authorizer,
+    files,
     vpc
   } = target;
 
@@ -79,6 +80,7 @@ export const getAuthorizerFunction = (
       logLevel,
       runtime,
       memory,
+      files,
       vpc,
       preferences: {
         ...service.defaults?.preferences,

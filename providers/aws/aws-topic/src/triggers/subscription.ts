@@ -58,6 +58,7 @@ export const prepareSubscriptions = (
             logLevel = defaults?.logLevel ?? Defaults.LogLevel,
             memory = defaults?.memory ?? Defaults.Memory,
             timeout = Defaults.Timeout,
+            files,
             vpc
           } = subscription;
 
@@ -81,6 +82,7 @@ export const prepareSubscriptions = (
             runtime,
             timeout,
             memory,
+            files,
             vpc,
             handler: {
               sourceFile: handler.file,

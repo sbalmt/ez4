@@ -72,6 +72,7 @@ const getIntegrationFunction = (
     memory = defaults.memory ?? Defaults.Memory,
     listener = defaults.listener,
     handler,
+    files,
     vpc
   } = target;
 
@@ -116,6 +117,7 @@ const getIntegrationFunction = (
       runtime,
       memory,
       type,
+      files,
       vpc,
       handler: {
         sourceFile: handler.file,

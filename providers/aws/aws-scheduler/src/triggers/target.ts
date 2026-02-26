@@ -29,6 +29,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     variables,
     listener,
     handler,
+    files,
     vpc
   } = service.target;
 
@@ -63,6 +64,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     runtime,
     timeout,
     memory,
+    files,
     vpc,
     handler: {
       sourceFile: handler.file,
