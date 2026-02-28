@@ -26,13 +26,14 @@
       {
         "type": "lambda",
         "architecture": "arm",
+        "logLevel": "information",
         "logRetention": 14,
         "timeout": 15,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            62,
+            65,
             1
           ]
         }
@@ -49,10 +50,14 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            62,
+            65,
             1
           ]
         },
+        "files": [
+          "path/to/file-a.txt",
+          "path/to/file-b.json"
+        ],
         "variables": {
           "TEST_VAR": "test-literal-value"
         }

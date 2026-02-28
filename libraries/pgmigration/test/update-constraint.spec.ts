@@ -67,7 +67,13 @@ describe('migration :: update constraint tests', () => {
         },
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456'))`
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456')) NOT VALID`
+        }
+      ],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"'
         }
       ],
       relations: [],

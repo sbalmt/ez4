@@ -1,6 +1,6 @@
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -35,8 +35,10 @@ export type BucketEvent = {
   architecture?: ArchitectureType;
   runtime?: RuntimeType;
   logRetention?: number;
+  logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
+  files?: string[];
   vpc?: boolean;
 };
 

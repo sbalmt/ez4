@@ -18,13 +18,18 @@
         "name": "testListener",
         "file": "test/http/input/output-defaults.ts",
         "position": [
-          22,
+          24,
           1
         ]
       },
       "httpErrors": {
         "CustomError": 400
       },
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
+      "logLevel": "error",
       "logRetention": 14,
       "timeout": 15,
       "memory": 192

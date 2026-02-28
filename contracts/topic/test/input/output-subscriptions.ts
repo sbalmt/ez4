@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Service, Environment } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 import type { Queue } from '@ez4/queue';
@@ -16,6 +16,7 @@ export declare class TestTopic extends Topic.Service<TestMessage> {
     Topic.UseSubscription<{
       handler: typeof testHandler;
       architecture: ArchitectureType.Arm;
+      logLevel: LogLevel.Information;
       logRetention: 14;
       timeout: 15;
     }>,
@@ -44,6 +45,8 @@ declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMes
   runtime: RuntimeType.Node24;
 
   memory: 128;
+
+  files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
   // Variable only for this subscription.
   variables: {

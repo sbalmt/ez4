@@ -6,6 +6,7 @@ import { SqlPrimaryKeyConstraintClause } from './primary';
 import { SqlForeignKeyConstraintClause } from './foreign';
 import { SqlUniqueConstraintClause } from './unique';
 import { SqlRenameConstraintClause } from './rename';
+import { SqlValidateConstraintClause } from './validate';
 import { SqlDropConstraintClause } from './drop';
 import { SqlCheckConstraintClause } from './check';
 
@@ -20,6 +21,7 @@ export class SqlConstraintClause {
       | SqlUniqueConstraintClause
       | SqlCheckConstraintClause
       | SqlRenameConstraintClause
+      | SqlValidateConstraintClause
       | SqlDropConstraintClause;
   };
 
@@ -93,6 +95,16 @@ export class SqlConstraintClause {
     }
 
     return this.#state.clause as SqlRenameConstraintClause;
+  }
+
+  validate() {
+    const { clause } = this.#state;
+
+    if (!(clause instanceof SqlValidateConstraintClause)) {
+      this.#state.clause = new SqlValidateConstraintClause(this);
+    }
+
+    return this.#state.clause as SqlValidateConstraintClause;
   }
 
   drop() {

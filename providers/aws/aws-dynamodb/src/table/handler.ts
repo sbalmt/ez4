@@ -22,6 +22,7 @@ import {
 
 import { getSecondaryIndexName } from './helpers/indexes';
 import { TableServiceName } from './types';
+import { TableDeletionDeniedError } from './errors';
 
 export const getTableHandler = (): StepHandler<TableState> => ({
   equals: equalsResource,
@@ -110,21 +111,23 @@ const updateResource = (candidate: TableState, current: TableState): Promise<Tab
 const deleteResource = async (current: TableState, context: StepContext) => {
   const { result, parameters } = current;
 
-  const allowDeletion = !!parameters.allowDeletion;
+  if (result) {
+    const { tableName } = result;
 
-  if (!result || (!allowDeletion && !context.force)) {
-    return;
+    await OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
+      const { allowDeletion } = parameters;
+
+      if (!allowDeletion && !context.force) {
+        throw new TableDeletionDeniedError(tableName);
+      }
+
+      if (!allowDeletion) {
+        await updateDeletion(logger, tableName, true);
+      }
+
+      await deleteTable(logger, tableName);
+    });
   }
-
-  const { tableName } = result;
-
-  await OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
-    if (!allowDeletion) {
-      await updateDeletion(logger, tableName, true);
-    }
-
-    await deleteTable(logger, tableName);
-  });
 };
 
 const checkStreamsUpdates = async (logger: OperationLogLine, tableName: string, candidate: TableParameters, current: TableParameters) => {

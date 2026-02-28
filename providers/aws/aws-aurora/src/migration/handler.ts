@@ -6,7 +6,9 @@ import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
+import { getRepositoryStub } from '../utils/database';
 import { createDatabase, deleteDatabase, createTables, updateTables } from './client';
+import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
@@ -26,7 +28,10 @@ const previewResource = (candidate: MigrationState, current: MigrationState, opt
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const databaseChanges = getTableRepositoryChanges(target.repository, options.force ? {} : source.repository);
+  const sourceRepository = options.force ? getRepositoryStub(source.repository) : source.repository;
+  const targetRepository = target.repository;
+
+  const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
   const resourceChanges = deepCompare(target, source, {
     exclude: {
@@ -85,8 +90,8 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
     throw new CorruptedResourceError(MigrationServiceName, database);
   }
 
+  const sourceRepository = context.force ? getRepositoryStub(current.parameters.repository) : current.parameters.repository;
   const targetRepository = parameters.repository;
-  const sourceRepository = context.force ? {} : current.parameters.repository;
 
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
@@ -109,22 +114,24 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
   });
 };
 
-const deleteResource = async (current: MigrationState) => {
+const deleteResource = async (current: MigrationState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
-  }
+  if (result) {
+    const { database, allowDeletion } = parameters;
 
-  const { database } = parameters;
+    await OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
+      if (!allowDeletion && !context.force) {
+        throw new MigrationDeletionDeniedError(database);
+      }
 
-  await OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
-    const { clusterArn, secretArn } = result;
+      const { clusterArn, secretArn } = result;
 
-    await deleteDatabase(logger, {
-      database: parameters.database,
-      clusterArn,
-      secretArn
+      await deleteDatabase(logger, {
+        database: parameters.database,
+        clusterArn,
+        secretArn
+      });
     });
-  });
+  }
 };

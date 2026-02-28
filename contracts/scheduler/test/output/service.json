@@ -17,19 +17,24 @@
     "maxAge": 20,
     "disabled": true,
     "target": {
+      "architecture": "arm",
+      "runtime": "node24",
+      "logLevel": "debug",
+      "logRetention": 14,
+      "timeout": 30,
+      "memory": 128,
       "handler": {
         "name": "targetHandler",
         "file": "test/input/output-service.ts",
         "position": [
-          42,
+          44,
           1
         ]
       },
-      "architecture": "arm",
-      "runtime": "node24",
-      "logRetention": 14,
-      "timeout": 30,
-      "memory": 128,
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
       "variables": {
         "TEST_VAR1": "test-literal-value"
       }

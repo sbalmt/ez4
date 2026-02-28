@@ -24,6 +24,12 @@ export type ArrayRest<T extends unknown[]> = IsAny<T> extends true ? [] : T exte
 export type ArrayType<T extends unknown[]> = IsAny<T> extends true ? never : T extends (infer U)[] ? NonNullable<U> : never;
 
 /**
+ * Given a type `T`, it returns the array element type when it's an array or `T` when it's not.
+ * It will always return `never` for `any` types.
+ */
+export type TryArrayType<T> = IsAny<T> extends true ? never : T extends (infer U)[] ? NonNullable<U> : T;
+
+/**
  * Given the array types `T` and `U`, it produces a new array type merging both array types.
  */
 export type MergeArray<T extends unknown[], U extends unknown[]> = MergeType<ArrayType<T>, ArrayType<U>>[];

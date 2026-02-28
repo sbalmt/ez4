@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
@@ -6,8 +6,10 @@ export declare class TestStorage extends Bucket.Service {
   events: Bucket.UseEvents<{
     path: 'uploads/*';
     handler: typeof eventHandler;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
+    logLevel: LogLevel.Warning;
     logRetention: 14;
     memory: 128;
     timeout: 5;

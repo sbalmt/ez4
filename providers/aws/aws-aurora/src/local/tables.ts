@@ -15,19 +15,19 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const { database } = connection;
 
-  const client = getClient(connection);
-
   const freshCreation = options.force || options.reset;
-
   const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
 
   const queries = getUpdateQueries(repository, oldRepository);
+  const client = getClient(connection);
 
   await client.transaction((transaction: DbClient<Database.Service>) => {
-    return runAllStatements(transaction, [...queries.tables, ...queries.constraints, ...queries.relations]);
+    return runAllStatements(transaction, [...queries.tables, ...queries.constraints]);
   });
 
   await runAllStatements(client, queries.indexes);
+  await runAllStatements(client, queries.relations);
+  await runAllStatements(client, queries.validations);
 
   await saveRepositoryState(database, repository);
 };

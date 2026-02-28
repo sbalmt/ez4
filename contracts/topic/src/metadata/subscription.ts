@@ -8,15 +8,17 @@ import {
   isModelDeclaration,
   getLinkedServiceName,
   getLinkedVariableList,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
+  getReferenceType,
   getPropertyNumber,
+  getPropertyStringList,
+  getPropertyBoolean,
   getPropertyTuple,
   getServiceListener,
   getServiceArchitecture,
+  getServiceLogLevel,
   getServiceRuntime,
-  getPropertyBoolean,
-  getReferenceType,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -158,9 +160,14 @@ const getLambdaSubscription = (
       }
 
       case 'memory':
-      case 'logRetention':
-      case 'timeout': {
+      case 'timeout':
+      case 'logRetention': {
         subscription[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        subscription[member.name] = getServiceLogLevel(member);
         break;
       }
 
@@ -176,6 +183,11 @@ const getLambdaSubscription = (
 
       case 'vpc': {
         subscription[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        subscription[member.name] = getPropertyStringList(member);
         break;
       }
 

@@ -11,6 +11,7 @@
       "path": "uploads/*",
       "architecture": "arm",
       "runtime": "node24",
+      "logLevel": "warning",
       "logRetention": 14,
       "memory": 128,
       "timeout": 5,
@@ -19,10 +20,14 @@
         "name": "eventHandler",
         "file": "test/input/output-events.ts",
         "position": [
-          29,
+          31,
           1
         ]
       },
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
       "variables": {
         "TEST_VAR1": "test-literal-value",
         "TEST_VAR2": "test-env-var-value"

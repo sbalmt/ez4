@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 import type { TopicSubscriptionListener } from './listener';
@@ -42,14 +42,9 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
   readonly logRetention?: number;
 
   /**
-   * Maximum execution time (in seconds) for the handler.
+   * Log level for the handler.
    */
-  readonly timeout?: number;
-
-  /**
-   * Amount of memory available (in megabytes) for the handler.
-   */
-  readonly memory?: number;
+  readonly logLevel?: LogLevel;
 
   /**
    * Architecture for the handler.
@@ -60,6 +55,21 @@ export interface TopicLambdaSubscription<T extends TopicMessage> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Maximum execution time (in seconds) for the handler.
+   */
+  readonly timeout?: number;
+
+  /**
+   * Amount of memory available (in megabytes) for the handler.
+   */
+  readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the stream.

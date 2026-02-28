@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Http } from '@ez4/gateway';
 
 export declare class TestService extends Http.Service {
@@ -6,8 +6,10 @@ export declare class TestService extends Http.Service {
 
   defaults: Http.UseDefaults<{
     listener: typeof testListener;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     architecture: ArchitectureType.x86;
     runtime: RuntimeType.Node22;
+    logLevel: LogLevel.Error;
     logRetention: 14;
     timeout: 15;
     memory: 192;

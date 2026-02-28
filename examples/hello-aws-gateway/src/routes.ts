@@ -6,6 +6,7 @@ import type { postHandler } from './endpoints/post';
 import type { patchHandler } from './endpoints/patch';
 import type { putHandler } from './endpoints/put';
 import type { getHandler } from './endpoints/get';
+import type { getStaticHandler } from './endpoints/get-static';
 import type { deleteHandler } from './endpoints/delete';
 import type { rawHandler } from './endpoints/raw';
 
@@ -75,5 +76,11 @@ export type AllRoutes = [
     name: 'rawRoute';
     path: 'ANY /raw-route/{proxy+}';
     handler: typeof rawHandler;
+  }>,
+  Http.UseRoute<{
+    path: 'GET /get-static-route';
+    handler: typeof getStaticHandler;
+    files: ['files/static.json'];
+    cors: true;
   }>
 ];

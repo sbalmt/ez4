@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { QueueSubscriptionListener } from './listener';
 import type { QueueSubscriptionHandler } from './handler';
@@ -19,14 +19,14 @@ export interface QueueSubscription<T extends QueueMessage> {
   readonly handler: QueueSubscriptionHandler<T>;
 
   /**
-   * Maximum number of concurrent executions handlers.
-   */
-  readonly concurrency?: number;
-
-  /**
    * Maximum number of messages per handler invocation.
    */
   readonly batch?: number;
+
+  /**
+   * Maximum number of concurrent executions handlers.
+   */
+  readonly concurrency?: number;
 
   /**
    * Variables associated to the subscription.
@@ -39,9 +39,9 @@ export interface QueueSubscription<T extends QueueMessage> {
   readonly logRetention?: number;
 
   /**
-   * Amount of memory available (in megabytes) for the handler.
+   * Log level for the handler.
    */
-  readonly memory?: number;
+  readonly logLevel?: LogLevel;
 
   /**
    * Architecture for the handler.
@@ -52,6 +52,16 @@ export interface QueueSubscription<T extends QueueMessage> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Amount of memory available (in megabytes) for the handler.
+   */
+  readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the subscription.

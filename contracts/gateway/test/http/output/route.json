@@ -13,6 +13,7 @@
     "routes": [
       {
         "path": "ANY /test-route-1",
+        "logLevel": "debug",
         "logRetention": 7,
         "disabled": true,
         "runtime": "node24",
@@ -20,7 +21,7 @@
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            39,
+            42,
             1
           ],
           "response": {
@@ -35,7 +36,7 @@
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            45,
+            48,
             1
           ],
           "response": {
@@ -44,6 +45,10 @@
         },
         "timeout": 30,
         "memory": 512,
+        "files": [
+          "path/to/file-a.txt",
+          "path/to/file-b.json"
+        ],
         "variables": {
           "TEST_VAR": "test-literal-value"
         }
@@ -54,7 +59,7 @@
           "name": "testRoute3",
           "file": "test/http/input/output-route.ts",
           "position": [
-            57,
+            60,
             1
           ],
           "response": {

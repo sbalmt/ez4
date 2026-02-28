@@ -4,6 +4,7 @@ import { escapeSqlName, escapeSqlNames } from '../../utils/escape';
 
 export class SqlUniqueConstraintClause {
   #state: {
+    validate?: boolean;
     constraint: SqlConstraintClause;
     columns: string[];
   };
@@ -25,14 +26,24 @@ export class SqlUniqueConstraintClause {
     return this;
   }
 
+  validate(validate?: boolean) {
+    this.#state.validate = validate;
+
+    return this;
+  }
+
   build() {
-    const { constraint, columns } = this.#state;
+    const { validate, constraint, columns } = this.#state;
 
     if (!constraint.building) {
       return constraint.build();
     }
 
     const clause = ['ADD CONSTRAINT', escapeSqlName(constraint.name), 'UNIQUE', `(${escapeSqlNames(columns)})`];
+
+    if (validate === false) {
+      clause.push('NOT', 'VALID');
+    }
 
     return clause.join(' ');
   }

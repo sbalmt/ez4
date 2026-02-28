@@ -6,6 +6,7 @@ import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResour
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
+import { ClusterDeletionDeniedError } from './errors';
 import { ClusterServiceName } from './types';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
@@ -83,21 +84,21 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
 const deleteResource = async (current: ClusterState, context: StepContext) => {
   const { result, parameters } = current;
 
-  const allowDeletion = !!parameters.allowDeletion;
+  if (result) {
+    const { clusterName, allowDeletion } = parameters;
 
-  if (!result || (!allowDeletion && !context.force)) {
-    return;
+    await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+      if (!allowDeletion && !context.force) {
+        throw new ClusterDeletionDeniedError(clusterName);
+      }
+
+      if (!allowDeletion) {
+        await updateDeletion(logger, clusterName, true);
+      }
+
+      await deleteCluster(logger, clusterName);
+    });
   }
-
-  const clusterName = parameters.clusterName;
-
-  await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
-    if (!allowDeletion) {
-      await updateDeletion(logger, clusterName, true);
-    }
-
-    await deleteCluster(logger, clusterName);
-  });
 };
 
 const checkDeletionUpdates = async (

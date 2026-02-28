@@ -36,10 +36,11 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              55,
+              58,
               1
             ]
           },
+          "logLevel": "debug",
           "logRetention": 14,
           "timeout": 10,
           "memory": 256
@@ -64,10 +65,14 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              55,
+              58,
               1
             ]
           },
+          "files": [
+            "path/to/file-a.txt",
+            "path/to/file-b.json"
+          ],
           "variables": {
             "TEST_VAR": "test-literal-value"
           }

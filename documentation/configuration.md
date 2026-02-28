@@ -7,7 +7,7 @@ The project configuration is held by the `ez4.project.js`, and every project tha
 The file needs to look like the one below; you can pick only the properties that make sense for your project.
 
 ```js
-import { ArchitectureType, RuntimeType } from '@ez4/project';
+import { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 
 /**
  * @type {import('@ez4/project').ProjectOptions}
@@ -33,6 +33,7 @@ export default {
 
   // Configure the default options for all resource contracts
   defaultOptions: {
+    logLevel: LogLevel.Debug, // Default log level for all handlers
     logRetention: 15, // Default log retention (in days) for all handlers
     architecture: ArchitectureType.Arm, // Default architecture for all handlers
     runtime: RuntimeType.Node24, // Default runtime for all handlers

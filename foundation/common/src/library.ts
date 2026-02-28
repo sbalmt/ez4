@@ -23,6 +23,7 @@ export * from './metadata/runtime';
 export * from './metadata/variables';
 export * from './metadata/architecture';
 export * from './metadata/listener';
+export * from './metadata/logging';
 export * from './metadata/types';
 
 export * from './virtual/types';

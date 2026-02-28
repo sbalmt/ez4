@@ -59,15 +59,16 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
         }
       ],
-      indexes: [],
+      validations: [],
       relations: [],
-      tables: []
+      indexes: []
     });
   });
 
@@ -85,15 +86,15 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
-        }
-      ],
-      indexes: [],
+      tables: [],
+      constraints: [],
+      validations: [],
       relations: [],
-      tables: []
+      indexes: [
+        {
+          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+        }
+      ]
     });
   });
 
@@ -111,14 +112,15 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
+      constraints: [],
+      validations: [],
+      relations: [],
       indexes: [
         {
           query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
         }
-      ],
-      constraints: [],
-      relations: [],
-      tables: []
+      ]
     });
   });
 
@@ -136,15 +138,16 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
           query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
         }
       ],
-      indexes: [],
+      validations: [],
       relations: [],
-      tables: []
+      indexes: []
     });
   });
 
@@ -162,15 +165,15 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
-        }
-      ],
-      indexes: [],
+      tables: [],
+      constraints: [],
+      validations: [],
       relations: [],
-      tables: []
+      indexes: [
+        {
+          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")'
+        }
+      ]
     });
   });
 
@@ -188,14 +191,15 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
+      constraints: [],
+      validations: [],
+      relations: [],
       indexes: [
         {
           query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
         }
-      ],
-      constraints: [],
-      relations: [],
-      tables: []
+      ]
     });
   });
 
@@ -213,14 +217,15 @@ describe('migration :: create index tests', () => {
     const queries = getUpdateQueries(targetTable, sourceTable);
 
     deepEqual(queries, {
+      tables: [],
+      constraints: [],
+      validations: [],
+      relations: [],
       indexes: [
         {
           query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
         }
-      ],
-      constraints: [],
-      relations: [],
-      tables: []
+      ]
     });
   });
 });

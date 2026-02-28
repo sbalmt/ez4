@@ -5,8 +5,8 @@ import type { PgIndexRepository } from '../types/repository';
 import { Index } from '@ez4/database';
 
 export const getPrimaryIndex = (indexes: PgIndexRepository) => {
-  for (const indexName in indexes) {
-    const currentIndex = indexes[indexName];
+  for (const indexKey in indexes) {
+    const currentIndex = indexes[indexKey];
 
     if (currentIndex.type === Index.Primary) {
       return currentIndex.columns;

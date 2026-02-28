@@ -43,8 +43,10 @@ export namespace Client {
     const { database, password, user, host, port, ssl } = connection;
 
     return new Pool({
-      connectionTimeoutMillis: 10000,
       allowExitOnIdle: true,
+      connectionTimeoutMillis: 10000,
+      idleTimeoutMillis: 15000,
+      maxUses: 500,
       min: 0,
       max: 2,
       database,

@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 
 import {
@@ -23,19 +23,23 @@ import {
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
 
 import { getLambdaClient, getLambdaWaiter } from '../utils/deploy';
-import { getFunctionRuntime } from '../utils/runtime';
 import { getFunctionArchitecture } from '../utils/architecture';
+import { getFunctionRuntime } from '../utils/runtime';
+import { FunctionDefaults } from '../utils/defaults';
 import { assertVariables } from './helpers/variables';
+import { getLogLevel } from './helpers/logging';
 import { getZipBuffer } from './helpers/zip';
 import { getDefaultVpcConfig } from './utils';
 
 export type CreateRequest = {
   roleArn: Arn;
+  files?: string[];
   sourceFile: string;
   functionName: string;
   handlerName: string;
   description?: string;
   logGroup?: string;
+  logLevel?: LogLevel;
   variables?: LinkedVariables;
   architecture: ArchitectureType;
   runtime: RuntimeType;
@@ -66,8 +70,9 @@ export type UpdateConfigurationRequest = {
 };
 
 export type UpdateSourceCodeRequest = {
-  architecture?: ArchitectureType;
+  files?: string[];
   sourceFile: string;
+  architecture?: ArchitectureType;
   publish?: boolean;
 };
 
@@ -113,10 +118,10 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
 
   const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
+  const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
   const handlerName = getSourceHandlerName(request.handlerName);
-  const sourceFile = await getSourceZipFile(request.sourceFile);
 
-  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup } = request;
+  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -141,7 +146,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
         },
         LoggingConfig: {
           LogGroup: logGroup,
-          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
           SystemLogLevel: SystemLogLevel.Warn,
           LogFormat: LogFormat.Json
         },
@@ -186,7 +191,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
 export const updateSourceCode = async (logger: OperationLogLine, functionName: string, request: UpdateSourceCodeRequest) => {
   logger.update(`Updating source code`);
 
-  const sourceFile = await getSourceZipFile(request.sourceFile);
+  const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
 
   const { publish, architecture } = request;
 
@@ -340,8 +345,8 @@ export const untagFunction = async (logger: OperationLogLine, functionArn: Arn, 
   );
 };
 
-const getSourceZipFile = (sourceFile: string) => {
-  return getZipBuffer(sourceFile, `main.mjs`);
+const getSourceZipFile = (sourceFile: string, additionalFiles?: string[]) => {
+  return getZipBuffer(sourceFile, `main.mjs`, additionalFiles);
 };
 
 const getSourceHandlerName = (handlerName: string) => {

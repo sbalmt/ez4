@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronListener } from './listener';
 import type { CronHandler } from './handler';
@@ -29,14 +29,9 @@ export interface CronTarget<T extends CronEvent | null> {
   readonly logRetention?: number;
 
   /**
-   * Max execution time (in seconds) for the handler.
+   * Log level for the handler.
    */
-  readonly timeout?: number;
-
-  /**
-   * Amount of memory available (in megabytes) for the handler.
-   */
-  readonly memory?: number;
+  readonly logLevel?: LogLevel;
 
   /**
    * Architecture for the handler.
@@ -47,6 +42,21 @@ export interface CronTarget<T extends CronEvent | null> {
    * Runtime for the handler.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Max execution time (in seconds) for the handler.
+   */
+  readonly timeout?: number;
+
+  /**
+   * Amount of memory available (in megabytes) for the handler.
+   */
+  readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the target.
