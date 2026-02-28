@@ -70,7 +70,7 @@ describe('migration :: client index tests', async () => {
     }
   };
 
-  it('assert :: create index', async () => {
+  it('assert :: create tables', async () => {
     const queries = getCreateQueries(repositoryV1);
 
     await runMigration(client, queries);
