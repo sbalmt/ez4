@@ -25,8 +25,8 @@ export namespace IndexQueries {
       indexes: []
     };
 
-    for (const indexName in indexes) {
-      const { columns, type } = indexes[indexName];
+    for (const indexKey in indexes) {
+      const { columns, type, name: indexName } = indexes[indexKey];
 
       switch (type) {
         default:
@@ -119,8 +119,8 @@ export namespace IndexQueries {
       indexes: []
     };
 
-    for (const indexName in indexes) {
-      const { type } = indexes[indexName];
+    for (const indexKey in indexes) {
+      const { type, name: indexName } = indexes[indexKey];
 
       switch (type) {
         default:
@@ -178,8 +178,8 @@ export namespace IndexQueries {
       indexes: []
     };
 
-    for (const indexName in indexes) {
-      const { type } = indexes[indexName];
+    for (const indexKey in indexes) {
+      const { type, name: indexName } = indexes[indexKey];
 
       switch (type) {
         default:

@@ -34,7 +34,10 @@ describe('migration :: client index tests', async () => {
             type: SchemaType.String,
             format: 'uuid'
           },
-          column: {
+          column_a: {
+            type: SchemaType.String
+          },
+          column_b: {
             type: SchemaType.String
           }
         }
@@ -54,27 +57,41 @@ describe('migration :: client index tests', async () => {
       ...repositoryV1.table,
       indexes: {
         ...repositoryV1.table.indexes,
-        column: {
+        column_a: {
           type: Index.Secondary,
-          columns: ['column'],
-          name: 'column'
+          columns: ['column_a'],
+          name: 'column_a'
         }
       }
     }
   };
 
   const repositoryV3: PgTableRepository = {
-    renamed_table: {
+    table: {
       ...repositoryV2.table,
-      name: 'renamed_table'
+      indexes: {
+        ...repositoryV2.table.indexes,
+        column_b: {
+          type: Index.Unique,
+          columns: ['column_b'],
+          name: 'column_b'
+        }
+      }
     }
   };
 
   const repositoryV4: PgTableRepository = {
     renamed_table: {
-      ...repositoryV3.renamed_table,
+      ...repositoryV3.table,
+      name: 'renamed_table'
+    }
+  };
+
+  const repositoryV5: PgTableRepository = {
+    renamed_table: {
+      ...repositoryV4.renamed_table,
       indexes: {
-        id: repositoryV3.renamed_table.indexes.id
+        id: repositoryV4.renamed_table.indexes.id
       }
     }
   };
@@ -87,13 +104,14 @@ describe('migration :: client index tests', async () => {
     const result = await Promise.all([
       tableExists(client, 'table'),
       constraintExists(client, 'table_id_pk'),
-      indexExists(client, 'table_column_sk')
+      indexExists(client, 'table_column_a_sk'),
+      constraintExists(client, 'table_column_b_uk')
     ]);
 
-    deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], []]);
+    deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [], []]);
   });
 
-  it('assert :: create index', async () => {
+  it('assert :: create index (secondary)', async () => {
     const queries = getUpdateQueries(repositoryV2, repositoryV1);
 
     await runMigration(client, queries);
@@ -101,27 +119,29 @@ describe('migration :: client index tests', async () => {
     const result = await Promise.all([
       tableExists(client, 'table'),
       constraintExists(client, 'table_id_pk'),
-      indexExists(client, 'table_column_sk')
+      indexExists(client, 'table_column_a_sk'),
+      constraintExists(client, 'table_column_b_uk')
     ]);
 
-    deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [{ table_column_sk: true }]]);
+    deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [{ table_column_a_sk: true }], []]);
   });
 
-  it('assert :: rename tables', async () => {
+  it('assert :: create index (unique)', async () => {
     const queries = getUpdateQueries(repositoryV3, repositoryV2);
 
     await runMigration(client, queries);
 
     const result = await Promise.all([
-      tableExists(client, 'renamed_table'),
-      constraintExists(client, 'renamed_table_id_pk'),
-      indexExists(client, 'renamed_table_column_sk')
+      tableExists(client, 'table'),
+      constraintExists(client, 'table_id_pk'),
+      indexExists(client, 'table_column_a_sk'),
+      constraintExists(client, 'table_column_b_uk')
     ]);
 
-    deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], [{ renamed_table_column_sk: true }]]);
+    deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [{ table_column_a_sk: true }], [{ table_column_b_uk: true }]]);
   });
 
-  it('assert :: delete index', async () => {
+  it('assert :: rename tables', async () => {
     const queries = getUpdateQueries(repositoryV4, repositoryV3);
 
     await runMigration(client, queries);
@@ -129,23 +149,45 @@ describe('migration :: client index tests', async () => {
     const result = await Promise.all([
       tableExists(client, 'renamed_table'),
       constraintExists(client, 'renamed_table_id_pk'),
-      indexExists(client, 'renamed_table_column_sk')
+      indexExists(client, 'renamed_table_column_a_sk'),
+      constraintExists(client, 'renamed_table_column_b_uk')
     ]);
 
-    deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], []]);
+    deepEqual(result, [
+      [{ renamed_table: true }],
+      [{ renamed_table_id_pk: true }],
+      [{ renamed_table_column_a_sk: true }],
+      [{ renamed_table_column_b_uk: true }]
+    ]);
   });
 
-  it('assert :: delete tables', async () => {
-    const queries = getDeleteQueries(repositoryV4);
+  it('assert :: delete indexes', async () => {
+    const queries = getUpdateQueries(repositoryV5, repositoryV4);
 
     await runMigration(client, queries);
 
     const result = await Promise.all([
       tableExists(client, 'renamed_table'),
       constraintExists(client, 'renamed_table_id_pk'),
-      indexExists(client, 'renamed_table_column_sk')
+      indexExists(client, 'renamed_table_column_a_sk'),
+      constraintExists(client, 'renamed_table_column_b_sk')
     ]);
 
-    deepEqual(result, [[], [], []]);
+    deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], [], []]);
+  });
+
+  it('assert :: delete tables', async () => {
+    const queries = getDeleteQueries(repositoryV5);
+
+    await runMigration(client, queries);
+
+    const result = await Promise.all([
+      tableExists(client, 'renamed_table'),
+      constraintExists(client, 'renamed_table_id_pk'),
+      indexExists(client, 'renamed_table_column_a_sk'),
+      constraintExists(client, 'renamed_table_column_b_sk')
+    ]);
+
+    deepEqual(result, [[], [], [], []]);
   });
 });
