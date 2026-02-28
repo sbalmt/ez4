@@ -70,6 +70,15 @@ describe('migration :: client index tests', async () => {
     }
   };
 
+  const repositoryV4: PgTableRepository = {
+    renamed_table: {
+      ...repositoryV3.renamed_table,
+      indexes: {
+        id: repositoryV3.renamed_table.indexes.id
+      }
+    }
+  };
+
   it('assert :: create tables', async () => {
     const queries = getCreateQueries(repositoryV1);
 
@@ -84,7 +93,7 @@ describe('migration :: client index tests', async () => {
     deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], []]);
   });
 
-  it('assert :: update index', async () => {
+  it('assert :: create index', async () => {
     const queries = getUpdateQueries(repositoryV2, repositoryV1);
 
     await runMigration(client, queries);
@@ -112,8 +121,22 @@ describe('migration :: client index tests', async () => {
     deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], [{ renamed_table_column_sk: true }]]);
   });
 
+  it('assert :: delete index', async () => {
+    const queries = getUpdateQueries(repositoryV4, repositoryV3);
+
+    await runMigration(client, queries);
+
+    const result = await Promise.all([
+      tableExists(client, 'renamed_table'),
+      constraintExists(client, 'renamed_table_id_pk'),
+      indexExists(client, 'renamed_table_column_sk')
+    ]);
+
+    deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], []]);
+  });
+
   it('assert :: delete tables', async () => {
-    const queries = getDeleteQueries(repositoryV3);
+    const queries = getDeleteQueries(repositoryV4);
 
     await runMigration(client, queries);
 
