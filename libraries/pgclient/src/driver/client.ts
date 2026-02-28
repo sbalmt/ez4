@@ -99,7 +99,7 @@ export class ClientDriver implements PgClientDriver {
     const client = await this.#pool.connect();
 
     try {
-      await client.query('BEGIN');
+      await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
       POOL_CLIENTS[transactionId] = client;
       return transactionId;
     } catch (error) {
