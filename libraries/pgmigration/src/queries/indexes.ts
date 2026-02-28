@@ -13,13 +13,7 @@ import { getCheckConstraintQuery } from '../utils/checks';
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
 
 export namespace IndexQueries {
-  export const prepareCreate = (
-    builder: SqlBuilder,
-    table: string,
-    schema: ObjectSchema,
-    indexes: PgIndexRepository,
-    concurrent: boolean
-  ) => {
+  export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, indexes: PgIndexRepository) => {
     const statements: IndexMigrationQueries = {
       constraints: [],
       indexes: []
@@ -46,10 +40,11 @@ export namespace IndexQueries {
 
         case Index.Unique: {
           const name = getUniqueKeyName(table, indexName);
-          const query = builder.table(table).alter().existing().constraint(name).unique(columns);
+          const type = getIndexType(columns, schema);
 
-          statements.constraints.push({
-            check: getCheckConstraintQuery(builder, name),
+          const query = builder.index(name).create(table, columns).type(type).unique().concurrent().missing();
+
+          statements.indexes.push({
             query: query.build()
           });
 
@@ -60,11 +55,7 @@ export namespace IndexQueries {
           const name = getSecondaryKeyName(table, indexName);
           const type = getIndexType(columns, schema);
 
-          const query = builder.index(name).create(table, columns).type(type).missing();
-
-          if (concurrent) {
-            query.concurrent();
-          }
+          const query = builder.index(name).create(table, columns).type(type).concurrent().missing();
 
           statements.indexes.push({
             query: query.build()
@@ -84,8 +75,7 @@ export namespace IndexQueries {
     schema: ObjectSchema,
     sourceIndexes: PgIndexRepository,
     targetIndexes: PgIndexRepository,
-    changes: Record<string, ObjectComparison>,
-    concurrent: boolean
+    changes: Record<string, ObjectComparison>
   ) => {
     const statements: IndexMigrationQueries = {
       constraints: [],
@@ -103,7 +93,7 @@ export namespace IndexQueries {
       }
 
       if (create || update) {
-        const operation = prepareCreate(builder, table, schema, { [indexName]: targetIndexes[indexName] }, concurrent);
+        const operation = prepareCreate(builder, table, schema, { [indexName]: targetIndexes[indexName] });
 
         statements.constraints.push(...operation.constraints);
         statements.indexes.push(...operation.indexes);
@@ -144,10 +134,9 @@ export namespace IndexQueries {
           const fromName = getUniqueKeyName(fromTable, indexName);
           const toName = getUniqueKeyName(toTable, indexName);
 
-          const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
+          const query = builder.index(fromName).rename(toName).existing();
 
-          statements.constraints.push({
-            check: getCheckConstraintQuery(builder, toName),
+          statements.indexes.push({
             query: query.build()
           });
 
@@ -198,9 +187,9 @@ export namespace IndexQueries {
 
         case Index.Unique: {
           const name = getUniqueKeyName(table, indexName);
-          const query = builder.table(table).alter().existing().constraint(name).drop().existing();
+          const query = builder.index(name).drop().existing().concurrent();
 
-          statements.constraints.push({
+          statements.indexes.push({
             query: query.build()
           });
 

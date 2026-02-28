@@ -67,14 +67,14 @@ describe('migration :: delete index tests', () => {
 
     deepEqual(queries, {
       tables: [],
-      constraints: [
-        {
-          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
-        }
-      ],
+      constraints: [],
       validations: [],
       relations: [],
-      indexes: []
+      indexes: [
+        {
+          query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
+        }
+      ]
     });
   });
 

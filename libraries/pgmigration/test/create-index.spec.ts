@@ -87,15 +87,14 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries, {
       tables: [],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
-        }
-      ],
+      constraints: [],
       validations: [],
       relations: [],
-      indexes: []
+      indexes: [
+        {
+          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+        }
+      ]
     });
   });
 
@@ -167,15 +166,14 @@ describe('migration :: create index tests', () => {
 
     deepEqual(queries, {
       tables: [],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column_a", "column_b")`
-        }
-      ],
+      constraints: [],
       validations: [],
       relations: [],
-      indexes: []
+      indexes: [
+        {
+          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")'
+        }
+      ]
     });
   });
 

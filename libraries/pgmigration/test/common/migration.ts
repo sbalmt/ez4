@@ -3,10 +3,11 @@ import type { Database, Client as DbClient } from '@ez4/database';
 
 export const runMigration = async (client: DbClient<Database.Service>, queries: PgMigrationQueries) => {
   await client.transaction((transaction: DbClient<Database.Service>) => {
-    return runStatements(transaction, [...queries.tables, ...queries.constraints, ...queries.relations]);
+    return runStatements(transaction, [...queries.tables, ...queries.constraints]);
   });
 
   await runStatements(client, queries.indexes);
+  await runStatements(client, queries.relations);
   await runStatements(client, queries.validations);
 };
 

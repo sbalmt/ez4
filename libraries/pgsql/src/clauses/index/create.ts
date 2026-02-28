@@ -6,6 +6,7 @@ export class SqlCreateIndexClause {
   #state: {
     index: SqlIndexStatement;
     concurrently?: boolean;
+    unique?: boolean;
     check: boolean;
     columns: string[];
     table: string;
@@ -41,6 +42,12 @@ export class SqlCreateIndexClause {
     return this;
   }
 
+  unique(apply = true) {
+    this.#state.unique = apply;
+
+    return this;
+  }
+
   columns(columns: string[]) {
     this.#state.columns = columns;
 
@@ -60,9 +67,15 @@ export class SqlCreateIndexClause {
   }
 
   build() {
-    const { index, table, check, concurrently, columns, type } = this.#state;
+    const { index, table, check, concurrently, unique, columns, type } = this.#state;
 
-    const statement = ['CREATE', 'INDEX'];
+    const statement = ['CREATE'];
+
+    if (unique) {
+      statement.push('UNIQUE');
+    }
+
+    statement.push('INDEX');
 
     if (concurrently) {
       statement.push('CONCURRENTLY');

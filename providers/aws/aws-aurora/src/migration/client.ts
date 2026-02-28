@@ -58,13 +58,11 @@ export const createTables = async (logger: OperationLogLine, request: CreateTabl
 
   const queries = getCreateQueries(repository);
 
-  await executeMigrationTransaction(driver, [
-    ...queries.tables,
-    ...queries.constraints,
-    ...queries.relations,
-    ...queries.indexes,
-    ...queries.validations
-  ]);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints]);
+
+  await executeMigrationStatements(driver, queries.indexes);
+  await executeMigrationStatements(driver, queries.relations);
+  await executeMigrationValidations(logger, driver, queries.validations);
 };
 
 export const updateTables = async (logger: OperationLogLine, request: UpdateTableRequest): Promise<void> => {
@@ -80,9 +78,10 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
 
   const queries = getUpdateQueries(repository.target, repository.source);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations]);
-  await executeMigrationStatements(driver, queries.indexes);
+  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints]);
 
+  await executeMigrationStatements(driver, queries.indexes);
+  await executeMigrationStatements(driver, queries.relations);
   await executeMigrationValidations(logger, driver, queries.validations);
 };
 

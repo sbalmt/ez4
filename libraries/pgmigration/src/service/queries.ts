@@ -28,7 +28,7 @@ export const getCreateQueries = (target: PgTableRepository) => {
     queries.relations.push(...RelationQuery.prepareCreate(builder, name, schema, relations));
 
     combineQueries(queries, ConstraintQuery.prepareCreate(builder, name, schema.properties));
-    combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes, false));
+    combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes));
   }
 
   return queries;
@@ -107,13 +107,13 @@ export const getUpdateQueries = (target: PgTableRepository, source: PgTableRepos
       }
 
       if (indexChanges?.create) {
-        combineQueries(queries, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create, true));
+        combineQueries(queries, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
       }
 
       if (indexChanges?.nested) {
         combineQueries(
           queries,
-          IndexQueries.prepareUpdate(builder, table, targetSchema, sourceIndexes, targetIndexes, indexChanges.nested, true)
+          IndexQueries.prepareUpdate(builder, table, targetSchema, sourceIndexes, targetIndexes, indexChanges.nested)
         );
       }
 

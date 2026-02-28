@@ -105,7 +105,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'table'),
       constraintExists(client, 'table_id_pk'),
       indexExists(client, 'table_column_a_sk'),
-      constraintExists(client, 'table_column_b_uk')
+      indexExists(client, 'table_column_b_uk')
     ]);
 
     deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [], []]);
@@ -120,7 +120,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'table'),
       constraintExists(client, 'table_id_pk'),
       indexExists(client, 'table_column_a_sk'),
-      constraintExists(client, 'table_column_b_uk')
+      indexExists(client, 'table_column_b_uk')
     ]);
 
     deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [{ table_column_a_sk: true }], []]);
@@ -135,7 +135,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'table'),
       constraintExists(client, 'table_id_pk'),
       indexExists(client, 'table_column_a_sk'),
-      constraintExists(client, 'table_column_b_uk')
+      indexExists(client, 'table_column_b_uk')
     ]);
 
     deepEqual(result, [[{ table: true }], [{ table_id_pk: true }], [{ table_column_a_sk: true }], [{ table_column_b_uk: true }]]);
@@ -150,7 +150,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'renamed_table'),
       constraintExists(client, 'renamed_table_id_pk'),
       indexExists(client, 'renamed_table_column_a_sk'),
-      constraintExists(client, 'renamed_table_column_b_uk')
+      indexExists(client, 'renamed_table_column_b_uk')
     ]);
 
     deepEqual(result, [
@@ -170,7 +170,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'renamed_table'),
       constraintExists(client, 'renamed_table_id_pk'),
       indexExists(client, 'renamed_table_column_a_sk'),
-      constraintExists(client, 'renamed_table_column_b_sk')
+      indexExists(client, 'renamed_table_column_b_uk')
     ]);
 
     deepEqual(result, [[{ renamed_table: true }], [{ renamed_table_id_pk: true }], [], []]);
@@ -185,7 +185,7 @@ describe('migration :: client index tests', async () => {
       tableExists(client, 'renamed_table'),
       constraintExists(client, 'renamed_table_id_pk'),
       indexExists(client, 'renamed_table_column_a_sk'),
-      constraintExists(client, 'renamed_table_column_b_sk')
+      indexExists(client, 'renamed_table_column_b_uk')
     ]);
 
     deepEqual(result, [[], [], [], []]);
