@@ -15,13 +15,11 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const { database } = connection;
 
-  const client = getClient(connection);
-
   const freshCreation = options.force || options.reset;
-
   const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
 
   const queries = getUpdateQueries(repository, oldRepository);
+  const client = getClient(connection);
 
   await client.transaction((transaction: DbClient<Database.Service>) => {
     return runAllStatements(transaction, [...queries.tables, ...queries.constraints]);

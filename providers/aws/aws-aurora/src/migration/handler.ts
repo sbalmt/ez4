@@ -6,6 +6,7 @@ import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
+import { getRepositoryStub } from '../utils/database';
 import { createDatabase, deleteDatabase, createTables, updateTables } from './client';
 import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
@@ -27,7 +28,10 @@ const previewResource = (candidate: MigrationState, current: MigrationState, opt
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const databaseChanges = getTableRepositoryChanges(target.repository, options.force ? {} : source.repository);
+  const sourceRepository = options.force ? getRepositoryStub(source.repository) : source.repository;
+  const targetRepository = target.repository;
+
+  const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
   const resourceChanges = deepCompare(target, source, {
     exclude: {
@@ -86,8 +90,8 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
     throw new CorruptedResourceError(MigrationServiceName, database);
   }
 
+  const sourceRepository = context.force ? getRepositoryStub(current.parameters.repository) : current.parameters.repository;
   const targetRepository = parameters.repository;
-  const sourceRepository = context.force ? {} : current.parameters.repository;
 
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
