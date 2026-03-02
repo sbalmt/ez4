@@ -7,16 +7,32 @@ import { getEntry, getEntryDependencies, getEntryConnections, getEntryDependents
 import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
 import { StepAction } from './step';
 
+export type ApplyOptions<E extends EntryState> = {
+  /**
+   * Specify a function to be invoked every time a step completes.
+   */
+  onProgress?: (applied: number, total: number) => void;
+
+  /**
+   * All the step handlers mapped by type.
+   */
+  handlers: StepHandlers<E>;
+
+  /**
+   * Number of changes processed at the same time.
+   * Default is `5`
+   */
+  concurrency?: number;
+
+  /**
+   * Determines whether or not the apply is forced.
+   */
+  force?: boolean;
+};
+
 export type ApplyResult<E extends EntryState = EntryState> = {
   result: EntryStates<E>;
   errors: Error[];
-};
-
-export type ApplyOptions<E extends EntryState> = {
-  onProgress?: (applied: number, total: number) => void;
-  handlers: StepHandlers<E>;
-  concurrency?: number;
-  force?: boolean;
 };
 
 export const applySteps = async <E extends EntryState>(
@@ -29,7 +45,7 @@ export const applySteps = async <E extends EntryState>(
     throw new EntriesNotFoundError();
   }
 
-  const { handlers, onProgress, concurrency = 15, force = false } = options;
+  const { handlers, onProgress, concurrency = 5, force = false } = options;
 
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
