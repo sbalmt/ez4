@@ -3,10 +3,8 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { PgExecuteOptions } from '@ez4/pgclient';
 
-import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
-import { Wait } from '@ez4/utils';
 
 import { DataClientDriver } from '../client/driver';
 
@@ -59,10 +57,7 @@ export const createTables = async (logger: OperationLogLine, request: CreateTabl
   const queries = getCreateQueries(repository);
 
   await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints]);
-
-  await executeMigrationStatements(driver, queries.indexes);
-  await executeMigrationStatements(driver, queries.relations);
-  await executeMigrationValidations(logger, driver, queries.validations);
+  await executeMigrationStatements(driver, [...queries.indexes, ...queries.relations]);
 };
 
 export const updateTables = async (logger: OperationLogLine, request: UpdateTableRequest): Promise<void> => {
@@ -79,10 +74,7 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
   const queries = getUpdateQueries(repository.target, repository.source);
 
   await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints]);
-
-  await executeMigrationStatements(driver, queries.indexes);
-  await executeMigrationStatements(driver, queries.relations);
-  await executeMigrationValidations(logger, driver, queries.validations);
+  await executeMigrationStatements(driver, [...queries.indexes, ...queries.relations]);
 };
 
 export const deleteTables = async (logger: OperationLogLine, request: DeleteTableRequest): Promise<void> => {
@@ -130,48 +122,6 @@ const executeMigrationTransaction = async (driver: DataClientDriver, statements:
   } catch (error) {
     await driver.rollbackTransaction(transactionId);
     throw error;
-  }
-};
-
-const executeMigrationValidations = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
-  let counter = 0;
-
-  for (const statement of validations) {
-    logger.update(`Validating constraints (${++counter} of ${validations.length})`);
-
-    await Wait.until(async (attempt) => {
-      try {
-        if (attempt > 1) {
-          if (!statement.check) {
-            throw new Error(`Missing validation check query.`);
-          }
-
-          const { records } = await driver.executeStatement({
-            query: statement.check
-          });
-
-          const [isValidated] = records;
-
-          if (!isValidated) {
-            return Wait.RetryAttempt;
-          }
-
-          return true;
-        }
-
-        return await executeMigrationStatement(driver, statement, {
-          noErrorLog: true,
-          noTimeout: true
-        });
-        //
-      } catch (error) {
-        if (error instanceof StatementTimeoutException) {
-          return Wait.RetryAttempt;
-        }
-
-        throw error;
-      }
-    });
   }
 };
 

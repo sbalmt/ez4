@@ -59,8 +59,7 @@ const replaceResource = async (candidate: MigrationState, current: MigrationStat
 };
 
 const createResource = (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
-  const parameters = candidate.parameters;
-
+  const { parameters } = candidate;
   const { database } = parameters;
 
   return OperationLogger.logExecution(MigrationServiceName, database, 'creation', async (logger) => {
@@ -86,20 +85,20 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
   const { result, parameters } = candidate;
   const { database } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(MigrationServiceName, database);
-  }
-
-  const sourceRepository = context.force ? getRepositoryStub(current.parameters.repository) : current.parameters.repository;
-  const targetRepository = parameters.repository;
-
-  const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
-
-  if (!databaseChanges.counts) {
-    return Promise.resolve(result);
-  }
-
   return OperationLogger.logExecution(MigrationServiceName, database, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(MigrationServiceName, database);
+    }
+
+    const sourceRepository = context.force ? getRepositoryStub(current.parameters.repository) : current.parameters.repository;
+    const targetRepository = parameters.repository;
+
+    const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
+
+    if (!databaseChanges.counts) {
+      return Promise.resolve(result);
+    }
+
     await updateTables(logger, {
       database: parameters.database,
       clusterArn: result.clusterArn,

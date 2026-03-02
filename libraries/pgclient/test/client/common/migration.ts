@@ -6,8 +6,7 @@ export const runMigration = async (client: DbClient<Database.Service>, queries: 
     return runStatements(transaction, [...queries.tables, ...queries.constraints]);
   });
 
-  await runStatements(client, queries.indexes);
-  await runStatements(client, queries.relations);
+  await runStatements(client, [...queries.indexes, ...queries.relations]);
   await runStatements(client, queries.validations);
 };
 

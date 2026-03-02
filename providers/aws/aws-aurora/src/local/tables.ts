@@ -25,8 +25,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
     return runAllStatements(transaction, [...queries.tables, ...queries.constraints]);
   });
 
-  await runAllStatements(client, queries.indexes);
-  await runAllStatements(client, queries.relations);
+  await runAllStatements(client, [...queries.indexes, ...queries.relations]);
   await runAllStatements(client, queries.validations);
 
   await saveRepositoryState(database, repository);

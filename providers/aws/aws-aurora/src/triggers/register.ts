@@ -7,6 +7,7 @@ import { tryCreateTrigger } from '@ez4/project/library';
 import { registerClusterProvider } from '../cluster/provider';
 import { registerInstanceProvider } from '../instance/provider';
 import { registerMigrationProvider } from '../migration/provider';
+import { registerIntegrityProvider } from '../integrity/provider';
 import { prepareDatabaseServices, prepareLinkedServices } from './service';
 import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
 import { prepareExecutionPolicy } from './policy';
@@ -29,4 +30,5 @@ export const registerTriggers = () => {
   registerClusterProvider();
   registerInstanceProvider();
   registerMigrationProvider();
+  registerIntegrityProvider();
 };
