@@ -21,7 +21,7 @@ const equalsResource = (candidate: IntegrityState, current: IntegrityState) => {
   return !!candidate.result && candidate.parameters.getDatabase() === current.result?.database;
 };
 
-const previewResource = (candidate: IntegrityState, current: IntegrityState, _options: StepOptions) => {
+const previewResource = (candidate: IntegrityState, current: IntegrityState, options: StepOptions) => {
   const target = candidate.parameters;
   const source = current.parameters;
 
@@ -34,7 +34,9 @@ const previewResource = (candidate: IntegrityState, current: IntegrityState, _op
     {
       ...source,
       dependencies: current.dependencies,
-      integrityHash: current.result?.integrityHash
+      ...(!options.force && {
+        integrityHash: current.result?.integrityHash
+      })
     }
   );
 
@@ -99,7 +101,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     const newIntegrityHash = hashObject(targetRepository);
     const oldIntegrityHash = current.result?.integrityHash;
 
-    if (newIntegrityHash === oldIntegrityHash) {
+    if (newIntegrityHash === oldIntegrityHash && !context.force) {
       return result;
     }
 
