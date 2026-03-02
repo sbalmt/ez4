@@ -7,6 +7,7 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
 import { DataClientDriver } from '../client/driver';
+import { IntegrityCheckFailureError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -15,10 +16,7 @@ export type ConnectionRequest = {
 };
 
 export type ValidateChangesRequest = ConnectionRequest & {
-  repository: {
-    target: PgTableRepository;
-    source: PgTableRepository;
-  };
+  repository: PgTableRepository;
 };
 
 export const validateChanges = async (logger: OperationLogLine, request: ValidateChangesRequest): Promise<void> => {
@@ -32,12 +30,28 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
     database
   });
 
-  const queries = getUpdateQueries(repository.target, repository.source);
+  const queries = getUpdateQueries(repository, {});
 
-  await executeMigrationValidations(logger, driver, queries.validations);
+  const results = await executeConstraintChecks(logger, driver, queries.validations);
+
+  assertNoFailureErrors(results);
 };
 
-const executeMigrationValidations = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
+const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
+  const errors = [];
+
+  for (const result of results) {
+    if (result.status === TaskStatus.Failure) {
+      errors.push(`${result.error}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new IntegrityCheckFailureError(errors);
+  }
+};
+
+const executeConstraintChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
   const operations = validations.map(
     (statement) => () =>
       Wait.until(async (attempt) => {
@@ -72,20 +86,12 @@ const executeMigrationValidations = async (logger: OperationLogLine, driver: Dat
       })
   );
 
-  const results = await Tasks.safeRun(operations, {
+  return Tasks.safeRun(operations, {
     concurrency: 5,
     onProgress: (completed, total) => {
       logger.update(`Validating integrity (${completed} of ${total})`);
     }
   });
-
-  return results.reduce((accumulator, { status }) => {
-    if (status === TaskStatus.Success) {
-      return accumulator + 1;
-    }
-
-    return accumulator;
-  }, 0);
 };
 
 const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {

@@ -63,22 +63,17 @@ const createResource = (candidate: IntegrityState, context: StepContext): Promis
   return OperationLogger.logExecution(IntegrityServiceName, database, 'creation', async (logger) => {
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
-    const targetRepository = parameters.getRepository();
+    const repository = parameters.getRepository();
 
-    const request = {
-      database,
+    await validateChanges(logger, {
+      repository,
       clusterArn,
       secretArn,
-      repository: {
-        target: targetRepository,
-        source: {}
-      }
-    };
-
-    await validateChanges(logger, request);
+      database
+    });
 
     return {
-      integrityHash: hashObject(targetRepository),
+      integrityHash: hashObject(repository),
       database
     };
   });
@@ -106,13 +101,10 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     }
 
     await validateChanges(logger, {
-      database,
+      repository: parameters.getRepository(),
       clusterArn,
       secretArn,
-      repository: {
-        target: parameters.getRepository(),
-        source: {}
-      }
+      database
     });
 
     return {
