@@ -7,7 +7,7 @@ import { getUpdateQueries } from '@ez4/pgmigration';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
 import { DataClientDriver } from '../client/driver';
-import { IntegrityCheckFailureError } from './errors';
+import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -32,7 +32,7 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
 
   const queries = getUpdateQueries(repository, {});
 
-  const results = await executeConstraintChecks(logger, driver, queries.validations);
+  const results = await executeIntegrityChecks(logger, driver, queries.validations);
 
   assertNoFailureErrors(results);
 };
@@ -47,18 +47,18 @@ const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
   }
 
   if (errors.length > 0) {
-    throw new IntegrityCheckFailureError(errors);
+    throw new IntegrityCheckFailedError(errors);
   }
 };
 
-const executeConstraintChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
+const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
   const operations = validations.map(
     (statement) => () =>
       Wait.until(async (attempt) => {
         try {
           if (attempt > 1) {
             if (!statement.check) {
-              throw new Error(`Missing validation check query.`);
+              throw new Error(`Missing integrity check query.`);
             }
 
             const { records } = await driver.executeStatement({
@@ -109,10 +109,16 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
     }
   }
 
-  await driver.executeStatement(query, {
+  const { records } = await driver.executeStatement(query, {
     noErrorLog: true,
     noTimeout: true
   });
+
+  const [hasError] = records;
+
+  if (hasError) {
+    throw new IntegrityCheckError();
+  }
 
   return true;
 };

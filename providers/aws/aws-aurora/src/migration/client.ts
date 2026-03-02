@@ -1,7 +1,6 @@
 import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { PgExecuteOptions } from '@ez4/pgclient';
 
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
@@ -125,11 +124,7 @@ const executeMigrationTransaction = async (driver: DataClientDriver, statements:
   }
 };
 
-const executeMigrationStatement = async (
-  driver: DataClientDriver,
-  statement: PgMigrationStatement,
-  options?: Pick<PgExecuteOptions, 'noErrorLog' | 'noTimeout'>
-) => {
+const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
   const { check, ...query } = statement;
 
   if (check) {
@@ -144,7 +139,9 @@ const executeMigrationStatement = async (
     }
   }
 
-  await driver.executeStatement(query, options);
+  await driver.executeStatement(query, {
+    noErrorLog: true
+  });
 
   return true;
 };

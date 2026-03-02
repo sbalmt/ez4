@@ -88,7 +88,12 @@ describe('migration :: create index tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
-      validations: [],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = true AND "indisready" = true`,
+          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`
+        }
+      ],
       relations: [],
       indexes: [
         {
@@ -114,7 +119,12 @@ describe('migration :: create index tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
-      validations: [],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = true AND "indisready" = true`,
+          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`
+        }
+      ],
       relations: [],
       indexes: [
         {
@@ -167,7 +177,12 @@ describe('migration :: create index tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
-      validations: [],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = true AND "indisready" = true`,
+          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`
+        }
+      ],
       relations: [],
       indexes: [
         {
@@ -193,7 +208,12 @@ describe('migration :: create index tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
-      validations: [],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = true AND "indisready" = true`,
+          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`
+        }
+      ],
       relations: [],
       indexes: [
         {
@@ -219,7 +239,12 @@ describe('migration :: create index tests', () => {
     deepEqual(queries, {
       tables: [],
       constraints: [],
-      validations: [],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = true AND "indisready" = true`,
+          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`
+        }
+      ],
       relations: [],
       indexes: [
         {

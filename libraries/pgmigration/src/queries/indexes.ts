@@ -7,15 +7,16 @@ import type { PgMigrationQueries } from '../types/query';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { getCheckConstraintQuery, getCheckIndexIntegrityQuery, getCheckIndexValidationQuery } from '../utils/checks';
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
-import { getCheckConstraintQuery } from '../utils/checks';
 
-type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'indexes'>;
+type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
 export namespace IndexQueries {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, indexes: PgIndexRepository) => {
     const statements: IndexMigrationQueries = {
       constraints: [],
+      validations: [],
       indexes: []
     };
 
@@ -28,11 +29,10 @@ export namespace IndexQueries {
 
         case Index.Primary: {
           const name = getPrimaryKeyName(table, indexName);
-          const query = builder.table(table).alter().existing().constraint(name).primary(columns);
 
           statements.constraints.push({
             check: getCheckConstraintQuery(builder, name),
-            query: query.build()
+            query: builder.table(table).alter().existing().constraint(name).primary(columns).build()
           });
 
           break;
@@ -42,10 +42,13 @@ export namespace IndexQueries {
           const name = getUniqueKeyName(table, indexName);
           const type = getIndexType(columns, schema);
 
-          const query = builder.index(name).create(table, columns).type(type).unique().concurrent().missing();
-
           statements.indexes.push({
-            query: query.build()
+            query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build()
+          });
+
+          statements.validations.push({
+            check: getCheckIndexValidationQuery(builder, name),
+            query: getCheckIndexIntegrityQuery(builder, name)
           });
 
           break;
@@ -55,10 +58,13 @@ export namespace IndexQueries {
           const name = getSecondaryKeyName(table, indexName);
           const type = getIndexType(columns, schema);
 
-          const query = builder.index(name).create(table, columns).type(type).concurrent().missing();
-
           statements.indexes.push({
-            query: query.build()
+            query: builder.index(name).create(table, columns).type(type).concurrent().missing().build()
+          });
+
+          statements.validations.push({
+            check: getCheckIndexValidationQuery(builder, name),
+            query: getCheckIndexIntegrityQuery(builder, name)
           });
 
           break;
@@ -79,6 +85,7 @@ export namespace IndexQueries {
   ) => {
     const statements: IndexMigrationQueries = {
       constraints: [],
+      validations: [],
       indexes: []
     };
 
@@ -105,6 +112,7 @@ export namespace IndexQueries {
 
   export const prepareRename = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
     const statements: IndexMigrationQueries = {
+      validations: [],
       constraints: [],
       indexes: []
     };
@@ -120,11 +128,9 @@ export namespace IndexQueries {
           const fromName = getPrimaryKeyName(fromTable, indexName);
           const toName = getPrimaryKeyName(toTable, indexName);
 
-          const query = builder.table(toTable).alter().existing().constraint(fromName).rename(toName);
-
           statements.constraints.push({
             check: getCheckConstraintQuery(builder, toName),
-            query: query.build()
+            query: builder.table(toTable).alter().existing().constraint(fromName).rename(toName).build()
           });
 
           break;
@@ -134,10 +140,8 @@ export namespace IndexQueries {
           const fromName = getUniqueKeyName(fromTable, indexName);
           const toName = getUniqueKeyName(toTable, indexName);
 
-          const query = builder.index(fromName).rename(toName).existing();
-
           statements.indexes.push({
-            query: query.build()
+            query: builder.index(fromName).rename(toName).existing().build()
           });
 
           break;
@@ -147,10 +151,8 @@ export namespace IndexQueries {
           const fromName = getSecondaryKeyName(fromTable, indexName);
           const toName = getSecondaryKeyName(toTable, indexName);
 
-          const query = builder.index(fromName).rename(toName).existing();
-
           statements.indexes.push({
-            query: query.build()
+            query: builder.index(fromName).rename(toName).existing().build()
           });
 
           break;
@@ -163,6 +165,7 @@ export namespace IndexQueries {
 
   export const prepareDelete = (builder: SqlBuilder, table: string, indexes: PgIndexRepository) => {
     const statements: IndexMigrationQueries = {
+      validations: [],
       constraints: [],
       indexes: []
     };

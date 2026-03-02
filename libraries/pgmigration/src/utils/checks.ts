@@ -26,7 +26,7 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
   return query;
 };
 
-export const getCheckValidationQuery = (builder: SqlBuilder, name: string) => {
+export const getCheckConstraintValidationQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
     .rawColumn('1')
@@ -34,6 +34,21 @@ export const getCheckValidationQuery = (builder: SqlBuilder, name: string) => {
     .where({
       convalidated: builder.rawValue('true'),
       conname: builder.rawString(name)
+    })
+    .build();
+
+  return query;
+};
+
+export const getCheckIndexValidationQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn('1')
+    .from('pg_index')
+    .where({
+      indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
+      indisvalid: builder.rawValue('true'),
+      indisready: builder.rawValue('true')
     })
     .build();
 
@@ -55,6 +70,21 @@ export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: 
             table_name: builder.rawString(table)
           })
       }
+    })
+    .build();
+
+  return query;
+};
+
+export const getCheckIndexIntegrityQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn('1')
+    .from('pg_index')
+    .where({
+      indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
+      indisvalid: builder.rawValue('false'),
+      indisready: builder.rawValue('true')
     })
     .build();
 
