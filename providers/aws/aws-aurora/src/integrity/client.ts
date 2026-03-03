@@ -1,4 +1,4 @@
-import type { PgMigrationStatement } from '@ez4/pgmigration/library';
+import type { PgValidationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
@@ -51,7 +51,7 @@ const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
   }
 };
 
-const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgMigrationStatement[]) => {
+const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgValidationStatement[]) => {
   const operations = validations.map(
     (statement) => () =>
       Wait.until(async (attempt) => {
@@ -94,8 +94,8 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClie
   });
 };
 
-const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
-  const { check, ...query } = statement;
+const executeMigrationStatement = async (driver: DataClientDriver, statement: PgValidationStatement) => {
+  const { check, ...change } = statement;
 
   if (check) {
     const { records } = await driver.executeStatement({
@@ -109,7 +109,7 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
     }
   }
 
-  const { records } = await driver.executeStatement(query, {
+  const { records } = await driver.executeStatement(change, {
     noErrorLog: true,
     noTimeout: true
   });
@@ -117,7 +117,7 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
   const [hasError] = records;
 
   if (hasError) {
-    throw new IntegrityCheckError();
+    throw new IntegrityCheckError(change.name);
   }
 
   return true;

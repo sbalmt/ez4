@@ -31,7 +31,8 @@ export namespace ConstraintQuery {
 
         statements.validations.push({
           check: getCheckConstraintValidationQuery(builder, name),
-          query: getValidationQuery(builder, table, name).build()
+          query: getValidationQuery(builder, table, name).build(),
+          name
         });
       }
     }
@@ -79,7 +80,8 @@ export namespace ConstraintQuery {
 
           statements.validations.push({
             check: getCheckConstraintValidationQuery(builder, name),
-            query: getValidationQuery(builder, table, name).build()
+            query: getValidationQuery(builder, table, name).build(),
+            name
           });
         }
       }

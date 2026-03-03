@@ -48,7 +48,8 @@ export namespace IndexQueries {
 
           statements.validations.push({
             check: getCheckIndexValidationQuery(builder, name),
-            query: getCheckIndexIntegrityQuery(builder, name)
+            query: getCheckIndexIntegrityQuery(builder, name),
+            name
           });
 
           break;
@@ -64,7 +65,8 @@ export namespace IndexQueries {
 
           statements.validations.push({
             check: getCheckIndexValidationQuery(builder, name),
-            query: getCheckIndexIntegrityQuery(builder, name)
+            query: getCheckIndexIntegrityQuery(builder, name),
+            name
           });
 
           break;

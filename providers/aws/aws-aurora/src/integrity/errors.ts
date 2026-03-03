@@ -6,7 +6,7 @@ export class IntegrityCheckFailedError extends Error {
 }
 
 export class IntegrityCheckError extends Error {
-  constructor() {
-    super(`Integrity check error.`);
+  constructor(name: string) {
+    super(`Integrity check failed for ${name}`);
   }
 }

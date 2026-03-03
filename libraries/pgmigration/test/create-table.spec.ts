@@ -516,19 +516,23 @@ describe('migration :: create table tests', () => {
       validations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_id_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_id_ck"'
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_id_ck"',
+          name: 'table_id_ck'
         },
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_a_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"'
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"',
+          name: 'table_default_a_ck'
         },
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_b_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"'
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"',
+          name: 'table_default_b_ck'
         },
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_nullable_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"'
+          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"',
+          name: 'table_nullable_ck'
         }
       ],
       relations: [],
