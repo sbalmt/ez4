@@ -7,8 +7,8 @@ import type { PgMigrationQueries } from '../types/query';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintQuery, getCheckIndexIntegrityQuery, getCheckIndexValidationQuery } from '../utils/checks';
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
+import { getCheckConstraintQuery } from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
@@ -47,8 +47,7 @@ export namespace IndexQueries {
           });
 
           statements.validations.push({
-            check: getCheckIndexValidationQuery(builder, name),
-            query: getCheckIndexIntegrityQuery(builder, name),
+            query: getValidationQuery(builder, name),
             name
           });
 
@@ -64,8 +63,7 @@ export namespace IndexQueries {
           });
 
           statements.validations.push({
-            check: getCheckIndexValidationQuery(builder, name),
-            query: getCheckIndexIntegrityQuery(builder, name),
+            query: getValidationQuery(builder, name),
             name
           });
 
@@ -215,6 +213,21 @@ export namespace IndexQueries {
     }
 
     return statements;
+  };
+
+  export const getValidationQuery = (builder: SqlBuilder, name: string) => {
+    const [query] = builder
+      .select()
+      .rawColumn('1')
+      .from('pg_index')
+      .where({
+        indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
+        indisvalid: builder.rawValue('false'),
+        indisready: builder.rawValue('true')
+      })
+      .build();
+
+    return query;
   };
 
   const getIndexType = (columns: string[], schema: ObjectSchema) => {

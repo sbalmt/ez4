@@ -6,7 +6,7 @@ import type { PgMigrationQueries } from '../types/query';
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
 
-import { getCheckConstraintQuery, getCheckConstraintValidationQuery } from '../utils/checks';
+import { getCheckConstraintQuery, getCheckConstraintValidatedQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
 type ConstraintMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
@@ -30,7 +30,7 @@ export namespace ConstraintQuery {
         });
 
         statements.validations.push({
-          check: getCheckConstraintValidationQuery(builder, name),
+          check: getCheckConstraintValidatedQuery(builder, name),
           query: getValidationQuery(builder, table, name).build(),
           name
         });
@@ -79,7 +79,7 @@ export namespace ConstraintQuery {
           });
 
           statements.validations.push({
-            check: getCheckConstraintValidationQuery(builder, name),
+            check: getCheckConstraintValidatedQuery(builder, name),
             query: getValidationQuery(builder, table, name).build(),
             name
           });
