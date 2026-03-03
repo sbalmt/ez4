@@ -73,12 +73,8 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
   const depth = options?.depth ?? +Infinity;
 
-  const onRename = options?.onRename;
   const onSimilarName = options?.onSimilarName;
-
-  const getSimilarName = (name: string, keys: string[]) => {
-    return keys.find((key) => (onSimilarName ? onSimilarName(name, key) : key.includes(name) || name.includes(key)));
-  };
+  const onRename = options?.onRename;
 
   const toCreateKeys = [];
   const toRemoveKeys = [];
@@ -117,7 +113,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue !== undefined && sourceValue === undefined) {
       toCreateKeys.push(key);
 
-      const removeKey = getSimilarName(key, toRemoveKeys);
+      const removeKey = getSimilarName(key, toRemoveKeys, onSimilarName);
 
       if (removeKey && (!onRename || onRename(targetValue, toRemove[removeKey]))) {
         delete toRemove[removeKey];
@@ -138,7 +134,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue === undefined && sourceValue !== undefined) {
       toRemoveKeys.push(key);
 
-      const createKey = getSimilarName(key, toCreateKeys);
+      const createKey = getSimilarName(key, toCreateKeys, onSimilarName);
 
       if (createKey && (!onRename || onRename(toCreate[createKey], sourceValue))) {
         delete toCreate[createKey];
@@ -198,4 +194,18 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     ...(counter.rename && { rename: toRename }),
     ...(counter.nested && { nested })
   };
+};
+
+const getSimilarName = (name: string, keys: string[], predicate?: (target: string, source: string) => boolean) => {
+  const keyIndex = keys.findIndex((key) => {
+    return predicate ? predicate(name, key) : key.includes(name) || name.includes(key);
+  });
+
+  if (keyIndex >= 0) {
+    const [keyName] = keys.splice(keyIndex, 1);
+
+    return keyName;
+  }
+
+  return undefined;
 };
