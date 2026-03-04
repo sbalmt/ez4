@@ -61,6 +61,7 @@ export type UpdateConfigurationRequest = {
   handlerName?: string;
   description?: string;
   logGroup?: string;
+  logLevel?: LogLevel;
   variables?: LinkedVariables;
   runtime?: RuntimeType;
   timeout?: number;
@@ -241,7 +242,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
 
   const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
-  const { description, memory, timeout, runtime, debug, roleArn, logGroup } = request;
+  const { description, memory, timeout, runtime, debug, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -262,7 +263,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
       },
       LoggingConfig: {
         LogGroup: logGroup,
-        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : ApplicationLogLevel.Warn,
+        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
         SystemLogLevel: SystemLogLevel.Warn,
         LogFormat: LogFormat.Json
       },

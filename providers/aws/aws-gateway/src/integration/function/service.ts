@@ -31,6 +31,7 @@ export const createIntegrationFunction = <E extends EntryState>(
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    logLevel: parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
     release: parameters.release,
