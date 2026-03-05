@@ -15,7 +15,6 @@ import {
   waitUntilFunctionUpdated,
   waitUntilPublishedVersionActive,
   ResourceNotFoundException,
-  ApplicationLogLevel,
   SystemLogLevel,
   LogFormat
 } from '@aws-sdk/client-lambda';
@@ -46,7 +45,6 @@ export type CreateRequest = {
   timeout?: number;
   memory?: number;
   publish?: boolean;
-  debug?: boolean;
   vpc?: boolean;
   tags?: ResourceTags;
 };
@@ -66,7 +64,6 @@ export type UpdateConfigurationRequest = {
   runtime?: RuntimeType;
   timeout?: number;
   memory?: number;
-  debug?: boolean;
   vpc?: boolean;
 };
 
@@ -122,7 +119,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
   const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
   const handlerName = getSourceHandlerName(request.handlerName);
 
-  const { description, memory, timeout, publish, architecture, runtime, debug, roleArn, logGroup, logLevel } = request;
+  const { description, memory, timeout, publish, architecture, runtime, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -147,7 +144,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
         },
         LoggingConfig: {
           LogGroup: logGroup,
-          ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
+          ApplicationLogLevel: getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
           SystemLogLevel: SystemLogLevel.Warn,
           LogFormat: LogFormat.Json
         },
@@ -242,7 +239,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
 
   const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;
 
-  const { description, memory, timeout, runtime, debug, roleArn, logGroup, logLevel } = request;
+  const { description, memory, timeout, runtime, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -263,7 +260,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
       },
       LoggingConfig: {
         LogGroup: logGroup,
-        ApplicationLogLevel: debug ? ApplicationLogLevel.Debug : getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
+        ApplicationLogLevel: getLogLevel(logLevel ?? FunctionDefaults.LogLevel),
         SystemLogLevel: SystemLogLevel.Warn,
         LogFormat: LogFormat.Json
       },

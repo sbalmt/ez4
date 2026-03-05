@@ -7,6 +7,7 @@ import type { BundleFunction } from './bundler';
 
 import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
+import { LogLevel } from '@ez4/project';
 
 import { bundleConnectionFunction, bundleMessageFunction, bundleRequestFunction } from './bundler';
 import { IntegrationFunctionType } from './types';
@@ -24,30 +25,29 @@ export const createIntegrationFunction = <E extends EntryState>(
   parameters: IntegrationFunctionParameters
 ) => {
   const { headersSchema, parametersSchema, querySchema, bodySchema, identitySchema, responseSchema } = parameters;
-  const { type, handler, variables, architecture, preferences, errorsMap } = parameters;
+  const { type, handler, variables, debug, architecture, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
-    logLevel: parameters.logLevel,
+    logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
     release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
     files: parameters.files,
-    debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
-    getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
-    },
     getFunctionBundle: (context) => {
       return bundleFunctions[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
@@ -59,7 +59,8 @@ export const createIntegrationFunction = <E extends EntryState>(
         identitySchema,
         responseSchema,
         preferences,
-        errorsMap
+        errorsMap,
+        debug
       });
     }
   });

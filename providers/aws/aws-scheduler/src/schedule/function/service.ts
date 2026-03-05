@@ -6,6 +6,7 @@ import type { TargetFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
+import { LogLevel } from '@ez4/project';
 
 import { bundleTargetFunction } from './bundler';
 
@@ -15,35 +16,35 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
-  const { handler, variables, architecture, eventSchema } = parameters;
+  const { handler, variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
-    logLevel: parameters.logLevel,
+    logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
     release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
     files: parameters.files,
-    debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
-    getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
-    },
     getFunctionBundle: (context) => {
       return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
-        eventSchema
+        eventSchema,
+        debug
       });
     }
   });

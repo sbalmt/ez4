@@ -6,6 +6,7 @@ import type { AuthorizerFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
+import { LogLevel } from '@ez4/project';
 
 import { bundleApiFunction } from './bundler';
 
@@ -15,7 +16,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: AuthorizerFunctionParameters
 ) => {
-  const { authorizer, variables, architecture, preferences } = parameters;
+  const { authorizer, variables, debug, architecture, preferences } = parameters;
   const { headersSchema, parametersSchema, querySchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
@@ -23,23 +24,22 @@ export const createAuthorizerFunction = <E extends EntryState>(
     sourceFile: authorizer.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
-    logLevel: parameters.logLevel,
+    logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
     release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
     files: parameters.files,
-    debug: parameters.debug,
     tags: parameters.tags,
     getFunctionVariables: () => {
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
-    getFunctionFiles: () => {
-      return [authorizer.sourceFile, authorizer.dependencies];
-    },
     getFunctionBundle: (context) => {
       return bundleApiFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+    },
+    getFunctionFiles: () => {
+      return [authorizer.sourceFile, authorizer.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
@@ -47,7 +47,8 @@ export const createAuthorizerFunction = <E extends EntryState>(
         headersSchema,
         parametersSchema,
         querySchema,
-        preferences
+        preferences,
+        debug
       });
     }
   });
