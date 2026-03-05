@@ -52,7 +52,7 @@ export namespace Queue {
   /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message, M extends FifoMode<T> | undefined = undefined>
+  export declare abstract class Service<T extends Message, U extends FifoMode<T> | undefined = undefined>
     implements CommonService.Provider
   {
     /**
@@ -68,7 +68,7 @@ export namespace Queue {
     /**
      * FIFO mode options.
      */
-    readonly fifoMode: M;
+    readonly fifoMode: U;
 
     /**
      * Enable and configure the dead-letter queue options.
@@ -103,7 +103,7 @@ export namespace Queue {
     /**
      * Service client.
      */
-    readonly client: Client<Service<T, M>>;
+    readonly client: Client<T, U>;
   }
 
   /**
