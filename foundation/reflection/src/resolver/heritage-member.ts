@@ -41,7 +41,7 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
     context.pending.add(declaration);
   }
 
-  const identity = getNodeIdentity(node.expression);
+  const identity = getNodeIdentity(declaration);
   const namespace = getAccessNamespace(node.expression);
   const types = node.typeArguments;
 

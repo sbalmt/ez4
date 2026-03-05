@@ -14,12 +14,19 @@ import { isTypeInterface } from '../resolver/type-interface';
 import { isModelProperty } from '../resolver/model-property';
 import { isModelMethod } from '../resolver/model-method';
 import { isTypeFunction } from '../resolver/type-function';
+import { isTypeAlias } from '../resolver/type-alias';
 
 export type DeclarationNodes = EnumNodes | ClassNodes | InterfaceNodes | PropertyNodes | MethodNodes | FunctionNodes;
 
 export const isTypeDeclaration = (node: Node): node is DeclarationNodes => {
   return (
-    isTypeEnum(node) || isTypeClass(node) || isTypeInterface(node) || isModelProperty(node) || isModelMethod(node) || isTypeFunction(node)
+    isTypeEnum(node) ||
+    isTypeClass(node) ||
+    isTypeInterface(node) ||
+    isModelProperty(node) ||
+    isModelMethod(node) ||
+    isTypeFunction(node) ||
+    isTypeAlias(node)
   );
 };
 
