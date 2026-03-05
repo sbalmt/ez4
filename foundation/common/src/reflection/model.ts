@@ -16,8 +16,8 @@ export const isModelDeclaration = (type: AllType): type is TypeModel => {
   return isClassDeclaration(type) || isInterfaceDeclaration(type);
 };
 
-export const hasHeritageType = (type: TypeModel, name: string) => {
-  return !!getHeritageType(type, name);
+export const hasHeritageType = (type: TypeModel, ...names: string[]) => {
+  return names.some((name) => !!getHeritageType(type, name));
 };
 
 export const getHeritageType = (type: TypeModel, name: string) => {

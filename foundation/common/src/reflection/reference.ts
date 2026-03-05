@@ -22,11 +22,11 @@ export const getReferenceType = (type: TypeReference, reflection: ReflectionType
   const member = getIndexedReferenceMember(reference, index);
 
   if (!member) {
-    throw new Error(`Model ${reference.name} doesn't have the expected ${index} property.`);
+    throw new Error(`Model ${reference.name} doesn't have the expected '${index}' member.`);
   }
 
   if (!isModelProperty(member)) {
-    throw new Error(`Member ${index} on model ${reference.name} isn't a property.`);
+    throw new Error(`Member '${index}' on model ${reference.name} isn't a property.`);
   }
 
   if (isTypeReference(member.value)) {
