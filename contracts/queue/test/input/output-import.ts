@@ -5,7 +5,7 @@ interface TestMessage extends Queue.Message {
   foo: string;
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
   timeout: 20;

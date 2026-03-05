@@ -9,7 +9,7 @@ interface TestMessage extends Queue.Message {
 /**
  * First test queue description.
  */
-export declare class TestQueue1 extends Queue.Service<TestMessage> {
+export declare class TestQueue1 extends Queue.Service<TestMessage, Queue.FifoMode<TestMessage>> {
   subscriptions: [];
 
   fifoMode: Queue.UseFifoMode<{

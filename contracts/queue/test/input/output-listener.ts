@@ -7,7 +7,7 @@ interface TestMessage extends Queue.Message {
 /**
  * Queue to test subscription listener.
  */
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [
     Queue.UseSubscription<{
       listener: typeof testListener;

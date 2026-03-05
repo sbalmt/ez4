@@ -14,7 +14,7 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { isModelProperty } from '@ez4/reflection';
+import { isModelProperty, isTypeUndefined } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 import { isObjectWith } from '@ez4/utils';
 
@@ -28,7 +28,7 @@ import { getQueueMessageMetadata } from './message';
 import { getQueueFifoModeMetadata } from './fifo';
 
 export const isQueueServiceDeclaration = (type: AllType): type is TypeClass => {
-  return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Service');
+  return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Service', 'Queue.Ordered', 'Queue.Unordered');
 };
 
 export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
@@ -74,19 +74,19 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
+        case 'fifoMode': {
+          if (!isTypeUndefined(member.value)) {
+            service.fifoMode = getQueueFifoModeMetadata(member.value, declaration, reflection, errorList);
+          }
+          break;
+        }
+
         case 'timeout':
         case 'retention':
         case 'polling':
         case 'delay': {
           if (!member.inherited) {
             service[member.name] = getPropertyNumber(member);
-          }
-          break;
-        }
-
-        case 'fifoMode': {
-          if (!member.inherited) {
-            service.fifoMode = getQueueFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
           break;
         }
