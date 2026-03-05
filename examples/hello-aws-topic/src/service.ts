@@ -8,7 +8,7 @@ import type { MessageRequest } from './types';
 /**
  * Example of AWS SNS topic deployed with EZ4.
  */
-export declare class Sns extends Topic.Service<MessageRequest> {
+export declare class Sns extends Topic.Unordered<MessageRequest> {
   /**
    * All handlers for the service.
    */
@@ -43,7 +43,7 @@ export declare class Sns extends Topic.Service<MessageRequest> {
 /**
  * Example of AWS SNS FIFO topic deployed with EZ4.
  */
-export declare class FifoSns extends Topic.Service<MessageRequest> {
+export declare class FifoSns extends Topic.Ordered<MessageRequest> {
   /**
    * Define the message group Id field from MessageRequest for FIFO mode.
    */

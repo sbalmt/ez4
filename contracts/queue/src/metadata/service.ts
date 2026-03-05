@@ -14,7 +14,7 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeUndefined } from '@ez4/reflection';
+import { isModelProperty } from '@ez4/reflection';
 import { hasSchemaProperty } from '@ez4/schema';
 import { isObjectWith } from '@ez4/utils';
 
@@ -75,7 +75,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'fifoMode': {
-          if (!isTypeUndefined(member.value)) {
+          if (!member.inherited) {
             service.fifoMode = getQueueFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
           break;

@@ -5,7 +5,7 @@ interface TestMessage extends Topic.Message {
   foo: string;
 }
 
-export declare class TestTopic extends Topic.Service<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestMessage> {
   subscriptions: [];
 }
 

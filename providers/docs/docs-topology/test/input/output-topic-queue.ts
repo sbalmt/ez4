@@ -6,7 +6,7 @@ export declare class TestQueue extends Queue.Unordered<{}> {
   subscriptions: [];
 }
 
-export declare class TestTopic extends Topic.Service<{}> {
+export declare class TestTopic extends Topic.Unordered<{}> {
   subscriptions: [
     Topic.UseSubscription<{
       service: Environment.Service<TestQueue>;

@@ -24,7 +24,7 @@ type MyTopicMessage = {
 };
 
 // MyTopic declaration
-export declare class MyTopic extends Topic.Service<MyTopicMessage> {
+export declare class MyTopic extends Topic.Unordered<MyTopicMessage> {
   subscriptions: [
     Topic.UseSubscription<{
       handler: typeof eventHandler;

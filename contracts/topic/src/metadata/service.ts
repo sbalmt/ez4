@@ -25,7 +25,7 @@ import { getTopicMessageMetadata } from './message';
 import { getTopicFifoModeMetadata } from './fifo';
 
 export const isTopicServiceDeclaration = (type: AllType): type is TypeClass => {
-  return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Service');
+  return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Service', 'Topic.Ordered', 'Topic.Unordered');
 };
 
 export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
@@ -71,16 +71,16 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
-        case 'subscriptions': {
-          if (!member.inherited && (service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList))) {
-            properties.delete(member.name);
+        case 'fifoMode': {
+          if (!member.inherited) {
+            service.fifoMode = getTopicFifoModeMetadata(member.value, declaration, reflection, errorList);
           }
           break;
         }
 
-        case 'fifoMode': {
-          if (!member.inherited) {
-            service.fifoMode = getTopicFifoModeMetadata(member.value, declaration, reflection, errorList);
+        case 'subscriptions': {
+          if (!member.inherited && (service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList))) {
+            properties.delete(member.name);
           }
           break;
         }

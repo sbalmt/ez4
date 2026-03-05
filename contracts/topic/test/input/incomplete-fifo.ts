@@ -5,7 +5,7 @@ type TestMessage = {
   user: string;
 };
 
-export declare class TestTopic extends Topic.Service<TestMessage> {
+export declare class TestTopic extends Topic.Ordered<TestMessage> {
   // @ts-expect-error Missing groupId field.
   fifoMode: {
     uniqueId: 'id';
