@@ -5,8 +5,16 @@ interface TestMessage extends Topic.Message {
   foo: string;
 }
 
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestUnorderedTopic extends Topic.Unordered<TestMessage> {
   subscriptions: [];
+}
+
+export declare class TestOrderedTopic extends Topic.Ordered<TestMessage> {
+  subscriptions: [];
+
+  fifoMode: {
+    groupId: 'foo';
+  };
 }
 
 function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Context<TestImport1Topic>) {
@@ -27,7 +35,7 @@ function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Cont
 /**
  * Import topic assigning handler.
  */
-export declare class TestImport1Topic extends Topic.Import<TestTopic> {
+export declare class TestImport1Topic extends Topic.Import<TestUnorderedTopic> {
   project: 'name from project in ez4.project.js';
 
   subscriptions: [
@@ -49,7 +57,7 @@ export declare class TestImport1Topic extends Topic.Import<TestTopic> {
 /**
  * Import topic with no assigned handler.
  */
-export declare class TestImport2Topic extends Topic.Import<TestTopic> {
+export declare class TestImport2Topic extends Topic.Import<TestOrderedTopic> {
   project: 'name from project in ez4.project.js';
 
   variables: {
