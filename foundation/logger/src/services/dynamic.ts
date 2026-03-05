@@ -19,6 +19,11 @@ export namespace DynamicLogger {
 
     return new (class {
       update(message: string) {
+        if (!process.stdout.isTTY) {
+          process.stdout.write((lastMessage = message));
+          return;
+        }
+
         const difference = TTY.getCurrentLine() - currentLine;
 
         process.stdout.moveCursor(0, -difference);

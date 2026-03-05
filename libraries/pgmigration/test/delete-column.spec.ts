@@ -63,6 +63,7 @@ describe('migration :: delete column tests', () => {
         }
       ],
       constraints: [],
+      validations: [],
       relations: [],
       indexes: []
     });

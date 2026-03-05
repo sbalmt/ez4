@@ -5,7 +5,7 @@ type TestMessage = {
   user: string;
 };
 
-export declare class TestTopic extends Topic.Service<TestMessage> {
+export declare class TestTopic extends Topic.Ordered<TestMessage> {
   fifoMode: Topic.UseFifoMode<{
     groupId: 'user';
     uniqueId: 'id';

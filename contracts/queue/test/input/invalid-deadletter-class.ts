@@ -7,7 +7,7 @@ class TestDeadLetter implements Queue.DeadLetter {
   maxRetries!: 10;
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   deadLetter: TestDeadLetter;
 
   subscriptions: [];

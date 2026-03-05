@@ -8,7 +8,7 @@ function testHandlerA() {}
 // Missing proper incoming type.
 function testHandlerB(_request: any) {}
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [
     Queue.UseSubscription<{
       handler: typeof testHandlerA;

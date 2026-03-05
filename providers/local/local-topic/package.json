@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-topic",
   "description": "EZ4: Local topic emulator",
-  "version": "0.42.0",
+  "version": "0.43.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -43,12 +43,12 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.42.0",
-    "@ez4/logger": "^0.42.0",
-    "@ez4/local-common": "^0.42.0",
-    "@ez4/topic": "^0.42.0",
-    "@ez4/project": "^0.42.0",
-    "@ez4/queue": "^0.42.0",
-    "@ez4/utils": "^0.42.0"
+    "@ez4/common": "^0.43.0",
+    "@ez4/logger": "^0.43.0",
+    "@ez4/local-common": "^0.43.0",
+    "@ez4/topic": "^0.43.0",
+    "@ez4/project": "^0.43.0",
+    "@ez4/queue": "^0.43.0",
+    "@ez4/utils": "^0.43.0"
   }
 }

@@ -7,6 +7,7 @@ import { deepCompare } from '@ez4/utils';
 
 import { isCertificateInUse, createCertificate, deleteCertificate, tagCertificate, untagCertificate } from './client';
 import { CertificateServiceName } from './types';
+import { CertificateDeletionDeniedError } from './errors';
 
 export const getCertificateHandler = (): StepHandler<CertificateState> => ({
   equals: equalsResource,
@@ -76,19 +77,21 @@ const updateResource = (candidate: CertificateState, current: CertificateState):
 const deleteResource = async (current: CertificateState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result || (!parameters.allowDeletion && !context.force)) {
-    return;
+  if (result) {
+    const { domainName, allowDeletion } = parameters;
+
+    await OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
+      if (!allowDeletion && !context.force) {
+        throw new CertificateDeletionDeniedError(domainName);
+      }
+
+      const isInUse = await isCertificateInUse(logger, result.certificateArn);
+
+      if (!isInUse) {
+        await deleteCertificate(result.certificateArn, logger);
+      }
+    });
   }
-
-  const domainName = parameters.domainName;
-
-  await OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
-    const isInUse = await isCertificateInUse(logger, result.certificateArn);
-
-    if (!isInUse) {
-      await deleteCertificate(result.certificateArn, logger);
-    }
-  });
 };
 
 const checkTagUpdates = async (

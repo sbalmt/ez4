@@ -8,6 +8,7 @@ export const MigrationServiceType = 'aws:aurora.migration';
 
 export type MigrationParameters = {
   repository: PgTableRepository;
+  allowDeletion?: boolean;
   database: string;
 };
 

@@ -1,12 +1,15 @@
+import { dirname, normalize } from 'node:path';
+
 import AdminZip from 'adm-zip';
 
-import { readFile } from 'node:fs/promises';
-
-export const getZipBuffer = async (filePath: string, entryName: string) => {
+export const getZipBuffer = async (filePath: string, entryName: string, additionalFiles?: string[]) => {
   const zip = new AdminZip();
-  const buffer = await readFile(filePath);
 
-  zip.addFile(entryName, buffer);
+  additionalFiles?.forEach((localFile) => {
+    zip.addLocalFile(localFile, dirname(normalize(localFile)));
+  });
+
+  zip.addLocalFile(filePath, undefined, entryName);
 
   return zip.toBufferPromise();
 };

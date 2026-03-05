@@ -18,6 +18,14 @@ describe('sql index tests', () => {
     equal(statement, `CREATE INDEX "index" ON "table" ("foo", "bar", "baz")`);
   });
 
+  it('assert :: create index (unique)', () => {
+    const query = sql.index('index').create('table', ['foo', 'bar', 'baz']).unique().concurrent();
+
+    const statement = query.build();
+
+    equal(statement, `CREATE UNIQUE INDEX CONCURRENTLY "index" ON "table" ("foo", "bar", "baz")`);
+  });
+
   it('assert :: create index (concurrently)', () => {
     const query = sql.index('index').create('table', ['foo', 'bar', 'baz']).concurrent();
 

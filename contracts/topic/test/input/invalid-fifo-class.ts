@@ -11,7 +11,7 @@ class TestFifoMode implements Topic.FifoMode<TestMessage> {
   uniqueId!: 'id';
 }
 
-export declare class TestTopic extends Topic.Service<TestMessage> {
+export declare class TestTopic extends Topic.Ordered<TestMessage> {
   fifoMode: TestFifoMode;
 
   subscriptions: [];

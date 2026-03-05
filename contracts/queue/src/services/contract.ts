@@ -52,7 +52,9 @@ export namespace Queue {
   /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message> implements CommonService.Provider {
+  export declare abstract class Service<T extends Message, U extends FifoMode<T> | undefined = undefined>
+    implements CommonService.Provider
+  {
     /**
      * All subscriptions associated to the queue.
      */
@@ -64,9 +66,9 @@ export namespace Queue {
     readonly schema: T;
 
     /**
-     * Enable and configure the FIFO mode options.
+     * FIFO mode options.
      */
-    readonly fifoMode?: FifoMode<T>;
+    readonly fifoMode: U;
 
     /**
      * Enable and configure the dead-letter queue options.
@@ -101,13 +103,38 @@ export namespace Queue {
     /**
      * Service client.
      */
-    readonly client: Client<Service<T>>;
+    readonly client: Client<T, U>;
+  }
+
+  /**
+   * Ordered queue service.
+   */
+  export declare abstract class Ordered<T extends Message> extends Service<T, FifoMode<T>> {
+    /**
+     * Configure the FIFO mode options.
+     */
+    abstract readonly fifoMode: FifoMode<T>;
+
+    /**
+     * Message schema.
+     */
+    readonly schema: T;
+  }
+
+  /**
+   * Unordered queue service.
+   */
+  export declare abstract class Unordered<T extends Message> extends Service<T, undefined> {
+    /**
+     * Message schema.
+     */
+    readonly schema: T;
   }
 
   /**
    * Imported queue service.
    */
-  export declare abstract class Import<T extends Service<any>> implements CommonService.Provider {
+  export declare abstract class Import<T extends Service<any, any>> implements CommonService.Provider {
     /**
      * Name of the imported project defined in the project options file.
      */

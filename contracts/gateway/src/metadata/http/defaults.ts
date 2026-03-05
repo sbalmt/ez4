@@ -6,10 +6,12 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getPropertyNumber,
+  getPropertyStringList,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
   getServiceArchitecture,
+  getServiceLogLevel,
   getServiceRuntime,
   tryGetReferenceType,
   hasHeritageType
@@ -86,9 +88,14 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
       }
 
       case 'memory':
-      case 'logRetention':
-      case 'timeout': {
+      case 'timeout':
+      case 'logRetention': {
         defaults[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        defaults[member.name] = getServiceLogLevel(member);
         break;
       }
 
@@ -99,6 +106,11 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'runtime': {
         defaults[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'files': {
+        defaults[member.name] = getPropertyStringList(member);
         break;
       }
 

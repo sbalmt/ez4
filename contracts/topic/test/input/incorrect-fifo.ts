@@ -11,13 +11,13 @@ declare class TestFifoMode {
   uniqueId: 'id';
 }
 
-export declare class TestTopic1 extends Topic.Service<TestMessage> {
+export declare class TestTopic1 extends Topic.Ordered<TestMessage> {
   fifoMode: TestFifoMode;
 
   subscriptions: [];
 }
 
-export declare class TestTopic2 extends Topic.Service<TestMessage> {
+export declare class TestTopic2 extends Topic.Ordered<TestMessage> {
   schema: TestMessage;
 
   // @ts-expect-error Group Id doesn't exist in TestMessage.

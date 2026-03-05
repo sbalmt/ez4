@@ -49,13 +49,13 @@ describe('migration :: update index tests', () => {
 
     deepEqual(queries, {
       tables: [],
-      constraints: [
-        {
-          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_uk"`
-        }
-      ],
+      constraints: [],
+      validations: [],
       relations: [],
       indexes: [
+        {
+          query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
+        },
         {
           query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
         }
@@ -71,16 +71,15 @@ describe('migration :: update index tests', () => {
 
     deepEqual(queries, {
       tables: [],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_uk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_uk" UNIQUE ("column")`
-        }
-      ],
+      constraints: [],
+      validations: [],
       relations: [],
       indexes: [
         {
           query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
+        },
+        {
+          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
         }
       ]
     });

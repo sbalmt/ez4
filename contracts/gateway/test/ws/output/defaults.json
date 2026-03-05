@@ -14,17 +14,22 @@
     "defaults": {
       "runtime": "node24",
       "architecture": "arm",
+      "logLevel": "warning",
+      "logRetention": 14,
+      "timeout": 15,
+      "memory": 192,
       "listener": {
         "name": "testListener",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          39,
+          41,
           1
         ]
       },
-      "logRetention": 14,
-      "timeout": 15,
-      "memory": 192,
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
       "preferences": {
         "namingStyle": "camel"
       }
@@ -39,7 +44,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          33,
+          35,
           1
         ]
       }
@@ -49,7 +54,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          35,
+          37,
           1
         ]
       }
@@ -59,7 +64,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          37,
+          39,
           1
         ]
       }

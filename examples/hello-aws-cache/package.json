@@ -20,15 +20,15 @@
     "test": "ez4 test -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.42.0",
-    "@ez4/aws-valkey": "^0.42.0",
-    "@ez4/cache": "^0.42.0",
-    "@ez4/common": "^0.42.0",
-    "@ez4/local-cache": "^0.42.0",
-    "@ez4/local-gateway": "^0.42.0",
-    "@ez4/gateway": "^0.42.0",
-    "@ez4/project": "^0.42.0",
-    "@ez4/schema": "^0.42.0",
-    "@ez4/utils": "^0.42.0"
+    "@ez4/aws-gateway": "^0.43.0",
+    "@ez4/aws-valkey": "^0.43.0",
+    "@ez4/cache": "^0.43.0",
+    "@ez4/common": "^0.43.0",
+    "@ez4/local-cache": "^0.43.0",
+    "@ez4/local-gateway": "^0.43.0",
+    "@ez4/gateway": "^0.43.0",
+    "@ez4/project": "^0.43.0",
+    "@ez4/schema": "^0.43.0",
+    "@ez4/utils": "^0.43.0"
   }
 }

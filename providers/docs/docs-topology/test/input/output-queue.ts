@@ -1,5 +1,13 @@
 import type { Queue } from '@ez4/queue';
 
-export declare class TestQueue extends Queue.Service<{}> {
+type TestMessage = {
+  foo: string;
+};
+
+export declare class TestQueue extends Queue.Ordered<TestMessage> {
   subscriptions: [];
+
+  fifoMode: {
+    groupId: 'foo';
+  };
 }

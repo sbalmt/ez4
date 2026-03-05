@@ -132,15 +132,16 @@ export namespace RelationQuery {
 
     const sourceTableName = getTableName(sourceTable);
 
-    const query = builder.table(table).alter().existing().constraint(name).foreign(targetColumn, sourceTableName, [sourceColumn]);
+    const query = builder.table(table).alter().existing().constraint(name);
+    const constraint = query.foreign(targetColumn, sourceTableName, [sourceColumn]).validate(false);
 
     if (!optional) {
-      query.delete().cascade();
+      constraint.delete().cascade();
     } else {
-      query.delete().null();
+      constraint.delete().null();
     }
 
-    query.update().cascade();
+    constraint.update().cascade();
 
     return query;
   };

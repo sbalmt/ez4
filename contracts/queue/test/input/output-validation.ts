@@ -6,7 +6,7 @@ interface TestMessage extends Queue.Message {
   foo: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [
     Queue.UseSubscription<{
       handler: typeof testHandler;

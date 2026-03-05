@@ -49,7 +49,9 @@ export namespace Topic {
   /**
    * Topic service.
    */
-  export declare abstract class Service<T extends Message> implements CommonService.Provider {
+  export declare abstract class Service<T extends Message, U extends FifoMode<T> | undefined = undefined>
+    implements CommonService.Provider
+  {
     /**
      * All subscriptions associated to the topic.
      */
@@ -61,9 +63,9 @@ export namespace Topic {
     readonly schema: T;
 
     /**
-     * Enable and configure the FIFO mode options.
+     * FIFO mode options.
      */
-    readonly fifoMode?: FifoMode<T>;
+    readonly fifoMode: U;
 
     /**
      * Variables associated to all subscriptions.
@@ -77,9 +79,34 @@ export namespace Topic {
   }
 
   /**
+   * Ordered queue service.
+   */
+  export declare abstract class Ordered<T extends Message> extends Service<T, FifoMode<T>> {
+    /**
+     * Configure the FIFO mode options.
+     */
+    abstract readonly fifoMode: FifoMode<T>;
+
+    /**
+     * Message schema.
+     */
+    readonly schema: T;
+  }
+
+  /**
+   * Unordered queue service.
+   */
+  export declare abstract class Unordered<T extends Message> extends Service<T, undefined> {
+    /**
+     * Message schema.
+     */
+    readonly schema: T;
+  }
+
+  /**
    * Imported topic service.
    */
-  export declare abstract class Import<T extends Service<any>> implements CommonService.Provider {
+  export declare abstract class Import<T extends Service<any, any>> implements CommonService.Provider {
     /**
      * Name of the imported project defined in the project options file.
      */

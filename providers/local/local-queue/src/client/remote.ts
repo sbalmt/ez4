@@ -10,16 +10,16 @@ export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
-export const createRemoteClient = <T extends Queue.Service<any>>(
+export const createRemoteClient = <T extends Queue.Message = any, U extends Queue.FifoMode<T> | undefined = any>(
   serviceName: string,
   messageSchema: MessageSchema,
   clientOptions: RemoteClientOptions
-): Client<T> => {
+): Client<T, U> => {
   const queueIdentifier = getServiceName(serviceName, clientOptions);
   const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
 
   return new (class {
-    async sendMessage(message: T['schema'], _options?: SendOptions<T>) {
+    async sendMessage(message: T, _options?: SendOptions<U>) {
       Logger.debug(`✉️  Sending message to queue [${serviceName}] at ${queueHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
@@ -27,7 +27,7 @@ export const createRemoteClient = <T extends Queue.Service<any>>(
       setImmediate(() => forwardQueueMessage(serviceName, queueHost, payload));
     }
 
-    receiveMessage(): Promise<T['schema'][]> {
+    receiveMessage(): Promise<T[]> {
       throw new Error(`Receive message isn't supported yet.`);
     }
   })();

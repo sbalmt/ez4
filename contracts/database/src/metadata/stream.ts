@@ -10,11 +10,13 @@ import {
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
-  getServiceListener,
-  getServiceArchitecture,
-  getServiceRuntime,
+  getPropertyStringList,
   getPropertyBoolean,
   getReferenceType,
+  getServiceListener,
+  getServiceArchitecture,
+  getServiceLogLevel,
+  getServiceRuntime,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -91,9 +93,14 @@ const getTypeFromMembers = (
       }
 
       case 'memory':
-      case 'logRetention':
-      case 'timeout': {
+      case 'timeout':
+      case 'logRetention': {
         stream[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        stream[member.name] = getServiceLogLevel(member);
         break;
       }
 
@@ -109,6 +116,11 @@ const getTypeFromMembers = (
 
       case 'vpc': {
         stream[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'files': {
+        stream[member.name] = getPropertyStringList(member);
         break;
       }
 

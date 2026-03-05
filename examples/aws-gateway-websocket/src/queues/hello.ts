@@ -12,7 +12,7 @@ type HelloMessage = {
 /**
  * Example of AWS SQS deployed with EZ4.
  */
-export declare class HelloQueue extends Queue.Service<HelloMessage> {
+export declare class HelloQueue extends Queue.Unordered<HelloMessage> {
   /**
    * Enable dead-letter queue.
    */

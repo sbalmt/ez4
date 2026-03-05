@@ -8,15 +8,15 @@ import { mock } from 'node:test';
 import { createClientMock } from '../client/mock';
 
 export namespace TopicTester {
-  export type ClientMock<T extends Topic.Message> = Client<T> & {
-    sendMessage: Mock<Client<T>['sendMessage']>;
+  export type ClientMock<T extends Topic.Service<any, any>> = Client<T['schema']> & {
+    sendMessage: Mock<Client<T['schema']>['sendMessage']>;
   };
 
-  export const getClient = <T extends Topic.Message>(resourceName: string) => {
+  export const getClient = <T extends Topic.Service<any, any>>(resourceName: string) => {
     return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
-  export const getClientMock = <T extends Topic.Message = any>(resourceName: string) => {
+  export const getClientMock = <T extends Topic.Service<any, any> = any>(resourceName: string) => {
     const client = createClientMock(resourceName) as ClientMock<T>;
 
     mock.method(client, 'sendMessage');

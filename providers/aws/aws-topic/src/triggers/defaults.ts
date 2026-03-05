@@ -2,6 +2,11 @@ import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
   /**
+   * Default function log level.
+   */
+  export const LogLevel = FunctionDefaults.LogLevel;
+
+  /**
    * Default log retention in days.
    */
   export const LogRetention = FunctionDefaults.LogRetention;

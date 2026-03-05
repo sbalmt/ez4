@@ -11,7 +11,7 @@ class TestFifoMode implements Queue.FifoMode<TestMessage> {
   uniqueId!: 'id';
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Ordered<TestMessage> {
   fifoMode: TestFifoMode;
 
   subscriptions: [];

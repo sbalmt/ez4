@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Service, Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
@@ -9,12 +9,13 @@ interface TestMessage extends Queue.Message {
 /**
  * Queue to test subscriptions.
  */
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [
     // Inline subscription.
     Queue.UseSubscription<{
       handler: typeof testHandler;
       architecture: ArchitectureType.Arm;
+      logLevel: LogLevel.Error;
       logRetention: 7;
       concurrency: 2;
       batch: 5;
@@ -36,6 +37,8 @@ declare class TestSubscription implements Queue.Subscription<TestMessage> {
   runtime: RuntimeType.Node24;
 
   memory: 128;
+
+  files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
   // Variable only for this subscription.
   variables: {

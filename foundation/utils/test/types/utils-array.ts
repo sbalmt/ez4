@@ -1,4 +1,4 @@
-import type { ArrayRest, ArrayType, IsArray, IsArrayEmpty } from '@ez4/utils';
+import type { ArrayRest, ArrayType, IsArray, IsArrayEmpty, TryArrayType } from '@ez4/utils';
 
 import { assertType } from '@ez4/utils';
 
@@ -31,3 +31,10 @@ assertType<never, ArrayType<[]>>(true);
 assertType<string | boolean, ArrayType<[string, boolean]>>(true);
 assertType<never, ArrayType<never>>(true);
 assertType<never, ArrayType<any>>(true);
+
+// Check try array type
+assertType<never, TryArrayType<[]>>(true);
+assertType<string | boolean, TryArrayType<[string, boolean]>>(true);
+assertType<string, TryArrayType<string>>(true);
+assertType<never, TryArrayType<never>>(true);
+assertType<never, TryArrayType<any>>(true);

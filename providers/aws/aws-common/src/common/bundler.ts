@@ -7,7 +7,7 @@ import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 import { cpus } from 'node:os';
 
-import { hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
+import { arrayUnique, hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
@@ -71,7 +71,7 @@ export const getBundleHash = async (sourceFile: string, dependencyFiles: string[
   let bundleHash = hashCache.get(sourceFile);
 
   if (!bundleHash) {
-    bundleHash = await createBundleHash(dependencyFiles);
+    bundleHash = await createBundleHash(arrayUnique(dependencyFiles));
 
     hashCache.set(sourceFile, bundleHash);
   }

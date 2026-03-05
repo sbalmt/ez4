@@ -5,6 +5,7 @@ import { ConstraintAction } from '../types';
 
 export class SqlForeignKeyConstraintClause {
   #state: {
+    validate?: boolean;
     constraint: SqlConstraintClause;
     delete?: SqlForeignKeyActionClause;
     update?: SqlForeignKeyActionClause;
@@ -32,12 +33,24 @@ export class SqlForeignKeyConstraintClause {
     return this;
   }
 
+  /**
+   * Specify a new source table.
+   *
+   * @param table Table name.
+   * @returns Returns itself.
+   */
   source(table: string) {
     this.#state.sourceTable = table;
 
     return this;
   }
 
+  /**
+   * Specify a new target column.
+   *
+   * @param column Column name.
+   * @returns Returns itself.
+   */
   target(column: string) {
     this.#state.targetColumn = column;
 
@@ -60,8 +73,14 @@ export class SqlForeignKeyConstraintClause {
     return this.#state.update;
   }
 
+  validate(validate?: boolean) {
+    this.#state.validate = validate;
+
+    return this;
+  }
+
   build() {
-    const { constraint, targetColumn, sourceTable, sourceColumns, ...actions } = this.#state;
+    const { validate, constraint, targetColumn, sourceTable, sourceColumns, ...actions } = this.#state;
 
     if (!constraint.building) {
       return constraint.build();
@@ -81,6 +100,10 @@ export class SqlForeignKeyConstraintClause {
 
     if (updateAction) {
       clause.push('ON', 'UPDATE', updateAction);
+    }
+
+    if (validate === false) {
+      clause.push('NOT', 'VALID');
     }
 
     return clause.join(' ');

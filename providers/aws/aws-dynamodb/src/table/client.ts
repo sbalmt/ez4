@@ -152,8 +152,8 @@ export const updateDeletion = async (logger: OperationLogLine, tableName: string
 
   await getDynamoDBClient().send(
     new UpdateTableCommand({
-      TableName: tableName,
-      DeletionProtectionEnabled: !allowDeletion
+      DeletionProtectionEnabled: !allowDeletion,
+      TableName: tableName
     })
   );
 };

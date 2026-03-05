@@ -6,6 +6,7 @@ import type { QueueFunctionParameters } from './types';
 
 import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
+import { LogLevel } from '@ez4/project';
 
 import { bundleQueueFunction } from './bundler';
 
@@ -15,33 +16,35 @@ export const createQueueFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: QueueFunctionParameters
 ) => {
-  const { handler, variables, architecture, messageSchema } = parameters;
+  const { handler, variables, debug, architecture, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
+    logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
     release: parameters.release,
     timeout: parameters.timeout,
     memory: parameters.memory,
-    debug: parameters.debug,
+    files: parameters.files,
     tags: parameters.tags,
     getFunctionVariables: () => {
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
-    getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
-    },
     getFunctionBundle: (context) => {
       return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+    },
+    getFunctionFiles: () => {
+      return [handler.sourceFile, handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
-        messageSchema
+        messageSchema,
+        debug
       });
     }
   });

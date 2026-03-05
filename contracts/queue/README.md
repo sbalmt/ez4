@@ -24,7 +24,7 @@ type MyQueueMessage = {
 };
 
 // MyQueue declaration
-export declare class MyQueue extends Queue.Service<MyQueueMessage> {
+export declare class MyQueue extends Queue.Unordered<MyQueueMessage> {
   retention: 600;
 
   subscriptions: [

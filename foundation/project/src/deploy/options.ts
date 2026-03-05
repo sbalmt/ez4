@@ -13,7 +13,7 @@ export const getDeployOptions = (input: InputOptions, project: ProjectOptions): 
     projectName: toKebabCase(project.projectName),
     resourcePrefix: toKebabCase(resourcePrefix),
     lockId: toKebabCase(`${resourcePrefix}-${project.projectName}`),
-    concurrency: project.deployOptions?.maxConcurrency,
+    concurrency: project.deployOptions?.maxConcurrency ?? 25,
     debug: input.debug ?? project.debugMode,
     release: project.deployOptions?.release,
     defaults: project.defaultOptions,

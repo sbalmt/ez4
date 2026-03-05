@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { TableStreamListener } from './listener';
 import type { TableStreamHandler } from './handler';
@@ -24,6 +24,16 @@ export interface TableStream<T extends TableSchema> {
   readonly variables?: LinkedVariables;
 
   /**
+   * Log retention (in days) for the handler.
+   */
+  readonly logRetention?: number;
+
+  /**
+   * Log level for the handler.
+   */
+  readonly logLevel?: LogLevel;
+
+  /**
    * Architecture for the stream function.
    */
   readonly architecture?: ArchitectureType;
@@ -34,11 +44,6 @@ export interface TableStream<T extends TableSchema> {
   readonly runtime?: RuntimeType;
 
   /**
-   * Log retention (in days) for the handler.
-   */
-  readonly logRetention?: number;
-
-  /**
    * Max execution time (in seconds) for the handler.
    */
   readonly timeout?: number;
@@ -47,6 +52,11 @@ export interface TableStream<T extends TableSchema> {
    * Amount of memory available (in megabytes) for the handler.
    */
   readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 
   /**
    * Determines whether or not VPC is enabled for the stream.

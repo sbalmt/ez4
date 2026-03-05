@@ -6,6 +6,7 @@ import { PaginationMode } from '@ez4/database';
 import { createCluster } from '../cluster/service';
 import { createInstance } from '../instance/service';
 import { createMigration } from '../migration/service';
+import { createIntegrity } from '../integrity/service';
 import { getClusterName, getInstanceName, isAuroraService } from './utils';
 import { UnsupportedPaginationModeError } from './errors';
 import { prepareLinkedClient } from './client';
@@ -46,10 +47,12 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
     tags: options.tags
   });
 
-  createMigration(state, clusterState, instanceState, {
+  const migrationState = createMigration(state, clusterState, instanceState, {
     repository: getTableRepository(service.tables),
     database: getDatabaseName(service, options)
   });
+
+  createIntegrity(state, migrationState);
 
   context.setServiceState(service, options, clusterState);
 

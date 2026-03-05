@@ -32,15 +32,17 @@ export const prepareTableStream = (
   const { defaults, release } = options;
 
   const {
-    vpc,
-    handler,
-    listener,
-    variables,
     runtime = defaults?.runtime ?? Defaults.Runtime,
     architecture = defaults?.architecture ?? Defaults.Architecture,
     logRetention = defaults?.logRetention ?? Defaults.LogRetention,
+    logLevel = defaults?.logLevel ?? Defaults.LogLevel,
     memory = defaults?.memory ?? Defaults.Memory,
-    timeout = Defaults.Timeout
+    timeout = Defaults.Timeout,
+    variables,
+    listener,
+    handler,
+    files,
+    vpc
   } = table.stream;
 
   const internalName = getInternalName(service, table, handler.name);
@@ -66,10 +68,12 @@ export const prepareTableStream = (
       tags: options.tags,
       variables: [options.variables, service.variables, variables],
       architecture,
+      logLevel,
       runtime,
       release,
       timeout,
       memory,
+      files,
       vpc,
       handler: {
         sourceFile: handler.file,

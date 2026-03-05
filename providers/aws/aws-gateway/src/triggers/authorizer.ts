@@ -32,17 +32,19 @@ export const getAuthorizerFunction = (
     throw new RoleMissingError();
   }
 
-  const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
+  const defaults = deepMerge(options.defaults ?? {}, service.defaults ?? {});
 
   const {
-    vpc,
-    authorizer,
-    listener = defaults.listener,
     runtime = defaults.runtime ?? Defaults.Runtime,
     architecture = defaults.architecture ?? Defaults.Architecture,
     logRetention = defaults.logRetention ?? Defaults.LogRetention,
+    logLevel = defaults.logLevel ?? Defaults.LogLevel,
     timeout = defaults.timeout ?? Defaults.Timeout,
-    memory = defaults.memory ?? Defaults.Memory
+    memory = defaults.memory ?? Defaults.Memory,
+    listener = defaults.listener,
+    authorizer,
+    files,
+    vpc
   } = target;
 
   const internalName = getInternalName(service, authorizer.name);
@@ -75,8 +77,10 @@ export const getAuthorizerFunction = (
       tags: options.tags,
       variables: [options.variables, service.variables],
       architecture,
+      logLevel,
       runtime,
       memory,
+      files,
       vpc,
       preferences: {
         ...service.defaults?.preferences,

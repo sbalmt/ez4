@@ -12,7 +12,6 @@ import type {
   AnyObject,
   PartialProperties,
   PartialObject,
-  FlatObject,
   OptionalObject,
   StrictObject,
   IsNullable,
@@ -129,7 +128,7 @@ export namespace Query {
 
   export type UpdateDataInput<T extends TableMetadata> =
     IsObjectEmpty<T['relations']['updates']> extends false
-      ? AtomicDataInput<Omit<T['schema'], T['relations']['indexes']> & FlatObject<T['relations']['updates']>>
+      ? AtomicDataInput<Omit<T['schema'], T['relations']['indexes']> & T['relations']['updates']>
       : AtomicDataInput<T['schema']>;
 
   export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;

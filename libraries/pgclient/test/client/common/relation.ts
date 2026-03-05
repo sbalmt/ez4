@@ -98,10 +98,8 @@ export const makeRelationClient = async (debug?: boolean) => {
 export const prepareRelationTables = async (client: DbClient<TestRelationDb>) => {
   const queries = getCreateQueries(TestRelationRepository);
 
-  await client.transaction(async (transaction) => {
-    await deleteRelationTables(transaction);
-    await runMigration(transaction, queries);
-  });
+  await deleteRelationTables(client);
+  await runMigration(client, queries);
 };
 
 export const deleteRelationTables = async (client: DbClient<TestRelationDb>) => {

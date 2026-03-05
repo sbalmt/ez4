@@ -1,7 +1,7 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AuthHandler } from '../auth/types';
 
 import { createServiceMetadata } from '@ez4/project/library';
@@ -69,8 +69,10 @@ export type WsDefaults = {
   architecture?: ArchitectureType;
   runtime?: RuntimeType;
   logRetention?: number;
+  logLevel?: LogLevel;
   timeout?: number;
   memory?: number;
+  files?: string[];
 };
 
 export const isWsService = (service: ServiceMetadata): service is WsService => {

@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { WebPreferences } from './preferences';
 
 /**
@@ -11,19 +11,14 @@ export interface WebDefaults {
   readonly preferences?: WebPreferences;
 
   /**
-   * Default log retention (in days) for the handlers.
+   * Default log retention (in days) for all handlers.
    */
   readonly logRetention?: number;
 
   /**
-   * Default execution time (in seconds) for handlers.
+   * Log level for all handlers.
    */
-  readonly timeout?: number;
-
-  /**
-   * Default amount of memory available (in megabytes) for handlers.
-   */
-  readonly memory?: number;
+  readonly logLevel?: LogLevel;
 
   /**
    * Default architecture for all the API functions.
@@ -34,4 +29,19 @@ export interface WebDefaults {
    * Default runtime for all the API functions.
    */
   readonly runtime?: RuntimeType;
+
+  /**
+   * Default execution time (in seconds) for handlers.
+   */
+  readonly timeout?: number;
+
+  /**
+   * Default amount of memory available (in megabytes) for all handlers.
+   */
+  readonly memory?: number;
+
+  /**
+   * Additional resources files for the bundler.
+   */
+  readonly files?: string[];
 }

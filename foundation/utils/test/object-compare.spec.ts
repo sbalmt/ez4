@@ -1,7 +1,7 @@
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { deepCompare } from '@ez4/utils';
+import { deepCompare, deepEqual as deepEquals, isAnyArray, isAnyObject } from '@ez4/utils';
 
 describe('object comparison utils', () => {
   const target = {
@@ -109,7 +109,7 @@ describe('object comparison utils', () => {
       level: 1,
       first_old: {
         level: 2,
-        second_old: 'value'
+        second: 'value'
       }
     };
 
@@ -119,6 +119,39 @@ describe('object comparison utils', () => {
       counts: 1,
       rename: {
         first_old: 'first'
+      }
+    });
+  });
+
+  it('assert :: deep compare (custom rename)', () => {
+    const source = {
+      level: 1,
+      FIRST_OLD: {
+        level: 2,
+        second: 'value'
+      }
+    };
+
+    const changes = deepCompare(target, source, {
+      onSimilarName: (target, source) => {
+        const lcTarget = target.toLowerCase();
+        const lcSource = source.toLowerCase();
+
+        return lcTarget.includes(lcSource) || lcSource.includes(lcTarget);
+      },
+      onRename: (target, source) => {
+        if ((isAnyObject(target) && isAnyObject(source)) || (isAnyArray(target) && isAnyArray(source))) {
+          return deepEquals(target, source);
+        }
+
+        return target === source;
+      }
+    });
+
+    deepEqual(changes, {
+      counts: 1,
+      rename: {
+        FIRST_OLD: 'first'
       }
     });
   });

@@ -1,12 +1,24 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
-import { deepEqual, deepCompareObject, isAnyObject } from '@ez4/utils';
+import { deepEqual, deepCompareObject, isAnyObject, toSnakeCase } from '@ez4/utils';
 import { isTableMetadata } from '@ez4/pgclient/library';
 import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
+    onSimilarName: (target, source) => {
+      const targetParts = new Set(toSnakeCase(target).split('_'));
+      const sourceParts = new Set(toSnakeCase(source).split('_'));
+
+      for (const sourcePart of sourceParts) {
+        if (sourcePart.length > 1 && targetParts.has(sourcePart)) {
+          return true;
+        }
+      }
+
+      return false;
+    },
     onRename: (target, source) => {
       if (!isAnyObject(target) || !isAnyObject(source)) {
         return false;

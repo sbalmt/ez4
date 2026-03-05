@@ -7,3 +7,7 @@ export const tableExists = async (client: DbClient<Database.Service>, table: str
 export const constraintExists = async (client: DbClient<Database.Service>, constraint: string) => {
   return client.rawQuery(`SELECT true AS ${constraint} FROM information_schema.table_constraints WHERE constraint_name = '${constraint}'`);
 };
+
+export const indexExists = async (client: DbClient<Database.Service>, index: string) => {
+  return client.rawQuery(`SELECT true AS ${index} FROM pg_class WHERE relkind = 'i' AND relname = '${index}'`);
+};

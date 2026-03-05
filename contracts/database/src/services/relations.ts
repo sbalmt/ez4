@@ -1,8 +1,19 @@
-import type { AnyObject, ArrayRest, PropertyType, Exclusive, IsArrayEmpty, IsUndefined, MergeObject, Prettify } from '@ez4/utils';
 import type { TableIndexes, IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { DatabaseTable, DatabaseTables } from './table';
 import type { TableSchema, TableSchemas } from './schemas';
 import type { Database } from './contract';
+
+import type {
+  AnyObject,
+  ArrayRest,
+  PropertyType,
+  Exclusive,
+  IsArrayEmpty,
+  IsUndefined,
+  MergeObject,
+  Prettify,
+  TryArrayType
+} from '@ez4/utils';
 
 /**
  * Database table relations.
@@ -168,7 +179,7 @@ type FilterableRelationSchemas<S extends Record<string, TableSchema>, R extends 
  * Produce an object containing relation schemas for updates.
  */
 type UpdateRelationSchemas<N, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>, R extends AnyObject> = {
-  [P in keyof R as RelationTargetAlias<P>]?: ChangeRelationSchema<N, R[P], P, S, I>;
+  [P in keyof R as RelationTargetAlias<P>]?: TryArrayType<ChangeRelationSchema<N, R[P], P, S, I>>;
 };
 
 /**

@@ -61,17 +61,19 @@ const getIntegrationFunction = (
     throw new RoleMissingError();
   }
 
-  const defaults = deepMerge(service.defaults ?? {}, options.defaults ?? {});
+  const defaults = deepMerge(options.defaults ?? {}, service.defaults ?? {});
 
   const {
-    vpc,
-    handler,
-    listener = defaults.listener,
     runtime = defaults.runtime ?? Defaults.Runtime,
     architecture = defaults.architecture ?? Defaults.Architecture,
     logRetention = defaults.logRetention ?? Defaults.LogRetention,
+    logLevel = defaults.logLevel ?? Defaults.LogLevel,
     timeout = defaults.timeout ?? Defaults.Timeout,
-    memory = defaults.memory ?? Defaults.Memory
+    memory = defaults.memory ?? Defaults.Memory,
+    listener = defaults.listener,
+    handler,
+    files,
+    vpc
   } = target;
 
   const provider = 'provider' in handler ? handler.provider : undefined;
@@ -111,9 +113,11 @@ const getIntegrationFunction = (
       tags: options.tags,
       variables: [options.variables, service.variables],
       architecture,
+      logLevel,
       runtime,
       memory,
       type,
+      files,
       vpc,
       handler: {
         sourceFile: handler.file,

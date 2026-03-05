@@ -17,6 +17,11 @@ export namespace Defaults {
   export const Memory = FunctionDefaults.Memory;
 
   /**
+   * Default function log level.
+   */
+  export const LogLevel = FunctionDefaults.LogLevel;
+
+  /**
    * Default log retention in days.
    */
   export const LogRetention = FunctionDefaults.LogRetention;

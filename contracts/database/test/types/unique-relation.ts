@@ -43,6 +43,7 @@ export declare class TestDatabase extends Database.Service {
         unique_b_id: string;
         secondary_b_id?: string;
         value_b: number;
+        list_b?: string[];
       };
     }>,
     Database.UseTable<{
@@ -228,7 +229,8 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
     data: {
       value_a: 1,
       relation_b: {
-        value_b: 2
+        value_b: 2,
+        list_b: ['a', 'b']
       }
     },
     where: {
@@ -272,7 +274,8 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
   await selfClient.tableC.updateMany({
     data: {
       all_relations_b: {
-        value_b: 2
+        value_b: 2,
+        list_b: ['a', 'b']
       }
     },
     where: {

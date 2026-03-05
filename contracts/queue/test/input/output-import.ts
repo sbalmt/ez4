@@ -5,12 +5,20 @@ interface TestMessage extends Queue.Message {
   foo: string;
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
   timeout: 20;
 
   polling: 10;
+}
+
+export declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
+  subscriptions: [];
+
+  fifoMode: {
+    groupId: 'foo';
+  };
 }
 
 function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestImport1Queue>) {
@@ -36,7 +44,7 @@ function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Cont
 /**
  * Import queue assigning handler.
  */
-export declare class TestImport1Queue extends Queue.Import<TestQueue> {
+export declare class TestImport1Queue extends Queue.Import<TestUnorderedQueue> {
   project: 'name from project in ez4.project.js';
 
   subscriptions: [
@@ -58,7 +66,7 @@ export declare class TestImport1Queue extends Queue.Import<TestQueue> {
 /**
  * Import queue with no assigned handler.
  */
-export declare class TestImport2Queue extends Queue.Import<TestQueue> {
+export declare class TestImport2Queue extends Queue.Import<TestOrderedQueue> {
   project: 'name from project in ez4.project.js';
 
   variables: {

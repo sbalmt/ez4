@@ -86,11 +86,11 @@ export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
     data: {
       name,
       description,
-      ...(input.category && {
+      ...(category && {
         category:
-          'category_id' in input.category
+          'category_id' in category
             ? {
-                id: input.category.category_id
+                id: category.category_id
               }
             : {
                 id: randomUUID(),

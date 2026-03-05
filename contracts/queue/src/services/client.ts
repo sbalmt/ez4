@@ -3,14 +3,14 @@ import type { Queue } from './contract';
 /**
  * Queue client.
  */
-export interface Client<T extends Queue.Service<any>> {
+export interface Client<T extends Queue.Message, U extends Queue.FifoMode<T> | undefined> {
   /**
    * Send a new JSON message to the queue.
    *
    * @param message Message object.
    * @param options Send options.
    */
-  sendMessage(message: T['schema'], options?: SendOptions<T>): Promise<void>;
+  sendMessage(message: T, options?: SendOptions<U>): Promise<void>;
 
   /**
    * Receive JSON messages from the queue.
@@ -18,7 +18,7 @@ export interface Client<T extends Queue.Service<any>> {
    * @param options Receive options.
    * @returns Returns a list containing zero or more messages.
    */
-  receiveMessage(options?: ReceiveOptions): Promise<T['schema'][]>;
+  receiveMessage(options?: ReceiveOptions): Promise<T[]>;
 }
 
 /**
@@ -39,7 +39,7 @@ export type ReceiveOptions = {
 /**
  * Options for sending messages with queue client.
  */
-export type SendOptions<T extends Queue.Service<any>> = undefined extends T['fifoMode'] ? StandardSendOptions : never;
+export type SendOptions<T extends Queue.FifoMode<any> | undefined> = undefined extends T ? StandardSendOptions : never;
 
 /**
  * Options for sending messages with standard queue client.

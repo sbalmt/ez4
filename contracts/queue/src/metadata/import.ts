@@ -18,7 +18,7 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
-import { isObjectWith } from '@ez4/utils';
+import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
 import { getQueueSubscriptionsMetadata } from './subscription';
@@ -107,7 +107,11 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'timeout': {
           if (member.inherited) {
-            service.timeout = getPropertyNumber(member, reflection);
+            const value = getPropertyNumber(member, reflection);
+
+            if (isAnyNumber(value)) {
+              service[member.name] = value;
+            }
           }
           break;
         }

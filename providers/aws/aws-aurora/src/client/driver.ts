@@ -44,8 +44,9 @@ export class DataClientDriver implements PgClientDriver {
           new ExecuteStatementCommand({
             ...this.connection,
             formatRecordsAs: RecordsFormatType.JSON,
-            sql: statement.query,
+            continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
+            sql: statement.query,
             transactionId,
             resultSetOptions: {
               decimalReturnType: DecimalReturnType.DOUBLE_OR_LONG,
@@ -81,7 +82,9 @@ export class DataClientDriver implements PgClientDriver {
         };
       });
     } catch (error) {
-      logQueryError(statement, transactionId);
+      if (!options?.noErrorLog) {
+        logQueryError(statement, transactionId);
+      }
 
       throw error;
     }

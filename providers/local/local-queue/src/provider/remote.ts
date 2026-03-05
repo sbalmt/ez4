@@ -31,7 +31,7 @@ export const registerRemoteServices = (service: QueueImport, options: ServeOptio
   };
 };
 
-const handleQueueForward = async (service: QueueImport, options: RemoteClientOptions, request: EmulatorRequestEvent) => {
+const handleQueueForward = (service: QueueImport, options: RemoteClientOptions, request: EmulatorRequestEvent) => {
   const { reference: referenceName, schema: messageSchema } = service;
 
   const client = createRemoteClient(referenceName, messageSchema, options);

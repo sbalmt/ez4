@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { NamingStyle } from '@ez4/schema';
 import type { Ws } from '@ez4/gateway';
 
@@ -35,12 +35,14 @@ export declare class TestService2 extends Ws.Service<TestData> {
   connect: Ws.UseConnect<{
     handler: typeof connectHandler;
     architecture: ArchitectureType.Arm;
+    logLevel: LogLevel.Information;
     logRetention: 15;
     memory: 128;
   }>;
 
   disconnect: Ws.UseDisconnect<{
     handler: typeof disconnectHandler;
+    files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     runtime: RuntimeType.Node24;
     preferences: {
       namingStyle: NamingStyle.SnakeCase;

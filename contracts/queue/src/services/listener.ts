@@ -8,5 +8,5 @@ import type { Queue } from './contract';
  */
 export type QueueSubscriptionListener<T extends QueueMessage> = (
   event: Service.AnyEvent<QueueIncoming<T>>,
-  context: Service.Context<Queue.Service<any> | Queue.Import<any>>
+  context: Service.Context<Queue.Service<any, any> | Queue.Import<any>>
 ) => Promise<void> | void;

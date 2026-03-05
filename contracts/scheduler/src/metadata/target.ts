@@ -7,14 +7,16 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getLinkedVariableList,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
   getPropertyNumber,
-  getServiceListener,
-  getServiceArchitecture,
-  getServiceRuntime,
+  getPropertyStringList,
   getPropertyBoolean,
   getReferenceType,
+  getServiceListener,
+  getServiceArchitecture,
+  getServiceLogLevel,
+  getServiceRuntime,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -92,9 +94,14 @@ const getTypeFromMembers = (
       }
 
       case 'memory':
-      case 'logRetention':
-      case 'timeout': {
+      case 'timeout':
+      case 'logRetention': {
         target[member.name] = getPropertyNumber(member);
+        break;
+      }
+
+      case 'logLevel': {
+        target[member.name] = getServiceLogLevel(member);
         break;
       }
 
@@ -105,6 +112,11 @@ const getTypeFromMembers = (
 
       case 'runtime': {
         target[member.name] = getServiceRuntime(member);
+        break;
+      }
+
+      case 'files': {
+        target[member.name] = getPropertyStringList(member);
         break;
       }
 

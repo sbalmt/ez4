@@ -44,6 +44,7 @@ describe('aurora instance', () => {
 
     const resource = createInstance(localState, clusterState, {
       instanceName: 'ez4-test-instance',
+      allowDeletion: true,
       tags: {
         test1: 'ez4-tag1',
         test2: 'ez4-tag2'

@@ -1,10 +1,15 @@
-import { ArchitectureType, RuntimeType } from '@ez4/project';
+import { ArchitectureType, RuntimeType, LogLevel as ProjectLogLevel } from '@ez4/project';
 
 export namespace FunctionDefaults {
   /**
    * Default log retention in days.
    */
   export const LogRetention = 90;
+
+  /**
+   * Default function log level.
+   */
+  export const LogLevel = ProjectLogLevel.Warning;
 
   /**
    * Default function architecture.

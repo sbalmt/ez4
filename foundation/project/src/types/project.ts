@@ -1,4 +1,4 @@
-import type { ArchitectureType, RuntimeType } from '@ez4/project';
+import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
@@ -149,7 +149,7 @@ export type ProjectDeployOptions = {
 
   /**
    * Determines the maximum amount of resources changes at the same time.
-   * Default is: `15`
+   * Default is: `25`
    */
   maxConcurrency: number;
 };
@@ -193,6 +193,11 @@ export type ProjectWatchOptions = {
 };
 
 export type ProjectDefaultOptions = {
+  /**
+   * Default log level for all handlers.
+   */
+  logLevel?: LogLevel;
+
   /**
    * Default log retention (in days) for all handlers.
    */

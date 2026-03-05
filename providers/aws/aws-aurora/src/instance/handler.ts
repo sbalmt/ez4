@@ -10,6 +10,7 @@ import { createInstance, deleteInstance, importInstance, tagInstance, untagInsta
 
 import { getClusterName } from '../cluster/utils';
 import { InstanceServiceName } from './types';
+import { InstanceDeletionDeniedError } from './errors';
 
 export const getInstanceHandler = (): StepHandler<InstanceState> => ({
   equals: equalsResource,
@@ -84,18 +85,22 @@ const updateResource = (candidate: InstanceState, current: InstanceState): Promi
   });
 };
 
-const deleteResource = async (current: InstanceState) => {
-  const { result } = current;
+const deleteResource = async (current: InstanceState, context: StepContext) => {
+  const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { instanceName } = result;
+
+    await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
+      const { allowDeletion } = parameters;
+
+      if (!allowDeletion && !context.force) {
+        throw new InstanceDeletionDeniedError(instanceName);
+      }
+
+      await deleteInstance(logger, instanceName);
+    });
   }
-
-  const { instanceName } = result;
-
-  await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
-    await deleteInstance(logger, instanceName);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, instanceArn: Arn, candidate: InstanceParameters, current: InstanceParameters) => {

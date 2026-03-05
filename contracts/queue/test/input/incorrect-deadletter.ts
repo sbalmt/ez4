@@ -7,7 +7,7 @@ declare class TestDeadLetter {
   maxRetries: 5;
 }
 
-export declare class TestQueue extends Queue.Service<TestMessage> {
+export declare class TestQueue extends Queue.Unordered<TestMessage> {
   deadLetter: TestDeadLetter;
 
   subscriptions: [];

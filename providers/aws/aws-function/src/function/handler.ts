@@ -48,6 +48,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       connections: candidate.connections,
       dependencies: candidate.dependencies,
       variables: protectVariables(await target.getFunctionVariables()),
+      filesHash: target.files && (await getBundleHash(target.functionName, target.files)),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
       valuesHash: target.getFunctionHash()
     },
@@ -57,7 +58,8 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       dependencies: current.dependencies,
       variables: current.result?.variables,
       sourceHash: current.result?.sourceHash,
-      valuesHash: current.result?.valuesHash
+      valuesHash: current.result?.valuesHash,
+      filesHash: current.result?.filesHash
     },
     {
       exclude: {
@@ -91,8 +93,9 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
     const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
     const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
-    const [sourceHash, sourceFile, valuesHash, variables] = await Promise.all([
+    const [sourceHash, filesHash, sourceFile, valuesHash, variables] = await Promise.all([
       getBundleHash(...parameters.getFunctionFiles()),
+      parameters.files && getBundleHash(functionName, parameters.files),
       parameters.getFunctionBundle(context),
       parameters.getFunctionHash(),
       parameters.getFunctionVariables()
@@ -104,6 +107,7 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
     if (importedFunction) {
       await updateSourceCode(logger, functionName, {
         architecture: parameters.architecture,
+        files: parameters.files,
         publish: false,
         sourceFile
       });
@@ -131,9 +135,10 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
         functionArn: importedFunction.functionArn,
         functionVersion: importedFunction.functionVersion,
         variables: protectVariables(variables),
-        valuesHash,
         sourceHash,
+        valuesHash,
         bundleHash,
+        filesHash,
         logGroup,
         roleArn
       };
@@ -164,9 +169,10 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
       functionArn: createdFunction.functionArn,
       functionVersion: createdFunction.functionVersion,
       variables: protectVariables(variables),
-      valuesHash,
       sourceHash,
+      valuesHash,
       bundleHash,
+      filesHash,
       logGroup,
       roleArn
     };
@@ -296,23 +302,27 @@ const checkSourceCodeUpdates = async (
   current: FunctionResult | undefined,
   context: StepContext
 ) => {
-  const [newSourceHash, newValuesHash] = await Promise.all([getBundleHash(...candidate.getFunctionFiles()), candidate.getFunctionHash()]);
+  const [newSourceHash, newFilesHash, newValuesHash] = await Promise.all([
+    getBundleHash(...candidate.getFunctionFiles()),
+    candidate.files && getBundleHash(functionName, candidate.files),
+    candidate.getFunctionHash()
+  ]);
 
   const oldSourceHash = current?.sourceHash;
   const oldValuesHash = current?.valuesHash;
+  const oldFilesHash = current?.filesHash;
 
-  if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || context.force) {
+  if (newSourceHash !== oldSourceHash || newValuesHash !== oldValuesHash || newFilesHash !== oldFilesHash || context.force) {
     const newSourceFile = await candidate.getFunctionBundle(context);
 
     const newBundleHash = await hashFile(newSourceFile);
     const oldBundleHash = current?.bundleHash;
 
-    if (newBundleHash === oldBundleHash && newValuesHash === oldValuesHash) {
+    if (newBundleHash === oldBundleHash && newFilesHash === oldFilesHash && newValuesHash === oldValuesHash) {
       logger.update(`Skipping source code update`);
 
       return {
         isUpdated: false,
-        valuesHash: newValuesHash,
         sourceHash: newSourceHash
       };
     }
@@ -320,7 +330,8 @@ const checkSourceCodeUpdates = async (
     const { functionVersion } = await updateSourceCode(logger, functionName, {
       architecture: candidate.architecture,
       publish: !current?.functionVersion,
-      sourceFile: newSourceFile
+      sourceFile: newSourceFile,
+      files: candidate.files
     });
 
     return {
@@ -328,6 +339,7 @@ const checkSourceCodeUpdates = async (
       valuesHash: newValuesHash,
       sourceHash: newSourceHash,
       bundleHash: newBundleHash,
+      filesHash: newFilesHash,
       ...(functionVersion && {
         functionVersion
       })

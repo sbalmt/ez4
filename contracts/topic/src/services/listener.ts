@@ -8,5 +8,5 @@ import type { Topic } from './contract';
  */
 export type TopicSubscriptionListener<T extends TopicMessage> = (
   event: Service.AnyEvent<TopicIncoming<T>>,
-  context: Service.Context<Topic.Service<any> | Topic.Import<any>>
+  context: Service.Context<Topic.Service<any, any> | Topic.Import<any>>
 ) => Promise<void> | void;

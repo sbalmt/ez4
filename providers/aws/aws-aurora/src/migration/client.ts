@@ -6,6 +6,7 @@ import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmig
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 
 import { DataClientDriver } from '../client/driver';
+import { MigrationFailedError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -55,7 +56,7 @@ export const createTables = async (logger: OperationLogLine, request: CreateTabl
 
   const queries = getCreateQueries(repository);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations, ...queries.indexes]);
+  await executeMigrationStatements(driver, [...queries.tables, ...queries.constraints, ...queries.indexes, ...queries.relations]);
 };
 
 export const updateTables = async (logger: OperationLogLine, request: UpdateTableRequest): Promise<void> => {
@@ -71,8 +72,7 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
 
   const queries = getUpdateQueries(repository.target, repository.source);
 
-  await executeMigrationTransaction(driver, [...queries.tables, ...queries.constraints, ...queries.relations]);
-  await executeMigrationStatements(driver, queries.indexes);
+  await executeMigrationStatements(driver, [...queries.tables, ...queries.constraints, ...queries.indexes, ...queries.relations]);
 };
 
 export const deleteTables = async (logger: OperationLogLine, request: DeleteTableRequest): Promise<void> => {
@@ -88,7 +88,7 @@ export const deleteTables = async (logger: OperationLogLine, request: DeleteTabl
 
   const queries = getDeleteQueries(repository);
 
-  await executeMigrationTransaction(driver, queries.tables);
+  await executeMigrationStatements(driver, queries.tables);
 };
 
 export const deleteDatabase = async (logger: OperationLogLine, request: ConnectionRequest): Promise<void> => {
@@ -105,26 +105,24 @@ export const deleteDatabase = async (logger: OperationLogLine, request: Connecti
   await executeMigrationStatement(driver, DatabaseQueries.prepareDelete(database));
 };
 
-const executeMigrationTransaction = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
-  const transactionId = await driver.beginTransaction();
-
-  try {
-    await executeMigrationStatements(driver, statements);
-    await driver.commitTransaction(transactionId);
-  } catch (error) {
-    await driver.rollbackTransaction(transactionId);
-    throw error;
-  }
-};
-
 const executeMigrationStatements = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
+  const errors = [];
+
   for (const statement of statements) {
-    await executeMigrationStatement(driver, statement);
+    try {
+      await executeMigrationStatement(driver, statement);
+    } catch (error) {
+      errors.push(`${error}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new MigrationFailedError(errors);
   }
 };
 
 const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
-  const { check, query } = statement;
+  const { check, ...query } = statement;
 
   if (check) {
     const { records } = await driver.executeStatement({
@@ -138,8 +136,8 @@ const executeMigrationStatement = async (driver: DataClientDriver, statement: Pg
     }
   }
 
-  await driver.executeStatement({
-    query
+  await driver.executeStatement(query, {
+    noErrorLog: true
   });
 
   return true;
