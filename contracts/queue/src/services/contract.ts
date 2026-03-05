@@ -158,7 +158,7 @@ export namespace Queue {
     /**
      * Imported FIFO mode options (do not replace).
      */
-    readonly fifoMode?: T['fifoMode'];
+    readonly fifoMode: T['fifoMode'];
 
     /**
      * Imported maximum acknowledge time (do not replace).

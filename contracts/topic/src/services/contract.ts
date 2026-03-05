@@ -65,7 +65,7 @@ export namespace Topic {
     /**
      * FIFO mode options.
      */
-    readonly fifoMode?: U;
+    readonly fifoMode: U;
 
     /**
      * Variables associated to all subscriptions.
