@@ -20,7 +20,8 @@ export const createCacheOperator = (connection: ClientConnection, debug?: boolea
   const { tls, endpoint, port = 6379 } = connection;
 
   const client = new Valkey({
-    connectTimeout: 10000,
+    maxRetriesPerRequest: 3,
+    connectTimeout: 2500,
     lazyConnect: true,
     host: endpoint,
     port,
