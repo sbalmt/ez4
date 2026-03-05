@@ -9,7 +9,7 @@ import { Client } from '@ez4/aws-queue/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
-declare class Test extends Queue.Service<{ test: string }> {
+declare class Test extends Queue.Unordered<{ test: string }> {
   subscriptions: [];
 }
 

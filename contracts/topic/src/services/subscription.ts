@@ -13,7 +13,7 @@ export interface TopicQueueSubscription<T extends TopicMessage> {
    * Reference to the queue service.
    */
   readonly service: {
-    readonly reference: Queue.Service<T>;
+    readonly reference: Queue.Service<T, any>;
   };
 }
 

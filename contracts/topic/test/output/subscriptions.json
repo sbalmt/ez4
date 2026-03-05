@@ -15,12 +15,12 @@
     "description": "Topic to test subscriptions.",
     "schema": {
       "type": "object",
+      "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
         }
-      },
-      "identity": 1
+      }
     },
     "subscriptions": [
       {
@@ -33,14 +33,14 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            65,
+            73,
             1
           ]
         }
       },
       {
         "type": "queue",
-        "service": "TestQueue"
+        "service": "TestOrderedQueue"
       },
       {
         "type": "lambda",
@@ -50,7 +50,7 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            65,
+            73,
             1
           ]
         },
@@ -64,25 +64,45 @@
       },
       {
         "type": "queue",
-        "service": "TestQueue"
+        "service": "TestUnorderedQueue"
       }
     ]
   },
-  "TestQueue": {
+  "TestOrderedQueue": {
     "type": "@ez4/queue",
-    "name": "TestQueue",
+    "name": "TestOrderedQueue",
     "context": {},
     "variables": {},
     "services": {},
     "subscriptions": [],
+    "fifoMode": {
+      "groupId": "foo"
+    },
     "schema": {
+      "type": "object",
       "identity": 1,
       "properties": {
         "foo": {
           "type": "string"
         }
-      },
-      "type": "object"
+      }
+    }
+  },
+  "TestUnorderedQueue": {
+    "type": "@ez4/queue",
+    "name": "TestUnorderedQueue",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "subscriptions": [],
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
     }
   }
 }

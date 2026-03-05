@@ -13,7 +13,7 @@ type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDedupl
 export namespace Client {
   const client = new SQSClient();
 
-  export const make = <T extends Queue.Service<any>>(
+  export const make = <T extends Queue.Service<any, any>>(
     queueUrl: string,
     messageSchema: MessageSchema,
     fifoMode?: Queue.FifoMode<T>

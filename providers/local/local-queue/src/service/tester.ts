@@ -8,16 +8,16 @@ import { mock } from 'node:test';
 import { createClientMock } from '../client/mock';
 
 export namespace QueueTester {
-  export type ClientMock<T extends Queue.Message> = Client<Queue.Service<T>> & {
-    receiveMessage: Mock<Client<Queue.Service<T>>['receiveMessage']>;
-    sendMessage: Mock<Client<Queue.Service<T>>['sendMessage']>;
+  export type ClientMock<T extends Queue.Service<any, any>> = Client<T> & {
+    receiveMessage: Mock<Client<T>['receiveMessage']>;
+    sendMessage: Mock<Client<T>['sendMessage']>;
   };
 
-  export const getClient = <T extends Queue.Message>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client<Queue.Service<T>>;
+  export const getClient = <T extends Queue.Service<any, any>>(resourceName: string) => {
+    return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
-  export const getClientMock = <T extends Queue.Message = any>(resourceName: string) => {
+  export const getClientMock = <T extends Queue.Service<any, any>>(resourceName: string) => {
     const client = createClientMock(resourceName) as ClientMock<T>;
 
     mock.method(client, 'sendMessage');

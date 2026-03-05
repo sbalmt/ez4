@@ -23,14 +23,14 @@ export declare class TestTopic extends Topic.Service<TestMessage> {
 
     // Inline queue subscription.
     Topic.UseSubscription<{
-      service: Environment.Service<TestQueue>;
+      service: Environment.Service<TestOrderedQueue>;
     }>,
 
     // Lambda subscription reference.
     TestLambdaSubscription,
 
     // Queue subscription reference.
-    TestQueueSubscription
+    TestUnorderedQueueSubscription
   ];
 
   // Services to all subscriptions.
@@ -54,12 +54,20 @@ declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMes
   };
 }
 
-declare class TestQueue extends Queue.Service<TestMessage> {
+declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
   subscriptions: [];
+
+  fifoMode: {
+    groupId: 'foo';
+  };
 }
 
-declare class TestQueueSubscription implements Topic.QueueSubscription<TestMessage> {
-  service: Environment.Service<TestQueue>;
+declare class TestUnorderedQueueSubscription implements Topic.QueueSubscription<TestMessage> {
+  service: Environment.Service<TestUnorderedQueue>;
+}
+
+declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
+  subscriptions: [];
 }
 
 function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Context<TestTopic>) {

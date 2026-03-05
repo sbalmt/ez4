@@ -10,7 +10,7 @@ export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
-export const createRemoteClient = <T extends Queue.Service<any>>(
+export const createRemoteClient = <T extends Queue.Service<any, any>>(
   serviceName: string,
   messageSchema: MessageSchema,
   clientOptions: RemoteClientOptions

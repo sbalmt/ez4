@@ -11,7 +11,7 @@ export type LocalClientOptions = ServeOptions & {
   delay: number;
 };
 
-export const createLocalClient = <T extends Queue.Service<any>>(
+export const createLocalClient = <T extends Queue.Service<any, any>>(
   serviceName: string,
   messageSchema: MessageSchema,
   clientOptions: LocalClientOptions
