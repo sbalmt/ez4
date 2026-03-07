@@ -18,11 +18,12 @@
       "logRetention": 14,
       "timeout": 15,
       "memory": 192,
+      "debug": true,
       "listener": {
         "name": "testListener",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          41,
+          42,
           1
         ]
       },
@@ -44,7 +45,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          35,
+          36,
           1
         ]
       }
@@ -54,7 +55,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          37,
+          38,
           1
         ]
       }
@@ -64,7 +65,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-defaults.ts",
         "position": [
-          39,
+          40,
           1
         ]
       }

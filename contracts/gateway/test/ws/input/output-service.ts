@@ -54,6 +54,7 @@ export declare class TestService2 extends Ws.Service<TestData> {
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
     timeout: 90;
+    debug: false;
     preferences: {
       namingStyle: NamingStyle.CamelCase;
     };

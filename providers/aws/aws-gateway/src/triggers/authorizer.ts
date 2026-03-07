@@ -42,6 +42,7 @@ export const getAuthorizerFunction = (
     timeout = defaults.timeout ?? Defaults.Timeout,
     memory = defaults.memory ?? Defaults.Memory,
     listener = defaults.listener,
+    debug = defaults.debug,
     authorizer,
     files,
     vpc
@@ -73,7 +74,6 @@ export const getAuthorizerFunction = (
       services: provider?.services,
       context: service.context,
       release: options.release,
-      debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],
       architecture,
@@ -81,6 +81,7 @@ export const getAuthorizerFunction = (
       runtime,
       memory,
       files,
+      debug,
       vpc,
       preferences: {
         ...service.defaults?.preferences,

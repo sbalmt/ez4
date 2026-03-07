@@ -59,9 +59,14 @@ export interface BucketEvents {
   readonly memory?: number;
 
   /**
-   * Additional resources files for the bundler.
+   * Additional resource files for the handler bundler.
    */
   readonly files?: string[];
+
+  /**
+   * Determine whether the debug mode is active for the handler.
+   */
+  readonly debug?: boolean;
 
   /**
    * Determines whether or not VPC is enabled for the event.

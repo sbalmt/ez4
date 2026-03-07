@@ -31,6 +31,7 @@ export declare class TestScheduler extends Cron.Service {
     logRetention: 14;
     timeout: 30;
     memory: 128;
+    debug: true;
     variables: {
       TEST_VAR1: 'test-literal-value';
     };

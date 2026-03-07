@@ -115,13 +115,14 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'files': {
-        target[member.name] = getPropertyStringList(member);
+      case 'vpc':
+      case 'debug': {
+        target[member.name] = getPropertyBoolean(member);
         break;
       }
 
-      case 'vpc': {
-        target[member.name] = getPropertyBoolean(member);
+      case 'files': {
+        target[member.name] = getPropertyStringList(member);
         break;
       }
 

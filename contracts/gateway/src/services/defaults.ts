@@ -41,7 +41,12 @@ export interface WebDefaults {
   readonly memory?: number;
 
   /**
-   * Additional resources files for the bundler.
+   * Additional resource files for all handler bundlers.
    */
   readonly files?: string[];
+
+  /**
+   * Determine whether the debug mode is active for all handlers.
+   */
+  readonly debug?: boolean;
 }

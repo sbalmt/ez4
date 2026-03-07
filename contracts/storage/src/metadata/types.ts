@@ -39,6 +39,7 @@ export type BucketEvent = {
   timeout?: number;
   memory?: number;
   files?: string[];
+  debug?: boolean;
   vpc?: boolean;
 };
 

@@ -38,6 +38,7 @@ export const prepareTableStream = (
     logLevel = defaults?.logLevel ?? Defaults.LogLevel,
     memory = defaults?.memory ?? Defaults.Memory,
     timeout = Defaults.Timeout,
+    debug = options.debug,
     variables,
     listener,
     handler,
@@ -64,7 +65,6 @@ export const prepareTableStream = (
       description: handler.description,
       tableSchema: table.schema,
       context: service.context,
-      debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables, variables],
       architecture,
@@ -74,6 +74,7 @@ export const prepareTableStream = (
       timeout,
       memory,
       files,
+      debug,
       vpc,
       handler: {
         sourceFile: handler.file,

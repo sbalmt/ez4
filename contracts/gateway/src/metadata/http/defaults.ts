@@ -7,6 +7,7 @@ import {
   isModelDeclaration,
   getPropertyNumber,
   getPropertyStringList,
+  getPropertyBoolean,
   getObjectMembers,
   getModelMembers,
   getServiceListener,
@@ -111,6 +112,11 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'files': {
         defaults[member.name] = getPropertyStringList(member);
+        break;
+      }
+
+      case 'debug': {
+        defaults[member.name] = getPropertyBoolean(member);
         break;
       }
 

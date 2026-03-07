@@ -114,7 +114,8 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
-      case 'vpc': {
+      case 'vpc':
+      case 'debug': {
         event[member.name] = getPropertyBoolean(member);
         break;
       }
