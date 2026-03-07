@@ -47,6 +47,8 @@ declare class TestStream implements Database.Stream<TestSchema> {
 
   files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
+  debug: true;
+
   variables: {
     TEST_VAR: 'test-literal-value';
   };

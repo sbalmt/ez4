@@ -21,7 +21,7 @@
           "name": "testRoute1",
           "file": "test/http/input/output-route.ts",
           "position": [
-            42,
+            44,
             1
           ],
           "response": {
@@ -32,11 +32,12 @@
       {
         "path": "GET /test-route-2",
         "architecture": "arm",
+        "debug": false,
         "handler": {
           "name": "testRoute2",
           "file": "test/http/input/output-route.ts",
           "position": [
-            48,
+            50,
             1
           ],
           "response": {
@@ -59,7 +60,7 @@
           "name": "testRoute3",
           "file": "test/http/input/output-route.ts",
           "position": [
-            60,
+            62,
             1
           ],
           "response": {

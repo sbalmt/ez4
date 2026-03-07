@@ -73,6 +73,7 @@ export type WsDefaults = {
   timeout?: number;
   memory?: number;
   files?: string[];
+  debug?: boolean;
 };
 
 export const isWsService = (service: ServiceMetadata): service is WsService => {

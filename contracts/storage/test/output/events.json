@@ -9,18 +9,19 @@
     },
     "events": {
       "path": "uploads/*",
-      "architecture": "arm",
       "runtime": "node24",
+      "architecture": "arm",
       "logLevel": "warning",
       "logRetention": 14,
       "memory": 128,
       "timeout": 5,
+      "debug": true,
       "handler": {
         "description": "Test storage event.",
         "name": "eventHandler",
         "file": "test/input/output-events.ts",
         "position": [
-          31,
+          32,
           1
         ]
       },

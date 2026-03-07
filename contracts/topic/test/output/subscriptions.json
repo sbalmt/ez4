@@ -33,7 +33,7 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            73,
+            75,
             1
           ]
         }
@@ -46,11 +46,12 @@
         "type": "lambda",
         "runtime": "node24",
         "memory": 128,
+        "debug": true,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            73,
+            75,
             1
           ]
         },

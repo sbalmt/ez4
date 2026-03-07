@@ -34,6 +34,8 @@ declare class TestRoute implements Http.Route {
 
   files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
+  debug: false;
+
   variables: {
     TEST_VAR: 'test-literal-value';
   };

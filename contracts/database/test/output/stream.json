@@ -36,7 +36,7 @@
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              58,
+              60,
               1
             ]
           },
@@ -60,12 +60,13 @@
         "indexes": [],
         "stream": {
           "runtime": "node24",
+          "debug": true,
           "handler": {
             "name": "streamHandler",
             "description": "Test table stream.",
             "file": "test/input/output-stream.ts",
             "position": [
-              58,
+              60,
               1
             ]
           },

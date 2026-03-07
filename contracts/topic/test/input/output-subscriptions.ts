@@ -48,6 +48,8 @@ declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMes
 
   files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
+  debug: true;
+
   // Variable only for this subscription.
   variables: {
     TEST_VAR: 'test-literal-value';

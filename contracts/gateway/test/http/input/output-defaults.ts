@@ -13,6 +13,7 @@ export declare class TestService extends Http.Service {
     logRetention: 14;
     timeout: 15;
     memory: 192;
+    debug: true;
     httpErrors: {
       400: [CustomError];
     };

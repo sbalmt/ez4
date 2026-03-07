@@ -33,7 +33,7 @@
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            49,
+            51,
             1
           ]
         }
@@ -41,11 +41,12 @@
       {
         "runtime": "node24",
         "memory": 128,
+        "debug": true,
         "handler": {
           "name": "testHandler",
           "file": "test/input/output-subscriptions.ts",
           "position": [
-            49,
+            51,
             1
           ]
         },
