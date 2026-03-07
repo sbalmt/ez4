@@ -25,7 +25,7 @@ export const executeStatement = async (
       })
     );
 
-    if (debug) {
+    if (debug || Runtime.isDebug()) {
       logQuerySuccess(command, result.ConsumedCapacity);
     }
 

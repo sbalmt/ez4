@@ -2,6 +2,8 @@ import type { PgClientDriver, PgExecuteOptions, PgExecuteStatement } from '@ez4/
 import type { AnySchema } from '@ez4/schema';
 import type { Pool, PoolClient } from 'pg';
 
+import { Runtime } from '@ez4/common';
+
 import { randomUUID } from 'crypto';
 
 import { logQueryError, logQuerySuccess } from './logger';
@@ -32,7 +34,7 @@ export class ClientDriver implements PgClientDriver {
 
       const { rows: records, rowCount: rows } = await client.query(query, variables);
 
-      if (options?.debug) {
+      if (options?.debug || Runtime.isDebug()) {
         logQuerySuccess(statement, transactionId);
       }
 

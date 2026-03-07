@@ -148,6 +148,7 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
     target,
     define: {
       ...options.define,
+      EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },
     stdin: {
