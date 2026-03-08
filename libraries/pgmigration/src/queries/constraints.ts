@@ -55,13 +55,15 @@ export namespace ConstraintQuery {
     for (const columnName in changes) {
       const { update, create, remove } = changes[columnName];
 
+      const constraints = [];
+
       if (remove || update) {
         const schema = sourceSchema.properties[columnName];
 
         if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
 
-          statements.constraints.push({
+          constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
@@ -72,9 +74,10 @@ export namespace ConstraintQuery {
 
         if (isConstrainedSchema(schema)) {
           const name = getConstraintName(table, columnName);
+          const removing = constraints.length;
 
-          statements.constraints.push({
-            check: getCheckConstraintQuery(builder, name),
+          constraints.push({
+            ...(!removing && { check: getCheckConstraintQuery(builder, name) }),
             query: getCreateQuery(builder, table, name, columnName, schema).build()
           });
 
@@ -85,6 +88,8 @@ export namespace ConstraintQuery {
           });
         }
       }
+
+      statements.constraints.push(...constraints);
     }
 
     return statements;
