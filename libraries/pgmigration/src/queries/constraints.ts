@@ -53,13 +53,13 @@ export namespace ConstraintQuery {
     };
 
     for (const columnName in changes) {
-      const { update, create, remove } = changes[columnName];
+      const { update, create, remove, nested } = changes[columnName];
 
       const constraints = [];
 
-      if (remove || update) {
+      if (remove || update || nested) {
         const schema = sourceSchema.properties[columnName];
-        const change = { ...remove, ...update };
+        const change = { ...remove, ...update, ...nested };
 
         if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
@@ -70,9 +70,9 @@ export namespace ConstraintQuery {
         }
       }
 
-      if (create || update) {
+      if (create || update || nested) {
         const schema = targetSchema.properties[columnName];
-        const change = { ...create, ...update };
+        const change = { ...create, ...update, ...nested };
 
         if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
@@ -216,7 +216,7 @@ export namespace ConstraintQuery {
       case SchemaType.Boolean:
       case SchemaType.Number:
       case SchemaType.String: {
-        return isNotNullish(changes.definitions?.value);
+        return isNotNullish(changes.definitions?.value) || isNotNullish(changes.definitions?.update?.value);
       }
 
       case SchemaType.Enum: {
