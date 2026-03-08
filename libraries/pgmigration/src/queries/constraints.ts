@@ -1,5 +1,5 @@
 import type { AnySchema, EnumSchema, ObjectSchema, ObjectSchemaProperties, ScalarSchema } from '@ez4/schema';
-import type { ObjectComparison } from '@ez4/utils';
+import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { PgMigrationQueries } from '../types/query';
 
@@ -59,8 +59,9 @@ export namespace ConstraintQuery {
 
       if (remove || update) {
         const schema = sourceSchema.properties[columnName];
+        const change = { ...remove, ...update };
 
-        if (isConstrainedSchema(schema)) {
+        if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
 
           constraints.push({
@@ -71,13 +72,14 @@ export namespace ConstraintQuery {
 
       if (create || update) {
         const schema = targetSchema.properties[columnName];
+        const change = { ...create, ...update };
 
-        if (isConstrainedSchema(schema)) {
+        if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
-          const removing = constraints.length;
+          const removal = constraints.length;
 
           constraints.push({
-            ...(!removing && { check: getCheckConstraintQuery(builder, name) }),
+            ...(!removal && { check: getCheckConstraintQuery(builder, name) }),
             query: getCreateQuery(builder, table, name, columnName, schema).build()
           });
 
@@ -163,10 +165,6 @@ export namespace ConstraintQuery {
     return statements;
   };
 
-  const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {
-    return isEnumSchema(schema) || (isScalarSchema(schema) && isNotNullish(schema.definitions?.value));
-  };
-
   const getDeleteQuery = (builder: SqlBuilder, table: string, name: string) => {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
@@ -207,5 +205,25 @@ export namespace ConstraintQuery {
     }
 
     return query;
+  };
+
+  const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {
+    return isEnumSchema(schema) || (isScalarSchema(schema) && isNotNullish(schema.definitions?.value));
+  };
+
+  const isConstrainedChange = (schema: AnySchema, changes: AnyObject): schema is EnumSchema | ScalarSchema => {
+    switch (schema.type) {
+      case SchemaType.Boolean:
+      case SchemaType.Number:
+      case SchemaType.String: {
+        return isNotNullish(changes.definitions?.value);
+      }
+
+      case SchemaType.Enum: {
+        return isNotNullish(changes.options);
+      }
+    }
+
+    return false;
   };
 }
