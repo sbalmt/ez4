@@ -7,7 +7,6 @@ import { isAnySchema } from '@ez4/schema';
 
 export const getTableRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
-    depth: 5,
     onSimilarName: (target, source) => {
       const targetParts = new Set(toSnakeCase(target).split('_'));
       const sourceParts = new Set(toSnakeCase(source).split('_'));
