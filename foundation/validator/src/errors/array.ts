@@ -8,12 +8,12 @@ export class ExpectedArrayTypeError extends UnexpectedTypeError {
 
 export class UnexpectedMinItemsError extends UnexpectedValueError {
   constructor(minValue: number, propertyName?: string) {
-    super([`with min items ${minValue}`], propertyName);
+    super([`with min ${minValue} item(s)`], propertyName);
   }
 }
 
 export class UnexpectedMaxItemsError extends UnexpectedValueError {
   constructor(maxValue: number, propertyName?: string) {
-    super([`with max items ${maxValue}`], propertyName);
+    super([`with max ${maxValue} item(s)`], propertyName);
   }
 }
