@@ -55,6 +55,8 @@ export const processLambdaMessage = async (
     //
   } catch (error) {
     await onError(module, clients, currentRequest ?? request, error);
+
+    throw error;
     //
   } finally {
     await onEnd(module, clients, request);
