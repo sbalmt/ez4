@@ -123,5 +123,5 @@ const handleTopicMessage = async (
     }
   });
 
-  await Promise.all(allSubscriptions);
+  await Promise.allSettled(allSubscriptions);
 };

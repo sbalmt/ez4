@@ -58,6 +58,7 @@ export const prepareSubscriptions = (
             logLevel = defaults?.logLevel ?? Defaults.LogLevel,
             memory = defaults?.memory ?? Defaults.Memory,
             timeout = Defaults.Timeout,
+            debug = options.debug,
             files,
             vpc
           } = subscription;
@@ -74,7 +75,6 @@ export const prepareSubscriptions = (
             messageSchema: service.schema,
             context: service.context,
             release: options.release,
-            debug: options.debug,
             tags: options.tags,
             variables: [options.variables, service.variables, subscription.variables],
             architecture,
@@ -83,6 +83,7 @@ export const prepareSubscriptions = (
             timeout,
             memory,
             files,
+            debug,
             vpc,
             handler: {
               sourceFile: handler.file,

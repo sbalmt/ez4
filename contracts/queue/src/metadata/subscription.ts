@@ -138,7 +138,8 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'vpc': {
+      case 'vpc':
+      case 'debug': {
         subscription[member.name] = getPropertyBoolean(member);
         break;
       }

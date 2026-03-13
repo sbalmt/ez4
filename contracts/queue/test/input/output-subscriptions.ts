@@ -40,6 +40,8 @@ declare class TestSubscription implements Queue.Subscription<TestMessage> {
 
   files: ['path/to/file-a.txt', 'path/to/file-b.json'];
 
+  debug: true;
+
   // Variable only for this subscription.
   variables: {
     TEST_VAR: 'test-literal-value';

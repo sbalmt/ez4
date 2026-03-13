@@ -21,7 +21,14 @@ export const createLocalClient = <T extends Topic.Message = any>(
 
       const payload = await getJsonMessage(message, messageSchema);
 
-      setImmediate(() => clientOptions.handler(payload));
+      setImmediate(async () => {
+        try {
+          await clientOptions.handler(payload);
+        } catch (error) {
+          Logger.error(`Local topic [${serviceName}] finished with errors.`);
+          Logger.error(`    ${error}`);
+        }
+      });
     }
   })();
 };

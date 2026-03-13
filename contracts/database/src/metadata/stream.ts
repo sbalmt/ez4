@@ -114,7 +114,8 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'vpc': {
+      case 'vpc':
+      case 'debug': {
         stream[member.name] = getPropertyBoolean(member);
         break;
       }

@@ -54,12 +54,17 @@ export interface TableStream<T extends TableSchema> {
   readonly memory?: number;
 
   /**
-   * Additional resources files for the bundler.
+   * Additional resource files for the handler bundler.
    */
   readonly files?: string[];
 
   /**
-   * Determines whether or not VPC is enabled for the stream.
+   * Determine whether the debug mode is active for the handler.
+   */
+  readonly debug?: boolean;
+
+  /**
+   * Determines whether or not VPC is enabled for the handler.
    */
   readonly vpc?: boolean;
 }

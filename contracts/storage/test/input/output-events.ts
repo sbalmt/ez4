@@ -13,6 +13,7 @@ export declare class TestStorage extends Bucket.Service {
     logRetention: 14;
     memory: 128;
     timeout: 5;
+    debug: true;
     variables: {
       TEST_VAR1: 'test-literal-value';
       TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;

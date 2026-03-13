@@ -8,7 +8,9 @@ describe('system wait utils', () => {
   it('assert :: wait for (success)', async () => {
     const callback = mock.fn(() => true);
 
-    const result = await Wait.until(callback, 10);
+    const result = await Wait.until(callback, {
+      attempts: 10
+    });
 
     equal(callback.mock.callCount(), 1);
 
@@ -18,7 +20,9 @@ describe('system wait utils', () => {
   it('assert :: wait for (partial failure)', async () => {
     const callback = mock.fn((current, maximum) => (current < maximum ? Wait.RetryAttempt : true));
 
-    const result = await Wait.until(callback, 3);
+    const result = await Wait.until(callback, {
+      attempts: 3
+    });
 
     equal(callback.mock.callCount(), 3);
 
@@ -26,8 +30,8 @@ describe('system wait utils', () => {
   });
 
   it('assert :: wait for (failure)', async () => {
-    const callback = mock.fn((): Wait.AttemptResult<boolean> => Wait.RetryAttempt);
+    const callback = mock.fn((): Wait.Result<boolean> => Wait.RetryAttempt);
 
-    rejects(() => Wait.until(callback, 3), WaitMaxAttemptsError);
+    rejects(() => Wait.until(callback, { attempts: 3 }), WaitMaxAttemptsError);
   });
 });
