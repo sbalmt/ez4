@@ -25,7 +25,7 @@ export const createLocalClient = <T extends Topic.Message = any>(
         try {
           await clientOptions.handler(payload);
         } catch (error) {
-          Logger.error(`Local topic [${serviceName}] isn't available.`);
+          Logger.error(`Local topic [${serviceName}] finished with errors.`);
           Logger.error(`    ${error}`);
         }
       });

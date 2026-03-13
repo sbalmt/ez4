@@ -30,7 +30,7 @@ export const createLocalClient = <T extends Queue.Message = any, U extends Queue
           await setTimeout(delay * 1000);
           await clientOptions.handler(payload);
         } catch (error) {
-          Logger.error(`Local queue [${serviceName}] isn't available.`);
+          Logger.error(`Local queue [${serviceName}] finished with errors.`);
           Logger.error(`    ${error}`);
         }
       });
