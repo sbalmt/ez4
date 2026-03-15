@@ -27,13 +27,15 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
         handler: (event) => processSchedulerEvent(service, options, context, event)
       });
 
-      if (!options.suppress) {
-        if (isDynamicCronService(service)) {
-          return Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
-        }
-
-        processTimerEvent(service, options, context);
+      if (options.suppress) {
+        return Logger.warn(`Scheduler [${serviceName}] is suppressed`);
       }
+
+      if (isDynamicCronService(service)) {
+        return Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
+      }
+
+      processTimerEvent(service, options, context);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleSchedulerRequest(service, options, context, request);
