@@ -43,13 +43,14 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
 
   options.imports = allImports;
 
-  const { metadata, dependencies } = await DynamicLogger.logExecution('🔄️ Loading metadata', () => {
-    return buildMetadata(project.sourceFiles, {
-      aliasPaths
-    });
+  const [oldState, { metadata, dependencies }] = await DynamicLogger.logExecution('🔄️ Loading metadata and state', () => {
+    return Promise.all([
+      loadState(project.stateFile, options),
+      buildMetadata(project.sourceFiles, {
+        aliasPaths
+      })
+    ]);
   });
-
-  const oldState = await loadState(project.stateFile, options);
 
   const newState: EntryStates = {};
 
@@ -83,7 +84,9 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
   const deployState = await performDeploy(options, async () => {
     const { result, errors } = await applyDeploy(newState, oldState, options);
 
-    await saveState(project.stateFile, options, result);
+    await DynamicLogger.logExecution('✅ Saving state', () => {
+      return saveState(project.stateFile, options, result);
+    });
 
     return {
       result,
