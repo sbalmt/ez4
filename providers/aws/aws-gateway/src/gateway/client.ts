@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { ProtocolType } from '@aws-sdk/client-apigatewayv2';
+import type { Api, ProtocolType } from '@aws-sdk/client-apigatewayv2';
 import type { Http } from '@ez4/gateway';
 
 import {
@@ -12,6 +12,8 @@ import {
   NotFoundException,
   GetApisCommand
 } from '@aws-sdk/client-apigatewayv2';
+
+import { getRegion } from '@ez4/aws-identity';
 
 import { GatewayProtocol } from './types';
 import { getApiGatewayV2Client } from '../utils/deploy';
@@ -49,14 +51,30 @@ export const fetchGateway = async (logger: OperationLogLine, gatewayName: string
   logger.update(`Fetching gateway`);
 
   const client = getApiGatewayV2Client();
+  const region = await getRegion();
 
-  const [region, { Items }] = await Promise.all([client.config.region(), client.send(new GetApisCommand({}))]);
+  const findApiGateway = async (nextToken?: string): Promise<Api> => {
+    const { Items, NextToken } = await client.send(
+      new GetApisCommand({
+        NextToken: nextToken,
+        MaxResults: '50'
+      })
+    );
 
-  const response = Items?.find(({ Name }) => Name === gatewayName);
+    if (!Items?.length) {
+      throw new Error(`API resource '${gatewayName}' wasn't found.`);
+    }
 
-  if (!response) {
-    throw new Error(`API resource '${gatewayName}' wasn't found.`);
-  }
+    const response = Items.find(({ Name }) => Name === gatewayName);
+
+    if (!response) {
+      return findApiGateway(NextToken);
+    }
+
+    return response;
+  };
+
+  const response = await findApiGateway();
 
   return {
     apiId: response.ApiId!,
@@ -73,7 +91,7 @@ export const createGateway = async (logger: OperationLogLine, request: CreateReq
   const client = getApiGatewayV2Client();
 
   const [region, response] = await Promise.all([
-    client.config.region(),
+    getRegion(),
     client.send(
       new CreateApiCommand({
         Name: gatewayName,
