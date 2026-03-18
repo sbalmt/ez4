@@ -109,6 +109,10 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       if (!relationIncludes || (!('skip' in relationIncludes) && !('take' in relationIncludes))) {
         const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
+        if (relationIncludes?.order) {
+          assignExtraSelectFields(record, relationIncludes.order);
+        }
+
         relationQuery.arrayColumn(record, {
           order: relationIncludes?.order,
           binary: true
@@ -120,7 +124,14 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 
       const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable);
 
-      relationQuery.order(relationIncludes?.order).record(record);
+      if (relationIncludes?.order) {
+        assignExtraSelectFields(relationFields, relationIncludes.order);
+        assignExtraSelectFields(record, relationIncludes.order);
+
+        relationQuery.order(relationIncludes.order);
+      }
+
+      relationQuery.record(record);
 
       if ('skip' in relationIncludes) {
         relationQuery.skip(relationIncludes.skip);
@@ -239,4 +250,12 @@ export const getDefaultSelectFields = (schema: ObjectSchema) => {
   }
 
   return fields;
+};
+
+const assignExtraSelectFields = (record: SqlJsonColumnRecord, fields: Record<string, unknown>) => {
+  for (const fieldName in fields) {
+    if (!record[fieldName]) {
+      record[fieldName] = true;
+    }
+  }
 };
