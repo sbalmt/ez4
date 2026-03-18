@@ -5,9 +5,9 @@ import type { Database, Query } from '@ez4/database';
 import { describe, it } from 'node:test';
 
 import { getRelationsWithSchema, getTableRepository, prepareSelectQuery } from '@ez4/pgclient/library';
+import { Index, Order } from '@ez4/database';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
-import { Index } from '@ez4/database';
 
 declare class Test extends Database.Service {
   engine: PostgresEngine;
@@ -52,6 +52,21 @@ declare class Test extends Database.Service {
       schema: {
         id: string;
         relation_b_id?: string;
+        column: number;
+      };
+    },
+    {
+      name: 'ez4-test-d';
+      indexes: {
+        id: Index.Primary;
+        relation_cb_id: Index.Secondary;
+      };
+      relations: {
+        'relation_cb_id@relation_cb': 'ez4-test-c:relation_b_id';
+      };
+      schema: {
+        id: string;
+        relation_cb_id?: string;
       };
     }
   ];
@@ -68,6 +83,13 @@ type TestTableCMetadata = {
   schema: Test['tables'][0]['schema'];
   indexes: IndexedTables<Test>['ez4-test-c'];
   relations: RelationTables<Test>['ez4-test-c'];
+  engine: Test['engine'];
+};
+
+type TestTableDMetadata = {
+  schema: Test['tables'][0]['schema'];
+  indexes: IndexedTables<Test>['ez4-test-d'];
+  relations: RelationTables<Test>['ez4-test-d'];
   engine: Test['engine'];
 };
 
@@ -156,6 +178,36 @@ describe('select nested relations', () => {
             type: SchemaType.String,
             optional: true,
             format: 'uuid'
+          },
+          column: {
+            type: SchemaType.Number
+          }
+        }
+      }
+    },
+    {
+      name: 'ez4-test-d',
+      indexes: [],
+      relations: [
+        {
+          targetAlias: 'relation_cb',
+          targetColumn: 'relation_cb_id',
+          targetIndex: Index.Secondary,
+          sourceIndex: Index.Secondary,
+          sourceTable: 'ez4-test-c',
+          sourceColumn: 'relation_b_id'
+        }
+      ],
+      schema: {
+        type: SchemaType.Object,
+        properties: {
+          id: {
+            type: SchemaType.String,
+            format: 'uuid'
+          },
+          relation_cb_id: {
+            type: SchemaType.String,
+            format: 'uuid'
           }
         }
       }
@@ -179,6 +231,19 @@ describe('select nested relations', () => {
     const builder = new SqlBuilder();
 
     const name = 'ez4-test-c';
+    const table = repository[name];
+
+    const relations = getRelationsWithSchema(name, repository);
+
+    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
+
+    return selectQuery.build();
+  };
+
+  const prepareDSelect = <S extends Query.SelectInput<TestTableDMetadata>>(query: Query.FindOneInput<S, TestTableDMetadata>) => {
+    const builder = new SqlBuilder();
+
+    const name = 'ez4-test-d';
     const table = repository[name];
 
     const relations = getRelationsWithSchema(name, repository);
@@ -263,5 +328,51 @@ describe('select nested relations', () => {
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare select nested relations (with include, order, skip and take)', ({ assert }) => {
+    const [statement, variables] = prepareDSelect({
+      select: {
+        id: true,
+        relation_cb: {
+          id: true
+        }
+      },
+      include: {
+        relation_cb: {
+          where: {
+            column: {
+              gt: 100
+            }
+          },
+          order: {
+            column: Order.Desc
+          },
+          skip: 1,
+          take: 2
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'column', "column") ORDER BY "column" DESC), '[]'::json) ` +
+        /**/ `FROM (` +
+        /****/ `SELECT "S0"."id", "S0"."column" FROM "ez4-test-c" AS "S0" ` +
+        /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
+        /****/ `ORDER BY "S0"."column" DESC ` +
+        /****/ `OFFSET 1 ` +
+        /****/ `LIMIT 2` +
+        /**/ `) AS "S0"` +
+        `) AS "relation_cb" ` +
+        `FROM "ez4-test-d" AS "R0" ` +
+        `WHERE "R0"."id" = :1`
+    );
+
+    assert.deepEqual(variables, [100, '00000000-0000-1000-9000-000000000000']);
   });
 });
