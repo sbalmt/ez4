@@ -52,7 +52,7 @@ const prepareFunction = (entrypoint: EntrypointSource, variables: LinkedVariable
 
     try {
       return await runWithVariables(variables, () => {
-        Logger.debug(`▶️  ${headline} Started`);
+        Logger.log(`▶️  ${headline} Started`);
         return callback(...inputs);
       });
       //

@@ -23,7 +23,7 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
     }
 
     async write(key: string, contents: Content) {
-      Logger.debug(`⬆️  File ${key} uploaded.`);
+      Logger.log(`⬆️  File ${key} uploaded.`);
 
       if (contents instanceof Readable) {
         storageMemory[key] = contents.read();
@@ -41,7 +41,7 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
         throw new Error(`Key ${key} not found.`);
       }
 
-      Logger.debug(`⬇️  File ${key} downloaded.`);
+      Logger.log(`⬇️  File ${key} downloaded.`);
 
       return Promise.resolve(Buffer.from(content));
     }
@@ -55,7 +55,7 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
         return Promise.resolve();
       }
 
-      Logger.debug(`ℹ️  File ${key} deleted.`);
+      Logger.log(`ℹ️  File ${key} deleted.`);
 
       delete storageMemory[key];
 

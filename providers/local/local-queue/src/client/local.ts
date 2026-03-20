@@ -20,7 +20,7 @@ export const createLocalClient = <T extends Queue.Message = any, U extends Queue
 ): Client<T, U> => {
   return new (class {
     async sendMessage(message: T, options?: SendOptions<U>) {
-      Logger.debug(`✉️  Sending message to queue [${serviceName}]`);
+      Logger.log(`✉️  Sending message to queue [${serviceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
       const delay = options?.delay ?? clientOptions.delay;

@@ -33,7 +33,7 @@ export const createHttpClientMock = <T extends Http.Service>(serviceName: string
           const operation = responses.operations?.[property] ?? responses.default;
 
           operationsCache[property] = mock.fn(async (request: HttpClientRequest) => {
-            Logger.debug(`🌐 Sending request to gateway [${serviceName}]`);
+            Logger.log(`🌐 Sending request to gateway [${serviceName}]`);
 
             try {
               const response = operation instanceof Function ? await operation(request) : operation;

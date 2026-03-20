@@ -23,7 +23,7 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: 
         throw new Error('Connection not found.');
       }
 
-      Logger.debug(`✉️  Sending message to connection [${serviceName}]`);
+      Logger.log(`✉️  Sending message to connection [${serviceName}]`);
 
       const content = await resolveResponseBody(message, messageSchema, preferences);
       const payload = JSON.stringify(content);
@@ -36,7 +36,7 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: 
     disconnect(connectionId: string) {
       const connection = allConnections[connectionId];
 
-      Logger.debug(`🟥 Closing connection [${serviceName}]`);
+      Logger.log(`🟥 Closing connection [${serviceName}]`);
 
       if (connection) {
         connection.close();

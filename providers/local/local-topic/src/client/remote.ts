@@ -22,7 +22,7 @@ export const createRemoteClient = <T extends Topic.Message = any>(
 
   return new (class {
     async sendMessage(message: T) {
-      Logger.debug(`✉️  Sending message to topic [${serviceName}] at ${topicHost}.`);
+      Logger.log(`✉️  Sending message to topic [${serviceName}] at ${topicHost}.`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 

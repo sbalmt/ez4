@@ -17,7 +17,7 @@ export const createLocalClient = <T extends Topic.Message = any>(
 ): Client<T> => {
   return new (class {
     async sendMessage(message: T) {
-      Logger.debug(`✉️  Sending message to topic [${serviceName}]`);
+      Logger.log(`✉️  Sending message to topic [${serviceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
 

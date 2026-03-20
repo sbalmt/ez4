@@ -45,7 +45,7 @@ export const createHttpServiceClient = <T extends Http.Service>(
           });
 
           try {
-            Logger.debug(`🌐 Sending request to gateway [${serviceName}] at ${requestUrl}`);
+            Logger.log(`🌐 Sending request to gateway [${serviceName}] at ${requestUrl}`);
 
             return await sendClientRequest(requestUrl, method, {
               ...request,
