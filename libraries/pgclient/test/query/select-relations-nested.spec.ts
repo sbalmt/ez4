@@ -330,6 +330,87 @@ describe('select nested relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
+  it('assert :: prepare select nested relations (with include and order)', ({ assert }) => {
+    const [statement, variables] = prepareDSelect({
+      select: {
+        id: true,
+        relation_cb: {
+          id: true
+        }
+      },
+      include: {
+        relation_cb: {
+          where: {
+            column: {
+              gt: 100
+            }
+          },
+          order: {
+            column: Order.Desc
+          }
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "S0"."id", 'column', "S0"."column") ORDER BY "S0"."column" DESC), '[]'::json) ` +
+        /**/ `FROM "ez4-test-c" AS "S0" ` +
+        /**/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id"` +
+        `) AS "relation_cb" ` +
+        `FROM "ez4-test-d" AS "R0" ` +
+        `WHERE "R0"."id" = :1`
+    );
+
+    assert.deepEqual(variables, [100, '00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare select nested relations (with include, skip and take)', ({ assert }) => {
+    const [statement, variables] = prepareDSelect({
+      select: {
+        id: true,
+        relation_cb: {
+          id: true
+        }
+      },
+      include: {
+        relation_cb: {
+          where: {
+            column: {
+              gt: 100
+            }
+          },
+          skip: 1,
+          take: 2
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id", ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id")), '[]'::json) ` +
+        /**/ `FROM (` +
+        /****/ `SELECT "S0"."id" FROM "ez4-test-c" AS "S0" ` +
+        /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
+        /****/ `OFFSET 1 ` +
+        /****/ `LIMIT 2` +
+        /**/ `) AS "S0"` +
+        `) AS "relation_cb" ` +
+        `FROM "ez4-test-d" AS "R0" ` +
+        `WHERE "R0"."id" = :1`
+    );
+
+    assert.deepEqual(variables, [100, '00000000-0000-1000-9000-000000000000']);
+  });
+
   it('assert :: prepare select nested relations (with include, order, skip and take)', ({ assert }) => {
     const [statement, variables] = prepareDSelect({
       select: {
