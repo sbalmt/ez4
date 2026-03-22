@@ -1,10 +1,11 @@
-import type { EmulateServiceEvent } from '@ez4/project/library';
+import type { EmulateServiceEvent, EmulatorServiceClients, EntrypointModule, ServiceEmulator } from '@ez4/project/library';
+import type { AnySchema } from '@ez4/schema';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
 
 import { isValidationService } from '../metadata/types';
 
-export const getEmulatorService = (event: EmulateServiceEvent) => {
+export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator | null => {
   const { service, options, context } = event;
 
   if (!isValidationService(service)) {
@@ -17,8 +18,8 @@ export const getEmulatorService = (event: EmulateServiceEvent) => {
     type: 'Validation',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    exportHandler: async () => {
-      const clients = await context.makeClients(services);
+    exportHandler: async (cacheToken) => {
+      const clients = await context.makeClients(services, cacheToken);
 
       const validationModule = await createEmulatorModule({
         version: options.version,
@@ -29,23 +30,27 @@ export const getEmulatorService = (event: EmulateServiceEvent) => {
         }
       });
 
-      return new (class {
-        get schema() {
-          return schema;
-        }
-
-        async validate(value: unknown) {
-          await validationModule.invoke({ value, schema }, clients);
-        }
-
-        async tryValidate(value: unknown) {
-          try {
-            return (await this.validate(value), true);
-          } catch {
-            return false;
-          }
-        }
-      })();
+      return createClient(schema, validationModule, clients);
     }
   };
+};
+
+const createClient = (schema: AnySchema, module: EntrypointModule, clients: EmulatorServiceClients) => {
+  return new (class {
+    get schema() {
+      return schema;
+    }
+
+    async validate(value: unknown) {
+      await module.invoke({ value, schema }, clients);
+    }
+
+    async tryValidate(value: unknown) {
+      try {
+        return (await this.validate(value), true);
+      } catch {
+        return false;
+      }
+    }
+  })();
 };

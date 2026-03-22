@@ -77,13 +77,25 @@ export const buildServiceContext = (context: Record<string, ContextSource>, serv
 };
 
 export const isLinkedContextVpcRequired = (context: Record<string, LinkedContext>, services?: LinkedServices) => {
-  for (const serviceName in services ?? context) {
-    const { requireVpc, context: innerContext } = context[serviceName];
+  const resolutionCache: Record<string, boolean> = {};
 
-    if (requireVpc || (innerContext && isLinkedContextVpcRequired(innerContext))) {
-      return true;
+  const isVpcRequired = (context: Record<string, LinkedContext>, services?: LinkedServices) => {
+    for (const serviceName in services ?? context) {
+      if (serviceName in resolutionCache) {
+        return resolutionCache[serviceName];
+      }
+
+      const { requireVpc = false, context: innerContext } = context[serviceName];
+
+      resolutionCache[serviceName] = requireVpc;
+
+      if (requireVpc || (innerContext && isVpcRequired(innerContext))) {
+        return true;
+      }
     }
-  }
 
-  return false;
+    return false;
+  };
+
+  return isVpcRequired(context, services);
 };

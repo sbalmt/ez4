@@ -4,34 +4,36 @@ import { isVirtualState } from './types';
 
 export const getVirtualConnections = (services: LinkedServices, context: EventContext, options: DeployOptions): string[] => {
   const connectionIds: string[] = [];
-  const serviceCache = new Set();
+  const resolutionCache = new Set();
 
-  const getAllConnections = (services: LinkedServices) => {
+  const collectConnections = (services: LinkedServices) => {
     for (const serviceName in services) {
       const identity = services[serviceName];
 
-      if (!serviceCache.has(identity)) {
-        serviceCache.add(identity);
+      if (resolutionCache.has(identity)) {
+        continue;
+      }
 
-        const serviceState = context.getVirtualServiceState(identity, options) ?? context.getServiceState(identity, options);
+      resolutionCache.add(identity);
 
-        if (serviceState) {
-          if (!isVirtualState(serviceState)) {
-            connectionIds.push(serviceState.entryId);
-            continue;
-          }
+      const serviceState = context.getVirtualServiceState(identity, options) ?? context.getServiceState(identity, options);
 
-          const { services: linkedServices } = serviceState.parameters;
+      if (serviceState) {
+        if (!isVirtualState(serviceState)) {
+          connectionIds.push(serviceState.entryId);
+          continue;
+        }
 
-          if (linkedServices) {
-            getAllConnections(linkedServices);
-          }
+        const { services: linkedServices } = serviceState.parameters;
+
+        if (linkedServices) {
+          collectConnections(linkedServices);
         }
       }
     }
   };
 
-  getAllConnections(services);
+  collectConnections(services);
 
   return connectionIds;
 };

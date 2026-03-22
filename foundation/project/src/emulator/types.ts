@@ -1,7 +1,7 @@
 import type { ServiceMetadata } from '../types/service';
 import type { ServeOptions } from '../types/options';
 
-export type EmulatorExportHandler = () => Promise<unknown> | unknown;
+export type EmulatorExportHandler = (cacheToken?: symbol) => Promise<unknown> | unknown;
 
 export type EmulatorPrepareHandler = () => Promise<void> | void;
 
@@ -66,7 +66,7 @@ export type EmulatorServiceClients = Record<string, unknown>;
 export type EmulatorLinkedServices = Record<string, string>;
 
 export type EmulateServiceContext = {
-  makeClients: (linkedServices: EmulatorLinkedServices) => Promise<EmulatorServiceClients>;
+  makeClients: (linkedServices: EmulatorLinkedServices, cacheToken?: symbol) => Promise<EmulatorServiceClients>;
   makeClient: (serviceName: string) => Promise<unknown>;
 };
 

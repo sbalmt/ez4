@@ -1,10 +1,10 @@
-import type { EmulateServiceEvent } from '@ez4/project/library';
+import type { EmulateServiceEvent, ServiceEmulator } from '@ez4/project/library';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
 
 import { isFactoryService } from '../metadata/types';
 
-export const getEmulatorService = (event: EmulateServiceEvent) => {
+export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator | null => {
   const { service, options, context } = event;
 
   if (!isFactoryService(service)) {
@@ -17,8 +17,8 @@ export const getEmulatorService = (event: EmulateServiceEvent) => {
     type: 'Factory',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    exportHandler: async () => {
-      const clients = await context.makeClients(services);
+    exportHandler: async (cacheToken) => {
+      const clients = await context.makeClients(services, cacheToken);
 
       const factoryModule = await createEmulatorModule({
         version: options.version,

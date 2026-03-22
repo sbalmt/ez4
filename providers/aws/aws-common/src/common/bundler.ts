@@ -243,30 +243,30 @@ const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
 
 const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
   const repository: Record<string, string> = {};
+  const resolutionCache = new Set<string>();
   const packages: string[] = [];
 
   const buildContext = (linkedContext: Record<string, LinkedContext>) => {
     const services: string[] = [];
 
-    for (const property of Object.keys(linkedContext).sort()) {
-      const { constructor, module, from, context } = linkedContext[property];
+    for (const serviceName of Object.keys(linkedContext).sort()) {
+      const { constructor, module, from, context } = linkedContext[serviceName];
 
-      const constructorName = toPascalCase(`${property}${module}`);
+      const constructorName = toPascalCase(`${serviceName}${module}`);
+      const constructorHash = `__EZ4_${toSnakeCase(hashData(constructorName)).toUpperCase()}`;
 
-      const constructorCode = applyTemplateVariables(constructor, {
-        EZ4_MODULE_CONTEXT: context && buildContext(context),
-        EZ4_MODULE_IMPORT: constructorName
-      });
+      services.push(`['${serviceName}']: __EZ4_REPOSITORY.${constructorHash}`);
 
-      const constructorHash = `__EZ4_${toSnakeCase(hashData(constructorCode)).toUpperCase()}`;
+      if (!resolutionCache.has(constructorHash)) {
+        resolutionCache.add(constructorHash);
 
-      if (!(constructorHash in repository)) {
         packages.push(`import { ${module} as ${constructorName} } from '${from}';`);
 
-        repository[constructorHash] = constructorCode;
+        repository[constructorHash] = applyTemplateVariables(constructor, {
+          EZ4_MODULE_CONTEXT: context && buildContext(context),
+          EZ4_MODULE_IMPORT: constructorName
+        });
       }
-
-      services.push(`['${property}']: __EZ4_REPOSITORY.${constructorHash}`);
     }
 
     return `__EZ4_MAKE_LAZY_CONTEXT_FACTORY({${services.join(',')}})`;
@@ -274,7 +274,9 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
 
   const services = buildContext(linkedContext);
 
-  const factory = Object.entries(repository).map(([property, service]) => `['${property}']: () => ${service}`);
+  const factory = Object.entries(repository).map(([serviceName, service]) => {
+    return `['${serviceName}']: () => ${service}`;
+  });
 
   return {
     repository: `{${factory.join(',')}}`,
