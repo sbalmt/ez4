@@ -79,8 +79,8 @@ export default {
     Project: 'EZ4' // Use the tag name/value key pair
   },
 
-  // Configure the imported projects
-  importProjects: {
+  // Configure the imported projects references
+  references: {
     // Identification key for the imported project
     another_project: {
       projectFile: '../frontend/ez4.project.js' // Path to the EZ4's configuration

@@ -60,9 +60,9 @@ export type ProjectOptions = {
   stateFile: ProjectStateOptions;
 
   /**
-   * Configuration for imported projects.
+   * Configuration for imported project references.
    */
-  importProjects?: Record<string, ProjectImportOptions>;
+  references?: Record<string, ProjectImportOptions>;
 
   /**
    * Configuration for custom providers.

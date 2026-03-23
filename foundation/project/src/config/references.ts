@@ -6,17 +6,17 @@ import { toKebabCase } from '@ez4/utils';
 import { getServiceHost } from '../utils/project';
 import { loadProject } from './project';
 
-export const loadImports = async (projectOptions: ProjectOptions) => {
-  const { importProjects } = projectOptions;
+export const loadReferences = async (projectOptions: ProjectOptions) => {
+  const { references } = projectOptions;
 
-  if (!importProjects) {
+  if (!references) {
     return undefined;
   }
 
   const allImports: Record<string, ImportOptions> = {};
 
-  for (const alias in importProjects) {
-    const { projectFile } = importProjects[alias];
+  for (const alias in references) {
+    const { projectFile } = references[alias];
 
     const project = await loadProject(projectFile);
 

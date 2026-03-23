@@ -12,12 +12,12 @@ import { getServiceAddress, getServicePort } from '../../utils/project';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
+import { loadReferences } from '../../config/references';
 import { watchMetadata } from '../../library/metadata';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { upgradeHandler } from '../../serve/upgrade';
 import { requestHandler } from '../../serve/request';
-import { loadImports } from '../../config/imports';
 
 export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
   const options = getServeOptions(input, project);
@@ -27,7 +27,7 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
   }
 
   const [aliasPaths, allImports, namespacePath] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   warnUnsupportedFlags(input, {

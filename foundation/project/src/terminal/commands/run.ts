@@ -9,9 +9,9 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServeOptions } from '../../emulator/options';
+import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
-import { loadImports } from '../../config/imports';
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -24,7 +24,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
   }
 
   const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   warnUnsupportedFlags(input, {

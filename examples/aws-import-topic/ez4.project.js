@@ -22,7 +22,7 @@ export default {
   tags: {
     Owner: 'EZ4 Examples'
   },
-  importProjects: {
+  references: {
     'hello-aws-topic': {
       projectFile: '../hello-aws-topic/ez4.project.js'
     }
