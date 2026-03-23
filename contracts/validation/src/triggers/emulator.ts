@@ -18,8 +18,8 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
     type: 'Validation',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    exportHandler: async (cacheToken) => {
-      const clients = await context.makeClients(services, cacheToken);
+    exportHandler: async () => {
+      const clients = await context.makeClients(services);
 
       const validationModule = await createEmulatorModule({
         version: options.version,

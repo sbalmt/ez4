@@ -9,22 +9,22 @@ import { MissingEmulatorProvider } from './errors';
 export type ServiceEmulators = Record<string, ServiceEmulator>;
 
 export const getServiceEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
-  const resolutionCache = new WeakMap<symbol, EmulatorServiceClients>();
+  const scopeCache = new WeakMap<EmulatorLinkedServices, EmulatorServiceClients>();
   const emulators: ServiceEmulators = {};
 
   const context = {
     makeClient: (resourceName: string) => {
       return makeEmulatorClient(resourceName, emulators, options);
     },
-    makeClients: async (linkedServices: EmulatorLinkedServices, cacheToken = Symbol()) => {
-      const clientsCache = resolutionCache.get(cacheToken);
+    makeClients: async (linkedServices: EmulatorLinkedServices) => {
+      const clientsCache = scopeCache.get(linkedServices);
 
       if (!clientsCache) {
         const allClients = {};
 
-        resolutionCache.set(cacheToken, allClients);
+        scopeCache.set(linkedServices, allClients);
 
-        Object.assign(allClients, await makeEmulatorClients(linkedServices, emulators, options, cacheToken));
+        Object.assign(allClients, await makeEmulatorClients(linkedServices, emulators, options));
 
         return allClients;
       }
@@ -56,18 +56,13 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   return emulators;
 };
 
-const makeEmulatorClients = async (
-  linkedServices: EmulatorLinkedServices,
-  emulators: ServiceEmulators,
-  options: ServeOptions,
-  cacheToken: symbol
-) => {
+const makeEmulatorClients = async (linkedServices: EmulatorLinkedServices, emulators: ServiceEmulators, options: ServeOptions) => {
   const allClients: EmulatorServiceClients = {};
 
   for (const linkedServiceName in linkedServices) {
     const serviceName = linkedServices[linkedServiceName];
 
-    const client = await makeEmulatorClient(serviceName, emulators, options, cacheToken);
+    const client = await makeEmulatorClient(serviceName, emulators, options);
 
     allClients[linkedServiceName] = client;
   }
@@ -75,7 +70,7 @@ const makeEmulatorClients = async (
   return allClients;
 };
 
-const makeEmulatorClient = async (resourceName: string, emulators: ServiceEmulators, options: ServeOptions, cacheToken?: symbol) => {
+const makeEmulatorClient = async (resourceName: string, emulators: ServiceEmulators, options: ServeOptions) => {
   const serviceName = getServiceName(resourceName, options);
   const serviceEmulator = emulators[serviceName];
 
@@ -83,7 +78,7 @@ const makeEmulatorClient = async (resourceName: string, emulators: ServiceEmulat
     throw new Error(`Service ${resourceName} has no emulators.`);
   }
 
-  const client = await serviceEmulator.exportHandler?.(cacheToken);
+  const client = await serviceEmulator.exportHandler?.();
 
   if (!client) {
     throw new Error(`Service ${resourceName} has no client emulator.`);

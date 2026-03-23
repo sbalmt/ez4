@@ -17,8 +17,8 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
     type: 'Factory',
     name: serviceName,
     identifier: getServiceName(serviceName, options),
-    exportHandler: async (cacheToken) => {
-      const clients = await context.makeClients(services, cacheToken);
+    exportHandler: async () => {
+      const clients = await context.makeClients(services);
 
       const factoryModule = await createEmulatorModule({
         version: options.version,
