@@ -52,6 +52,9 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/factory",
     "live:publish": "npm run build && npm publish --access public"
   },
+  "devDependencies": {
+    "@ez4/factory": "^0.44.0"
+  },
   "dependencies": {
     "@ez4/common": "^0.44.0",
     "@ez4/project": "^0.44.0",

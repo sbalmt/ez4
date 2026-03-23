@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { ValidationTester } from '@ez4/validation/test';
 import { rejects } from 'node:assert';
 
-describe('validation tests', () => {
+describe('validation client mock tests', () => {
   it('assert :: success validation', async () => {
     const client = ValidationTester.getClientMock('Test');
 

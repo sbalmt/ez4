@@ -4,7 +4,7 @@
 export default {
   prefix: 'ez4',
   projectName: 'factory',
-  sourceFiles: [],
+  sourceFiles: ['./test/input/circular-dependencies.ts'],
   stateFile: {
     path: 'ez4-state'
   }
