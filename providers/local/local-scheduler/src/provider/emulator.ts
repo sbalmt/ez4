@@ -13,26 +13,26 @@ import { InMemoryScheduler } from '../service/scheduler';
 import { createServiceClient } from '../client/service';
 
 export const registerCronEmulator = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
-  const serviceName = service.name;
+  const resourceName = service.name;
 
   return {
     type: 'Scheduler',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return service.schema ? createServiceClient(serviceName, service.schema) : undefined;
+      return service.schema ? createServiceClient(resourceName, service.schema) : undefined;
     },
     bootstrapHandler: () => {
-      InMemoryScheduler.createScheduler(serviceName, {
+      InMemoryScheduler.createScheduler(resourceName, {
         handler: (event) => processSchedulerEvent(service, options, context, event)
       });
 
       if (options.suppress) {
-        return Logger.warn(`Scheduler [${serviceName}] is suppressed`);
+        return Logger.warn(`Scheduler [${resourceName}] is suppressed`);
       }
 
       if (isDynamicCronService(service)) {
-        return Logger.log(`⌚ Dynamic scheduler [${serviceName}] is ready`);
+        return Logger.log(`⌚ Dynamic scheduler [${resourceName}] is ready`);
       }
 
       processTimerEvent(service, options, context);
@@ -41,10 +41,10 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
       return handleSchedulerRequest(service, options, context, request);
     },
     shutdownHandler: () => {
-      InMemoryScheduler.deleteScheduler(serviceName);
+      InMemoryScheduler.deleteScheduler(resourceName);
 
       if (!options.suppress) {
-        Logger.log(`⛔ Stopped scheduler [${serviceName}] events`);
+        Logger.log(`⛔ Stopped scheduler [${resourceName}] events`);
       }
     }
   };

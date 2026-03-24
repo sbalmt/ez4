@@ -11,20 +11,20 @@ export type RemoteClientOptions = CommonOptions & {
 };
 
 export const createRemoteClient = <T extends Queue.Message = any, U extends Queue.FifoMode<T> | undefined = any>(
-  serviceName: string,
+  resourceName: string,
   messageSchema: MessageSchema,
   clientOptions: RemoteClientOptions
 ): Client<T, U> => {
-  const queueIdentifier = getServiceName(serviceName, clientOptions);
+  const queueIdentifier = getServiceName(resourceName, clientOptions);
   const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
 
   return new (class {
     async sendMessage(message: T, _options?: SendOptions<U>) {
-      Logger.log(`✉️  Sending message to queue [${serviceName}] at ${queueHost}.`);
+      Logger.log(`✉️  Sending message to queue [${resourceName}] at ${queueHost}.`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 
-      setImmediate(() => forwardQueueMessage(serviceName, queueHost, payload));
+      setImmediate(() => forwardQueueMessage(resourceName, queueHost, payload));
     }
 
     receiveMessage(): Promise<T[]> {
@@ -33,7 +33,7 @@ export const createRemoteClient = <T extends Queue.Message = any, U extends Queu
   })();
 };
 
-const forwardQueueMessage = async (serviceName: string, serviceHost: string, payload: string) => {
+const forwardQueueMessage = async (resourceName: string, serviceHost: string, payload: string) => {
   try {
     const response = await fetch(serviceHost, {
       method: 'POST',
@@ -49,6 +49,6 @@ const forwardQueueMessage = async (serviceName: string, serviceHost: string, pay
       throw new Error(message);
     }
   } catch {
-    Logger.warn(`Remote queue [${serviceName}] at ${serviceHost} isn't available.`);
+    Logger.warn(`Remote queue [${resourceName}] at ${serviceHost} isn't available.`);
   }
 };

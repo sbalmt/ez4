@@ -15,12 +15,12 @@ export type HttpServiceClientOptions = CommonOptions & {
 };
 
 export const createHttpServiceClient = <T extends Http.Service>(
-  serviceName: string,
+  resourceName: string,
   clientOptions: HttpServiceClientOptions
 ): HttpClient<T> => {
   const { serviceHost, authorization, operations } = clientOptions;
 
-  const gatewayIdentifier = getServiceName(serviceName, clientOptions);
+  const gatewayIdentifier = getServiceName(resourceName, clientOptions);
   const gatewayHost = `http://${serviceHost}/${gatewayIdentifier}`;
 
   return new Proxy(
@@ -45,7 +45,7 @@ export const createHttpServiceClient = <T extends Http.Service>(
           });
 
           try {
-            Logger.log(`🌐 Sending request to gateway [${serviceName}] at ${requestUrl}`);
+            Logger.log(`🌐 Sending request to gateway [${resourceName}] at ${requestUrl}`);
 
             return await sendClientRequest(requestUrl, method, {
               ...request,
@@ -60,7 +60,7 @@ export const createHttpServiceClient = <T extends Http.Service>(
             //
           } catch (error) {
             if (!(error instanceof HttpError)) {
-              Logger.warn(`Remote gateway [${serviceName}] at ${serviceHost} isn't available.`);
+              Logger.warn(`Remote gateway [${resourceName}] at ${serviceHost} isn't available.`);
             }
 
             throw error;

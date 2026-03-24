@@ -15,7 +15,7 @@ import { createLocalClient } from '../client/local';
 import { InMemoryTopic } from '../service/topic';
 
 export const registerLocalServices = (service: TopicService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, schema: messageSchema } = service;
+  const { name: resourceName, schema: messageSchema } = service;
 
   const clientOptions = {
     ...options,
@@ -26,10 +26,10 @@ export const registerLocalServices = (service: TopicService, options: ServeOptio
 
   return {
     type: 'Topic',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createLocalClient(serviceName, messageSchema, clientOptions);
+      return createLocalClient(resourceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
@@ -86,10 +86,10 @@ const handleMessageRequest = async (service: TopicService, options: ServeOptions
 };
 
 const handleSubscribeRequest = (service: TopicService, body: string) => {
-  const { serviceName, serviceHost } = JSON.parse(body);
+  const { resourceName, serviceHost } = JSON.parse(body);
 
-  InMemoryTopic.createSubscription(service.name, serviceName, {
-    serviceName,
+  InMemoryTopic.createSubscription(service.name, resourceName, {
+    resourceName,
     serviceHost
   });
 
@@ -97,9 +97,9 @@ const handleSubscribeRequest = (service: TopicService, body: string) => {
 };
 
 const handleUnsubscribeRequest = (service: TopicService, body: string) => {
-  const { serviceName } = JSON.parse(body);
+  const { resourceName } = JSON.parse(body);
 
-  InMemoryTopic.deleteSubscription(service.name, serviceName);
+  InMemoryTopic.deleteSubscription(service.name, resourceName);
 
   return getSuccessResponse(204);
 };

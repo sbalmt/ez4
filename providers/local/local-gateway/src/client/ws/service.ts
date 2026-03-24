@@ -12,7 +12,7 @@ export type WsServiceClientOptions = {
   messageSchema: AnySchema;
 };
 
-export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: string, options: WsServiceClientOptions): WsClient<T> => {
+export const createWsServiceClient = <T extends Ws.JsonBody = any>(resourceName: string, options: WsServiceClientOptions): WsClient<T> => {
   const { allConnections, messageSchema, preferences } = options;
 
   return new (class {
@@ -23,7 +23,7 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: 
         throw new Error('Connection not found.');
       }
 
-      Logger.log(`✉️  Sending message to connection [${serviceName}]`);
+      Logger.log(`✉️  Sending message to connection [${resourceName}]`);
 
       const content = await resolveResponseBody(message, messageSchema, preferences);
       const payload = JSON.stringify(content);
@@ -36,7 +36,7 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(serviceName: 
     disconnect(connectionId: string) {
       const connection = allConnections[connectionId];
 
-      Logger.log(`🟥 Closing connection [${serviceName}]`);
+      Logger.log(`🟥 Closing connection [${resourceName}]`);
 
       if (connection) {
         connection.close();

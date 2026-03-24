@@ -12,12 +12,12 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
     return null;
   }
 
-  const { name: serviceName, schema, services, handler } = service;
+  const { name: resourceName, schema, services, handler } = service;
 
   return {
     type: 'Validation',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: async () => {
       const clients = await context.makeClients(services);
 

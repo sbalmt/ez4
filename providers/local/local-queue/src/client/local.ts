@@ -14,13 +14,13 @@ export type LocalClientOptions = ServeOptions & {
 };
 
 export const createLocalClient = <T extends Queue.Message = any, U extends Queue.FifoMode<T> | undefined = any>(
-  serviceName: string,
+  resourceName: string,
   messageSchema: MessageSchema,
   clientOptions: LocalClientOptions
 ): Client<T, U> => {
   return new (class {
     async sendMessage(message: T, options?: SendOptions<U>) {
-      Logger.log(`✉️  Sending message to queue [${serviceName}]`);
+      Logger.log(`✉️  Sending message to queue [${resourceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
       const delay = options?.delay ?? clientOptions.delay;
@@ -30,7 +30,7 @@ export const createLocalClient = <T extends Queue.Message = any, U extends Queue
           await setTimeout(delay * 1000);
           await clientOptions.handler(payload);
         } catch (error) {
-          Logger.error(`Local queue [${serviceName}] finished with errors.`);
+          Logger.error(`Local queue [${resourceName}] finished with errors.`);
           Logger.error(`    ${error}`);
         }
       });

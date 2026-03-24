@@ -4,7 +4,7 @@ import type { TopicRemoteSubscription } from '../types/subscription';
 import { Logger } from '@ez4/logger';
 
 export const processRemoteMessage = async (subscription: TopicRemoteSubscription, message: AnyObject) => {
-  const { serviceName, serviceHost } = subscription;
+  const { resourceName, serviceHost } = subscription;
 
   try {
     const response = await fetch(serviceHost, {
@@ -21,7 +21,7 @@ export const processRemoteMessage = async (subscription: TopicRemoteSubscription
       throw new Error(message);
     }
   } catch (error) {
-    Logger.error(`Remote subscription [${serviceName}] at ${serviceHost} isn't available.`);
+    Logger.error(`Remote subscription [${resourceName}] at ${serviceHost} isn't available.`);
     Logger.error(`    ${error}`);
   }
 };

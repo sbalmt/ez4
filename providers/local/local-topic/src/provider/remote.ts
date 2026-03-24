@@ -13,7 +13,7 @@ import { processQueueMessage } from '../handlers/queue';
 import { getTopicServiceHost } from '../utils/topic';
 
 export const registerRemoteServices = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, reference: referenceName, schema: messageSchema, project } = service;
+  const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -23,13 +23,13 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
   const clientOptions = {
     ...imports[project],
     remoteHost: options.serviceHost,
-    remoteName: serviceName
+    remoteName: resourceName
   };
 
   return {
     type: 'Topic',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
@@ -38,10 +38,10 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
     },
     bootstrapHandler: async () => {
       if (options.suppress) {
-        return Logger.warn(`Topic [${serviceName}] subscription is suppressed`);
+        return Logger.warn(`Topic [${resourceName}] subscription is suppressed`);
       }
 
-      const topicIdentifier = getServiceName(serviceName, options);
+      const topicIdentifier = getServiceName(resourceName, options);
       const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
 
       await subscribeRemoteClient(referenceName, topicHost, clientOptions);

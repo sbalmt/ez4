@@ -19,7 +19,7 @@ import { processWsMessage } from '../../handlers/ws/message';
 import { getWsErrorResponse } from '../../utils/ws/response';
 
 export const registerWsLocalServices = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, defaults, connect, message } = service;
+  const { name: resourceName, defaults, connect, message } = service;
 
   const allConnections: Record<string, EmulatorConnection> = {};
   const identities: Record<string, AnyObject> = {};
@@ -32,10 +32,10 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
 
   return {
     type: 'Gateway',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createWsServiceClient(serviceName, clientOptions);
+      return createWsServiceClient(resourceName, clientOptions);
     },
     connectHandler: async (event: EmulatorConnectionEvent) => {
       const { connection } = event;

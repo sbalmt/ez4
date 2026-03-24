@@ -13,7 +13,7 @@ import { getHttpErrorResponse } from '../../utils/http/response';
 import { getMatchingRoute } from '../../utils/route';
 
 export const registerHttpLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName } = service;
+  const { name: resourceName } = service;
 
   const httpRoutes = buildHttpRoutes(service);
 
@@ -24,10 +24,10 @@ export const registerHttpLocalServices = (service: HttpService, options: ServeOp
 
   return {
     type: 'Gateway',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createHttpServiceClient(serviceName, clientOptions);
+      return createHttpServiceClient(resourceName, clientOptions);
     },
     requestHandler: async (request: EmulatorRequestEvent) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };

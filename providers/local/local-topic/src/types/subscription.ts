@@ -1,6 +1,6 @@
 export type TopicRemoteSubscription = {
   type: TopicEmulatorSubscriptionType.Remote;
-  serviceName: string;
+  resourceName: string;
   serviceHost: string;
 };
 
