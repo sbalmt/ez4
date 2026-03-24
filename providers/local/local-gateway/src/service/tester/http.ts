@@ -23,8 +23,14 @@ export namespace HttpTester {
   };
 
   export const getClientMock = <T extends Http.Service>(resourceName: string, options: MockOptions<T>) => {
-    const client = createHttpClientMock(resourceName, options) as ClientMock<T>;
+    return createHttpClientMock(resourceName, options) as ClientMock<T>;
+  };
 
-    return client;
+  export const setClientMock = <T extends Http.Service>(resourceName: string, options: MockOptions<T>) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName, options));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
   };
 }

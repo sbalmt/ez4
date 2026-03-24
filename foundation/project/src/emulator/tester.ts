@@ -4,6 +4,7 @@ import { getServiceName } from '../utils/service';
 import { EmulatorClientNotFoundError, EmulatorNotFoundError } from './errors';
 
 type TesterContext = {
+  mocks?: ServiceEmulators;
   emulators?: ServiceEmulators;
   options?: TesterOptions;
 };
@@ -28,6 +29,7 @@ export namespace Tester {
     }
 
     Object.assign(CONTEXT, {
+      mocks: {},
       emulators,
       options
     });
@@ -39,7 +41,7 @@ export namespace Tester {
     }
 
     const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.emulators[serviceName];
+    const serviceEmulator = CONTEXT.mocks[serviceName] ?? CONTEXT.emulators[serviceName];
 
     if (!serviceEmulator) {
       throw new EmulatorNotFoundError(resourceName);
@@ -50,5 +52,35 @@ export namespace Tester {
     }
 
     return serviceEmulator.exportHandler();
+  };
+
+  export const mockServiceClient = (resourceName: string, client: unknown) => {
+    if (!ensureContext(CONTEXT)) {
+      throw new Error('Tester is not configured yet.');
+    }
+
+    const serviceName = getServiceName(resourceName, CONTEXT.options);
+
+    CONTEXT.mocks[serviceName] = {
+      type: 'Mock',
+      name: resourceName,
+      identifier: serviceName,
+      exportHandler: () => client
+    };
+  };
+
+  export const restoreServiceClient = (resourceName: string) => {
+    if (!ensureContext(CONTEXT)) {
+      throw new Error('Tester is not configured yet.');
+    }
+
+    const serviceName = getServiceName(resourceName, CONTEXT.options);
+    const serviceEmulator = CONTEXT.mocks[serviceName];
+
+    if (!serviceEmulator) {
+      throw new EmulatorNotFoundError(resourceName);
+    }
+
+    delete CONTEXT.mocks[serviceName];
   };
 }
