@@ -192,6 +192,54 @@ describe('migration :: update column tests', () => {
     });
   });
 
+  it('assert :: alter table (drop default column with constraint)', async () => {
+    const sourceTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Enum,
+        definitions: {
+          default: 'foo'
+        },
+        options: [
+          {
+            value: 'foo'
+          },
+          {
+            value: 123
+          }
+        ]
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      default: {
+        type: SchemaType.Enum,
+        options: [
+          {
+            value: 'foo'
+          },
+          {
+            value: 123
+          }
+        ]
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+          query: 'ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT'
+        }
+      ],
+      constraints: [],
+      validations: [],
+      relations: [],
+      indexes: []
+    });
+  });
+
   it('assert :: alter table (make required column)', async () => {
     const sourceTable = getDatabaseTables({
       nullable: {

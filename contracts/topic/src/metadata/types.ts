@@ -53,6 +53,7 @@ export type TopicLambdaSubscription = {
   timeout?: number;
   memory?: number;
   files?: string[];
+  debug?: boolean;
   vpc?: boolean;
 };
 

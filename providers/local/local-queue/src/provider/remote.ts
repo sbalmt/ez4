@@ -7,7 +7,7 @@ import { getServiceName, MissingImportedProjectError } from '@ez4/project/librar
 import { createRemoteClient } from '../client/remote';
 
 export const registerRemoteServices = (service: QueueImport, options: ServeOptions) => {
-  const { name: serviceName, reference: referenceName, schema: messageSchema, project } = service;
+  const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -20,8 +20,8 @@ export const registerRemoteServices = (service: QueueImport, options: ServeOptio
 
   return {
     type: 'Queue',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },

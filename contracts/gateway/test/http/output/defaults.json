@@ -14,11 +14,12 @@
     "defaults": {
       "runtime": "node22",
       "architecture": "x86",
+      "debug": true,
       "listener": {
         "name": "testListener",
         "file": "test/http/input/output-defaults.ts",
         "position": [
-          24,
+          25,
           1
         ]
       },

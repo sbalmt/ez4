@@ -22,7 +22,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
 
       const isoDate = input.date.toISOString();
 
-      Logger.debug(`⌚ Event ${identifier} created to run at ${isoDate}`);
+      Logger.log(`⌚ Event ${identifier} created to run at ${isoDate}`);
 
       return Promise.resolve();
     }
@@ -39,7 +39,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
         ...input
       };
 
-      Logger.debug(`⌚ Event ${identifier} updated.`);
+      Logger.log(`⌚ Event ${identifier} updated.`);
 
       return Promise.resolve();
     }
@@ -56,7 +56,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
 
       delete schedulerMemory[identifier];
 
-      Logger.debug(`ℹ️  Event ${identifier} deleted.`);
+      Logger.log(`ℹ️  Event ${identifier} deleted.`);
 
       return Promise.resolve(true);
     }

@@ -30,6 +30,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     logLevel = defaults?.logLevel ?? Defaults.LogLevel,
     memory = defaults?.memory ?? Defaults.Memory,
     timeout = Defaults.Timeout,
+    debug = options.debug,
     variables,
     listener,
     handler,
@@ -58,7 +59,6 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     functionName: eventName,
     description: handler.description,
     context: service.context,
-    debug: options.debug,
     tags: options.tags,
     variables: [options.variables, service.variables, variables],
     architecture,
@@ -68,6 +68,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     timeout,
     memory,
     files,
+    debug,
     vpc,
     handler: {
       sourceFile: handler.file,

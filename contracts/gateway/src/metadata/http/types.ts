@@ -96,6 +96,7 @@ export type HttpDefaults = {
   timeout?: number;
   memory?: number;
   files?: string[];
+  debug?: boolean;
 };
 
 export type HttpCache = {

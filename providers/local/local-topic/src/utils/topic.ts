@@ -1,11 +1,28 @@
+export type TopicServiceSubscribeRequest = {
+  serviceHost: string;
+  resourceName: string;
+};
+
+export type TopicServiceUnsubscribeRequest = {
+  resourceName: string;
+};
+
+export const subscribeToTopicService = (topicHost: string, request: TopicServiceSubscribeRequest) => {
+  return sendTopicServiceRequest(`${topicHost}/subscribe`, JSON.stringify(request));
+};
+
+export const unsubscribeFromTopicService = (topicHost: string, request: TopicServiceUnsubscribeRequest) => {
+  return sendTopicServiceRequest(`${topicHost}/unsubscribe`, JSON.stringify(request));
+};
+
 export const getTopicServiceHost = (serviceHost: string, topicIdentifier: string) => {
   return `http://${serviceHost}/${topicIdentifier}`;
 };
 
-export const sendTopicServiceRequest = async (serviceHost: string, payload: string) => {
+export const sendTopicServiceRequest = async (serviceHost: string, request: string) => {
   const response = await fetch(serviceHost, {
     method: 'POST',
-    body: payload,
+    body: request,
     headers: {
       ['content-type']: 'application/json'
     }

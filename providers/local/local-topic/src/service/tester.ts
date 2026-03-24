@@ -23,4 +23,12 @@ export namespace TopicTester {
 
     return client;
   };
+
+  export const setClientMock = <T extends Topic.Service<any, any>>(resourceName: string) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
+  };
 }

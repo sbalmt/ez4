@@ -24,7 +24,7 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
 
       const isoDate = input.date.toISOString();
 
-      Logger.debug(`⌚ Event ${identifier} created to run at ${isoDate}`);
+      Logger.log(`⌚ Event ${identifier} created to run at ${isoDate}`);
     }
 
     async updateEvent(identifier: string, input: Partial<ScheduleEvent<any>>) {
@@ -35,12 +35,12 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
         event
       });
 
-      Logger.debug(`⌚ Event ${identifier} updated.`);
+      Logger.log(`⌚ Event ${identifier} updated.`);
     }
 
     async deleteEvent(identifier: string) {
       if (InMemoryScheduler.deleteEvent(serviceName, identifier)) {
-        Logger.debug(`ℹ️  Event ${identifier} deleted.`);
+        Logger.log(`ℹ️  Event ${identifier} deleted.`);
         return Promise.resolve(true);
       }
 

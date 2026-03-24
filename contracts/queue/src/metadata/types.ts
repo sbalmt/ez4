@@ -62,6 +62,7 @@ export type QueueSubscription = {
   batch?: number;
   memory?: number;
   files?: string[];
+  debug?: boolean;
   vpc?: boolean;
 };
 

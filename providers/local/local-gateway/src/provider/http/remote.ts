@@ -7,7 +7,7 @@ import { getClientAuthorization, getClientOperations } from '@ez4/gateway/librar
 import { createHttpServiceClient } from '../../client/http/service';
 
 export const registerHttpRemoteServices = (service: HttpImport, options: ServeOptions, _context: EmulateServiceContext) => {
-  const { name: serviceName, reference: referenceName, project } = service;
+  const { name: resourceName, reference: referenceName, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -22,8 +22,8 @@ export const registerHttpRemoteServices = (service: HttpImport, options: ServeOp
 
   return {
     type: 'Gateway',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
       return createHttpServiceClient(referenceName, clientOptions);
     }

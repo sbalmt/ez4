@@ -47,7 +47,12 @@ export interface WebTarget {
   readonly memory?: number;
 
   /**
-   * Additional resources files for the bundler.
+   * Additional resource files for the handler bundler.
    */
   readonly files?: string[];
+
+  /**
+   * Determine whether the debug mode is active for all handlers.
+   */
+  readonly debug?: boolean;
 }

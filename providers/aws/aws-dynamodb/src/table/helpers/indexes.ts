@@ -24,15 +24,20 @@ export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
 };
 
 export const waitForSecondaryIndex = async (client: DynamoDBClient, tableName: string, indexName: string) => {
-  await Wait.until(async () => {
-    const result = await getSecondaryIndexStatus(client, tableName, indexName);
+  await Wait.until(
+    async () => {
+      const result = await getSecondaryIndexStatus(client, tableName, indexName);
 
-    if (result && result.IndexStatus !== IndexStatus.ACTIVE) {
-      return Wait.RetryAttempt;
+      if (result && result.IndexStatus !== IndexStatus.ACTIVE) {
+        return Wait.RetryAttempt;
+      }
+
+      return true;
+    },
+    {
+      attempts: 90
     }
-
-    return true;
-  });
+  );
 };
 
 export const getSecondaryIndexName = (schema: AttributeSchemaGroup) => {

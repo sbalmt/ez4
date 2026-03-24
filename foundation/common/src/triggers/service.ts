@@ -39,12 +39,12 @@ export const getCommonEmulators = (event: EmulateServiceEvent) => {
     return null;
   }
 
-  const { name: serviceName } = service;
+  const { name: resourceName } = service;
 
   return {
     type: 'Common',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => Client.make()
   };
 };

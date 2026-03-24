@@ -8,13 +8,13 @@ export class ExpectedStringTypeError extends UnexpectedTypeError {
 
 export class UnexpectedMinLengthError extends UnexpectedValueError {
   constructor(minValue: number, propertyName?: string) {
-    super([`with min length ${minValue}`], propertyName);
+    super([`with min length (${minValue})`], propertyName);
   }
 }
 
 export class UnexpectedMaxLengthError extends UnexpectedValueError {
   constructor(maxValue: number, propertyName?: string) {
-    super([`with max length ${maxValue}`], propertyName);
+    super([`with max length (${maxValue})`], propertyName);
   }
 }
 

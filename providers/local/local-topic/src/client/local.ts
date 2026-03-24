@@ -11,17 +11,24 @@ export type LocalClientOptions = ServeOptions & {
 };
 
 export const createLocalClient = <T extends Topic.Message = any>(
-  serviceName: string,
+  resourceName: string,
   messageSchema: MessageSchema,
   clientOptions: LocalClientOptions
 ): Client<T> => {
   return new (class {
     async sendMessage(message: T) {
-      Logger.debug(`✉️  Sending message to topic [${serviceName}]`);
+      Logger.log(`✉️  Sending message to topic [${resourceName}]`);
 
       const payload = await getJsonMessage(message, messageSchema);
 
-      setImmediate(() => clientOptions.handler(payload));
+      setImmediate(async () => {
+        try {
+          await clientOptions.handler(payload);
+        } catch (error) {
+          Logger.error(`Local topic [${resourceName}] finished with errors.`);
+          Logger.error(`    ${error}`);
+        }
+      });
     }
   })();
 };

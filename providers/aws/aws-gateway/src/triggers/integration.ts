@@ -71,6 +71,7 @@ const getIntegrationFunction = (
     timeout = defaults.timeout ?? Defaults.Timeout,
     memory = defaults.memory ?? Defaults.Memory,
     listener = defaults.listener,
+    debug = defaults.debug,
     handler,
     files,
     vpc
@@ -109,7 +110,6 @@ const getIntegrationFunction = (
       services: provider?.services,
       context: service.context,
       release: options.release,
-      debug: options.debug,
       tags: options.tags,
       variables: [options.variables, service.variables],
       architecture,
@@ -118,6 +118,7 @@ const getIntegrationFunction = (
       memory,
       type,
       files,
+      debug,
       vpc,
       handler: {
         sourceFile: handler.file,

@@ -31,6 +31,7 @@ export const createTargetFunction = <E extends EntryState>(
     memory: parameters.memory,
     files: parameters.files,
     tags: parameters.tags,
+    vpc: parameters.vpc,
     getFunctionVariables: () => {
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },

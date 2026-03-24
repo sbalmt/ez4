@@ -41,4 +41,12 @@ export namespace BucketTester {
 
     return client as ClientMock;
   };
+
+  export const setClientMock = (resourceName: string, options: MockOptions) => {
+    Tester.mockServiceClient(resourceName, getClientMock(resourceName, options));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
+  };
 }

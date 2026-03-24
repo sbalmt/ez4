@@ -3,6 +3,7 @@ import type { EntrypointFunction, EntrypointSource, LinkedVariables } from '@ez4
 import { createEmulatorModule } from '@ez4/project/library';
 
 export type VirtualModule = {
+  source: EntrypointSource;
   listener?: EntrypointFunction;
   handler: EntrypointFunction;
 };
@@ -32,6 +33,7 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
   ]);
 
   return {
+    source: handler,
     listener: listenerModule?.invoke,
     handler: handlerModule.invoke
   };

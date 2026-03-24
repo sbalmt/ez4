@@ -1,5 +1,5 @@
 import type { AnySchema, EnumSchema, ObjectSchema, ObjectSchemaProperties, ScalarSchema } from '@ez4/schema';
-import type { ObjectComparison } from '@ez4/utils';
+import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { PgMigrationQueries } from '../types/query';
 
@@ -53,28 +53,33 @@ export namespace ConstraintQuery {
     };
 
     for (const columnName in changes) {
-      const { update, create, remove } = changes[columnName];
+      const { update, create, remove, nested } = changes[columnName];
 
-      if (remove || update) {
+      const constraints = [];
+
+      if (remove || update || nested) {
         const schema = sourceSchema.properties[columnName];
+        const change = { ...remove, ...update, ...nested };
 
-        if (isConstrainedSchema(schema)) {
+        if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
 
-          statements.constraints.push({
+          constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
       }
 
-      if (create || update) {
+      if (create || update || nested) {
         const schema = targetSchema.properties[columnName];
+        const change = { ...create, ...update, ...nested };
 
-        if (isConstrainedSchema(schema)) {
+        if (isConstrainedChange(schema, change)) {
           const name = getConstraintName(table, columnName);
+          const removal = constraints.length;
 
-          statements.constraints.push({
-            check: getCheckConstraintQuery(builder, name),
+          constraints.push({
+            ...(!removal && { check: getCheckConstraintQuery(builder, name) }),
             query: getCreateQuery(builder, table, name, columnName, schema).build()
           });
 
@@ -85,6 +90,8 @@ export namespace ConstraintQuery {
           });
         }
       }
+
+      statements.constraints.push(...constraints);
     }
 
     return statements;
@@ -158,10 +165,6 @@ export namespace ConstraintQuery {
     return statements;
   };
 
-  const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {
-    return isEnumSchema(schema) || (isScalarSchema(schema) && isNotNullish(schema.definitions?.value));
-  };
-
   const getDeleteQuery = (builder: SqlBuilder, table: string, name: string) => {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
@@ -202,5 +205,25 @@ export namespace ConstraintQuery {
     }
 
     return query;
+  };
+
+  const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {
+    return isEnumSchema(schema) || (isScalarSchema(schema) && isNotNullish(schema.definitions?.value));
+  };
+
+  const isConstrainedChange = (schema: AnySchema, changes: AnyObject): schema is EnumSchema | ScalarSchema => {
+    switch (schema.type) {
+      case SchemaType.Boolean:
+      case SchemaType.Number:
+      case SchemaType.String: {
+        return isNotNullish(changes.definitions?.value) || isNotNullish(changes.definitions?.update?.value);
+      }
+
+      case SchemaType.Enum: {
+        return isNotNullish(changes.options);
+      }
+    }
+
+    return false;
   };
 }

@@ -33,7 +33,7 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     force: true
   });
 
-  const oldState = await loadState(project.stateFile, options);
+  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => loadState(project.stateFile, options));
   const newState: EntryStates = {};
 
   const hasChanges = await reportResourceChanges(newState, oldState, options);
@@ -53,7 +53,9 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
   const deployState = await performDeploy(options, async () => {
     const { result, errors } = await applyDeploy(newState, oldState, options);
 
-    await saveState(project.stateFile, options, result);
+    await DynamicLogger.logExecution('✅ Saving state', () => {
+      return saveState(project.stateFile, options, result);
+    });
 
     return {
       result,

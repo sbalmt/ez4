@@ -17,17 +17,18 @@
     "maxAge": 20,
     "disabled": true,
     "target": {
-      "architecture": "arm",
       "runtime": "node24",
+      "architecture": "arm",
       "logLevel": "debug",
       "logRetention": 14,
       "timeout": 30,
       "memory": 128,
+      "debug": true,
       "handler": {
         "name": "targetHandler",
         "file": "test/input/output-service.ts",
         "position": [
-          44,
+          45,
           1
         ]
       },

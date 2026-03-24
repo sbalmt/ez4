@@ -22,7 +22,7 @@ export namespace CronTester {
     return Tester.getServiceClient(resourceName) as Client<T>;
   };
 
-  export const getClientMock = <T extends Cron.Event = any>(resourceName: string, options?: MockOptions<T>) => {
+  export const getClientMock = <T extends Cron.Event>(resourceName: string, options?: MockOptions<T>) => {
     const client = createClientMock(resourceName, options) as ClientMock<T>;
 
     mock.method(client, 'getEvent');
@@ -31,5 +31,13 @@ export namespace CronTester {
     mock.method(client, 'deleteEvent');
 
     return client;
+  };
+
+  export const setClientMock = <T extends Cron.Event>(resourceName: string, options?: MockOptions<T>) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName, options));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
   };
 }

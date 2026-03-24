@@ -17,12 +17,20 @@ export namespace WsTester {
     return Tester.getServiceClient(resourceName) as WsClient<T>;
   };
 
-  export const getClientMock = <T extends Ws.JsonBody = any>(resourceName: string) => {
+  export const getClientMock = <T extends Ws.JsonBody>(resourceName: string) => {
     const client = createWsClientMock(resourceName) as ClientMock<T>;
 
     mock.method(client, 'sendMessage');
     mock.method(client, 'disconnect');
 
     return client;
+  };
+
+  export const setClientMock = <T extends Ws.JsonBody>(resourceName: string) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
   };
 }

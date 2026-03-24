@@ -9,14 +9,27 @@ import { MissingEmulatorProvider } from './errors';
 export type ServiceEmulators = Record<string, ServiceEmulator>;
 
 export const getServiceEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
+  const scopeCache = new WeakMap<EmulatorLinkedServices, EmulatorServiceClients>();
   const emulators: ServiceEmulators = {};
 
   const context = {
-    makeClients: (linkedServices: EmulatorLinkedServices) => {
-      return makeEmulatorClients(linkedServices, emulators, options);
-    },
     makeClient: (resourceName: string) => {
       return makeEmulatorClient(resourceName, emulators, options);
+    },
+    makeClients: async (linkedServices: EmulatorLinkedServices) => {
+      const clientsCache = scopeCache.get(linkedServices);
+
+      if (!clientsCache) {
+        const allClients = {};
+
+        scopeCache.set(linkedServices, allClients);
+
+        Object.assign(allClients, await makeEmulatorClients(linkedServices, emulators, options));
+
+        return allClients;
+      }
+
+      return clientsCache;
     }
   };
 
@@ -49,7 +62,9 @@ const makeEmulatorClients = async (linkedServices: EmulatorLinkedServices, emula
   for (const linkedServiceName in linkedServices) {
     const serviceName = linkedServices[linkedServiceName];
 
-    allClients[linkedServiceName] = await makeEmulatorClient(serviceName, emulators, options);
+    const client = await makeEmulatorClient(serviceName, emulators, options);
+
+    allClients[linkedServiceName] = client;
   }
 
   return allClients;

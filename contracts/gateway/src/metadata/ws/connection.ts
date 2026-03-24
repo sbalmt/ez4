@@ -128,7 +128,8 @@ const getTypeFromMembers = (
         break;
       }
 
-      case 'vpc': {
+      case 'vpc':
+      case 'debug': {
         target[member.name] = getPropertyBoolean(member);
         break;
       }

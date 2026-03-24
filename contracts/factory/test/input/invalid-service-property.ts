@@ -1,6 +1,8 @@
 import type { Factory } from '@ez4/factory';
 
-export declare class TestService extends Factory.Service<string> {
+interface TestService {}
+
+export declare class TestServiceFactory extends Factory.Service<TestService> {
   handler: typeof create;
 
   // No extra property is allowed.
@@ -8,5 +10,5 @@ export declare class TestService extends Factory.Service<string> {
 }
 
 export function create() {
-  return 'hello world';
+  return {};
 }

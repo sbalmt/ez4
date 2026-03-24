@@ -7,14 +7,14 @@ import { ExpressionType, parseExpression } from '../utils/expression';
 import { InMemoryScheduler } from '../service/scheduler';
 
 export const processTimerEvent = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, expression } = service;
+  const { name: resourceName, expression } = service;
   const { interval, type, value } = parseExpression(expression);
 
   switch (type) {
     case ExpressionType.Cron: {
-      Logger.log(`⌚ Scheduler [${serviceName}] will run using cron (${value})`);
+      Logger.log(`⌚ Scheduler [${resourceName}] will run using cron (${value})`);
 
-      InMemoryScheduler.createTimer(serviceName, 'cron', interval, () => {
+      InMemoryScheduler.createTimer(resourceName, 'cron', interval, () => {
         processTimerEvent(service, options, context);
       });
 
@@ -22,9 +22,9 @@ export const processTimerEvent = (service: CronService, options: ServeOptions, c
     }
 
     case ExpressionType.Rate: {
-      Logger.log(`⌚ Scheduler [${serviceName}] will run in ${value}`);
+      Logger.log(`⌚ Scheduler [${resourceName}] will run in ${value}`);
 
-      InMemoryScheduler.createTimer(serviceName, 'rate', interval, () => {
+      InMemoryScheduler.createTimer(resourceName, 'rate', interval, () => {
         processTimerEvent(service, options, context);
       });
 
@@ -32,9 +32,9 @@ export const processTimerEvent = (service: CronService, options: ServeOptions, c
     }
 
     case ExpressionType.At: {
-      Logger.log(`⌚ Scheduler [${serviceName}] will run at ${value}`);
+      Logger.log(`⌚ Scheduler [${resourceName}] will run at ${value}`);
 
-      InMemoryScheduler.createTimer(serviceName, 'at', interval);
+      InMemoryScheduler.createTimer(resourceName, 'at', interval);
       break;
     }
   }

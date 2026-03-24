@@ -5,6 +5,7 @@ import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
 import { getJsonMessage, MalformedMessageError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
+import { Logger } from '@ez4/logger';
 
 import { createRemoteClient, subscribeRemoteClient, unsubscribeRemoteClient } from '../client/remote';
 import { processLambdaMessage } from '../handlers/lambda';
@@ -12,7 +13,7 @@ import { processQueueMessage } from '../handlers/queue';
 import { getTopicServiceHost } from '../utils/topic';
 
 export const registerRemoteServices = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, reference: referenceName, schema: messageSchema, project } = service;
+  const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -22,13 +23,13 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
   const clientOptions = {
     ...imports[project],
     remoteHost: options.serviceHost,
-    remoteName: serviceName
+    remoteName: resourceName
   };
 
   return {
     type: 'Topic',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
       return createRemoteClient(referenceName, messageSchema, clientOptions);
     },
@@ -36,12 +37,14 @@ export const registerRemoteServices = (service: TopicImport, options: ServeOptio
       return handleTopicRequest(service, options, context, request);
     },
     bootstrapHandler: async () => {
-      if (!options.suppress) {
-        const topicIdentifier = getServiceName(serviceName, options);
-        const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
-
-        await subscribeRemoteClient(referenceName, topicHost, clientOptions);
+      if (options.suppress) {
+        return Logger.warn(`Topic [${resourceName}] subscription is suppressed`);
       }
+
+      const topicIdentifier = getServiceName(resourceName, options);
+      const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
+
+      await subscribeRemoteClient(referenceName, topicHost, clientOptions);
     },
     shutdownHandler: async () => {
       if (!options.suppress) {

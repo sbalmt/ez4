@@ -25,4 +25,12 @@ export namespace QueueTester {
 
     return client;
   };
+
+  export const setClientMock = <T extends Queue.Service<any, any>>(resourceName: string) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
+  };
 }

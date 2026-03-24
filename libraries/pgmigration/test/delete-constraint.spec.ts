@@ -98,4 +98,35 @@ describe('migration :: delete constraint tests', () => {
       indexes: []
     });
   });
+
+  it('assert :: delete (with default value)', async () => {
+    const sourceTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String,
+        definitions: {
+          value: 'foo'
+        }
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String
+      }
+    });
+
+    const queries = getUpdateQueries(targetTable, sourceTable);
+
+    deepEqual(queries, {
+      tables: [],
+      constraints: [
+        {
+          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
+        }
+      ],
+      validations: [],
+      relations: [],
+      indexes: []
+    });
+  });
 });

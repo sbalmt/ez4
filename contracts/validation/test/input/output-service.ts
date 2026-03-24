@@ -1,12 +1,12 @@
 import type { Environment, Service } from '@ez4/common';
 import type { Validation } from '@ez4/validation';
 
-type Schema = {
+type TestInput = {
   foo: string;
   bar: number;
 };
 
-export declare class TestValidation extends Validation.Service<Schema> {
+export declare class TestValidation extends Validation.Service<TestInput> {
   handler: typeof performValidation;
 
   variables: {
@@ -18,7 +18,7 @@ export declare class TestValidation extends Validation.Service<Schema> {
   };
 }
 
-export function performValidation(input: Validation.Input<Schema>, context: Service.Context<TestValidation>) {
+export function performValidation(input: Validation.Input<TestInput>, context: Service.Context<TestValidation>) {
   const { selfVariables } = context;
 
   // Ensure test variable

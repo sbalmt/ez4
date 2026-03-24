@@ -26,7 +26,11 @@ export function testServiceAInitializer(context: Service.Context<TestServiceAFac
   return new TestServiceA();
 }
 
-export declare class TestServiceBFactory extends Factory.Service<void> {
+interface TestServiceB {
+  helloWorld(): void;
+}
+
+export declare class TestServiceBFactory extends Factory.Service<TestServiceB> {
   handler: typeof testServiceBInitializer;
 
   services: {
@@ -37,5 +41,9 @@ export declare class TestServiceBFactory extends Factory.Service<void> {
 export function testServiceBInitializer(context: Service.Context<TestServiceBFactory>) {
   const { serviceA } = context;
 
-  serviceA.helloWorld();
+  return {
+    helloWorld: () => {
+      serviceA.helloWorld();
+    }
+  };
 }

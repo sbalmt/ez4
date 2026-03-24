@@ -11,7 +11,7 @@ import { processLambdaMessage } from '../handlers/lambda';
 import { createLocalClient } from '../client/local';
 
 export const registerLocalServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: serviceName, schema: messageSchema } = service;
+  const { name: resourceName, schema: messageSchema } = service;
 
   const clientOptions = {
     ...options,
@@ -23,10 +23,10 @@ export const registerLocalServices = (service: QueueService, options: ServeOptio
 
   return {
     type: 'Queue',
-    name: serviceName,
-    identifier: getServiceName(serviceName, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createLocalClient(serviceName, messageSchema, clientOptions);
+      return createLocalClient(resourceName, messageSchema, clientOptions);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueRequest(service, options, context, request);

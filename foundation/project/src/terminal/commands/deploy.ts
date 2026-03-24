@@ -14,9 +14,9 @@ import { connectDeployResources, prepareDeployResources } from '../../deploy/res
 import { reportResourceChanges } from '../../deploy/changes';
 import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
+import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
-import { loadImports } from '../../config/imports';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
@@ -30,7 +30,7 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
   }
 
   const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadImports(project), loadProviders(project)]);
+    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   if (options.force) {
@@ -43,13 +43,14 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
 
   options.imports = allImports;
 
-  const { metadata, dependencies } = await DynamicLogger.logExecution('🔄️ Loading metadata', () => {
-    return buildMetadata(project.sourceFiles, {
-      aliasPaths
-    });
+  const [oldState, { metadata, dependencies }] = await DynamicLogger.logExecution('🔄️ Loading metadata and state', () => {
+    return Promise.all([
+      loadState(project.stateFile, options),
+      buildMetadata(project.sourceFiles, {
+        aliasPaths
+      })
+    ]);
   });
-
-  const oldState = await loadState(project.stateFile, options);
 
   const newState: EntryStates = {};
 
@@ -83,7 +84,9 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
   const deployState = await performDeploy(options, async () => {
     const { result, errors } = await applyDeploy(newState, oldState, options);
 
-    await saveState(project.stateFile, options, result);
+    await DynamicLogger.logExecution('✅ Saving state', () => {
+      return saveState(project.stateFile, options, result);
+    });
 
     return {
       result,

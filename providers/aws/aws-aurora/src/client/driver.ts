@@ -20,6 +20,7 @@ import { setTimeout } from 'node:timers/promises';
 
 import { detectFieldData, prepareFieldData } from './fields';
 import { logQueryError, logQuerySuccess } from './logger';
+import { Runtime } from '@ez4/common';
 
 const client = new RDSDataClient({
   retryMode: 'adaptive',
@@ -55,7 +56,7 @@ export class DataClientDriver implements PgClientDriver {
           })
         );
 
-        if (options?.debug) {
+        if (options?.debug || Runtime.isDebug()) {
           logQuerySuccess(statement, transactionId);
         }
 

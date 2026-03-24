@@ -14,7 +14,7 @@ export type HttpClientMockResponses = {
   default: HttpClientMockOperation | HttpClientResponse;
 };
 
-export const createHttpClientMock = <T extends Http.Service>(serviceName: string, responses: HttpClientMockResponses): HttpClient<T> => {
+export const createHttpClientMock = <T extends Http.Service>(resourceName: string, responses: HttpClientMockResponses): HttpClient<T> => {
   const operationsCache: Record<string, HttpClientMockOperation | HttpClientResponse> = {};
 
   return new Proxy(
@@ -33,7 +33,7 @@ export const createHttpClientMock = <T extends Http.Service>(serviceName: string
           const operation = responses.operations?.[property] ?? responses.default;
 
           operationsCache[property] = mock.fn(async (request: HttpClientRequest) => {
-            Logger.debug(`🌐 Sending request to gateway [${serviceName}]`);
+            Logger.log(`🌐 Sending request to gateway [${resourceName}]`);
 
             try {
               const response = operation instanceof Function ? await operation(request) : operation;

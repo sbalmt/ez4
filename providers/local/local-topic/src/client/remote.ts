@@ -6,23 +6,23 @@ import { getJsonStringMessage } from '@ez4/topic/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
-import { getTopicServiceHost, sendTopicServiceRequest } from '../utils/topic';
+import { getTopicServiceHost, sendTopicServiceRequest, subscribeToTopicService, unsubscribeFromTopicService } from '../utils/topic';
 
 export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
 export const createRemoteClient = <T extends Topic.Message = any>(
-  serviceName: string,
+  resourceName: string,
   messageSchema: MessageSchema,
   clientOptions: RemoteClientOptions
 ): Client<T> => {
-  const topicIdentifier = getServiceName(serviceName, clientOptions);
+  const topicIdentifier = getServiceName(resourceName, clientOptions);
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   return new (class {
     async sendMessage(message: T) {
-      Logger.debug(`✉️  Sending message to topic [${serviceName}] at ${topicHost}`);
+      Logger.log(`✉️  Sending message to topic [${resourceName}] at ${topicHost}.`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 
@@ -30,7 +30,7 @@ export const createRemoteClient = <T extends Topic.Message = any>(
         try {
           await sendTopicServiceRequest(topicHost, payload);
         } catch (error) {
-          Logger.error(`Remote topic [${serviceName}] at ${topicHost} isn't available.`);
+          Logger.error(`Remote topic [${resourceName}] at ${topicHost} isn't available.`);
           Logger.error(`    ${error}`);
         }
       });
@@ -38,41 +38,35 @@ export const createRemoteClient = <T extends Topic.Message = any>(
   })();
 };
 
-export const unsubscribeRemoteClient = async (serviceName: string, clientOptions: RemoteClientOptions) => {
-  const topicIdentifier = getServiceName(serviceName, clientOptions);
+export const unsubscribeRemoteClient = async (resourceName: string, clientOptions: RemoteClientOptions) => {
+  const topicIdentifier = getServiceName(resourceName, clientOptions);
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   try {
-    await sendTopicServiceRequest(
-      `${topicHost}/unsubscribe`,
-      JSON.stringify({
-        serviceName
-      })
-    );
+    await unsubscribeFromTopicService(topicHost, {
+      resourceName
+    });
 
-    Logger.log(`⛔ Unsubscribed from topic [${serviceName}] at ${topicHost}`);
+    Logger.log(`⛔ Unsubscribed from topic [${resourceName}] at ${topicHost}`);
     //
   } catch {
     // Suppress unsubscription errors.
   }
 };
 
-export const subscribeRemoteClient = async (serviceName: string, remoteHost: string, clientOptions: RemoteClientOptions) => {
-  const topicIdentifier = getServiceName(serviceName, clientOptions);
+export const subscribeRemoteClient = async (resourceName: string, remoteHost: string, clientOptions: RemoteClientOptions) => {
+  const topicIdentifier = getServiceName(resourceName, clientOptions);
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   try {
-    await sendTopicServiceRequest(
-      `${topicHost}/subscribe`,
-      JSON.stringify({
-        serviceHost: remoteHost,
-        serviceName
-      })
-    );
+    await subscribeToTopicService(topicHost, {
+      serviceHost: remoteHost,
+      resourceName
+    });
 
-    Logger.log(`✉️  Subscribed to topic [${serviceName}] at ${topicHost}`);
+    Logger.log(`✉️  Subscribed to topic [${resourceName}] at ${topicHost}`);
     //
   } catch {
-    Logger.warn(`Remote topic [${serviceName}] at ${topicHost} isn't available.`);
+    Logger.warn(`Remote topic [${resourceName}] at ${topicHost} isn't available.`);
   }
 };

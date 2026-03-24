@@ -3,7 +3,7 @@ import { LogColor } from '../types/color';
 import { LogLevel } from '../types/level';
 import { TTY } from '../utils/tty';
 
-let currentLevel: LogLevel = LogLevel.Debug;
+let currentLevel: LogLevel = LogLevel.Information;
 
 export namespace Logger {
   export const setLevel = (logLevel: LogLevel) => {

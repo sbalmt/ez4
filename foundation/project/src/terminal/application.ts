@@ -2,7 +2,7 @@ import { loadEnvFile } from 'node:process';
 
 import { Logger } from '@ez4/logger';
 
-import { tryLoadProject } from '../config/project';
+import { loadProject } from '../config/project';
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';
 import { getInputOptions } from './options';
@@ -14,7 +14,7 @@ try {
     loadEnvFile(input.environmentFile);
   }
 
-  const project = await tryLoadProject(input?.projectFile);
+  const project = await loadProject(input?.projectFile);
 
   if (input?.command) {
     await runActionCommand(input, project);

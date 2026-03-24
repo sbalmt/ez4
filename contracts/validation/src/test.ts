@@ -31,4 +31,12 @@ export namespace ValidationTester {
       }
     })();
   };
+
+  export const setClientMock = <T>(resourceName: string, options?: MockOptions<T>) => {
+    Tester.mockServiceClient(resourceName, getClientMock<T>(resourceName, options));
+  };
+
+  export const restoreClient = (resourceName: string) => {
+    Tester.restoreServiceClient(resourceName);
+  };
 }

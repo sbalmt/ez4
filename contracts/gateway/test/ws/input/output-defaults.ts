@@ -14,6 +14,7 @@ export declare class TestService extends Ws.Service<{}> {
     logRetention: 14;
     timeout: 15;
     memory: 192;
+    debug: true;
     preferences: {
       namingStyle: NamingStyle.CamelCase;
     };
