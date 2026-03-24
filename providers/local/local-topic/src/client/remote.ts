@@ -6,7 +6,7 @@ import { getJsonStringMessage } from '@ez4/topic/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
-import { getTopicServiceHost, sendTopicServiceRequest } from '../utils/topic';
+import { getTopicServiceHost, sendTopicServiceRequest, subscribeToTopicService, unsubscribeFromTopicService } from '../utils/topic';
 
 export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
@@ -43,12 +43,9 @@ export const unsubscribeRemoteClient = async (resourceName: string, clientOption
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   try {
-    await sendTopicServiceRequest(
-      `${topicHost}/unsubscribe`,
-      JSON.stringify({
-        resourceName
-      })
-    );
+    await unsubscribeFromTopicService(topicHost, {
+      resourceName
+    });
 
     Logger.log(`⛔ Unsubscribed from topic [${resourceName}] at ${topicHost}`);
     //
@@ -62,13 +59,10 @@ export const subscribeRemoteClient = async (resourceName: string, remoteHost: st
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   try {
-    await sendTopicServiceRequest(
-      `${topicHost}/subscribe`,
-      JSON.stringify({
-        serviceHost: remoteHost,
-        resourceName
-      })
-    );
+    await subscribeToTopicService(topicHost, {
+      serviceHost: remoteHost,
+      resourceName
+    });
 
     Logger.log(`✉️  Subscribed to topic [${resourceName}] at ${topicHost}`);
     //
