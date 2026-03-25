@@ -1,8 +1,36 @@
 # EZ4: Contract Types
 
-EZ4 uses TypeScript to define strongly‑typed "contracts" that describe your application's infrastructure. Instead of writing verbose IaC definitions for every cloud-based resource, you declare how your services connect and what parameters they need. These contracts become the single source of truth for both your infrastructure and your application code.
+EZ4 uses TypeScript to define strongly‑typed **contracts** that describe your application's infrastructure. Instead of writing verbose IaC definitions for every cloud-based resource, you declare how your they connect and what parameters they need. These contracts become the **single source of truth** for both your infrastructure and your application code.
 
-## Predefined contracts
+## Connecting resources
+
+Every contract supports a `services` property, which lets you declare dependencies on other resources. At runtime, EZ4 automatically injects these connected resources into your function’s context, allowing you to consume them as typed services.
+
+```ts
+export declare class AnotherResource extends Example.Service {
+  // Resource parameters...
+}
+
+export declare class MainResource extends Example.Service {
+  handler: typeof resourceHandler;
+
+  services: {
+    // From AnotherResource, provide a service consumer.
+    anotherService: Environment.Service<AnotherResource>;
+  };
+}
+
+export function resourceHandler(context: Service.Context<MainResource>) {
+  const { anotherService } = context;
+
+  // Use the provided resource service.
+  anotherService.dummyMethod();
+}
+```
+
+> This pattern keeps your infrastructure relationships explicit, type‑safe, and easy to reason about.
+
+## All contracts
 
 - [Gateway](../contracts/gateway/README.md)
 - [Database](../contracts/database/README.md)
