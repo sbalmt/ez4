@@ -4,7 +4,7 @@ EZ4 uses TypeScript to define strongly‑typed **contracts** that declare your a
 
 ## Connecting resources
 
-Every contract supports a `services` property, which lets you declare dependencies on other resources. At runtime, EZ4 automatically injects these connected resources into your function’s context, allowing you to consume them as typed service clients.
+Every contract supports a `services` property, which lets you declare dependencies on resources. At runtime, EZ4 automatically injects these connected resources into your function’s context, allowing you to consume them as typed service clients.
 
 ```ts
 export declare class AnotherResource extends Example.Service {
@@ -30,7 +30,7 @@ export function resourceHandler(context: Service.Context<MainResource>) {
 
 > This pattern keeps your infrastructure relationships explicit, type‑safe, and easy to reason about.
 
-When EZ4 generates the bundle for `resourceHandler`, it follows the contract's type declarations and automatically includes the service clients for all connected resources. Everything is prepared ahead of time so EZ4 can inject the correct clients at runtime.
+When bundling `resourceHandler`, EZ4 reflects over the contract's type declarations to resolve all connected resources and generate the corresponding service clients. These clients are embedded into the bundle and later injected at runtime. Since the implementations are produced from the contract metadata, no concrete classes exist for the contract types.
 
 ## All contracts
 
