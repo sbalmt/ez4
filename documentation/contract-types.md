@@ -1,6 +1,6 @@
 # EZ4: Contract Types
 
-EZ4 uses TypeScript to define strongly‑typed **contracts** that describe your application's infrastructure. Instead of writing verbose IaC definitions for every cloud-based resource, you declare how your they connect and what parameters they need. These contracts become the **single source of truth** for both your infrastructure and your application code.
+EZ4 uses TypeScript to define strongly‑typed **contracts** that declare your application's infrastructure. Instead of writing verbose IaC definitions for every cloud-based resource, you declare how they connect and what parameters they need. These contracts become the **single source of truth** for both your infrastructure and your application code.
 
 ## Connecting resources
 
