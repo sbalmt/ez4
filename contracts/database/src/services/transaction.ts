@@ -15,7 +15,7 @@ export namespace TransactionModeUtils {
   /**
    * Extract the operation result from an interactive transaction.
    */
-  export type Result<O> = O extends (client: any) => infer R ? R : void;
+  export type Result<O> = O extends (client: any) => infer R ? Awaited<R> : void;
 
   /**
    * Determines the transaction operation based on the given database service.
