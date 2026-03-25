@@ -107,7 +107,7 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | variables    | object   | Environment variables associated to the stream.  |
 | logRetention | integer  | Log retention (in days) for the handler.         |
 | memory       | integer  | Memory available (in megabytes) for the handler. |
-| timeout      | integer  | Max execution time (in seconds) for the route.   |
+| timeout      | integer  | Max execution time (in seconds) for the handler. |
 
 > Streams is a DynamoDB feature, thus unavailable for Aurora Postgres.
 

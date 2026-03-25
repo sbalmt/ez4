@@ -56,7 +56,7 @@ All components provide a common interface (a.k.a contract) to manage and consume
 | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | [Gateway](./contracts/gateway/)           | [Gateway](./providers/local/local-gateway/)      | [API Gateway](./providers/aws/aws-gateway/)                                          |
 | [Database](./contracts/database/)         | [Database](./providers/local/local-database/)    | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
-| [Cache](./contracts/database/)            | [Cache](./providers/local/local-cache/)          | [Valkey](./providers/aws/aws-valkey/)                                                |
+| [Cache](./contracts/cache/)               | [Cache](./providers/local/local-cache/)          | [Valkey](./providers/aws/aws-valkey/)                                                |
 | [Scheduler](./contracts/scheduler/)       | [Scheduler](./providers//local/local-scheduler/) | [Scheduler](./providers/aws/aws-scheduler/)                                          |
 | [Storage](./contracts/storage/)           | [Storage](./providers/local/local-storage/)      | [Bucket](./providers/aws/aws-bucket/)                                                |
 | [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)          | [Topic](./providers/aws/aws-topic/)                                                  |
@@ -70,6 +70,7 @@ All components provide a common interface (a.k.a contract) to manage and consume
 
 - [Quick start](./documentation/quick-start.md)
 - [Configuration](./documentation/configuration.md)
+- [Contract Types](./documentation/contract-types.md)
 - [Philosophy](./documentation/philosophy.md)
 
 ## Requirements
