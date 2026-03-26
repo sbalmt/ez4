@@ -140,6 +140,8 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
 
 > Use the type helper for the `preferences` property.
 
+With your gateway defined, EZ4 handles routing, validation, dependency injection, and execution automatically according to your contract.
+
 ## Examples
 
 - [Get started with API gateway](../../examples/hello-aws-gateway)
