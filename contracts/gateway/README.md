@@ -138,6 +138,8 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
 | cors         | boolean               | Determines whether or not CORS is enabled for the route.    |
 | vpc          | boolean               | Determines whether or not VPC is enabled for the route.     |
 
+> Use the type helper for the `preferences` property.
+
 ## Examples
 
 - [Get started with API gateway](../../examples/hello-aws-gateway)
