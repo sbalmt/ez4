@@ -130,7 +130,7 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
 | preferences  | Http.UsePreferences<> | Route preference options.                                   |
 | architecture | ArchitectureType      | Architecture type for the cloud function.                   |
 | runtime      | RuntimeType           | Runtime for the cloud function.                             |
-| files        | string[]              | Additional resource files added into the handle bundle.     |
+| files        | string[]              | Additional resource files added into the handler bundle.    |
 | memory       | integer               | Memory available (in megabytes) for the handler.            |
 | timeout      | integer               | Max execution time (in seconds) for the route.              |
 | disabled     | boolean               | Determines whether or not the route is disabled.            |
