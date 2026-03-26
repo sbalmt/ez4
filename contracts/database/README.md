@@ -46,6 +46,8 @@ export declare class MyDb extends Database.Service {
 
 #### Use database
 
+Any handler with access to the database service can perform queries.
+
 ```ts
 import type { Service } from '@ez4/common';
 import type { MyDb } from './db';
