@@ -1,6 +1,6 @@
 # EZ4: Email
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect email components.
+The Email contract defines an email‑sending service for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your email configuration and domain settings, then generates the infrastructure and runtime bindings required to send emails.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/email @ez4/aws-email -D
 ```
 
-#### Create email
+#### Create an email service
+
+Here's a minimal example of an email service using a custom domain.
 
 ```ts
-// file: email.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Email } from '@ez4/email';
 
@@ -25,8 +26,9 @@ export declare class MyEmail extends Email.Service {
 
 #### Use email
 
+Any handler with access to the email service can send messages.
+
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyEmail } from './email';
 
@@ -45,13 +47,15 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 }
 ```
 
+With your email service defined, EZ4 handles provisioning, identity setup, and runtime wiring automatically according to your contract.
+
 ## Email properties
 
 #### Service
 
-| Name   | Type   | Description                         |
-| ------ | ------ | ----------------------------------- |
-| domain | string | Domain to setup the email identity. |
+| Name   | Type   | Description                               |
+| ------ | ------ | ----------------------------------------- |
+| domain | string | Domain used to set up the email identity. |
 
 ## Examples
 
