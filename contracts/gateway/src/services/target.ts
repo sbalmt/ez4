@@ -27,17 +27,17 @@ export interface WebTarget {
   readonly logLevel?: LogLevel;
 
   /**
-   * Architecture for the API function.
+   * Architecture type for the cloud function.
    */
   readonly architecture?: ArchitectureType;
 
   /**
-   * Runtime for the API function.
+   * Runtime for the cloud function.
    */
   readonly runtime?: RuntimeType;
 
   /**
-   * Max execution time (in seconds) for the event.
+   * Max execution time (in seconds) for the handler.
    */
   readonly timeout?: number;
 
@@ -47,12 +47,12 @@ export interface WebTarget {
   readonly memory?: number;
 
   /**
-   * Additional resource files for the handler bundler.
+   * Additional resource files added into the handle bundle.
    */
   readonly files?: string[];
 
   /**
-   * Determine whether the debug mode is active for all handlers.
+   * Determine whether the debug mode is active for the handler.
    */
   readonly debug?: boolean;
 }
