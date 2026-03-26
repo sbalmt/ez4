@@ -54,9 +54,9 @@ With your cache service defined, EZ4 handles provisioning and runtime wiring aut
 
 #### Service
 
-| Name   | Type              | Description                              |
-| ------ | ----------------- | ---------------------------------------- |
-| engine | Cache.UseEngine<> | Determines which database engine to use. |
+| Name   | Type              | Description                           |
+| ------ | ----------------- | ------------------------------------- |
+| engine | Cache.UseEngine<> | Determines which cache engine to use. |
 
 > Use type helper for the `engine` property.
 

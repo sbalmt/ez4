@@ -97,7 +97,7 @@ With your storage defined, EZ4 handles provisioning, synchronization, event rout
 | variables      | object             | Environment variables associated with the event handler.     |
 | services       | object             | Injected services associated with handler function.          |
 
-> Use type helpers for `events`, `cors` properties.
+> Use type helpers for `events` and `cors` properties.
 
 #### Events
 
