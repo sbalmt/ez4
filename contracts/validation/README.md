@@ -1,6 +1,6 @@
 # EZ4: Validation
 
-The validation contract uses the project's reflection utilities [(see foundation/reflection)](../../foundation/reflection/) to build composable validation services. It provides a lightweight layer that other contracts can inject to validate inputs and enforce schemas.
+The Validation contract defines composable validation services for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your validation handler, variables, and connected services, then generates runtime bindings required to validate inputs and enforce schemas.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ The validation contract uses the project's reflection utilities [(see foundation
 npm install @ez4/validation -D
 ```
 
-#### Create validation
+#### Create a validation service
+
+Validation services are ideal for reusable schema enforcement, input sanitization, and domain‑specific validation logic that can be injected into any other contract.
 
 ```ts
-// file: validation.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Validation } from '@ez4/validation';
 
@@ -30,7 +31,13 @@ export declare class MyValidation extends Validation.Service<MyService> {
     variables: Environment.ServiceVariables;
   };
 }
+```
 
+#### Handle validation
+
+EZ4 injects all variables and services, then invokes your validation handler with the input and schema.
+
+```ts
 // MyValidation handler
 export function validateInput(input: Validation.Input, context: Service.Context<MyValidation>) {
   const { otherService, variables } = context;
@@ -51,8 +58,9 @@ export function validateInput(input: Validation.Input, context: Service.Context<
 
 #### Use validation
 
+Any handler with access to the validation service can perform validation.
+
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyValidation } from './validation';
 
@@ -67,6 +75,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
   });
 }
 ```
+
+> This makes it easy to centralize and reuse validation logic across your application.
+
+With your validation service defined, EZ4 handles injection, execution, and schema wiring automatically according to your contract.
 
 ## Examples
 
