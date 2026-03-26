@@ -1,6 +1,6 @@
 # EZ4: Storage
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect storage components.
+The Storage contract defines an object storage for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your storage configuration, event handlers, variables, and connected services, then generates the infrastructure and runtime bindings required to store files and react to storage events.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/storage @ez4/local-storage @ez4/aws-bucket -D
 ```
 
-#### Create storage
+#### Create a storage
+
+Storage is ideal for file uploads, media processing, static assets, backups, and event‑driven workflows triggered by object changes.
 
 ```ts
-// file: storage.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
@@ -34,7 +35,13 @@ export declare class MyStorage extends Bucket.Service {
     variables: Environment.ServiceVariables;
   };
 }
+```
 
+#### Handle events
+
+EZ4 injects all variables and services, and then invokes your event handler.
+
+```ts
 // MyStorage event handler
 export function eventHandler(request: Bucket.Event, context: Service.Context<MyStorage>): void {
   const { otherService, variables } = context;
@@ -50,12 +57,13 @@ export function eventHandler(request: Bucket.Event, context: Service.Context<MyS
 }
 ```
 
-> Listening to bucket events is optional, so `events`, `services`, and `variables` can be omitted.
+> Listening to storage events is optional, so `events`, `services`, and `variables` can be omitted from the contract.
 
 #### Use storage
 
+Any handler with access to the storage service can read and write files.
+
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyStorage } from './storage';
 
@@ -71,33 +79,43 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 }
 ```
 
+> This makes it easy to store and retrieve files from anywhere in your application.
+
+With your storage defined, EZ4 handles provisioning, synchronization, event routing, and execution automatically according to your contract.
+
 ## Storage properties
 
 #### Service
 
 | Name           | Type               | Description                                                  |
 | -------------- | ------------------ | ------------------------------------------------------------ |
-| events         | Bucket.UseEvents<> | Entry-point handler for bucket events.                       |
-| cors           | Bucket.UseCors<>   | CORS configuration for the bucket.                           |
-| globalName     | string             | Overwrite the global bucket name.                            |
+| events         | Bucket.UseEvents<> | Entry-point handler for storage events.                      |
+| cors           | Bucket.UseCors<>   | CORS configuration for the storage.                          |
+| globalName     | string             | Overwrite the global storage name.                           |
 | localPath      | string             | Specify a local path to synchronize with the storage.        |
 | autoExpireDays | integer            | Amount of days an object is stored before its auto-deletion. |
-| variables      | object             | Environment variables associated to the event handler.       |
-| services       | object             | Injected services associated to handler function.            |
+| variables      | object             | Environment variables associated with the event handler.     |
+| services       | object             | Injected services associated with handler function.          |
 
 > Use type helpers for `events`, `cors` properties.
 
 #### Events
 
-| Name         | Type     | Description                                          |
-| ------------ | -------- | ---------------------------------------------------- |
-| listener     | function | Life-cycle listener function for the event.          |
-| handler      | function | Entry-point handler function for the event.          |
-| path         | string   | Path associated to the event.                        |
-| variables    | object   | Environment variables associated to handler.         |
-| logRetention | integer  | Log retention (in days) for the handler.             |
-| timeout      | integer  | Maximum execution time (in seconds) for the handler. |
-| memory       | integer  | Memory available (in megabytes) for the handler.     |
+| Name         | Type             | Description                                                 |
+| ------------ | ---------------- | ----------------------------------------------------------- |
+| listener     | function         | Life-cycle listener function for the event.                 |
+| handler      | function         | Entry-point handler function for the event.                 |
+| path         | string           | Path associated with the event handler.                     |
+| variables    | object           | Environment variables associated with the handler.          |
+| logRetention | integer          | Log retention (in days) for the handler.                    |
+| logLevel     | LogLevel         | Log level for the handler.                                  |
+| architecture | ArchitectureType | Architecture type for the cloud function.                   |
+| runtime      | RuntimeType      | Runtime for the cloud function.                             |
+| files        | string[]         | Additional resource files added into the handler bundle.    |
+| timeout      | integer          | Maximum execution time (in seconds) for the handler.        |
+| memory       | integer          | Memory available (in megabytes) for the handler.            |
+| debug        | boolean          | Determine whether the debug mode is active for the handler. |
+| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
 
 ## Examples
 
