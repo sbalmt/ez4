@@ -14,10 +14,11 @@ npm install @ez4/schema -D
 
 Follow the guides for working with different schema patterns:
 
-- [Object schemas](./docs/object-schema.md)
-- [Array schemas](./docs/array-schema.md)
-- [Boolean schemas](./docs/boolean-schema.md)
-- [Enum schemas](./docs/enum-schema.md)
+- [Object schema](./docs/object-schema.md)
+- [Array schema](./docs/array-schema.md)
+- [String schema](./docs/string-schema.md)
+- [Boolean schema](./docs/boolean-schema.md)
+- [Enum schema](./docs/enum-schema.md)
 
 ## Complementary packages
 
