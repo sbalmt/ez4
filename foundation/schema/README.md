@@ -16,6 +16,7 @@ Follow the guides for working with different schema patterns:
 
 - [Object schemas](./docs/object-schema.md)
 - [Array schemas](./docs/array-schema.md)
+- [Boolean schemas](./docs/boolean-schema.md)
 - [Enum schemas](./docs/enum-schema.md)
 
 ## Complementary packages
