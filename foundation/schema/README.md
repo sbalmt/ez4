@@ -17,6 +17,8 @@ Follow the guides for working with different schema patterns:
 - [Object schema](./docs/object-schema.md)
 - [Array schema](./docs/array-schema.md)
 - [String schema](./docs/string-schema.md)
+- [Decimal schema](./docs/decimal-schema.md)
+- [Integer schema](./docs/integer-schema.md)
 - [Boolean schema](./docs/boolean-schema.md)
 - [Enum schema](./docs/enum-schema.md)
 
