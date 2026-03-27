@@ -1,6 +1,8 @@
 # EZ4: Schema
 
-It uses the power of [reflection](../reflection/) to provide a seamless schema generation.
+The Schema package provides a lightweight, [reflection‑driven](../reflection/) system for defining strongly typed schemas in TypeScript. These schemas can be used for input validation, contract definitions, runtime checks, and automatic type‑safe payload handling across the EZ4 ecosystem.
+
+EZ4 uses your TypeScript types as the source of truth, and the Schema package turns them into runtime‑safe structures without decorators, code generation, or duplicated definitions.
 
 ## Getting started
 
@@ -9,6 +11,13 @@ It uses the power of [reflection](../reflection/) to provide a seamless schema g
 ```sh
 npm install @ez4/schema -D
 ```
+
+## Complementary packages
+
+These packages build on top of EZ4 Schema to transform and validate data at runtime:
+
+- [Transform](../transform/)
+- [Validator](../validator/)
 
 ## License
 
