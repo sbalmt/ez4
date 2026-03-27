@@ -14,7 +14,8 @@ npm install @ez4/schema -D
 
 Follow the guides for working with different schema patterns:
 
-- [Declare object schemas](./docs/object-schema.md)
+- [Object schemas](./docs/object-schema.md)
+- [Array schemas](./docs/array-schema.md)
 
 ## Complementary packages
 

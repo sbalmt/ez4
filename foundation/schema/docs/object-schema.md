@@ -191,7 +191,7 @@ type AwesomeObjectType = {
 }
 ```
 
-> The value is decoded and validated automatically without manual decoding required.
+> The value is decoded and validated automatically without manual decoding.
 
 ## Preserve object
 
