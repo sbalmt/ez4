@@ -12,6 +12,10 @@ EZ4 uses your TypeScript types as the source of truth, and the Schema package tu
 npm install @ez4/schema -D
 ```
 
+Follow the guides for working with different schema patterns:
+
+- [Declare object schemas](./docs/object-schema.md)
+
 ## Complementary packages
 
 These packages build on top of EZ4 Schema to transform and validate data at runtime:
