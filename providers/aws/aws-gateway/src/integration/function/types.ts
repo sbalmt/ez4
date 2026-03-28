@@ -32,6 +32,7 @@ export type IntegrationFunctionParameters = Omit<
   variables: (LinkedVariables | undefined)[];
   services?: LinkedServices;
   debug?: boolean;
+  wsErrorForwarding?: boolean;
 };
 
 export const enum IntegrationFunctionType {

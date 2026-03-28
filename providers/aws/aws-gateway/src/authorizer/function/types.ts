@@ -27,4 +27,5 @@ export type AuthorizerFunctionParameters = Omit<
   variables: (LinkedVariables | undefined)[];
   services?: LinkedServices;
   debug?: boolean;
+  wsErrorForwarding?: boolean;
 };

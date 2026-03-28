@@ -5,7 +5,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';
-import { isHttpService } from '@ez4/gateway/library';
+import { isHttpService, isWsService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 import { deepMerge } from '@ez4/utils';
@@ -83,6 +83,7 @@ export const getAuthorizerFunction = (
       files,
       debug,
       vpc,
+      wsErrorForwarding: isWsService(service),
       preferences: {
         ...service.defaults?.preferences,
         ...target.preferences

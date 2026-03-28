@@ -120,6 +120,7 @@ const getIntegrationFunction = (
       files,
       debug,
       vpc,
+      wsErrorForwarding: type === IntegrationFunctionType.WsConnection,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
