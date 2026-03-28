@@ -5,3 +5,4 @@ export { WsClient } from './services/ws/client';
 export * from './services/ws/contract';
 export * from './services/http/contract';
 export * from './services/errors';
+export * from './services/ws/errors';
