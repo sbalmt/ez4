@@ -204,19 +204,21 @@ export const getSuccessResponse = (traceId: string): ResponseEvent => {
   };
 };
 
-export const getConnectionEndpoint = (domainName: string, stage: string) => {
+export const getConnectionEndpoint = (domainName: string, stage: string, rawPath: string) => {
   if (domainName.includes('.execute-api.')) {
     return `https://${domainName}/${stage}`;
   }
 
-  return `https://${domainName}`;
+  const mappingPath = rawPath.replace(/\/\$connect$/, '').replace(/\/$/, '');
+
+  return `https://${domainName}${mappingPath}`;
 };
 
 const sendAuthError = async (event: RequestEvent, error: { message: string; code: number }) => {
   const { domainName, stage, connectionId } = event.requestContext;
 
   const client = new ApiGatewayManagementApiClient({
-    endpoint: getConnectionEndpoint(domainName, stage)
+    endpoint: getConnectionEndpoint(domainName, stage, event.rawPath)
   });
 
   try {
