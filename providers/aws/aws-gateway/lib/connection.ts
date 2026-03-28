@@ -57,12 +57,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     if (authError) {
       await sendAuthError(event, authError);
 
-      return {
-        statusCode: authError.code,
-        headers: {
-          ['x-trace-id']: traceId
-        }
-      };
+      return getSuccessResponse(traceId);
     }
   }
 
@@ -77,12 +72,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     await onDone(request);
 
-    return {
-      statusCode: 204,
-      headers: {
-        ['x-trace-id']: traceId
-      }
-    };
+    return getSuccessResponse(traceId);
 
     //
   } catch (error) {
@@ -205,11 +195,28 @@ const getAuthError = (event: RequestEvent) => {
   };
 };
 
+export const getSuccessResponse = (traceId: string): ResponseEvent => {
+  return {
+    statusCode: 204,
+    headers: {
+      ['x-trace-id']: traceId
+    }
+  };
+};
+
+export const getConnectionEndpoint = (domainName: string, stage: string) => {
+  if (domainName.includes('.execute-api.')) {
+    return `https://${domainName}/${stage}`;
+  }
+
+  return `https://${domainName}`;
+};
+
 const sendAuthError = async (event: RequestEvent, error: { message: string; code: number }) => {
   const { domainName, stage, connectionId } = event.requestContext;
 
   const client = new ApiGatewayManagementApiClient({
-    endpoint: `https://${domainName}/${stage}`
+    endpoint: getConnectionEndpoint(domainName, stage)
   });
 
   try {

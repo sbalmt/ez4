@@ -2,10 +2,8 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": [
-    "./src",
-    "./test"
-  ]
+  "include": ["./lib", "./src", "./test"]
 }
