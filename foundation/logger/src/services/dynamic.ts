@@ -60,7 +60,13 @@ export namespace DynamicLogger {
       logger.update(`${message} (${elapsedTime}ms)`);
 
       if (TTY.hasBuffer()) {
-        Logger.log(`\n${TTY.getBuffer().join('')}\n`);
+        const buffer = TTY.getBuffer();
+
+        process.stdout.write(`\n${buffer.join('')}`);
+
+        if (!buffer[buffer.length - 1]?.length) {
+          Logger.space();
+        }
       }
     }
   };
