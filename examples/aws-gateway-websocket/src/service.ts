@@ -70,6 +70,5 @@ export declare class WsApi extends Ws.Service<AllMessages> {
    */
   services: {
     helloQueue: Environment.Service<HelloQueue>;
-    selfClient: Environment.Service<WsApi>;
   };
 }
