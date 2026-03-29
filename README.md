@@ -7,10 +7,10 @@
 </div>
 
 <div align="center">
-  A collection of high-quality components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
+A collection of high‑quality, reflection‑driven components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
 </div>
 
-## Why
+## Why EZ4
 
 Most engineering teams strive to build solid foundations and deliver value when building production‑ready cloud applications. EZ4's mission is to provide all the tools needed to achieve this with as little friction as possible. It gives you a **single unified model** to declare infrastructure, connect services, validate payloads, and deploy everything... without YAML, boilerplate, or scattered configuration.
 
@@ -25,6 +25,24 @@ EZ4 treats your TypeScript code as the source of truth for both infrastructure a
 - **Reflection‑driven architecture** to provision infrastructure.
 - **One command to deploy** infrastructure and source code.
 - **One command for local emulation** and testing.
+
+## Components
+
+Each component exposes a **contract**, a strongly typed interface that describes how the resource is created, configured, and consumed. Contracts are **provider‑agnostic**, **composable**, **type‑safe**, and **reflection‑driven**. They describe both the infrastructure and the runtime behavior of a component, allowing EZ4 to generate cloud resources and local clients from the same source of truth.
+
+| Contract                                  | Local Provider                                  | AWS Provider                                                                         |
+| ----------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Gateway](./contracts/gateway/)           | [Gateway](./providers/local/local-gateway/)     | [API Gateway](./providers/aws/aws-gateway/)                                          |
+| [Database](./contracts/database/)         | [Database](./providers/local/local-database/)   | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
+| [Cache](./contracts/cache/)               | [Cache](./providers/local/local-cache/)         | [Valkey](./providers/aws/aws-valkey/)                                                |
+| [Scheduler](./contracts/scheduler/)       | [Scheduler](./providers/local/local-scheduler/) | [Scheduler](./providers/aws/aws-scheduler/)                                          |
+| [Storage](./contracts/storage/)           | [Storage](./providers/local/local-storage/)     | [Bucket](./providers/aws/aws-bucket/)                                                |
+| [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)         | [Topic](./providers/aws/aws-topic/)                                                  |
+| [Queue](./contracts/queue/)               | [Queue](./providers/local/local-queue/)         | [Queue](./providers/aws/aws-queue/)                                                  |
+| [Distribution](./contracts/distribution/) | N/A                                             | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
+| [Email](./contracts/email/)               | N/A                                             | [Email](./providers/aws/aws-email/)                                                  |
+| [Validation](./contracts/validation/)     | N/A                                             | N/A                                                                                  |
+| [Factory](./contracts/factory/)           | N/A                                             | N/A                                                                                  |
 
 ## Getting started
 
@@ -50,24 +68,6 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 - [Importing queue](./examples/aws-import-queue)
 - [Importing topic](./examples/aws-import-topic)
 - [Custom provider](./examples/custom-provider)
-
-## Components
-
-Each component exposes a **contract**, a strongly typed interface that describes how the resource is created, configured, and consumed. Contracts are **provider‑agnostic**, **composable**, **type‑safe**, and **reflection‑driven**. They describe both the infrastructure and the runtime behavior of a component, allowing EZ4 to generate cloud resources and local clients from the same source of truth.
-
-| Contract                                  | Local Provider                                  | AWS Provider                                                                         |
-| ----------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [Gateway](./contracts/gateway/)           | [Gateway](./providers/local/local-gateway/)     | [API Gateway](./providers/aws/aws-gateway/)                                          |
-| [Database](./contracts/database/)         | [Database](./providers/local/local-database/)   | [DynamoDB](./providers/aws/aws-dynamodb/), [AWS Aurora](./providers/aws/aws-aurora/) |
-| [Cache](./contracts/cache/)               | [Cache](./providers/local/local-cache/)         | [Valkey](./providers/aws/aws-valkey/)                                                |
-| [Scheduler](./contracts/scheduler/)       | [Scheduler](./providers/local/local-scheduler/) | [Scheduler](./providers/aws/aws-scheduler/)                                          |
-| [Storage](./contracts/storage/)           | [Storage](./providers/local/local-storage/)     | [Bucket](./providers/aws/aws-bucket/)                                                |
-| [Topic](./contracts/topic/)               | [Topic](./providers/local/local-topic/)         | [Topic](./providers/aws/aws-topic/)                                                  |
-| [Queue](./contracts/queue/)               | [Queue](./providers/local/local-queue/)         | [Queue](./providers/aws/aws-queue/)                                                  |
-| [Distribution](./contracts/distribution/) | N/A                                             | [CloudFront](./providers/aws/aws-cloudfront/)                                        |
-| [Email](./contracts/email/)               | N/A                                             | [Email](./providers/aws/aws-email/)                                                  |
-| [Validation](./contracts/validation/)     | N/A                                             | N/A                                                                                  |
-| [Factory](./contracts/factory/)           | N/A                                             | N/A                                                                                  |
 
 ## Table of contents
 
