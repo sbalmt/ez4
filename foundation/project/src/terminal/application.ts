@@ -23,6 +23,8 @@ try {
     process.exit(1);
   }
 } catch (error) {
+  Logger.space();
+
   if (error instanceof Error) {
     Logger.error(error.stack && input?.debug ? error.stack : error.message);
   } else {
