@@ -11,6 +11,7 @@ import { prepareInsertQuery } from './insert';
 import { prepareUpdateQuery } from './update';
 import { prepareSelectQuery } from './select';
 import { prepareDeleteQuery } from './delete';
+import { prepareExistsQuery } from './exists';
 import { prepareCountQuery } from './count';
 
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
@@ -200,6 +201,30 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
   const deleteQuery = prepareDeleteQuery(builder, table, schema, relations, query);
 
   const [statement, variables] = deleteQuery.build();
+
+  return {
+    query: statement,
+    variables,
+    metadata: {
+      table,
+      relations,
+      schema
+    }
+  };
+};
+
+export const prepareExists = <T extends InternalTableMetadata>(
+  table: string,
+  schema: ObjectSchema,
+  relations: PgRelationRepositoryWithSchema,
+  driver: PgClientDriver,
+  query: Query.ExistsInput<T>
+) => {
+  const builder = createQueryBuilder(driver);
+
+  const countQuery = prepareExistsQuery(builder, table, schema, relations, query);
+
+  const [statement, variables] = countQuery.build();
 
   return {
     query: statement,

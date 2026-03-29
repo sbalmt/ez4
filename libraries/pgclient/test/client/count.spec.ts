@@ -4,7 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { equal } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client count', async () => {
+describe('client count tests', async () => {
   const client = await makeSchemaClient();
 
   beforeEach(async () => {
@@ -33,7 +33,17 @@ describe('client count', async () => {
     equal(total, 20);
   });
 
-  it('assert :: count filter boolean', async () => {
+  it('assert :: count none', async () => {
+    const total = await client.ez4_test_table.count({
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    equal(total, 0);
+  });
+
+  it('assert :: count some (filter boolean)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         boolean: true
@@ -43,7 +53,7 @@ describe('client count', async () => {
     equal(total, 10);
   });
 
-  it('assert :: count filter integer', async () => {
+  it('assert :: count some (filter integer)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         integer: {
@@ -56,7 +66,7 @@ describe('client count', async () => {
     equal(total, 4);
   });
 
-  it('assert :: count filter decimal', async () => {
+  it('assert :: count some (filter decimal)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         decimal: {
@@ -69,7 +79,7 @@ describe('client count', async () => {
     equal(total, 4);
   });
 
-  it('assert :: count filter string', async () => {
+  it('assert :: count some (filter string)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         string: {
@@ -81,7 +91,7 @@ describe('client count', async () => {
     equal(total, 11);
   });
 
-  it('assert :: count filter date-time', async () => {
+  it('assert :: count some (filter date-time)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         datetime: {
@@ -93,7 +103,7 @@ describe('client count', async () => {
     equal(total, 11);
   });
 
-  it('assert :: count filter date', async () => {
+  it('assert :: count some (filter date)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         date: {
@@ -105,7 +115,7 @@ describe('client count', async () => {
     equal(total, 7);
   });
 
-  it('assert :: count filter time', async () => {
+  it('assert :: count some (filter time)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         time: {
@@ -117,7 +127,7 @@ describe('client count', async () => {
     equal(total, 5);
   });
 
-  it('assert :: count filter json', async () => {
+  it('assert :: count some (filter json)', async () => {
     const total = await client.ez4_test_table.count({
       where: {
         json: {

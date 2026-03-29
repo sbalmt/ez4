@@ -248,6 +248,33 @@ export const prepareDeleteMany = async <T extends InternalTableMetadata, S exten
   return [transactions, records as Query.DeleteManyResult<S, T>];
 };
 
+export const prepareExists = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+  table: string,
+  schema: ObjectSchema,
+  indexes: string[][],
+  query: Query.ExistsInput<T>
+): ExecuteStatementCommandInput => {
+  const secondaryIndex = findBestSecondaryIndex(indexes, query.where ?? {});
+
+  const [[partitionKey]] = indexes;
+
+  const [statement, variables] = prepareSelect(table, schema, secondaryIndex, {
+    where: query.where,
+    select: {
+      [partitionKey]: true
+    } as Query.StrictSelectInput<S, T>
+  });
+
+  return {
+    ConsistentRead: !secondaryIndex,
+    Statement: statement,
+    Limit: 1,
+    ...(variables.length && {
+      Parameters: variables
+    })
+  };
+};
+
 export const prepareCount = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
