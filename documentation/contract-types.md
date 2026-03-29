@@ -4,7 +4,7 @@ EZ4 uses TypeScript to define strongly‑typed **contracts** that declare your a
 
 ## Connecting resources
 
-Every contract supports a `services` property, which lets you declare dependencies on resources. At runtime, EZ4 automatically injects these connected resources into your function’s context, allowing you to consume them as typed service clients.
+Every contract dealing with handler has support to a `services` property, which lets you declare dependencies on resources. At runtime, EZ4 automatically injects these connected resources into your function's context, allowing you to consume them as typed service clients.
 
 ```ts
 export declare class AnotherResource extends Example.Service {
@@ -31,6 +31,38 @@ export function resourceHandler(context: Service.Context<MainResource>) {
 > This pattern keeps your infrastructure relationships explicit, type‑safe, and easy to reason about.
 
 When bundling `resourceHandler`, EZ4 reflects over the contract's type declarations to resolve all connected resources and generate the corresponding service clients. These clients are embedded into the bundle and later injected at runtime. Since the implementations are produced from the contract metadata, no concrete classes exist for the contract types.
+
+## Environment variables
+
+Contracts that define a handler can also declare **environment variables** using the `variables` property, making configuration explicit and type‑safe at the TypeScript level. During deployment, EZ4 performs minimal validation to ensure that each declared variable exists in the deployment environment and is not empty. At runtime, all variables are injected as strings.
+
+```ts
+export declare class MainResource extends Example.Service {
+  handler: typeof resourceHandler;
+
+  variables: {
+    MY_VARIABLE_1: Environment.Variable<'SERVICE_VARIABLE_1'>;
+    MY_VARIABLE_2: Environment.VariableOrValue<'SERVICE_VARIABLE_2', 'default value'>;
+    MY_VARIABLE_3: 'literal value';
+  };
+
+  services: {
+    // Expose the declared environment variables as a service
+    variables: Environment.ServiceVariables;
+  };
+}
+
+export function resourceHandler(context: Service.Context<MainResource>) {
+  const { variables } = context;
+
+  // Use the injected environment variables.
+  variables.MY_VARIABLE_1;
+  variables.MY_VARIABLE_2;
+  variables.MY_VARIABLE_3;
+}
+```
+
+This keeps configuration explicit and discoverable while avoiding unnecessary runtime overhead. TypeScript ensures correctness during development, and EZ4 ensures the variable exists and is not empty during deployment.
 
 ## All contracts
 

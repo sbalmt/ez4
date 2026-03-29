@@ -73,7 +73,7 @@ Each component exposes a **contract**, a strongly typed interface that describes
 
 - [Quick start](./documentation/quick-start.md)
 - [Configuration](./documentation/configuration.md)
-- [Contract Types](./documentation/contract-types.md)
+- [Contract types](./documentation/contract-types.md)
 - [Philosophy](./documentation/philosophy.md)
 
 ## Requirements
