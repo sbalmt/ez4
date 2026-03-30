@@ -4,7 +4,7 @@ EZ4 exists to make software engineering easy for developers end‑to‑end (from
 
 ## 1. Typing matters
 
-EZ4 relies on TypeScript not just as a language, but as a source of truth. Types express intention, structure, and constraints directly in the codebase, eliminating the need for external IaC definitions. Contracts defined through types become the basis for validation, composition, and ultimately the infrastructure itself. In EZ4, your typings are your infrastructure. [See contract types](contract-types.md).
+EZ4 relies on TypeScript not just as a language, but as a source of truth. Types express intention, structure, and constraints directly in the codebase, eliminating the need for external IaC definitions. Contracts defined through types become the basis for validation, composition, and ultimately the infrastructure itself. In EZ4, your typings are your infrastructure. [See contracts overview](contracts.md).
 
 ## 2. One source, multiple destinations
 

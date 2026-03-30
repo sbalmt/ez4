@@ -73,7 +73,7 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 
 - [Quick start](./documentation/quick-start.md)
 - [Configuration](./documentation/configuration.md)
-- [Contract types](./documentation/contract-types.md)
+- [Contracts overview](./documentation/contracts.md)
 - [Philosophy](./documentation/philosophy.md)
 
 ## Requirements

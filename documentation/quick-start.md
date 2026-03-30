@@ -136,7 +136,7 @@ export function handleRoute(request: RouteRequest): RouteResponse {
 }
 ```
 
-> See all the [contract types](./contract-types.md) for more details.
+> See the [contracts overview](./contracts.md) for more details.
 
 Now let's serve the API:
 
