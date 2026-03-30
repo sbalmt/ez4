@@ -73,6 +73,7 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 
 - [Quick start](./documentation/quick-start.md)
 - [Configuration](./documentation/configuration.md)
+- [Architecture overview](./documentation/architecture.md)
 - [Contracts overview](./documentation/contracts.md)
 - [Philosophy](./documentation/philosophy.md)
 
