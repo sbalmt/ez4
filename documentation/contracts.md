@@ -41,9 +41,9 @@ export declare class MainResource extends Example.Service {
   handler: typeof resourceHandler;
 
   variables: {
-    MY_VARIABLE_1: Environment.Variable<'SERVICE_VARIABLE_1'>;
-    MY_VARIABLE_2: Environment.VariableOrValue<'SERVICE_VARIABLE_2', 'default value'>;
-    MY_VARIABLE_3: 'literal value';
+    myVariable1: Environment.Variable<'SERVICE_VARIABLE_1'>;
+    myVariable2: Environment.VariableOrValue<'SERVICE_VARIABLE_2', 'default value'>;
+    myVariable3: 'literal value';
   };
 
   services: {
@@ -56,9 +56,9 @@ export function resourceHandler(context: Service.Context<MainResource>) {
   const { variables } = context;
 
   // Use the injected environment variables.
-  variables.MY_VARIABLE_1;
-  variables.MY_VARIABLE_2;
-  variables.MY_VARIABLE_3;
+  variables.myVariable1;
+  variables.myVariable2;
+  variables.myVariable3;
 }
 ```
 
