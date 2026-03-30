@@ -78,6 +78,12 @@ This keeps configuration explicit and discoverable while avoiding unnecessary ru
 - [Validation](../contracts/validation/README.md)
 - [Factory](../contracts/factory/README.md)
 
+## What's next
+
+- [Quick start](./quick-start.md)
+- [Architecture overview](./architecture.md)
+- [Philosophy](./philosophy.md)
+
 ## License
 
 MIT License

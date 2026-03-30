@@ -14,6 +14,12 @@ Everything begins with a strongly typed contract. Using built‑in providers, EZ
 
 Infrastructure should accelerate product development, not slow it down. EZ4 embraces a serverless‑first mindset to provide scalability, security, and cost efficiency without demanding deep infrastructure expertise. Developers can focus on building features while the framework ensures the application evolves and scales safely, without fear of breaking the underlying platform.
 
+## What's next
+
+- [Quick start](./quick-start.md)
+- [Architecture overview](./contracts.md)
+- [Contracts overview](./contracts.md)
+
 ## License
 
 MIT License

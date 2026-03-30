@@ -4,7 +4,7 @@ EZ4 encourages a clean, predictable structure that separates infrastructure from
 
 ## Root-level contracts
 
-Root‑level contracts represent **global infrastructure resources** used across the entire application, such as [Gateway](../contracts/gateway/), [Database](../contracts//database/), [Distribution](../contracts/distribution/), [Email](../contracts/email/), [Storage](../contracts/storage/), and [Cache](../contracts/cache/). Keeping them at the project root makes it easy to identify the core building blocks of your service.
+Root‑level contracts represent **global infrastructure resources** used across the entire application, such as [Gateway](../contracts/gateway/), [Database](../contracts/database/), [Distribution](../contracts/distribution/), [Email](../contracts/email/), [Storage](../contracts/storage/), and [Cache](../contracts/cache/). Keeping them at the project root makes it easy to identify the core building blocks of your service.
 
 ```
 src/
@@ -32,7 +32,7 @@ src/
 
 > This mirrors how real systems evolve and keeps related logic close together. Each module becomes a self‑contained unit with its own infrastructure and behavior.
 
-## Services contracts
+## Service contracts
 
 Handlers should remain thin orchestration layers. Business logic belongs in services, and EZ4 provides [Factory](../contracts/factory/) and [Validation](../contracts/validation/) contracts to help structure this layer cleanly.
 
@@ -97,6 +97,12 @@ src/
 ## Summary
 
 A well‑structured EZ4 project keeps global infrastructure in root‑level contracts, places domain‑specific resources inside module‑level contracts, and maintains thin handlers that delegate to services and repositories. Each module owns its schemas, endpoints, events, and data access, forming a cohesive domain boundary. By organizing the codebase around business capabilities rather than technologies, centralizing queries in repositories, and using TypeScript as the single source of truth for both runtime and infrastructure, EZ4 projects remain clean, maintainable, and scalable as they grow.
+
+## What's next
+
+- [Quick start](./quick-start.md)
+- [Contracts overview](./contracts.md)
+- [Philosophy](./philosophy.md)
 
 ## License
 

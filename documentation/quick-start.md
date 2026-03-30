@@ -159,6 +159,13 @@ All done.
 - [Storage manager](../examples/aws-storage-manager)
 - [Schedule manager](../examples/aws-schedule-manager)
 
+## What's next
+
+- [Configuration](./configuration.md)
+- [Architecture overview](./architecture.md)
+- [Contracts overview](./contracts.md)
+- [Philosophy](./philosophy.md)
+
 ## License
 
 MIT License
