@@ -7,6 +7,7 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { buildMetadata } from '../../library/metadata';
 import { generateResources } from '../../generator/resources';
 import { getGeneratorOptions } from '../../generator/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 
@@ -21,7 +22,12 @@ export const generateCommand = async (input: InputOptions, project: ProjectOptio
     return Promise.all([loadAliasPaths(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
+    environment: true,
     arguments: true
   });
 
