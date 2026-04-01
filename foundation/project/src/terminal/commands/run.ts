@@ -54,6 +54,11 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
   const allScriptFiles = input.arguments ?? [];
   const workingDirectory = process.cwd();
 
+  if (!allScriptFiles.length) {
+    Logger.warn(`One or more script files need to be specified.`);
+    return;
+  }
+
   await DynamicLogger.logExecution('▶️  Running script', async () => {
     Runner.configure(emulators, options);
 
@@ -65,7 +70,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
       const scriptPath = join(workingDirectory, scriptFile);
 
       if (!existsSync(scriptPath)) {
-        Logger.error(`File ${scriptFile} not found.`);
+        Logger.error(`Script file '${scriptFile}' not found.`);
         continue;
       }
 
