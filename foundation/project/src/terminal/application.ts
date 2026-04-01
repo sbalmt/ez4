@@ -1,8 +1,7 @@
-import { loadEnvFile } from 'node:process';
-
 import { Logger } from '@ez4/logger';
 
 import { loadProject } from '../config/project';
+
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';
 import { getInputOptions } from './options';
@@ -10,10 +9,6 @@ import { getInputOptions } from './options';
 const input = getInputOptions();
 
 try {
-  if (input?.environmentFile) {
-    loadEnvFile(input.environmentFile);
-  }
-
   const project = await loadProject(input?.projectFile);
 
   if (input?.command) {

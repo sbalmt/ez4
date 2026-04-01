@@ -14,6 +14,7 @@ import { connectDeployResources, prepareDeployResources } from '../../deploy/res
 import { reportResourceChanges } from '../../deploy/changes';
 import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
@@ -37,7 +38,12 @@ export const deployCommand = async (input: InputOptions, project: ProjectOptions
     Logger.log('❗ Force option is enabled');
   }
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
+    environment: true,
     force: true
   });
 

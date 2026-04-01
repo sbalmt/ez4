@@ -13,9 +13,10 @@ import { bootstrapServices, prepareServices, shutdownServices } from '../../emul
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { loadReferences } from '../../config/references';
-import { watchMetadata } from '../../library/metadata';
+import { loadEnvironment } from '../../config/environment';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { watchMetadata } from '../../library/metadata';
 import { upgradeHandler } from '../../serve/upgrade';
 import { requestHandler } from '../../serve/request';
 
@@ -30,10 +31,15 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
     return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
     reset: options.local,
-    inspect: true,
+    environment: true,
     suppress: true,
+    inspect: true,
     local: true
   });
 

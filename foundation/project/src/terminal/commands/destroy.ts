@@ -10,6 +10,7 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState, saveState } from '../../utils/state';
 import { reportResourceChanges } from '../../deploy/changes';
 import { getDeployOptions } from '../../deploy/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
@@ -29,7 +30,12 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     Logger.log('❗ Force option is enabled');
   }
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
+    environment: true,
     force: true
   });
 

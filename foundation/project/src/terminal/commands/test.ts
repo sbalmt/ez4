@@ -9,6 +9,7 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServeOptions } from '../../emulator/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
@@ -31,11 +32,16 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
-    arguments: true,
-    inspect: true,
-    coverage: true,
     reset: options.local,
+    environment: true,
+    arguments: true,
+    coverage: true,
+    inspect: true,
     local: true
   });
 
