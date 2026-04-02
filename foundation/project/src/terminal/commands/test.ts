@@ -64,7 +64,6 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);
-
     await bootstrapServices(emulators);
 
     const allFiles = await readdir(workingDirectory, {
@@ -84,6 +83,11 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     });
   });
 
+  if (!testFiles.length) {
+    Logger.warn(`One or more test files need to be specified.`);
+    return;
+  }
+
   const testRunner = run({
     coverage: input.coverage,
     coverageIncludeGlobs: [`${workingDirectory}/**/*`],
@@ -94,12 +98,11 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   testRunner.compose(spec).pipe(process.stdout);
 
-  let testCount = 0;
+  testRunner.on('test:summary', ({ success }) => {
+    shutdownServices(emulators);
 
-  // Ensure an active service won't hold the tests.
-  testRunner.on('test:complete', ({ details }) => {
-    if (details.type === 'suite' && ++testCount >= testFiles.length) {
-      shutdownServices(emulators);
+    if (!success) {
+      process.exitCode = 1;
     }
   });
 };
