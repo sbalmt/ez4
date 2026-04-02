@@ -25,7 +25,7 @@ export const getHttpSuccessResponse = (metadata: HttpResponse, response: Http.Re
   return getSuccessResponse(status, headers, 'application/json', payload);
 };
 
-export const getHttpErrorResponse = (error?: Error, errorsMap?: HttpErrors | null) => {
+export const getHttpErrorResponse = (error: Error, errorsMap?: HttpErrors | null) => {
   if (error instanceof HttpError) {
     const { status, body } = getJsonError(error);
 
@@ -42,9 +42,7 @@ export const getHttpErrorResponse = (error?: Error, errorsMap?: HttpErrors | nul
     }
   }
 
-  return getErrorResponse(500, {
-    message: 'Internal server error'
-  });
+  throw error;
 };
 
 const getMappedErrorData = (error: Error, errorsMap: HttpErrors) => {

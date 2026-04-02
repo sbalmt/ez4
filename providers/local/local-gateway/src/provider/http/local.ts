@@ -60,7 +60,7 @@ export const registerHttpLocalServices = (service: HttpService, options: ServeOp
         //
       } catch (error) {
         if (!(error instanceof Error)) {
-          return getHttpErrorResponse();
+          throw error;
         }
 
         return getHttpErrorResponse(error, {

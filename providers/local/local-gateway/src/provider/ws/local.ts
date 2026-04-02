@@ -71,11 +71,11 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
         return await processWsMessage(service, options, context, message, identity);
         //
       } catch (error) {
-        if (!(error instanceof HttpError)) {
-          return getWsErrorResponse();
+        if (error instanceof HttpError) {
+          return getWsErrorResponse(error);
         }
 
-        return getWsErrorResponse(error);
+        throw error;
       }
     }
   };

@@ -48,13 +48,13 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse,
         sendSuccessResponse(stream, request, response);
       }
     } catch (error) {
-      Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
-
-      if (error instanceof Error) {
-        sendErrorResponse(stream, request, 500, error.message);
+      if (error instanceof Error && error.stack) {
+        Logger.error(`${emulator.type} [${emulator.name}] Internal server error\n${error.stack}`);
       } else {
-        sendErrorResponse(stream, request, 500, `${error}`);
+        Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
       }
+
+      sendErrorResponse(stream, request, 500, `${error}`);
     }
   });
 };
