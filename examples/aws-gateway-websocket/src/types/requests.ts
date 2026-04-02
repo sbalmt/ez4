@@ -1,7 +1,7 @@
 /**
  * WebSocket requests.
  */
-export type AllRequests = EchoRequest | CloseRequest;
+export type AllRequests = EchoRequest | CloseRequest | ErrorRequest;
 
 export type EchoRequest = {
   type: RequestType.Echo;
@@ -12,9 +12,12 @@ export type CloseRequest = {
   type: RequestType.Close;
 };
 
+export type ErrorRequest = {
+  type: RequestType.Error;
+};
+
 export const enum RequestType {
   Echo = 'echo',
-  Close = 'close'
+  Close = 'close',
+  Error = 'error'
 }
-
-
