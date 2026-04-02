@@ -10,26 +10,26 @@ checkMinNodeVersion();
 const applicationPath = join(import.meta.dirname, './application.mjs');
 const extensionsPath = join(import.meta.dirname, './extensions.mjs');
 
-const options = getInputOptions();
+const input = getInputOptions();
 
-if (options?.projectFile) {
-  process.env.EZ4_PROJECT_FILE = options?.projectFile;
+if (input.project) {
+  process.env.EZ4_PROJECT_FILE = input.project;
 }
 
 const extraArguments = [];
 
-if (options?.command === CommandType.Test) {
+if (input.command === CommandType.Test) {
   extraArguments.push('--experimental-test-module-mocks');
 
-  if (options.coverage) {
+  if (input.coverage) {
     extraArguments.push('--experimental-test-coverage');
   }
 }
 
-if (options?.command === CommandType.Serve || options?.command === CommandType.Test || options?.command === CommandType.Run) {
+if (input.command === CommandType.Serve || input.command === CommandType.Test || input.command === CommandType.Run) {
   extraArguments.push('--enable-source-maps');
 
-  if (options.inspect) {
+  if (input.inspect) {
     extraArguments.push('--inspect');
   }
 }

@@ -1,15 +1,16 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
-import { warnUnsupportedFlags } from '../../utils/flags';
+import { loadProject } from '../../config/project';
 import { loadProviders } from '../../config/providers';
 import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
+import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState } from '../../utils/state';
 
-export const outputCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const outputCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
   if (options.debug) {

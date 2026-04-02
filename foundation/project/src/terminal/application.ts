@@ -1,7 +1,5 @@
 import { Logger } from '@ez4/logger';
 
-import { loadProject } from '../config/project';
-
 import { helpCommand } from './commands/help';
 import { runActionCommand } from './commands';
 import { getInputOptions } from './options';
@@ -9,12 +7,10 @@ import { getInputOptions } from './options';
 const input = getInputOptions();
 
 try {
-  const project = await loadProject(input?.projectFile);
-
-  if (input?.command) {
-    await runActionCommand(input, project);
+  if (input.command) {
+    await runActionCommand(input);
   } else {
-    await helpCommand(input, project);
+    await helpCommand(input);
     process.exit(1);
   }
 } catch (error) {

@@ -11,7 +11,7 @@ export const enum CommandType {
 
 export type InputOptions = {
   command?: CommandType;
-  projectFile?: string;
+  project?: string;
   environment?: string;
   arguments?: string[];
   suppress?: boolean;
@@ -24,8 +24,8 @@ export type InputOptions = {
 };
 
 export const getInputOptions = () => {
-  const options: InputOptions = {};
   const input = process.argv.slice(2);
+  const options: InputOptions = {};
 
   for (let index = 0; index < input.length; index++) {
     const argument = input[index];
@@ -49,7 +49,7 @@ export const getInputOptions = () => {
 
       case '--project':
       case '-p':
-        options.projectFile = input[++index];
+        options.project = input[++index];
         break;
 
       case '--force':

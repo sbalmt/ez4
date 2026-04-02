@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -13,6 +12,7 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
@@ -21,7 +21,8 @@ import { run } from 'node:test';
 
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
-export const testCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const testCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {

@@ -1,5 +1,4 @@
 import type { ServiceEmulators } from '../../emulator/service';
-import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
@@ -16,11 +15,13 @@ import { loadReferences } from '../../config/references';
 import { loadEnvironment } from '../../config/environment';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 import { watchMetadata } from '../../library/metadata';
 import { upgradeHandler } from '../../serve/upgrade';
 import { requestHandler } from '../../serve/request';
 
-export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const serveCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {

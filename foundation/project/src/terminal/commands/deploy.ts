@@ -1,5 +1,4 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -18,12 +17,14 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadAliasPaths } from '../../config/tsconfig';
+import { loadProject } from '../../config/project';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
 
-export const deployCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const deployCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
   if (options.debug) {

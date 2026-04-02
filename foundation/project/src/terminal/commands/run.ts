@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -13,11 +12,13 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const runCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const runCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {

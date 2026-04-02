@@ -1,10 +1,11 @@
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { loadProviders } from '../../config/providers';
-import { warnUnsupportedFlags } from '../../utils/flags';
 import { getGeneratorOptions } from '../../generator/options';
 import { getGeneratorsUsageHelp } from '../../generator/help';
+import { warnUnsupportedFlags } from '../../utils/flags';
+import { loadProviders } from '../../config/providers';
+import { tryLoadProject } from '../../config/project';
 
 import { Logger, LogFormat } from '@ez4/logger';
 
@@ -35,7 +36,9 @@ const HELP_LINES = [
   ''
 ];
 
-export const helpCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const helpCommand = async (input: InputOptions) => {
+  const project = await tryLoadProject(input.project);
+
   HELP_LINES.forEach((line) => Logger.log(line));
 
   await generatorsHelp(input, project);

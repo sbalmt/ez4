@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../types/project';
 import type { InputOptions } from './options';
 
 import { deployCommand } from './commands/deploy';
@@ -11,30 +10,30 @@ import { testCommand } from './commands/test';
 import { helpCommand } from './commands/help';
 import { CommandType } from './options';
 
-export const runActionCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const runActionCommand = async (input: InputOptions) => {
   switch (input.command) {
     case CommandType.Deploy:
-      return deployCommand(input, project);
+      return deployCommand(input);
 
     case CommandType.Destroy:
-      return destroyCommand(input, project);
+      return destroyCommand(input);
 
     case CommandType.Output:
-      return outputCommand(input, project);
+      return outputCommand(input);
 
     case CommandType.Generate:
-      return generateCommand(input, project);
+      return generateCommand(input);
 
     case CommandType.Run:
-      return runCommand(input, project);
+      return runCommand(input);
 
     case CommandType.Serve:
-      return serveCommand(input, project);
+      return serveCommand(input);
 
     case CommandType.Test:
-      return testCommand(input, project);
+      return testCommand(input);
 
     case CommandType.Help:
-      return helpCommand(input, project);
+      return helpCommand(input);
   }
 };

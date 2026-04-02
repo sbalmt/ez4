@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -10,8 +9,10 @@ import { getGeneratorOptions } from '../../generator/options';
 import { loadEnvironment } from '../../config/environment';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 
-export const generateCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const generateCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getGeneratorOptions(input, project);
 
   if (options.debug) {
