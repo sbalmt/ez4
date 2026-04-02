@@ -28,7 +28,7 @@ export const getJsonError = ({ status, message, context }: HttpError) => {
 };
 
 /**
- * Get a exception based on the given HTTP status code.
+ * Get an exception based on the given HTTP status code.
  *
  * @param status HTTP status code.
  * @param message Exception message.
