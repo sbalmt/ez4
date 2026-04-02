@@ -34,11 +34,6 @@ if (options?.command === CommandType.Serve || options?.command === CommandType.T
   }
 }
 
-process.on('SIGINT', () => {
-  childProcess.removeAllListeners('exit');
-  childProcess.once('exit', () => process.exit(0));
-});
-
 const childProcess = spawn(
   'node',
   [
@@ -62,3 +57,13 @@ const childProcess = spawn(
     stdio: 'inherit'
   }
 );
+
+const setupShutdown = () => {
+  childProcess.removeAllListeners('exit');
+  childProcess.once('exit', () => process.exit(childProcess.exitCode));
+};
+
+process.on('SIGTERM', setupShutdown);
+process.on('SIGINT', setupShutdown);
+
+setupShutdown();
