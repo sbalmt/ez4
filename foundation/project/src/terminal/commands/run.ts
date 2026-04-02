@@ -51,10 +51,10 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
     return getServiceEmulators(metadata, options);
   });
 
-  const allScriptFiles = input.arguments ?? [];
+  const scriptFiles = input.arguments ?? [];
   const workingDirectory = process.cwd();
 
-  if (!allScriptFiles.length) {
+  if (!scriptFiles.length) {
     Logger.warn(`One or more script files need to be specified.`);
     return;
   }
@@ -66,7 +66,7 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
 
     await bootstrapServices(emulators);
 
-    for (const scriptFile of allScriptFiles) {
+    for (const scriptFile of scriptFiles) {
       const scriptPath = join(workingDirectory, scriptFile);
 
       if (!existsSync(scriptPath)) {
