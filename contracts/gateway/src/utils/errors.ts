@@ -8,7 +8,11 @@ import {
   HttpConflictError,
   HttpUnsupportedMediaTypeError,
   HttpUnprocessableEntityError,
-  HttpError
+  HttpError,
+  WsUnauthorizedError,
+  WsForbiddenError,
+  WsInternalServerError,
+  WsError
 } from '@ez4/gateway';
 
 /**
@@ -60,5 +64,29 @@ export const getHttpException = (status: number, message: string, context?: Serv
 
     default:
       return new HttpError(status, message, context);
+  }
+};
+
+/**
+ * Get an exception based on the given WS close code.
+ *
+ * @param code WS close code.
+ * @param message Exception message.
+ * @param context Exception context.
+ * @returns Returns the corresponding exception.
+ */
+export const getWsException = (code: number, message: string, context?: ServiceErrorContext) => {
+  switch (code) {
+    case 4001:
+      return new WsUnauthorizedError(message, context);
+
+    case 4003:
+      return new WsForbiddenError(message, context);
+
+    case 4500:
+      return new WsInternalServerError(message, context);
+
+    default:
+      return new WsError(code, message, context);
   }
 };

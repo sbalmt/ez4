@@ -12,7 +12,7 @@ import type {
 } from 'aws-lambda';
 
 import { resolveHeaders, resolvePathParameters, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
-import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
+import { HttpForbiddenError, HttpUnauthorizedError, WsError, WsInternalServerError } from '@ez4/gateway';
 import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
@@ -27,6 +27,7 @@ declare const __EZ4_PARAMETERS_SCHEMA: ObjectSchema | null;
 declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
+declare const __EZ4_WS_ERROR_FORWARDING: boolean;
 
 declare function handle(request: IncomingRequest, context: object): Promise<Http.AuthResponse>;
 declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
@@ -71,12 +72,28 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   } catch (error) {
     await onError(error, request);
 
+    if (__EZ4_WS_ERROR_FORWARDING && error instanceof WsError) {
+      return getAuthorizationResponse(true, resourceArn, {
+        __ez4_auth_error: error.message,
+        __ez4_auth_code: String(error.code)
+      });
+    }
+
     if (error instanceof HttpForbiddenError) {
       return getAuthorizationResponse(false, resourceArn);
     }
 
     if (error instanceof HttpUnauthorizedError) {
       throw 'Unauthorized';
+    }
+
+    if (__EZ4_WS_ERROR_FORWARDING) {
+      const fallback = new WsInternalServerError();
+
+      return getAuthorizationResponse(true, resourceArn, {
+        __ez4_auth_error: fallback.message,
+        __ez4_auth_code: String(fallback.code)
+      });
     }
 
     throw error;

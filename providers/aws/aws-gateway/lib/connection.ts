@@ -11,6 +11,8 @@ import type {
   Context
 } from 'aws-lambda';
 
+import { ApiGatewayManagementApiClient, PostToConnectionCommand, DeleteConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
+
 import { resolveHeaders, resolveIdentity, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
@@ -25,6 +27,7 @@ declare const __EZ4_QUERY_SCHEMA: ObjectSchema | null;
 declare const __EZ4_IDENTITY_SCHEMA: ObjectSchema | UnionSchema | null;
 declare const __EZ4_PREFERENCES: HttpPreferences;
 declare const __EZ4_CONTEXT: object;
+declare const __EZ4_WS_ERROR_FORWARDING: boolean;
 
 declare function dispatch(event: Ws.ServiceEvent<Ws.Event>, context: object): Promise<void>;
 declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promise<void>;
@@ -48,6 +51,16 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     traceId
   });
 
+  if (__EZ4_WS_ERROR_FORWARDING) {
+    const authError = getAuthError(event);
+
+    if (authError) {
+      await sendAuthError(event, authError);
+
+      return getSuccessResponse(traceId);
+    }
+  }
+
   try {
     await onBegin(request);
 
@@ -59,12 +72,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     await onDone(request);
 
-    return {
-      statusCode: 204,
-      headers: {
-        ['x-trace-id']: traceId
-      }
-    };
+    return getSuccessResponse(traceId);
 
     //
   } catch (error) {
@@ -172,4 +180,71 @@ const onEnd = async (request: Ws.Incoming<Ws.Event>) => {
     },
     __EZ4_CONTEXT
   );
+};
+
+const getAuthError = (event: RequestEvent) => {
+  const authorizer = event.requestContext?.authorizer;
+
+  if (!authorizer?.__ez4_auth_error) {
+    return undefined;
+  }
+
+  return {
+    message: String(authorizer.__ez4_auth_error),
+    code: Number(authorizer.__ez4_auth_code) || 4500
+  };
+};
+
+export const getSuccessResponse = (traceId: string): ResponseEvent => {
+  return {
+    statusCode: 204,
+    headers: {
+      ['x-trace-id']: traceId
+    }
+  };
+};
+
+export const getConnectionEndpoint = (domainName: string, stage: string, rawPath: string) => {
+  if (domainName.includes('.execute-api.')) {
+    return `https://${domainName}/${stage}`;
+  }
+
+  const mappingPath = rawPath.replace(/\/\$connect$/, '').replace(/\/$/, '');
+
+  return `https://${domainName}${mappingPath}`;
+};
+
+const sendAuthError = async (event: RequestEvent, error: { message: string; code: number }) => {
+  const { domainName, stage, connectionId } = event.requestContext;
+
+  const client = new ApiGatewayManagementApiClient({
+    endpoint: getConnectionEndpoint(domainName, stage, event.rawPath)
+  });
+
+  try {
+    await client.send(
+      new PostToConnectionCommand({
+        ConnectionId: connectionId,
+        Data: Buffer.from(
+          JSON.stringify({
+            type: 'error',
+            message: error.message,
+            code: error.code
+          })
+        )
+      })
+    );
+  } catch {
+    // Connection may already be gone
+  }
+
+  try {
+    await client.send(
+      new DeleteConnectionCommand({
+        ConnectionId: connectionId
+      })
+    );
+  } catch {
+    // Connection may already be gone
+  }
 };

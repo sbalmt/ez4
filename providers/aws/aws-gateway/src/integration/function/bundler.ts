@@ -54,7 +54,8 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 };
 
 export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { services, handler, listener, preferences, headersSchema, querySchema, identitySchema, context, debug } = parameters;
+  const { services, handler, listener, preferences, headersSchema, querySchema, identitySchema, wsErrorForwarding, context, debug } =
+    parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -67,7 +68,8 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
       __EZ4_IDENTITY_SCHEMA: identitySchema ? JSON.stringify(identitySchema) : 'undefined',
-      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
+      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined',
+      __EZ4_WS_ERROR_FORWARDING: wsErrorForwarding ? 'true' : 'false'
     },
     handler,
     listener,

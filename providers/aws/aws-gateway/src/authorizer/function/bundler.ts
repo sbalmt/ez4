@@ -12,7 +12,8 @@ import { AuthorizerServiceName } from '../types';
 declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
-  const { services, context, debug, authorizer, listener, headersSchema, parametersSchema, querySchema, preferences } = parameters;
+  const { services, context, debug, authorizer, listener, headersSchema, parametersSchema, querySchema, preferences, wsErrorForwarding } =
+    parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -25,7 +26,8 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
       __EZ4_PARAMETERS_SCHEMA: parametersSchema ? JSON.stringify(parametersSchema) : 'undefined',
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
-      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
+      __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined',
+      __EZ4_WS_ERROR_FORWARDING: wsErrorForwarding ? 'true' : 'false'
     },
     handler: authorizer,
     listener,

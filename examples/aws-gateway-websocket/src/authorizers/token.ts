@@ -1,7 +1,7 @@
 import type { Ws } from '@ez4/gateway';
 import type { Identity } from './types';
 
-import { HttpForbiddenError } from '@ez4/gateway';
+import { WsForbiddenError } from '@ez4/gateway';
 
 const SUPER_SECRET_API_KEY = 'query-api-key';
 
@@ -28,7 +28,7 @@ export function tokenAuthorizer(request: AuthorizerRequest): AuthorizerResponse 
   const { token } = request.query;
 
   if (token !== SUPER_SECRET_API_KEY) {
-    throw new HttpForbiddenError();
+    throw new WsForbiddenError();
   }
 
   return {
