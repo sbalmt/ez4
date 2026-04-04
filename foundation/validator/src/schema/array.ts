@@ -1,16 +1,20 @@
 import type { ArraySchema } from '@ez4/schema';
 
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isNotNullish } from '@ez4/utils';
 
 import { ExpectedArrayTypeError, UnexpectedMaxItemsError, UnexpectedMinItemsError } from '../errors/array';
 import { createValidatorContext } from '../types/context';
 import { tryDecodeBase64Json } from '../utils/base64';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 import { validateAny } from './any';
 
+const isDefaultAllowed = (value: unknown, schema: ArraySchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
+
 export const validateArray = async (value: unknown, schema: ArraySchema, context = createValidatorContext()) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

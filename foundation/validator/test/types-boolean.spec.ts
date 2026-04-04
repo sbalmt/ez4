@@ -22,6 +22,17 @@ describe('boolean type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: boolean (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Boolean,
+      definitions: {
+        default: false
+      }
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: boolean errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Boolean

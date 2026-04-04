@@ -31,6 +31,25 @@ describe('enum type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: enum (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Enum,
+      definitions: {
+        default: 123
+      },
+      options: [
+        {
+          value: 'abc'
+        },
+        {
+          value: 123
+        }
+      ]
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: enum errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Enum,

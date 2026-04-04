@@ -2,17 +2,21 @@ import type { StringSchema } from '@ez4/schema';
 import type { StringFormatHandler } from '../types/string';
 import type { ValidationContext } from '../types/context';
 
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isNotNullish } from '@ez4/utils';
 
 import { DuplicateStringFormatError } from '../errors/format';
 import { ExpectedStringTypeError, UnexpectedMaxLengthError, UnexpectedMinLengthError, UnexpectedStringError } from '../errors/string';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 
 const allCustomFormats: Record<string, StringFormatHandler | undefined> = {};
 
+const isDefaultAllowed = (value: unknown, schema: StringSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
+
 export const validateString = async (value: unknown, schema: StringSchema, context?: ValidationContext) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

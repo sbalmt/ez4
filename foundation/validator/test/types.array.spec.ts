@@ -25,6 +25,20 @@ describe('array type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: array (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Array,
+      definitions: {
+        default: [1, 2, 3]
+      },
+      element: {
+        type: SchemaType.Number
+      }
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: array errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Array,

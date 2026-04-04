@@ -47,6 +47,30 @@ describe('object type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: object (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      definitions: {
+        default: {
+          foo: true,
+          bar: 123
+        }
+      },
+      properties: {
+        foo: {
+          type: SchemaType.Boolean
+        },
+        bar: {
+          type: SchemaType.Number,
+          optional: true
+        }
+      }
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: object (circular reference)', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,

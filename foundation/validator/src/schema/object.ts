@@ -1,18 +1,26 @@
 import type { ObjectSchema } from '@ez4/schema';
 
 import { getPropertyName } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isNotNullish } from '@ez4/utils';
 
 import { ExpectedObjectTypeError } from '../errors/object';
 import { UnexpectedPropertiesError } from '../errors/common';
 import { createValidatorContext } from '../types/context';
 import { tryDecodeBase64Json } from '../utils/base64';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 import { validateAny } from './any';
 
+const isDefaultAllowed = (value: unknown, schema: ObjectSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
+
+const getPropertyPath = (childProperty: string, parentProperty: string | undefined) => {
+  return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
+};
+
 export const validateObject = async (value: unknown, schema: ObjectSchema, context = createValidatorContext()) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 
@@ -100,8 +108,4 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   }
 
   return allErrors;
-};
-
-const getPropertyPath = (childProperty: string, parentProperty: string | undefined) => {
-  return parentProperty ? `${parentProperty}.${childProperty}` : childProperty;
 };

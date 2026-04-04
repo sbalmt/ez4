@@ -22,6 +22,17 @@ describe('number type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: number (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Number,
+      definitions: {
+        default: 123
+      }
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: number errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Number

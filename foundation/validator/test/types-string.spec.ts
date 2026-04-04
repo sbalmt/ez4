@@ -22,6 +22,17 @@ describe('string type validation', () => {
     equal((await validate(null, schema)).length, 0);
   });
 
+  it('assert :: string (default)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.String,
+      definitions: {
+        default: 'abc'
+      }
+    };
+
+    equal((await validate(undefined, schema)).length, 0);
+  });
+
   it('assert :: string errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.String

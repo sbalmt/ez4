@@ -1,12 +1,12 @@
 import type { ReferenceSchema } from '@ez4/schema';
 import type { ValidationContext } from '../types/context';
 
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 import { ReferenceNotFoundError } from '../errors/reference';
 import { validateObject } from './object';
 
 export const validateReference = async (value: unknown, schema: ReferenceSchema, context: ValidationContext) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema)) {
     return [];
   }
 
