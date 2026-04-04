@@ -24,14 +24,17 @@ export namespace Client {
         return !!(await this.getStats(key));
       }
 
-      async write(key: string, contents: Content, options?: WriteOptions) {
-        const contentType = options?.contentType ?? mime.getType(key);
+      async write(key: string, contents: Content, options: WriteOptions = {}) {
+        const { contentType = mime.getType(key), headers = {}, metadata } = options;
 
         await client.send(
           new PutObjectCommand({
             Bucket: bucketName,
             Key: key,
             Body: contents,
+            Metadata: metadata,
+            CacheControl: headers?.cacheControl,
+            Expires: headers?.expires,
             ...(contentType && {
               ContentType: contentType
             })
@@ -62,16 +65,29 @@ export namespace Client {
       }
 
       async getWriteUrl(key: string, options: SignWriteOptions): Promise<string> {
-        const { expiresIn, contentType } = options;
+        const { expiresIn, contentType, metadata, headers = {} } = options;
 
         const command = new PutObjectCommand({
           Bucket: bucketName,
           ContentType: contentType,
+          CacheControl: headers?.cacheControl,
+          Expires: headers?.expires,
+          Metadata: metadata,
           Key: key
         });
 
+        const signedHeaders = ['content-type'];
+
+        if (headers.cacheControl) {
+          signedHeaders.push('cache-control');
+        }
+
+        if (headers.expires) {
+          signedHeaders.push('expires');
+        }
+
         return getSignedUrl(client, command, {
-          signableHeaders: new Set(['content-type']),
+          signableHeaders: new Set(signedHeaders),
           expiresIn
         });
       }

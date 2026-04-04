@@ -2,22 +2,57 @@ import type { Readable } from 'stream';
 
 export type Content = string | Uint8Array | Buffer | Readable;
 
-export type SignReadOptions = SignOptions;
-
-export type SignWriteOptions = SignOptions & WriteOptions;
-
-export type SignOptions = {
+export type SignReadOptions = {
   /**
    * Define an expiration time (in seconds) for the signed URL.
    */
   readonly expiresIn: number;
 };
 
-export type WriteOptions = {
+export type SignWriteOptions = SignReadOptions & {
   /**
-   * Define the expected content type.
+   * Define the expected content type for the signed URL.
    */
   readonly contentType: string;
+
+  /**
+   * Define the expected custom metadata for the signed URL.
+   */
+  readonly metadata?: Record<string, string>;
+
+  /**
+   * Define the expected headers for the signed URL.
+   */
+  readonly headers?: ObjectHeaders;
+};
+
+export type WriteOptions = {
+  /**
+   * Specify the content type for the object.
+   */
+  readonly contentType?: string;
+
+  /**
+   * Specify the custom metadata for the object.
+   */
+  readonly metadata?: Record<string, string>;
+
+  /**
+   * Specify the headers for the object.
+   */
+  readonly headers?: ObjectHeaders;
+};
+
+export type ObjectHeaders = {
+  /**
+   * Cache control header for the object.
+   */
+  cacheControl?: string;
+
+  /**
+   * Expires header for the object.
+   */
+  expires?: Date;
 };
 
 export type ObjectStats = {

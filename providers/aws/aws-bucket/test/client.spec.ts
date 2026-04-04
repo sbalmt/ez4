@@ -48,7 +48,13 @@ describe('bucket client', () => {
     const content = createReadStream(join(baseDir, 'object-file.txt'));
 
     await bucketClient.write('test-client', content, {
-      contentType: 'text/plain'
+      contentType: 'text/plain',
+      headers: {
+        cacheControl: 'max-age=31536000, public'
+      },
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 
