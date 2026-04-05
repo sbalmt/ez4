@@ -85,8 +85,8 @@ describe('bucket client', () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
-      bucketClient.getStats('test-client'),
-      bucketClient.getStats('test-client-do-not-exists')
+      bucketClient.stat('test-client'),
+      bucketClient.stat('test-client-do-not-exists')
     ]);
 
     ok(!objectDoNotExists);

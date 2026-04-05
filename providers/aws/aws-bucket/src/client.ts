@@ -20,8 +20,30 @@ const client = new S3Client({});
 export namespace Client {
   export const make = (bucketName: string): BucketClient => {
     return new (class {
+      async stat(key: string) {
+        try {
+          const response = await client.send(
+            new HeadObjectCommand({
+              Bucket: bucketName,
+              Key: key
+            })
+          );
+
+          return {
+            type: response?.ContentType,
+            size: response?.ContentLength ?? 0
+          };
+        } catch (error) {
+          if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
+            throw error;
+          }
+
+          return undefined;
+        }
+      }
+
       async exists(key: string) {
-        return !!(await this.getStats(key));
+        return !!(await this.stat(key));
       }
 
       async write(key: string, contents: Content, options: WriteOptions = {}) {
@@ -64,6 +86,19 @@ export namespace Client {
         );
       }
 
+      async getStatUrl(key: string, options: SignReadOptions): Promise<string> {
+        const { expiresIn } = options;
+
+        const command = new HeadObjectCommand({
+          Bucket: bucketName,
+          Key: key
+        });
+
+        return getSignedUrl(client, command, {
+          expiresIn
+        });
+      }
+
       async getWriteUrl(key: string, options: SignWriteOptions): Promise<string> {
         const { expiresIn, contentType, metadata, headers = {} } = options;
 
@@ -96,41 +131,6 @@ export namespace Client {
         const { expiresIn } = options;
 
         const command = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: key
-        });
-
-        return getSignedUrl(client, command, {
-          expiresIn
-        });
-      }
-
-      async getStats(key: string) {
-        try {
-          const response = await client.send(
-            new HeadObjectCommand({
-              Bucket: bucketName,
-              Key: key
-            })
-          );
-
-          return {
-            type: response?.ContentType,
-            size: response?.ContentLength ?? 0
-          };
-        } catch (error) {
-          if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
-            throw error;
-          }
-
-          return undefined;
-        }
-      }
-
-      async getStatsUrl(key: string, options: SignReadOptions): Promise<string> {
-        const { expiresIn } = options;
-
-        const command = new HeadObjectCommand({
           Bucket: bucketName,
           Key: key
         });

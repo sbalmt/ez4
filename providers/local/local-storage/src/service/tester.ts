@@ -12,14 +12,14 @@ export namespace BucketTester {
   export type MockOptions = ClientMockOptions;
 
   export type ClientMock = Client & {
+    state: Mock<Client['stat']>;
     exists: Mock<Client['exists']>;
     write: Mock<Client['write']>;
     read: Mock<Client['read']>;
     delete: Mock<Client['delete']>;
+    getStatsUrl: Mock<Client['getStatUrl']>;
     getWriteUrl: Mock<Client['getWriteUrl']>;
     getReadUrl: Mock<Client['getReadUrl']>;
-    getStatsUrl: Mock<Client['getStatsUrl']>;
-    getStats: Mock<Client['getStats']>;
   };
 
   export const getClient = (resourceName: string) => {
@@ -29,15 +29,15 @@ export namespace BucketTester {
   export const getClientMock = (resourceName: string, options?: MockOptions) => {
     const client = createClientMock(resourceName, options);
 
+    mock.method(client, 'stat');
     mock.method(client, 'exists');
     mock.method(client, 'write');
     mock.method(client, 'read');
     mock.method(client, 'delete');
 
+    mock.method(client, 'getStatUrl');
     mock.method(client, 'getWriteUrl');
     mock.method(client, 'getReadUrl');
-    mock.method(client, 'getStatsUrl');
-    mock.method(client, 'getStats');
 
     return client as ClientMock;
   };

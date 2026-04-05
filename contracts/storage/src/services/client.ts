@@ -72,6 +72,14 @@ export type ObjectStats = {
  */
 export interface Client {
   /**
+   * Get the stats from the given object.
+   *
+   * @param key Object key.
+   * @returns Returns the corresponding stats or undefined when the given object doesn't exists.
+   */
+  stat(key: string): Promise<ObjectStats | undefined>;
+
+  /**
    * Check whether the given object exists or not in the bucket.
    *
    * @param key Object key.
@@ -103,30 +111,29 @@ export interface Client {
   delete(key: string): Promise<void>;
 
   /**
-   * Get an URL to write the specified object into the bucket.
+   * Get an URL to retrieve stats from the specified object in the bucket.
+   *
    * @param key Object key.
    * @param options Sign options.
+   * @returns Returns the signed stat URL.
+   */
+  getStatUrl(key: string, options: SignReadOptions): Promise<string>;
+
+  /**
+   * Get an URL to write the specified object into the bucket.
+   *
+   * @param key Object key.
+   * @param options Sign options.
+   * @returns Returns the signed write URL.
    */
   getWriteUrl(key: string, options: SignWriteOptions): Promise<string>;
 
   /**
    * Get an URL to read the specified object from the bucket.
+   *
    * @param key Object key.
    * @param options Sign options.
+   * @returns Returns the signed read URL.
    */
   getReadUrl(key: string, options: SignReadOptions): Promise<string>;
-
-  /**
-   * Get the stats from the given object.
-   * @param key Object key.
-   * @returns Returns the corresponding object stats or undefined when the given object doesn't exists.
-   */
-  getStats(key: string): Promise<ObjectStats | undefined>;
-
-  /**
-   * Get an URL to retrieve stats (metadata) from the specified object in the bucket.
-   * @param key Object key.
-   * @param options Sign options.
-   */
-  getStatsUrl(key: string, options: SignReadOptions): Promise<string>;
 }
