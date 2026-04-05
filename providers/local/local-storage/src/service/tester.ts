@@ -12,12 +12,12 @@ export namespace BucketTester {
   export type MockOptions = ClientMockOptions;
 
   export type ClientMock = Client & {
-    state: Mock<Client['stat']>;
+    stat: Mock<Client['stat']>;
     exists: Mock<Client['exists']>;
     write: Mock<Client['write']>;
     read: Mock<Client['read']>;
     delete: Mock<Client['delete']>;
-    getStatsUrl: Mock<Client['getStatUrl']>;
+    getStatUrl: Mock<Client['getStatUrl']>;
     getWriteUrl: Mock<Client['getWriteUrl']>;
     getReadUrl: Mock<Client['getReadUrl']>;
   };
