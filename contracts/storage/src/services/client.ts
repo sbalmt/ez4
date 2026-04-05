@@ -59,7 +59,12 @@ export type ObjectStats = {
   /**
    * MIME type associated to the object.
    */
-  readonly type?: string;
+  readonly type: string;
+
+  /**
+   * Custom metadata associated to the object.
+   */
+  readonly metadata?: Record<string, string>;
 
   /**
    * Object size.

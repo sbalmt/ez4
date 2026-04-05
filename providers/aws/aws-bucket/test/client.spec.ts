@@ -81,7 +81,7 @@ describe('bucket client', () => {
     ok(!objectDoNotExists);
   });
 
-  it('assert :: object stats', async () => {
+  it('assert :: object stat', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
@@ -93,7 +93,10 @@ describe('bucket client', () => {
 
     deepEqual(objectExists, {
       type: 'text/plain',
-      size: 43
+      size: 43,
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 

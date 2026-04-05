@@ -29,9 +29,12 @@ export namespace Client {
             })
           );
 
+          const { ContentType: type = 'application/octet-stream', ContentLength: size = 0, Metadata: metadata } = response;
+
           return {
-            type: response?.ContentType,
-            size: response?.ContentLength ?? 0
+            type,
+            metadata,
+            size
           };
         } catch (error) {
           if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
