@@ -2,9 +2,10 @@ import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/st
 
 import { Readable } from 'node:stream';
 
+import { fileTypeFromBuffer } from 'file-type';
+
 import { toKebabCase } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
-import { fileTypeFromBuffer } from 'file-type';
 
 export type ClientMockOptions = {
   keys?: Record<string, Buffer>;
@@ -16,6 +17,21 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
   const storageMemory = options?.keys ?? {};
 
   return new (class {
+    async stat(key: string) {
+      const content = storageMemory[key] ?? options?.default;
+
+      if (!content) {
+        return undefined;
+      }
+
+      const type = await fileTypeFromBuffer(content);
+
+      return {
+        type: type?.mime ?? 'application/octet-stream',
+        size: content.byteLength
+      };
+    }
+
     async exists(key: string) {
       const content = storageMemory[key] ?? options?.default;
 
@@ -62,31 +78,16 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
+    async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {
+      return Promise.resolve(`http://${storageIdentifier}/${key}`);
+    }
+
     async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
 
     async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
-    }
-
-    async getStatsUrl(key: string, _options: SignReadOptions): Promise<string> {
-      return Promise.resolve(`http://${storageIdentifier}/${key}`);
-    }
-
-    async getStats(key: string) {
-      const content = storageMemory[key] ?? options?.default;
-
-      if (!content) {
-        return undefined;
-      }
-
-      const fileType = await fileTypeFromBuffer(content);
-
-      return {
-        type: fileType?.mime ?? 'application/octet-stream',
-        size: content.byteLength
-      };
     }
   })();
 };

@@ -15,6 +15,26 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
   const storageDirectory = join('.ez4', toKebabCase(serviceName));
 
   return new (class {
+    async stat(key: string) {
+      const filePath = join(storageDirectory, key);
+
+      try {
+        const type = await fileTypeFromFile(filePath);
+        const stats = await stat(filePath);
+
+        return {
+          type: type?.mime ?? 'application/octet-stream',
+          size: stats.size
+        };
+      } catch (error) {
+        if (!isAnyObject(error) || error.code !== 'ENOENT') {
+          throw error;
+        }
+
+        return undefined;
+      }
+    }
+
     async exists(key: string) {
       const filePath = join(storageDirectory, key);
 
@@ -47,36 +67,16 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       Logger.log(`ℹ️  File ${key} deleted.`);
     }
 
+    async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {
+      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
+    }
+
     async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
     async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
-    }
-
-    async getStatsUrl(key: string, _options: SignReadOptions): Promise<string> {
-      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
-    }
-
-    async getStats(key: string) {
-      const filePath = join(storageDirectory, key);
-
-      try {
-        const type = await fileTypeFromFile(filePath);
-        const stats = await stat(filePath);
-
-        return {
-          type: type?.mime ?? 'application/octet-stream',
-          size: stats.size
-        };
-      } catch (error) {
-        if (!isAnyObject(error) || error.code !== 'ENOENT') {
-          throw error;
-        }
-
-        return undefined;
-      }
     }
   })();
 };

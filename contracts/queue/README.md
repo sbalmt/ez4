@@ -1,6 +1,6 @@
 # EZ4: Queue
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect queue components.
+The Queue contract defines an asynchronous message queue for your application. It uses EZ4's [reflection](../../foundation/reflection/) to analyze your message type, subscriptions, variables, and connected services, then generates the infrastructure and runtime bindings required to process messages.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/queue @ez4/local-queue @ez4/aws-queue -D
 ```
 
-#### Create queue
+#### Create a queue
+
+Queues are ideal for background jobs, event processing, fan‑out workflows, and decoupled communication between services.
 
 ```ts
-// file: queue.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
@@ -42,7 +43,13 @@ export declare class MyQueue extends Queue.Unordered<MyQueueMessage> {
     variables: Environment.ServiceVariables;
   };
 }
+```
 
+#### Handle messages
+
+EZ4 validates the incoming message, injects all variables and services, and then invokes your subscription handler.
+
+```ts
 // MyQueue message handler
 export function eventHandler(request: Queue.Incoming<MyQueueMessage>, context: Service.Context<MyQueue>): void {
   const { otherService, variables } = context;
@@ -59,10 +66,11 @@ export function eventHandler(request: Queue.Incoming<MyQueueMessage>, context: S
 }
 ```
 
-#### Use queue
+#### Send messages
+
+Any handler with access to the queue service can send messages.
 
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyQueue } from './queue';
 
@@ -77,6 +85,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 }
 ```
 
+> This makes it easy to trigger background work from any part of your application.
+
+With your queue defined, EZ4 handles provisioning, message routing, retries, and execution according to your contract.
+
 ## Queue properties
 
 #### Service
@@ -85,27 +97,33 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | ------------- | ----------------------- | ------------------------------------------------------------------ |
 | fifoMode      | Queue.UseFifoMode<>     | Enable and configure the FIFO mode options.                        |
 | deadLetter    | Queue.UseDeadLetter<>   | Enable and configure the dead-letter queue options.                |
-| subscriptions | Queue.UseSubscription<> | All subscriptions associated to the queue.                         |
+| subscriptions | Queue.UseSubscription<> | All subscriptions associated with the queue.                       |
 | delay         | integer                 | Maximum delay (in seconds) to make messages available.             |
 | polling       | integer                 | Maximum wait time (in seconds) for receiving messages.             |
 | retention     | integer                 | Maximum retention time (in minutes) for all messages in the queue. |
 | timeout       | integer                 | Maximum acknowledge time (in seconds) for the handler.             |
-| variables     | object                  | Environment variables associated to all subscription.              |
-| services      | object                  | Injected services associated to all subscription.                  |
+| variables     | object                  | Environment variables associated with all subscriptions.           |
+| services      | object                  | Injected services associated with all subscriptions.               |
 
 > Use type helpers for `fifoMode`, `deadLetter` and `subscriptions` properties.
 
 #### Subscriptions
 
-| Name         | Type     | Description                                           |
-| ------------ | -------- | ----------------------------------------------------- |
-| listener     | function | Life-cycle listener function for the subscription.    |
-| handler      | function | Entry-point handler function for the subscription.    |
-| variables    | object   | Environment variables associated to the subscription. |
-| logRetention | integer  | Log retention (in days) for the handler.              |
-| memory       | integer  | Memory available (in megabytes) for the handler.      |
-| concurrency  | integer  | Maximum number of concurrent executions handlers.     |
-| batch        | integer  | Maximum number of messages per handler invocation.    |
+| Name         | Type             | Description                                                 |
+| ------------ | ---------------- | ----------------------------------------------------------- |
+| listener     | function         | Life-cycle listener function for the subscription.          |
+| handler      | function         | Entry-point handler function for the subscription.          |
+| variables    | object           | Environment variables associated with the subscription.     |
+| logRetention | integer          | Log retention (in days) for the handler.                    |
+| logLevel     | LogLevel         | Log level for the handler.                                  |
+| architecture | ArchitectureType | Architecture type for the cloud function.                   |
+| runtime      | RuntimeType      | Runtime for the cloud function.                             |
+| files        | string[]         | Additional resource files added into the handler bundle.    |
+| memory       | integer          | Memory available (in megabytes) for the handler.            |
+| concurrency  | integer          | Maximum number of concurrent executions handlers.           |
+| batch        | integer          | Maximum number of messages per handler invocation.          |
+| debug        | boolean          | Determine whether the debug mode is active for the handler. |
+| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
 
 ## Examples
 

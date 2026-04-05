@@ -30,6 +30,9 @@ const handleRequest = async (client: StorageClient, request: EmulatorRequestEven
   }
 
   switch (method) {
+    case 'HEAD':
+      return headFile(client, path);
+
     case 'GET':
       return loadFile(client, path);
 
@@ -41,16 +44,13 @@ const handleRequest = async (client: StorageClient, request: EmulatorRequestEven
       return storeFile(client, path, body);
     }
 
-    case 'HEAD':
-      return headFile(client, path);
-
     default:
       throw new Error('Unsupported storage request.');
   }
 };
 
 const loadFile = async (client: StorageClient, path: string) => {
-  const [buffer, stat] = await Promise.all([client.read(path), client.getStats(path)]);
+  const [buffer, stat] = await Promise.all([client.read(path), client.stat(path)]);
 
   return {
     status: 200,
@@ -70,7 +70,7 @@ const storeFile = async (client: StorageClient, path: string, buffer: Buffer) =>
 };
 
 const headFile = async (client: StorageClient, path: string) => {
-  const stat = await client.getStats(path);
+  const stat = await client.stat(path);
 
   return {
     status: 200,

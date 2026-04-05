@@ -87,6 +87,10 @@ export namespace Query {
     where?: WhereInput<T>;
   };
 
+  export type ExistsInput<T extends TableMetadata> = {
+    where?: WhereInput<T>;
+  };
+
   export type CountInput<T extends TableMetadata> = {
     where?: WhereInput<T>;
   };

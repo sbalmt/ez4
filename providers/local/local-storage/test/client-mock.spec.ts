@@ -49,9 +49,9 @@ describe('local storage tests', () => {
   it('assert :: key stats (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    const stats = await client.getStats('random-key');
+    const stats = await client.stat('random-key');
 
-    equal(client.getStats.mock.callCount(), 1);
+    equal(client.stat.mock.callCount(), 1);
     equal(stats, undefined);
   });
 
@@ -60,9 +60,9 @@ describe('local storage tests', () => {
       default: Buffer.from(defaultContent)
     });
 
-    const stats = await client.getStats('random-key');
+    const stats = await client.stat('random-key');
 
-    equal(client.getStats.mock.callCount(), 1);
+    equal(client.stat.mock.callCount(), 1);
 
     deepEqual(stats, {
       type: 'application/octet-stream',
@@ -77,9 +77,9 @@ describe('local storage tests', () => {
       }
     });
 
-    const stats = await client.getStats('foo');
+    const stats = await client.stat('foo');
 
-    equal(client.getStats.mock.callCount(), 1);
+    equal(client.stat.mock.callCount(), 1);
 
     deepEqual(stats, {
       type: 'application/octet-stream',
@@ -94,9 +94,9 @@ describe('local storage tests', () => {
       }
     });
 
-    const stats = await client.getStats('image.png');
+    const stats = await client.stat('image.png');
 
-    equal(client.getStats.mock.callCount(), 1);
+    equal(client.stat.mock.callCount(), 1);
 
     deepEqual(stats, {
       type: 'image/png',
@@ -233,11 +233,11 @@ describe('local storage tests', () => {
   it('assert :: get stats url', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    const url = await client.getStatsUrl('foo', {
+    const url = await client.getStatUrl('foo', {
       expiresIn: 123
     });
 
-    equal(client.getStatsUrl.mock.callCount(), 1);
+    equal(client.getStatUrl.mock.callCount(), 1);
     equal(url, 'http://bucket/foo');
   });
 });

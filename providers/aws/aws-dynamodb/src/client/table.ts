@@ -17,6 +17,7 @@ import {
   prepareUpdateMany,
   prepareDeleteMany,
   prepareDeleteOne,
+  prepareExists,
   prepareCount
 } from './common/queries';
 
@@ -194,6 +195,18 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     await executeTransaction(client, transactions, debug);
 
     return records as Query.DeleteManyResult<S, T>;
+  }
+
+  async exists(query: Query.ExistsInput<T>) {
+    const { client, debug } = this.settings;
+
+    const statement = prepareExists(this.name, this.schema, this.indexes, query);
+
+    const { records } = await executeStatement(client, statement, debug);
+
+    const [firstRecord] = records;
+
+    return !!firstRecord;
   }
 
   async count(query: Query.CountInput<T>) {

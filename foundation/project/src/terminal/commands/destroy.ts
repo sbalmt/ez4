@@ -1,5 +1,4 @@
 import type { EntryStates } from '@ez4/stateful';
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -10,11 +9,14 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState, saveState } from '../../utils/state';
 import { reportResourceChanges } from '../../deploy/changes';
 import { getDeployOptions } from '../../deploy/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadProviders } from '../../config/providers';
 import { waitConfirmation } from '../../utils/prompt';
 import { assertNoErrors } from '../../utils/errors';
+import { loadProject } from '../../config/project';
 
-export const destroyCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const destroyCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
   if (options.debug) {
@@ -29,7 +31,12 @@ export const destroyCommand = async (input: InputOptions, project: ProjectOption
     Logger.log('❗ Force option is enabled');
   }
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
+    environment: true,
     force: true
   });
 

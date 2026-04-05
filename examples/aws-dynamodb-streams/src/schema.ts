@@ -10,6 +10,11 @@ export declare class ExampleSchema implements Database.Schema {
   id: string;
 
   /**
+   * Example of value property.
+   */
+  value?: string;
+
+  /**
    * Example of time-to-live property.
    */
   expire_at: number;

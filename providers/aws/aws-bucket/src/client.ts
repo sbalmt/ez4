@@ -20,18 +20,46 @@ const client = new S3Client({});
 export namespace Client {
   export const make = (bucketName: string): BucketClient => {
     return new (class {
-      async exists(key: string) {
-        return !!(await this.getStats(key));
+      async stat(key: string) {
+        try {
+          const response = await client.send(
+            new HeadObjectCommand({
+              Bucket: bucketName,
+              Key: key
+            })
+          );
+
+          const { ContentType: type = 'application/octet-stream', ContentLength: size = 0, Metadata: metadata } = response;
+
+          return {
+            type,
+            metadata,
+            size
+          };
+        } catch (error) {
+          if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
+            throw error;
+          }
+
+          return undefined;
+        }
       }
 
-      async write(key: string, contents: Content, options?: WriteOptions) {
-        const contentType = options?.contentType ?? mime.getType(key);
+      async exists(key: string) {
+        return !!(await this.stat(key));
+      }
+
+      async write(key: string, contents: Content, options: WriteOptions = {}) {
+        const { contentType = mime.getType(key), headers = {}, metadata } = options;
 
         await client.send(
           new PutObjectCommand({
             Bucket: bucketName,
             Key: key,
             Body: contents,
+            Metadata: metadata,
+            CacheControl: headers?.cacheControl,
+            Expires: headers?.expires,
             ...(contentType && {
               ContentType: contentType
             })
@@ -61,17 +89,43 @@ export namespace Client {
         );
       }
 
-      async getWriteUrl(key: string, options: SignWriteOptions): Promise<string> {
-        const { expiresIn, contentType } = options;
+      async getStatUrl(key: string, options: SignReadOptions): Promise<string> {
+        const { expiresIn } = options;
 
-        const command = new PutObjectCommand({
+        const command = new HeadObjectCommand({
           Bucket: bucketName,
-          ContentType: contentType,
           Key: key
         });
 
         return getSignedUrl(client, command, {
-          signableHeaders: new Set(['content-type']),
+          expiresIn
+        });
+      }
+
+      async getWriteUrl(key: string, options: SignWriteOptions): Promise<string> {
+        const { expiresIn, contentType, metadata, headers = {} } = options;
+
+        const command = new PutObjectCommand({
+          Bucket: bucketName,
+          ContentType: contentType,
+          CacheControl: headers?.cacheControl,
+          Expires: headers?.expires,
+          Metadata: metadata,
+          Key: key
+        });
+
+        const signedHeaders = ['content-type'];
+
+        if (headers.cacheControl) {
+          signedHeaders.push('cache-control');
+        }
+
+        if (headers.expires) {
+          signedHeaders.push('expires');
+        }
+
+        return getSignedUrl(client, command, {
+          signableHeaders: new Set(signedHeaders),
           expiresIn
         });
       }
@@ -80,41 +134,6 @@ export namespace Client {
         const { expiresIn } = options;
 
         const command = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: key
-        });
-
-        return getSignedUrl(client, command, {
-          expiresIn
-        });
-      }
-
-      async getStats(key: string) {
-        try {
-          const response = await client.send(
-            new HeadObjectCommand({
-              Bucket: bucketName,
-              Key: key
-            })
-          );
-
-          return {
-            type: response?.ContentType,
-            size: response?.ContentLength ?? 0
-          };
-        } catch (error) {
-          if (!(error instanceof NotFound) && !(error instanceof NoSuchKey)) {
-            throw error;
-          }
-
-          return undefined;
-        }
-      }
-
-      async getStatsUrl(key: string, options: SignReadOptions): Promise<string> {
-        const { expiresIn } = options;
-
-        const command = new HeadObjectCommand({
           Bucket: bucketName,
           Key: key
         });

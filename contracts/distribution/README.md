@@ -1,6 +1,6 @@
 # EZ4: Distribution
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contact that determines how to build and connect distribution components.
+The Distribution contract defines a CDN distribution service for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your origins, certificates, aliases, and fallback rules, then generates the infrastructure and runtime bindings required to serve static content globally.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/distribution @ez4/aws-cloudfront -D
 ```
 
-#### Create distribution
+#### Create a distribution
+
+Here's a minimal example of a distribution with a default origin, certificate, and fallback rules.
 
 ```ts
-// file: site.ts
 import type { Environment } from '@ez4/common';
 import type { Cdn } from '@ez4/distribution';
 
@@ -40,21 +41,23 @@ export declare class MySite extends Cdn.Service {
 }
 ```
 
+With your distribution defined, EZ4 handles provisioning, certificate wiring, origin routing, and global delivery automatically according to your contract.
+
 ## Distribution properties
 
 #### Service
 
-| Name          | Type                   | Description                                             |
-| ------------- | ---------------------- | ------------------------------------------------------- |
-| origins       | Cdn.UseOrigin<>        | Distribution origins.                                   |
-| defaultOrigin | Cdn.UseDefaultOrigin<> | Default origin for the distribution results.            |
-| certificate   | Cdn.UseCertificate<>   | Custom certificate associated to the distribution.      |
-| defaultIndex  | string                 | Default index file name.                                |
-| aliases       | string                 | List of CNAME aliases for the distribution.             |
-| fallbacks     | string                 | Distribution fallbacks.                                 |
-| disabled      | boolean                | Determines whether or not the distribution is disabled. |
+| Name          | Type                   | Description                                                          |
+| ------------- | ---------------------- | -------------------------------------------------------------------- |
+| defaultIndex  | string                 | Default index file name.                                             |
+| certificate   | Cdn.UseCertificate<>   | Custom certificate associated with the distribution.                 |
+| fallbacks     | Cdn.UseFallback<>[]    | Fallback rules applied when an origin returns specific status codes. |
+| defaultOrigin | Cdn.UseDefaultOrigin<> | Default origin for the distribution.                                 |
+| origins       | Cdn.UseOrigin<>        | Distribution origins.                                                |
+| aliases       | string[]               | List of CNAME aliases for the distribution.                          |
+| disabled      | boolean                | Determines whether or not the distribution is disabled.              |
 
-> Use type helpers for `origins`, `defaultOrigin` and `certificate` properties.
+> Use type helpers for `origins`, `defaultOrigin`, `certificate` and `fallbacks` properties.
 
 ## Examples
 

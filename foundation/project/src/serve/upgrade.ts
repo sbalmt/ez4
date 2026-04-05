@@ -125,7 +125,12 @@ export const upgradeHandler = async (
               connection.write(response);
             }
           } catch (error) {
-            Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
+            if (error instanceof Error && error.stack) {
+              Logger.error(`${emulator.type} [${emulator.name}] Internal server error\n${error.stack}`);
+            } else {
+              Logger.error(`${emulator.type} [${emulator.name}] ${error}`);
+            }
+
             socket.destroy();
           }
 

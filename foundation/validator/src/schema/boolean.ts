@@ -1,14 +1,18 @@
 import type { BooleanSchema } from '@ez4/schema';
 import type { ValidationContext } from '../types/context';
 
-import { isAnyBoolean } from '@ez4/utils';
+import { isAnyBoolean, isNotNullish } from '@ez4/utils';
 
 import { ExpectedBooleanTypeError, UnexpectedBooleanError } from '../errors/boolean';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
+
+const isDefaultAllowed = (value: unknown, schema: BooleanSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
 
 export const validateBoolean = (value: unknown, schema: BooleanSchema, context?: ValidationContext) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

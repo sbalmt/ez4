@@ -1,5 +1,4 @@
 import type { ServiceEmulators } from '../../emulator/service';
-import type { ProjectOptions } from '../../types/project';
 import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
@@ -13,13 +12,16 @@ import { bootstrapServices, prepareServices, shutdownServices } from '../../emul
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { loadReferences } from '../../config/references';
-import { watchMetadata } from '../../library/metadata';
+import { loadEnvironment } from '../../config/environment';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
+import { watchMetadata } from '../../library/metadata';
 import { upgradeHandler } from '../../serve/upgrade';
 import { requestHandler } from '../../serve/request';
 
-export const serveCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const serveCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {
@@ -30,10 +32,15 @@ export const serveCommand = async (input: InputOptions, project: ProjectOptions)
     return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
     reset: options.local,
-    inspect: true,
+    environment: true,
     suppress: true,
+    inspect: true,
     local: true
   });
 

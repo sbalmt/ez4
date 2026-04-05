@@ -2,7 +2,7 @@ import type { Integer } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { FileStatus } from '../../schemas/file';
-import type { ApiProvider } from '../../provider';
+import type { ApiProvider } from '../provider';
 
 import { listFiles } from '@/api/repository';
 

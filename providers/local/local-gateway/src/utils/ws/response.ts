@@ -18,15 +18,12 @@ export const getWsSuccessResponse = (metadata: WsResponse, response: Ws.Response
   return body.toString();
 };
 
-export const getWsErrorResponse = (error?: Error) => {
+export const getWsErrorResponse = (error: Error) => {
   if (error instanceof HttpError) {
     const { body } = getJsonError(error);
 
     return JSON.stringify(body);
   }
 
-  return JSON.stringify({
-    message: 'Internal server error',
-    type: 'error'
-  });
+  throw error;
 };

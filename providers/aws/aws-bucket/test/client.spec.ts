@@ -48,7 +48,13 @@ describe('bucket client', () => {
     const content = createReadStream(join(baseDir, 'object-file.txt'));
 
     await bucketClient.write('test-client', content, {
-      contentType: 'text/plain'
+      contentType: 'text/plain',
+      headers: {
+        cacheControl: 'max-age=31536000, public'
+      },
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 
@@ -75,19 +81,22 @@ describe('bucket client', () => {
     ok(!objectDoNotExists);
   });
 
-  it('assert :: object stats', async () => {
+  it('assert :: object stat', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
-      bucketClient.getStats('test-client'),
-      bucketClient.getStats('test-client-do-not-exists')
+      bucketClient.stat('test-client'),
+      bucketClient.stat('test-client-do-not-exists')
     ]);
 
     ok(!objectDoNotExists);
 
     deepEqual(objectExists, {
       type: 'text/plain',
-      size: 43
+      size: 43,
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 

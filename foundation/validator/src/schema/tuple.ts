@@ -1,13 +1,19 @@
 import type { TupleSchema } from '@ez4/schema';
 
+import { isNotNullish } from '@ez4/utils';
+
 import { ExpectedTupleTypeError } from '../errors/tuple';
 import { createValidatorContext } from '../types/context';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 import { validateAny } from './any';
 
+const isDefaultAllowed = (value: unknown, schema: TupleSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
+
 export const validateTuple = async (value: unknown, schema: TupleSchema, context = createValidatorContext()) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

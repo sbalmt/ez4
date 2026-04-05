@@ -39,13 +39,13 @@ export type ProjectOptions = {
   resetMode?: boolean;
 
   /**
-   * Set a new `package.json` location relative to the current working directory.
-   * All providers are automatically loaded from this new package location.
+   * Set a custom `package.json` location relative to the current working directory.
+   * All providers are automatically loaded from this custom package location.
    */
   packageFile?: string;
 
   /**
-   * Set a new `tsconfig.json` location relative to the current working directory.
+   * Set a custom `tsconfig.json` location relative to the current working directory.
    */
   tsconfigFile?: string;
 
@@ -187,7 +187,7 @@ export type ProjectServeOptions = {
 
 export type ProjectWatchOptions = {
   /**
-   * Specify additional watch paths.
+   * Specify additional paths to watch.
    */
   additionalPaths: string[];
 };

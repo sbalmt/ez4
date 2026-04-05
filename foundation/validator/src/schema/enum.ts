@@ -1,12 +1,18 @@
 import type { EnumSchema } from '@ez4/schema';
 import type { ValidationContext } from '../types/context';
 
+import { isNotNullish } from '@ez4/utils';
+
 import { UnexpectedEnumValueError } from '../errors/enum';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
+
+const isDefaultAllowed = (value: unknown, schema: EnumSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
 
 export const validateEnum = (value: unknown, schema: EnumSchema, context?: ValidationContext) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

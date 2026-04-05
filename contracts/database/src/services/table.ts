@@ -147,9 +147,18 @@ export interface Table<T extends TableMetadata> {
   deleteMany<S extends Query.SelectInput<T>>(query: Query.DeleteManyInput<S, T>): Promise<Query.DeleteManyResult<S, T>>;
 
   /**
+   * Check whether any record exists for the given query.
+   *
+   * @param query Input query.
+   * @returns Return `true` if the record exists, `false` otherwise.
+   */
+  exists(query: Query.ExistsInput<T>): Promise<boolean>;
+
+  /**
    * Count database records.
    *
    * @param query Input query.
+   * @returns Returns the number of records found.
    */
   count(query: Query.CountInput<T>): Promise<number>;
 }

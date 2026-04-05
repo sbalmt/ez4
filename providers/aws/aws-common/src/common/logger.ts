@@ -86,15 +86,16 @@ export namespace OperationLogger {
   const updateLogStats = () => {
     const { loggers, buffers, stats } = STATE;
 
-    const hidden = buffers.length;
-    const total = loggers.length + hidden;
+    const other = buffers.length;
+    const total = loggers.length + other;
+    const label = total > 1 ? 'changes' : 'change';
 
     process.stdout.clearLine(0);
 
-    if (hidden > 0) {
-      process.stdout.write(`${stats} (processing ${total} changes, ${hidden} hidden)\r`);
+    if (other > 0) {
+      process.stdout.write(`${stats} (processing ${total} ${label}, ${other} hidden)\r`);
     } else {
-      process.stdout.write(`${stats} (processing ${total} changes)\r`);
+      process.stdout.write(`${stats} (processing ${total} ${label})\r`);
     }
   };
 
