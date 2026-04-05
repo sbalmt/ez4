@@ -1,6 +1,6 @@
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { ApiProvider } from '../../provider';
+import type { ApiProvider } from '../provider';
 import type { ContentTypes } from '../types';
 
 import { Integer } from '@ez4/schema';

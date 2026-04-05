@@ -4,8 +4,8 @@ import type { FileStorage } from '@/storage';
 
 import { BucketEventType } from '@ez4/storage';
 
-import { deleteFile, updateFile } from '@/api/repository';
-import { FileStatus } from '@/schemas/file';
+import { FileStatus } from '../../schemas/file';
+import { deleteFile, updateFile } from '../repository';
 
 /**
  * Handle storage changes.

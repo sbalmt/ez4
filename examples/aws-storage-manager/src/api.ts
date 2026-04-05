@@ -1,9 +1,6 @@
 import type { ArchitectureType } from '@ez4/project';
 import type { Http } from '@ez4/gateway';
-import type { startUploadHandler } from '@/api/endpoints/start-upload';
-import type { startDownloadHandler } from '@/api/endpoints/start-download';
-import type { deleteFileHandler } from '@/api/endpoints/delete-file';
-import type { listFilesHandler } from '@/api/endpoints/list-files';
+import type { ApiRoutes } from './api/routes';
 
 /**
  * Example of AWS API deployed with EZ4.
@@ -27,22 +24,5 @@ export declare class Api extends Http.Service {
   /**
    * All API routes.
    */
-  routes: [
-    Http.UseRoute<{
-      path: 'POST /start-upload';
-      handler: typeof startUploadHandler;
-    }>,
-    Http.UseRoute<{
-      path: 'GET /start-download/{fileId}';
-      handler: typeof startDownloadHandler;
-    }>,
-    Http.UseRoute<{
-      path: 'DELETE /delete-file/{fileId}';
-      handler: typeof deleteFileHandler;
-    }>,
-    Http.UseRoute<{
-      path: 'GET /list-files';
-      handler: typeof listFilesHandler;
-    }>
-  ];
+  routes: [...ApiRoutes];
 }
