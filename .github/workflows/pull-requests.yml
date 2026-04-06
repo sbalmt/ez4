@@ -48,5 +48,48 @@ jobs:
       - name: Lint codebase
         run: npm run lint
 
-      - name: Test package (@ez4/common)
-        run: npm test -w @ez4/common
+      - name: Test foundation
+        run: |
+          npm test \
+          -w @ez4/utils \
+          -w @ez4/stateful \
+          -w @ez4/reflection \
+          -w @ez4/logger \
+          -w @ez4/project \
+          -w @ez4/schema \
+          -w @ez4/validator \
+          -w @ez4/transform
+
+      - name: Test contracts
+        run: |
+          npm test \
+          -w @ez4/gateway \
+          -w @ez4/database \
+          -w @ez4/cache \
+          -w @ez4/scheduler \
+          -w @ez4/storage \
+          -w @ez4/distribution \
+          -w @ez4/queue \
+          -w @ez4/topic \
+          -w @ez4/factory \
+          -w @ez4/validation \
+          -w @ez4/email
+
+      - name: Test local providers
+        run: |
+          npm test \
+          -w @ez4/local-common \
+          -w @ez4/local-gateway \
+          -w @ez4/local-database \
+          -w @ez4/local-cache \
+          -w @ez4/local-scheduler \
+          -w @ez4/local-storage \
+          -w @ez4/local-queue \
+          -w @ez4/local-topic
+
+      - name: Test docs providers
+        run: |
+          npm test \
+          -w @ez4/docs-gateway \
+          -w @ez4/docs-database \
+          -w @ez4/docs-topology
