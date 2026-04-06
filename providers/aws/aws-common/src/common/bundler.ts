@@ -131,7 +131,9 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
   const { dir: targetPath, name: targetName } = parse(sourceFile);
   const { filePrefix, target, debug } = options;
 
-  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
+  const handlerName = toKebabCase(functionName);
+
+  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${handlerName}.mjs`);
   const outputFile = getTemporaryPath(targetFile);
 
   const result = await build({
@@ -148,7 +150,7 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
     target,
     define: {
       ...options.define,
-      EZ4_HANDLER_NAME: functionName,
+      EZ4_HANDLER_NAME: `'${handlerName}'`,
       EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },
