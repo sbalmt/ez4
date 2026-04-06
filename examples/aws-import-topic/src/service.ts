@@ -3,7 +3,7 @@ import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { FifoSqs, Sqs } from './queue/service';
 import type { messageHandlerA } from './lambda/handlers';
-import type { serviceListener } from './common';
+import type { serviceListener } from './listener';
 
 /**
  * Example of AWS SNS imported and deployed with EZ4.

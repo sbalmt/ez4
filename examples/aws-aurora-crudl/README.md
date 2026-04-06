@@ -20,6 +20,14 @@ npm run deploy
 
 > This action will create resources on the given AWS account.
 
+#### Seed
+
+```sh
+npm run seed
+```
+
+> This action will create the first items in the database.
+
 #### Emulate
 
 ```sh
