@@ -21,7 +21,7 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
     throw new RoleMissingError();
   }
 
-  const { defaults, release } = options;
+  const { defaults, release, tags } = options;
 
   const {
     runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -52,24 +52,14 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
   const logGroupState = createLogGroup(state, {
     retention: logRetention,
     groupName: eventName,
-    tags: options.tags
+    tags
   });
 
   handlerState = createBucketEventFunction(state, context.role, logGroupState, {
     functionName: eventName,
     description: handler.description,
     context: service.context,
-    tags: options.tags,
     variables: [options.variables, service.variables, variables],
-    architecture,
-    logLevel,
-    runtime,
-    release,
-    timeout,
-    memory,
-    files,
-    debug,
-    vpc,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -80,7 +70,17 @@ export const prepareEvents = (state: EntryStates, service: BucketService, option
       functionName: listener.name,
       sourceFile: listener.file,
       module: listener.module
-    }
+    },
+    architecture,
+    logLevel,
+    runtime,
+    release,
+    timeout,
+    memory,
+    files,
+    debug,
+    tags,
+    vpc
   });
 
   context.setServiceState(internalName, options, handlerState);

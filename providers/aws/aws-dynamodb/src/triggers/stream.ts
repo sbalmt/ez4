@@ -29,7 +29,7 @@ export const prepareTableStream = (
     throw new RoleMissingError();
   }
 
-  const { defaults, release } = options;
+  const { defaults, release, tags } = options;
 
   const {
     runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -57,7 +57,7 @@ export const prepareTableStream = (
     const logGroupState = createLogGroup(state, {
       retention: logRetention,
       groupName: streamName,
-      tags: options.tags
+      tags
     });
 
     handlerState = createStreamFunction(state, context.role, logGroupState, {
@@ -65,17 +65,7 @@ export const prepareTableStream = (
       description: handler.description,
       tableSchema: table.schema,
       context: service.context,
-      tags: options.tags,
       variables: [options.variables, service.variables, variables],
-      architecture,
-      logLevel,
-      runtime,
-      release,
-      timeout,
-      memory,
-      files,
-      debug,
-      vpc,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
@@ -86,7 +76,17 @@ export const prepareTableStream = (
         functionName: listener.name,
         sourceFile: listener.file,
         module: listener.module
-      }
+      },
+      architecture,
+      logLevel,
+      runtime,
+      release,
+      timeout,
+      memory,
+      files,
+      debug,
+      tags,
+      vpc
     });
 
     context.setServiceState(internalName, options, handlerState);

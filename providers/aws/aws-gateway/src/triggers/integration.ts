@@ -86,13 +86,15 @@ const getIntegrationFunction = (
   let handlerState = tryGetFunctionState(context, internalName, options);
 
   if (!handlerState) {
+    const { release, tags } = options;
+
     const integrationName = getFunctionName(service, handler, options);
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
       groupName: integrationName,
       retention: logRetention,
-      tags: options.tags
+      tags
     });
 
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
@@ -109,17 +111,11 @@ const getIntegrationFunction = (
       timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,
-      release: options.release,
-      tags: options.tags,
       variables: [options.variables, service.variables],
-      architecture,
-      logLevel,
-      runtime,
-      memory,
-      type,
-      files,
-      debug,
-      vpc,
+      errorsMap: {
+        ...('httpErrors' in defaults && isAnyObject(defaults.httpErrors) && defaults.httpErrors),
+        ...('httpErrors' in target && isAnyObject(target.httpErrors) && target.httpErrors)
+      },
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
@@ -135,10 +131,16 @@ const getIntegrationFunction = (
         ...defaults.preferences,
         ...target.preferences
       },
-      errorsMap: {
-        ...('httpErrors' in defaults && isAnyObject(defaults.httpErrors) && defaults.httpErrors),
-        ...('httpErrors' in target && isAnyObject(target.httpErrors) && target.httpErrors)
-      }
+      architecture,
+      logLevel,
+      runtime,
+      release,
+      memory,
+      type,
+      files,
+      debug,
+      tags,
+      vpc
     });
 
     context.setServiceState(internalName, options, handlerState);
