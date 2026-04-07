@@ -4,13 +4,14 @@ import type { Client as BucketClient } from '@ez4/storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import {
+  S3Client,
   HeadObjectCommand,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-  NotFound,
-  S3Client,
-  NoSuchKey
+  CopyObjectCommand,
+  NoSuchKey,
+  NotFound
 } from '@aws-sdk/client-s3';
 
 import mime from 'mime';
@@ -89,7 +90,19 @@ export namespace Client {
         );
       }
 
-      async getStatUrl(key: string, options: SignReadOptions): Promise<string> {
+      async copy(sourceKey: string, targetKey: string) {
+        if (sourceKey !== targetKey) {
+          await client.send(
+            new CopyObjectCommand({
+              Bucket: bucketName,
+              CopySource: `${bucketName}/${sourceKey}`,
+              Key: targetKey
+            })
+          );
+        }
+      }
+
+      async getStatUrl(key: string, options: SignReadOptions) {
         const { expiresIn } = options;
 
         const command = new HeadObjectCommand({
@@ -102,7 +115,7 @@ export namespace Client {
         });
       }
 
-      async getWriteUrl(key: string, options: SignWriteOptions): Promise<string> {
+      async getWriteUrl(key: string, options: SignWriteOptions) {
         const { expiresIn, contentType, metadata, headers = {} } = options;
 
         const command = new PutObjectCommand({
@@ -130,7 +143,7 @@ export namespace Client {
         });
       }
 
-      async getReadUrl(key: string, options: SignReadOptions): Promise<string> {
+      async getReadUrl(key: string, options: SignReadOptions) {
         const { expiresIn } = options;
 
         const command = new GetObjectCommand({

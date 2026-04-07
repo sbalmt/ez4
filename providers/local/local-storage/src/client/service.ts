@@ -1,7 +1,7 @@
 import type { ServeOptions } from '@ez4/project/library';
 import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
-import { mkdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -65,6 +65,15 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       await unlink(filePath);
 
       Logger.log(`ℹ️  File ${key} deleted.`);
+    }
+
+    async copy(sourceKey: string, targetKey: string) {
+      const sourcePath = join(storageDirectory, sourceKey);
+      const targetPath = join(storageDirectory, targetKey);
+
+      await copyFile(sourcePath, targetPath);
+
+      Logger.log(`ℹ️  File ${sourceKey} copied.`);
     }
 
     async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {

@@ -17,6 +17,7 @@ export namespace BucketTester {
     write: Mock<Client['write']>;
     read: Mock<Client['read']>;
     delete: Mock<Client['delete']>;
+    copy: Mock<Client['copy']>;
     getStatUrl: Mock<Client['getStatUrl']>;
     getWriteUrl: Mock<Client['getWriteUrl']>;
     getReadUrl: Mock<Client['getReadUrl']>;
@@ -34,6 +35,7 @@ export namespace BucketTester {
     mock.method(client, 'write');
     mock.method(client, 'read');
     mock.method(client, 'delete');
+    mock.method(client, 'copy');
 
     mock.method(client, 'getStatUrl');
     mock.method(client, 'getWriteUrl');

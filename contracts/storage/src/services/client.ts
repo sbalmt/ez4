@@ -116,6 +116,14 @@ export interface Client {
   delete(key: string): Promise<void>;
 
   /**
+   * Copy an object from the bucket into another object.
+   *
+   * @param sourceKey Source object key.
+   * @param targetKey Target object key.
+   */
+  copy(sourceKey: string, targetKey: string): Promise<void>;
+
+  /**
    * Get an URL to retrieve stats from the specified object in the bucket.
    *
    * @param key Object key.

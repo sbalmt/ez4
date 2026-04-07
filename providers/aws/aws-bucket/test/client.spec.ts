@@ -109,6 +109,17 @@ describe('bucket client', () => {
     equal(content, 'Plain text test');
   });
 
+  it('assert :: copy object', async () => {
+    ok(bucketClient);
+
+    await bucketClient.copy('test-client-plain', 'test-plain-copy');
+
+    const buffer = await bucketClient.read('test-plain-copy');
+    const content = buffer.toString();
+
+    equal(content, 'Plain text test');
+  });
+
   it('assert :: delete object', async () => {
     ok(bucketClient);
 

@@ -78,6 +78,20 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
+    async copy(sourceKey: string, targetKey: string) {
+      const content = storageMemory[sourceKey] ?? options?.default;
+
+      if (!content) {
+        throw new Error(`Key ${sourceKey} not found.`);
+      }
+
+      Logger.log(`ℹ️  File ${sourceKey} copied.`);
+
+      storageMemory[targetKey] = content;
+
+      return Promise.resolve();
+    }
+
     async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
