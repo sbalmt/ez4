@@ -25,7 +25,7 @@ export type CreateResponse = {
 };
 
 export const isCertificateInUse = async (logger: OperationLogLine, certificateArn: string) => {
-  logger.update(`Fetching  certificate`);
+  logger.update(`Fetching certificate`);
 
   const response = await getACMClient().send(
     new DescribeCertificateCommand({
@@ -55,6 +55,8 @@ export const createCertificate = async (logger: OperationLogLine, request: Creat
   );
 
   const certificateArn = response.CertificateArn as Arn;
+
+  logger.update(`Waiting manual validation`);
 
   await waitUntilCertificateValidated(getACMWaiter(client), {
     CertificateArn: certificateArn
