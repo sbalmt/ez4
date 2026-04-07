@@ -64,6 +64,18 @@ export namespace Client {
         }
       }
 
+      async setEvent(identifier: string, input: ScheduleEvent<T>) {
+        try {
+          return await this.updateEvent(identifier, input);
+        } catch (error) {
+          if (error instanceof ResourceNotFoundException) {
+            return this.createEvent(identifier, input);
+          }
+
+          throw error;
+        }
+      }
+
       async createEvent(identifier: string, input: ScheduleEvent<T>) {
         const event = await getJsonEvent(input.event, parameters.schema);
         const scope = Runtime.getScope();

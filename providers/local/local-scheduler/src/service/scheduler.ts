@@ -53,6 +53,37 @@ export namespace InMemoryScheduler {
     }, timeout);
   };
 
+  export const getEvent = (schedulerName: string, identifier: string) => {
+    const event = getScheduler(schedulerName).events[identifier];
+
+    if (!event) {
+      return undefined;
+    }
+
+    return deepClone(event, {
+      include: {
+        date: true,
+        maxRetries: true,
+        maxAge: true,
+        event: true
+      }
+    });
+  };
+
+  export const setEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: ScheduleEvent<T>) => {
+    const instance = getScheduler(schedulerName);
+    const interval = input.date.getTime() - Date.now();
+
+    if (interval < 0) {
+      throw new Error(`Event for scheduler ${schedulerName} is too old.`);
+    }
+
+    clearTimeout(instance.timers[identifier]);
+
+    instance.timers[identifier] = setTimeout(() => instance.handler(input.event), interval);
+    instance.events[identifier] = input;
+  };
+
   export const createEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: ScheduleEvent<T>) => {
     const instance = getScheduler(schedulerName);
     const interval = input.date.getTime() - Date.now();
@@ -62,10 +93,19 @@ export namespace InMemoryScheduler {
     }
 
     instance.timers[identifier] = setTimeout(() => instance.handler(input.event), interval);
+    instance.events[identifier] = input;
+  };
 
-    instance.events[identifier] = {
-      ...input
-    };
+  export const updateEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: Partial<ScheduleEvent<T>>) => {
+    const previousEvent = deleteEvent(schedulerName, identifier);
+
+    if (!previousEvent) {
+      throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
+    }
+
+    const currentEvent = deepMerge(previousEvent, input);
+
+    createEvent(schedulerName, identifier, currentEvent);
   };
 
   export const deleteEvent = (schedulerName: string, identifier: string) => {
@@ -83,34 +123,5 @@ export namespace InMemoryScheduler {
     delete instance.events[identifier];
 
     return event;
-  };
-
-  export const updateEvent = <T extends Cron.Event>(schedulerName: string, identifier: string, input: Partial<ScheduleEvent<T>>) => {
-    const previousEvent = deleteEvent(schedulerName, identifier);
-
-    if (!previousEvent) {
-      throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
-    }
-
-    const currentEvent = deepMerge(previousEvent, input);
-
-    createEvent(schedulerName, identifier, currentEvent);
-  };
-
-  export const getEvent = (schedulerName: string, identifier: string) => {
-    const event = getScheduler(schedulerName).events[identifier];
-
-    if (!event) {
-      return undefined;
-    }
-
-    return deepClone(event, {
-      include: {
-        date: true,
-        maxRetries: true,
-        maxAge: true,
-        event: true
-      }
-    });
   };
 }
