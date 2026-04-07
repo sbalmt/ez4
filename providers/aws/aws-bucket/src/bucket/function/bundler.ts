@@ -11,12 +11,13 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleBucketEventFunction = async (parameters: BucketEventFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, context, debug } = parameters;
+  const { handler, listener, functionName, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/event.ts'),
+    resourceName: functionName,
     define: definitions,
     filePrefix: 's3',
     handler,

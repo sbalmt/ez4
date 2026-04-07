@@ -11,10 +11,10 @@ declare const EZ4_IS_DEBUG_RUNTIME: boolean;
 declare const EZ4_IS_REMOTE_RUNTIME: boolean;
 
 /**
- * Hold the handler function's name.
+ * Hold the handler's runtime resource name.
  * !! IT MUST BE DEFINED BY THE BUNDLER !!
  */
-declare const EZ4_HANDLER_NAME: string;
+declare const EZ4_RESOURCE_NAME: string;
 
 /**
  * Access to the current runtime settings.
@@ -47,12 +47,12 @@ export namespace Runtime {
   };
 
   /**
-   * Get the handler function name.
+   * Get the runtime resource name.
    *
-   * @returns Returns the function name.
+   * @returns Returns the resource name.
    */
-  export const getHandlerName = () => {
-    return typeof EZ4_HANDLER_NAME === 'string' ? EZ4_HANDLER_NAME : 'unknown';
+  export const getResourceName = () => {
+    return typeof EZ4_RESOURCE_NAME === 'string' ? EZ4_RESOURCE_NAME : 'unknown';
   };
 
   /**

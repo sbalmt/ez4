@@ -12,13 +12,15 @@ import { AuthorizerServiceName } from '../types';
 declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
-  const { services, context, debug, authorizer, listener, headersSchema, parametersSchema, querySchema, preferences } = parameters;
+  const { services, context, debug, authorizer, listener, functionName, headersSchema, parametersSchema, querySchema, preferences } =
+    parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(AuthorizerServiceName, {
     context: context && services ? buildServiceContext(context, services) : context,
     templateFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
+    resourceName: functionName,
     filePrefix: 'auth',
     handler: authorizer,
     define: {
