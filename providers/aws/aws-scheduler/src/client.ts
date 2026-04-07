@@ -6,11 +6,12 @@ import {
   SchedulerClient,
   ActionAfterCompletion,
   FlexibleTimeWindowMode,
-  GetScheduleCommand,
   CreateScheduleCommand,
   DeleteScheduleCommand,
   UpdateScheduleCommand,
-  ResourceNotFoundException
+  GetScheduleCommand,
+  ResourceNotFoundException,
+  ConflictException
 } from '@aws-sdk/client-scheduler';
 
 import { getRandomUUID, isAnyNumber } from '@ez4/utils';
@@ -66,10 +67,10 @@ export namespace Client {
 
       async setEvent(identifier: string, input: ScheduleEvent<T>) {
         try {
-          return await this.updateEvent(identifier, input);
+          return await this.createEvent(identifier, input);
         } catch (error) {
-          if (error instanceof ResourceNotFoundException) {
-            return this.createEvent(identifier, input);
+          if (error instanceof ConflictException) {
+            return this.updateEvent(identifier, input);
           }
 
           throw error;
