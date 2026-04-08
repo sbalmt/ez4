@@ -72,6 +72,23 @@ export type ObjectStats = {
   readonly size: number;
 };
 
+export type ObjectEntry = {
+  /**
+   * Object key.
+   */
+  readonly key: string;
+
+  /**
+   * Last modification date and time.
+   */
+  readonly modifiedAt: Date;
+
+  /**
+   * Object size.
+   */
+  readonly size: number;
+};
+
 /**
  * Bucket client.
  */
@@ -122,6 +139,13 @@ export interface Client {
    * @param targetKey Target object key.
    */
   copy(sourceKey: string, targetKey: string): Promise<void>;
+
+  /**
+   * Scan the bucket objects.
+   *
+   * @returns Returns an iterable generator.
+   */
+  scan(): AsyncGenerator<ObjectEntry, void>;
 
   /**
    * Get an URL to retrieve stats from the specified object in the bucket.

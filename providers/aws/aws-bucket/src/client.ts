@@ -1,13 +1,14 @@
-import type { Content, WriteOptions, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Content, WriteOptions, SignReadOptions, SignWriteOptions, ObjectEntry } from '@ez4/storage';
 import type { Client as BucketClient } from '@ez4/storage';
 
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import {
   S3Client,
-  HeadObjectCommand,
-  PutObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
   DeleteObjectCommand,
   CopyObjectCommand,
   NoSuchKey,
@@ -100,6 +101,29 @@ export namespace Client {
             })
           );
         }
+      }
+
+      async *scan(): AsyncGenerator<ObjectEntry, void> {
+        let nextPage: string | undefined;
+
+        do {
+          const response = await client.send(
+            new ListObjectsV2Command({
+              ContinuationToken: nextPage,
+              Bucket: bucketName
+            })
+          );
+
+          for (const object of response.Contents ?? []) {
+            yield {
+              key: object.Key!,
+              modifiedAt: object.LastModified!,
+              size: object.Size!
+            };
+          }
+
+          nextPage = response.NextContinuationToken;
+        } while (nextPage);
       }
 
       async getStatUrl(key: string, options: SignReadOptions) {

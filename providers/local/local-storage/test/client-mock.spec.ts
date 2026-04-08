@@ -2,6 +2,7 @@ import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { BucketTester } from '@ez4/local-storage/test';
+import { ok } from 'node:assert';
 
 describe('local storage tests', () => {
   const defaultContent = 'This is a mocked content';
@@ -26,7 +27,7 @@ describe('local storage tests', () => {
     equal(exists, true);
   });
 
-  it('assert :: key exists (from key)', async () => {
+  it('assert :: key exists (from keys)', async () => {
     const client = BucketTester.getClientMock('bucket', {
       keys: {
         foo: Buffer.from(defaultContent)
@@ -63,7 +64,7 @@ describe('local storage tests', () => {
     });
   });
 
-  it('assert :: key stat (from key)', async () => {
+  it('assert :: key stat (from keys)', async () => {
     const client = BucketTester.getClientMock('bucket', {
       keys: {
         foo: Buffer.from(defaultContent)
@@ -155,7 +156,7 @@ describe('local storage tests', () => {
     equal(content.toString(), defaultContent);
   });
 
-  it('assert :: read key (from key)', async () => {
+  it('assert :: read key (from keys)', async () => {
     const client = BucketTester.getClientMock('bucket', {
       keys: {
         foo: Buffer.from(defaultContent)
@@ -192,7 +193,7 @@ describe('local storage tests', () => {
     equal(exists, true);
   });
 
-  it('assert :: delete key (from key)', async () => {
+  it('assert :: delete key (from keys)', async () => {
     const client = BucketTester.getClientMock('bucket', {
       keys: {
         foo: Buffer.from(defaultContent)
@@ -232,7 +233,7 @@ describe('local storage tests', () => {
     equal(exists, true);
   });
 
-  it('assert :: copy key (from another key)', async () => {
+  it('assert :: copy key (from keys)', async () => {
     const client = BucketTester.getClientMock('bucket', {
       keys: {
         foo: Buffer.from(defaultContent)
@@ -248,6 +249,49 @@ describe('local storage tests', () => {
 
     equal(result.toString(), defaultContent);
     equal(exists, true);
+  });
+
+  it('assert :: scan (empty)', async () => {
+    const client = BucketTester.getClientMock('bucket');
+
+    for await (const entry of client.scan()) {
+      ok(!entry);
+    }
+
+    equal(client.scan.mock.callCount(), 1);
+  });
+
+  it('assert :: scan (from default)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      default: Buffer.from(defaultContent)
+    });
+
+    for await (const entry of client.scan()) {
+      ok(!entry);
+    }
+
+    equal(client.scan.mock.callCount(), 1);
+  });
+
+  it('assert :: scan (from keys)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      keys: {
+        foo: Buffer.from(defaultContent),
+        bar: Buffer.from(defaultContent),
+        baz: Buffer.from(defaultContent)
+      }
+    });
+
+    const expectedKeys = ['foo', 'bar', 'baz'];
+
+    for await (const entry of client.scan()) {
+      equal(expectedKeys.shift(), entry.key);
+      ok(entry.modifiedAt);
+      ok(entry.size);
+    }
+
+    equal(client.scan.mock.callCount(), 1);
+    equal(expectedKeys.length, 0);
   });
 
   it('assert :: get read url', async () => {

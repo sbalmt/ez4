@@ -1,4 +1,4 @@
-import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
 import { Readable } from 'node:stream';
 
@@ -92,15 +92,27 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
-    async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {
+    async *scan(): AsyncGenerator<ObjectEntry, void> {
+      for (const key in storageMemory) {
+        const content = storageMemory[key];
+
+        yield Promise.resolve({
+          modifiedAt: new Date(),
+          size: content.length,
+          key
+        });
+      }
+    }
+
+    async getStatUrl(key: string, _options: SignReadOptions) {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
 
-    async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
+    async getWriteUrl(key: string, _options: SignWriteOptions) {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
 
-    async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
+    async getReadUrl(key: string, _options: SignReadOptions) {
       return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
   })();

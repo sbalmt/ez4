@@ -1,7 +1,7 @@
 import type { ServeOptions } from '@ez4/project/library';
-import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
-import { copyFile, mkdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -76,15 +76,31 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       Logger.log(`ℹ️  File ${sourceKey} copied.`);
     }
 
-    async getStatUrl(key: string, _options: SignReadOptions): Promise<string> {
+    async *scan(): AsyncGenerator<ObjectEntry, void> {
+      const allFiles = await readdir(storageDirectory, {
+        recursive: true
+      });
+
+      for (const filePath of allFiles) {
+        const { size, mtime } = await stat(filePath);
+
+        yield {
+          key: filePath,
+          modifiedAt: mtime,
+          size
+        };
+      }
+    }
+
+    async getStatUrl(key: string, _options: SignReadOptions) {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
-    async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
+    async getWriteUrl(key: string, _options: SignWriteOptions) {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
 
-    async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
+    async getReadUrl(key: string, _options: SignReadOptions) {
       return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
     }
   })();
