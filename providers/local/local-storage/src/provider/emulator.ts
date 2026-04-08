@@ -2,24 +2,37 @@ import type { EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { Client as StorageClient } from '@ez4/storage';
 import type { BucketService } from '@ez4/storage/library';
 
-import { getServiceName } from '@ez4/project/library';
+import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
-import { createServiceClient } from '../client/service';
+import { createLocalClient } from '../client/local';
+import { Logger } from '@ez4/logger';
 
-export const registerBucketEmulator = (service: BucketService, options: ServeOptions) => {
-  const client = createServiceClient(service.name, options);
+export const registerBucketEmulator = async (service: BucketService, options: ServeOptions) => {
+  const client = await getStorageClient(service, options);
 
   return {
     type: 'Storage',
     name: service.name,
     identifier: getServiceName(service.name, options),
-    exportHandler: () => {
-      return createServiceClient(service.name, options);
-    },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleRequest(client, request);
+    },
+    exportHandler: () => {
+      return client;
     }
   };
+};
+
+const getStorageClient = async (service: BucketService, options: ServeOptions) => {
+  const client = await triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
+
+  if (!client) {
+    Logger.info(`Local storage ${service.name} is being used.`);
+
+    return createLocalClient(service.name, options);
+  }
+
+  return client as StorageClient;
 };
 
 const handleRequest = async (client: StorageClient, request: EmulatorRequestEvent) => {
@@ -72,11 +85,17 @@ const storeFile = async (client: StorageClient, path: string, buffer: Buffer) =>
 const headFile = async (client: StorageClient, path: string) => {
   const stat = await client.stat(path);
 
+  if (!stat) {
+    return {
+      status: 404
+    };
+  }
+
   return {
     status: 200,
     headers: {
-      ['content-type']: stat?.type ?? 'application/octet-stream',
-      ['content-length']: stat?.size.toString() ?? '0'
+      ['content-type']: stat.type,
+      ['content-length']: stat.size.toString()
     }
   };
 };

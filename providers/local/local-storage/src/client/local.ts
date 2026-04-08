@@ -5,14 +5,15 @@ import { copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'nod
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
+import { fileTypeFromFile } from 'file-type';
+
 import { isAnyObject, toKebabCase } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
-import { fileTypeFromFile } from 'file-type';
 
-export const createServiceClient = (serviceName: string, serveOptions: ServeOptions): Client => {
-  const storageIdentifier = getServiceName(serviceName, serveOptions);
-  const storageDirectory = join('.ez4', toKebabCase(serviceName));
+export const createLocalClient = (resourceName: string, options: ServeOptions): Client => {
+  const storageIdentifier = getServiceName(resourceName, options);
+  const storageDirectory = join('.ez4', toKebabCase(resourceName));
 
   return new (class {
     async stat(key: string) {
@@ -82,7 +83,7 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
       });
 
       for (const filePath of allFiles) {
-        const { size, mtime } = await stat(filePath);
+        const { size, mtime } = await stat(join(storageDirectory, filePath));
 
         yield {
           key: filePath,
@@ -93,15 +94,15 @@ export const createServiceClient = (serviceName: string, serveOptions: ServeOpti
     }
 
     async getStatUrl(key: string, _options: SignReadOptions) {
-      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
+      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
     }
 
     async getWriteUrl(key: string, _options: SignWriteOptions) {
-      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
+      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
     }
 
     async getReadUrl(key: string, _options: SignReadOptions) {
-      return Promise.resolve(`http://${serveOptions.serviceHost}/${storageIdentifier}/${key}`);
+      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
     }
   })();
 };
