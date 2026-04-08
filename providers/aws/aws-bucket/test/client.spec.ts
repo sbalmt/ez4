@@ -120,10 +120,26 @@ describe('bucket client', () => {
     equal(content, 'Plain text test');
   });
 
+  it('assert :: scan objects', async () => {
+    ok(bucketClient);
+
+    const foundKeys = [];
+
+    for await (const object of bucketClient.scan()) {
+      foundKeys.push(object.key);
+    }
+
+    deepEqual(foundKeys, ['test-client', 'test-client-plain', 'test-plain-copy']);
+  });
+
   it('assert :: delete object', async () => {
     ok(bucketClient);
 
-    await Promise.all([bucketClient.delete('test-client'), bucketClient.delete('test-client-plain')]);
+    await Promise.all([
+      bucketClient.delete('test-client'),
+      bucketClient.delete('test-client-plain'),
+      bucketClient.delete('test-plain-copy')
+    ]);
   });
 
   it('assert :: destroy', async () => {
