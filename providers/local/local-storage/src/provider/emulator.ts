@@ -10,10 +10,19 @@ import { Logger } from '@ez4/logger';
 export const registerBucketEmulator = async (service: BucketService, options: ServeOptions) => {
   const client = await getStorageClient(service, options);
 
+  const { name: resourceName } = service;
+
   return {
     type: 'Storage',
-    name: service.name,
-    identifier: getServiceName(service.name, options),
+    name: resourceName,
+    identifier: getServiceName(resourceName, options),
+    bootstrapHandler: () => {
+      if (!options.local) {
+        Logger.log(`📂 Remote storage [${resourceName}] in use.`);
+      } else {
+        Logger.log(`📂 Local storage [${resourceName}] in use.`);
+      }
+    },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleRequest(client, request);
     },
@@ -27,8 +36,6 @@ const getStorageClient = async (service: BucketService, options: ServeOptions) =
   const client = await triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
 
   if (!client) {
-    Logger.info(`Local storage ${service.name} is being used.`);
-
     return createLocalClient(service.name, options);
   }
 
@@ -94,8 +101,8 @@ const headFile = async (client: StorageClient, path: string) => {
   return {
     status: 200,
     headers: {
-      ['content-type']: stat.type,
-      ['content-length']: stat.size.toString()
+      ['content-length']: stat.size.toString(),
+      ['content-type']: stat.type
     }
   };
 };
