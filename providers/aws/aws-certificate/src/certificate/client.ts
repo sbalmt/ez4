@@ -8,8 +8,8 @@ import {
   DeleteCertificateCommand,
   AddTagsToCertificateCommand,
   RemoveTagsFromCertificateCommand,
-  ResourceNotFoundException,
   waitUntilCertificateValidated,
+  ResourceNotFoundException,
   ValidationMethod
 } from '@aws-sdk/client-acm';
 
@@ -56,7 +56,7 @@ export const createCertificate = async (logger: OperationLogLine, request: Creat
 
   const certificateArn = response.CertificateArn as Arn;
 
-  logger.update(`Waiting manual validation`);
+  logger.update(`Awaiting certificate validation`);
 
   await waitUntilCertificateValidated(getACMWaiter(client), {
     CertificateArn: certificateArn
