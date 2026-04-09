@@ -6,12 +6,11 @@ import {
   SchedulerClient,
   ActionAfterCompletion,
   FlexibleTimeWindowMode,
+  ResourceNotFoundException,
   CreateScheduleCommand,
   DeleteScheduleCommand,
   UpdateScheduleCommand,
-  GetScheduleCommand,
-  ResourceNotFoundException,
-  ConflictException
+  GetScheduleCommand
 } from '@aws-sdk/client-scheduler';
 
 import { getRandomUUID, isAnyNumber } from '@ez4/utils';
@@ -29,31 +28,76 @@ export type ClientParameters = {
 };
 
 export namespace Client {
+  type EventInput<T extends Cron.Event> = {
+    date: Date | string;
+    maxRetries?: number;
+    maxAge?: number;
+    event: T | string;
+  };
+
   export const make = <T extends Cron.Event>(
     roleArn: Arn,
     functionArn: Arn,
     groupName: string | undefined,
     parameters: ClientParameters
   ): CronClient<T> => {
+    const getEventName = (identifier: string) => {
+      return `${parameters.prefix}-${identifier}`;
+    };
+
+    const getEventInput = (identifier: string, functionArn: Arn, roleArn: Arn, input: EventInput<T>) => {
+      const date = input.date instanceof Date ? prepareEventDate(input.date) : input.date;
+      const event = input.event instanceof Object ? prepareEventData(input.event) : input.event;
+
+      const maxRetries = input.maxRetries ?? parameters.defaults.maxRetries;
+      const maxAge = input.maxAge ?? parameters.defaults.maxAge;
+
+      const hasMaxRetries = isAnyNumber(maxRetries);
+      const hasMaxAge = isAnyNumber(maxAge);
+
+      const hasPolicy = hasMaxRetries || hasMaxAge;
+
+      return {
+        GroupName: groupName,
+        ScheduleExpression: date,
+        Name: getEventName(identifier),
+        ActionAfterCompletion: ActionAfterCompletion.DELETE,
+        FlexibleTimeWindow: {
+          Mode: FlexibleTimeWindowMode.OFF
+        },
+        Target: {
+          Arn: functionArn,
+          RoleArn: roleArn,
+          Input: event,
+          ...(hasPolicy && {
+            RetryPolicy: {
+              ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
+              ...(hasMaxAge && { MaximumEventAgeInSeconds: maxAge })
+            }
+          })
+        }
+      };
+    };
+
     return new (class {
       async getEvent(identifier: string) {
         try {
           const { ScheduleExpression, Target } = await client.send(
             new GetScheduleCommand({
-              Name: `${parameters.prefix}-${identifier}`,
+              Name: getEventName(identifier),
               GroupName: groupName
             })
           );
 
-          const date = ScheduleExpression!.substring(3, 22);
-          const policy = Target!.RetryPolicy;
+          const eventDate = ScheduleExpression!.substring(3, 22);
+          const eventPolicy = Target!.RetryPolicy;
 
           const { event } = JSON.parse(Target!.Input!);
 
           return {
-            date: new Date(`${date}Z`),
-            maxRetries: policy?.MaximumRetryAttempts,
-            maxAge: policy?.MaximumEventAgeInSeconds,
+            date: new Date(`${eventDate}Z`),
+            maxRetries: eventPolicy?.MaximumRetryAttempts,
+            maxAge: eventPolicy?.MaximumEventAgeInSeconds,
             event
           };
         } catch (error) {
@@ -66,109 +110,57 @@ export namespace Client {
       }
 
       async setEvent(identifier: string, input: ScheduleEvent<T>) {
-        try {
-          return await this.createEvent(identifier, input);
-        } catch (error) {
-          if (error instanceof ConflictException) {
-            return this.updateEvent(identifier, input);
-          }
+        const { event, ...eventInput } = input;
 
-          throw error;
+        const command = getEventInput(identifier, functionArn, roleArn, {
+          event: await getJsonEvent(event, parameters.schema),
+          ...eventInput
+        });
+
+        try {
+          await client.send(new UpdateScheduleCommand(command));
+        } catch (error) {
+          if (error instanceof ResourceNotFoundException) {
+            await client.send(new CreateScheduleCommand(command));
+          } else {
+            throw error;
+          }
         }
       }
 
       async createEvent(identifier: string, input: ScheduleEvent<T>) {
-        const event = await getJsonEvent(input.event, parameters.schema);
-        const scope = Runtime.getScope();
-
-        const defaults = parameters.defaults;
-
-        const maxRetries = input.maxRetries ?? defaults.maxRetries;
-        const hasMaxRetries = isAnyNumber(maxRetries);
-
-        const maxAge = input.maxAge ?? defaults.maxAge;
-        const hasMaxAge = isAnyNumber(maxAge);
-
-        const hasPolicy = hasMaxRetries || hasMaxAge;
+        const { event, ...eventInput } = input;
 
         await client.send(
-          new CreateScheduleCommand({
-            Name: `${parameters.prefix}-${identifier}`,
-            GroupName: groupName,
-            ScheduleExpression: `at(${input.date.toISOString().substring(0, 19)})`,
-            ActionAfterCompletion: ActionAfterCompletion.DELETE,
-            FlexibleTimeWindow: {
-              Mode: FlexibleTimeWindowMode.OFF
-            },
-            Target: {
-              Arn: functionArn,
-              RoleArn: roleArn,
-              Input: JSON.stringify({
-                traceId: scope?.traceId ?? getRandomUUID(),
-                event
-              }),
-              ...(hasPolicy && {
-                RetryPolicy: {
-                  ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
-                  ...(hasMaxAge && { MaximumEventAgeInSeconds: maxAge })
-                }
-              })
-            }
-          })
+          new CreateScheduleCommand(
+            getEventInput(identifier, functionArn, roleArn, {
+              event: await getJsonEvent(event, parameters.schema),
+              ...eventInput
+            })
+          )
         );
       }
 
       async updateEvent(identifier: string, input: Partial<ScheduleEvent<T>>) {
-        const response = await client.send(
+        const eventResponse = await client.send(
           new GetScheduleCommand({
-            Name: `${parameters.prefix}-${identifier}`,
+            Name: getEventName(identifier),
             GroupName: groupName
           })
         );
 
-        const scope = Runtime.getScope();
-
-        const target = response.Target;
-        const policy = target?.RetryPolicy;
-
-        const date = input.date ? `at(${input.date.toISOString().substring(0, 19)})` : response.ScheduleExpression;
-
-        const defaults = parameters.defaults;
-
-        const maxRetries = policy?.MaximumRetryAttempts ?? input.maxRetries ?? defaults.maxRetries;
-        const hasMaxRetries = isAnyNumber(maxRetries);
-
-        const maxAge = policy?.MaximumEventAgeInSeconds ?? input.maxAge ?? defaults.maxAge;
-        const hasMaxAge = isAnyNumber(maxAge);
-
-        const hasPolicy = hasMaxRetries || hasMaxAge;
+        const eventTarget = eventResponse.Target;
+        const eventPolicy = eventTarget?.RetryPolicy;
 
         await client.send(
-          new UpdateScheduleCommand({
-            Name: response.Name,
-            GroupName: groupName,
-            ScheduleExpression: date,
-            ActionAfterCompletion: ActionAfterCompletion.DELETE,
-            FlexibleTimeWindow: {
-              Mode: FlexibleTimeWindowMode.OFF
-            },
-            Target: {
-              Arn: functionArn,
-              RoleArn: roleArn,
-              Input: !input.event
-                ? target?.Input
-                : JSON.stringify({
-                    traceId: scope?.traceId ?? getRandomUUID(),
-                    event: await getJsonEvent(input.event, parameters.schema)
-                  }),
-              ...(hasPolicy && {
-                RetryPolicy: {
-                  ...(hasMaxRetries && { MaximumRetryAttempts: maxRetries }),
-                  ...(hasMaxAge && { MaximumEventAgeInSeconds: maxAge })
-                }
-              })
-            }
-          })
+          new UpdateScheduleCommand(
+            getEventInput(identifier, functionArn, roleArn, {
+              event: input.event ? await getJsonEvent(input.event, parameters.schema) : eventTarget?.Input!,
+              maxRetries: input.maxRetries ?? eventPolicy?.MaximumRetryAttempts,
+              maxAge: input.maxAge ?? eventPolicy?.MaximumEventAgeInSeconds,
+              date: input.date ?? eventResponse.ScheduleExpression!
+            })
+          )
         );
       }
 
@@ -176,20 +168,33 @@ export namespace Client {
         try {
           await client.send(
             new DeleteScheduleCommand({
-              Name: `${parameters.prefix}-${identifier}`,
+              Name: getEventName(identifier),
               GroupName: groupName
             })
           );
 
           return true;
         } catch (error) {
-          if (!(error instanceof ResourceNotFoundException)) {
-            throw error;
+          if (error instanceof ResourceNotFoundException) {
+            return false;
           }
 
-          return false;
+          throw error;
         }
       }
     })();
+  };
+
+  const prepareEventDate = (date: Date) => {
+    return `at(${date.toISOString().substring(0, 19)})`;
+  };
+
+  const prepareEventData = <T extends Cron.Event>(data: T) => {
+    const scope = Runtime.getScope();
+
+    return JSON.stringify({
+      traceId: scope?.traceId ?? getRandomUUID(),
+      event: data
+    });
   };
 }
