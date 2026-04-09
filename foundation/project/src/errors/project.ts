@@ -1,4 +1,4 @@
-export class MissingProjectError extends Error {
+export class MissingProjectExportError extends Error {
   constructor(public projectFile: string) {
     super(`No project was exported from ${projectFile} file.`);
   }

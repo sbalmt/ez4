@@ -2,11 +2,11 @@ import type { UnionSchema } from '@ez4/schema';
 
 import { createValidatorContext } from '../types/context';
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
 import { validateAny } from './any';
 
 export const validateUnion = async (value: unknown, schema: UnionSchema, context = createValidatorContext()) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema)) {
     return [];
   }
 

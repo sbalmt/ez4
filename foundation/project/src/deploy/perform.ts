@@ -6,7 +6,7 @@ import { DynamicLogger, Logger } from '@ez4/logger';
 export const performDeploy = async <T>(options: DeployOptions, callback: () => Promise<T> | T) => {
   const { lockId } = options;
 
-  const handleInterruption = async () => {
+  const handleShutdown = async () => {
     process.stdin.resume();
 
     await DynamicLogger.logExecution('\r🔓 Releasing lock (for graceful shutdown)', () => {
@@ -19,7 +19,8 @@ export const performDeploy = async <T>(options: DeployOptions, callback: () => P
   };
 
   try {
-    process.on('SIGINT', handleInterruption);
+    process.on('SIGTERM', handleShutdown);
+    process.on('SIGINT', handleShutdown);
 
     await DynamicLogger.logExecution('🔒 Acquiring lock', () => {
       return triggerAllAsync('deploy:lock', (handler) => handler({ lockId }));
@@ -33,6 +34,7 @@ export const performDeploy = async <T>(options: DeployOptions, callback: () => P
       return triggerAllAsync('deploy:unlock', (handler) => handler({ lockId }));
     });
 
-    process.off('SIGINT', handleInterruption);
+    process.off('SIGINT', handleShutdown);
+    process.off('SIGTERM', handleShutdown);
   }
 };

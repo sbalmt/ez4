@@ -32,7 +32,7 @@ export const registerCacheEmulator = async (service: CacheService, options: Serv
 
 const runCacheReset = async (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
   if (options.local && options.reset) {
-    Logger.warn(`Cache service ${service.name} was reset.`);
+    Logger.warn(`Cache service [${service.name} was reset.`);
 
     await triggerAllAsync('emulator:resetService', (handler) =>
       handler({

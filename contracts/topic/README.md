@@ -1,6 +1,6 @@
 # EZ4: Topic
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect topic components.
+The Topic contract defines a publish/subscribe event stream for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your message type, subscriptions, variables, and connected services, then generates the infrastructure and runtime bindings required to deliver and process events.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/topic @ez4/local-topic @ez4/aws-topic -D
 ```
 
-#### Create topic
+#### Create a topic
+
+Topics are ideal for fan‑out messaging, event‑driven workflows, and loosely coupled communication between services.
 
 ```ts
-// file: topic.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
@@ -40,7 +41,13 @@ export declare class MyTopic extends Topic.Unordered<MyTopicMessage> {
     variables: Environment.ServiceVariables;
   };
 }
+```
 
+#### Handle events
+
+EZ4 validates the incoming event, injects all variables and services, and then invokes your subscription handler.
+
+```ts
 // MyTopic message handler
 export function eventHandler(request: Topic.Incoming<MyTopicMessage>, context: Service.Context<MyTopic>): void {
   const { otherService, variables } = context;
@@ -57,10 +64,11 @@ export function eventHandler(request: Topic.Incoming<MyTopicMessage>, context: S
 }
 ```
 
-#### Use topic
+#### Publish events
+
+Any handler with access to the topic service can publish events.
 
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyTopic } from './topic';
 
@@ -75,29 +83,39 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 }
 ```
 
+> This makes it easy to trigger event‑driven workflows from anywhere in your application.
+
+With your topic defined, EZ4 handles provisioning, event routing, retries, and execution according to your contract.
+
 ## Topic properties
 
 #### Service
 
-| Name          | Type                    | Description                                           |
-| ------------- | ----------------------- | ----------------------------------------------------- |
-| fifoMode      | Topic.UseFifoMode<>     | Enable and configure the FIFO mode options.           |
-| subscriptions | Topic.UseSubscription<> | All subscriptions associated to the topic.            |
-| variables     | object                  | Environment variables associated to all subscription. |
-| services      | object                  | Injected services associated to all subscription.     |
+| Name          | Type                    | Description                                              |
+| ------------- | ----------------------- | -------------------------------------------------------- |
+| fifoMode      | Topic.UseFifoMode<>     | Enable and configure the FIFO mode options.              |
+| subscriptions | Topic.UseSubscription<> | All subscriptions associated to the topic.               |
+| variables     | object                  | Environment variables associated with all subscriptions. |
+| services      | object                  | Injected services associated with all subscriptions.     |
 
 > Use type helpers for `fifoMode` and `subscriptions` properties.
 
 #### Subscriptions (Function)
 
-| Name         | Type     | Description                                           |
-| ------------ | -------- | ----------------------------------------------------- |
-| listener     | function | Life-cycle listener function for the subscription.    |
-| handler      | function | Entry-point handler function for the subscription.    |
-| variables    | object   | Environment variables associated to the subscription. |
-| logRetention | integer  | Log retention (in days) for the handler.              |
-| timeout      | integer  | Maximum execution time (in seconds) for the handler.  |
-| memory       | integer  | Memory available (in megabytes) for the handler.      |
+| Name         | Type             | Description                                                 |
+| ------------ | ---------------- | ----------------------------------------------------------- |
+| listener     | function         | Life-cycle listener function for the subscription.          |
+| handler      | function         | Entry-point handler function for the subscription.          |
+| variables    | object           | Environment variables associated to the subscription.       |
+| logRetention | integer          | Log retention (in days) for the handler.                    |
+| logLevel     | LogLevel         | Log level for the handler.                                  |
+| architecture | ArchitectureType | Architecture type for the cloud function.                   |
+| runtime      | RuntimeType      | Runtime for the cloud function.                             |
+| files        | string[]         | Additional resource files added into the handler bundle.    |
+| timeout      | integer          | Maximum execution time (in seconds) for the handler.        |
+| memory       | integer          | Memory available (in megabytes) for the handler.            |
+| debug        | boolean          | Determine whether the debug mode is active for the handler. |
+| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
 
 #### Subscriptions (Queue)
 

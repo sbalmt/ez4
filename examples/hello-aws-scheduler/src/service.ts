@@ -1,6 +1,6 @@
 import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
-import type { schedulerListener } from './common';
+import type { schedulerListener } from './listener';
 import type { dynamicTargetHandler, staticTargetHandler } from './handlers';
 import type { DynamicEvent } from './types';
 

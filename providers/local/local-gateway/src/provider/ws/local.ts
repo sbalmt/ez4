@@ -41,17 +41,17 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
       const { connection } = event;
 
       if (!connect.authorizer) {
-        return processWsConnection(service, options, context, event);
+        await processWsConnection(service, options, context, event);
+      } else {
+        const identity = await processWsAuthorization(service, options, context, event);
+
+        if (identity) {
+          await processWsConnection(service, options, context, event, identity);
+          identities[connection.id] = identity;
+        }
       }
 
-      const identity = await processWsAuthorization(service, options, context, event);
-
-      if (identity) {
-        allConnections[connection.id] = connection;
-        identities[connection.id] = identity;
-
-        return processWsConnection(service, options, context, event, identity);
-      }
+      allConnections[connection.id] = connection;
     },
     disconnectHandler: async (event: EmulatorConnectionEvent) => {
       const { connection } = event;
@@ -71,11 +71,11 @@ export const registerWsLocalServices = (service: WsService, options: ServeOption
         return await processWsMessage(service, options, context, message, identity);
         //
       } catch (error) {
-        if (!(error instanceof HttpError)) {
-          return getWsErrorResponse();
+        if (error instanceof HttpError) {
+          return getWsErrorResponse(error);
         }
 
-        return getWsErrorResponse(error);
+        throw error;
       }
     }
   };

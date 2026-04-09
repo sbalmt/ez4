@@ -1,8 +1,8 @@
-import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
+import type { AnySchema, ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { TableIndex } from '@ez4/database/library';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
 
-import { isNumberSchema, SchemaType } from '@ez4/schema';
+import { isEnumSchema, isNumberSchema, isStringSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { AttributeType, AttributeKeyType } from '../types/schema';
@@ -63,7 +63,11 @@ const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties
     const columnSchema = allColumns[columnName];
 
     if (!columnSchema) {
-      throw new Error(`Column ${columnName} doesn't exists.`);
+      throw new Error(`DynamoDB index column '${columnName}' doesn't exists.`);
+    }
+
+    if (!isSafeAttributeIndex(columnSchema)) {
+      throw new Error(`DynamoDB index column '${columnName}' must be a type string, number, or enumeration.`);
     }
 
     attributeSchema.push({
@@ -78,4 +82,16 @@ const getAttributeIndex = (indexName: string, allColumns: ObjectSchemaProperties
   }
 
   return attributeSchema;
+};
+
+const isSafeAttributeIndex = (columnSchema: AnySchema): boolean => {
+  if (isUnionSchema(columnSchema)) {
+    return columnSchema.elements.every((schema) => isSafeAttributeIndex(schema));
+  }
+
+  if (isNumberSchema(columnSchema) || isStringSchema(columnSchema) || isEnumSchema(columnSchema)) {
+    return true;
+  }
+
+  return false;
 };

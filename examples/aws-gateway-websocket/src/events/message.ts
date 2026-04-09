@@ -5,6 +5,8 @@ import type { AllRequests } from '../types/requests';
 import type { EchoMessage } from '../types/messages';
 import type { WsApi } from '../service';
 
+import { HttpError } from '@ez4/gateway';
+
 import { MessageType } from '../types/messages';
 import { RequestType } from '../types/requests';
 
@@ -48,6 +50,10 @@ export async function messageHandler(request: Ws.Incoming<MessageRequest>, conte
           value: body.value
         }
       };
+    }
+
+    case RequestType.Error: {
+      throw new HttpError(4500, 'Example of error message');
     }
   }
 }

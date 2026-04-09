@@ -50,7 +50,9 @@ export const applySteps = async <E extends EntryState>(
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
 
-  const allEntries: EntryStates<E> = {};
+  const successfulEntries: EntryStates<E> = {};
+  const failedEntries: EntryStates<E> = {};
+
   const errorList: Error[] = [];
 
   const totalSteps = stepList.length;
@@ -65,26 +67,37 @@ export const applySteps = async <E extends EntryState>(
     }
 
     const stepTasks = nextSteps.map((entry) => () => {
-      return applyPendingStep(entry, allNewEntries, allOldEntries, allEntries, handlers, errorList, force);
+      return applyPendingStep(entry, allNewEntries, allOldEntries, successfulEntries, handlers, force);
     });
 
-    const taskResults = await Tasks.run(stepTasks, {
+    const stepResults = await Tasks.run(stepTasks, {
       onProgress: () => onProgress?.(++appliedSteps, totalSteps),
       concurrency
     });
 
-    for (const entry of taskResults) {
-      // Don't include deleted entries.
+    for (const [entry, error] of stepResults) {
       if (entry) {
         allNewEntries[entry.entryId] = entry;
-        allEntries[entry.entryId] = entry;
+
+        if (!error) {
+          successfulEntries[entry.entryId] = entry;
+        } else {
+          failedEntries[entry.entryId] = entry;
+        }
+      }
+
+      if (error) {
+        errorList.push(error);
       }
     }
   }
 
   return {
-    result: allEntries,
-    errors: errorList
+    errors: errorList,
+    result: {
+      ...successfulEntries,
+      ...failedEntries
+    }
   };
 };
 
@@ -96,28 +109,27 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   step: StepState,
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
-  allEntries: EntryStates<E>,
+  successfulEntries: EntryStates<E>,
   handlers: StepHandlers<E>,
-  errorList: Error[],
   force: boolean
-): Promise<E | undefined> => {
+): Promise<[E | undefined] | [E | undefined, Error]> => {
   const { action, entryId } = step;
 
   const entries = action !== StepAction.Delete ? newEntries : oldEntries;
   const candidate = getEntry(entries, entryId);
   const handler = getEntryHandler(handlers, candidate);
 
-  const buildContext = (processedEntryMap: EntryStates<E>, completeEntryMap: EntryStates<E>, entry: E) => {
+  const buildContext = (processedEntryMap: EntryStates<E>, completedEntryMap: EntryStates<E>, entry: E) => {
     return {
       force,
       getDependencies: <T extends EntryState>(type?: EntryTypes<T>) => {
         return getEntryDependencies<T>(processedEntryMap, entry, type);
       },
       getConnections: <T extends EntryState>(type?: EntryTypes<T>) => {
-        return getEntryConnections<T>(completeEntryMap, entry, type);
+        return getEntryConnections<T>(completedEntryMap, entry, type);
       },
       getDependents: <T extends EntryState>(type?: EntryTypes<T>) => {
-        return getEntryDependents<T>(completeEntryMap, entry, type);
+        return getEntryDependents<T>(completedEntryMap, entry, type);
       }
     };
   };
@@ -125,28 +137,28 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   try {
     switch (action) {
       case StepAction.Create: {
-        const context = buildContext(allEntries, newEntries, candidate);
+        const context = buildContext(successfulEntries, newEntries, candidate);
         const result = await handler.create(candidate, context);
 
-        return { ...candidate, result };
+        return [{ ...candidate, result }];
       }
 
       case StepAction.Replace: {
-        const context = buildContext(allEntries, newEntries, candidate);
+        const context = buildContext(successfulEntries, newEntries, candidate);
         const result = await handler.replace(candidate, getEntry(oldEntries, entryId), context);
 
-        return !result ? candidate : { ...candidate, result };
+        return [!result ? candidate : { ...candidate, result }];
       }
 
       case StepAction.Update: {
         if (!force && (!step.preview || step.preview.counts === 0)) {
-          return getEntry(oldEntries, entryId);
+          return [getEntry(oldEntries, entryId)];
         }
 
-        const context = buildContext(allEntries, newEntries, candidate);
+        const context = buildContext(successfulEntries, newEntries, candidate);
         const result = await handler.update(candidate, getEntry(oldEntries, entryId), context);
 
-        return !result ? candidate : { ...candidate, result };
+        return [!result ? candidate : { ...candidate, result }];
       }
 
       case StepAction.Delete: {
@@ -156,14 +168,13 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       }
     }
   } catch (error) {
-    if (error instanceof Error) {
-      errorList.push(error);
-    }
+    const entryError = error instanceof Error ? error : new Error(`${error}`);
+    const oldEntry = oldEntries[entryId];
 
-    return oldEntries[entryId];
+    return [oldEntry, entryError];
   }
 
-  return undefined;
+  return [undefined];
 };
 
 const getEntryHandler = <E extends EntryState<T>, T extends string>(handlers: StepHandlers<E>, entry: E) => {

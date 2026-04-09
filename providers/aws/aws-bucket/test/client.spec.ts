@@ -48,7 +48,13 @@ describe('bucket client', () => {
     const content = createReadStream(join(baseDir, 'object-file.txt'));
 
     await bucketClient.write('test-client', content, {
-      contentType: 'text/plain'
+      contentType: 'text/plain',
+      headers: {
+        cacheControl: 'max-age=31536000, public'
+      },
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 
@@ -75,19 +81,22 @@ describe('bucket client', () => {
     ok(!objectDoNotExists);
   });
 
-  it('assert :: object stats', async () => {
+  it('assert :: object stat', async () => {
     ok(bucketClient);
 
     const [objectExists, objectDoNotExists] = await Promise.all([
-      bucketClient.getStats('test-client'),
-      bucketClient.getStats('test-client-do-not-exists')
+      bucketClient.stat('test-client'),
+      bucketClient.stat('test-client-do-not-exists')
     ]);
 
     ok(!objectDoNotExists);
 
     deepEqual(objectExists, {
       type: 'text/plain',
-      size: 43
+      size: 43,
+      metadata: {
+        'x-custom-data': 'foo-bar'
+      }
     });
   });
 
@@ -100,10 +109,37 @@ describe('bucket client', () => {
     equal(content, 'Plain text test');
   });
 
+  it('assert :: copy object', async () => {
+    ok(bucketClient);
+
+    await bucketClient.copy('test-client-plain', 'test-plain-copy');
+
+    const buffer = await bucketClient.read('test-plain-copy');
+    const content = buffer.toString();
+
+    equal(content, 'Plain text test');
+  });
+
+  it('assert :: scan objects', async () => {
+    ok(bucketClient);
+
+    const foundKeys = [];
+
+    for await (const object of bucketClient.scan()) {
+      foundKeys.push(object.key);
+    }
+
+    deepEqual(foundKeys, ['test-client', 'test-client-plain', 'test-plain-copy']);
+  });
+
   it('assert :: delete object', async () => {
     ok(bucketClient);
 
-    await Promise.all([bucketClient.delete('test-client'), bucketClient.delete('test-client-plain')]);
+    await Promise.all([
+      bucketClient.delete('test-client'),
+      bucketClient.delete('test-client-plain'),
+      bucketClient.delete('test-plain-copy')
+    ]);
   });
 
   it('assert :: destroy', async () => {

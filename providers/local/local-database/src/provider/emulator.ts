@@ -29,33 +29,16 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
 
 const runDatabaseReset = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
   if (options.local && options.reset) {
-    Logger.warn(`Database service ${service.name} was reset.`);
+    await triggerAllAsync('emulator:resetService', (handler) => handler({ service, options, context }));
 
-    await triggerAllAsync('emulator:resetService', (handler) =>
-      handler({
-        service,
-        options,
-        context
-      })
-    );
+    Logger.warn(`Database service ${service.name} was reset.`);
   }
 };
 
 const runDatabaseMigration = (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
-  return triggerAllAsync('emulator:startService', (handler) =>
-    handler({
-      service,
-      options,
-      context
-    })
-  );
+  return triggerAllAsync('emulator:startService', (handler) => handler({ service, options, context }));
 };
 
 const getDatabaseClient = (service: DatabaseService, options: ServeOptions) => {
-  return triggerAllAsync('emulator:getClient', (handler) =>
-    handler({
-      service,
-      options
-    })
-  );
+  return triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
 };

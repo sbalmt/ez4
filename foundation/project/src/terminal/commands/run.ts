@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -9,14 +8,17 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServeOptions } from '../../emulator/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const runCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const runCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {
@@ -27,10 +29,15 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
     return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
+    reset: options.local,
+    environment: true,
     arguments: true,
     inspect: true,
-    reset: options.local,
     local: true
   });
 
@@ -45,8 +52,13 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
     return getServiceEmulators(metadata, options);
   });
 
-  const allScriptFiles = input.arguments ?? [];
+  const scriptFiles = input.arguments ?? [];
   const workingDirectory = process.cwd();
+
+  if (!scriptFiles.length) {
+    Logger.warn(`One or more script files need to be specified.`);
+    return;
+  }
 
   await DynamicLogger.logExecution('▶️  Running script', async () => {
     Runner.configure(emulators, options);
@@ -55,11 +67,11 @@ export const runCommand = async (input: InputOptions, project: ProjectOptions) =
 
     await bootstrapServices(emulators);
 
-    for (const scriptFile of allScriptFiles) {
+    for (const scriptFile of scriptFiles) {
       const scriptPath = join(workingDirectory, scriptFile);
 
       if (!existsSync(scriptPath)) {
-        Logger.error(`File ${scriptFile} not found.`);
+        Logger.error(`Script file '${scriptFile}' not found.`);
         continue;
       }
 

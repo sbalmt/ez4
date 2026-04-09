@@ -1,6 +1,6 @@
 # EZ4: Database
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and connect database components.
+The Database contract defines a database service for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your engine, tables, indexes, relations, and scalability configuration, then generates the infrastructure and runtime bindings required to store and query data.
 
 ## Getting started
 
@@ -14,8 +14,9 @@ npm install @ez4/database @ez4/local-database @ez4/aws-aurora -D
 
 #### Create database
 
+Here's a minimal example of a database service with a single table.
+
 ```ts
-// file: db.ts
 import type { Environment, Service } from '@ez4/common';
 import type { Database } from '@ez4/database';
 
@@ -45,10 +46,11 @@ export declare class MyDb extends Database.Service {
 
 #### Use database
 
+Any handler with access to the database service can perform queries.
+
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
-import type { myDb } from './db';
+import type { MyDb } from './db';
 
 // Any other handler that has injected MyDb service
 export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
@@ -74,17 +76,19 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 }
 ```
 
+With your database service defined, EZ4 handles provisioning, migrations, scaling, and runtime wiring automatically according to your contract.
+
 ## Database properties
 
 #### Service
 
-| Name        | Type                      | Description                                      |
-| ----------- | ------------------------- | ------------------------------------------------ |
-| scalability | Database.UseScalability<> | Scalability configuration.                       |
-| tables      | Database.UseTable<>       | Describe all available tables for the service.   |
-| engine      | Database.UseEngine<>      | Determines which database engine to use.         |
-| variables   | object                    | Environment variables associated to all streams. |
-| services    | object                    | Injected services associated to all streams.     |
+| Name        | Type                      | Description                                           |
+| ----------- | ------------------------- | ----------------------------------------------------- |
+| scalability | Database.UseScalability<> | Scalability configuration.                            |
+| tables      | Database.UseTable<>       | Defines all tables available in the database service. |
+| engine      | Database.UseEngine<>      | Determines which database engine to use.              |
+| variables   | object                    | Environment variables associated with all streams.    |
+| services    | object                    | Injected services associated with all streams.        |
 
 > Use type helpers for `scalability` and `tables` properties.
 
@@ -98,16 +102,22 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 | relations | object                    | Table relations.            |
 | indexes   | object                    | Table indexes.              |
 
-#### Streams (DynamoDB)
+#### Streams (DynamoDB only)
 
-| Name         | Type     | Description                                      |
-| ------------ | -------- | ------------------------------------------------ |
-| listener     | function | Life-cycle listener function for the stream.     |
-| handler      | function | Entry-point handler function for the stream.     |
-| variables    | object   | Environment variables associated to the stream.  |
-| logRetention | integer  | Log retention (in days) for the handler.         |
-| memory       | integer  | Memory available (in megabytes) for the handler. |
-| timeout      | integer  | Max execution time (in seconds) for the route.   |
+| Name         | Type             | Description                                                 |
+| ------------ | ---------------- | ----------------------------------------------------------- |
+| listener     | function         | Life-cycle listener function for the stream.                |
+| handler      | function         | Entry-point handler function for the stream.                |
+| variables    | object           | Environment variables associated with the stream.           |
+| logRetention | integer          | Log retention (in days) for the handler.                    |
+| logLevel     | LogLevel         | Log level for the handler.                                  |
+| architecture | ArchitectureType | Architecture type for the cloud function.                   |
+| runtime      | RuntimeType      | Runtime for the cloud function.                             |
+| files        | string[]         | Additional resource files added into the handler bundle.    |
+| memory       | integer          | Memory available (in megabytes) for the handler.            |
+| timeout      | integer          | Max execution time (in seconds) for the handler.            |
+| debug        | boolean          | Determine whether the debug mode is active for the handler. |
+| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
 
 > Streams is a DynamoDB feature, thus unavailable for Aurora Postgres.
 

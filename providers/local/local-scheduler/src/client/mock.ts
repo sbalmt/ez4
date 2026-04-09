@@ -17,6 +17,16 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
       return Promise.resolve(event);
     }
 
+    async setEvent(identifier: string, input: ScheduleEvent<any>) {
+      schedulerMemory[identifier] = input;
+
+      const isoDate = input.date.toISOString();
+
+      Logger.log(`⌚ Event ${identifier} set to run at ${isoDate}`);
+
+      return Promise.resolve();
+    }
+
     async createEvent(identifier: string, input: ScheduleEvent<any>) {
       schedulerMemory[identifier] = input;
 

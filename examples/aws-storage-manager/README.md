@@ -32,7 +32,7 @@ npm run deploy
 npm run serve
 ```
 
-> This action will run a local version of the project using the deployed database.
+> This action will run a local version of the project using remote resources.
 
 #### Destroy
 
@@ -41,6 +41,14 @@ npm run destroy
 ```
 
 > This action will delete all the previously created resources on the given AWS account.
+
+#### Scripts
+
+```sh
+npm run scripts:list-keys
+```
+
+> List all keys in the remote storage.
 
 ## License
 

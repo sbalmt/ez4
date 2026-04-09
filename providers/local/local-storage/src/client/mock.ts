@@ -1,10 +1,11 @@
-import type { Client, Content, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
 import { Readable } from 'node:stream';
 
+import { fileTypeFromBuffer } from 'file-type';
+
 import { toKebabCase } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
-import { fileTypeFromBuffer } from 'file-type';
 
 export type ClientMockOptions = {
   keys?: Record<string, Buffer>;
@@ -16,6 +17,21 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
   const storageMemory = options?.keys ?? {};
 
   return new (class {
+    async stat(key: string) {
+      const content = storageMemory[key] ?? options?.default;
+
+      if (!content) {
+        return undefined;
+      }
+
+      const type = await fileTypeFromBuffer(content);
+
+      return {
+        type: type?.mime ?? 'application/octet-stream',
+        size: content.byteLength
+      };
+    }
+
     async exists(key: string) {
       const content = storageMemory[key] ?? options?.default;
 
@@ -62,31 +78,42 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
-    async getWriteUrl(key: string, _options: SignWriteOptions): Promise<string> {
-      return Promise.resolve(`http://${storageIdentifier}/${key}`);
-    }
-
-    async getReadUrl(key: string, _options: SignReadOptions): Promise<string> {
-      return Promise.resolve(`http://${storageIdentifier}/${key}`);
-    }
-
-    async getStatsUrl(key: string, _options: SignReadOptions): Promise<string> {
-      return Promise.resolve(`http://${storageIdentifier}/${key}`);
-    }
-
-    async getStats(key: string) {
-      const content = storageMemory[key] ?? options?.default;
+    async copy(sourceKey: string, targetKey: string) {
+      const content = storageMemory[sourceKey] ?? options?.default;
 
       if (!content) {
-        return undefined;
+        throw new Error(`Key ${sourceKey} not found.`);
       }
 
-      const fileType = await fileTypeFromBuffer(content);
+      Logger.log(`ℹ️  File ${sourceKey} copied.`);
 
-      return {
-        type: fileType?.mime ?? 'application/octet-stream',
-        size: content.byteLength
-      };
+      storageMemory[targetKey] = content;
+
+      return Promise.resolve();
+    }
+
+    async *scan(): AsyncGenerator<ObjectEntry, void> {
+      for (const key in storageMemory) {
+        const content = storageMemory[key];
+
+        yield Promise.resolve({
+          modifiedAt: new Date(),
+          size: content.length,
+          key
+        });
+      }
+    }
+
+    async getStatUrl(key: string, _options: SignReadOptions) {
+      return Promise.resolve(`http://${storageIdentifier}/${key}`);
+    }
+
+    async getWriteUrl(key: string, _options: SignWriteOptions) {
+      return Promise.resolve(`http://${storageIdentifier}/${key}`);
+    }
+
+    async getReadUrl(key: string, _options: SignReadOptions) {
+      return Promise.resolve(`http://${storageIdentifier}/${key}`);
     }
   })();
 };

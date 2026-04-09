@@ -2,7 +2,7 @@ import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
 import type { Client, Database, Index } from '@ez4/database';
 import type { Environment } from '@ez4/common';
 import type { streamHandler } from './stream';
-import type { streamListener } from './common';
+import type { streamListener } from './listener';
 import type { ExampleSchema } from './schema';
 
 /**

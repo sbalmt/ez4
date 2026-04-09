@@ -98,6 +98,7 @@ Create the `src/api.ts` file and add the following:
 ```ts
 import type { Http } from '@ez4/gateway';
 
+// Define the API contract
 export declare class MyApi extends Http.Service {
   routes: [
     Http.UseRoute<{
@@ -107,12 +108,14 @@ export declare class MyApi extends Http.Service {
   ];
 }
 
+// Define the request contract
 declare class RouteRequest implements Http.Request {
   body: {
     say: string;
   };
 }
 
+// Define the response contract
 declare class RouteResponse implements Http.Response {
   status: 200;
   body: {
@@ -120,6 +123,7 @@ declare class RouteResponse implements Http.Response {
   };
 }
 
+// Implement route handler
 export function handleRoute(request: RouteRequest): RouteResponse {
   const { say } = request.body;
 
@@ -131,6 +135,8 @@ export function handleRoute(request: RouteRequest): RouteResponse {
   };
 }
 ```
+
+> See the [contracts overview](./contracts.md) for more details.
 
 Now let's serve the API:
 
@@ -152,6 +158,13 @@ All done.
 
 - [Storage manager](../examples/aws-storage-manager)
 - [Schedule manager](../examples/aws-schedule-manager)
+
+## What's next
+
+- [Configuration](./configuration.md)
+- [Architecture overview](./architecture.md)
+- [Contracts overview](./contracts.md)
+- [Philosophy](./philosophy.md)
 
 ## License
 

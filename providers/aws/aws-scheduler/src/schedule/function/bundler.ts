@@ -11,12 +11,13 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, eventSchema, context, debug } = parameters;
+  const { handler, listener, functionName, eventSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/event.ts'),
+    resourceName: functionName,
     filePrefix: 'scheduler',
     define: {
       ...definitions,

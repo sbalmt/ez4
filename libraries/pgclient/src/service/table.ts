@@ -18,7 +18,8 @@ import {
   prepareUpdateMany,
   prepareDeleteMany,
   prepareDeleteOne,
-  prepareCount
+  prepareCount,
+  prepareExists
 } from '../queries/queries';
 
 export type TableContext = {
@@ -189,11 +190,23 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     return undefined as Query.DeleteManyResult<S, T>;
   }
 
+  async exists(query: Query.ExistsInput<T>) {
+    const statement = prepareExists(this.name, this.schema, this.relations, this.context.driver, query);
+
+    const { records } = await this.sendStatement(statement);
+
+    const [result] = records;
+
+    return Number(result?.__EZ4_EXISTS) === 1;
+  }
+
   async count(query: Query.CountInput<T>) {
     const statement = prepareCount(this.name, this.schema, this.relations, this.context.driver, query);
 
     const { records } = await this.sendStatement(statement);
 
-    return Number(records[0].__EZ4_COUNT);
+    const [{ __EZ4_COUNT }] = records;
+
+    return Number(__EZ4_COUNT);
   }
 }

@@ -2,7 +2,7 @@ import type { InputOptions } from '../terminal/options';
 
 import { Logger } from '@ez4/logger';
 
-const OPTION_FLAGS = ['force', 'inspect', 'coverage', 'suppress', 'reset', 'local'] as const;
+const OPTION_FLAGS = ['environment', 'force', 'inspect', 'coverage', 'suppress', 'reset', 'local'] as const;
 
 type OptionFlags = {
   [F in (typeof OPTION_FLAGS)[number]]?: boolean;
@@ -29,7 +29,6 @@ export const warnUnsupportedFlags = (input: InputOptions, flags?: SupportedFlags
 
   if (warnMessages.length) {
     warnMessages.forEach((line) => Logger.warn(line));
-
     return true;
   }
 

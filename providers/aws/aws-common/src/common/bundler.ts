@@ -26,6 +26,7 @@ export type BundlerEntrypoint = {
 export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
+  resourceName: string;
   handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
@@ -82,7 +83,7 @@ export const getBundleHash = async (sourceFile: string, dependencyFiles: string[
 const maxTokens = Math.max(1, Math.floor(cpus().length / 2));
 
 const scheduleQueue: {
-  serviceName: string;
+  provider: string;
   options: BundlerOptions;
   resolve: (outputFile: string) => void;
   reject: (reason?: any) => void;
@@ -90,27 +91,27 @@ const scheduleQueue: {
 
 let activeTokens = 0;
 
-export const getFunctionBundle = async (serviceName: string, options: BundlerOptions) => {
+export const getFunctionBundle = async (provider: string, options: BundlerOptions) => {
   if (activeTokens < maxTokens) {
     try {
       activeTokens++;
-      return await buildFunctionBundle(serviceName, options);
+      return await buildFunctionBundle(provider, options);
     } finally {
       activeTokens--;
 
       const next = scheduleQueue.shift();
 
       if (next) {
-        const { serviceName, options, resolve, reject } = next;
+        const { provider, options, resolve, reject } = next;
 
-        getFunctionBundle(serviceName, options).then(resolve).catch(reject);
+        getFunctionBundle(provider, options).then(resolve).catch(reject);
       }
     }
   }
 
   return new Promise<string>((resolve, reject) => {
     scheduleQueue.push({
-      serviceName,
+      provider,
       options,
       resolve,
       reject
@@ -118,7 +119,7 @@ export const getFunctionBundle = async (serviceName: string, options: BundlerOpt
   });
 };
 
-export const buildFunctionBundle = async (serviceName: string, options: BundlerOptions) => {
+export const buildFunctionBundle = async (provider: string, options: BundlerOptions) => {
   const { sourceFile, functionName } = options.handler;
 
   const cacheKey = `${sourceFile}:${functionName}`;
@@ -129,9 +130,11 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
   }
 
   const { dir: targetPath, name: targetName } = parse(sourceFile);
-  const { filePrefix, target, debug } = options;
+  const { resourceName, filePrefix, target, debug } = options;
 
-  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${toKebabCase(functionName)}.mjs`);
+  const handlerName = toKebabCase(functionName);
+
+  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${handlerName}.mjs`);
   const outputFile = getTemporaryPath(targetFile);
 
   const result = await build({
@@ -148,6 +151,7 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
     target,
     define: {
       ...options.define,
+      EZ4_RESOURCE_NAME: `'${resourceName}'`,
       EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },
@@ -174,11 +178,11 @@ export const buildFunctionBundle = async (serviceName: string, options: BundlerO
   ]);
 
   warnings.forEach((message) => {
-    Logger.warn(`[${serviceName}]: ${message}`);
+    Logger.warn(`[${provider}]: ${message}`);
   });
 
   errors.forEach((message) => {
-    Logger.error(`[${serviceName}]: ${message}`);
+    Logger.error(`[${provider}]: ${message}`);
   });
 
   if (errors.length) {

@@ -19,6 +19,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     handler,
     listener,
     preferences,
+    functionName,
     headersSchema,
     parametersSchema,
     querySchema,
@@ -35,6 +36,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
   return getFunctionBundle(IntegrationServiceName, {
     context: context && services ? buildServiceContext(context, services) : context,
     templateFile: join(__MODULE_PATH, '../lib/request.ts'),
+    resourceName: functionName,
     filePrefix: 'api',
     define: {
       ...definitions,
@@ -54,13 +56,14 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 };
 
 export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { services, handler, listener, preferences, headersSchema, querySchema, identitySchema, context, debug } = parameters;
+  const { services, handler, listener, preferences, functionName, headersSchema, querySchema, identitySchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
     context: context && services ? buildServiceContext(context, services) : context,
     templateFile: join(__MODULE_PATH, '../lib/connection.ts'),
+    resourceName: functionName,
     filePrefix: 'api',
     define: {
       ...definitions,
@@ -76,13 +79,14 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
 };
 
 export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { services, handler, listener, preferences, bodySchema, identitySchema, responseSchema, context, debug } = parameters;
+  const { services, handler, listener, preferences, functionName, bodySchema, identitySchema, responseSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
     context: context && services ? buildServiceContext(context, services) : context,
     templateFile: join(__MODULE_PATH, '../lib/message.ts'),
+    resourceName: functionName,
     filePrefix: 'api',
     define: {
       ...definitions,

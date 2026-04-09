@@ -17,7 +17,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     throw new RoleMissingError();
   }
 
-  const defaults = options.defaults;
+  const { defaults, release, tags } = options;
 
   const {
     runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -48,7 +48,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
   const logGroupState = createLogGroup(state, {
     retention: logRetention,
     groupName: targetName,
-    tags: options.tags
+    tags
   });
 
   handlerState = createTargetFunction(state, context.role, logGroupState, {
@@ -56,17 +56,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     description: handler.description,
     eventSchema: service.schema,
     context: service.context,
-    release: options.release,
-    tags: options.tags,
     variables: [options.variables, service.variables, variables],
-    architecture,
-    logLevel,
-    runtime,
-    timeout,
-    memory,
-    files,
-    debug,
-    vpc,
     handler: {
       sourceFile: handler.file,
       functionName: handler.name,
@@ -77,7 +67,17 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
       functionName: listener.name,
       sourceFile: listener.file,
       module: listener.module
-    }
+    },
+    architecture,
+    logLevel,
+    runtime,
+    release,
+    timeout,
+    memory,
+    files,
+    debug,
+    tags,
+    vpc
   });
 
   context.setServiceState(internalName, options, handlerState);

@@ -11,12 +11,13 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, tableSchema, context, debug } = parameters;
+  const { handler, listener, functionName, tableSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
     templateFile: join(__MODULE_PATH, '../lib/stream.ts'),
+    resourceName: functionName,
     filePrefix: 'db',
     define: {
       ...definitions,

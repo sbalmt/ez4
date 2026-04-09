@@ -10,6 +10,7 @@ import { registerPolicyProvider } from '../policy/provider';
 import { registerObjectProvider } from '../object/provider';
 import { connectBucketServices, prepareBucketServices, prepareLinkedServices } from './service';
 import { prepareExecutionPolicy } from './policy';
+import { prepareEmulatorClient } from './client';
 
 export const registerTriggers = () => {
   registerAwsTriggers();
@@ -21,7 +22,8 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareBucketServices,
-    'deploy:connectResources': connectBucketServices
+    'deploy:connectResources': connectBucketServices,
+    'emulator:getClient': prepareEmulatorClient
   });
 
   registerBucketProvider();

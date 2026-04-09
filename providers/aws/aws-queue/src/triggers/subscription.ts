@@ -33,10 +33,10 @@ export const prepareSubscriptions = (
     let handlerState = tryGetFunctionState(context, internalName, options);
 
     if (!handlerState) {
+      const { defaults, release, tags } = options;
+
       const subscriptionName = getFunctionName(service, handler.name, options);
       const dependencies = context.getDependencyFiles(handler.file);
-
-      const { defaults, release } = options;
 
       const {
         runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -52,7 +52,7 @@ export const prepareSubscriptions = (
       const logGroupState = createLogGroup(state, {
         groupName: subscriptionName,
         retention: logRetention,
-        tags: options.tags
+        tags
       });
 
       handlerState = createQueueFunction(state, context.role, logGroupState, {
@@ -60,17 +60,8 @@ export const prepareSubscriptions = (
         description: handler.description,
         messageSchema: service.schema,
         context: service.context,
-        tags: options.tags,
         variables: [options.variables, service.variables, subscription.variables],
         timeout: service.timeout ?? Defaults.Timeout,
-        architecture,
-        logLevel,
-        runtime,
-        release,
-        memory,
-        files,
-        debug,
-        vpc,
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,
@@ -81,7 +72,16 @@ export const prepareSubscriptions = (
           functionName: listener.name,
           sourceFile: listener.file,
           module: listener.module
-        }
+        },
+        architecture,
+        logLevel,
+        runtime,
+        release,
+        memory,
+        files,
+        debug,
+        tags,
+        vpc
       });
 
       context.setServiceState(internalName, options, handlerState);

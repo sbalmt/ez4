@@ -1,7 +1,7 @@
-import type { EntryStates, StepHandlers } from '@ez4/stateful';
+import type { EntryStates, StepContext, StepHandlers } from '@ez4/stateful';
 import type { TestEntryState } from './common/entry';
 
-import { planSteps, applySteps } from '@ez4/stateful';
+import { planSteps, applySteps, DependencyNotFoundError } from '@ez4/stateful';
 import { ok, equal, deepEqual, notEqual } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
@@ -39,9 +39,7 @@ describe('apply tests', () => {
     const { result } = await applySteps(steps, baseState, undefined, { handlers });
 
     equal(createHandler.mock.callCount(), 1);
-    deepEqual(result.entryA?.result, {
-      type: 'created'
-    });
+    deepEqual(result.entryA?.result, { type: 'created' });
   });
 
   it('assert :: replace action', async () => {
@@ -68,9 +66,7 @@ describe('apply tests', () => {
     const { result } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(replaceHandler.mock.callCount(), 1);
-    deepEqual(result.entryA?.result, {
-      type: 'replaced'
-    });
+    deepEqual(result.entryA?.result, { type: 'replaced' });
   });
 
   it('assert :: update action', async () => {
@@ -92,30 +88,10 @@ describe('apply tests', () => {
     const { result } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(updateHandler.mock.callCount(), 1);
-    deepEqual(result.entryA?.result, {
-      type: 'updated'
-    });
+    deepEqual(result.entryA?.result, { type: 'updated' });
   });
 
-  it('assert :: delete action', async () => {
-    const deleteHandler = mock.fn(commonStepHandler.delete);
-
-    const handlers: StepHandlers<TestEntryState> = {
-      [TestEntryType.A]: {
-        ...commonStepHandler,
-        delete: deleteHandler
-      }
-    };
-
-    const steps = await planSteps(undefined, baseState, { handlers });
-
-    const { result } = await applySteps(steps, undefined, baseState, { handlers });
-
-    equal(deleteHandler.mock.callCount(), 1);
-    equal(result.entryA, undefined);
-  });
-
-  it('assert :: update no preview', async () => {
+  it('assert :: update (no preview)', async () => {
     const previewHandler = mock.fn(() => undefined);
 
     const handlers: StepHandlers<TestEntryState> = {
@@ -137,7 +113,7 @@ describe('apply tests', () => {
     equal(result.entryA?.result, undefined);
   });
 
-  it('assert :: update rollback', async () => {
+  it('assert :: update (rollback)', async () => {
     const updateHandler = mock.fn(() => {
       throw new TestError();
     });
@@ -158,15 +134,77 @@ describe('apply tests', () => {
     const { result, errors } = await applySteps(steps, newState, baseState, { handlers });
 
     equal(updateHandler.mock.callCount(), 1);
-    notEqual(result.entryA?.result, {
-      type: 'updated'
-    });
+    notEqual(result.entryA?.result, { type: 'updated' });
 
     equal(errors.length, 1);
     ok(errors[0] instanceof TestError);
   });
 
-  it('assert :: delete rollback', async () => {
+  it('assert :: update (rollback with dependency)', async () => {
+    const createHandler = mock.fn((_candidate: TestEntryState, context: StepContext) => {
+      context.getDependencies('entryA');
+    });
+
+    const updateHandler = mock.fn(() => {
+      throw new TestError();
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.B]: {
+        ...commonStepHandler,
+        create: createHandler
+      },
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        update: updateHandler
+      }
+    };
+
+    const newState = {
+      ...baseState,
+      entryB: {
+        type: TestEntryType.B,
+        entryId: 'entryB',
+        dependencies: ['entryA'],
+        parameters: {}
+      }
+    };
+
+    const steps = await planSteps(newState, baseState, { handlers });
+
+    const { result, errors } = await applySteps(steps, newState, baseState, { handlers });
+
+    equal(updateHandler.mock.callCount(), 1);
+    notEqual(result.entryA?.result, { type: 'updated' });
+
+    equal(createHandler.mock.callCount(), 1);
+    notEqual(result.entryB?.result, { type: 'created' });
+
+    equal(errors.length, 2);
+
+    ok(errors[0] instanceof TestError);
+    ok(errors[1] instanceof DependencyNotFoundError);
+  });
+
+  it('assert :: delete action', async () => {
+    const deleteHandler = mock.fn(commonStepHandler.delete);
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        delete: deleteHandler
+      }
+    };
+
+    const steps = await planSteps(undefined, baseState, { handlers });
+
+    const { result } = await applySteps(steps, undefined, baseState, { handlers });
+
+    equal(deleteHandler.mock.callCount(), 1);
+    equal(result.entryA, undefined);
+  });
+
+  it('assert :: delete (rollback)', async () => {
     const deleteHandler = mock.fn(() => {
       throw new TestError();
     });

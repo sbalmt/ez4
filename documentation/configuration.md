@@ -1,10 +1,10 @@
 # EZ4: Configuration
 
-The project configuration is held by the `ez4.project.js`, and every project that needs to have a separate deploy shall have its own file. It's recommended that the configuration file be placed at the project root folder.
+EZ4 projects are configured through an `ez4.project.js` file. Each independently deployed project should have its own configuration file, typically placed at the project root.
 
 ## Getting started
 
-The file needs to look like the one below; you can pick only the properties that make sense for your project.
+The configuration file controls how EZ4 builds, deploys, and serves your project. It defines defaults for all resources, deployment behavior, local development settings, shared variables, and more. It can include any of the options shown below, and only the fields relevant to your project are required.
 
 ```js
 import { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
@@ -17,8 +17,8 @@ export default {
   projectName: 'backend', // Project name (required)
   sourceFiles: ['./src/api.ts'], // Entry-point source files
 
-  tsconfigFile: 'tsconfig.json', // Specify a new tsconfig.json location
-  packageFile: 'package.json', // Specify a new package.json location
+  tsconfigFile: 'tsconfig.json', // Specify a custom tsconfig.json location
+  packageFile: 'package.json', // Specify a custom package.json location
 
   confirmMode: true, // Ask for deploy confirmation when it's true
   debugMode: true, // See more logs when serving and in the deployed resources
@@ -42,7 +42,7 @@ export default {
 
   // Configure the deployment options for all resources
   deployOptions: {
-    maxConcurrency: 10, // Maximum amount of resource changes at the same time.
+    maxConcurrency: 10, // Maximum number of resource changes processed concurrently.
 
     // Configure the deployment release
     release: {
@@ -60,7 +60,7 @@ export default {
 
   // Configure the watch mode for when serving the project
   watchOptions: {
-    additionalPaths: ['./test'] // Configure extra watch paths
+    additionalPaths: ['./test'] // Additional paths to watch during development.
   },
 
   // Configure the local development options for the providers
@@ -89,10 +89,12 @@ export default {
 
   // Configure the custom providers
   customProviders: {
-    packages: ['@my-project/custom'] // List of installed package that have custom providers
+    packages: ['@my-project/custom'] // List of installed packages that have custom providers
   }
 };
 ```
+
+With the configuration file in place, EZ4 knows how to build, deploy, and serve your project.
 
 ## Examples
 

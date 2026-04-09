@@ -1,6 +1,6 @@
 # EZ4: Factory
 
-It uses the power of [reflection](../../foundation/reflection/) to provide a contract that determines how to build and combine services. The factory contract isn't an infrastructure resource, but instead, it helps other contracts by creating an organizational layer.
+The Factory contract defines composable service factories for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your factory handler, variables, and connected services, then generates runtime bindings required to construct and combine service instances.
 
 ## Getting started
 
@@ -10,7 +10,9 @@ It uses the power of [reflection](../../foundation/reflection/) to provide a con
 npm install @ez4/factory -D
 ```
 
-#### Create factory
+#### Create a factory service
+
+Factories are not infrastructure resources. Instead, they provide an organizational layer that other contracts can inject to create reusable, structured service objects.
 
 ```ts
 // file: factory.ts
@@ -34,7 +36,13 @@ export declare class MyFactory extends Factory.Service<MyService> {
     variables: Environment.ServiceVariables;
   };
 }
+```
 
+#### Handle service creation
+
+EZ4 injects all variables and services, then invokes your factory handler to construct the service instance.
+
+```ts
 // MyFactory handler
 export function createMyService(context: Service.Context<MyFactory>): MyService {
   const { otherService, variables } = context;
@@ -50,10 +58,11 @@ export function createMyService(context: Service.Context<MyFactory>): MyService 
 }
 ```
 
-#### Use factory
+#### Use a factory
+
+Any handler with access to the factory service can call the constructed service instance.
 
 ```ts
-// file: handler.ts
 import type { Service } from '@ez4/common';
 import type { MyFactory } from './factory';
 
@@ -65,6 +74,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
   myFactory.helloWorld();
 }
 ```
+
+> This makes it easy to centralize service creation and reuse logic across your application.
+
+With your factory defined, EZ4 handles injection, construction, and service wiring automatically according to your contract.
 
 ## Examples
 

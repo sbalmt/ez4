@@ -1,6 +1,7 @@
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
-import type { ApiProvider } from '../../provider';
+import type { Integer } from '@ez4/schema';
+import type { ApiProvider } from '../provider';
 import type { ContentTypes } from '../types';
 
 import { createFile } from '@/api/repository';
@@ -15,6 +16,11 @@ declare class StartUploadRequest implements Http.Request {
      * Content type of the given file.
      */
     contentType: ContentTypes;
+
+    /**
+     * Max cache age (in seconds) for the given file.
+     */
+    maxCacheAge?: Integer.Any;
   };
 }
 
@@ -31,9 +37,24 @@ declare class StartUploadResponse implements Http.Response {
     id: string;
 
     /**
-     * Signed upload URL.
+     * Signed URL to upload the file.
      */
     url: string;
+
+    /**
+     * Headers required when uploading the file.
+     */
+    headers?: {
+      /**
+       * Cache control header to send.
+       */
+      cacheControl?: string;
+
+      /**
+       * Expiration date header to send.
+       */
+      expires?: string;
+    };
   };
 }
 
@@ -41,23 +62,37 @@ declare class StartUploadResponse implements Http.Response {
  * Handle start upload requests.
  */
 export async function startUploadHandler(request: StartUploadRequest, context: Service.Context<ApiProvider>): Promise<StartUploadResponse> {
+  const { contentType, maxCacheAge } = request.body;
   const { fileDb, fileStorage } = context;
-  const { contentType } = request.body;
 
   const fileId = await createFile(fileDb, {
     status: FileStatus.Pending
   });
 
+  const expires = maxCacheAge ? new Date(Date.now() + maxCacheAge * 1000) : undefined;
+  const cacheControl = maxCacheAge ? `max-age=${maxCacheAge}, public` : undefined;
+
   const uploadUrl = await fileStorage.getWriteUrl(fileId, {
+    expiresIn: 60,
     contentType,
-    expiresIn: 60
+    metadata: {
+      'x-file-id': fileId
+    },
+    headers: {
+      cacheControl,
+      expires
+    }
   });
 
   return {
     status: 200,
     body: {
       id: fileId,
-      url: uploadUrl
+      url: uploadUrl,
+      headers: {
+        expires: expires?.toUTCString(),
+        cacheControl
+      }
     }
   };
 }

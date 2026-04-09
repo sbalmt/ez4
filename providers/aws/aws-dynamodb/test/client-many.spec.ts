@@ -117,6 +117,38 @@ describe('dynamodb client (many operations)', () => {
     });
   });
 
+  it('assert :: any exists', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.testTable.exists({});
+
+    equal(result, true);
+  });
+
+  it('assert :: some exists (filtered)', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.testTable.exists({
+      where: {
+        value: 'test'
+      }
+    });
+
+    equal(result, true);
+  });
+
+  it('assert :: none exists (filtered)', async () => {
+    ok(dbClient);
+
+    const result = await dbClient.testTable.exists({
+      where: {
+        id: 'bulk-250'
+      }
+    });
+
+    equal(result, false);
+  });
+
   it('assert :: count many', async () => {
     ok(dbClient);
 

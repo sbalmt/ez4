@@ -1,7 +1,7 @@
 import type { NumberSchema } from '@ez4/schema';
 import type { ValidationContext } from '../types/context';
 
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isNotNullish } from '@ez4/utils';
 
 import {
   ExpectedIntegerTypeError,
@@ -12,10 +12,14 @@ import {
 } from '../errors/number';
 
 import { useCustomValidation } from '../utils/custom';
-import { isNullish } from '../utils/nullish';
+import { isNullishAllowed } from '../utils/nullish';
+
+const isDefaultAllowed = (value: unknown, schema: NumberSchema) => {
+  return value === undefined && isNotNullish(schema.definitions?.default);
+};
 
 export const validateNumber = (value: unknown, schema: NumberSchema, context?: ValidationContext) => {
-  if (isNullish(value, schema)) {
+  if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 

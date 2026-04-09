@@ -133,6 +133,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responseSchemes/rawHandler'
+  /get-static-route:
+    get:
+      operationId: getStaticHandler
+      summary: "Handler for `get` requests."
+      responses:
+        200:
+          description: "Successful response."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/getStaticHandler'
 
 components:
   requestSchemes:
@@ -219,3 +230,10 @@ components:
     rawHandler:
       type: string
       description: "HTTP body payload."
+    getStaticHandler:
+      type: object
+      description: "HTTP body payload."
+      additionalProperties: false
+      properties:
+        message:
+          type: string

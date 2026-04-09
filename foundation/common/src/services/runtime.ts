@@ -1,6 +1,20 @@
-// !! Those constants MUST be defined by the bundler.
-declare const EZ4_IS_REMOTE_RUNTIME: boolean;
+/**
+ * Determines whether or not the handler is running in a debug runtime.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
 declare const EZ4_IS_DEBUG_RUNTIME: boolean;
+
+/**
+ * Determines whether or not the handler is running at a remote runtime.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_IS_REMOTE_RUNTIME: boolean;
+
+/**
+ * Hold the handler's runtime resource name.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_RESOURCE_NAME: string;
 
 /**
  * Access to the current runtime settings.
@@ -18,9 +32,9 @@ export namespace Runtime {
    * @param scope New scope object.
    */
   export const setScope = (scope: Scope) => {
-    globalScope = {
+    globalScope = Object.seal({
       ...scope
-    };
+    });
   };
 
   /**
@@ -30,6 +44,15 @@ export namespace Runtime {
    */
   export const getScope = () => {
     return globalScope;
+  };
+
+  /**
+   * Get the runtime resource name.
+   *
+   * @returns Returns the resource name.
+   */
+  export const getResourceName = () => {
+    return typeof EZ4_RESOURCE_NAME === 'string' ? EZ4_RESOURCE_NAME : 'unknown';
   };
 
   /**

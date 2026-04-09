@@ -14,6 +14,19 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
       return Promise.resolve(event);
     }
 
+    async setEvent(identifier: string, input: ScheduleEvent<any>) {
+      const event = await getJsonEvent(input.event, eventSchema);
+
+      InMemoryScheduler.setEvent(serviceName, identifier, {
+        ...input,
+        event
+      });
+
+      const isoDate = input.date.toISOString();
+
+      Logger.log(`⌚ Event ${identifier} set to run at ${isoDate}`);
+    }
+
     async createEvent(identifier: string, input: ScheduleEvent<any>) {
       const event = await getJsonEvent(input.event, eventSchema);
 
@@ -39,13 +52,15 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
     }
 
     async deleteEvent(identifier: string) {
-      if (InMemoryScheduler.deleteEvent(serviceName, identifier)) {
+      const previousEvent = InMemoryScheduler.deleteEvent(serviceName, identifier);
+
+      if (previousEvent) {
         Logger.log(`ℹ️  Event ${identifier} deleted.`);
-        return Promise.resolve(true);
+      } else {
+        Logger.warn(`Event ${identifier} not found.`);
       }
 
-      Logger.warn(`Event ${identifier} not found.`);
-      return Promise.resolve(false);
+      return Promise.resolve(!!previousEvent);
     }
   })();
 };

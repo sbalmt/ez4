@@ -1,10 +1,11 @@
 import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
-import { loadProviders } from '../../config/providers';
-import { warnUnsupportedFlags } from '../../utils/flags';
 import { getGeneratorOptions } from '../../generator/options';
 import { getGeneratorsUsageHelp } from '../../generator/help';
+import { warnUnsupportedFlags } from '../../utils/flags';
+import { loadProviders } from '../../config/providers';
+import { tryLoadProject } from '../../config/project';
 
 import { Logger, LogFormat } from '@ez4/logger';
 
@@ -26,16 +27,18 @@ const HELP_LINES = [
   '  --                 Specify test patterns, scripts to run, or generator arguments',
   '  --project, -p      Specify the project configuration file (Default is ez4.project.js)',
   '  --environment, -e  Specify the environment variables file to load',
-  '  --force            Force deployment or destruction of resources',
-  '  --debug            Enable debug mode for all provider resources',
   '  --suppress         Suppress local resource emulation when serving',
   '  --inspect          Enable inspect mode when serving, running, or testing',
   '  --reset            Reset local resources when serving, running, or testing',
   '  --local            Use local options when serving or testing',
+  '  --debug            Enable debug mode for all provider resources',
+  '  --force            Force deployment or destruction of resources',
   ''
 ];
 
-export const helpCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const helpCommand = async (input: InputOptions) => {
+  const project = await tryLoadProject(input.project);
+
   HELP_LINES.forEach((line) => Logger.log(line));
 
   await generatorsHelp(input, project);

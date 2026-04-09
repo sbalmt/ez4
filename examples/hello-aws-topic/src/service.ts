@@ -2,7 +2,7 @@ import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { Sqs, FifoSqs } from './queue/service';
 import type { messageHandlerA, messageHandlerB } from './lambda/handlers';
-import type { topicListener } from './common';
+import type { topicListener } from './listener';
 import type { MessageRequest } from './types';
 
 /**

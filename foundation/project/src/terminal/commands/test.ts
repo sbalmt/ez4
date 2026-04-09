@@ -1,4 +1,3 @@
-import type { ProjectOptions } from '../../types/project';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -9,9 +8,11 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServeOptions } from '../../emulator/options';
+import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
+import { loadProject } from '../../config/project';
 
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
@@ -20,7 +21,8 @@ import { run } from 'node:test';
 
 const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
 
-export const testCommand = async (input: InputOptions, project: ProjectOptions) => {
+export const testCommand = async (input: InputOptions) => {
+  const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
   if (options.debug) {
@@ -31,11 +33,16 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   warnUnsupportedFlags(input, {
-    arguments: true,
-    inspect: true,
-    coverage: true,
     reset: options.local,
+    environment: true,
+    arguments: true,
+    coverage: true,
+    inspect: true,
     local: true
   });
 
@@ -58,7 +65,6 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);
-
     await bootstrapServices(emulators);
 
     const allFiles = await readdir(workingDirectory, {
@@ -78,6 +84,11 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
     });
   });
 
+  if (!testFiles.length) {
+    Logger.warn(`One or more test files need to be specified.`);
+    return;
+  }
+
   const testRunner = run({
     coverage: input.coverage,
     coverageIncludeGlobs: [`${workingDirectory}/**/*`],
@@ -88,12 +99,11 @@ export const testCommand = async (input: InputOptions, project: ProjectOptions) 
 
   testRunner.compose(spec).pipe(process.stdout);
 
-  let testCount = 0;
+  testRunner.on('test:summary', ({ success }) => {
+    shutdownServices(emulators);
 
-  // Ensure an active service won't hold the tests.
-  testRunner.on('test:complete', ({ details }) => {
-    if (details.type === 'suite' && ++testCount >= testFiles.length) {
-      shutdownServices(emulators);
+    if (!success) {
+      process.exitCode = 1;
     }
   });
 };

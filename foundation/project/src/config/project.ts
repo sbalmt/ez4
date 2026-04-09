@@ -6,13 +6,19 @@ import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 
-import { MissingProjectError, MissingProjectFileError } from '../errors/project';
+import { MissingProjectExportError, MissingProjectFileError } from '../errors/project';
+
+const DEFAULT_PROJECT_FILE = 'ez4.project.js';
+
+export type InternalProjectOptions = ProjectOptions & {
+  incomplete?: boolean;
+};
 
 export const loadProject = async (fileName?: string): Promise<ProjectOptions> => {
   return getConfiguration(getProjectPath(fileName));
 };
 
-export const tryLoadProject = (fileName?: string): Promise<ProjectOptions> | ProjectOptions => {
+export const tryLoadProject = (fileName?: string): Promise<InternalProjectOptions> | InternalProjectOptions => {
   const path = getProjectPath(fileName);
 
   if (existsSync(path)) {
@@ -20,6 +26,7 @@ export const tryLoadProject = (fileName?: string): Promise<ProjectOptions> | Pro
   }
 
   return {
+    incomplete: true,
     projectName: 'unnamed',
     sourceFiles: [],
     stateFile: {
@@ -29,17 +36,17 @@ export const tryLoadProject = (fileName?: string): Promise<ProjectOptions> | Pro
 };
 
 const getProjectPath = (fileName?: string) => {
-  return join(process.cwd(), fileName ?? 'ez4.project.js');
+  return join(process.cwd(), fileName || DEFAULT_PROJECT_FILE);
 };
 
-const getConfiguration = async (path: string): Promise<ProjectOptions> => {
+const getConfiguration = async (path: string): Promise<InternalProjectOptions> => {
   const projectUrl = pathToFileURL(path).href;
 
   try {
     const { default: project } = await import(projectUrl);
 
     if (!project) {
-      throw new MissingProjectError(basename(path));
+      throw new MissingProjectExportError(basename(path));
     }
 
     return project;
