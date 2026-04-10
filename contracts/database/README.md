@@ -20,7 +20,7 @@ Here's a minimal example of a database service with a single table.
 import type { Environment, Service } from '@ez4/common';
 import type { Database } from '@ez4/database';
 
-// MyDb message
+// MyDb table
 type MyTableSchema = {
   foo: string;
   bar: number;
