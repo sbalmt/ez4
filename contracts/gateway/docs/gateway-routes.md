@@ -24,6 +24,8 @@ type UserRoute = Http.UseRoute<{
 
 ## Route fields
 
+The following fields define the behavior, infrastructure, and runtime configuration of a gateway route.
+
 #### name
 
 Human‑readable operation name.
@@ -99,6 +101,119 @@ httpErrors: {
   400: [InvalidInputError];
   404: [NotFoundError];
 }
+```
+
+#### preferences (optional)
+
+Defines handler‑specific preference options.
+
+```ts
+preferences: Http.UsePreferences<{
+  namingStyle: NamingStyle.SnakeCase;
+}>;
+```
+
+> Use the type helper `Http.UsePreferences` to get typing suggestions.
+
+#### variables (optional)
+
+Declares environment variables associated with the handler.
+
+- Supports both mapped variables and literal values.
+- Variables here are only accessible through `process.env`.
+
+```ts
+variables: {
+  VARIABLE_A: Environment.Variable<'ENV_VAR_NAME'>;
+  VARIABLE_B: 'literal value';
+}
+```
+
+> For a better experience with environment variables, use them with a [gateway provider](./gateway-provider.md).
+
+#### logRetention (optional)
+
+Specifies the number of days logs should be retained.
+
+- Applies to the handler's log group.
+
+```ts
+logRetention: 90;
+```
+
+#### logLevel (optional)
+
+Sets the log level for the handler.
+
+- Controls the verbosity of logs emitted by the runtime.
+
+```ts
+logLevel: LogLevel.Debug;
+```
+
+#### architecture (optional)
+
+Defines the CPU architecture for the handler.
+
+- ARM architectures may reduce cost and improve performance.
+- x86 architectures may be better for heavy workloads.
+
+```ts
+architecture: ArchitectureType.Arm;
+```
+
+#### runtime (optional)
+
+Specifies the runtime environment for the handler.
+
+- Determines the Node.js runtime version used.
+- Must match supported provider runtimes.
+
+```ts
+runtime: RuntimeType.Node24;
+```
+
+#### timeout (optional)
+
+Maximum execution time (in seconds) for the handler.
+
+- Requests exceeding this limit are terminated by the gateway.
+
+```ts
+timeout: 29;
+```
+
+#### memory (optional)
+
+Amount of memory allocated to the handler (in MB).
+
+- Higher memory increases CPU allocation proportionally.
+- Useful for compute‑heavy or parallel workloads.
+
+```ts
+memory: 128;
+```
+
+#### files (optional)
+
+Additional files to include in the handle bundle.
+
+- Useful for static assets, configuration files, or templates.
+- Paths are relative to the project root.
+
+```ts
+files: ['icon.png', 'settings.json'];
+```
+
+#### debug (optional)
+
+Enables debug mode for the handler.
+
+- May enable additional logging or diagnostics.
+- Behavior depends on the provider and runtime.
+
+```ts
+debug: true;
 ```
 
 #### disabled (optional)
