@@ -96,8 +96,8 @@ Maps exceptions to HTTP status codes.
 
 ```ts
 httpErrors: {
-  400: [InvalidInputError],
-  404: [NotFoundError]
+  400: [InvalidInputError];
+  404: [NotFoundError];
 }
 ```
 

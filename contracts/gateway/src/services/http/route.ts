@@ -67,8 +67,8 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
    * @example
    * ```ts
    * httpErrors: {
-   *   400: [InvalidInputError],
-   *   404: [NotFoundError]
+   *   400: [InvalidInputError];
+   *   404: [NotFoundError];
    * }
    * ```
    */
