@@ -4,7 +4,7 @@ Gateway routes define how HTTP requests are exposed, authorized, processed, and 
 
 ## Route declaration
 
-A route is described using the `Http.Route` interface, which defines the HTTP verb, path, handler, optional authorizer, and additional runtime configuration.
+A route is declared using the `Http.UseRoute` type helper, which uses the `Http.Route` type to define the HTTP verb, path, handler, optional authorizer, and additional runtime configuration.
 
 ```ts
 type UserRoute = Http.UseRoute<{
