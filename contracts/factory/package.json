@@ -7,8 +7,8 @@
   "type": "module",
   "keywords": [
     "ez4",
-    "service",
-    "factory"
+    "factory",
+    "contract"
   ],
   "repository": {
     "type": "git",

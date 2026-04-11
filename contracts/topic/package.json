@@ -6,7 +6,9 @@
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "topic",
+    "contract"
   ],
   "repository": {
     "type": "git",
