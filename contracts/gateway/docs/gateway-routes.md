@@ -26,7 +26,7 @@ type UserRoute = Http.UseRoute<{
 
 The following fields define the behavior, infrastructure, and runtime configuration of a gateway route.
 
-#### name
+#### Name
 
 Human‑readable operation name.
 
@@ -38,7 +38,7 @@ Human‑readable operation name.
 name: 'getUser';
 ```
 
-#### path
+#### Path
 
 HTTP verb and path for the route.
 
@@ -48,7 +48,7 @@ HTTP verb and path for the route.
 path: 'GET /users/{id}';
 ```
 
-#### handler
+#### Handler
 
 Main entry‑point handler for the route.
 
@@ -61,7 +61,7 @@ handler: typeof getUserHandler;
 
 > Use `typeof` since the route handler is a type declaration.
 
-#### authorizer (optional)
+#### Authorizer (optional)
 
 Entry‑point authorization function.
 
@@ -75,7 +75,7 @@ authorizer: typeof authorizeHandler;
 
 > Use `typeof` since the route authorizer is a type declaration.
 
-#### listener (optional)
+#### Listener (optional)
 
 Lifecycle listener for the route.
 
@@ -89,7 +89,7 @@ listener: typeof userRouteListener;
 
 > Use `typeof` since the route listener is a type declaration.
 
-#### httpErrors (optional)
+#### HTTP errors (optional)
 
 Maps exceptions to HTTP status codes.
 
@@ -103,7 +103,7 @@ httpErrors: {
 }
 ```
 
-#### preferences (optional)
+#### Preferences (optional)
 
 Defines handler‑specific preference options.
 
@@ -115,7 +115,7 @@ preferences: Http.UsePreferences<{
 
 > Use the type helper `Http.UsePreferences` to get typing suggestions.
 
-#### variables (optional)
+#### Variables (optional)
 
 Declares environment variables associated with the handler.
 
@@ -131,7 +131,7 @@ variables: {
 
 > For a better experience with environment variables, use them with a [gateway provider](./gateway-provider.md).
 
-#### logRetention (optional)
+#### Log retention (optional)
 
 Specifies the number of days logs should be retained.
 
@@ -141,7 +141,7 @@ Specifies the number of days logs should be retained.
 logRetention: 90;
 ```
 
-#### logLevel (optional)
+#### Log level (optional)
 
 Sets the log level for the handler.
 
@@ -151,7 +151,7 @@ Sets the log level for the handler.
 logLevel: LogLevel.Debug;
 ```
 
-#### architecture (optional)
+#### Architecture (optional)
 
 Defines the CPU architecture for the handler.
 
@@ -162,7 +162,7 @@ Defines the CPU architecture for the handler.
 architecture: ArchitectureType.Arm;
 ```
 
-#### runtime (optional)
+#### Runtime (optional)
 
 Specifies the runtime environment for the handler.
 
@@ -173,7 +173,7 @@ Specifies the runtime environment for the handler.
 runtime: RuntimeType.Node24;
 ```
 
-#### timeout (optional)
+#### Timeout (optional)
 
 Maximum execution time (in seconds) for the handler.
 
@@ -183,7 +183,7 @@ Maximum execution time (in seconds) for the handler.
 timeout: 29;
 ```
 
-#### memory (optional)
+#### Memory (optional)
 
 Amount of memory allocated to the handler (in MB).
 
@@ -194,7 +194,7 @@ Amount of memory allocated to the handler (in MB).
 memory: 128;
 ```
 
-#### files (optional)
+#### Files (optional)
 
 Additional files to include in the handle bundle.
 
@@ -205,7 +205,7 @@ Additional files to include in the handle bundle.
 files: ['icon.png', 'settings.json'];
 ```
 
-#### debug (optional)
+#### Debug (optional)
 
 Enables debug mode for the handler.
 
@@ -216,7 +216,7 @@ Enables debug mode for the handler.
 debug: true;
 ```
 
-#### disabled (optional)
+#### Disabled (optional)
 
 Disables the route.
 
@@ -227,7 +227,7 @@ Disables the route.
 disabled: true;
 ```
 
-#### cors (optional)
+#### CORS (optional)
 
 Enables CORS for the route.
 
@@ -237,7 +237,7 @@ Enables CORS for the route.
 cors: true;
 ```
 
-#### vpc (optional)
+#### VPC (optional)
 
 Enables VPC access for the route.
 
