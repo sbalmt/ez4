@@ -53,9 +53,8 @@ Declares service bindings available to handlers using this provider.
 
 ```ts
 services: {
-  variables: Environment.ServiceVariables;
-  serviceA: Environment.Service<ServiceA>;
-  serviceB: Environment.Service<ServiceB>;
+  serviceA: Environment.ServiceVariables; // For variables service
+  serviceB: Environment.Service<ServiceB>; // For contract service
 }
 ```
 
