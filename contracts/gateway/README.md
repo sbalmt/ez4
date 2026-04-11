@@ -69,7 +69,7 @@ interface MyRouteProvider extends Http.Provider {
 }
 ```
 
-> For more details, check the [gateway provider](./docs/gateway-provider.md) documentation.
+> For more details, check the [gateway provider](./docs/http-provider.md) documentation.
 
 #### Handle requests
 
@@ -140,7 +140,7 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
 | cors         | boolean               | Determines whether or not CORS is enabled for the route.    |
 | vpc          | boolean               | Determines whether or not VPC is enabled for the route.     |
 
-> For more details, check the [gateway routes](./docs/gateway-routes.md) documentation.
+> For more details, check the [gateway routes](./docs/http-routes.md) documentation.
 
 With your gateway defined, EZ4 handles routing, validation, dependency injection, and execution automatically according to your contract.
 

@@ -129,7 +129,7 @@ variables: {
 }
 ```
 
-> For a better experience with environment variables, use them with a [gateway provider](./gateway-provider.md).
+> For a better experience with environment variables, use them with a [gateway provider](./http-provider.md).
 
 #### Log retention (optional)
 
