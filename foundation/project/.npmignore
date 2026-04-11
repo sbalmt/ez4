@@ -4,6 +4,7 @@
 !README.md
 !LICENSE
 
+!docs/*.md
 !bin/*.mjs
 
 !dist/**/*.d.ts
