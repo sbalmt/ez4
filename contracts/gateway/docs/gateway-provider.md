@@ -16,7 +16,7 @@ export interface UserProvider extends Http.Provider {
   };
 
   variables: {
-    accessKey: Environment.Variable<'API_KEY'>;
+    accessKey: Environment.Variable<'SERVICE_ACCESS_KEY'>;
   };
 }
 ```
@@ -33,7 +33,7 @@ export declare class UserProvider implements Http.Provider {
   };
 
   variables: {
-    accessKey: Environment.Variable<'API_KEY'>;
+    accessKey: Environment.Variable<'SERVICE_ACCESS_KEY'>;
   };
 }
 ```

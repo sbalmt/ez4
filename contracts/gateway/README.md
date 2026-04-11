@@ -69,6 +69,8 @@ interface MyRouteProvider extends Http.Provider {
 }
 ```
 
+> For more details, check the [gateway provider](./docs/gateway-provider.md) documentation.
+
 #### Handle requests
 
 EZ4 wires together the request, response, and provider context automatically before invoking the handler. By the time your handler runs, the request has already been validated and the response will be automatically shaped according to your response type.
