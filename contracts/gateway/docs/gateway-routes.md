@@ -10,8 +10,8 @@ A route is described using the `Http.Route` interface, which defines the HTTP ve
 type UserRoute = Http.UseRoute<{
   name: 'getUser';
   path: 'GET /users/{id}';
-  authorizer: authorizeHandler;
-  handler: getUserHandler;
+  authorizer: typeof authorizeHandler;
+  handler: typeof getUserHandler;
   cors: true;
   httpErrors: {
     404: [UserNotFound];
@@ -54,8 +54,10 @@ Main entry‑point handler for the route.
 - Invoked only after the authorizer (if defined) succeeds.
 
 ```ts
-handler: getUserHandler;
+handler: typeof getUserHandler;
 ```
+
+> Use `typeof` since the route handler is a type declaration.
 
 #### authorizer (optional)
 
@@ -66,8 +68,10 @@ Entry‑point authorization function.
 - Can enrich the request with authentication/authorization context.
 
 ```ts
-authorizer: authorizeHandler;
+authorizer: typeof authorizeHandler;
 ```
+
+> Use `typeof` since the route authorizer is a type declaration.
 
 #### listener (optional)
 
@@ -78,8 +82,10 @@ Lifecycle listener for the route.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts
-listener: userRouteListener;
+listener: typeof userRouteListener;
 ```
+
+> Use `typeof` since the route listener is a type declaration.
 
 #### httpErrors (optional)
 
