@@ -1,6 +1,6 @@
-# EZ4: Object schema
+# EZ4: Object Schema
 
-The Schema package provides powerful, [reflection‑driven](../reflection/) support for object types. It allows contracts to define complex input and output shapes using plain TypeScript, while ensuring that these shapes are enforced at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides powerful, [reflection‑driven](../../reflection/) support for object types. It allows contracts to define complex input and output shapes using plain TypeScript, while ensuring that these shapes are enforced at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all object‑related schema patterns supported by EZ4.
 

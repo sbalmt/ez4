@@ -1,6 +1,6 @@
-# EZ4: Enum schema
+# EZ4: Enum Schema
 
-The Schema package provides [reflection‑driven](../reflection/) support for native TypeScript enumerations. Enums can be combined with schema helpers to build expressive, type‑safe validation rules for contracts across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides [reflection‑driven](../../reflection/) support for native TypeScript enumerations. Enums can be combined with schema helpers to build expressive, type‑safe validation rules for contracts across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all enum‑related schema patterns supported by EZ4.
 

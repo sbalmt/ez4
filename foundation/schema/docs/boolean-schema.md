@@ -1,6 +1,6 @@
-# EZ4: Boolean schema
+# EZ4: Boolean Schema
 
-The Schema package provides [reflection‑driven](../reflection/) support for boolean types. It allows contracts to define boolean shapes using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides [reflection‑driven](../../reflection/) support for boolean types. It allows contracts to define boolean shapes using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all boolean‑related schema patterns supported by EZ4.
 
