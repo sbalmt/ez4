@@ -22,10 +22,31 @@ jobs:
     name: 🧪 Tests
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || (github.event.pull_request.draft == false && github.event.pull_request.fork == false)
+
     env:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:3.3.0
+        ports:
+          - 8000:8000
+
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+      valkey:
+        image: valkey/valkey:8
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -74,6 +95,13 @@ jobs:
           -w @ez4/factory \
           -w @ez4/validation \
           -w @ez4/email
+
+      - name: Test libraries
+        run: |
+          npm test \
+          -w @ez4/pgsql \
+          -w @ez4/pgclient \
+          -w @ez4/pgmigration
 
       - name: Test local providers
         run: |
