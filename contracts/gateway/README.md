@@ -138,7 +138,7 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
 | cors         | boolean               | Determines whether or not CORS is enabled for the route.    |
 | vpc          | boolean               | Determines whether or not VPC is enabled for the route.     |
 
-> Use the type helper for the `preferences` property.
+> For more details, check the [gateway routes](./docs/gateway-routes.md) documentation.
 
 With your gateway defined, EZ4 handles routing, validation, dependency injection, and execution automatically according to your contract.
 
