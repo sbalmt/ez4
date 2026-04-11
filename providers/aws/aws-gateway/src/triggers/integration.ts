@@ -151,8 +151,8 @@ const getIntegrationFunction = (
   handlerState.parameters.getFunctionVariables = () => {
     return {
       ...getPriorVariables(),
-      ...target.variables,
-      ...provider?.variables
+      ...provider?.variables,
+      ...target.variables
     };
   };
 

@@ -20,7 +20,7 @@ type UserRoute = Http.UseRoute<{
 }>;
 ```
 
-> Your route is always an extension of the base `Http.Route` interface.
+> The route type is always an extension of the base `Http.Route` interface.
 
 ## Route fields
 

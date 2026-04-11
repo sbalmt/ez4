@@ -3,7 +3,7 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { WebPreferences } from './preferences';
 
 /**
- * Target configuration.
+ * Web Target configuration.
  */
 export interface WebTarget {
   /**
