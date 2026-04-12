@@ -35,7 +35,7 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
   /**
    * Optional life‑cycle listener for the route.
    *
-   * - Runs inside the same cloud resource as the route handler.
+   * - Runs inside the same cloud resource as the handler and authorizer.
    * - Receives events such as request start, request end, and internal transitions.
    * - Useful for logging, tracing, metrics, and instrumentation.
    */
@@ -86,6 +86,7 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
    * Enables CORS for the route.
    *
    * - When enabled, CORS responses include the route's HTTP verb and headers.
+   * - Automatically generates the `OPTIONS` preflight route.
    */
   readonly cors?: boolean;
 

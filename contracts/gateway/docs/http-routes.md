@@ -7,17 +7,22 @@ Gateway routes define how HTTP requests are exposed, authorized, processed, and 
 A route is declared using the `Http.UseRoute` type helper, which uses the `Http.Route` type to define the HTTP verb, path, handler, optional authorizer, and additional runtime configuration.
 
 ```ts
-type UserRoute = Http.UseRoute<{
-  name: 'getUser';
-  path: 'GET /users/{id}';
-  authorizer: typeof authorizeHandler;
-  handler: typeof getUserHandler;
-  cors: true;
-  httpErrors: {
-    404: [UserNotFound];
-    400: [InvalidInput];
-  };
-}>;
+export declare class MyServer extends Http.Service {
+  routes: [
+    Http.UseRoute<{
+      name: 'getUser';
+      path: 'GET /users/{id}';
+      authorizer: typeof authorizeHandler;
+      handler: typeof getUserHandler;
+      cors: true;
+      httpErrors: {
+        404: [UserNotFound];
+        400: [InvalidInput];
+      };
+    }>
+    // ...
+  ];
+}
 ```
 
 > The route type is always an extension of the base `Http.Route` interface.
@@ -79,7 +84,7 @@ authorizer: typeof authorizeHandler;
 
 Lifecycle listener for the route.
 
-- Runs inside the same cloud resource as the route handler.
+- Runs inside the same cloud resource as the handler and authorizer.
 - Receives events such as request start, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 
@@ -196,7 +201,7 @@ memory: 128;
 
 #### Files (optional)
 
-Additional files to include in the handle bundle.
+Additional files to include in the handler bundle.
 
 - Useful for static assets, configuration files, or templates.
 - Paths are relative to the project root.
@@ -232,6 +237,7 @@ disabled: true;
 Enables CORS for the route.
 
 - When enabled, CORS responses include the route's HTTP verb and headers.
+- Automatically generates the `OPTIONS` preflight route.
 
 ```ts
 cors: true;

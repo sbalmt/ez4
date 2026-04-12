@@ -8,7 +8,11 @@ import type { WsEvent } from './event';
  */
 export interface WsDefaults<T extends WsRequest | WsEvent> extends WebDefaults {
   /**
-   * Default listener.
+   * Default life‑cycle listener for all routes.
+   *
+   * - Runs inside the same cloud resource as the handler.
+   * - Receives events such as request start, request end, and internal transitions.
+   * - Useful for logging, tracing, metrics, and instrumentation.
    */
   readonly listener?: WsListener<T>;
 }
