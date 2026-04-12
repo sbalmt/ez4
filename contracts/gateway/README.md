@@ -51,6 +51,8 @@ declare class MyRouteResponse implements Http.Response {
 }
 ```
 
+> For more details, check the [gateway requests](./docs/http-requests.md) documentation.
+
 #### Provide variables and services
 
 Each provider can declare environment variables and connected services (other EZ4 resources) that are injected automatically into the handler context.

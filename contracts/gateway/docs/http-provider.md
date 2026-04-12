@@ -6,27 +6,10 @@ The HTTP Provider defines shared configuration for all handlers that use a given
 
 A provider is declared by **extending or implementing** the `Http.Provider` interface and supplying shared variables and services.
 
-#### Using interface
+#### Using class (preferred)
 
 ```ts
-export interface UserProvider extends Http.Provider {
-  services: {
-    variables: Environment.ServiceVariables;
-    database: Environment.Service<Database>;
-  };
-
-  variables: {
-    accessKey: Environment.Variable<'SERVICE_ACCESS_KEY'>;
-  };
-}
-```
-
-> The provider interface must always extend the base `Http.Provider` interface.
-
-#### Using class
-
-```ts
-export declare class UserProvider implements Http.Provider {
+export declare class MyProvider implements Http.Provider {
   services: {
     variables: Environment.ServiceVariables;
     database: Environment.Service<Database>;
@@ -39,6 +22,23 @@ export declare class UserProvider implements Http.Provider {
 ```
 
 > The provider class must always implement the base `Http.Provider` interface.
+
+#### Using interface
+
+```ts
+export interface MyProvider extends Http.Provider {
+  services: {
+    variables: Environment.ServiceVariables;
+    database: Environment.Service<Database>;
+  };
+
+  variables: {
+    accessKey: Environment.Variable<'SERVICE_ACCESS_KEY'>;
+  };
+}
+```
+
+> The provider interface must always extend the base `Http.Provider` interface.
 
 ## Provider fields
 
