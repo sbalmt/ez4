@@ -53,12 +53,14 @@
           "name": "testAuthorizer",
           "file": "test/http/input/output-validation.ts",
           "position": [
-            81,
+            84,
             1
           ],
           "request": {
             "headers": {
               "type": "object",
+              "description": "Request headers.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string",
@@ -70,12 +72,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Request headers."
+              }
             },
             "parameters": {
               "type": "object",
+              "description": "Path parameters.",
+              "identity": 1,
               "properties": {
                 "bar": {
                   "type": "string",
@@ -87,12 +89,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Path parameters."
+              }
             },
             "query": {
               "type": "object",
+              "description": "Query strings.",
+              "identity": 1,
               "properties": {
                 "baz": {
                   "type": "string",
@@ -104,21 +106,19 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Query strings."
+              }
             }
           },
           "response": {
             "identity": {
               "type": "object",
+              "description": "Authorization identity.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string"
                 }
-              },
-              "identity": 1,
-              "description": "Authorization identity."
+              }
             }
           }
         },
@@ -126,12 +126,14 @@
           "name": "testRoute",
           "file": "test/http/input/output-validation.ts",
           "position": [
-            89,
+            92,
             1
           ],
           "request": {
             "identity": {
               "type": "object",
+              "description": "Authorization identity.",
+              "identity": 1,
               "properties": {
                 "foo": {
                   "type": "string",
@@ -143,12 +145,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Authorization identity."
+              }
             },
             "headers": {
               "type": "object",
+              "description": "Request headers.",
+              "identity": 1,
               "properties": {
                 "bar": {
                   "type": "string",
@@ -160,12 +162,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Request headers."
+              }
             },
             "parameters": {
               "type": "object",
+              "description": "Path parameters.",
+              "identity": 1,
               "properties": {
                 "baz": {
                   "type": "string",
@@ -177,12 +179,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Path parameters."
+              }
             },
             "query": {
               "type": "object",
+              "description": "Query strings.",
+              "identity": 1,
               "properties": {
                 "qux": {
                   "type": "string",
@@ -194,12 +196,12 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Query strings."
+              }
             },
             "body": {
               "type": "object",
+              "description": "Body payload.",
+              "identity": 1,
               "properties": {
                 "yay": {
                   "type": "string",
@@ -211,9 +213,7 @@
                     ]
                   }
                 }
-              },
-              "identity": 1,
-              "description": "Body payload."
+              }
             }
           },
           "response": {

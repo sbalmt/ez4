@@ -18,18 +18,32 @@ export declare class TestService extends Ws.Service<{}> {
 }
 
 declare class TestAuthRequest implements Ws.AuthRequest {
+  /**
+   * Request headers.
+   */
   headers: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
+
+  /**
+   * Path parameters.
+   */
   parameters: {
     bar: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
+
+  /**
+   * Query strings.
+   */
   query: {
     baz: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 }
 
 declare class TestAuthResponse implements Ws.AuthResponse {
+  /**
+   * Authorization identity.
+   */
   identity: {
     foo: string;
   };
@@ -44,12 +58,23 @@ export function authorizerHandler(_request: TestAuthRequest): TestAuthResponse {
 }
 
 declare class TestEvent implements Ws.Event {
+  /**
+   * Authorization identity.
+   */
   identity: {
     foo: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
+
+  /**
+   * Request headers.
+   */
   headers: {
     bar: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
+
+  /**
+   * Query strings.
+   */
   query: {
     baz: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
@@ -60,9 +85,16 @@ export function connectHandler(_event: Ws.Incoming<TestEvent>) {}
 export function disconnectHandler(_event: Ws.Incoming<TestEvent>) {}
 
 declare class TestRequest implements Ws.Request {
+  /**
+   * Authorization identity.
+   */
   identity: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
+
+  /**
+   * Body payload.
+   */
   body: {
     yay: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };

@@ -22,13 +22,13 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          64,
+          73,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
-            "description": "Expected identity.",
+            "description": "Authorization identity.",
             "identity": 1,
             "properties": {
               "id": {
@@ -43,7 +43,7 @@
         "file": "test/ws/input/output-authorizer.ts",
         "isolated": true,
         "position": [
-          43,
+          49,
           1
         ],
         "provider": {
@@ -57,7 +57,7 @@
         "request": {
           "query": {
             "type": "object",
-            "description": "Expected HTTP query strings.",
+            "description": "Authorizer query strings.",
             "identity": 1,
             "properties": {
               "apiKey": {
@@ -85,13 +85,13 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          70,
+          82,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
-            "description": "Expected identity.",
+            "description": "Authorization identity.",
             "identity": 1,
             "properties": {
               "id": {
@@ -107,13 +107,13 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-authorizer.ts",
         "position": [
-          76,
+          91,
           1
         ],
         "request": {
           "body": {
             "type": "object",
-            "description": "Expected event body.",
+            "description": "JSON payload.",
             "identity": 1,
             "properties": {}
           }

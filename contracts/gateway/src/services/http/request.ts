@@ -20,7 +20,7 @@ export interface HttpRequest {
   /**
    * Typed HTTP headers expected by the route.
    *
-   * - Only includes headers explicitly declared.
+   * - Only includes headers explicitly in the route contract.
    * - Unknown headers are excluded unless declared.
    * - Automatically validated as strings.
    *

@@ -27,7 +27,7 @@ export declare class MyServer extends Http.Service {
 
 > The defaults type is always an extension of the base `Http.Defaults` interface.
 
-## WebSocket declaration
+## WS declaration
 
 WebSocket Defaults are declared using the `Ws.UseDefaults` type helper, which uses the `Ws.Defaults` interface under the hood.
 

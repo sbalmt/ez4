@@ -78,7 +78,7 @@ Entry‑point authorization function.
 authorizer: typeof authorizeHandler;
 ```
 
-> Use `typeof` since the route authorizer is a type declaration.
+> Use `typeof` since the route authorizer is a type declaration. See the gateway [authorizer](./gateway-authorizer.md) for more details.
 
 #### Listener (optional)
 
@@ -134,7 +134,7 @@ variables: {
 }
 ```
 
-> For a better experience with environment variables, use them with a [gateway provider](./http-provider.md).
+> For a better experience with environment variables, use them with a [gateway provider](./gateway-provider.md).
 
 #### Log retention (optional)
 
@@ -257,7 +257,8 @@ vpc: true;
 ## What's next
 
 - [Declare requests](./http-requests.md)
-- [Declare providers](./http-provider.md)
+- [Declare authorizers](./gateway-authorizer.md)
+- [Declare providers](./gateway-provider.md)
 - [Declare defaults](./gateway-defaults.md)
 
 ## License

@@ -36,6 +36,9 @@ declare class TestAuthRequest implements Http.AuthRequest {
 }
 
 declare class TestAuthResponse implements Http.AuthResponse {
+  /**
+   * Authorization identity.
+   */
   identity: {
     foo: string;
   };

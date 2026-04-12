@@ -23,7 +23,7 @@
           "name": "testQueryAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            60,
+            63,
             1
           ],
           "request": {
@@ -55,7 +55,7 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            96,
+            99,
             1
           ],
           "request": {
@@ -82,7 +82,7 @@
           "file": "test/http/input/output-authorizer.ts",
           "isolated": true,
           "position": [
-            72,
+            75,
             1
           ],
           "provider": {
@@ -122,7 +122,7 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            96,
+            99,
             1
           ],
           "request": {
