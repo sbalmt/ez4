@@ -101,7 +101,7 @@ query: {
 }
 ```
 
-> Internal query strings field names are affected by the naming style preference.
+> Internal query strings field names are affected by the `NamingStyle` preference.
 
 #### Body (optional)
 
@@ -121,7 +121,7 @@ body: {
 }
 ```
 
-> Body is `undefined` for routes without a body (e.g., GET requests). It's internal field names are affected by the naming style preference.
+> Body is `undefined` for routes without a body (e.g., GET requests). It's internal field names are affected by the `NamingStyle` preference.
 
 Raw String payload:
 
