@@ -17,13 +17,13 @@
           "name": "testRouteA",
           "file": "test/http/input/output-body.ts",
           "position": [
-            52,
+            64,
             1
           ],
           "request": {
             "body": {
               "type": "string",
-              "description": "Expected HTTP body payload."
+              "description": "Raw String payload."
             }
           },
           "response": {
@@ -37,13 +37,13 @@
           "name": "testRouteB",
           "file": "test/http/input/output-body.ts",
           "position": [
-            58,
+            70,
             1
           ],
           "request": {
             "body": {
               "type": "object",
-              "description": "Expected HTTP body payload.",
+              "description": "JSON payload.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -66,13 +66,13 @@
           "name": "testRouteC",
           "file": "test/http/input/output-body.ts",
           "position": [
-            64,
+            76,
             1
           ],
           "request": {
             "body": {
               "type": "union",
-              "description": "Expected HTTP body payload.",
+              "description": "Optional JSON payload.",
               "optional": true,
               "elements": [
                 {
@@ -101,13 +101,13 @@
           "name": "testRouteD",
           "file": "test/http/input/output-body.ts",
           "position": [
-            70,
+            82,
             1
           ],
           "request": {
             "body": {
               "type": "object",
-              "description": "Expected HTTP body payload.",
+              "description": "JSON payload with `NamingStyle` transformation.",
               "identity": 1,
               "properties": {
                 "fooKey": {

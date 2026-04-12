@@ -23,13 +23,13 @@
           "name": "testQueryAuthorizer",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            54,
+            60,
             1
           ],
           "request": {
             "query": {
               "type": "object",
-              "description": "Expected HTTP query strings.",
+              "description": "Authorizer query strings.",
               "identity": 1,
               "properties": {
                 "apiKey": {
@@ -55,13 +55,13 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            87,
+            96,
             1
           ],
           "request": {
             "identity": {
               "type": "object",
-              "description": "Expected identity.",
+              "description": "Authorization identity.",
               "identity": 1,
               "properties": {
                 "id": {
@@ -82,7 +82,7 @@
           "file": "test/http/input/output-authorizer.ts",
           "isolated": true,
           "position": [
-            66,
+            72,
             1
           ],
           "provider": {
@@ -96,7 +96,7 @@
           "request": {
             "headers": {
               "type": "object",
-              "description": "Expected HTTP headers.",
+              "description": "Authorizer headers.",
               "identity": 1,
               "properties": {
                 "x-api-key": {
@@ -122,13 +122,13 @@
           "name": "testHandler",
           "file": "test/http/input/output-authorizer.ts",
           "position": [
-            87,
+            96,
             1
           ],
           "request": {
             "identity": {
               "type": "object",
-              "description": "Expected identity.",
+              "description": "Authorization identity.",
               "identity": 1,
               "properties": {
                 "id": {

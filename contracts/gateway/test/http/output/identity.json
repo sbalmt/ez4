@@ -17,13 +17,13 @@
           "name": "testRouteA",
           "file": "test/http/input/output-identity.ts",
           "position": [
-            22,
+            25,
             1
           ],
           "request": {
             "identity": {
               "type": "object",
-              "description": "Expected identity.",
+              "description": "Authorization identity.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -43,13 +43,13 @@
           "name": "testRouteB",
           "file": "test/http/input/output-identity.ts",
           "position": [
-            28,
+            31,
             1
           ],
           "request": {
             "identity": {
               "type": "object",
-              "description": "Expected identity.",
+              "description": "Authorization identity.",
               "identity": 1,
               "properties": {
                 "foo": {
