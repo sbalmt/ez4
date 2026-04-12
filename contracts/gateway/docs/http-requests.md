@@ -46,7 +46,7 @@ Represents the authenticated identity returned by the route's authorizer.
 
 ```ts
 identity: {
-  userId: string;
+  userId: String.UUID;
   roles: string[];
   // ...
 }
@@ -78,7 +78,7 @@ Typed path parameters extracted from the route's URL pattern.
 
 ```ts
 parameters: {
-  id: string;
+  id: String.UUID;
   group: string;
 }
 ```
@@ -95,33 +95,33 @@ Typed query string values.
 
 ```ts
 query: {
-  search: string;
-  limit: number;
-  tags: string[];
+  search?: String.Max<250>;
+  limit: Integer.Any;
+  tags: TagsEnum[];
 }
 ```
 
-> Internal query strings field names are affected by the `NamingStyle` preference.
+> Query strings field names are affected by the `NamingStyle` preference.
 
 #### Body (optional)
 
 Typed request body payload.
 
-- Supports JSON and raw string payloads.
 - Automatically parsed into the declared types.
+- Supports JSON objects and raw string payloads.
 - Shape is determined by the declared contract.
 
 JSON payload (preferred):
 
 ```ts
 body: {
-  name: string;
-  email: string;
-  age?: number;
+  name: String.Size<1, 20>;
+  email: String.Email;
+  age?: Integer.Any;
 }
 ```
 
-> Body is `undefined` for routes without a body (e.g., GET requests). It's internal field names are affected by the `NamingStyle` preference.
+> Body is `undefined` for routes without a body (e.g., GET requests). It's field names are affected by the `NamingStyle` preference.
 
 Raw String payload:
 
@@ -135,7 +135,7 @@ body: string;
 
 Request validation and transformation are powered by the rich schema system provided by the [@ez4/schema](../../../foundation/schema/) package. Schemas define the structure, validation rules, and transformations applied before the request reaches your handler.
 
-Learn more about defining schemas:
+Learn more about schemas:
 
 - [Object schema](../../../foundation/schema/docs/object-schema.md)
 - [Array schema](../../../foundation/schema/docs/array-schema.md)
@@ -147,6 +147,7 @@ Learn more about defining schemas:
 
 ## What's next
 
+- [Declare responses](./http-responses.md)
 - [Declare routes](./http-routes.md)
 
 ## License

@@ -17,14 +17,14 @@
           "name": "testRouteA",
           "file": "test/http/input/output-response.ts",
           "position": [
-            43,
+            47,
             1
           ],
           "response": {
             "status": 204,
             "body": {
               "type": "object",
-              "description": "HTTP body payload.",
+              "description": "JSON response.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -41,14 +41,14 @@
           "name": "testRouteB",
           "file": "test/http/input/output-response.ts",
           "position": [
-            57,
+            65,
             1
           ],
           "response": {
             "status": 204,
             "body": {
               "type": "union",
-              "description": "HTTP body payload.",
+              "description": "Union response.",
               "elements": [
                 {
                   "type": "boolean"
@@ -67,12 +67,13 @@
           "name": "testRouteC",
           "file": "test/http/input/output-response.ts",
           "position": [
-            69,
+            81,
             1
           ],
           "response": {
             "status": 204,
             "body": {
+              "description": "Scalar response.",
               "type": "number"
             }
           }
@@ -87,14 +88,14 @@
           "name": "testRouteD",
           "file": "test/http/input/output-response.ts",
           "position": [
-            84,
+            100,
             1
           ],
           "response": {
             "status": 204,
             "body": {
               "type": "object",
-              "description": "HTTP body payload.",
+              "description": "JSON response with `NamingStyle` transformation.",
               "identity": 1,
               "properties": {
                 "barBaz": {
@@ -114,7 +115,7 @@
           "name": "testRouteE",
           "file": "test/http/input/output-response.ts",
           "position": [
-            98,
+            117,
             1
           ],
           "response": {
@@ -131,7 +132,7 @@
           "name": "testRouteF",
           "file": "test/http/input/output-response.ts",
           "position": [
-            104,
+            123,
             1
           ],
           "response": {

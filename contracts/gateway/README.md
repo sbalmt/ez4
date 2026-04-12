@@ -51,7 +51,7 @@ declare class MyRouteResponse implements Http.Response {
 }
 ```
 
-> For more details, check the [gateway requests](./docs/http-requests.md) documentation.
+> For more details, check the gateway [requests](./docs/http-requests.md) and [responses](./docs/http-responses.md) documentation.
 
 #### Provide variables and services
 

@@ -35,6 +35,10 @@ export declare class TestService extends Http.Service {
 
 interface ObjectResponse extends Http.Response {
   status: 204;
+
+  /**
+   * JSON response.
+   */
   body: {
     foo: string;
   };
@@ -51,6 +55,10 @@ function testRouteA(): ObjectResponse {
 
 declare class UnionResponse implements Http.Response {
   status: 204;
+
+  /**
+   * Union response.
+   */
   body: boolean | string;
 }
 
@@ -63,6 +71,10 @@ function testRouteB(): UnionResponse {
 
 type ScalarResponse = {
   status: 204;
+
+  /**
+   * Scalar response.
+   */
   body: number;
 };
 
@@ -75,6 +87,10 @@ function testRouteC(): ScalarResponse {
 
 declare class NamingStyleResponse implements Http.Response {
   status: 204;
+
+  /**
+   * JSON response with `NamingStyle` transformation.
+   */
   body: {
     fooBar: string;
     barBaz: number;
@@ -91,6 +107,9 @@ function testRouteD(): NamingStyleResponse {
   };
 }
 
+/**
+ * Multi-status response.
+ */
 declare class MultiStatusResponse implements Http.Response {
   status: 200 | 204;
 }

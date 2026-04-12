@@ -43,7 +43,7 @@ export interface HttpRequest {
    * @example
    * ```ts
    * parameters: {
-   *   id: string;
+   *   id: String.UUID;
    *   group: string;
    * }
    * ```
@@ -60,9 +60,9 @@ export interface HttpRequest {
    * @example
    * ```ts
    * query: {
-   *   search: string;
-   *   limit: number;
-   *   tags: string[];
+   *   search?: String.Max<250>;
+   *   limit: Integer.Any;
+   *   tags: TagsEnum[];
    * }
    * ```
    */
@@ -71,17 +71,17 @@ export interface HttpRequest {
   /**
    * Typed request body payload.
    *
-   * - Supports JSON and raw string payloads.
    * - Automatically parsed into the declared types.
+   * - Supports JSON objects and raw string payloads.
    * - Shape is determined by the declared contract.
    *
    * @example
    * ```ts
    * // JSON body
    * body: {
-   *   name: string;
-   *   email: string;
-   *   age?: number;
+   *   name: String.Size<1, 20>;
+   *   email: String.Email;
+   *   age?: Integer.Any;
    * }
    *
    * // Raw body
