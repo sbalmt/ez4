@@ -178,6 +178,10 @@ Enables debug mode for the handler.
 debug: true;
 ```
 
+## What's next
+
+- [Declare routes](./http-routes.md)
+
 ## License
 
 MIT License

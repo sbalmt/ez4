@@ -77,6 +77,10 @@ variables: {
 
 > Provider‑level variables are inherited by all routes unless overridden at the route level.
 
+## What's next
+
+- [Declare routes](./http-routes.md)
+
 ## License
 
 MIT License

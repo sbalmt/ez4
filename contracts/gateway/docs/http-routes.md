@@ -254,6 +254,12 @@ Enables VPC access for the route.
 vpc: true;
 ```
 
+## What's next
+
+- [Declare requests](./http-requests.md)
+- [Declare providers](./http-provider.md)
+- [Declare defaults](./gateway-defaults.md)
+
 ## License
 
 MIT License

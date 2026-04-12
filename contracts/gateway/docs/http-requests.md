@@ -145,6 +145,10 @@ Learn more about defining schemas:
 - [Boolean schema](../../../foundation/schema/docs/boolean-schema.md)
 - [Enum schema](../../../foundation/schema/docs/enum-schema.md)
 
+## What's next
+
+- [Declare routes](./http-routes.md)
+
 ## License
 
 MIT License
