@@ -15,6 +15,9 @@ export declare class TestService extends Ws.Service<{}> {
 }
 
 declare class ConnectEvent implements Ws.Event {
+  /**
+   * Connect query strings.
+   */
   query: {
     secret: string;
   };

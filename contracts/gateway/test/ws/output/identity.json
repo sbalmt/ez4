@@ -20,13 +20,13 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-identity.ts",
         "position": [
-          25,
+          28,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
-            "description": "Expected identity.",
+            "description": "Authorization identity.",
             "identity": 1,
             "properties": {
               "id": {
@@ -42,13 +42,13 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-identity.ts",
         "position": [
-          31,
+          37,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
-            "description": "Expected identity.",
+            "description": "Authorization identity.",
             "identity": 1,
             "properties": {
               "id": {
@@ -64,13 +64,13 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-identity.ts",
         "position": [
-          37,
+          46,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
-            "description": "Expected identity.",
+            "description": "Authorization identity.",
             "identity": 1,
             "properties": {
               "id": {

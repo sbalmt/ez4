@@ -86,7 +86,7 @@ authorizer: typeof authorizeHandler;
 Lifecycle listener for the route.
 
 - Runs inside the same cloud resource as the handler and authorizer.
-- Receives events such as request start, request end, and internal transitions.
+- Receives events such as request begin, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts

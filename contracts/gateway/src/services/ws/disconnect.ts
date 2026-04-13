@@ -8,17 +8,27 @@ import type { WsEvent } from './event';
  */
 export interface WsDisconnect<T extends WsEvent> extends WebTarget {
   /**
-   * Life-cycle listener function for the event.
+   * Optional life‑cycle listener for the disconnect handler.
+   *
+   * - Runs inside the same cloud resource as the disconnect handler.
+   * - Receives events such as request begin, request end, and internal transitions.
+   * - Useful for logging, tracing, metrics, and instrumentation.
    */
   readonly listener?: WsListener<T>;
 
   /**
-   * Entry-point handler function for the event.
+   * Main entry‑point handler for the disconnect handler.
+   *
+   * - Runs in its own cloud resource.
+   * - Invoked only when the connection is closed.
    */
   readonly handler: WsHandler<T>;
 
   /**
-   * Determines whether or not VPC is enabled for the event.
+   * Enables VPC access for the disconnect handler.
+   *
+   * - Allows the handler to access private resources inside the default VPC.
+   * - May increase cold‑start latency.
    */
   readonly vpc?: boolean;
 }

@@ -55,7 +55,7 @@ export declare class MyServer extends Ws.Service<WsMessages> {
 Lifecycle listener for all handlers.
 
 - Runs inside the same cloud resource as the handler.
-- Receives events such as request start, request end, and internal transitions.
+- Receives events such as request begin, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts

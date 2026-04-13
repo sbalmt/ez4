@@ -19,18 +19,27 @@ export declare class TestService extends Ws.Service<{}> {
 }
 
 declare class ConnectEvent implements Ws.Event {
+  /**
+   * Authorization identity.
+   */
   identity: TestIdentity;
 }
 
 function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
 declare class DisconnectEvent implements Ws.Event {
+  /**
+   * Authorization identity.
+   */
   identity: TestIdentity;
 }
 
 function disconnectHandler(_event: Ws.Incoming<DisconnectEvent>) {}
 
 declare class TestRequest implements Ws.Request {
+  /**
+   * Authorization identity.
+   */
   identity: TestIdentity;
 }
 
