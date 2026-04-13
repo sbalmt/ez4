@@ -181,6 +181,12 @@ debug: true;
 ## What's next
 
 - [Declare routes](./http-routes.md)
+- [Declare requests](./http-requests.md)
+- [Declare responses](./http-responses.md)
+- [Declare handlers](./gateway-handler.md)
+- [Declare authorizers](./gateway-authorizer.md)
+- [Declare listeners](./gateway-listener.md)
+- [Declare providers](./gateway-provider.md)
 
 ## License
 

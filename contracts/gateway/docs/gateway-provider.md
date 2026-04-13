@@ -1,6 +1,6 @@
 # EZ4: Gateway Provider
 
-Gateway providers define **shared configuration** for all handlers and authorizers that use a given HTTP or WebSocket gateway. Providers allow you to declare environment variables and service bindings that become available to every route handler or authorizer associated with that provider.
+Gateway providers define a **shared configuration** for all handlers and authorizers that use a given HTTP or WebSocket gateway. Providers allow you to declare environment variables and service bindings that become available to every route handler or authorizer associated with that provider (see [contracts overview](../../../documentation/contracts.md) for more details).
 
 ## Provider declaration
 
@@ -86,8 +86,13 @@ variables: {
 
 ## What's next
 
-- [Contracts overview](../../../documentation/contracts.md)
 - [Declare routes](./http-routes.md)
+- [Declare requests](./http-requests.md)
+- [Declare responses](./http-responses.md)
+- [Declare handlers](./gateway-handler.md)
+- [Declare authorizers](./gateway-authorizer.md)
+- [Declare listeners](./gateway-listener.md)
+- [Declare defaults](./gateway-defaults.md)
 
 ## License
 

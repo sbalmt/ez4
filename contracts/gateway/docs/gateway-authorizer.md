@@ -1,6 +1,6 @@
 # EZ4: Gateway Authorizer
 
-Gateway authorizers define the **authentication and authorization logic** executed before a route handler is invoked. Authorizers run in an isolated cloud resource, receive a typed request object, and return an identity object that becomes available to the downstream handler. If the authorizer fails or returns no identity, the request is rejected before reaching the handler.
+Gateway authorizers define the **authentication and authorization logic** executed before a handler is invoked. Authorizers run in an isolated cloud resource, receive a typed request object, and return an identity object that becomes available to the downstream handler. If the authorizer fails or returns no identity, the request is rejected before reaching the handler.
 
 ## Authorizer request
 
@@ -30,7 +30,7 @@ declare class AuthorizerRequest implements Http.AuthRequest {
 - **Parameters** - Typed path parameters, useful for resource‑level authorization (e.g., `/users/{id}`).
 - **Query** - Typed query strings, often used for signed URLs, expiration tokens, or filters.
 
-All fields are validated and transformed according to the declared contract.
+All fields are validated and transformed according to the declared contract, , as mentioned in the HTTP [requests](./http-requests.md) documentation.
 
 ## Authorizer response
 
@@ -56,9 +56,9 @@ The **identity** object may include:
 
 All fields are validated according to the declared contract.
 
-## Authorizer handler
+## Authorizer implementation
 
-An authorizer handler is a function that receives a typed authorization request and returns an authorization response.
+An authorizer is a function that receives a typed authorization request and returns an authorization response.
 
 ```ts
 export function authorizerHandler(
@@ -82,6 +82,12 @@ export function authorizerHandler(
 ## What's next
 
 - [Declare routes](./http-routes.md)
+- [Declare requests](./http-requests.md)
+- [Declare responses](./http-responses.md)
+- [Declare handlers](./gateway-handler.md)
+- [Declare listeners](./gateway-listener.md)
+- [Declare providers](./gateway-provider.md)
+- [Declare defaults](./gateway-defaults.md)
 
 ## License
 

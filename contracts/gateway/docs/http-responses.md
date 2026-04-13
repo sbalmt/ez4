@@ -108,8 +108,13 @@ Learn more about schemas:
 
 ## What's next
 
-- [Declare requests](./http-requests.md)
 - [Declare routes](./http-routes.md)
+- [Declare requests](./http-requests.md)
+- [Declare handlers](./gateway-handler.md)
+- [Declare authorizers](./gateway-authorizer.md)
+- [Declare listeners](./gateway-listener.md)
+- [Declare providers](./gateway-provider.md)
+- [Declare defaults](./gateway-defaults.md)
 
 ## License
 

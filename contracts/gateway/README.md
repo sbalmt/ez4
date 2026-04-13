@@ -23,7 +23,7 @@ export declare class MyServer extends Http.Service {
   routes: [
     Http.UseRoute<{
       path: 'POST /post-route';
-      handler: typeof routeHandler;
+      handler: typeof postRouteHandler;
     }>
   ];
 }
@@ -79,7 +79,7 @@ EZ4 wires together the request, response, and provider context automatically bef
 
 ```ts
 // MyServer route handler
-export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Service.Context<MyRouteProvider>): MyRouteResponse {
+export function postRouteHandler(request: Http.Incoming<MyRouteRequest>, context: Service.Context<MyRouteProvider>): MyRouteResponse {
   const { otherService, variables } = context;
   const { body } = request;
 
@@ -100,6 +100,8 @@ export function routeHandler(request: Http.Incoming<MyRouteRequest>, context: Se
   };
 }
 ```
+
+> For more details, check the gateway [handler](./docs/gateway-handler.md) documentation.
 
 ## Gateway properties
 

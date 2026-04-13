@@ -147,8 +147,13 @@ Learn more about schemas:
 
 ## What's next
 
-- [Declare responses](./http-responses.md)
 - [Declare routes](./http-routes.md)
+- [Declare responses](./http-responses.md)
+- [Declare handlers](./gateway-handler.md)
+- [Declare authorizers](./gateway-authorizer.md)
+- [Declare listeners](./gateway-listener.md)
+- [Declare providers](./gateway-provider.md)
+- [Declare defaults](./gateway-defaults.md)
 
 ## License
 
