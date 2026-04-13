@@ -11,7 +11,9 @@ The `Http.Response` interface represents the full structure of an outgoing HTTP 
 ```ts
 declare class MyResponse implements Http.Response {
   status: 200; // 2XX
-  headers: object;
+  headers: {
+    // Required headers ...
+  };
   body: object | string | number | boolean;
 }
 ```
@@ -23,7 +25,9 @@ declare class MyResponse implements Http.Response {
 ```ts
 interface MyResponse extends Http.Response {
   status: 200; // 2XX
-  headers: object;
+  headers: {
+    // Required headers ....
+  };
   body: object | string | number | boolean;
 }
 ```
@@ -105,6 +109,7 @@ Learn more about schemas:
 ## What's next
 
 - [Declare requests](./http-requests.md)
+- [Declare routes](./http-routes.md)
 
 ## License
 

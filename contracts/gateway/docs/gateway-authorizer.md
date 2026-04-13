@@ -1,6 +1,6 @@
 # EZ4: Gateway Authorizer
 
-Gateway authorizers define the **authentication and authorization logic** executed before a route handler is invoked. Authorizers run in an isolated cloud resource, receive a typed request object, and return an identity object that becomes available to the downstream handler. If the authorizer fails or returns no identity, the request is rejected before reaching the route handler.
+Gateway authorizers define the **authentication and authorization logic** executed before a route handler is invoked. Authorizers run in an isolated cloud resource, receive a typed request object, and return an identity object that becomes available to the downstream handler. If the authorizer fails or returns no identity, the request is rejected before reaching the handler.
 
 ## Authorizer request
 
@@ -8,9 +8,17 @@ The `Http.AuthRequest` or `Ws.AuthRequest` interface defines the typed shape of 
 
 ```ts
 declare class AuthorizerRequest implements Http.AuthRequest {
-  headers: object;
-  parameters: object;
-  query: object;
+  headers: {
+    // Required headers ...
+  };
+
+  parameters: {
+    // Required path parameters ...
+  };
+
+  query: {
+    // Required query strings ...
+  };
 }
 ```
 
@@ -26,11 +34,13 @@ All fields are validated and transformed according to the declared contract.
 
 ## Authorizer response
 
-The `Http.AuthResponse` or `Ws.AuthResponse` interface defines the identity returned by the authorizer. This identity becomes available to the route handler as `request.identity`.
+The `Http.AuthResponse` or `Ws.AuthResponse` interface defines the identity returned by the authorizer. This identity becomes available to the handler as `request.identity`.
 
 ```ts
 declare class AuthorizerResponse implements Http.AuthResponse {
-  identity?: object;
+  identity?: {
+    // Identity data.
+  };
 }
 ```
 
@@ -51,7 +61,10 @@ All fields are validated according to the declared contract.
 An authorizer handler is a function that receives a typed authorization request and returns an authorization response.
 
 ```ts
-export function authorizerHandler(request: AuthorizerRequest, context: AuthorizerProvider): AuthorizerResponse {
+export function authorizerHandler(
+  request: Http.Incoming<AuthorizerRequest>,
+  context: Service.Context<AuthorizerProvider>
+): AuthorizerResponse {
   // Validate token, check permissions, etc.
 
   return {
@@ -64,7 +77,7 @@ export function authorizerHandler(request: AuthorizerRequest, context: Authorize
 }
 ```
 
-> Throwing an exception or returning no identity denies the request.
+> Throwing an exception or returning no identity denies the request. Use `Ws.Incoming` for WebSocket requests.
 
 ## What's next
 

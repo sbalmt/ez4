@@ -27,7 +27,7 @@ export declare class MyProvider implements Http.Provider {
 }
 ```
 
-> The provider class must implement `Http.Provider`, `Http.AuthProvider`, or `Ws.AuthProvider`, depending on whether it's used for route handlers or authorizers.
+> The provider class must implement `Http.Provider`, `Http.AuthProvider`, or `Ws.AuthProvider` interface.
 
 #### Using interface
 
@@ -86,6 +86,7 @@ variables: {
 
 ## What's next
 
+- [Contracts overview](../../../documentation/contracts.md)
 - [Declare routes](./http-routes.md)
 
 ## License

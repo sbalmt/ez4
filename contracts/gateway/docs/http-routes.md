@@ -12,6 +12,7 @@ export declare class MyServer extends Http.Service {
     Http.UseRoute<{
       name: 'getUser';
       path: 'GET /users/{id}';
+      listener: typeof userListener;
       authorizer: typeof authorizeHandler;
       handler: typeof getUserHandler;
       cors: true;
@@ -89,10 +90,10 @@ Lifecycle listener for the route.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts
-listener: typeof userRouteListener;
+listener: typeof userListener;
 ```
 
-> Use `typeof` since the route listener is a type declaration.
+> Use `typeof` since the route listener is a type declaration. See the gateway [listener](./gateway-listener.md) for more details.
 
 #### HTTP errors (optional)
 
@@ -134,7 +135,7 @@ variables: {
 }
 ```
 
-> For a better experience with environment variables, use them with a [gateway provider](./gateway-provider.md).
+> For a better experience with environment variables, use them with a gateway [provider](./gateway-provider.md).
 
 #### Log retention (optional)
 
