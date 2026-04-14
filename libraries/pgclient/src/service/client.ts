@@ -4,6 +4,7 @@ import type { InternalTableMetadata } from '../types/table';
 import type { PgClientDriver } from '../types/driver';
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
+import { isAnyArray } from '@ez4/utils';
 
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from '../queries/queries';
 import { getRelationsWithSchema } from './relations';
@@ -78,7 +79,7 @@ export namespace PgClient {
 }
 
 const getStatementParameters = <T extends Database.Service>(driver: PgClientDriver, parameters: ParametersModeUtils.Type<T>) => {
-  if (Array.isArray(parameters)) {
+  if (isAnyArray(parameters)) {
     return getParametersFromList(driver, parameters);
   }
 
@@ -102,6 +103,7 @@ const getParametersFromMap = (driver: PgClientDriver, parameters: Record<string,
 
     if (value !== undefined) {
       const parameter = driver.prepareVariable(field, value);
+
       parameterList.push(parameter);
     }
   }

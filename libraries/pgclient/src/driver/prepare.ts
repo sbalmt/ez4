@@ -5,23 +5,37 @@ export const prepareStatement = (query: string, variables?: FieldParameter[]): [
     return [query, undefined];
   }
 
-  const variableFields = new Set(variables.map(({ name }) => name));
-  const preparedValues = variables.map(({ value }) => value);
+  const preparedValues: unknown[] = [];
+  const fieldIndexes: Record<string, number> = {};
 
-  let counter = 0;
+  const fieldParameters = variables.reduce<Record<string, FieldParameter>>((map, variable) => {
+    map[variable.name] = variable;
+    return map;
+  }, {});
+
+  let totalFields = 0;
 
   const preparedQuery = query.replaceAll(/:(\w+)/g, (occurrence, fieldName) => {
-    if (!variableFields.has(fieldName)) {
+    const parameter = fieldParameters[fieldName];
+
+    if (!parameter) {
       return occurrence;
     }
 
-    const type = variables[counter++]?.type;
+    const { type, value } = parameter;
 
-    if (type) {
-      return `$${counter}::${type}`;
+    if (!fieldIndexes[fieldName]) {
+      fieldIndexes[fieldName] = ++totalFields;
+      preparedValues.push(value);
     }
 
-    return `$${counter}`;
+    const index = fieldIndexes[fieldName];
+
+    if (type) {
+      return `$${index}::${type}`;
+    }
+
+    return `$${index}`;
   });
 
   return [preparedQuery, preparedValues];
