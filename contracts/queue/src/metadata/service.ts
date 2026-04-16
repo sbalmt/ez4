@@ -20,12 +20,14 @@ import { isObjectWith } from '@ez4/utils';
 
 import { createQueueService } from './types';
 import { IncompleteServiceError } from '../errors/service';
-import { IncorrectFifoModePropertyError } from '../errors/fifo';
+import { IncorrectFifoModePropertyError } from '../errors/fifomode';
+import { IncorrectFairModePropertyError } from '../errors/fairmode';
 import { attachValidatorLinkedServices } from './utils/validator';
 import { getQueueSubscriptionsMetadata } from './subscription';
 import { getQueueDeadLetterMetadata } from './deadletter';
+import { getQueueFifoModeMetadata } from './fifomode';
+import { getQueueFairModeMetadata } from './fairmode';
 import { getQueueMessageMetadata } from './message';
-import { getQueueFifoModeMetadata } from './fifo';
 
 export const isQueueServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Service', 'Queue.Ordered', 'Queue.Unordered');
@@ -81,6 +83,13 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
+        case 'fairMode': {
+          if (!member.inherited) {
+            service.fairMode = getQueueFairModeMetadata(member.value, declaration, reflection, errorList);
+          }
+          break;
+        }
+
         case 'timeout':
         case 'retention':
         case 'polling':
@@ -126,7 +135,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const validationErrors = validateFifoModeProperties(declaration, service);
+    const validationErrors = validateModeProperties(declaration, service);
 
     if (validationErrors.length) {
       errorList.push(...validationErrors);
@@ -153,11 +162,15 @@ const isCompleteService = (type: Incomplete<QueueService>): type is QueueService
   return isObjectWith(type, ['schema', 'subscriptions', 'variables', 'services']);
 };
 
-const validateFifoModeProperties = (parent: TypeModel, service: QueueService) => {
-  const { fifoMode } = service;
+const validateModeProperties = (parent: TypeModel, service: QueueService) => {
+  const { fifoMode, fairMode } = service;
 
   if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
     return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  }
+
+  if (fairMode && !hasSchemaProperty(service.schema, fairMode.groupId)) {
+    return [new IncorrectFairModePropertyError([fairMode.groupId], parent.file)];
   }
 
   return [];

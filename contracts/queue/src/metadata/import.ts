@@ -22,8 +22,8 @@ import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
 import { getQueueSubscriptionsMetadata } from './subscription';
+import { getQueueFifoModeMetadata } from './fifomode';
 import { getQueueMessageMetadata } from './message';
-import { getQueueFifoModeMetadata } from './fifo';
 import { createQueueImport } from './types';
 
 export const isQueueImportDeclaration = (type: AllType): type is TypeClass => {

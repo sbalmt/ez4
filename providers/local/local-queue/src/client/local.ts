@@ -13,7 +13,7 @@ export type LocalClientOptions = ServeOptions & {
   delay: number;
 };
 
-export const createLocalClient = <T extends Queue.Message = any, U extends Queue.FifoMode<T> | undefined = any>(
+export const createLocalClient = <T extends Queue.Message = any, U extends Queue.Mode = any>(
   resourceName: string,
   messageSchema: MessageSchema,
   clientOptions: LocalClientOptions

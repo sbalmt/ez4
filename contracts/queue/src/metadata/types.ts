@@ -16,6 +16,7 @@ export type QueueService = Omit<ServiceMetadata, 'variables' | 'services'> &
     subscriptions: QueueSubscription[];
     description?: string;
     fifoMode?: QueueFifoMode;
+    fairMode?: QueueFairMode;
     deadLetter?: QueueDeadLetter;
     timeout?: number;
     retention?: number;
@@ -42,6 +43,10 @@ export type QueueSubscriptionHandler = FunctionSignature;
 
 export type QueueFifoMode = {
   uniqueId?: string;
+  groupId: string;
+};
+
+export type QueueFairMode = {
   groupId: string;
 };
 

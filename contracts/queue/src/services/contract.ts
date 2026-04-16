@@ -4,10 +4,11 @@ import type { QueueSubscriptionListener } from './listener';
 import type { QueueSubscriptionHandler } from './handler';
 import type { QueueSubscription } from './subscription';
 import type { QueueDeadLetter } from './deadletter';
+import type { QueueFifoMode } from './fifomode';
+import type { QueueFairMode } from './fairmode';
 import type { QueueIncoming } from './incoming';
 import type { QueueRequest } from './request';
 import type { QueueMessage } from './message';
-import type { QueueFifoMode } from './mode';
 import type { Client } from './client';
 
 /**
@@ -18,7 +19,9 @@ export namespace Queue {
   export type Request = QueueRequest;
 
   export type DeadLetter = QueueDeadLetter;
+
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
+  export type FairMode<T extends Message> = QueueFairMode<T>;
 
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
@@ -40,21 +43,29 @@ export namespace Queue {
   export type UseSubscription<T extends Subscription<any>> = T;
 
   /**
-   * Queue Fifo Mode definition.
+   * Queue FIFO mode definition.
    */
   export type UseFifoMode<T extends FifoMode<any>> = T;
 
   /**
-   * Queue Dead-letter definition.
+   * Queue Fair mode definition.
+   */
+  export type UseFairMode<T extends FairMode<any>> = T;
+
+  /**
+   * Queue Dead letter definition.
    */
   export type UseDeadLetter<T extends DeadLetter> = T;
 
   /**
+   * Queue service mode.
+   */
+  export type Mode = { fifoMode: true } | { fairMode: true };
+
+  /**
    * Queue service.
    */
-  export declare abstract class Service<T extends Message, U extends FifoMode<T> | undefined = undefined>
-    implements CommonService.Provider
-  {
+  export declare abstract class Service<T extends Message, U extends Mode> implements CommonService.Provider {
     /**
      * All subscriptions associated to the queue.
      */
@@ -68,7 +79,12 @@ export namespace Queue {
     /**
      * FIFO mode options.
      */
-    readonly fifoMode: U;
+    readonly fifoMode: U extends { fifoMode: true } ? FifoMode<T> : never;
+
+    /**
+     * Fair mode options.
+     */
+    readonly fairMode: U extends { fairMode: true } ? FairMode<T> : never;
 
     /**
      * Enable and configure the dead-letter queue options.
@@ -109,7 +125,7 @@ export namespace Queue {
   /**
    * Ordered queue service.
    */
-  export declare abstract class Ordered<T extends Message> extends Service<T, FifoMode<T>> {
+  export declare abstract class Ordered<T extends Message> extends Service<T, { fifoMode: true }> {
     /**
      * Configure the FIFO mode options.
      */
@@ -124,7 +140,7 @@ export namespace Queue {
   /**
    * Unordered queue service.
    */
-  export declare abstract class Unordered<T extends Message> extends Service<T, undefined> {
+  export declare abstract class Unordered<T extends Message> extends Service<T, { fairMode: true }> {
     /**
      * Message schema.
      */

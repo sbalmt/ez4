@@ -3,7 +3,7 @@ import type { Queue } from './contract';
 /**
  * Queue client.
  */
-export interface Client<T extends Queue.Message, U extends Queue.FifoMode<T> | undefined> {
+export interface Client<T extends Queue.Message, U extends Queue.Mode> {
   /**
    * Send a new JSON message to the queue.
    *
@@ -39,7 +39,7 @@ export type ReceiveOptions = {
 /**
  * Options for sending messages with queue client.
  */
-export type SendOptions<T extends Queue.FifoMode<any> | undefined> = undefined extends T ? StandardSendOptions : never;
+export type SendOptions<T extends Queue.Mode> = T extends { fifoMode: true } ? never : StandardSendOptions;
 
 /**
  * Options for sending messages with standard queue client.

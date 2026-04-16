@@ -1,7 +1,7 @@
 import type { QueueMessage } from './message';
 
 /**
- * Queue FIFO mode options.
+ * FIFO queue mode options.
  */
 export interface QueueFifoMode<T extends QueueMessage> {
   /**
@@ -10,7 +10,7 @@ export interface QueueFifoMode<T extends QueueMessage> {
   readonly uniqueId?: keyof T;
 
   /**
-   * Name of the message group id field.
+   * Name of the message group Id field.
    */
   readonly groupId: keyof T;
 }

@@ -17,14 +17,14 @@ describe('queue fifo mode metadata errors', () => {
   registerTriggers();
 
   it('assert :: incomplete fifo mode', () => {
-    const [error1] = parseFile('incomplete-fifo', 1);
+    const [error1] = parseFile('incomplete-fifomode', 1);
 
     ok(error1 instanceof IncompleteFifoModeError);
     deepEqual(error1.properties, ['groupId']);
   });
 
   it('assert :: incorrect fifo mode', () => {
-    const [error1, error2] = parseFile('incorrect-fifo', 2);
+    const [error1, error2] = parseFile('incorrect-fifomode', 2);
 
     ok(error1 instanceof IncorrectFifoModeTypeError);
     equal(error1.baseType, 'Queue.FifoMode');
@@ -35,14 +35,14 @@ describe('queue fifo mode metadata errors', () => {
   });
 
   it('assert :: invalid fifo mode (declaration)', () => {
-    const [error1] = parseFile('invalid-fifo-class', 1);
+    const [error1] = parseFile('invalid-fifomode-class', 1);
 
     ok(error1 instanceof InvalidFifoModeTypeError);
     equal(error1.baseType, 'Queue.FifoMode');
   });
 
   it('assert :: invalid fifo mode (property)', () => {
-    const [error1] = parseFile('invalid-fifo-property', 1);
+    const [error1] = parseFile('invalid-fifomode-property', 1);
 
     ok(error1 instanceof InvalidServicePropertyError);
     equal(error1.propertyName, 'invalid_property');

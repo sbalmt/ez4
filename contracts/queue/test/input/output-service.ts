@@ -3,13 +3,14 @@ import type { Queue } from '@ez4/queue';
 
 interface TestMessage extends Queue.Message {
   id: string;
+  tenant: string;
   user: string;
 }
 
 /**
  * First test queue description.
  */
-export declare class TestQueue1 extends Queue.Service<TestMessage, Queue.FifoMode<TestMessage>> {
+export declare class TestQueue1 extends Queue.Ordered<TestMessage> {
   subscriptions: [];
 
   fifoMode: Queue.UseFifoMode<{
@@ -25,7 +26,22 @@ export declare class TestQueue1 extends Queue.Service<TestMessage, Queue.FifoMod
 /**
  * Description of the second test queue.
  */
-export declare class TestQueue2 extends Queue.Service<TestMessage> {
+export declare class TestQueue2 extends Queue.Unordered<TestMessage> {
+  subscriptions: [];
+
+  fairMode: Queue.UseFairMode<{
+    groupId: 'tenant';
+  }>;
+
+  services: {
+    testQueue: Environment.Service<TestQueue3>;
+  };
+}
+
+/**
+ * Third test queue description.
+ */
+export declare class TestQueue3 extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
   timeout: 5;
