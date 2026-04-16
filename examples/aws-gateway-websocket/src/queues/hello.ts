@@ -24,6 +24,13 @@ export declare class HelloQueue extends Queue.Unordered<HelloMessage> {
   }>;
 
   /**
+   * Enable fair-mode queue.
+   */
+  fairMode: Queue.UseFairMode<{
+    groupId: 'connectionId';
+  }>;
+
+  /**
    * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [

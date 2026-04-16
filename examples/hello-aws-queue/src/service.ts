@@ -39,6 +39,13 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
   }>;
 
   /**
+   * Define the message group Id field from MessageRequest for Fair mode.
+   */
+  fairMode: Queue.UseFairMode<{
+    groupId: 'foo';
+  }>;
+
+  /**
    * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [
