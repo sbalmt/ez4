@@ -12,6 +12,11 @@ export type QueueEntryPoint = QueueFunction & {
   dependencies: string[];
 };
 
+export type QueueBackoff = {
+  minDelay?: number;
+  maxDelay: number;
+};
+
 export type QueueFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
@@ -21,5 +26,6 @@ export type QueueFunctionParameters = Omit<
   messageSchema?: QueueMessageSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  backoff?: QueueBackoff;
   debug?: boolean;
 };

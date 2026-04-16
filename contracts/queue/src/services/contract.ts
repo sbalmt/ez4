@@ -7,6 +7,7 @@ import type { QueueDeadLetter } from './deadletter';
 import type { QueueFifoMode } from './fifomode';
 import type { QueueFairMode } from './fairmode';
 import type { QueueIncoming } from './incoming';
+import type { QueueBackoff } from './backoff';
 import type { QueueRequest } from './request';
 import type { QueueMessage } from './message';
 import type { Client } from './client';
@@ -19,6 +20,7 @@ export namespace Queue {
   export type Request = QueueRequest;
 
   export type DeadLetter = QueueDeadLetter;
+  export type Backoff = QueueBackoff;
 
   export type FifoMode<T extends Message> = QueueFifoMode<T>;
   export type FairMode<T extends Message> = QueueFairMode<T>;
@@ -58,6 +60,11 @@ export namespace Queue {
   export type UseDeadLetter<T extends DeadLetter> = T;
 
   /**
+   * Queue Backoff definition.
+   */
+  export type UseBackoff<T extends Backoff> = T;
+
+  /**
    * Queue service mode.
    */
   export type Mode = { fifoMode: true } | { fairMode: true };
@@ -90,6 +97,11 @@ export namespace Queue {
      * Enable and configure the dead-letter queue options.
      */
     readonly deadLetter?: DeadLetter;
+
+    /**
+     * Enable and configure the backoff queue options.
+     */
+    readonly backoff?: Backoff;
 
     /**
      * Maximum acknowledge time (in seconds) for the handler.
@@ -175,6 +187,11 @@ export namespace Queue {
      * Imported FIFO mode options (do not replace).
      */
     readonly fifoMode: T['fifoMode'];
+
+    /**
+     * Imported backoff configuration options.
+     */
+    readonly backoff: T['backoff'];
 
     /**
      * Imported maximum acknowledge time (do not replace).

@@ -27,6 +27,7 @@ import { getQueueSubscriptionsMetadata } from './subscription';
 import { getQueueDeadLetterMetadata } from './deadletter';
 import { getQueueFifoModeMetadata } from './fifomode';
 import { getQueueFairModeMetadata } from './fairmode';
+import { getQueueBackoffMetadata } from './backoff';
 import { getQueueMessageMetadata } from './message';
 
 export const isQueueServiceDeclaration = (type: AllType): type is TypeClass => {
@@ -90,19 +91,26 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
+        case 'deadLetter': {
+          if (!member.inherited) {
+            service.deadLetter = getQueueDeadLetterMetadata(member.value, declaration, reflection, errorList);
+          }
+          break;
+        }
+
+        case 'backoff': {
+          if (!member.inherited) {
+            service.backoff = getQueueBackoffMetadata(member.value, declaration, reflection, errorList);
+          }
+          break;
+        }
+
         case 'timeout':
         case 'retention':
         case 'polling':
         case 'delay': {
           if (!member.inherited) {
             service[member.name] = getPropertyNumber(member);
-          }
-          break;
-        }
-
-        case 'deadLetter': {
-          if (!member.inherited) {
-            service.deadLetter = getQueueDeadLetterMetadata(member.value, declaration, reflection, errorList);
           }
           break;
         }

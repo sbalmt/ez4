@@ -7,17 +7,17 @@ import { registerTriggers } from '@ez4/queue/library';
 
 import { parseFile } from './common/parser';
 
-describe('queue deadletter metadata errors', () => {
+describe('queue dead-letter metadata errors', () => {
   registerTriggers();
 
-  it('assert :: incomplete deadletter', () => {
+  it('assert :: incomplete dead-letter', () => {
     const [error1] = parseFile('incomplete-deadletter', 1);
 
     ok(error1 instanceof IncompleteDeadLetterError);
     deepEqual(error1.properties, ['maxRetries']);
   });
 
-  it('assert :: incorrect deadletter', () => {
+  it('assert :: incorrect dead-letter', () => {
     const [error1] = parseFile('incorrect-deadletter', 1);
 
     ok(error1 instanceof IncorrectDeadLetterTypeError);
@@ -25,14 +25,14 @@ describe('queue deadletter metadata errors', () => {
     equal(error1.modelType, 'TestDeadLetter');
   });
 
-  it('assert :: invalid deadletter (declaration)', () => {
+  it('assert :: invalid dead-letter (declaration)', () => {
     const [error1] = parseFile('invalid-deadletter-class', 1);
 
     ok(error1 instanceof InvalidDeadLetterTypeError);
     equal(error1.baseType, 'Queue.DeadLetter');
   });
 
-  it('assert :: invalid deadletter (property)', () => {
+  it('assert :: invalid dead-letter (property)', () => {
     const [error1] = parseFile('invalid-deadletter-property', 1);
 
     ok(error1 instanceof InvalidServicePropertyError);

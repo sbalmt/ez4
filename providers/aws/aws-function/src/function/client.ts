@@ -42,8 +42,8 @@ export type CreateRequest = {
   variables?: LinkedVariables;
   architecture: ArchitectureType;
   runtime: RuntimeType;
-  timeout?: number;
-  memory?: number;
+  timeout: number;
+  memory: number;
   publish?: boolean;
   vpc?: boolean;
   tags?: ResourceTags;

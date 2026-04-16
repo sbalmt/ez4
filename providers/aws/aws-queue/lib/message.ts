@@ -3,14 +3,16 @@ import type { ValidationCustomContext } from '@ez4/validator';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { SQSClient, DeleteMessageCommand } from '@aws-sdk/client-sqs';
+import { getJsonMessage, getRetryDelay, resolveValidation } from '@ez4/queue/utils';
+import { SQSClient, DeleteMessageCommand, ChangeMessageVisibilityCommand } from '@aws-sdk/client-sqs';
 import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 const client = new SQSClient({});
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
+declare const __EZ4_MIN_RETRY: number;
+declare const __EZ4_MAX_RETRY: number;
 declare const __EZ4_CONTEXT: object;
 
 declare function dispatch(event: Queue.ServiceEvent<Queue.Message>, context: object): Promise<void>;
@@ -85,6 +87,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       //
     } catch (error) {
       await onError(error, currentRequest ?? request);
+      await resetMessage(record);
 
       failedMessages.push({ itemIdentifier: messageId });
 
@@ -116,6 +119,29 @@ const ackMessage = async (record: SQSRecord) => {
     await client.send(
       new DeleteMessageCommand({
         QueueUrl: getQueueUrl(record.eventSourceARN),
+        ReceiptHandle: receiptHandle
+      })
+    );
+  } catch (error) {
+    console.warn({
+      error: `${error}`,
+      receiptHandle,
+      messageId
+    });
+  }
+};
+
+const resetMessage = async (record: SQSRecord) => {
+  const { messageId, receiptHandle, attributes } = record;
+
+  try {
+    const retryCount = Number(attributes.ApproximateReceiveCount) || 1;
+    const retryDelay = getRetryDelay(retryCount, __EZ4_MIN_RETRY, __EZ4_MAX_RETRY);
+
+    await client.send(
+      new ChangeMessageVisibilityCommand({
+        QueueUrl: getQueueUrl(record.eventSourceARN),
+        VisibilityTimeout: retryDelay,
         ReceiptHandle: receiptHandle
       })
     );

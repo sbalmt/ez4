@@ -13,7 +13,7 @@ declare const __MODULE_PATH: string;
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
 export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, messageSchema, context, debug } = parameters;
+  const { handler, listener, functionName, messageSchema, backoff, timeout, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -23,7 +23,9 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     filePrefix: 'sqs',
     define: {
       ...definitions,
-      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
+      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined',
+      __EZ4_MIN_RETRY: `${backoff?.minDelay ?? timeout}`,
+      __EZ4_MAX_RETRY: `${backoff?.maxDelay ?? timeout}`
     },
     handler,
     listener,

@@ -8,6 +8,7 @@ export * from './errors/fifomode';
 export * from './errors/fairmode';
 export * from './errors/handler';
 export * from './errors/message';
+export * from './errors/backoff';
 
 export * from './metadata/import';
 export * from './metadata/service';
@@ -17,4 +18,5 @@ export * from './metadata/message';
 export * from './metadata/deadletter';
 export * from './metadata/fifomode';
 export * from './metadata/fairmode';
+export * from './metadata/backoff';
 export * from './metadata/types';

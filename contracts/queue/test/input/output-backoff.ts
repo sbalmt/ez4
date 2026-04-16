@@ -3,13 +3,13 @@ import type { Queue } from '@ez4/queue';
 interface TestMessage extends Queue.Message {}
 
 /**
- * Queue to test dead-letter configuration.
+ * Queue to test backoff configuration.
  */
 export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
-  deadLetter: Queue.UseDeadLetter<{
-    retention: 60;
-    maxRetries: 5;
+  backoff: Queue.UseBackoff<{
+    minDelay: 15;
+    maxDelay: 30;
   }>;
 }

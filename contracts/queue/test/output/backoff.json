@@ -1,25 +1,25 @@
 {
   "@variables": {
-    "name": "@variables",
     "type": "@ez4/common",
+    "name": "@variables",
     "context": {}
   },
   "TestQueue": {
     "type": "@ez4/queue",
+    "name": "TestQueue",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestQueue",
-    "description": "Queue to test dead-letter configuration.",
-    "subscriptions": [],
+    "description": "Queue to test backoff configuration.",
     "schema": {
       "type": "object",
       "properties": {},
       "identity": 1
     },
-    "deadLetter": {
-      "retention": 60,
-      "maxRetries": 5
+    "subscriptions": [],
+    "backoff": {
+      "minDelay": 15,
+      "maxDelay": 30
     }
   }
 }

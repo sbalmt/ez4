@@ -11,7 +11,7 @@ import { Runtime } from '@ez4/common';
 export namespace Client {
   const client = new SQSClient();
 
-  export type Mode<T extends Queue.Message> = {
+  export type Parameters<T extends Queue.Message> = {
     fifoMode?: Queue.FifoMode<T>;
     fairMode?: Queue.FairMode<T>;
   };
@@ -19,7 +19,7 @@ export namespace Client {
   export const make = <T extends Queue.Message, U extends Queue.Mode>(
     queueUrl: string,
     messageSchema: MessageSchema,
-    mode?: Mode<T>
+    parameters?: Parameters<T>
   ): SqsClient<T, U> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions<U>) {
@@ -31,8 +31,8 @@ export namespace Client {
             QueueUrl: queueUrl,
             DelaySeconds: options?.delay,
             MessageBody: messageBody,
-            ...(mode?.fifoMode && getFifoParameters(message, mode.fifoMode)),
-            ...(mode?.fairMode && getFairParameters(message, mode.fairMode)),
+            ...(parameters?.fifoMode && getFifoParameters(message, parameters.fifoMode)),
+            ...(parameters?.fairMode && getFairParameters(message, parameters.fairMode)),
             MessageAttributes: {
               ['EZ4.TRACE_ID']: {
                 StringValue: scope?.traceId ?? getRandomUUID(),
@@ -46,9 +46,9 @@ export namespace Client {
       async receiveMessage(options?: ReceiveOptions): Promise<T[]> {
         const response = await client.send(
           new ReceiveMessageCommand({
-            QueueUrl: queueUrl,
             MaxNumberOfMessages: options?.messages,
-            WaitTimeSeconds: options?.polling
+            WaitTimeSeconds: options?.polling,
+            QueueUrl: queueUrl
           })
         );
 

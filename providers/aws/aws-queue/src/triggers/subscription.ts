@@ -25,7 +25,9 @@ export const prepareSubscriptions = (
     throw new RoleMissingError();
   }
 
-  for (const subscription of service.subscriptions) {
+  const { backoff, subscriptions } = service;
+
+  for (const subscription of subscriptions) {
     const { handler, listener } = subscription;
 
     const internalName = getInternalName(service, handler.name);
@@ -73,6 +75,7 @@ export const prepareSubscriptions = (
           sourceFile: listener.file,
           module: listener.module
         },
+        backoff,
         architecture,
         logLevel,
         runtime,

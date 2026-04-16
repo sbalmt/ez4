@@ -62,6 +62,8 @@ describe('function', () => {
       functionName: 'ez4-test-lambda-function',
       description: 'EZ4 Test lambda',
       handlerName: 'main',
+      memory: 128,
+      timeout: 5,
       sourceFile,
       tags: {
         test1: 'ez4-tag1',

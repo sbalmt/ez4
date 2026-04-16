@@ -24,8 +24,9 @@ describe('queue metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: empty queues', () => testFile('service'));
-  it('assert :: queue dead-letter', () => testFile('deadletter'));
   it('assert :: queue subscriptions', () => testFile('subscriptions'));
+  it('assert :: queue dead-letter', () => testFile('deadletter'));
+  it('assert :: queue backoff', () => testFile('backoff'));
   it('assert :: subscription listener', () => testFile('listener'));
   it('assert :: subscription vpc', () => testFile('vpc'));
   it('assert :: service variables', () => testFile('variables'));

@@ -73,6 +73,8 @@ describe('gateway authorizer', () => {
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],
+      memory: 128,
+      timeout: 5,
       authorizer: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

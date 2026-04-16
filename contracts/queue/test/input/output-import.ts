@@ -8,6 +8,11 @@ interface TestMessage extends Queue.Message {
 export declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
+  backoff: Queue.UseBackoff<{
+    maxDelay: 90;
+    minDelay: 15;
+  }>;
+
   timeout: 20;
 
   polling: 10;
@@ -16,9 +21,9 @@ export declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
 export declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
   subscriptions: [];
 
-  fifoMode: {
+  fifoMode: Queue.UseFifoMode<{
     groupId: 'foo';
-  };
+  }>;
 }
 
 function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Context<TestImport1Queue>) {
