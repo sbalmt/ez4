@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
-    "destroy": "ez4 destroy -e local.env",
+    "destroy": "ez4 destroy -e local.env --force",
     "serve": "ez4 serve -e local.env",
     "output": "ez4 output -e local.env",
     "test": "ez4 test -e local.env"
