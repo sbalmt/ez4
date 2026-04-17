@@ -87,7 +87,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       //
     } catch (error) {
       await onError(error, currentRequest ?? request);
-      await resetMessage(record);
+      await retryMessage(record);
 
       failedMessages.push({ itemIdentifier: messageId });
 
@@ -131,7 +131,7 @@ const ackMessage = async (record: SQSRecord) => {
   }
 };
 
-const resetMessage = async (record: SQSRecord) => {
+const retryMessage = async (record: SQSRecord) => {
   const { messageId, receiptHandle, attributes } = record;
 
   try {

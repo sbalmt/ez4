@@ -22,14 +22,14 @@ export namespace Defaults {
   export const Runtime = FunctionDefaults.Runtime;
 
   /**
-   * Default function timeout.
-   */
-  export const Timeout = FunctionDefaults.Timeout;
-
-  /**
    * Default function memory.
    */
   export const Memory = FunctionDefaults.Memory;
+
+  /**
+   * Default queue timeout.
+   */
+  export const Timeout = 150;
 
   /**
    * Default queue retention (14 days)
