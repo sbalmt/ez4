@@ -24,8 +24,8 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     define: {
       ...definitions,
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined',
-      __EZ4_MIN_RETRY: `${backoff?.minDelay ?? timeout}`,
-      __EZ4_MAX_RETRY: `${backoff?.maxDelay ?? timeout}`
+      __EZ4_MAX_RETRY: `${backoff?.maxDelay ?? timeout}`,
+      __EZ4_MIN_RETRY: `${backoff?.minDelay ?? 0}`
     },
     handler,
     listener,
