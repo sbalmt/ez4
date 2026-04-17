@@ -16,8 +16,8 @@ import { getDeployOptions } from '../../deploy/options';
 import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
-import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProject } from '../../config/project';
+import { loadPaths } from '../../config/tsconfig';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
@@ -31,8 +31,8 @@ export const deployCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
+  const [paths, references] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   if (options.force) {
@@ -48,13 +48,16 @@ export const deployCommand = async (input: InputOptions) => {
     force: true
   });
 
-  options.imports = allImports;
+  options.imports = references.imports;
 
   const [oldState, { metadata, dependencies }] = await DynamicLogger.logExecution('🔄️ Loading metadata and state', () => {
     return Promise.all([
       loadState(project.stateFile, options),
       buildMetadata(project.sourceFiles, {
-        aliasPaths
+        aliasPaths: {
+          ...references.paths,
+          ...paths
+        }
       })
     ]);
   });

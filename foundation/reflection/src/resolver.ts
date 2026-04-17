@@ -169,11 +169,11 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
   const reflection: ReflectionTypes = {};
 
   const sourceContext = {
-    events: options?.resolverEvents ?? {},
-    options: options?.resolverOptions ?? {},
     checker: program.getTypeChecker(),
-    pending: new Set<Node>(),
-    cache: new WeakMap<Node, AllType>()
+    options: options?.resolverOptions ?? {},
+    events: options?.resolverEvents ?? {},
+    cache: new WeakMap<Node, AllType>(),
+    pending: new Set<Node>()
   };
 
   for (const sourceFile of program.getSourceFiles()) {

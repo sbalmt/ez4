@@ -13,9 +13,9 @@ import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
 import { loadReferences } from '../../config/references';
 import { loadEnvironment } from '../../config/environment';
-import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
+import { loadPaths } from '../../config/tsconfig';
 import { watchMetadata } from '../../library/metadata';
 import { upgradeHandler } from '../../serve/upgrade';
 import { requestHandler } from '../../serve/request';
@@ -28,8 +28,8 @@ export const serveCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports, namespacePath] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
+  const [paths, references, namespacePath] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   if (input.environment) {
@@ -49,11 +49,11 @@ export const serveCommand = async (input: InputOptions) => {
 
   const additionalPaths = project.watchOptions?.additionalPaths ?? [];
 
-  options.imports = allImports;
+  options.imports = references.imports;
 
   const sourceWatcher = await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],
-    aliasPaths,
+    aliasPaths: { ...references.paths, ...paths },
     onMetadataReady: async (metadata) => {
       if (isRunning) {
         await shutdownServices(emulators);

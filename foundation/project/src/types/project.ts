@@ -62,7 +62,7 @@ export type ProjectOptions = {
   /**
    * Configuration for imported project references.
    */
-  references?: Record<string, ProjectImportOptions>;
+  references?: Record<string, ProjectReferenceOptions>;
 
   /**
    * Configuration for custom providers.
@@ -127,7 +127,7 @@ export type ProjectStateOptions = {
   path: string;
 };
 
-export type ProjectImportOptions = {
+export type ProjectReferenceOptions = {
   /**
    * Project options file path.
    */

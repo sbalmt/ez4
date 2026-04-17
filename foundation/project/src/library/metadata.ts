@@ -38,15 +38,17 @@ export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOpti
   });
 
   return {
-    dependencies: getReflectionFiles(reflectionFiles),
-    metadata
+    metadata,
+    dependencies: getReflectionFiles(reflectionFiles, {
+      paths: options?.aliasPaths
+    })
   };
 };
 
 export type WatchMetadataOptions = {
   onMetadataReady: MetadataReadyListener;
-  additionalPaths?: string[];
   aliasPaths?: Record<string, string[]>;
+  additionalPaths?: string[];
 };
 
 export const watchMetadata = (sourceFiles: string[], options: WatchMetadataOptions) => {
