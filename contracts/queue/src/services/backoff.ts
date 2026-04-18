@@ -4,6 +4,7 @@
 export interface QueueBackoff {
   /**
    * Minimum delay time (in seconds) to retry failed messages.
+   * Default is: `0`
    */
   readonly minDelay?: number;
 
