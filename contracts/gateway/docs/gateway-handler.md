@@ -74,7 +74,7 @@ Depending on the contract definition, the request may include:
 - **Identity** - Identity returned by the authorizer.
 - **Body** - Typed JSON or raw string payload.
 
-All fields are validated and transformed according to the request contract.
+All fields are validated and transformed according to the request contract, as mentioned in the WS [requests](./ws-requests.md) documentation.
 
 #### WS Response fields
 
@@ -82,18 +82,16 @@ Handlers must return a typed response object that matches the response contract.
 
 - **Body** - Optional JSON or raw string payload.
 
-WebSocket responses do not include status codes or headers.
-Fields not matching the response contract body are automatically removed.
+WebSocket responses do not include status codes or headers, and fields not matching the response contract body are automatically removed, as per the WS [responses](./ws-responses.md) documentation.
 
 ## What's next
 
-- [Declare routes](./http-routes.md)
-- [Declare requests](./http-requests.md)
-- [Declare responses](./http-responses.md)
-- [Declare authorizers](./gateway-authorizer.md)
-- [Declare listeners](./gateway-listener.md)
-- [Declare providers](./gateway-provider.md)
-- [Declare defaults](./gateway-defaults.md)
+- [HTTP routes](./http-routes.md)
+- [WebSocket routes](./ws-routes.md)
+- [Gateway authorizers](./gateway-authorizer.md)
+- [Gateway listeners](./gateway-listener.md)
+- [Gateway providers](./gateway-provider.md)
+- [Gateway defaults](./gateway-defaults.md)
 
 ## License
 

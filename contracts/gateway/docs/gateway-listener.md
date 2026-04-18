@@ -46,13 +46,12 @@ Listeners receive one or more of the following event types during the lifecycle 
 
 ## What's next
 
-- [Declare routes](./http-routes.md)
-- [Declare requests](./http-requests.md)
-- [Declare responses](./http-responses.md)
-- [Declare handlers](./gateway-handler.md)
-- [Declare authorizers](./gateway-authorizer.md)
-- [Declare providers](./gateway-provider.md)
-- [Declare defaults](./gateway-defaults.md)
+- [HTTP routes](./http-routes.md)
+- [WebSocket routes](./ws-routes.md)
+- [Gateway handlers](./gateway-handler.md)
+- [Gateway authorizers](./gateway-authorizer.md)
+- [Gateway providers](./gateway-provider.md)
+- [Gateway defaults](./gateway-defaults.md)
 
 ## License
 

@@ -207,13 +207,13 @@ vpc: true;
 
 ## What's next
 
-- [Declare requests](./ws-requests.md)
-- [Declare responses](./ws-responses.md)
-- [Declare handlers](./gateway-handler.md)
-- [Declare authorizers](./gateway-authorizer.md)
-- [Declare listeners](./gateway-listener.md)
-- [Declare providers](./gateway-provider.md)
-- [Declare defaults](./gateway-defaults.md)
+- [WebSocket requests](./ws-requests.md)
+- [WebSocket responses](./ws-responses.md)
+- [Gateway handlers](./gateway-handler.md)
+- [Gateway authorizers](./gateway-authorizer.md)
+- [Gateway listeners](./gateway-listener.md)
+- [Gateway providers](./gateway-provider.md)
+- [Gateway defaults](./gateway-defaults.md)
 
 ## License
 

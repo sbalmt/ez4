@@ -147,13 +147,13 @@ Learn more about schemas:
 
 ## What's next
 
-- [Declare routes](./http-routes.md)
-- [Declare responses](./http-responses.md)
-- [Declare handlers](./gateway-handler.md)
-- [Declare authorizers](./gateway-authorizer.md)
-- [Declare listeners](./gateway-listener.md)
-- [Declare providers](./gateway-provider.md)
-- [Declare defaults](./gateway-defaults.md)
+- [HTTP routes](./http-routes.md)
+- [HTTP responses](./http-responses.md)
+- [Gateway handlers](./gateway-handler.md)
+- [Gateway authorizers](./gateway-authorizer.md)
+- [Gateway listeners](./gateway-listener.md)
+- [Gateway providers](./gateway-provider.md)
+- [Gateway defaults](./gateway-defaults.md)
 
 ## License
 
