@@ -1,12 +1,13 @@
 import type { WebTarget } from '../target';
 import type { WsListener } from './listener';
+import type { WsResponse } from './response';
+import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
-import type { WsEvent } from './event';
 
 /**
  * WS message event.
  */
-export interface WsMessage<T extends WsEvent> extends WebTarget {
+export interface WsMessage<T extends WsRequest> extends WebTarget {
   /**
    * Optional life‑cycle listener for the message handler.
    *
@@ -22,7 +23,7 @@ export interface WsMessage<T extends WsEvent> extends WebTarget {
    * - Runs in its own cloud resource.
    * - Invoked only when a new message is received.
    */
-  readonly handler: WsHandler<T>;
+  readonly handler: WsHandler<T, WsResponse | void>;
 
   /**
    * Enables VPC access for the message handler.

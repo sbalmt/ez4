@@ -33,7 +33,7 @@ export interface WsConnect<T extends WsEvent, U extends AuthRequest> extends Web
    * - Runs in its own cloud resource.
    * - Invoked only when a new connection is opened.
    */
-  readonly handler: WsHandler<T>;
+  readonly handler: WsHandler<T, void>;
 
   /**
    * Enables VPC access for the connect handler.

@@ -22,7 +22,7 @@ export interface WsDisconnect<T extends WsEvent> extends WebTarget {
    * - Runs in its own cloud resource.
    * - Invoked only when the connection is closed.
    */
-  readonly handler: WsHandler<T>;
+  readonly handler: WsHandler<T, void>;
 
   /**
    * Enables VPC access for the disconnect handler.
