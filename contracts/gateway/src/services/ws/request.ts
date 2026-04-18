@@ -25,9 +25,9 @@ export interface WsRequest {
    * ```ts
    * // JSON body
    * body: {
-   *   name: String.Size<1, 20>;
-   *   email: String.Email;
-   *   age?: Integer.Any;
+   *   action: ActionEnum;
+   *   value: String.Size<1, 250>;
+   *   limit?: Integer.Any;
    * }
    *
    * // Raw body

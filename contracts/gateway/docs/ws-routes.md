@@ -207,6 +207,8 @@ vpc: true;
 
 ## What's next
 
+- [Declare requests](./ws-requests.md)
+- [Declare responses](./ws-responses.md)
 - [Declare handlers](./gateway-handler.md)
 - [Declare authorizers](./gateway-authorizer.md)
 - [Declare listeners](./gateway-listener.md)
