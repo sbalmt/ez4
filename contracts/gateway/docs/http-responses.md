@@ -1,6 +1,6 @@
 # EZ4: HTTP Responses
 
-Gateway responses define the **typed shape** of all outgoing HTTP responses produced by a gateway handler. Every handler returns a fully typed object that includes the HTTP status code, optional headers, and an optional body payload. These types are generated from the response contract and validated at runtime.
+Gateway responses define the **typed shape** of all outgoing HTTP data produced by a gateway handler. Every handler returns a fully typed object that includes the HTTP status code, optional headers, and an optional body payload. These types are generated from the response contract and validated at runtime.
 
 ## Response declaration
 

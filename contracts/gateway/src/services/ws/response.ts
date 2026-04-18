@@ -5,7 +5,7 @@ import type { WebBody } from '../body';
  */
 export interface WsResponse {
   /**
-   * Typed response body.
+   * Typed message response body.
    *
    * - Automatically removes fields not matching the contract.
    * - Supports JSON objects and raw string payloads.

@@ -30,7 +30,7 @@ declare function dispatch(event: Ws.ServiceEvent<Ws.Event>, context: object): Pr
 declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promise<void>;
 
 /**
- * Entrypoint to handle API Gateway requests.
+ * Entrypoint to handle API Gateway WS connections.
  */
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
