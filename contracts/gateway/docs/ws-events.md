@@ -100,6 +100,7 @@ Learn more about schemas:
 
 ## What's next
 
+- [WebSocket service](./ws-service.md)
 - [WebSocket routes](./ws-routes.md)
 - [WebSocket requests](./ws-requests.md)
 - [WebSocket responses](./ws-responses.md)

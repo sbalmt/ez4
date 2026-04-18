@@ -17,6 +17,7 @@ export declare class MyServer extends Http.Service {
     preferences: {
       namingStyle: NamingStyle.SnakeCase;
     };
+    // Only for HTTP Services.
     httpErrors: {
       404: [EntryNotFound];
       400: [InvalidInput];

@@ -207,6 +207,7 @@ vpc: true;
 
 ## What's next
 
+- [WebSocket service](./ws-service.md)
 - [WebSocket events](./ws-events.md)
 - [WebSocket requests](./ws-requests.md)
 - [WebSocket responses](./ws-responses.md)
