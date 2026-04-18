@@ -6,7 +6,11 @@
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "aurora",
+    "postgres",
+    "rds",
+    "aws"
   ],
   "repository": {
     "type": "git",

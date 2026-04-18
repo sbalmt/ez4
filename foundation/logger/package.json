@@ -6,7 +6,8 @@
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "logger"
   ],
   "repository": {
     "type": "git",

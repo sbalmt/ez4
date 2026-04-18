@@ -7,7 +7,9 @@
   "type": "module",
   "keywords": [
     "ez4",
-    "ez4-local"
+    "local",
+    "emulator",
+    "topic"
   ],
   "repository": {
     "type": "git",

@@ -6,7 +6,10 @@
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "queue",
+    "sqs",
+    "aws"
   ],
   "repository": {
     "type": "git",
