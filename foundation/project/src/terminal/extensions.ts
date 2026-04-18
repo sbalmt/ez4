@@ -5,10 +5,17 @@ import { dirname, extname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { tryLoadProject } from '../config/project';
-import { loadPaths } from '../config/tsconfig';
+import { tryLoadReferences } from '../config/references';
+import { tryLoadPaths } from '../config/tsconfig';
 
 const options = await tryLoadProject(process.env.EZ4_PROJECT_FILE);
-const paths = options ? await loadPaths(options) : {};
+const references = await tryLoadReferences(options);
+const paths = await tryLoadPaths(options);
+
+const aliasPaths = {
+  ...references.paths,
+  ...paths
+};
 
 export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
   if (isGlobalParentModule(context)) {
@@ -16,7 +23,7 @@ export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
   }
 
   const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
-  const modulePath = resolveImportPath(specifier, parentFile, paths);
+  const modulePath = resolveImportPath(specifier, parentFile, aliasPaths);
 
   if (!modulePath) {
     return defaultResolve(specifier, context);
@@ -41,15 +48,15 @@ const getTemporaryModulePath = (modulePath: string) => {
   return `${modulePath}?v=${Date.now()}`;
 };
 
-const resolveImportPath = (specifier: string, parentFile: string, paths: Record<string, string[]>) => {
-  for (const prefix in paths) {
+const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
+  for (const prefix in aliasPaths) {
     const prefixPattern = prefix.substring(0, prefix.length - 1);
 
     if (!specifier.startsWith(prefixPattern)) {
       continue;
     }
 
-    for (const globPath of paths[prefix]) {
+    for (const globPath of aliasPaths[prefix]) {
       const mergedPath = globPath.substring(0, globPath.length - 1) + specifier.substring(prefix.length - 1);
       const modulePath = resolveModulePath(mergedPath, process.cwd());
 

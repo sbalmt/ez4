@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { toKebabCase } from '@ez4/utils';
 
 import { getServiceHost } from '../utils/project';
-import { loadPathsFrom } from './tsconfig';
+import { getPathsFrom } from './tsconfig';
 import { loadProject } from './project';
 
 export const loadReferences = async (projectOptions: ProjectOptions) => {
@@ -20,7 +20,7 @@ export const loadReferences = async (projectOptions: ProjectOptions) => {
 
     const projectRoot = dirname(projectFile);
     const projectOptions = await loadProject(projectFile);
-    const projectPaths = await loadPathsFrom(projectRoot, projectOptions);
+    const projectPaths = await getPathsFrom(projectRoot, projectOptions);
 
     imports[alias] = {
       resourcePrefix: projectOptions.prefix ?? 'ez4',
@@ -43,4 +43,15 @@ export const loadReferences = async (projectOptions: ProjectOptions) => {
     imports,
     paths
   };
+};
+
+export const tryLoadReferences = async (projectOptions: ProjectOptions) => {
+  try {
+    return await loadReferences(projectOptions);
+  } catch {
+    return {
+      imports: {},
+      paths: {}
+    };
+  }
 };

@@ -1,22 +1,33 @@
 import type { ProjectOptions } from '../types/project';
 
 import { isAnyObject } from '@ez4/utils';
-import { Logger } from '@ez4/logger';
 
-import { basename, join } from 'node:path';
+import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+
+import { MissingTsConfigFileError } from '../errors/tsconfig';
 
 const DEFAULT_TSCONFIG_FILE = 'tsconfig.json';
 
 export type AliasPaths = Record<string, string[]>;
 
 export const loadPaths = async (options: ProjectOptions): Promise<AliasPaths> => {
-  return loadPathsFrom(process.cwd(), options);
+  return getPathsFrom(process.cwd(), options);
 };
 
-export const loadPathsFrom = async (path: string, options: ProjectOptions): Promise<AliasPaths> => {
-  const fileName = options.tsconfigFile ?? DEFAULT_TSCONFIG_FILE;
+export const tryLoadPaths = (options: ProjectOptions): Promise<AliasPaths> | AliasPaths => {
+  const fileName = getTsConfigPath(options);
 
+  if (existsSync(fileName)) {
+    return getPathsFrom(process.cwd(), options);
+  }
+
+  return {};
+};
+
+export const getPathsFrom = async (path: string, options: ProjectOptions): Promise<AliasPaths> => {
+  const fileName = getTsConfigPath(options);
   const filePath = join(path, fileName);
   const fileUrl = pathToFileURL(filePath).href;
 
@@ -31,12 +42,14 @@ export const loadPathsFrom = async (path: string, options: ProjectOptions): Prom
 
     return compilerOptions?.paths ?? {};
   } catch (error) {
-    if (!isAnyObject(error) || error.code !== 'ERR_MODULE_NOT_FOUND') {
-      throw error;
+    if (isAnyObject(error) && error.code === 'ERR_MODULE_NOT_FOUND') {
+      throw new MissingTsConfigFileError(fileName);
     }
 
-    Logger.warn(`File '${basename(filePath)}' wasn't found.`);
-
-    return {};
+    throw error;
   }
+};
+
+const getTsConfigPath = (options: ProjectOptions) => {
+  return options.tsconfigFile ?? DEFAULT_TSCONFIG_FILE;
 };
