@@ -51,7 +51,7 @@ Main entry‑point handler for the route.
 handler: typeof routeHandler;
 ```
 
-> Use `typeof` since the route handler is a type declaration.
+> Use `typeof` since the route handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Authorizer (optional, connect only)
 
@@ -86,12 +86,12 @@ listener: typeof serverListener;
 Defines handler‑specific preference options.
 
 ```ts
-preferences: Http.UsePreferences<{
-  namingStyle: NamingStyle.SnakeCase;
+preferences: Ws.UsePreferences<{
+  namingStyle: NamingStyle.CamelCase;
 }>;
 ```
 
-> Use the type helper `Http.UsePreferences` to get typing suggestions.
+> Use the type helper `Ws.UsePreferences` to get typing suggestions.
 
 #### Variables (optional)
 

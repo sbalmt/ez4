@@ -12,9 +12,9 @@ export declare class MyServer extends Http.Service {
     Http.UseRoute<{
       name: 'getUser';
       path: 'GET /users/{id}';
-      listener: typeof userListener;
+      listener: typeof serverListener;
       authorizer: typeof authorizeHandler;
-      handler: typeof getUserHandler;
+      handler: typeof routeHandler;
       cors: true;
       httpErrors: {
         404: [UserNotFound];
@@ -62,10 +62,10 @@ Main entry‑point handler for the route.
 - Invoked only after the authorizer (if defined) succeeds.
 
 ```ts
-handler: typeof getUserHandler;
+handler: typeof routeHandler;
 ```
 
-> Use `typeof` since the route handler is a type declaration.
+> Use `typeof` since the route handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Authorizer (optional)
 
