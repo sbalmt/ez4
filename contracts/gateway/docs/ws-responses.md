@@ -73,6 +73,7 @@ Learn more about schemas:
 ## What's next
 
 - [WebSocket routes](./ws-routes.md)
+- [WebSocket events](./ws-events.md)
 - [WebSocket requests](./ws-requests.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)

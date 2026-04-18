@@ -42,9 +42,7 @@ export interface WsEvent {
    * @example
    * ```ts
    * query: {
-   *   search?: String.Max<250>;
-   *   limit: Integer.Any;
-   *   tags: TagsEnum[];
+   *   token?: String.Base64;
    * }
    * ```
    */

@@ -10,23 +10,23 @@ A listener is a function that receives a typed service event and a provider cont
 export function myListener(event: Http.ServiceEvent | Ws.ServiceEvent, context: Service.Context<MyServer>) {
   switch (event.type) {
     case ServiceEventType.Begin:
-      // Request started
+      // Request started.
       break;
 
     case ServiceEventType.Ready:
-      // Validation and transformation completed
+      // Validation and transformation completed.
       break;
 
     case ServiceEventType.Done:
-      // Handler execution completed without error
+      // Handler execution completed without error.
       break;
 
     case ServiceEventType.Error:
-      // Validation or handler execution error
+      // Validation or handler execution error.
       break;
 
     case ServiceEventType.End:
-      // Request finished
+      // Request finished.
       break;
   }
 }

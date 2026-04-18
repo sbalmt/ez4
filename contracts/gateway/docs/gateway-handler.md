@@ -6,7 +6,7 @@ Gateway handlers define the **business logic** executed when a route is invoked.
 
 ```ts
 export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Context<MyServer>): MyResponse {
-  // Business logic here
+  // Business logic here.
 
   return {
     status: 200,
@@ -40,21 +40,27 @@ Handlers must return a typed response object that matches the route's response c
 - **Headers** - Optional typed headers.
 - **Body** - Optional JSON or scalar (string, number, or boolean) payload.
 
-Fields not matching the declared contract are automatically removed, as per the HTTP [responses](./http-responses.md) documentation.
+Unknown fields are automatically removed, as per the HTTP [responses](./http-responses.md) documentation.
 
 #### HTTP Error handling
 
-Handlers may throw:
+Exceptions are automatically captured:
 
-- An `HttpError`, which already includes the status code.
-- An exception mapped in the route's `httpErrors` field.
-- Any other error, which is treated as an internal server error.
+- `HttpError` includes its own status code.
+- Exceptions mapped in `httpErrors` use the mapped status code.
+- All other errors become internal server errors.
 
 ## WS implementation
 
+WebSocket services have two types of handlers.
+
+#### Message handler
+
+Used for **message** requests.
+
 ```ts
 export function myHandler(request: Ws.Incoming<MyMessage>, context: Service.Context<MyServer>): MyResponse {
-  // Business logic here
+  // Business logic here.
 
   return {
     body: {
@@ -64,25 +70,56 @@ export function myHandler(request: Ws.Incoming<MyMessage>, context: Service.Cont
 }
 ```
 
-> WebSocket handlers use the gateway service contract itself as the context provider.
+> Message handlers use the gateway service contract itself as the context provider.
 
-#### WS Request fields
+#### Connection handlers
+
+Used for **connect** and **disconnect** events.
+
+```ts
+export function connectionHandler(request: Ws.Incoming<MyEvent>, context: Service.Context<MyServer>) {
+  // Business logic here.
+}
+```
+
+> Connection handlers use the gateway service contract itself as the context provider.
+
+#### WS Request fields (message handlers)
 
 Handlers receive a typed object generated from the request contract.
 Depending on the contract definition, the request may include:
 
-- **Identity** - Identity returned by the authorizer.
+- **Identity** - Identity returned by the connect authorizer.
 - **Body** - Typed JSON or raw string payload.
 
 All fields are validated and transformed according to the request contract, as mentioned in the WS [requests](./ws-requests.md) documentation.
 
-#### WS Response fields
+#### WS Response fields (message handlers)
 
 Handlers must return a typed response object that matches the response contract.
 
 - **Body** - Optional JSON or raw string payload.
 
-WebSocket responses do not include status codes or headers, and fields not matching the response contract body are automatically removed, as per the WS [responses](./ws-responses.md) documentation.
+WebSocket responses do not include status codes or headers; Unknown fields are automatically removed, as per the WS [responses](./ws-responses.md) documentation.
+
+#### WS Event fields (connect and disconnect handlers)
+
+Handlers receive a typed object generated from the event contract.
+Depending on the contract definition, the event may include:
+
+- **Identity** - Identity returned by the connect authorizer.
+- **Headers** - Typed HTTP headers captured during connect (copied to disconnect).
+- **Query** - Typed query strings captured during connect (copied to disconnect).
+
+All fields are validated and transformed according to the event contract, as mentioned in the WS [events](./ws-events.md) documentation.
+
+#### WS Error handling
+
+Exceptions are automatically captured:
+
+- Errors thrown in the **connect** handler prevent the connection from being established.
+- Errors thrown in the **message** handler are formatted and sent back through the connection.
+- Errors in the **disconnect** handler are logged only, since the connection is already closed.
 
 ## What's next
 
