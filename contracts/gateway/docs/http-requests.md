@@ -1,4 +1,4 @@
-# EZ4: Gateway Requests
+# EZ4: HTTP Requests
 
 Gateway requests define the **typed shape** of all incoming HTTP requests processed by a gateway route. Every handler receives a fully typed object, which includes identity information, headers, path parameters, query strings, and body payloads. These types are generated from the request contract and validated at runtime.
 

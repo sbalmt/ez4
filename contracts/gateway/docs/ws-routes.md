@@ -1,78 +1,64 @@
-# EZ4: HTTP Routes
+# EZ4: WebSocket Routes
 
-Gateway routes define how HTTP requests are exposed, authorized, processed, and mapped to cloud resources. Each route is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the route contract to generate the necessary infrastructure, permissions, and API client methods automatically.
+Gateway routes for WebSocket define how real‑time connections are opened, authorized, observed, messaged, and terminated. Each route is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the route contract to generate the necessary infrastructure, permissions, and client bindings automatically.
 
-## Route declaration
+## WebSocket declaration
 
-A route is declared using the `Http.UseRoute` type helper, which uses the `Http.Route` type to define the HTTP verb, path, handler, optional authorizer, and additional runtime configuration.
+A WebSocket service declares three independent lifecycle routes:
+
+- **Connect** - invoked when a client opens a WebSocket connection.
+- **Message** - invoked whenever a message is received from the client.
+- **Disconnect** - invoked when the connection is closed.
+
+Each route is declared using the corresponding `Ws.UseConnect`, `Ws.UseMessage`, and `Ws.UseDisconnect` type helpers.
 
 ```ts
-export declare class MyServer extends Http.Service {
-  routes: [
-    Http.UseRoute<{
-      name: 'getUser';
-      path: 'GET /users/{id}';
-      listener: typeof userListener;
-      authorizer: typeof authorizeHandler;
-      handler: typeof getUserHandler;
-      cors: true;
-      httpErrors: {
-        404: [UserNotFound];
-        400: [InvalidInput];
-      };
-    }>
-    // ...
-  ];
+export declare class MyServer extends Ws.Service<MyMessages> {
+  connect: Ws.UseConnect<{
+    listener: typeof serverListener;
+    authorizer: typeof authorizeHandler;
+    handler: typeof connectHandler;
+  }>;
+
+  disconnect: Ws.UseDisconnect<{
+    listener: typeof serverListener;
+    handler: typeof disconnectHandler;
+  }>;
+
+  message: Ws.UseMessage<{
+    listener: typeof serverListener;
+    handler: typeof messageHandler;
+  }>;
 }
 ```
 
-> The route type is always an extension of the base `Http.Route` interface.
+> The generic `MyMessages` defines the typed message payloads exchanged over the WebSocket connection.
 
 ## Route fields
 
-The following fields define the behavior, infrastructure, and runtime configuration of a gateway route.
-
-#### Name
-
-Human‑readable operation name.
-
-- When omitted, the route is excluded from the generated API client.
-- Used for documentation (e.g., OpenAPI generation).
-- Used to name API client methods.
-
-```ts
-name: 'getUser';
-```
-
-#### Path
-
-HTTP verb and path for the route.
-
-- Path parameters must be wrapped in `{}`.
-
-```ts
-path: 'GET /users/{id}';
-```
+The following fields define the behavior, infrastructure, and runtime configuration of a gateway route. Unless otherwise noted, fields apply to connect, message, and disconnect routes.
 
 #### Handler
 
 Main entry‑point handler for the route.
 
 - Runs in its own cloud resource.
-- Invoked only after the authorizer (if defined) succeeds.
+- For **connect**: invoked once when a new connection is opened and after the authorizer (if defined) succeeds.
+- For **disconnect**: invoked when the connection is closed.
+- For **message**: invoked for every incoming message.
 
 ```ts
-handler: typeof getUserHandler;
+handler: typeof routeHandler;
 ```
 
 > Use `typeof` since the route handler is a type declaration.
 
-#### Authorizer (optional)
+#### Authorizer (optional, connect only)
 
-Entry‑point authorization function.
+Entry‑point authorization for the connect handler.
 
-- Runs in a separate cloud resource isolated from the route handler.
-- Must complete successfully before the route handler is invoked.
+- Runs in a separate cloud resource isolated from the connect handler.
+- Must complete successfully before the connect handler is invoked.
 - Can enrich the request with authentication/authorization context.
 
 ```ts
@@ -83,31 +69,17 @@ authorizer: typeof authorizeHandler;
 
 #### Listener (optional)
 
-Lifecycle listener for the route.
+Lifecycle listener for the connect, message, and disconnect handlers (and the authorizer, if defined).
 
 - Runs inside the same cloud resource as the handler and authorizer.
 - Receives events such as request begin, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts
-listener: typeof userListener;
+listener: typeof serverListener;
 ```
 
 > Use `typeof` since the route listener is a type declaration. See the gateway [listener](./gateway-listener.md) for more details.
-
-#### HTTP errors (optional)
-
-Maps exceptions to HTTP status codes.
-
-- Any exception listed here will be translated to the specified status code.
-- Unmapped exceptions default to HTTP 500 (Internal Server Error).
-
-```ts
-httpErrors: {
-  400: [InvalidInputError];
-  404: [NotFoundError];
-}
-```
 
 #### Preferences (optional)
 
@@ -222,28 +194,6 @@ Enables debug mode for the handler.
 debug: true;
 ```
 
-#### Disabled (optional)
-
-Disables the route.
-
-- Disabled routes are ignored during deployment.
-- No cloud resources are created for them.
-
-```ts
-disabled: true;
-```
-
-#### CORS (optional)
-
-Enables CORS for the route.
-
-- When enabled, CORS responses include the route's HTTP verb and headers.
-- Automatically generates the `OPTIONS` preflight route.
-
-```ts
-cors: true;
-```
-
 #### VPC (optional)
 
 Enables VPC access for the route.
@@ -257,8 +207,6 @@ vpc: true;
 
 ## What's next
 
-- [Declare requests](./http-requests.md)
-- [Declare responses](./http-responses.md)
 - [Declare handlers](./gateway-handler.md)
 - [Declare authorizers](./gateway-authorizer.md)
 - [Declare listeners](./gateway-listener.md)

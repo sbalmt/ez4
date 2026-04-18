@@ -1,4 +1,4 @@
-# EZ4: Gateway Responses
+# EZ4: HTTP Responses
 
 Gateway responses define the **typed shape** of all outgoing HTTP responses produced by a gateway handler. Every handler returns a fully typed object that includes the HTTP status code, optional headers, and an optional body payload. These types are generated from the response contract and validated at runtime.
 
@@ -11,9 +11,7 @@ The `Http.Response` interface represents the full structure of an outgoing HTTP 
 ```ts
 declare class MyResponse implements Http.Response {
   status: 200; // 2XX
-  headers: {
-    // Required headers ...
-  };
+  headers: object;
   body: object | string | number | boolean;
 }
 ```
@@ -25,9 +23,7 @@ declare class MyResponse implements Http.Response {
 ```ts
 interface MyResponse extends Http.Response {
   status: 200; // 2XX
-  headers: {
-    // Required headers ....
-  };
+  headers: object;
   body: object | string | number | boolean;
 }
 ```
