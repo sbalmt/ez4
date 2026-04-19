@@ -147,6 +147,7 @@ Learn more about schemas:
 
 ## What's next
 
+- [HTTP service](./http-service.md)
 - [HTTP routes](./http-routes.md)
 - [HTTP responses](./http-responses.md)
 - [Gateway handlers](./gateway-handler.md)

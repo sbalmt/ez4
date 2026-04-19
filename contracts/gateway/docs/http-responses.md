@@ -104,6 +104,7 @@ Learn more about schemas:
 
 ## What's next
 
+- [HTTP service](./http-service.md)
 - [HTTP routes](./http-routes.md)
 - [HTTP requests](./http-requests.md)
 - [Gateway handlers](./gateway-handler.md)

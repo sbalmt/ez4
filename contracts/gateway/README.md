@@ -29,6 +29,8 @@ export declare class MyServer extends Http.Service {
 }
 ```
 
+> For more details, check the http [service](./docs/http-service.md) documentation.
+
 #### Define request and response types
 
 Request and response types are plain TypeScript classes. EZ4 reflects over them to generate validation, serialization, and cloud integration.
@@ -51,7 +53,7 @@ declare class MyRouteResponse implements Http.Response {
 }
 ```
 
-> For more details, check the gateway [requests](./docs/http-requests.md) and [responses](./docs/http-responses.md) documentation.
+> For more details, check the http [requests](./docs/http-requests.md) and [responses](./docs/http-responses.md) documentation.
 
 #### Provide variables and services
 
@@ -144,7 +146,7 @@ export function postRouteHandler(request: Http.Incoming<MyRouteRequest>, context
 | cors         | boolean               | Determines whether or not CORS is enabled for the route.    |
 | vpc          | boolean               | Determines whether or not VPC is enabled for the route.     |
 
-> For more details, check the gateway [routes](./docs/http-routes.md) documentation.
+> For more details, check the http [routes](./docs/http-routes.md) documentation.
 
 With your gateway defined, EZ4 handles routing, validation, dependency injection, and execution automatically according to your contract.
 

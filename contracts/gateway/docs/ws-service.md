@@ -8,7 +8,7 @@ A WebSocket service is declared by extending the `Ws.Service` abstract class and
 
 ```ts
 export declare class MyServer extends Ws.Service<MyMessages> {
-  name: 'Stream API';
+  name: 'WS Service';
 
   stage: 'stream';
 
@@ -81,25 +81,6 @@ message: Ws.UseMessage<{
 
 > Use `typeof` since the handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
 
-#### Defaults (optional)
-
-Defines default configuration applied to all routes in the service and may include:
-
-- Payload naming preferences.
-- Runtime, Architecture and VPC settings.
-- Memory and timeout values.
-- Logging configuration.
-
-```ts
-defaults: Ws.UseDefaults<{
-  logLevel: LogLevel.Debug;
-  architecture: ArchitectureType.Arm;
-  runtime: RuntimeType.Node24;
-}>;
-```
-
-> See the gateway [defaults](./gateway-defaults.md) for more details.
-
 #### Name (optional)
 
 Human‑readable display name for the service.
@@ -126,9 +107,28 @@ stage: 'stream';
 
 > A service with the domain `api.com` and stage `stream` will expose its endpoint at `wss://api.com/stream`.
 
+#### Defaults (optional)
+
+Defines default configuration applied to all routes in the service and may include:
+
+- Payload naming preferences.
+- Runtime, Architecture and VPC settings.
+- Memory and timeout values.
+- Logging configuration.
+
+```ts
+defaults: Ws.UseDefaults<{
+  logLevel: LogLevel.Debug;
+  architecture: ArchitectureType.Arm;
+  runtime: RuntimeType.Node24;
+}>;
+```
+
+> See the gateway [defaults](./gateway-defaults.md) for more details.
+
 #### Services (optional)
 
-Declares service bindings available to handlers and authorizers using the service as its context provider.
+Declares service bindings available to all handlers using the WS service as its context provider.
 
 - Each entry represents a service that will be injected into the execution context.
 - Useful for exposing shared infrastructure or internal services.
@@ -143,7 +143,7 @@ services: {
 
 #### Variables (optional)
 
-Declares environment variables that apply to every handler and authorizer using the service as its context provider.
+Declares environment variables that apply to every handler using the WS service as its context provider.
 
 - Supports both mapped variables and literal values.
 - Provider‑level variables should **not** be accessed via `process.env`.

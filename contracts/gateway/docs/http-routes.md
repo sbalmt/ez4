@@ -257,6 +257,7 @@ vpc: true;
 
 ## What's next
 
+- [HTTP service](./http-service.md)
 - [HTTP requests](./http-requests.md)
 - [HTTP responses](./http-responses.md)
 - [Gateway handlers](./gateway-handler.md)
