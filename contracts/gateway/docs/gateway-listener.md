@@ -32,7 +32,7 @@ export function myListener(event: Http.ServiceEvent | Ws.ServiceEvent, context: 
 }
 ```
 
-> For global gateway listeners, you can use the gateway contract as the context type.
+> For global gateway listeners, you can use the gateway service as the context provider.
 
 ## Listener events
 

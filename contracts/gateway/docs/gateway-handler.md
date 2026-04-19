@@ -5,7 +5,7 @@ Gateway handlers define the **business logic** executed when a route is invoked.
 ## HTTP implementation
 
 ```ts
-export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Context<MyServer>): MyResponse {
+export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Context<MyProvider>): MyResponse {
   // Business logic here.
 
   return {

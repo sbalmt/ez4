@@ -92,6 +92,8 @@ cors: Http.UseCors<{
 }>;
 ```
 
+> Enable `cors` in the route to automatically include authorization headers and route method.
+
 #### Cache (optional)
 
 Defines caching behavior for authorizers.
