@@ -3,7 +3,7 @@ import type { Table as DbTable, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { InternalTableMetadata } from './types';
 
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException, DuplicateItemException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client';
@@ -115,24 +115,30 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     });
 
     if (!previous) {
-      await this.insertOne({ data: query.insert });
+      try {
+        await this.insertOne({ data: query.insert });
 
-      if (query.select) {
+        if (query.select) {
+          return {
+            record: deepClone<any, any, any>(query.insert, { include: query.select }),
+            inserted: true
+          } as Query.UpsertOneResult<S, T>;
+        }
+
         return {
-          record: deepClone<any, any, any>(query.insert, { include: query.select }),
           inserted: true
         } as Query.UpsertOneResult<S, T>;
+      } catch (error) {
+        // In case of race condition, fallback to update.
+        if (!(error instanceof DuplicateItemException)) {
+          throw error;
+        }
       }
-
-      return {
-        inserted: true
-      } as Query.UpsertOneResult<S, T>;
     }
 
-    await this.updateMany({
+    await this.updateOne({
       where: query.where as Query.WhereInput<T>,
-      data: query.update,
-      limit: 1
+      data: query.update
     });
 
     return {

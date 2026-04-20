@@ -210,6 +210,38 @@ describe('dynamodb client (one operation)', () => {
     });
   });
 
+  it('assert :: upsert one (concurrent, no error)', async () => {
+    ok(dbClient);
+
+    await dbClient.testTable.deleteOne({
+      where: {
+        id: 'stress',
+        order: 0
+      }
+    });
+
+    const operations = Array.from({ length: 100 }).map(() => {
+      return dbClient.testTable.upsertOne({
+        where: {
+          id: 'stress',
+          order: 0
+        },
+        insert: {
+          id: 'stress',
+          value: 'initial',
+          order: 0
+        },
+        update: {
+          value: 'updated'
+        }
+      });
+    });
+
+    const results = await Promise.all(operations);
+
+    equal(results.length, 100);
+  });
+
   it('assert :: delete one', async () => {
     ok(dbClient);
 
