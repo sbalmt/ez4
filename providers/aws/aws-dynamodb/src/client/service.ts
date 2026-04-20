@@ -5,8 +5,8 @@ import type { InternalTableMetadata, Repository } from './types';
 import { MissingRepositoryTableError, UnsupportedNamedParametersError, UnsupportedTransactionError } from './errors';
 import { prepareDeleteOne, prepareInsertOne, prepareUpdateOne } from './common/queries';
 import { executeStatement, executeTransaction } from './common/client';
+import { getClientInstance } from './utils/instance';
 import { Table } from './table';
-import { getClientInstance } from './utils';
 
 type TableType = Table<InternalTableMetadata>;
 

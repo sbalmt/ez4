@@ -3,10 +3,11 @@ import type { Table as DbTable, Query } from '@ez4/database';
 import type { ObjectSchema } from '@ez4/schema';
 import type { InternalTableMetadata } from './types';
 
-import { ConditionalCheckFailedException, DuplicateItemException } from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { deepClone } from '@ez4/utils';
 
 import { executeStatement, executeTransaction } from './common/client';
+import { isDuplicateItemError } from './utils/errors';
 
 import {
   prepareInsertOne,
@@ -130,7 +131,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         } as Query.UpsertOneResult<S, T>;
       } catch (error) {
         // In case of race condition, fallback to update.
-        if (!(error instanceof DuplicateItemException)) {
+        if (!isDuplicateItemError(error)) {
           throw error;
         }
       }

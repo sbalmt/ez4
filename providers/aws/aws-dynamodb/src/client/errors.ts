@@ -1,6 +1,6 @@
 export class UnsupportedTransactionError extends Error {
   constructor() {
-    super(`DynamoDB tables don't support function transaction.`);
+    super(`DynamoDB tables don't support iterative transactions.`);
   }
 }
 
@@ -12,6 +12,6 @@ export class UnsupportedNamedParametersError extends Error {
 
 export class MissingRepositoryTableError extends Error {
   constructor(public tableAlias: string) {
-    super(`DynamoDB table ${tableAlias} isn't part of the repository.`);
+    super(`DynamoDB table (${tableAlias}) isn't part of the repository.`);
   }
 }
