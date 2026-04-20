@@ -326,6 +326,29 @@ describe('aurora client operations', () => {
     });
   });
 
+  it('assert :: upsert one (concurrent, no error)', async () => {
+    ok(dbClient);
+
+    const operations = Array.from({ length: 10 }).map(() => {
+      return dbClient.ez4_test_operations.upsertOne({
+        insert: {
+          id: 'stress',
+          foo: 'initial'
+        },
+        update: {
+          foo: 'updated'
+        },
+        where: {
+          id: 'stress'
+        }
+      });
+    });
+
+    const results = await Promise.all(operations);
+
+    equal(results.length, 10);
+  });
+
   it('assert :: delete one', async () => {
     ok(dbClient);
 

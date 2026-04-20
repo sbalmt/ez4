@@ -3,7 +3,7 @@ import type { AnySchema } from '@ez4/schema';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
-import { UnsupportedFieldType } from './errors';
+import { UnsupportedFieldTypeError } from './errors';
 import { isJsonFieldSchema } from './schema';
 
 export type FieldParameter = {
@@ -83,7 +83,7 @@ export const detectFieldData = (name: string, value: unknown): FieldParameter =>
     }
 
     default:
-      throw new UnsupportedFieldType(name, typeof value);
+      throw new UnsupportedFieldTypeError(name, typeof value);
   }
 };
 

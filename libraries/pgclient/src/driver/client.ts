@@ -5,9 +5,11 @@ import type { Pool, PoolClient } from 'pg';
 import { Runtime } from '@ez4/common';
 
 import { randomUUID } from 'crypto';
+import { DatabaseError } from 'pg';
 
 import { logQueryError, logQuerySuccess } from './logger';
 import { detectFieldData, prepareFieldData } from './fields';
+import { DuplicateUniqueKeyError } from './errors';
 import { prepareStatement } from './prepare';
 import { parseRecords } from './records';
 
@@ -54,6 +56,10 @@ export class ClientDriver implements PgClientDriver {
     } catch (error) {
       if (!options?.noErrorLog) {
         logQueryError(statement, transactionId);
+      }
+
+      if (error instanceof DatabaseError && error.code === '23505') {
+        throw new DuplicateUniqueKeyError();
       }
 
       throw error;

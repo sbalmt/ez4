@@ -2,7 +2,7 @@ import type { SqlParameter } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
-import { UnsupportedFieldType, isJsonFieldSchema } from '@ez4/pgclient';
+import { UnsupportedFieldTypeError, isJsonFieldSchema } from '@ez4/pgclient';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
@@ -77,7 +77,7 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
     }
 
     default:
-      throw new UnsupportedFieldType(name, typeof value);
+      throw new UnsupportedFieldTypeError(name, typeof value);
   }
 };
 

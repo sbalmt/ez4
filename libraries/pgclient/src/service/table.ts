@@ -6,8 +6,10 @@ import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement, PgExecutionResult } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
-import { MissingUniqueIndexError } from '../queries/errors';
 import { tryExtractUniqueIndex } from '../utils/indexes';
+import { DuplicateUniqueKeyError } from '../driver/errors';
+import { MissingUniqueIndexError } from '../queries/errors';
+import { RaceConditionError } from './errors';
 
 import {
   prepareInsertOne,
@@ -100,6 +102,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       throw new MissingUniqueIndexError();
     }
 
+    let hasConcurrency = false;
+
     const { driver } = this.context;
 
     const updateQuery = {
@@ -114,28 +118,46 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       flag: '__EZ4_OK'
     });
 
-    const { records: updateRecords } = await this.sendStatement(updateStatement);
+    do {
+      const { records: updateRecords } = await this.sendStatement(updateStatement);
 
-    if (updateRecords[0]?.__EZ4_OK) {
-      delete updateRecords[0]?.__EZ4_OK;
+      const [updateRecord] = updateRecords;
 
-      return {
-        record: updateRecords[0],
-        inserted: false
-      } as Query.UpsertOneResult<S, T>;
-    }
+      if (updateRecord?.__EZ4_OK) {
+        delete updateRecord.__EZ4_OK;
 
-    const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
-      select: query.select,
-      data: query.insert
-    });
+        return {
+          record: updateRecord,
+          inserted: false
+        } as Query.UpsertOneResult<S, T>;
+      }
 
-    const { records: insertRecords } = await this.sendStatement(insertStatement);
+      if (hasConcurrency) {
+        throw new RaceConditionError(this.name);
+      }
 
-    return {
-      record: insertRecords[0],
-      inserted: true
-    } as Query.UpsertOneResult<S, T>;
+      try {
+        const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
+          select: query.select,
+          data: query.insert
+        });
+
+        const { records: insertRecords } = await this.sendStatement(insertStatement);
+
+        return {
+          record: insertRecords[0],
+          inserted: true
+        } as Query.UpsertOneResult<S, T>;
+      } catch (error) {
+        // In case of race condition, fallback to update retry.
+        if (error instanceof DuplicateUniqueKeyError) {
+          hasConcurrency = true;
+          continue;
+        }
+
+        throw error;
+      }
+    } while (true);
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {

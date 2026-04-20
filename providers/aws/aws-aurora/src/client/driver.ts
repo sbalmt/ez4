@@ -10,11 +10,12 @@ import {
   ExecuteStatementCommand,
   RecordsFormatType,
   DecimalReturnType,
-  LongReturnType
+  LongReturnType,
+  DatabaseErrorException
 } from '@aws-sdk/client-rds-data';
 
 import { DatabaseResumingException } from '@aws-sdk/client-rds-data';
-import { parseRecords } from '@ez4/pgclient';
+import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 
 import { setTimeout } from 'node:timers/promises';
 
@@ -85,6 +86,10 @@ export class DataClientDriver implements PgClientDriver {
     } catch (error) {
       if (!options?.noErrorLog) {
         logQueryError(statement, transactionId);
+      }
+
+      if (error instanceof DatabaseErrorException && error.message.includes('23505')) {
+        throw new DuplicateUniqueKeyError();
       }
 
       throw error;
