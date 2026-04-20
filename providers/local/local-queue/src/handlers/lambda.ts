@@ -21,10 +21,6 @@ export const processLambdaMessage = async (
   const clients = await context.makeClients(services);
   const traceId = getRandomUUID();
 
-  Runtime.setScope({
-    traceId
-  });
-
   const module = await createModule({
     listener: subscription.listener,
     handler: subscription.handler,
@@ -39,8 +35,7 @@ export const processLambdaMessage = async (
   let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 
   const request = {
-    requestId: getRandomUUID(),
-    traceId
+    requestId: getRandomUUID()
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
@@ -52,8 +47,13 @@ export const processLambdaMessage = async (
 
     currentRequest = {
       ...request,
-      message: await getJsonMessage(message, service.schema, onCustomValidation)
+      message: await getJsonMessage(message, service.schema, onCustomValidation),
+      traceId
     };
+
+    Runtime.setScope({
+      traceId
+    });
 
     await onReady(module, clients, currentRequest);
     await module.handler(currentRequest, clients);
