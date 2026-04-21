@@ -94,12 +94,12 @@ export namespace Queue {
     readonly fairMode: U extends { fairMode: true } ? FairMode<T> : never;
 
     /**
-     * Enable and configure the dead-letter queue options.
+     * Enable and configure the dead-letter queue.
      */
     readonly deadLetter?: DeadLetter;
 
     /**
-     * Enable and configure the backoff queue options.
+     * Enable and configure the backoff options.
      */
     readonly backoff?: Backoff;
 
@@ -187,6 +187,11 @@ export namespace Queue {
      * Imported FIFO mode options (do not replace).
      */
     readonly fifoMode: T['fifoMode'];
+
+    /**
+     * Imported dead-letter configuration options.
+     */
+    readonly deadLetter: T['deadLetter'];
 
     /**
      * Imported backoff configuration options.

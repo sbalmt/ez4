@@ -11,8 +11,9 @@ import { getRandomUUID } from '@ez4/utils';
 const client = new SQSClient({});
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
-declare const __EZ4_MIN_RETRY: number;
-declare const __EZ4_MAX_RETRY: number;
+declare const __EZ4_MAX_RETRIES: number;
+declare const __EZ4_MIN_BACKOFF: number;
+declare const __EZ4_MAX_BACKOFF: number;
 declare const __EZ4_CONTEXT: object;
 
 declare function dispatch(event: Queue.ServiceEvent<Queue.Message>, context: object): Promise<void>;
@@ -136,7 +137,7 @@ const retryMessage = async (record: SQSRecord) => {
 
   try {
     const retryCount = Number(attributes.ApproximateReceiveCount) || 1;
-    const retryDelay = getRetryDelay(retryCount, __EZ4_MIN_RETRY, __EZ4_MAX_RETRY);
+    const retryDelay = getRetryDelay(retryCount, __EZ4_MAX_RETRIES, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
 
     await client.send(
       new ChangeMessageVisibilityCommand({

@@ -13,7 +13,7 @@ declare const __MODULE_PATH: string;
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
 export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, messageSchema, backoff, timeout, context, debug } = parameters;
+  const { handler, listener, functionName, messageSchema, backoff, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -24,8 +24,9 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     define: {
       ...definitions,
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined',
-      __EZ4_MAX_RETRY: `${backoff?.maxDelay ?? timeout}`,
-      __EZ4_MIN_RETRY: `${backoff?.minDelay ?? 0}`
+      __EZ4_MIN_BACKOFF: `${backoff.minDelay}`,
+      __EZ4_MAX_BACKOFF: `${backoff.maxDelay}`,
+      __EZ4_MAX_RETRIES: `${backoff.retries}`
     },
     handler,
     listener,

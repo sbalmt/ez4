@@ -5,5 +5,5 @@
  * @param max Maximum integer value (inclusive).
  */
 export const getRandomInteger = (min: number, max: number) => {
-  return Math.trunc(Math.random() * (max - min + 1)) + min;
+  return Math.trunc(Math.random() * (max - min + 1) + min);
 };

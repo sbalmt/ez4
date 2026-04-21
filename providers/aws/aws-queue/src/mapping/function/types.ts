@@ -13,8 +13,9 @@ export type QueueEntryPoint = QueueFunction & {
 };
 
 export type QueueBackoff = {
-  minDelay?: number;
+  minDelay: number;
   maxDelay: number;
+  retries: number;
 };
 
 export type QueueFunctionParameters = Omit<
@@ -26,6 +27,6 @@ export type QueueFunctionParameters = Omit<
   messageSchema?: QueueMessageSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
-  backoff?: QueueBackoff;
+  backoff: QueueBackoff;
   debug?: boolean;
 };

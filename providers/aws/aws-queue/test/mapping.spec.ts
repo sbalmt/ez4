@@ -76,6 +76,11 @@ describe('queue mapping', () => {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',
         dependencies: []
+      },
+      backoff: {
+        minDelay: 5,
+        maxDelay: 60,
+        retries: 3
       }
     });
 

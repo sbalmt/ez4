@@ -22,6 +22,7 @@ import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
 import { getQueueSubscriptionsMetadata } from './subscription';
+import { getQueueDeadLetterMetadata } from './deadletter';
 import { getQueueFifoModeMetadata } from './fifomode';
 import { getQueueBackoffMetadata } from './backoff';
 import { getQueueMessageMetadata } from './message';
@@ -93,6 +94,13 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
             if (reference && !isTypeUnion(reference)) {
               service.fifoMode = getQueueFifoModeMetadata(reference, declaration, reflection, errorList);
             }
+          }
+          break;
+        }
+
+        case 'deadLetter': {
+          if (!member.inherited) {
+            service.deadLetter = getQueueDeadLetterMetadata(member.value, declaration, reflection, errorList);
           }
           break;
         }
