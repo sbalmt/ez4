@@ -119,13 +119,13 @@
         "name": "messageHandler2",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          76,
+          79,
           1
         ],
         "response": {
           "body": {
             "type": "object",
-            "description": "WS body payload.",
+            "description": "WS Message response.",
             "identity": 1,
             "properties": {
               "status": {

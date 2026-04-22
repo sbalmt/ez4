@@ -1,6 +1,6 @@
-# EZ4: Decimal schema
+# EZ4: Decimal Schema
 
-The Schema package provides [reflection‑driven](../reflection/) support for decimal number types. It allows contracts to define decimal‑specific validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides [reflection‑driven](../../reflection/) support for decimal number types. It allows contracts to define decimal‑specific validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all decimal‑related schema patterns supported by EZ4.
 

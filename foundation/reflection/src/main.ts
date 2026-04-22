@@ -13,24 +13,24 @@ export * from './utils';
 
 export type ReflectionOptions = {
   /**
-   * All resolver options.
-   */
-  resolverOptions?: ResolverOptions;
-
-  /**
    * TypeScript compiler options.
    */
   compilerOptions?: CompilerOptions;
 
   /**
-   * All resolver events.
-   */
-  resolverEvents?: ResolverEvents;
-
-  /**
    * All compiler events.
    */
   compilerEvents?: CompilerEvents;
+
+  /**
+   * All resolver options.
+   */
+  resolverOptions?: ResolverOptions;
+
+  /**
+   * All resolver events.
+   */
+  resolverEvents?: ResolverEvents;
 };
 
 export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions) => {

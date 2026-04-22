@@ -16,7 +16,9 @@ export type QueueService = Omit<ServiceMetadata, 'variables' | 'services'> &
     subscriptions: QueueSubscription[];
     description?: string;
     fifoMode?: QueueFifoMode;
+    fairMode?: QueueFairMode;
     deadLetter?: QueueDeadLetter;
+    backoff?: QueueBackoff;
     timeout?: number;
     retention?: number;
     polling?: number;
@@ -33,6 +35,8 @@ export type QueueImport = Omit<ServiceMetadata, 'variables' | 'services'> &
     subscriptions: QueueSubscription[];
     description?: string;
     fifoMode?: QueueFifoMode;
+    deadLetter?: QueueDeadLetter;
+    backoff?: QueueBackoff;
     timeout?: number;
   };
 
@@ -40,14 +44,23 @@ export type QueueMessageSchema = ObjectSchema | UnionSchema;
 
 export type QueueSubscriptionHandler = FunctionSignature;
 
+export type QueueDeadLetter = {
+  maxRetries: number;
+  retention?: number;
+};
+
 export type QueueFifoMode = {
   uniqueId?: string;
   groupId: string;
 };
 
-export type QueueDeadLetter = {
-  maxRetries: number;
-  retention?: number;
+export type QueueFairMode = {
+  groupId: string;
+};
+
+export type QueueBackoff = {
+  minDelay?: number;
+  maxDelay: number;
 };
 
 export type QueueSubscription = {

@@ -9,7 +9,7 @@ export const getPolicyDocument = async (prefixList: string[]) => {
       resourceIds: prefixList.map((prefix) => {
         return buildQueueArn(region, accountId, `${prefix}-*`);
       }),
-      permissions: ['sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:GetQueueAttributes', 'sqs:DeleteMessage']
+      permissions: ['sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:GetQueueAttributes', 'sqs:ChangeMessageVisibility', 'sqs:DeleteMessage']
     }
   ]);
 };

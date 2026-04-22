@@ -1,0 +1,25 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "description": "Queue to test backoff configuration.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "subscriptions": [],
+    "backoff": {
+      "minDelay": 15,
+      "maxDelay": 30
+    }
+  }
+}

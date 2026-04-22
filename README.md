@@ -69,7 +69,7 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 - [Importing topic](./examples/aws-import-topic)
 - [Custom provider](./examples/custom-provider)
 
-## Table of contents
+## What's next
 
 - [Quick start](./documentation/quick-start.md)
 - [Configuration](./documentation/configuration.md)

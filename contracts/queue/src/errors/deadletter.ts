@@ -2,7 +2,7 @@ import { IncompleteTypeError, IncorrectTypeError, InvalidTypeError } from '@ez4/
 
 export class IncompleteDeadLetterError extends IncompleteTypeError {
   constructor(properties: string[], fileName?: string) {
-    super('Incomplete dead-letter', properties, fileName);
+    super('Incomplete dead-letter configuration', properties, fileName);
   }
 }
 

@@ -1,12 +1,13 @@
 {
   "name": "@ez4/reflection",
   "description": "EZ4: Build source code reflection from typescript files",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "reflection"
   ],
   "repository": {
     "type": "git",

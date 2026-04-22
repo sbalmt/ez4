@@ -1,12 +1,13 @@
 {
   "name": "@ez4/validator",
   "description": "EZ4: Validate data according to a given schema",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "validator"
   ],
   "repository": {
     "type": "git",
@@ -42,8 +43,8 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/project": "^0.45.0",
-    "@ez4/schema": "^0.45.0",
-    "@ez4/utils": "^0.45.0"
+    "@ez4/project": "^0.46.0",
+    "@ez4/schema": "^0.46.0",
+    "@ez4/utils": "^0.46.0"
   }
 }

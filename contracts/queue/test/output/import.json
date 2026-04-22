@@ -12,6 +12,10 @@
     "services": {},
     "timeout": 20,
     "polling": 10,
+    "backoff": {
+      "maxDelay": 90,
+      "minDelay": 15
+    },
     "schema": {
       "type": "object",
       "identity": 1,
@@ -73,7 +77,7 @@
           "name": "testHandler",
           "file": "test/input/output-import.ts",
           "position": [
-            24,
+            29,
             1
           ]
         }

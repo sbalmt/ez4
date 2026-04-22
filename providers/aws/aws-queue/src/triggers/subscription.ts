@@ -25,7 +25,9 @@ export const prepareSubscriptions = (
     throw new RoleMissingError();
   }
 
-  for (const subscription of service.subscriptions) {
+  const { deadLetter, backoff, subscriptions } = service;
+
+  for (const subscription of subscriptions) {
     const { handler, listener } = subscription;
 
     const internalName = getInternalName(service, handler.name);
@@ -62,6 +64,11 @@ export const prepareSubscriptions = (
         context: service.context,
         variables: [options.variables, service.variables, subscription.variables],
         timeout: service.timeout ?? Defaults.Timeout,
+        backoff: {
+          retries: deadLetter?.maxRetries ?? Defaults.MaxRetries,
+          minDelay: backoff?.minDelay ?? Defaults.MinBackoff,
+          maxDelay: backoff?.maxDelay ?? Defaults.MaxBackoff
+        },
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,

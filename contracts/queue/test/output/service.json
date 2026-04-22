@@ -25,6 +25,9 @@
         "id": {
           "type": "string"
         },
+        "tenant": {
+          "type": "string"
+        },
         "user": {
           "type": "string"
         }
@@ -35,12 +38,41 @@
     "type": "@ez4/queue",
     "name": "TestQueue2",
     "context": {},
+    "variables": {},
+    "services": {
+      "testQueue": "TestQueue3"
+    },
+    "description": "Description of the second test queue.",
+    "subscriptions": [],
+    "fairMode": {
+      "groupId": "tenant"
+    },
+    "schema": {
+      "type": "object",
+      "identity": 1,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "tenant": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "TestQueue3": {
+    "type": "@ez4/queue",
+    "name": "TestQueue3",
+    "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {},
-    "description": "Description of the second test queue.",
+    "description": "Third test queue description.",
     "subscriptions": [],
     "timeout": 5,
     "retention": 60,
@@ -51,6 +83,9 @@
       "identity": 1,
       "properties": {
         "id": {
+          "type": "string"
+        },
+        "tenant": {
           "type": "string"
         },
         "user": {

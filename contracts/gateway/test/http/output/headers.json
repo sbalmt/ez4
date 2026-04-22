@@ -17,13 +17,13 @@
           "name": "testRouteA",
           "file": "test/http/input/output-headers.ts",
           "position": [
-            22,
+            25,
             1
           ],
           "request": {
             "headers": {
               "type": "object",
-              "description": "Expected HTTP headers.",
+              "description": "Validated headers.",
               "identity": 1,
               "properties": {
                 "foo": {
@@ -43,13 +43,13 @@
           "name": "testRouteB",
           "file": "test/http/input/output-headers.ts",
           "position": [
-            28,
+            31,
             1
           ],
           "request": {
             "headers": {
               "type": "object",
-              "description": "Expected HTTP headers.",
+              "description": "Validated headers.",
               "identity": 1,
               "properties": {
                 "foo": {

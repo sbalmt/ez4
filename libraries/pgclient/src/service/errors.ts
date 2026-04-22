@@ -14,3 +14,9 @@ export class MissingRepositoryTableError extends Error {
     super(`Table ${tableAlias} isn't part of the repository.`);
   }
 }
+
+export class RaceConditionError extends Error {
+  constructor(public tableName: string) {
+    super(`Race condition for ${tableName} was detected.`);
+  }
+}

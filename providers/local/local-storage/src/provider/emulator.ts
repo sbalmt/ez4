@@ -1,14 +1,15 @@
-import type { EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { Client as StorageClient } from '@ez4/storage';
 import type { BucketService } from '@ez4/storage/library';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-
-import { createLocalClient } from '../client/local';
 import { Logger } from '@ez4/logger';
 
-export const registerBucketEmulator = async (service: BucketService, options: ServeOptions) => {
-  const client = await getStorageClient(service, options);
+import { processLambdaEvent } from '../handlers/lambda';
+import { createLocalClient } from '../client/local';
+
+export const registerBucketEmulator = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
+  const client = await getStorageClient(service, options, context);
 
   const { name: resourceName } = service;
 
@@ -17,11 +18,7 @@ export const registerBucketEmulator = async (service: BucketService, options: Se
     name: resourceName,
     identifier: getServiceName(resourceName, options),
     bootstrapHandler: () => {
-      if (!options.local) {
-        Logger.log(`📂 Remote storage [${resourceName}] in use.`);
-      } else {
-        Logger.log(`📂 Local storage [${resourceName}] in use.`);
-      }
+      Logger.log(`📂 ${options.local ? 'Local' : 'Remote'} storage [${resourceName}] in use.`);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleRequest(client, request);
@@ -32,11 +29,21 @@ export const registerBucketEmulator = async (service: BucketService, options: Se
   };
 };
 
-const getStorageClient = async (service: BucketService, options: ServeOptions) => {
+const getStorageClient = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
 
   if (!client) {
-    return createLocalClient(service.name, options);
+    const { events } = service;
+
+    return createLocalClient(service.name, {
+      ...options,
+      events: events && {
+        path: events.path,
+        handler: (event) => {
+          return processLambdaEvent(service, options, context, events, event);
+        }
+      }
+    });
   }
 
   return client as StorageClient;

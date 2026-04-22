@@ -12,14 +12,18 @@ type TestMessage = {
 
 export declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
+
+  fairMode: Queue.UseFairMode<{
+    groupId: 'bar';
+  }>;
 }
 
 export declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
   subscriptions: [];
 
-  fifoMode: {
+  fifoMode: Queue.UseFifoMode<{
     groupId: 'foo';
-  };
+  }>;
 }
 
 describe('local queue tests', () => {

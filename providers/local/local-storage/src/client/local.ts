@@ -1,5 +1,5 @@
 import type { ServeOptions } from '@ez4/project/library';
-import type { Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Bucket, Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
 
 import { copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -9,11 +9,20 @@ import { fileTypeFromFile } from 'file-type';
 
 import { isAnyObject, toKebabCase } from '@ez4/utils';
 import { getServiceName } from '@ez4/project/library';
+import { BucketEventType } from '@ez4/storage';
 import { Logger } from '@ez4/logger';
 
-export const createLocalClient = (resourceName: string, options: ServeOptions): Client => {
+export type LocalClientOptions = ServeOptions & {
+  events?: {
+    handler: (event: Bucket.Event) => Promise<void>;
+    path?: string;
+  };
+};
+
+export const createLocalClient = (resourceName: string, options: LocalClientOptions): Client => {
   const storageIdentifier = getServiceName(resourceName, options);
   const storageDirectory = join('.ez4', toKebabCase(resourceName));
+  const storageEvents = options.events;
 
   return new (class {
     async stat(key: string) {
@@ -49,6 +58,17 @@ export const createLocalClient = (resourceName: string, options: ServeOptions): 
       await writeFile(filePath, contents);
 
       Logger.log(`⬆️  File ${key} uploaded.`);
+
+      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
+        const stats = await stat(filePath);
+
+        await storageEvents.handler({
+          eventType: BucketEventType.Create,
+          bucketName: storageIdentifier,
+          objectSize: stats.size,
+          objectKey: key
+        });
+      }
     }
 
     async read(key: string): Promise<Buffer> {
@@ -66,6 +86,14 @@ export const createLocalClient = (resourceName: string, options: ServeOptions): 
       await unlink(filePath);
 
       Logger.log(`ℹ️  File ${key} deleted.`);
+
+      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
+        await storageEvents.handler({
+          eventType: BucketEventType.Delete,
+          bucketName: storageIdentifier,
+          objectKey: key
+        });
+      }
     }
 
     async copy(sourceKey: string, targetKey: string) {

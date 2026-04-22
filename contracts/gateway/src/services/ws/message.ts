@@ -1,24 +1,35 @@
 import type { WebTarget } from '../target';
 import type { WsListener } from './listener';
+import type { WsResponse } from './response';
+import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
-import type { WsEvent } from './event';
 
 /**
  * WS message event.
  */
-export interface WsMessage<T extends WsEvent> extends WebTarget {
+export interface WsMessage<T extends WsRequest> extends WebTarget {
   /**
-   * Life-cycle listener function for the event.
+   * Optional life‑cycle listener for the message handler.
+   *
+   * - Runs inside the same cloud resource as the message handler.
+   * - Receives events such as request begin, request end, and internal transitions.
+   * - Useful for logging, tracing, metrics, and instrumentation.
    */
   readonly listener?: WsListener<T>;
 
   /**
-   * Entry-point handler function for the event.
+   * Main entry‑point handler for the message handler.
+   *
+   * - Runs in its own cloud resource.
+   * - Invoked only when a new message is received.
    */
-  readonly handler: WsHandler<T>;
+  readonly handler: WsHandler<T, WsResponse | void>;
 
   /**
-   * Determines whether or not VPC is enabled for the event.
+   * Enables VPC access for the message handler.
+   *
+   * - Allows the handler to access private resources inside the default VPC.
+   * - May increase cold‑start latency.
    */
   readonly vpc?: boolean;
 }

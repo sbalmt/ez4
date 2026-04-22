@@ -24,18 +24,27 @@ export declare class TestService extends Http.Service {
 }
 
 declare class TestQueryAuthRequest implements Http.AuthRequest {
+  /**
+   * Authorizer query strings.
+   */
   query: {
     apiKey: string;
   };
 }
 
 declare class TestHeaderAuthRequest implements Http.AuthRequest {
+  /**
+   * Authorizer headers.
+   */
   headers: {
     'x-api-key': string;
   };
 }
 
 declare class TestAuthResponse implements Http.AuthResponse {
+  /**
+   * Authorization identity.
+   */
   identity?: {
     id: string;
   };
@@ -79,6 +88,9 @@ function testHeaderAuthorizer(request: TestHeaderAuthRequest, context: Service.C
 }
 
 declare class TestRequest implements Http.Request {
+  /**
+   * Authorization identity.
+   */
   identity: {
     id: string;
   };

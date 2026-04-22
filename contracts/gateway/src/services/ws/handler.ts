@@ -8,7 +8,7 @@ import type { Ws } from './contract';
 /**
  * WS request handler.
  */
-export type WsHandler<T extends WsRequest | WsEvent> = (
+export type WsHandler<T extends WsRequest | WsEvent, U extends WsResponse | void> = (
   request: WsIncoming<T> | T,
   context: Service.Context<Ws.Service<any>>
-) => Promise<WsResponse | void> | WsResponse | void;
+) => Promise<U> | U;

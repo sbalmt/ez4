@@ -22,14 +22,29 @@ export namespace Defaults {
   export const Runtime = FunctionDefaults.Runtime;
 
   /**
-   * Default function timeout.
-   */
-  export const Timeout = FunctionDefaults.Timeout;
-
-  /**
    * Default function memory.
    */
   export const Memory = FunctionDefaults.Memory;
+
+  /**
+   * Default queue timeout.
+   */
+  export const Timeout = 150;
+
+  /**
+   * Default max retries.
+   */
+  export const MaxRetries = 3;
+
+  /**
+   * Default min delay (in seconds) for backoff.
+   */
+  export const MinBackoff = 5;
+
+  /**
+   * Default max delay (in seconds) for backoff.
+   */
+  export const MaxBackoff = 30;
 
   /**
    * Default queue retention (14 days)

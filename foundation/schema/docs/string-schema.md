@@ -1,6 +1,6 @@
-# EZ4: String schema
+# EZ4: String Schema
 
-The Schema package provides [reflection‑driven](../reflection/) support for string types. It allows contracts to define rich, fine‑grained string validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides [reflection‑driven](../../reflection/) support for string types. It allows contracts to define rich, fine‑grained string validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all string‑related schema patterns supported by EZ4.
 

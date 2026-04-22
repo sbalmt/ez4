@@ -20,13 +20,13 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-query.ts",
         "position": [
-          23,
+          26,
           1
         ],
         "request": {
           "query": {
             "type": "object",
-            "description": "Expected HTTP query strings.",
+            "description": "Connect query strings.",
             "identity": 1,
             "properties": {
               "secret": {
@@ -42,7 +42,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-query.ts",
         "position": [
-          25,
+          28,
           1
         ]
       }
@@ -52,7 +52,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-query.ts",
         "position": [
-          27,
+          30,
           1
         ]
       }

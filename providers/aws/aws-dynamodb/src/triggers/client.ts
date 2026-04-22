@@ -1,11 +1,11 @@
 import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 
+import { Client } from '../client';
 import { getTableState } from '../table/utils';
 import { getTableRepository } from '../utils/repository';
 import { getConnectionOptions } from '../local/options';
-import { getClientInstance } from '../client/utils';
-import { Client } from '../client';
+import { getClientInstance } from '../client/utils/instance';
 import { getInternalName, isDynamoDbService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {

@@ -2,7 +2,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 
 import { getConnectionOptions } from '../local/options';
 import { createAllTables, deleteAllTables } from '../local/tables';
-import { getClientInstance } from '../client/utils';
+import { getClientInstance } from '../client/utils/instance';
 import { isDynamoDbService } from './utils';
 
 export const prepareEmulatorStart = async (event: EmulateServiceEvent) => {

@@ -4,11 +4,18 @@ import { fileURLToPath } from 'node:url';
 import { dirname, extname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
-import { loadAliasPaths } from '../config/tsconfig';
 import { tryLoadProject } from '../config/project';
+import { tryLoadReferences } from '../config/references';
+import { tryLoadPaths } from '../config/tsconfig';
 
 const options = await tryLoadProject(process.env.EZ4_PROJECT_FILE);
-const aliases = options ? await loadAliasPaths(options) : {};
+const references = await tryLoadReferences(options);
+const paths = await tryLoadPaths(options);
+
+const aliasPaths = {
+  ...references.paths,
+  ...paths
+};
 
 export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
   if (isGlobalParentModule(context)) {
@@ -16,7 +23,7 @@ export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
   }
 
   const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
-  const modulePath = resolveImportPath(specifier, parentFile, aliases);
+  const modulePath = resolveImportPath(specifier, parentFile, aliasPaths);
 
   if (!modulePath) {
     return defaultResolve(specifier, context);
@@ -42,15 +49,15 @@ const getTemporaryModulePath = (modulePath: string) => {
 };
 
 const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
-  for (const alias in aliasPaths) {
-    const aliasPattern = alias.substring(0, alias.length - 1);
+  for (const prefix in aliasPaths) {
+    const prefixPattern = prefix.substring(0, prefix.length - 1);
 
-    if (!specifier.startsWith(aliasPattern)) {
+    if (!specifier.startsWith(prefixPattern)) {
       continue;
     }
 
-    for (const path of aliasPaths[alias]) {
-      const mergedPath = path.substring(0, path.length - 1) + specifier.substring(alias.length - 1);
+    for (const globPath of aliasPaths[prefix]) {
+      const mergedPath = globPath.substring(0, globPath.length - 1) + specifier.substring(prefix.length - 1);
       const modulePath = resolveModulePath(mergedPath, process.cwd());
 
       if (modulePath) {

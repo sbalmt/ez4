@@ -14,6 +14,9 @@ export declare class TestService extends Http.Service {
 }
 
 declare class TestRequest implements Http.Request {
+  /**
+   * Authorization identity.
+   */
   identity: {
     foo: string;
   };

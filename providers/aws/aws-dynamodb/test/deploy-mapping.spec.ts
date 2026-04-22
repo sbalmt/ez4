@@ -80,6 +80,8 @@ describe('dynamodb mapping', () => {
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],
+      memory: 128,
+      timeout: 5,
       handler: {
         sourceFile: join(baseDir, 'lambda.js'),
         functionName: 'main',

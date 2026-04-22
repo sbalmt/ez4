@@ -33,8 +33,8 @@ export const createModule = async (module: ModuleDefinition): Promise<VirtualMod
   ]);
 
   return {
-    source: handler,
+    handler: handlerModule.invoke,
     listener: listenerModule?.invoke,
-    handler: handlerModule.invoke
+    source: handler
   };
 };

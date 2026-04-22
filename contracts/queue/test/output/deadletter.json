@@ -10,7 +10,7 @@
     "variables": {},
     "services": {},
     "name": "TestQueue",
-    "description": "Queue to test subscription listener.",
+    "description": "Queue to test dead-letter configuration.",
     "subscriptions": [],
     "schema": {
       "type": "object",

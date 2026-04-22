@@ -1,12 +1,14 @@
 {
   "name": "@ez4/scheduler",
   "description": "EZ4: Components to build scheduler services",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "scheduler",
+    "contract"
   ],
   "repository": {
     "type": "git",
@@ -51,12 +53,12 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.45.0",
-    "@ez4/project": "^0.45.0",
-    "@ez4/reflection": "^0.45.0",
-    "@ez4/schema": "^0.45.0",
-    "@ez4/transform": "^0.45.0",
-    "@ez4/utils": "^0.45.0",
-    "@ez4/validator": "^0.45.0"
+    "@ez4/common": "^0.46.0",
+    "@ez4/project": "^0.46.0",
+    "@ez4/reflection": "^0.46.0",
+    "@ez4/schema": "^0.46.0",
+    "@ez4/transform": "^0.46.0",
+    "@ez4/utils": "^0.46.0",
+    "@ez4/validator": "^0.46.0"
   }
 }

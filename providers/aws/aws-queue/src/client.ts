@@ -8,15 +8,18 @@ import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/c
 import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
-type FifoParameters = Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'>;
-
 export namespace Client {
   const client = new SQSClient();
 
-  export const make = <T extends Queue.Message, U extends Queue.FifoMode<T> | undefined>(
+  export type Parameters<T extends Queue.Message> = {
+    fifoMode?: Queue.FifoMode<T>;
+    fairMode?: Queue.FairMode<T>;
+  };
+
+  export const make = <T extends Queue.Message, U extends Queue.Mode>(
     queueUrl: string,
     messageSchema: MessageSchema,
-    fifoMode?: Queue.FifoMode<T>
+    parameters?: Parameters<T>
   ): SqsClient<T, U> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions<U>) {
@@ -28,9 +31,8 @@ export namespace Client {
             QueueUrl: queueUrl,
             DelaySeconds: options?.delay,
             MessageBody: messageBody,
-            ...(fifoMode && {
-              ...getFifoParameters(message, fifoMode)
-            }),
+            ...(parameters?.fifoMode && getFifoParameters(message, parameters.fifoMode)),
+            ...(parameters?.fairMode && getFairParameters(message, parameters.fairMode)),
             MessageAttributes: {
               ['EZ4.TRACE_ID']: {
                 StringValue: scope?.traceId ?? getRandomUUID(),
@@ -44,9 +46,9 @@ export namespace Client {
       async receiveMessage(options?: ReceiveOptions): Promise<T[]> {
         const response = await client.send(
           new ReceiveMessageCommand({
-            QueueUrl: queueUrl,
             MaxNumberOfMessages: options?.messages,
-            WaitTimeSeconds: options?.polling
+            WaitTimeSeconds: options?.polling,
+            QueueUrl: queueUrl
           })
         );
 
@@ -60,22 +62,35 @@ export namespace Client {
   };
 }
 
-const getFifoParameters = <T extends Queue.Message>(message: AnyObject, fifoMode: Queue.FifoMode<T>) => {
-  const parameters: FifoParameters = {};
+const getFairParameters = <T extends Queue.Message>(
+  message: AnyObject,
+  fairMode: Queue.FairMode<T>
+): Pick<SendMessageRequest, 'MessageGroupId'> => {
+  const { groupId } = fairMode;
 
-  if (fifoMode) {
-    const { groupId, uniqueId } = fifoMode;
+  const groupIdValue = message[groupId];
 
-    parameters.MessageGroupId = `${message[groupId]}`;
-
-    if (!parameters.MessageGroupId) {
-      throw new MissingMessageGroupError(groupId.toString());
-    }
-
-    if (uniqueId && message[uniqueId]) {
-      parameters.MessageDeduplicationId = `${message[uniqueId]}`;
-    }
+  if (!groupIdValue) {
+    throw new MissingMessageGroupError(groupId.toString());
   }
 
-  return parameters;
+  return {
+    MessageGroupId: `${groupIdValue}`
+  };
+};
+
+const getFifoParameters = <T extends Queue.Message>(
+  message: AnyObject,
+  fifoMode: Queue.FifoMode<T>
+): Pick<SendMessageRequest, 'MessageGroupId' | 'MessageDeduplicationId'> => {
+  const { uniqueId } = fifoMode;
+
+  const uniqueIdValue = uniqueId && message[uniqueId];
+
+  return {
+    ...getFairParameters(message, fifoMode),
+    ...(uniqueIdValue && {
+      MessageDeduplicationId: `${uniqueIdValue}`
+    })
+  };
 };

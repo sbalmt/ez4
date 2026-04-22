@@ -17,7 +17,7 @@
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            35,
+            38,
             1
           ],
           "response": {
@@ -31,7 +31,7 @@
           "name": "testAuthorizer",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            29,
+            32,
             1
           ],
           "response": {
@@ -47,7 +47,7 @@
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            35,
+            38,
             1
           ],
           "response": {

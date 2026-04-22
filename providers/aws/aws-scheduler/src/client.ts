@@ -19,14 +19,6 @@ import { Runtime } from '@ez4/common';
 
 const client = new SchedulerClient({});
 
-export type ClientEventDefaults = Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>;
-
-export type ClientParameters = {
-  defaults: ClientEventDefaults;
-  schema: EventSchema;
-  prefix: string;
-};
-
 export namespace Client {
   type EventInput<T extends Cron.Event> = {
     date: Date | string;
@@ -35,11 +27,17 @@ export namespace Client {
     event: T | string;
   };
 
+  export type Parameters = {
+    defaults: Pick<ScheduleEvent<never>, 'maxRetries' | 'maxAge'>;
+    schema: EventSchema;
+    prefix: string;
+  };
+
   export const make = <T extends Cron.Event>(
     roleArn: Arn,
     functionArn: Arn,
     groupName: string | undefined,
-    parameters: ClientParameters
+    parameters: Parameters
   ): CronClient<T> => {
     const getEventName = (identifier: string) => {
       return `${parameters.prefix}-${identifier}`;

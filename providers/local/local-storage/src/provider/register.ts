@@ -9,9 +9,9 @@ export const registerTriggers = () => {
   registerStorageTriggers();
 
   tryCreateTrigger('@ez4/local-storage', {
-    'emulator:getServices': ({ service, options }: EmulateServiceEvent) => {
+    'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
       if (isBucketService(service)) {
-        return registerBucketEmulator(service, options);
+        return registerBucketEmulator(service, options, context);
       }
 
       return null;

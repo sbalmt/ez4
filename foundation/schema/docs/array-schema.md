@@ -1,6 +1,6 @@
-# EZ4: Array schema
+# EZ4: Array Schema
 
-The Schema package provides flexible, [reflection‑driven](../reflection/) support for array types. It allows contracts to define list shapes using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides flexible, [reflection‑driven](../../reflection/) support for array types. It allows contracts to define list shapes using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all array‑related schema patterns supported by EZ4.
 

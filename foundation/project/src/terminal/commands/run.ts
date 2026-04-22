@@ -5,14 +5,14 @@ import { Runner } from '@ez4/project/library';
 
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
+import { getServeOptions } from '../../emulator/options';
 import { getServiceEmulators } from '../../emulator/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
-import { getServeOptions } from '../../emulator/options';
 import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
-import { loadAliasPaths } from '../../config/tsconfig';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
+import { loadPaths } from '../../config/tsconfig';
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -25,8 +25,8 @@ export const runCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [aliasPaths, allImports] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadAliasPaths(project), loadReferences(project), loadProviders(project)]);
+  const [paths, references] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
   });
 
   if (input.environment) {
@@ -41,12 +41,15 @@ export const runCommand = async (input: InputOptions) => {
     local: true
   });
 
-  options.imports = allImports;
+  options.imports = references.imports;
   options.suppress = true;
 
   const emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
-      aliasPaths
+      aliasPaths: {
+        ...references.paths,
+        ...paths
+      }
     });
 
     return getServiceEmulators(metadata, options);

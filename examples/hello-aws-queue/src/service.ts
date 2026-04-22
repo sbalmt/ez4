@@ -39,6 +39,21 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
   }>;
 
   /**
+   * Define the message group Id field from MessageRequest for Fair mode.
+   */
+  fairMode: Queue.UseFairMode<{
+    groupId: 'foo';
+  }>;
+
+  /**
+   * Define a linear backoff in case of failures.
+   */
+  backoff: Queue.UseBackoff<{
+    minDelay: 15;
+    maxDelay: 15;
+  }>;
+
+  /**
    * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [
@@ -90,6 +105,11 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
  */
 export declare class FifoSqs extends Queue.Ordered<MessageRequest> {
   /**
+   * Maximum amount of time for the handler to acknowledge the message.
+   */
+  timeout: 150;
+
+  /**
    * Define the message group Id field from MessageRequest for FIFO mode.
    */
   fifoMode: Queue.UseFifoMode<{
@@ -107,9 +127,12 @@ export declare class FifoSqs extends Queue.Ordered<MessageRequest> {
   }>;
 
   /**
-   * Maximum amount of time for the handler to acknowledge the message.
+   * Define a progressive randomized backoff in case of failures.
    */
-  timeout: 150;
+  backoff: Queue.UseBackoff<{
+    minDelay: 5;
+    maxDelay: 90;
+  }>;
 
   /**
    * All handlers for this queue.

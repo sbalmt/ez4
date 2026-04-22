@@ -1,6 +1,6 @@
-# EZ4: Integer schema
+# EZ4: Integer Schema
 
-The Schema package provides [reflection‑driven](../reflection/) support for integer types. It allows contracts to define integer‑specific validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
+The Schema package provides [reflection‑driven](../../reflection/) support for integer types. It allows contracts to define integer‑specific validation rules using plain TypeScript while enforcing them at runtime across Gateway, Queue, Topic, Database, and other EZ4 components.
 
 This guide covers all integer‑related schema patterns supported by EZ4.
 

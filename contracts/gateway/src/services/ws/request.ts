@@ -6,12 +6,33 @@ import type { WebBody } from '../body';
  */
 export interface WsRequest {
   /**
-   * Expected identity.
+   * Represents the authenticated identity returned by the authorizer.
+   *
+   * - Populated only when an authorizer is defined.
+   * - Useful for access control, multi‑tenant logic, and auditing.
+   * - Contains authentication and authorization context.
    */
   readonly identity?: AuthIdentity;
 
   /**
-   * Expected event body.
+   * Typed request body payload.
+   *
+   * - Automatically parsed into the declared types.
+   * - Supports JSON objects and raw string payloads.
+   * - Shape is determined by the declared contract.
+   *
+   * @example
+   * ```ts
+   * // JSON body
+   * body: {
+   *   action: ActionEnum;
+   *   value: String.Size<1, 250>;
+   *   limit?: Integer.Any;
+   * }
+   *
+   * // Raw body
+   * body: string;
+   * ```
    */
   readonly body?: WebBody;
 }

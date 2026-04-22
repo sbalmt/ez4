@@ -10,23 +10,18 @@ import { MissingProjectExportError, MissingProjectFileError } from '../errors/pr
 
 const DEFAULT_PROJECT_FILE = 'ez4.project.js';
 
-export type InternalProjectOptions = ProjectOptions & {
-  incomplete?: boolean;
-};
-
 export const loadProject = async (fileName?: string): Promise<ProjectOptions> => {
-  return getConfiguration(getProjectPath(fileName));
+  return getProjectFrom(getProjectPath(fileName));
 };
 
-export const tryLoadProject = (fileName?: string): Promise<InternalProjectOptions> | InternalProjectOptions => {
+export const tryLoadProject = (fileName?: string): Promise<ProjectOptions> | ProjectOptions => {
   const path = getProjectPath(fileName);
 
   if (existsSync(path)) {
-    return getConfiguration(path);
+    return getProjectFrom(path);
   }
 
   return {
-    incomplete: true,
     projectName: 'unnamed',
     sourceFiles: [],
     stateFile: {
@@ -35,11 +30,7 @@ export const tryLoadProject = (fileName?: string): Promise<InternalProjectOption
   };
 };
 
-const getProjectPath = (fileName?: string) => {
-  return join(process.cwd(), fileName || DEFAULT_PROJECT_FILE);
-};
-
-const getConfiguration = async (path: string): Promise<InternalProjectOptions> => {
+export const getProjectFrom = async (path: string): Promise<ProjectOptions> => {
   const projectUrl = pathToFileURL(path).href;
 
   try {
@@ -57,4 +48,8 @@ const getConfiguration = async (path: string): Promise<InternalProjectOptions> =
 
     throw error;
   }
+};
+
+const getProjectPath = (fileName?: string) => {
+  return join(process.cwd(), fileName || DEFAULT_PROJECT_FILE);
 };

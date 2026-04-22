@@ -12,13 +12,17 @@ export const prepareLinkedClient = (context: EventContext, service: QueueService
 
   const queueUrl = getDefinitionName<QueueState>(queueId, 'queueUrl');
 
-  const fifoMode = JSON.stringify(service.fifoMode ?? null);
   const schema = JSON.stringify(service.schema);
+
+  const mode = JSON.stringify({
+    fifoMode: service.fifoMode,
+    fairMode: service.fifoMode
+  });
 
   return {
     module: 'Client',
     from: '@ez4/aws-queue/client',
-    constructor: `@{EZ4_MODULE_IMPORT}.make(${queueUrl}, ${schema}, ${fifoMode})`,
+    constructor: `@{EZ4_MODULE_IMPORT}.make(${queueUrl}, ${schema}, ${mode})`,
     dependencyIds: [queueId],
     connectionIds: [queueId]
   };

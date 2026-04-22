@@ -15,9 +15,9 @@ export declare class TestService extends Ws.Service<{}> {
     timeout: 15;
     memory: 192;
     debug: true;
-    preferences: {
+    preferences: Ws.UsePreferences<{
       namingStyle: NamingStyle.CamelCase;
-    };
+    }>;
   }>;
 
   connect: Ws.UseConnect<{

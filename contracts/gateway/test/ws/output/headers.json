@@ -20,13 +20,13 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-headers.ts",
         "position": [
-          23,
+          26,
           1
         ],
         "request": {
           "headers": {
             "type": "object",
-            "description": "Expected HTTP headers.",
+            "description": "Connect headers.",
             "identity": 1,
             "properties": {
               "x-secret": {
@@ -42,13 +42,13 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-headers.ts",
         "position": [
-          31,
+          37,
           1
         ],
         "request": {
           "headers": {
             "type": "object",
-            "description": "Expected HTTP headers.",
+            "description": "Disconnect headers.",
             "identity": 1,
             "properties": {
               "x-secret": {
@@ -64,7 +64,7 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-headers.ts",
         "position": [
-          33,
+          39,
           1
         ]
       }

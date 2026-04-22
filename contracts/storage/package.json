@@ -1,12 +1,14 @@
 {
   "name": "@ez4/storage",
   "description": "EZ4: Components to build storage services",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
   "keywords": [
-    "ez4"
+    "ez4",
+    "storage",
+    "contract"
   ],
   "repository": {
     "type": "git",
@@ -46,9 +48,9 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.45.0",
-    "@ez4/project": "^0.45.0",
-    "@ez4/reflection": "^0.45.0",
-    "@ez4/utils": "^0.45.0"
+    "@ez4/common": "^0.46.0",
+    "@ez4/project": "^0.46.0",
+    "@ez4/reflection": "^0.46.0",
+    "@ez4/utils": "^0.46.0"
   }
 }

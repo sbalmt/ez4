@@ -59,12 +59,14 @@
         "name": "authorizerHandler",
         "file": "test/ws/input/output-validation.ts",
         "position": [
-          38,
+          52,
           1
         ],
         "request": {
           "headers": {
             "type": "object",
+            "description": "Request headers.",
+            "identity": 1,
             "properties": {
               "foo": {
                 "type": "string",
@@ -76,12 +78,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP headers."
+            }
           },
           "parameters": {
             "type": "object",
+            "description": "Path parameters.",
+            "identity": 1,
             "properties": {
               "bar": {
                 "type": "string",
@@ -93,12 +95,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP path parameters."
+            }
           },
           "query": {
             "type": "object",
+            "description": "Query strings.",
+            "identity": 1,
             "properties": {
               "baz": {
                 "type": "string",
@@ -110,9 +112,7 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP query strings."
+            }
           }
         },
         "response": {
@@ -132,12 +132,14 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-validation.ts",
         "position": [
-          58,
+          83,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
+            "description": "Authorization identity.",
+            "identity": 1,
             "properties": {
               "foo": {
                 "type": "string",
@@ -149,12 +151,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected identity."
+            }
           },
           "headers": {
             "type": "object",
+            "description": "Request headers.",
+            "identity": 1,
             "properties": {
               "bar": {
                 "type": "string",
@@ -166,12 +168,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP headers."
+            }
           },
           "query": {
             "type": "object",
+            "description": "Query strings.",
+            "identity": 1,
             "properties": {
               "baz": {
                 "type": "string",
@@ -183,9 +185,7 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP query strings."
+            }
           }
         }
       }
@@ -195,12 +195,14 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-validation.ts",
         "position": [
-          60,
+          85,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
+            "description": "Authorization identity.",
+            "identity": 1,
             "properties": {
               "foo": {
                 "type": "string",
@@ -212,12 +214,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected identity."
+            }
           },
           "headers": {
             "type": "object",
+            "description": "Request headers.",
+            "identity": 1,
             "properties": {
               "bar": {
                 "type": "string",
@@ -229,12 +231,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP headers."
+            }
           },
           "query": {
             "type": "object",
+            "description": "Query strings.",
+            "identity": 1,
             "properties": {
               "baz": {
                 "type": "string",
@@ -246,9 +248,7 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected HTTP query strings."
+            }
           }
         }
       }
@@ -258,12 +258,14 @@
         "name": "messageHandler",
         "file": "test/ws/input/output-validation.ts",
         "position": [
-          71,
+          103,
           1
         ],
         "request": {
           "identity": {
             "type": "object",
+            "description": "Authorization identity.",
+            "identity": 1,
             "properties": {
               "foo": {
                 "type": "string",
@@ -275,12 +277,12 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected identity."
+            }
           },
           "body": {
             "type": "object",
+            "description": "Body payload.",
+            "identity": 1,
             "properties": {
               "yay": {
                 "type": "string",
@@ -292,9 +294,7 @@
                   ]
                 }
               }
-            },
-            "identity": 1,
-            "description": "Expected event body."
+            }
           }
         }
       }

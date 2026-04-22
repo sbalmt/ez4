@@ -3,7 +3,9 @@
  */
 export interface HttpAccess {
   /**
-   * Log retention (in days) for the access log.
+   * Specifies the default number of days the access logs should be retained.
+   *
+   * - Applies to the gateway's log group.
    */
   readonly logRetention: number;
 }

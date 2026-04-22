@@ -1,17 +1,17 @@
 export class MissingProjectExportError extends Error {
-  constructor(public projectFile: string) {
-    super(`No project was exported from ${projectFile} file.`);
-  }
-}
-
-export class MissingProjectFileError extends Error {
-  constructor(public projectFile: string) {
-    super(`Project file ${projectFile} wasn't found.`);
+  constructor(public fileName: string) {
+    super(`File ${fileName} doesn't export any project.`);
   }
 }
 
 export class MissingImportedProjectError extends Error {
   constructor(public projectName: string) {
     super(`Imported project ${projectName} wasn't found.`);
+  }
+}
+
+export class MissingProjectFileError extends Error {
+  constructor(public projectFile: string) {
+    super(`Project file ${projectFile} wasn't found.`);
   }
 }

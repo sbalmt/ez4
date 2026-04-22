@@ -6,7 +6,7 @@ import { deepEqual } from 'node:assert';
 import { getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { SchemaType } from '@ez4/schema';
 
-describe('queue utils', () => {
+describe('queue message utils', () => {
   it('assert :: get json message', async () => {
     const messageSchema: ObjectSchema = {
       type: SchemaType.Object,
