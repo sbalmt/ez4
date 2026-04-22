@@ -2,7 +2,7 @@ import type { EmulateClientEvent, EmulateServiceEvent } from '@ez4/project/libra
 
 import { importCache } from '../cache/client';
 import { getConnectionOptions } from '../local/options';
-import { CacheNotFoundError } from '../cache/errors';
+import { RemoteCacheNotFoundError } from '../cache/errors';
 import { deleteAllKeys } from '../local/keys';
 import { Client } from '../client';
 import { getCacheName, isValkeyService } from './utils';
@@ -33,7 +33,7 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
   const cacheData = await importCache(undefined, cacheName);
 
   if (!cacheData) {
-    throw new CacheNotFoundError(service.name);
+    throw new RemoteCacheNotFoundError(service.name);
   }
 
   return Client.make({
