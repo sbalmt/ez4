@@ -22,7 +22,7 @@ describe('bucket client', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const resource = createBucket(localState, undefined, {
+    const resource = createBucket(localState, {
       bucketName: 'ez4-test-bucket-client'
     });
 
