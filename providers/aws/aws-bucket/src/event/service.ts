@@ -4,7 +4,7 @@ import type { BucketEventParameters, BucketEventState } from './types';
 import type { BucketState } from '../bucket/types';
 
 import { createPermission, getPermission } from '@ez4/aws-function';
-import { attachEntry, linkEntryDependency } from '@ez4/stateful';
+import { attachEntry, tryLinkEntryDependency } from '@ez4/stateful';
 import { hashData } from '@ez4/utils';
 
 import { buildBucketArn } from '../utils/policy';
@@ -71,7 +71,7 @@ export const attachBucketEvent = <E extends EntryState>(
   eventState.parameters.toService += `, ${parameters.toService}`;
   eventState.parameters.eventGetters.push(...parameters.eventGetters);
 
-  linkEntryDependency(state, eventState.entryId, functionState.entryId);
+  tryLinkEntryDependency(state, eventState.entryId, functionState.entryId);
 
   if (!getPermission(state, bucketState, functionState)) {
     createPermission(state, bucketState, functionState, {
