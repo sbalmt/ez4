@@ -10,7 +10,7 @@ import { deleteFile, updateFile } from '../repository';
 /**
  * Handle storage changes.
  */
-export async function syncStorageHandler(request: Bucket.Event, context: Service.Context<FileStorage>): Promise<void> {
+export async function syncStorageHandler(request: Bucket.ObjectEvent, context: Service.Context<FileStorage>): Promise<void> {
   const { fileDb } = context;
 
   switch (request.eventType) {
