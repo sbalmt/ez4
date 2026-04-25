@@ -14,9 +14,9 @@ import { Logger } from '@ez4/logger';
 
 export type LocalClientOptions = ServeOptions & {
   events?: {
-    handler: (event: Bucket.Event) => Promise<void>;
-    path?: string;
-  };
+    handler: (event: Bucket.ObjectEvent) => Promise<void>;
+    path: string;
+  }[];
 };
 
 export const createLocalClient = (resourceName: string, options: LocalClientOptions): Client => {
@@ -59,16 +59,18 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`⬆️  File ${key} uploaded.`);
 
-      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
-        const stats = await stat(filePath);
+      storageEvents?.forEach(async ({ path, handler }) => {
+        if (key.startsWith(path)) {
+          const stats = await stat(filePath);
 
-        await storageEvents.handler({
-          eventType: BucketEventType.Create,
-          bucketName: storageIdentifier,
-          objectSize: stats.size,
-          objectKey: key
-        });
-      }
+          await handler({
+            eventType: BucketEventType.Create,
+            bucketName: storageIdentifier,
+            objectSize: stats.size,
+            objectKey: key
+          });
+        }
+      });
     }
 
     async read(key: string): Promise<Buffer> {
@@ -87,13 +89,15 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`ℹ️  File ${key} deleted.`);
 
-      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
-        await storageEvents.handler({
-          eventType: BucketEventType.Delete,
-          bucketName: storageIdentifier,
-          objectKey: key
-        });
-      }
+      storageEvents?.forEach(async ({ path, handler }) => {
+        if (key.startsWith(path)) {
+          await handler({
+            eventType: BucketEventType.Delete,
+            bucketName: storageIdentifier,
+            objectKey: key
+          });
+        }
+      });
     }
 
     async copy(sourceKey: string, targetKey: string) {
