@@ -4,7 +4,7 @@ import type { Service } from '@ez4/common';
 export declare class TestStorage extends Bucket.Service {
   events: [
     Bucket.UseEvent<{
-      path: 'path/';
+      path: '*';
       handler: typeof eventHandler;
 
       // No extra property is allowed.

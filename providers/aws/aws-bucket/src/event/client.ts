@@ -7,8 +7,8 @@ import { getS3Client } from '../utils/deploy';
 
 export type AttachRequest = {
   functionArn: Arn;
-  pathPrefix: string;
   events: Event[];
+  path: string;
 };
 
 export type AttachResponse = {
@@ -23,21 +23,29 @@ export const attachEventNotifications = async (logger: OperationLogLine, bucketN
       Bucket: bucketName,
       SkipDestinationValidation: true,
       NotificationConfiguration: {
-        LambdaFunctionConfigurations: events.map(({ functionArn, pathPrefix, events }, index) => ({
-          Id: `ID${index}`,
-          LambdaFunctionArn: functionArn,
-          Events: events,
-          Filter: {
-            Key: {
-              FilterRules: [
-                {
-                  Name: 'prefix',
-                  Value: pathPrefix
-                }
-              ]
+        LambdaFunctionConfigurations: events.map(({ functionArn, path, events }, index) => {
+          const [prefix, suffix] = path.split('*', 2);
+
+          return {
+            Id: `ID${index}`,
+            LambdaFunctionArn: functionArn,
+            Events: events,
+            Filter: {
+              Key: {
+                FilterRules: [
+                  {
+                    Name: 'prefix',
+                    Value: prefix
+                  },
+                  {
+                    Name: 'suffix',
+                    Value: suffix
+                  }
+                ]
+              }
             }
-          }
-        }))
+          };
+        })
       }
     })
   );

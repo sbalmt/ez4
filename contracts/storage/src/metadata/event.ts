@@ -62,7 +62,7 @@ const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflection: Re
 };
 
 const isCompleteEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
-  return isObjectWith(type, ['path', 'handler']);
+  return isObjectWith(type, ['path', 'handler']) && !!type.path;
 };
 
 const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {

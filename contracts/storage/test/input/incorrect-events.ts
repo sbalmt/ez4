@@ -3,7 +3,7 @@ import type { Service } from '@ez4/common';
 
 // Missing Bucket.Event inheritance.
 declare class TestEvent {
-  path: 'path/';
+  path: '*';
   handler: typeof eventHandler;
 }
 

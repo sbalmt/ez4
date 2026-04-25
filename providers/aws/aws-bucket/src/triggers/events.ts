@@ -102,7 +102,7 @@ export const prepareBucketEvents = (
           return {
             functionArn: getBucketEventFunctionArn(service.name, handlerState.entryId, context),
             events: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
-            pathPrefix: path
+            path
           };
         }
       ]

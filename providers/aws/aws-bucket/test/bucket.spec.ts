@@ -89,12 +89,14 @@ describe('bucket resources', () => {
 
     createBucketEvent(localState, resource, lambdaResource, {
       toService: 'ez4-test-bucket-event-lambda',
+      fromPath: '*',
       eventGetters: [
         (context) => {
           return {
             functionArn: getBucketEventFunctionArn('ez4-test-bucket', lambdaResource.entryId, context),
+
             events: ['s3:ObjectCreated:*'],
-            pathPrefix: ''
+            path: '*'
           };
         }
       ]
