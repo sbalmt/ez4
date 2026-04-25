@@ -8,7 +8,7 @@ import { tryLoadProject } from '../config/project';
 import { tryLoadReferences } from '../config/references';
 import { tryLoadPaths } from '../config/tsconfig';
 
-const options = await tryLoadProject(process.env.EZ4_PROJECT_FILE);
+const options = await tryLoadProject(process.env.EZ4_PROJECT_FILE, true);
 const references = await tryLoadReferences(options);
 const paths = await tryLoadPaths(options);
 
