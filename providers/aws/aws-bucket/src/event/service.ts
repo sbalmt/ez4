@@ -67,6 +67,7 @@ export const attachBucketEvent = <E extends EntryState>(
 
   const { bucketName } = bucketState.parameters;
 
+  eventState.parameters.fromPath += `, ${parameters.fromPath}`;
   eventState.parameters.toService += `, ${parameters.toService}`;
   eventState.parameters.eventGetters.push(...parameters.eventGetters);
 

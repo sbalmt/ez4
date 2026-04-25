@@ -96,6 +96,7 @@ export const prepareBucketEvents = (
 
     attachBucketEvent(state, bucketState, handlerState, {
       toService: internalName,
+      fromPath: path,
       eventGetters: [
         (context) => {
           return {

@@ -13,6 +13,7 @@ export type BucketEventGetter = (context: StepContext) => Promise<BucketEvent> |
 export type BucketEventParameters = {
   eventGetters: BucketEventGetter[];
   toService: string;
+  fromPath: string;
 };
 
 export type BucketEventResult = AttachResponse & {
