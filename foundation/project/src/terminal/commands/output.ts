@@ -4,6 +4,7 @@ import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 
 import { loadProject } from '../../config/project';
 import { loadProviders } from '../../config/providers';
+import { loadEnvironment } from '../../config/environment';
 import { reportResourcesOutput } from '../../deploy/output';
 import { getDeployOptions } from '../../deploy/options';
 import { warnUnsupportedFlags } from '../../utils/flags';
@@ -21,7 +22,13 @@ export const outputCommand = async (input: InputOptions) => {
     return loadProviders(project);
   });
 
-  warnUnsupportedFlags(input);
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
+  warnUnsupportedFlags(input, {
+    environment: true
+  });
 
   const currentState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
     return loadState(project.stateFile, options);
