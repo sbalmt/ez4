@@ -1,7 +1,7 @@
+import type { BucketObjectEvent } from './object';
 import type { BucketRequest } from './request';
-import type { BucketEvent } from './event';
 
 /**
  * Incoming event.
  */
-export type BucketIncoming<T extends BucketEvent> = T & BucketRequest;
+export type BucketIncoming<T extends BucketObjectEvent> = T & BucketRequest;

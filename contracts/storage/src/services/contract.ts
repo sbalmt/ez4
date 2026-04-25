@@ -1,10 +1,10 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { BucketObjectEvent } from './object';
 import type { BucketIncoming } from './incoming';
 import type { BucketListener } from './listener';
 import type { BucketRequest } from './request';
 import type { BucketHandler } from './handler';
-import type { BucketEvents } from './events';
 import type { BucketEvent } from './event';
 import type { BucketCors } from './cors';
 import type { Client } from './client';
@@ -15,15 +15,15 @@ import type { Client } from './client';
 export namespace Bucket {
   export type Cors = BucketCors;
 
-  export type Event = BucketEvent;
+  export type ObjectEvent = BucketObjectEvent;
 
-  export type Incoming = BucketIncoming<Event>;
+  export type Incoming = BucketIncoming<ObjectEvent>;
   export type Request = BucketRequest;
 
-  export type Listener = BucketListener<Event>;
-  export type Handler = BucketHandler<Event>;
+  export type Listener = BucketListener<ObjectEvent>;
+  export type Handler = BucketHandler<ObjectEvent>;
 
-  export type Events = BucketEvents;
+  export type Event = BucketEvent;
 
   export type ServiceEvent =
     | CommonService.BeginEvent<Request>
@@ -33,9 +33,9 @@ export namespace Bucket {
     | CommonService.EndEvent<Request>;
 
   /**
-   * Bucket Events definition.
+   * Bucket Event definition.
    */
-  export type UseEvents<T extends Events> = T;
+  export type UseEvent<T extends Event> = T;
 
   /**
    * Bucket CORS definition.
@@ -64,7 +64,7 @@ export namespace Bucket {
     /**
      * Bucket events.
      */
-    readonly events?: Events;
+    readonly events?: Event[];
 
     /**
      * CORS configuration.
