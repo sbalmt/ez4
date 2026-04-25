@@ -7,7 +7,7 @@
     "services": {},
     "events": [
       {
-        "path": "uploads/*",
+        "path": "uploads/",
         "handler": {
           "name": "eventHandler",
           "file": "test/input/output-vpc.ts",
@@ -19,7 +19,7 @@
         "vpc": true
       },
       {
-        "path": "others/*",
+        "path": "others/",
         "handler": {
           "name": "eventHandler",
           "file": "test/input/output-vpc.ts",

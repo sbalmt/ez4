@@ -5,12 +5,12 @@ import type { Bucket } from '@ez4/storage';
 export declare class TestStorage extends Bucket.Service {
   events: [
     Bucket.UseEvent<{
-      path: 'uploads/*';
+      path: 'uploads/';
       handler: typeof eventHandler;
       files: ['path/to/file-a.txt', 'path/to/file-b.json'];
     }>,
     Bucket.UseEvent<{
-      path: 'others/*';
+      path: 'others/';
       handler: typeof eventHandler;
       architecture: ArchitectureType.Arm;
       runtime: RuntimeType.Node24;

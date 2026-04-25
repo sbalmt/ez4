@@ -7,7 +7,7 @@
     "services": {},
     "events": [
       {
-        "path": "*",
+        "path": "path/",
         "listener": {
           "name": "eventListener",
           "file": "test/input/output-listener.ts",

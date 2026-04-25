@@ -9,7 +9,7 @@
     },
     "events": [
       {
-        "path": "uploads/*",
+        "path": "uploads/",
         "handler": {
           "description": "Test storage event.",
           "name": "eventHandler",
@@ -25,7 +25,7 @@
         ]
       },
       {
-        "path": "others/*",
+        "path": "others/",
         "runtime": "node24",
         "architecture": "arm",
         "logLevel": "warning",

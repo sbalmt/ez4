@@ -3,12 +3,12 @@ import type { Bucket } from '@ez4/storage';
 export declare class TestStorage extends Bucket.Service {
   events: [
     Bucket.UseEvent<{
-      path: 'uploads/*';
+      path: 'uploads/';
       handler: typeof eventHandler;
       vpc: true;
     }>,
     Bucket.UseEvent<{
-      path: 'others/*';
+      path: 'others/';
       handler: typeof eventHandler;
       vpc: false;
     }>

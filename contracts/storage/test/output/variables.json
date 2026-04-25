@@ -12,7 +12,7 @@
     "name": "TestStorage",
     "events": [
       {
-        "path": "uploads/*",
+        "path": "uploads/",
         "handler": {
           "name": "eventHandler",
           "file": "test/input/output-variables.ts",
