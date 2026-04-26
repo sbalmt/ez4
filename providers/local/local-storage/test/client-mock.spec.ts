@@ -294,6 +294,27 @@ describe('local storage tests', () => {
     equal(expectedKeys.length, 0);
   });
 
+  it('assert :: scan (from keys prefix)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      keys: {
+        foo: Buffer.from(defaultContent),
+        'foo/bar': Buffer.from(defaultContent),
+        'foo/baz': Buffer.from(defaultContent)
+      }
+    });
+
+    const expectedKeys = ['foo/bar', 'foo/baz'];
+
+    for await (const entry of client.scan('foo/')) {
+      equal(expectedKeys.shift(), entry.key);
+      ok(entry.modifiedAt);
+      ok(entry.size);
+    }
+
+    equal(client.scan.mock.callCount(), 1);
+    equal(expectedKeys.length, 0);
+  });
+
   it('assert :: get read url', async () => {
     const client = BucketTester.getClientMock('bucket');
 

@@ -143,9 +143,10 @@ export interface Client {
   /**
    * Scan the bucket objects.
    *
+   * @param keyPrefix Object key prefix.
    * @returns Returns an iterable generator.
    */
-  scan(): AsyncGenerator<ObjectEntry, void>;
+  scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void>;
 
   /**
    * Get an URL to retrieve stats from the specified object in the bucket.

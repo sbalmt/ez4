@@ -110,13 +110,15 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
       Logger.log(`ℹ️  File ${sourceKey} copied.`);
     }
 
-    async *scan(): AsyncGenerator<ObjectEntry, void> {
-      const allFiles = await readdir(storageDirectory, {
+    async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
+      const basePath = keyPrefix ? join(storageDirectory, keyPrefix) : storageDirectory;
+
+      const allFiles = await readdir(basePath, {
         recursive: true
       });
 
       for (const filePath of allFiles) {
-        const { size, mtime } = await stat(join(storageDirectory, filePath));
+        const { size, mtime } = await stat(join(basePath, filePath));
 
         yield {
           key: filePath,

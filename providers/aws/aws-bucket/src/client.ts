@@ -103,14 +103,15 @@ export namespace Client {
         }
       }
 
-      async *scan(): AsyncGenerator<ObjectEntry, void> {
+      async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
         let nextPage: string | undefined;
 
         do {
           const response = await client.send(
             new ListObjectsV2Command({
               ContinuationToken: nextPage,
-              Bucket: bucketName
+              Bucket: bucketName,
+              Prefix: keyPrefix
             })
           );
 

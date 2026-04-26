@@ -112,9 +112,9 @@ describe('bucket client', () => {
   it('assert :: copy object', async () => {
     ok(bucketClient);
 
-    await bucketClient.copy('test-client-plain', 'test-plain-copy');
+    await bucketClient.copy('test-client-plain', 'folder/test-plain-copy');
 
-    const buffer = await bucketClient.read('test-plain-copy');
+    const buffer = await bucketClient.read('folder/test-plain-copy');
     const content = buffer.toString();
 
     equal(content, 'Plain text test');
@@ -129,7 +129,19 @@ describe('bucket client', () => {
       foundKeys.push(object.key);
     }
 
-    deepEqual(foundKeys, ['test-client', 'test-client-plain', 'test-plain-copy']);
+    deepEqual(foundKeys, ['folder/test-plain-copy', 'test-client', 'test-client-plain']);
+  });
+
+  it('assert :: scan objects (with key prefix)', async () => {
+    ok(bucketClient);
+
+    const foundKeys = [];
+
+    for await (const object of bucketClient.scan('folder/')) {
+      foundKeys.push(object.key);
+    }
+
+    deepEqual(foundKeys, ['folder/test-plain-copy']);
   });
 
   it('assert :: delete object', async () => {
