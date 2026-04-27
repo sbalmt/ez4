@@ -102,8 +102,8 @@ export const testCommand = async (input: InputOptions) => {
 
   testRunner.compose(spec).pipe(process.stdout);
 
-  testRunner.on('test:summary', ({ success }) => {
-    shutdownServices(emulators);
+  testRunner.on('test:summary', async ({ success }) => {
+    await shutdownServices(emulators);
 
     if (!success) {
       process.exitCode = 1;
