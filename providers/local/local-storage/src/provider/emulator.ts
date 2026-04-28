@@ -37,12 +37,17 @@ const getStorageClient = async (service: BucketService, options: ServeOptions, c
 
     return createLocalClient(service.name, {
       ...options,
-      events: events && {
-        path: events.path,
-        handler: (event) => {
-          return processLambdaEvent(service, options, context, events, event);
-        }
-      }
+      events: events?.map((event) => {
+        const [prefix, suffix] = event.path.split('*', 2);
+
+        return {
+          prefix,
+          suffix,
+          handler: (input) => {
+            return processLambdaEvent(service, options, context, event, input);
+          }
+        };
+      })
     });
   }
 

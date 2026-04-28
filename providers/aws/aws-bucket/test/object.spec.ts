@@ -39,7 +39,7 @@ describe('bucket objects', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const bucketResource = createBucket(localState, undefined, {
+    const bucketResource = createBucket(localState, {
       bucketName: 'ez4-test-object-bucket'
     });
 

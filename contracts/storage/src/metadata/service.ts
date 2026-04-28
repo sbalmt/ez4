@@ -19,7 +19,7 @@ import { isModelProperty } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
-import { getBucketEventMetadata } from './event';
+import { getBucketEventsMetadata } from './event';
 import { getBucketCorsMetadata } from './cors';
 import { createBucketService } from './types';
 
@@ -68,7 +68,7 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'events': {
-          service.events = getBucketEventMetadata(member.value, declaration, reflection, errorList);
+          service.events = getBucketEventsMetadata(member, declaration, reflection, errorList);
           break;
         }
 

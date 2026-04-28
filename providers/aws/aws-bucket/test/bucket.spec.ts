@@ -4,7 +4,14 @@ import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
-import { createBucket, createBucketEventFunction, isBucketState, registerTriggers } from '@ez4/aws-bucket';
+import {
+  createBucket,
+  createBucketEvent,
+  createBucketEventFunction,
+  getBucketEventFunctionArn,
+  isBucketState,
+  registerTriggers
+} from '@ez4/aws-bucket';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
@@ -66,9 +73,8 @@ describe('bucket resources', () => {
       }
     });
 
-    const resource = createBucket(localState, lambdaResource, {
+    const resource = createBucket(localState, {
       bucketName: 'ez4-test-bucket',
-      eventsPath: 'uploads/',
       autoExpireDays: 5,
       tags: {
         test1: 'ez4-tag1',
@@ -79,6 +85,21 @@ describe('bucket resources', () => {
         allowOrigins: ['http://localhost'],
         allowMethods: ['PUT']
       }
+    });
+
+    createBucketEvent(localState, resource, lambdaResource, {
+      toService: 'ez4-test-bucket-event-lambda',
+      fromPath: '*',
+      eventGetters: [
+        (context) => {
+          return {
+            functionArn: getBucketEventFunctionArn('ez4-test-bucket', lambdaResource.entryId, context),
+
+            events: ['s3:ObjectCreated:*'],
+            path: '*'
+          };
+        }
+      ]
     });
 
     bucketId = resource.entryId;

@@ -19,13 +19,13 @@
     "output": "ez4 output -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-email": "^0.46.0",
-    "@ez4/aws-gateway": "^0.46.0",
-    "@ez4/common": "^0.46.0",
-    "@ez4/email": "^0.46.0",
-    "@ez4/local-gateway": "^0.46.0",
-    "@ez4/gateway": "^0.46.0",
-    "@ez4/project": "^0.46.0",
-    "@ez4/schema": "^0.46.0"
+    "@ez4/aws-email": "^0.47.0",
+    "@ez4/aws-gateway": "^0.47.0",
+    "@ez4/common": "^0.47.0",
+    "@ez4/email": "^0.47.0",
+    "@ez4/local-gateway": "^0.47.0",
+    "@ez4/gateway": "^0.47.0",
+    "@ez4/project": "^0.47.0",
+    "@ez4/schema": "^0.47.0"
   }
 }

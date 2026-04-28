@@ -10,10 +10,13 @@ import { getRandomInteger } from '@ez4/utils';
  * @returns Returns the next retry delay value.
  */
 export const getRetryDelay = (currentAttempt: number, maxAttempts: number, minDelay: number, maxDelay: number) => {
-  const scale = currentAttempt / maxAttempts;
+  const priorScale = (currentAttempt - 1) / maxAttempts;
+  const newerScale = currentAttempt / maxAttempts;
 
-  const lower = minDelay * currentAttempt * scale;
-  const upper = (maxDelay - minDelay) * scale;
+  const range = maxDelay - minDelay;
+
+  const lower = (range / 2) * priorScale;
+  const upper = range * newerScale;
 
   const delay = getRandomInteger(lower, upper);
 

@@ -1,6 +1,6 @@
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
-  // @ts-expect-error missing `handler`.
-  events: {};
+  // @ts-expect-error missing `path` and `handler`.
+  events: [{}];
 }

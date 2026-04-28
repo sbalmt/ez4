@@ -1,4 +1,4 @@
-import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
 import type { BucketEvent } from './types';
@@ -18,7 +18,8 @@ import {
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
-  hasHeritageType
+  hasHeritageType,
+  getPropertyTuple
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
@@ -31,7 +32,22 @@ export const isBucketEventDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, 'Bucket.Event');
 };
 
-export const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getBucketEventsMetadata = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+  const eventItems = getPropertyTuple(member) ?? [];
+  const resultList: BucketEvent[] = [];
+
+  for (const event of eventItems) {
+    const result = getBucketEventMetadata(event, parent, reflection, errorList);
+
+    if (result) {
+      resultList.push(result);
+    }
+  }
+
+  return resultList;
+};
+
+const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
     return getTypeEvent(type, parent, errorList);
   }
@@ -46,7 +62,7 @@ export const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflect
 };
 
 const isCompleteEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => {
-  return isObjectWith(type, ['handler']);
+  return isObjectWith(type, ['path', 'handler']) && !!type.path;
 };
 
 const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {

@@ -25,10 +25,13 @@ export declare class FileStorage extends Bucket.Service {
   /**
    * Define an event handler for syncing the storage events.
    */
-  events: Bucket.UseEvents<{
-    listener: typeof syncStorageListener;
-    handler: typeof syncStorageHandler;
-  }>;
+  events: [
+    Bucket.UseEvent<{
+      path: ''; // Listen to any object.
+      listener: typeof syncStorageListener;
+      handler: typeof syncStorageHandler;
+    }>
+  ];
 
   /**
    * All Storage services.

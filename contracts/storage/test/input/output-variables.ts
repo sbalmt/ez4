@@ -2,10 +2,12 @@ import type { Environment, Service } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
-  events: Bucket.UseEvents<{
-    path: 'uploads/*';
-    handler: typeof eventHandler;
-  }>;
+  events: [
+    Bucket.UseEvent<{
+      path: 'uploads/';
+      handler: typeof eventHandler;
+    }>
+  ];
 
   variables: {
     TEST_VAR1: 'test-literal-value';
@@ -17,7 +19,7 @@ export declare class TestStorage extends Bucket.Service {
   };
 }
 
-function eventHandler(_event: Bucket.Event, context: Service.Context<TestStorage>) {
+function eventHandler(_event: Bucket.ObjectEvent, context: Service.Context<TestStorage>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.
