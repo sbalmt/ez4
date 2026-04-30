@@ -120,7 +120,7 @@ export const createDistribution = async (logger: OperationLogLine, request: Crea
 export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
   logger.update(`Updating distribution`);
 
-  const version = await getCurrentDistributionVersion(logger, distributionId);
+  const { version, configuration } = await getCurrentDistribution(logger, distributionId);
 
   const client = getCloudFrontClient();
 
@@ -129,7 +129,7 @@ export const updateDistribution = async (logger: OperationLogLine, distributionI
       Id: distributionId,
       IfMatch: version,
       DistributionConfig: {
-        ...upsertDistributionRequest(request)
+        ...upsertDistributionRequest(request, configuration)
       }
     })
   );
@@ -172,7 +172,7 @@ export const deleteDistribution = async (logger: OperationLogLine, distributionI
   logger.update(`Deleting distribution`);
 
   try {
-    const version = await getCurrentDistributionVersion(logger, distributionId);
+    const { version } = await getCurrentDistribution(logger, distributionId);
 
     await getCloudFrontClient().send(
       new DeleteDistributionCommand({
@@ -191,7 +191,7 @@ export const deleteDistribution = async (logger: OperationLogLine, distributionI
   }
 };
 
-const getCurrentDistributionVersion = async (logger: OperationLogLine, distributionId: string) => {
+const getCurrentDistribution = async (logger: OperationLogLine, distributionId: string) => {
   logger.update(`Fetching distribution`);
 
   const response = await getCloudFrontClient().send(
@@ -200,10 +200,13 @@ const getCurrentDistributionVersion = async (logger: OperationLogLine, distribut
     })
   );
 
-  return response.ETag!;
+  return {
+    version: response.ETag!,
+    configuration: response.Distribution?.DistributionConfig
+  };
 };
 
-const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
+const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defaults?: DistributionConfig): DistributionConfig => {
   const allCustomErrors = getAllCustomErrors(request);
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
@@ -211,16 +214,16 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
   const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, aliases, enabled, compress } = request;
 
   return {
-    Comment: description,
     CallerReference: distributionName,
     DefaultRootObject: defaultIndex ?? '',
-    PriceClass: PriceClass.PriceClass_All,
+    PriceClass: defaults?.PriceClass ?? PriceClass.PriceClass_All,
+    ContinuousDeploymentPolicyId: defaults?.ContinuousDeploymentPolicyId ?? '',
     HttpVersion: HttpVersion.http2and3,
-    ContinuousDeploymentPolicyId: '',
+    WebACLId: defaults?.WebACLId ?? '',
+    Comment: description ?? '',
     Enabled: enabled,
     IsIPV6Enabled: true,
     Staging: false,
-    WebACLId: '',
     Aliases: {
       Quantity: aliases?.length ?? 0,
       Items: aliases
@@ -244,12 +247,6 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
     CustomErrorResponses: {
       ...allCustomErrors
     },
-    Logging: {
-      Enabled: false,
-      IncludeCookies: false,
-      Bucket: '',
-      Prefix: ''
-    },
     ViewerCertificate: {
       SSLSupportMethod: SSLSupportMethod.sni_only,
       MinimumProtocolVersion: MinimumProtocolVersion.TLSv1,
@@ -264,7 +261,13 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
             CertificateSource: CertificateSource.cloudfront
           })
     },
-    Restrictions: {
+    Logging: defaults?.Logging ?? {
+      Enabled: false,
+      IncludeCookies: false,
+      Bucket: '',
+      Prefix: ''
+    },
+    Restrictions: defaults?.Restrictions ?? {
       GeoRestriction: {
         RestrictionType: GeoRestrictionType.none,
         Quantity: 0
