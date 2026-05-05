@@ -20,6 +20,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
+import { getCndRewriteMetadata } from './rewrite';
 import { getCdnCacheMetadata } from './cache';
 import { CdnOriginType } from './types';
 
@@ -131,6 +132,11 @@ const getTypeFromMembers = (
 
       case 'port': {
         origin.port = getPropertyNumber(member);
+        break;
+      }
+
+      case 'rewrite': {
+        origin.rewrite = getCndRewriteMetadata(member.value, parent, reflection, errorList);
         break;
       }
 

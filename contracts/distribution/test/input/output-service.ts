@@ -22,6 +22,10 @@ export declare class TestCdn extends Cdn.Service {
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
     location: '/site';
+    rewrite: {
+      '/path1': 'index.html';
+      '/path2/*': 'index.html';
+    };
   }>;
 
   origins: [
@@ -37,7 +41,7 @@ export declare class TestCdn extends Cdn.Service {
 
   fallbacks: [
     {
-      location: '/site';
+      location: '/index.html';
       code: 404;
       ttl: 3600;
     }

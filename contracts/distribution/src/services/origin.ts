@@ -1,4 +1,5 @@
 import type { Bucket } from '@ez4/storage';
+import type { CdnRewrite } from './rewrite';
 import type { CdnCache } from './cache';
 
 /**
@@ -22,6 +23,11 @@ export interface CdnOrigin {
    * Location path to append in the incoming request.
    */
   readonly location?: string;
+
+  /**
+   * Rewrite rules for the origin.
+   */
+  readonly rewrite?: CdnRewrite;
 
   /**
    * Origin cache.
