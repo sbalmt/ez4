@@ -275,7 +275,7 @@ export const updateConfiguration = async (logger: OperationLogLine, functionName
   });
 };
 
-export const deleteFunction = async (functionName: string, logger: OperationLogLine) => {
+export const deleteFunction = async (logger: OperationLogLine, functionName: string) => {
   logger.update(`Deleting function`);
 
   const client = getLambdaClient();

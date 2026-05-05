@@ -218,15 +218,13 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
 const deleteResource = async (current: FunctionState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { functionName } = parameters;
+
+    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
+      await deleteFunction(logger, functionName);
+    });
   }
-
-  const { functionName } = parameters;
-
-  await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
-    await deleteFunction(functionName, logger);
-  });
 };
 
 const checkConfigurationUpdates = async (
