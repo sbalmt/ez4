@@ -64,10 +64,11 @@ const getOriginCache = <T extends DistributionDefaultOrigin | DistributionAdditi
       };
 
   const originCache = {
-    id,
-    path,
-    location,
     ...originData,
+    rewrite: !!origin.rewrite,
+    location,
+    path,
+    id,
     getDistributionOrigin: async (stepContext) => {
       const originPolicyId = getOriginPolicyId(DistributionServiceName, cacheState.entryId, stepContext);
       const cachePolicyId = getCachePolicyId(DistributionServiceName, cacheState.entryId, stepContext);

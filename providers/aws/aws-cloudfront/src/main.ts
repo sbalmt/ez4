@@ -8,6 +8,10 @@ export * from './origin/service';
 export * from './origin/types';
 export * from './origin/utils';
 
+export * from './function/service';
+export * from './function/types';
+export * from './function/utils';
+
 export * from './access/service';
 export * from './access/types';
 export * from './access/utils';

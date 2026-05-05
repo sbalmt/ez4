@@ -56,8 +56,10 @@
     "@ez4/aws-common": "^0.47.0",
     "@ez4/aws-identity": "^0.47.0",
     "@ez4/distribution": "^0.47.0",
+    "@ez4/logger": "^0.47.0",
     "@ez4/project": "^0.47.0",
     "@ez4/stateful": "^0.47.0",
-    "@ez4/utils": "^0.47.0"
+    "@ez4/utils": "^0.47.0",
+    "esbuild": "^0.25.11"
   }
 }

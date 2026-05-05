@@ -31,7 +31,8 @@ import {
   HttpVersion,
   PriceClass,
   Method,
-  NoSuchDistribution
+  NoSuchDistribution,
+  EventType
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
@@ -43,6 +44,7 @@ export type DefaultOrigin = {
   originPolicyId?: string;
   headers?: Headers;
   location?: string;
+  rewrite?: boolean;
   http?: boolean;
   port?: number;
 };
@@ -63,6 +65,7 @@ export type CreateRequest = {
   defaultIndex?: string;
   defaultOrigin: DefaultOrigin;
   origins?: AdditionalOrigin[];
+  rewriteFunctionArn?: Arn;
   certificateArn?: Arn;
   originAccessId?: string;
   description?: string;
@@ -118,9 +121,9 @@ export const createDistribution = async (logger: OperationLogLine, request: Crea
 };
 
 export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
-  logger.update(`Updating distribution`);
-
   const { version, configuration } = await getCurrentDistribution(logger, distributionId);
+
+  logger.update(`Updating distribution`);
 
   const client = getCloudFrontClient();
 
@@ -211,7 +214,8 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, aliases, enabled, compress } = request;
+  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, rewriteFunctionArn, aliases, enabled, compress } =
+    request;
 
   return {
     CallerReference: distributionName,
@@ -236,7 +240,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
       Quantity: 0
     },
     DefaultCacheBehavior: {
-      ...getCacheBehavior(defaultOrigin, compress)
+      ...getCacheBehavior(defaultOrigin, compress, rewriteFunctionArn)
     },
     CacheBehaviors: {
       Quantity: allCacheBehaviors?.length ?? 0,
@@ -289,7 +293,7 @@ const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCu
   return headerList;
 };
 
-const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined): DefaultCacheBehavior => {
+const getCacheBehavior = (origin: DefaultOrigin, compress?: boolean, rewriteFunctionArn?: Arn): DefaultCacheBehavior => {
   return {
     TargetOriginId: origin.id,
     CachePolicyId: origin.cachePolicyId,
@@ -307,19 +311,29 @@ const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined):
       Quantity: 0
     },
     AllowedMethods: {
+      Quantity: 7,
+      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE],
       CachedMethods: {
         Quantity: 3,
         Items: [Method.GET, Method.HEAD, Method.OPTIONS]
-      },
-      Quantity: 7,
-      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE]
+      }
     },
     LambdaFunctionAssociations: {
       Quantity: 0
     },
-    FunctionAssociations: {
-      Quantity: 0
-    }
+    FunctionAssociations: origin.rewrite
+      ? {
+          Quantity: 1,
+          Items: [
+            {
+              EventType: EventType.viewer_request,
+              FunctionARN: rewriteFunctionArn
+            }
+          ]
+        }
+      : {
+          Quantity: 0
+        }
   };
 };
 
@@ -374,10 +388,10 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
 };
 
 const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
-  const { origins, compress } = request;
+  const { rewriteFunctionArn, origins, compress } = request;
 
   return origins?.map((origin) => ({
-    ...getCacheBehavior(origin, compress),
+    ...getCacheBehavior(origin, compress, rewriteFunctionArn),
     PathPattern: origin.path
   }));
 };

@@ -28,10 +28,11 @@ export type DistributionParameters = Omit<CreateRequest, 'originAccessId' | 'cer
 };
 
 export type DistributionResult = CreateResponse & {
-  originAccessId: string;
-  certificateArn: Arn | undefined;
-  defaultOrigin: DistributionOrigin;
   origins: DistributionOrigin[];
+  defaultOrigin: DistributionOrigin;
+  originAccessId: string;
+  rewriteFunctionArn?: Arn;
+  certificateArn?: Arn;
 };
 
 export type DistributionState = EntryState & {

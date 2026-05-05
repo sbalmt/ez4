@@ -5,6 +5,7 @@
 !LICENSE
 
 !docs/*.md
+!lib/*.ts
 
 !dist/**/*.d.ts
 !dist/**/*.cjs
