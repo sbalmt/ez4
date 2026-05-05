@@ -29,6 +29,9 @@ export declare class Site extends Cdn.Service {
    */
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<SiteBucket>;
+    rewrite: {
+      '/path/*': 'index.html';
+    };
     cache: {
       ttl: 600;
       minTTL: 0;
@@ -40,12 +43,23 @@ export declare class Site extends Cdn.Service {
    * Other origins.
    */
   origins: [
+    /**
+     * Forward origin example.
+     */
     Cdn.UseOrigin<{
       path: 'forward/*';
       domain: 'another.domain';
+    }>,
+
+    /**
+     * API origin example.
+     */
+    Cdn.UseOrigin<{
+      path: 'api/*';
+      domain: 'api.domain';
       cache: {
         headers: ['Authorization'];
-        ttl: 600;
+        ttl: 1;
       };
     }>
   ];
