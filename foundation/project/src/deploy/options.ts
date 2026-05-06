@@ -4,15 +4,19 @@ import type { DeployOptions } from '../types/options';
 
 import { toKebabCase } from '@ez4/utils';
 
-const DEFAULT_PREFIX = 'ez4';
+import { getServiceBranch, getServicePrefix } from '../utils/resource';
+import { getServiceName } from '../utils/service';
 
 export const getDeployOptions = (input: InputOptions, project: ProjectOptions): DeployOptions => {
-  const resourcePrefix = project.prefix ?? DEFAULT_PREFIX;
+  const namingOptions = {
+    prefix: getServicePrefix(project.prefix),
+    projectName: toKebabCase(project.projectName),
+    branchName: getServiceBranch(input.branch ?? project.branchName)
+  };
 
   return {
-    projectName: toKebabCase(project.projectName),
-    resourcePrefix: toKebabCase(resourcePrefix),
-    lockId: toKebabCase(`${resourcePrefix}-${project.projectName}`),
+    ...namingOptions,
+    lockId: getServiceName('', namingOptions),
     concurrency: project.deployOptions?.maxConcurrency ?? 25,
     debug: input.debug ?? project.debugMode,
     release: project.deployOptions?.release,

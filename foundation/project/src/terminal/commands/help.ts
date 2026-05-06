@@ -25,14 +25,16 @@ const HELP_LINES = [
   '',
   LogFormat.toBold('Options:'),
   '  --                 Specify test patterns, scripts to run, or generator arguments',
+  '  --branch, -b       Specify the name for resource branch deployment or destruction',
   '  --project, -p      Specify the project configuration file (Default is ez4.project.js)',
   '  --environment, -e  Specify the environment variables file to load',
   '  --suppress         Suppress local resource emulation when serving',
+  '  --coverage         Enable code coverage reports when testing',
   '  --inspect          Enable inspect mode when serving, running, or testing',
   '  --reset            Reset local resources when serving, running, or testing',
-  '  --local            Use local options when serving or testing',
   '  --debug            Enable debug mode for all provider resources',
   '  --force            Force deployment or destruction of resources',
+  '  --local            Use local options when serving or testing',
   ''
 ];
 

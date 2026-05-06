@@ -17,8 +17,10 @@ export const mergeState = (newState: EntryStates, oldState: EntryStates) => {
 };
 
 export const loadState = async (stateOptions: ProjectStateOptions, deployOptions: DeployOptions) => {
+  const { projectName, branchName } = deployOptions;
+
   if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path);
+    const path = getPath('.', stateOptions.path, branchName);
 
     if (existsSync(path)) {
       return unpackState(await readFile(path));
@@ -27,14 +29,11 @@ export const loadState = async (stateOptions: ProjectStateOptions, deployOptions
     return {};
   }
 
-  const path = getPath(deployOptions.projectName, stateOptions.path);
+  const path = getPath(projectName, stateOptions.path, branchName);
 
-  const data = await triggerAllAsync('state:load', (handler) =>
-    handler({
-      options: deployOptions,
-      path
-    })
-  );
+  const data = await triggerAllAsync('state:load', (handler) => {
+    return handler({ options: deployOptions, path });
+  });
 
   if (data) {
     return unpackState(data);
@@ -44,15 +43,17 @@ export const loadState = async (stateOptions: ProjectStateOptions, deployOptions
 };
 
 export const saveState = async (stateOptions: ProjectStateOptions, deployOptions: DeployOptions, state: EntryStates) => {
+  const { projectName, branchName } = deployOptions;
+
   const data = packState(state);
 
   if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path);
+    const path = getPath('.', stateOptions.path, branchName);
 
     return writeFile(path, data);
   }
 
-  const path = getPath(deployOptions.projectName, stateOptions.path);
+  const path = getPath(projectName, stateOptions.path, branchName);
 
   return triggerAllAsync('state:save', (handler) =>
     handler({
@@ -63,8 +64,8 @@ export const saveState = async (stateOptions: ProjectStateOptions, deployOptions
   );
 };
 
-const getPath = (baseDirectory: string, filePath: string) => {
-  return `${baseDirectory}/${basename(filePath)}.ezstate`;
+const getPath = (baseDirectory: string, filePath: string, branchName: string) => {
+  return `${baseDirectory}/${basename(filePath)}${branchName ? `-${branchName}` : ``}.ezstate`;
 };
 
 const packState = (state: EntryStates) => {

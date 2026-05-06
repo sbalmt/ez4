@@ -8,10 +8,11 @@ import { toKebabCase } from '@ez4/utils';
 import { isServiceMetadata } from '../types/service';
 
 export const getServiceName = (service: ServiceMetadata | string, options: CommonOptions) => {
-  const resourcePrefix = toKebabCase(options.resourcePrefix);
+  const prefix = toKebabCase(options.prefix);
   const projectName = toKebabCase(options.projectName);
+  const branchName = toKebabCase(options.branchName);
 
-  const servicePrefix = `${resourcePrefix}-${projectName}`;
+  const servicePrefix = `${prefix}-${projectName}${branchName ? `-${branchName}` : ``}`;
 
   if (isServiceMetadata(service)) {
     return `${servicePrefix}-${toKebabCase(service.name)}`;

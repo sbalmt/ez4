@@ -11,8 +11,9 @@ type TesterContext = {
 };
 
 type TesterOptions = {
-  resourcePrefix: string;
+  prefix: string;
   projectName: string;
+  branchName: string;
 };
 
 export namespace Tester {
