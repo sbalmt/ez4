@@ -23,7 +23,7 @@ export declare class TestCdn extends Cdn.Service {
     bucket: Environment.Service<TestBucket>;
     location: '/site';
     rewrite: {
-      '/path1': 'index.html';
+      path1: 'index.html';
       '/path2/*': 'index.html';
     };
   }>;
@@ -36,6 +36,10 @@ export declare class TestCdn extends Cdn.Service {
     Cdn.UseOrigin<{
       domain: Environment.Variable<'TEST_ENV_VAR'>;
       path: 'inline/*';
+      rewrite: {
+        '/inline/path1/*': 'index.html';
+        '/path2/*': 'index.html';
+      };
     }>
   ];
 

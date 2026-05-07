@@ -90,7 +90,11 @@
       {
         "type": "regular",
         "domain": "test-env-var-value",
-        "path": "inline/*"
+        "path": "inline/*",
+        "rewrite": {
+          "/inline/path1/*": "/index.html",
+          "/inline/path2/*": "/index.html"
+        }
       }
     ],
     "fallbacks": [

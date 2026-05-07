@@ -14,7 +14,7 @@ import {
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
 
 import { IncorrectRewriteTypeError, InvalidRewriteTypeError } from '../errors/rewrite';
-import { getFormattedUri } from './utils/uri';
+import { formatUri } from './utils/uri';
 
 export const isCdnRewriteMetadata = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.Rewrite');
@@ -61,10 +61,10 @@ const getTypeFromMembers = (members: MemberType[]) => {
     }
 
     const location = getPropertyString(member);
-    const path = getFormattedUri(member.name);
+    const path = formatUri(member.name);
 
     if (location) {
-      rewrite[path] = getFormattedUri(location);
+      rewrite[path] = formatUri(location);
     }
   }
 
