@@ -89,10 +89,13 @@ const deleteResource = async (current: InstanceState, context: StepContext) => {
   const { result, parameters } = current;
 
   if (result) {
+    const { branchMode, allowDeletion } = parameters;
     const { instanceName } = result;
 
     await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
-      const { allowDeletion } = parameters;
+      if (branchMode) {
+        return;
+      }
 
       if (!allowDeletion && !context.force) {
         throw new InstanceDeletionDeniedError(instanceName);

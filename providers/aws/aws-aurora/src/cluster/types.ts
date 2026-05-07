@@ -5,7 +5,9 @@ export const ClusterServiceName = 'AWS:Aurora/Cluster';
 
 export const ClusterServiceType = 'aws:aurora.cluster';
 
-export type ClusterParameters = CreateRequest;
+export type ClusterParameters = CreateRequest & {
+  branchMode?: boolean;
+};
 
 export type ClusterResult = ImportOrCreateResponse;
 

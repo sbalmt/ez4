@@ -5,7 +5,10 @@ import { isDatabaseService } from '@ez4/database/library';
 import { getServiceName } from '@ez4/project/library';
 
 export const getClusterName = (service: DatabaseService, options: CommonOptions) => {
-  return getServiceName(service, options);
+  return getServiceName(service, {
+    ...options,
+    branchName: ''
+  });
 };
 
 export const getInstanceName = (service: DatabaseService, options: CommonOptions) => {

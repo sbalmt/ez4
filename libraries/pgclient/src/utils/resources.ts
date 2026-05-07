@@ -8,8 +8,9 @@ export const getTableName = (table: string) => {
 };
 
 export const getDatabaseName = (service: DatabaseService, options: CommonOptions) => {
+  const branchName = toSnakeCase(options.branchName);
   const projectName = toSnakeCase(options.projectName);
   const serviceName = toSnakeCase(service.name);
 
-  return `${projectName}_${serviceName}`;
+  return `${projectName}_${serviceName}${branchName ? `_${branchName}` : ``}`;
 };
