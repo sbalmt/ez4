@@ -13,9 +13,9 @@ import { createStage } from '../../stage/service';
 import { createRoute } from '../../route/service';
 import { createGateway } from '../../gateway/service';
 import { GatewayProtocol } from '../../gateway/types';
+import { getDisplayName, getInternalName } from '../utils/name';
 import { getIntegrationRequestFunction } from '../integration';
 import { getAuthorizerFunction } from '../authorizer';
-import { getInternalName } from '../utils/name';
 import { RoleMissingError } from '../errors';
 import { prepareLinkedClient } from './client';
 import { getCorsConfiguration } from './cors';
@@ -35,14 +35,15 @@ export const prepareHttpServices = (event: PrepareResourceEvent) => {
 
   if (isHttpService(service)) {
     const { name, displayName, description, routes, cors } = service;
+    const { branchName, tags } = options;
 
     const gatewayState = createGateway(state, {
-      cors: cors && getCorsConfiguration(routes, cors),
       gatewayId: getServiceName(service, options),
-      gatewayName: displayName ?? name,
+      gatewayName: getDisplayName(displayName ?? name, branchName),
+      cors: cors && getCorsConfiguration(routes, cors),
       protocol: GatewayProtocol.Http,
-      tags: options.tags,
-      description
+      description,
+      tags
     });
 
     const logGroupState = createAccessLog(state, service, gatewayState, options);

@@ -9,12 +9,12 @@ import { isWsService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { Defaults } from '../../utils/defaults';
-import { getInternalName } from '../utils/name';
 import { createStage } from '../../stage/service';
 import { createRoute } from '../../route/service';
 import { createGateway } from '../../gateway/service';
 import { GatewayProtocol } from '../../gateway/types';
 import { createResponse } from '../../response/service';
+import { getDisplayName, getInternalName } from '../utils/name';
 import { getIntegrationConnectionFunction, getIntegrationMessageFunction } from '../integration';
 import { getAuthorizerFunction } from '../authorizer';
 import { RoleMissingError } from '../errors';
@@ -35,12 +35,12 @@ export const prepareWsServices = (event: PrepareResourceEvent) => {
 
   if (isWsService(service)) {
     const { name, displayName, description } = service;
-    const { tags } = options;
+    const { branchName, tags } = options;
 
     const gatewayState = createGateway(state, {
-      protocol: GatewayProtocol.WebSocket,
       gatewayId: getServiceName(service, options),
-      gatewayName: displayName ?? name,
+      gatewayName: getDisplayName(displayName ?? name, branchName),
+      protocol: GatewayProtocol.WebSocket,
       routeKey: 'ez4/unknown',
       description,
       tags
