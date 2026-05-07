@@ -7,31 +7,34 @@ import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service';
 
-export const getServiceName = (service: ServiceMetadata | string, options: CommonOptions) => {
-  const prefix = toKebabCase(options.prefix);
-  const projectName = toKebabCase(options.projectName);
-  const branchName = toKebabCase(options.branchName);
-
-  const servicePrefix = `${prefix}-${projectName}${branchName ? `-${branchName}` : ``}`;
-
-  if (isServiceMetadata(service)) {
-    return `${servicePrefix}-${toKebabCase(service.name)}`;
-  }
-
-  if (service) {
-    return `${servicePrefix}-${toKebabCase(service)}`;
-  }
-
-  return servicePrefix;
+export type ServiceNameOptions = Pick<CommonOptions, 'prefix' | 'projectName' | 'branchName'> & {
+  disableBranch?: boolean;
 };
 
-export const tryGetServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: CommonOptions) => {
+export const getServiceName = (service: ServiceMetadata | string, options: ServiceNameOptions) => {
+  const serviceName = [toKebabCase(options.prefix), toKebabCase(options.projectName)];
+
+  const resourceName = toKebabCase(isServiceMetadata(service) ? service.name : service);
+  const branchName = toKebabCase(options.branchName);
+
+  if (!options.disableBranch && branchName) {
+    serviceName.push(branchName);
+  }
+
+  if (resourceName) {
+    serviceName.push(resourceName);
+  }
+
+  return serviceName.join('-');
+};
+
+export const tryGetServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: ServiceNameOptions) => {
   const serviceName = getServiceName(service, options);
 
   return services[serviceName];
 };
 
-export const getServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: CommonOptions) => {
+export const getServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: ServiceNameOptions) => {
   const serviceName = getServiceName(service, options);
 
   const serviceState = services[serviceName];
@@ -43,7 +46,12 @@ export const getServiceState = (services: ServiceStates, service: ServiceMetadat
   return serviceState;
 };
 
-export const setServiceState = (services: ServiceStates, state: EntryState, service: ServiceMetadata | string, options: CommonOptions) => {
+export const setServiceState = (
+  services: ServiceStates,
+  state: EntryState,
+  service: ServiceMetadata | string,
+  options: ServiceNameOptions
+) => {
   const serviceName = getServiceName(service, options);
 
   if (services[serviceName]) {

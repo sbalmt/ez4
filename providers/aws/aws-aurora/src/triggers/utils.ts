@@ -6,8 +6,8 @@ import { getServiceName } from '@ez4/project/library';
 
 export const getClusterName = (service: DatabaseService, options: CommonOptions) => {
   return getServiceName(service, {
-    ...options,
-    branchName: ''
+    disableBranch: true,
+    ...options
   });
 };
 

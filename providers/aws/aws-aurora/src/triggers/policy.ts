@@ -17,8 +17,8 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const policyName = `${policyPrefix}-aurora-policy`;
 
   const resourcePrefix = getServiceName('', {
-    ...options,
-    branchName: ''
+    disableBranch: true,
+    ...options
   });
 
   return (
