@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('cloudfront :: origin access', { timeout: Infinity }, () => {
+describe('cloudfront :: origin access', { timeout: 60000 }, () => {
   let lastState: EntryStates | undefined;
   let accessId: string | undefined;
 

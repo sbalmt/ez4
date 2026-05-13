@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { prepareFieldData } from '@ez4/aws-aurora/client';
 import { SchemaType } from '@ez4/schema';
 
-describe('aurora data prepare', { timeout: Infinity }, () => {
+describe('aurora data prepare', () => {
   it('assert :: prepare null data', () => {
     const data = prepareFieldData('field', null, {
       type: SchemaType.String,

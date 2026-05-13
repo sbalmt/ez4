@@ -8,7 +8,7 @@ import { Client } from '@ez4/aws-queue/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
-describe('queue client', { timeout: Infinity }, () => {
+describe('queue client', { timeout: 90000 }, () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
   let queueClient: ReturnType<typeof Client.make>;

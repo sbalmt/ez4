@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('email', { timeout: Infinity }, () => {
+describe('email', { timeout: 30000 }, () => {
   let lastState: EntryStates | undefined;
   let identityId: string | undefined;
 

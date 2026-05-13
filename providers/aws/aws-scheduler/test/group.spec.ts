@@ -26,7 +26,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('scheduler group', { timeout: Infinity }, () => {
+describe('scheduler group', { timeout: 60000 }, () => {
   let lastState: EntryStates | undefined;
   let groupId: string | undefined;
 

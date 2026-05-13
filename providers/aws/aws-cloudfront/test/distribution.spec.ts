@@ -43,7 +43,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('cloudfront :: distribution', { timeout: Infinity }, () => {
+describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
   let cachePolicyId: string | undefined;
