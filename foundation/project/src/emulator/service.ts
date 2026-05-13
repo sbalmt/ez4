@@ -24,7 +24,9 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
 
         scopeCache.set(linkedServices, allClients);
 
-        Object.assign(allClients, await makeEmulatorClients(linkedServices, emulators, options));
+        const newClients = await makeEmulatorClients(linkedServices, emulators, options);
+
+        Object.assign(allClients, newClients);
 
         return allClients;
       }

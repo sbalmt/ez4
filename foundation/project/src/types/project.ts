@@ -10,9 +10,14 @@ export type ProjectOptions = {
   prefix?: string;
 
   /**
-   * Project name that's combined with the `prefix`.
+   * Project name that's combined with the `prefix` and `branchName`.
    */
   projectName: string;
+
+  /**
+   * Branch to be used as part of the resource names.
+   */
+  branchName?: string;
 
   /**
    * Determine whether the deployment must be confirmed before proceeding.

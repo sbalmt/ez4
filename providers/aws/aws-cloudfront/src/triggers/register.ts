@@ -11,6 +11,7 @@ import { registerOriginPolicyProvider } from '../origin/provider';
 import { registerOriginAccessProvider } from '../access/provider';
 import { registerDistributionProvider } from '../distribution/provider';
 import { registerInvalidationProvider } from '../invalidation/provider';
+import { registerFunctionProvider } from '../function/provider';
 import { prepareCdnServices, connectCdnServices } from './service';
 
 export const registerTriggers = () => {
@@ -30,4 +31,5 @@ export const registerTriggers = () => {
   registerOriginAccessProvider();
   registerDistributionProvider();
   registerInvalidationProvider();
+  registerFunctionProvider();
 };

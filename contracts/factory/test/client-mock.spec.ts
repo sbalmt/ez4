@@ -2,7 +2,6 @@ import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { FactoryTester } from '@ez4/factory/test';
-import { throws } from 'node:assert';
 
 type TestService = {
   helloWorld(): string;
@@ -23,17 +22,19 @@ describe('factory client mock tests', async () => {
     equal(client.helloWorld(), 'success');
   });
 
-  it('assert :: set instance mock', async () => {
-    FactoryTester.setClientMock('TestService', {
+  it('assert :: global instance mock', async () => {
+    FactoryTester.setClientMock('TestServiceFactory', {
       handler: getServiceMock
     });
 
-    const client = await FactoryTester.getClient<TestService>('TestService');
+    const clientMock = await FactoryTester.getClient<TestService>('TestServiceFactory');
 
-    equal(client.helloWorld(), 'success');
+    equal(clientMock.helloWorld(), 'success');
 
-    FactoryTester.restoreClient('TestService');
+    FactoryTester.restoreClient('TestServiceFactory');
 
-    throws(() => FactoryTester.getClient('TestService'));
+    const realClient = await FactoryTester.getClient<TestService>('TestServiceFactory');
+
+    equal(realClient.helloWorld(), 'hey');
   });
 });

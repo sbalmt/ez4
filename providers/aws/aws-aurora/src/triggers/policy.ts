@@ -16,11 +16,16 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const policyPrefix = getServiceName('', options);
   const policyName = `${policyPrefix}-aurora-policy`;
 
+  const resourcePrefix = getServiceName('', {
+    disableBranch: true,
+    ...options
+  });
+
   return (
     tryGetPolicy(state, policyName) ??
     createPolicy(state, {
       tags: options.tags,
-      policyDocument: await getPolicyDocument(policyPrefix),
+      policyDocument: await getPolicyDocument(resourcePrefix),
       policyName
     })
   );

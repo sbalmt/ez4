@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { ValidationTester } from '@ez4/validation/test';
 
-import { rejects, throws } from 'node:assert';
+import { rejects } from 'node:assert';
 
 describe('validation client mock tests', () => {
   it('assert :: success validation', async () => {
@@ -31,7 +31,7 @@ describe('validation client mock tests', () => {
   });
 
   it('assert :: global instance mock', async () => {
-    ValidationTester.setClientMock('TestValidation', {
+    ValidationTester.setClientMock('TestServiceValidation', {
       handler: (input) => {
         if (input.value === 'fail') {
           throw new Error(`Failed to validate`);
@@ -39,15 +39,20 @@ describe('validation client mock tests', () => {
       }
     });
 
-    const client = await ValidationTester.getClient('TestValidation');
+    const clientMock = await ValidationTester.getClient('TestServiceValidation');
 
-    equal(await client.tryValidate('not-fail'), true);
-    equal(await client.tryValidate('fail'), false);
+    equal(await clientMock.tryValidate('not-fail'), true);
+    equal(await clientMock.tryValidate('fail'), false);
 
-    await rejects(() => client.validate('fail'));
+    await rejects(() => clientMock.validate('fail'));
 
-    ValidationTester.restoreClient('TestValidation');
+    ValidationTester.restoreClient('TestServiceValidation');
 
-    throws(() => ValidationTester.getClient('TestValidation'));
+    const realClient = await ValidationTester.getClient('TestServiceValidation');
+
+    equal(await realClient.tryValidate('not-fail'), true);
+    equal(await realClient.tryValidate('fail'), true);
+
+    await realClient.validate('fail');
   });
 });

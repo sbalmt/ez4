@@ -5,17 +5,31 @@
     "context": {},
     "variables": {},
     "services": {},
-    "events": {
-      "path": "uploads/*",
-      "handler": {
-        "name": "eventHandler",
-        "file": "test/input/output-vpc.ts",
-        "position": [
-          11,
-          1
-        ]
+    "events": [
+      {
+        "path": "uploads/",
+        "handler": {
+          "name": "eventHandler",
+          "file": "test/input/output-vpc.ts",
+          "position": [
+            18,
+            1
+          ]
+        },
+        "vpc": true
       },
-      "vpc": true
-    }
+      {
+        "path": "others/",
+        "handler": {
+          "name": "eventHandler",
+          "file": "test/input/output-vpc.ts",
+          "position": [
+            18,
+            1
+          ]
+        },
+        "vpc": false
+      }
+    ]
   }
 }

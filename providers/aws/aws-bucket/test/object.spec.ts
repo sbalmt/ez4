@@ -28,7 +28,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('bucket objects', () => {
+describe('bucket objects', { timeout: 60000 }, () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -39,7 +39,7 @@ describe('bucket objects', () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const bucketResource = createBucket(localState, undefined, {
+    const bucketResource = createBucket(localState, {
       bucketName: 'ez4-test-object-bucket'
     });
 

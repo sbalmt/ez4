@@ -15,6 +15,7 @@ import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getOriginAccessId } from '../access/utils';
+import { tryGetFunctionArn } from '../function/utils';
 import { tryGetCertificateArn } from '../certificate/utils';
 import { createDistribution, updateDistribution, deleteDistribution, tagDistribution, untagDistribution } from './client';
 import { protectHeaders } from './helpers/headers';
@@ -80,8 +81,9 @@ const createResource = (candidate: DistributionState, context: StepContext): Pro
   const distributionName = parameters.distributionName;
 
   return OperationLogger.logExecution(DistributionServiceName, distributionName, 'creation', async (logger) => {
-    const certificateArn = tryGetCertificateArn(context);
     const originAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
+    const rewriteFunctionArn = tryGetFunctionArn(context);
+    const certificateArn = tryGetCertificateArn(context);
 
     const originsData = await getOriginsData(parameters, context);
     const allOrigins = bindOriginsData(parameters, originsData);
@@ -90,6 +92,7 @@ const createResource = (candidate: DistributionState, context: StepContext): Pro
       ...parameters,
       ...allOrigins,
       originAccessId,
+      rewriteFunctionArn,
       certificateArn
     });
 
@@ -101,6 +104,7 @@ const createResource = (candidate: DistributionState, context: StepContext): Pro
       endpoint,
       distributionId,
       distributionArn,
+      rewriteFunctionArn,
       certificateArn,
       originAccessId,
       defaultOrigin,
@@ -123,11 +127,14 @@ const updateResource = (
   const distributionName = parameters.distributionName;
 
   return OperationLogger.logExecution(DistributionServiceName, distributionName, 'updates', async (logger) => {
-    const newCertificateArn = tryGetCertificateArn(context);
-    const oldCertificateArn = current.result?.certificateArn;
-
     const newOriginAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
     const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
+
+    const newRewriteFunctionArn = tryGetFunctionArn(context);
+    const oldRewriteFunctionArn = current.result?.rewriteFunctionArn;
+
+    const newCertificateArn = tryGetCertificateArn(context);
+    const oldCertificateArn = current.result?.certificateArn;
 
     const newOriginsData = await getOriginsData(parameters, context);
     const newAllOrigins = bindOriginsData(parameters, newOriginsData);
@@ -136,6 +143,7 @@ const updateResource = (
       ...parameters,
       ...newAllOrigins,
       originAccessId: newOriginAccessId,
+      rewriteFunctionArn: newRewriteFunctionArn,
       certificateArn: newCertificateArn
     };
 
@@ -146,10 +154,11 @@ const updateResource = (
       ...current.parameters,
       ...oldAllOrigins,
       originAccessId: oldOriginAccessId,
+      rewriteFunctionArn: oldRewriteFunctionArn,
       certificateArn: oldCertificateArn
     };
 
-    await checkGeneralUpdates(logger, result.distributionId, newRequest, oldRequest);
+    await checkGeneralUpdates(logger, result.distributionId, newRequest, oldRequest, context);
     await checkTagUpdates(logger, result.distributionArn, parameters, current.parameters);
 
     lockSensitiveData(candidate);
@@ -254,7 +263,8 @@ const checkGeneralUpdates = async (
   logger: OperationLogLine,
   distributionId: string,
   candidate: GeneralUpdateParameters,
-  current: GeneralUpdateParameters
+  current: GeneralUpdateParameters,
+  context: StepContext
 ) => {
   const hasChanges = !deepEqual(candidate, current, {
     exclude: {
@@ -262,7 +272,7 @@ const checkGeneralUpdates = async (
     }
   });
 
-  if (hasChanges) {
+  if (hasChanges || context.force) {
     await updateDistribution(logger, distributionId, candidate);
   }
 };

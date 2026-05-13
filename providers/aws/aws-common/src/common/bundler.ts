@@ -7,7 +7,7 @@ import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 import { cpus } from 'node:os';
 
-import { arrayUnique, hashData, isNullish, toKebabCase, toPascalCase, toSnakeCase } from '@ez4/utils';
+import { arrayUnique, hashData, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
@@ -256,19 +256,19 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
     for (const serviceName of Object.keys(linkedContext).sort()) {
       const { constructor, module, from, context } = linkedContext[serviceName];
 
-      const constructorName = toPascalCase(`${serviceName}${module}`);
-      const constructorHash = `__EZ4_${toSnakeCase(hashData(constructorName)).toUpperCase()}`;
+      const constructorPath = hashData(`${serviceName}/${module}/${from}`);
+      const constructorHash = `__EZ4_${toSnakeCase(constructorPath).toUpperCase()}`;
 
       services.push(`['${serviceName}']: __EZ4_REPOSITORY.${constructorHash}`);
 
       if (!resolutionCache.has(constructorHash)) {
         resolutionCache.add(constructorHash);
 
-        packages.push(`import { ${module} as ${constructorName} } from '${from}';`);
+        packages.push(`import { ${module} as ${constructorHash} } from '${from}';`);
 
         repository[constructorHash] = applyTemplateVariables(constructor, {
           EZ4_MODULE_CONTEXT: context && buildContext(context),
-          EZ4_MODULE_IMPORT: constructorName
+          EZ4_MODULE_IMPORT: constructorHash
         });
       }
     }
@@ -292,7 +292,7 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
 const applyTemplateVariables = (constructor: string, variables: Record<string, string | undefined>) => {
   return constructor.replaceAll(/@\{([\w_]+)\}/g, (_, variableName) => {
     if (!(variableName in variables) || isNullish(variables[variableName])) {
-      throw new Error(`Template variable ${variableName} isn't expected.`);
+      throw new Error(`Template variable '${variableName}' isn't expected.`);
     }
 
     return variables[variableName];

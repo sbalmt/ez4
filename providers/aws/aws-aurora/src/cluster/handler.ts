@@ -85,9 +85,13 @@ const deleteResource = async (current: ClusterState, context: StepContext) => {
   const { result, parameters } = current;
 
   if (result) {
-    const { clusterName, allowDeletion } = parameters;
+    const { clusterName, branchMode, allowDeletion } = parameters;
 
     await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+      if (branchMode) {
+        return;
+      }
+
       if (!allowDeletion && !context.force) {
         throw new ClusterDeletionDeniedError(clusterName);
       }

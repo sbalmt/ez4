@@ -4,15 +4,18 @@ import type { ServeOptions } from '../types/options';
 
 import { toKebabCase } from '@ez4/utils';
 
+import { getServiceBranch, getServicePrefix } from '../utils/resource';
+
 export const getServeOptions = (input: InputOptions, project: ProjectOptions): ServeOptions => {
-  const serveOptions = project.serveOptions;
+  const { serveOptions } = project;
 
   const serviceHost = serveOptions?.localHost ?? 'localhost';
   const servicePort = serveOptions?.localPort ?? 3734;
 
   return {
-    resourcePrefix: project.prefix ?? 'ez4',
+    prefix: getServicePrefix(project.prefix),
     projectName: toKebabCase(project.projectName),
+    branchName: getServiceBranch(input.branch ?? project.branchName),
     serviceHost: `${serviceHost}:${servicePort}`,
     localOptions: project.localOptions ?? {},
     testOptions: project.testOptions ?? {},

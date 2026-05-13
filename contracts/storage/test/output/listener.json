@@ -5,23 +5,26 @@
     "context": {},
     "variables": {},
     "services": {},
-    "events": {
-      "listener": {
-        "name": "eventListener",
-        "file": "test/input/output-listener.ts",
-        "position": [
-          10,
-          1
-        ]
-      },
-      "handler": {
-        "name": "eventHandler",
-        "file": "test/input/output-listener.ts",
-        "position": [
-          12,
-          1
-        ]
+    "events": [
+      {
+        "path": "*",
+        "listener": {
+          "name": "eventListener",
+          "file": "test/input/output-listener.ts",
+          "position": [
+            13,
+            1
+          ]
+        },
+        "handler": {
+          "name": "eventHandler",
+          "file": "test/input/output-listener.ts",
+          "position": [
+            15,
+            1
+          ]
+        }
       }
-    }
+    ]
   }
 }

@@ -7,9 +7,8 @@ import type { PgClientDriver, PgExecuteStatement, PgExecutionResult } from '../t
 import type { InternalTableMetadata } from '../types/table';
 
 import { tryExtractUniqueIndex } from '../utils/indexes';
-import { DuplicateUniqueKeyError } from '../driver/errors';
 import { MissingUniqueIndexError } from '../queries/errors';
-import { RaceConditionError } from './errors';
+import { DuplicateUniqueKeyError } from '../driver/errors';
 
 import {
   prepareInsertOne,
@@ -102,8 +101,6 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       throw new MissingUniqueIndexError();
     }
 
-    let hasConcurrency = false;
-
     const { driver } = this.context;
 
     const updateQuery = {
@@ -117,6 +114,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     const updateStatement = await prepareUpdateOne(this.name, this.schema, this.relations, driver, updateQuery, {
       flag: '__EZ4_OK'
     });
+
+    let hasConflict = false;
 
     do {
       const { records: updateRecords } = await this.sendStatement(updateStatement);
@@ -132,10 +131,6 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         } as Query.UpsertOneResult<S, T>;
       }
 
-      if (hasConcurrency) {
-        throw new RaceConditionError(this.name);
-      }
-
       try {
         const insertStatement = await prepareInsertOne(this.name, this.schema, this.relations, driver, {
           select: query.select,
@@ -149,9 +144,9 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
           inserted: true
         } as Query.UpsertOneResult<S, T>;
       } catch (error) {
-        // In case of race condition, fallback to update retry.
-        if (error instanceof DuplicateUniqueKeyError) {
-          hasConcurrency = true;
+        // In case of race condition or multiple conflicts, fallback to update retry.
+        if (!hasConflict && error instanceof DuplicateUniqueKeyError) {
+          hasConflict = true;
           continue;
         }
 

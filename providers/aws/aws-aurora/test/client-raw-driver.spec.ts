@@ -10,7 +10,7 @@ import { deploy } from '@ez4/aws-common';
 
 import { createCluster, createInstance, isClusterState, isInstanceState, registerTriggers } from '@ez4/aws-aurora';
 
-describe('aurora client driver', async () => {
+describe('aurora client driver', { timeout: 180000 }, async () => {
   let dbClient: DbClient<Database.Service>;
 
   const repository: PgTableRepository = {};

@@ -19,7 +19,8 @@ import { readdir } from 'node:fs/promises';
 import { spec } from 'node:test/reporters';
 import { run } from 'node:test';
 
-const TestFilePattern = /\.(spec|test)\.(js|ts)$/;
+const INCLUDE_PATTERN = /\.(spec|test)\.(js|ts)$/;
+const EXCLUDE_PATTERN = /^node_modules\//;
 
 export const testCommand = async (input: InputOptions) => {
   const project = await loadProject(input.project);
@@ -75,8 +76,8 @@ export const testCommand = async (input: InputOptions) => {
     });
 
     const testFiles = allFiles.filter((file) => {
-      if (TestFilePattern.test(file)) {
-        return !filePatterns || filePatterns.some((filePattern) => file.includes(filePattern));
+      if (INCLUDE_PATTERN.test(file)) {
+        return !EXCLUDE_PATTERN.test(file) && (!filePatterns || filePatterns.some((filePattern) => file.includes(filePattern)));
       }
 
       return false;
@@ -97,13 +98,14 @@ export const testCommand = async (input: InputOptions) => {
     coverageIncludeGlobs: [`${workingDirectory}/**/*`],
     isolation: 'none',
     files: testFiles,
-    forceExit: true
+    forceExit: true,
+    timeout: 5000
   });
 
   testRunner.compose(spec).pipe(process.stdout);
 
-  testRunner.on('test:summary', ({ success }) => {
-    shutdownServices(emulators);
+  testRunner.on('test:summary', async ({ success }) => {
+    await shutdownServices(emulators);
 
     if (!success) {
       process.exitCode = 1;

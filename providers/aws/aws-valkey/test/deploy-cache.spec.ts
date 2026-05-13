@@ -27,7 +27,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('deploy cache', () => {
+describe('deploy cache', { timeout: 600000 }, () => {
   let lastState: EntryStates | undefined;
   let cacheId: string | undefined;
 

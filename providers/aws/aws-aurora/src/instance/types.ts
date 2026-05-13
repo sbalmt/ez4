@@ -7,6 +7,7 @@ export const InstanceServiceType = 'aws:aurora.instance';
 
 export type InstanceParameters = Omit<CreateRequest, 'clusterName'> & {
   allowDeletion?: boolean;
+  branchMode?: boolean;
 };
 
 export type InstanceResult = ImportOrCreateResponse & {

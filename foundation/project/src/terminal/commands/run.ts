@@ -63,12 +63,14 @@ export const runCommand = async (input: InputOptions) => {
     return;
   }
 
-  await DynamicLogger.logExecution('▶️  Running script', async () => {
+  const allScripts = await DynamicLogger.logExecution('▶️  Running script', async () => {
     Runner.configure(emulators, options);
 
     await prepareServices(emulators);
 
     await bootstrapServices(emulators);
+
+    const scripts = [];
 
     for (const scriptFile of scriptFiles) {
       const scriptPath = join(workingDirectory, scriptFile);
@@ -78,9 +80,13 @@ export const runCommand = async (input: InputOptions) => {
         continue;
       }
 
-      await import(scriptPath);
+      scripts.push(import(scriptPath));
     }
 
-    await shutdownServices(emulators);
+    return scripts;
   });
+
+  await Promise.all(allScripts);
+
+  await shutdownServices(emulators);
 };

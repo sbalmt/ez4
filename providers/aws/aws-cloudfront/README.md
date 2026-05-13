@@ -65,6 +65,19 @@ Ensure the user performing deployments has the permissions below:
         "cloudfront:UntagResource"
       ],
       "Resource": ["arn:aws:cloudfront::{account-id}:distribution/*"]
+    },
+    {
+      "Sid": "FunctionManagement",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:GetFunction",
+        "cloudfront:DescribeFunction",
+        "cloudfront:CreateFunction",
+        "cloudfront:UpdateFunction",
+        "cloudfront:DeleteFunction",
+        "cloudfront:PublishFunction"
+      ],
+      "Resource": ["arn:aws:cloudfront::{account-id}:function/{prefix}-*"]
     }
   ]
 }

@@ -92,8 +92,12 @@ export const createClientMock = (serviceName: string, options?: ClientMockOption
       return Promise.resolve();
     }
 
-    async *scan(): AsyncGenerator<ObjectEntry, void> {
+    async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
       for (const key in storageMemory) {
+        if (keyPrefix && !key.startsWith(keyPrefix)) {
+          continue;
+        }
+
         const content = storageMemory[key];
 
         yield Promise.resolve({

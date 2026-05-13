@@ -12,14 +12,14 @@ describe('queue backoff utils', () => {
     const second = getRetryDelay(2, 3, minDelay, maxDelay);
     const third = getRetryDelay(3, 3, minDelay, maxDelay);
 
-    ok(first >= 6 && first <= 43);
-    ok(second >= 11 && second <= 81);
-    ok(third >= 20 && third <= 120);
+    ok(first >= 5 && first <= 44);
+    ok(second >= 25 && second <= 82);
+    ok(third >= 44 && third <= 120);
 
     // Test retries overflow
     const overflow = getRetryDelay(4, 3, minDelay, maxDelay);
 
-    ok(overflow >= 20 && overflow <= 120);
+    ok(overflow >= 44 && overflow <= 120);
   });
 
   it('assert :: get retry delay (constant time)', async () => {

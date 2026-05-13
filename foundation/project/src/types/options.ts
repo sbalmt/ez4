@@ -3,8 +3,9 @@ import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
 export type CommonOptions = {
-  resourcePrefix: string;
+  prefix: string;
   projectName: string;
+  branchName: string;
   force?: boolean;
   debug?: boolean;
 };

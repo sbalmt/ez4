@@ -15,3 +15,12 @@ export class MissingProjectFileError extends Error {
     super(`Project file ${projectFile} wasn't found.`);
   }
 }
+
+export class MalformedProjectFileError extends Error {
+  constructor(
+    public projectFile: string,
+    public propertyNames: string[]
+  ) {
+    super(`Project file ${projectFile} has properties (${propertyNames.join(', ')}) missing or invalid.`);
+  }
+}

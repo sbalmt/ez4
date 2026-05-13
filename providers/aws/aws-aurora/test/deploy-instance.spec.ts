@@ -28,7 +28,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('aurora instance', () => {
+describe('aurora instance', { timeout: 3600000 }, () => {
   let lastState: EntryStates | undefined;
   let instanceId: string | undefined;
 

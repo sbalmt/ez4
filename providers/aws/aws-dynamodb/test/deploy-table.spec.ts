@@ -27,7 +27,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('dynamodb table', () => {
+describe('dynamodb table', { timeout: 60000 }, () => {
   let lastState: EntryStates | undefined;
   let tableId: string | undefined;
 

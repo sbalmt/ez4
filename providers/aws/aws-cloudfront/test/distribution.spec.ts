@@ -43,7 +43,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('cloudfront :: distribution', () => {
+describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
   let lastState: EntryStates | undefined;
   let distributionId: string | undefined;
   let cachePolicyId: string | undefined;
@@ -55,7 +55,7 @@ describe('cloudfront :: distribution', () => {
 
     const originBucketName = 'ez4-test-distribution-bucket';
 
-    const bucketResource = createBucket(localState, undefined, {
+    const bucketResource = createBucket(localState, {
       bucketName: originBucketName
     });
 
@@ -78,65 +78,60 @@ describe('cloudfront :: distribution', () => {
       minTTL: 1
     });
 
-    const distributionResource = createDistribution(
-      localState,
-      originAccessResource,
-      originPolicyResource,
-      [cachePolicyResource],
-      undefined, // Don't issue certificate.
-      {
-        distributionName: 'ez4-test-distribution',
-        description: 'EZ4: Test distribution description',
-        enabled: true,
-        defaultOrigin: {
-          id: 's3-bucket',
-          location: '/home',
-          domain: originBucketName,
-          getDistributionOrigin: async (context) => {
+    const distributionResource = createDistribution(localState, {
+      distributionName: 'ez4-test-distribution',
+      description: 'EZ4: Test distribution description',
+      originAccessState: originAccessResource,
+      originPolicyState: originPolicyResource,
+      originCacheStates: [cachePolicyResource],
+      enabled: true,
+      defaultOrigin: {
+        id: 's3-bucket',
+        location: '/home',
+        domain: originBucketName,
+        getDistributionOrigin: async (context) => {
+          const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+          const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
+
+          return {
+            domain: await getBucketDomain(originBucketName),
+            originPolicyId,
+            cachePolicyId
+          };
+        }
+      },
+      origins: [
+        {
+          id: 'ez4-test',
+          path: 'test*',
+          domain: 'unresolved.ez4.test',
+          headers: {
+            ['x-custom-header']: 'ez4-custom-value'
+          },
+          getDistributionOrigin: (context) => {
             const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
             const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
 
             return {
-              domain: await getBucketDomain(originBucketName),
+              domain: 'resolved.ez4.test',
               originPolicyId,
               cachePolicyId
             };
           }
-        },
-        origins: [
-          {
-            id: 'ez4-test',
-            path: 'test*',
-
-            headers: {
-              ['x-custom-header']: 'ez4-custom-value'
-            },
-            domain: 'unresolved.ez4.test',
-            getDistributionOrigin: (context) => {
-              const originPolicyId = getOriginPolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
-              const cachePolicyId = getCachePolicyId(DistributionServiceName, cachePolicyResource.entryId, context);
-
-              return {
-                domain: 'resolved.ez4.test',
-                originPolicyId,
-                cachePolicyId
-              };
-            }
-          }
-        ],
-        customErrors: [
-          {
-            code: 404,
-            location: '/home',
-            ttl: 300
-          }
-        ],
-        tags: {
-          test1: 'ez4-tag1',
-          test2: 'ez4-tag2'
         }
+      ],
+      customErrors: [
+        {
+          code: 404,
+          location: '/home',
+          ttl: 300
+        }
+      ],
+      tags: {
+        test1: 'ez4-tag1',
+        test2: 'ez4-tag2'
       }
-    );
+    });
 
     distributionResource.dependencies.push(bucketResource.entryId);
 

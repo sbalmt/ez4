@@ -9,7 +9,11 @@
     "defaultOrigin": {
       "type": "bucket",
       "bucket": "TestBucket",
-      "location": "/site"
+      "location": "/site",
+      "rewrite": {
+        "/path1": "/index.html",
+        "/path2/*": "/index.html"
+      }
     },
     "aliases": [
       "test-1.ez4.dev",
@@ -86,13 +90,17 @@
       {
         "type": "regular",
         "domain": "test-env-var-value",
-        "path": "inline/*"
+        "path": "inline/*",
+        "rewrite": {
+          "/inline/path1/*": "/index.html",
+          "/inline/path2/*": "/index.html"
+        }
       }
     ],
     "fallbacks": [
       {
         "code": 404,
-        "location": "/site",
+        "location": "/index.html",
         "ttl": 3600
       }
     ]

@@ -1,17 +1,19 @@
 import type { ServiceEmulators } from './service';
+import type { EmulatorExportHandler } from './types';
 
 import { getServiceName } from '../utils/service';
 import { EmulatorClientNotFoundError, EmulatorNotFoundError } from './errors';
 
 type TesterContext = {
-  mocks?: ServiceEmulators;
+  mocks?: Record<string, EmulatorExportHandler | undefined>;
   emulators?: ServiceEmulators;
   options?: TesterOptions;
 };
 
 type TesterOptions = {
-  resourcePrefix: string;
+  prefix: string;
   projectName: string;
+  branchName: string;
 };
 
 export namespace Tester {
@@ -41,7 +43,7 @@ export namespace Tester {
     }
 
     const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.mocks[serviceName] ?? CONTEXT.emulators[serviceName];
+    const serviceEmulator = CONTEXT.emulators[serviceName];
 
     if (!serviceEmulator) {
       throw new EmulatorNotFoundError(resourceName);
@@ -60,11 +62,16 @@ export namespace Tester {
     }
 
     const serviceName = getServiceName(resourceName, CONTEXT.options);
+    const serviceEmulator = CONTEXT.emulators[serviceName];
 
-    CONTEXT.mocks[serviceName] = {
-      type: 'Mock',
-      name: resourceName,
-      identifier: serviceName,
+    if (!serviceEmulator) {
+      throw new EmulatorNotFoundError(resourceName);
+    }
+
+    CONTEXT.mocks[serviceName] = serviceEmulator.exportHandler;
+
+    CONTEXT.emulators[serviceName] = {
+      ...serviceEmulator,
       exportHandler: () => client
     };
   };
@@ -75,12 +82,15 @@ export namespace Tester {
     }
 
     const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.mocks[serviceName];
+    const serviceEmulator = CONTEXT.emulators[serviceName];
 
     if (!serviceEmulator) {
       throw new EmulatorNotFoundError(resourceName);
     }
 
-    delete CONTEXT.mocks[serviceName];
+    CONTEXT.emulators[serviceName] = {
+      ...serviceEmulator,
+      exportHandler: CONTEXT.mocks[serviceName]
+    };
   };
 }

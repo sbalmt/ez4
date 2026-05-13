@@ -13,6 +13,7 @@ import { createInvalidation } from '../invalidation/service';
 import { getAdditionalOriginCache, getDefaultOriginCache } from './cache';
 import { getOriginAccessName, getContentVersion, getOriginPolicyName } from './utils';
 import { connectOriginBucket } from './bucket';
+import { prepareRewrites } from './rewrite';
 
 export const prepareCdnServices = (event: PrepareResourceEvent) => {
   const { state, service, options, context } = event;
@@ -21,53 +22,43 @@ export const prepareCdnServices = (event: PrepareResourceEvent) => {
     return false;
   }
 
-  const { description, certificate, defaultIndex } = service;
-
-  const originPolicyState = createOriginPolicy(state, {
-    policyName: getOriginPolicyName(service, options),
-    description
-  });
-
-  const originAccessState = createOriginAccess(state, {
-    accessName: getOriginAccessName(service, options),
-    description
-  });
-
-  let certificateState;
-
-  if (certificate) {
-    certificateState = createCertificate(state, {
-      domainName: certificate.domain,
-      tags: options.tags
-    });
-  }
-
+  const { description, fallbacks, certificate, defaultIndex } = service;
   const { cache: defaultCache } = service.defaultOrigin;
 
-  const customErrors = service.fallbacks?.map(({ code, location, ttl }) => ({
-    ttl: ttl ?? defaultCache?.ttl ?? 86400,
-    location,
-    code
-  }));
-
-  const distributionName = getServiceName(service, options);
-
   const defaultOrigin = getDefaultOriginCache(state, service, options, context);
-  const origins = getAdditionalOriginCache(state, service, options, context);
+  const otherOrigins = getAdditionalOriginCache(state, service, options, context);
 
-  const originCacheStates = [defaultOrigin.state, ...origins.map(({ state }) => state)];
-
-  createDistribution(state, originAccessState, originPolicyState, originCacheStates, certificateState, {
-    origins: origins.map(({ origin }) => origin),
+  createDistribution(state, {
+    originCacheStates: [defaultOrigin.state, ...otherOrigins.map(({ state }) => state)],
+    rewriteFunctionState: prepareRewrites(state, service, options),
+    distributionName: getServiceName(service, options),
+    origins: otherOrigins.map(({ origin }) => origin),
     defaultOrigin: defaultOrigin.origin,
     compress: defaultCache?.compress ?? true,
     enabled: !service.disabled,
     aliases: service.aliases,
     tags: options.tags,
-    distributionName,
-    customErrors,
+    description,
     defaultIndex,
-    description
+    originAccessState: createOriginAccess(state, {
+      accessName: getOriginAccessName(service, options),
+      description
+    }),
+    originPolicyState: createOriginPolicy(state, {
+      policyName: getOriginPolicyName(service, options),
+      description
+    }),
+    certificateState:
+      certificate &&
+      createCertificate(state, {
+        domainName: certificate.domain,
+        tags: options.tags
+      }),
+    customErrors: fallbacks?.map(({ code, location, ttl }) => ({
+      ttl: ttl ?? defaultCache?.ttl ?? 86400,
+      location,
+      code
+    }))
   });
 
   return true;

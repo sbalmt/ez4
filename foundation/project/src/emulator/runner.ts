@@ -9,8 +9,9 @@ type RunnerContext = {
 };
 
 type RunnerOptions = {
-  resourcePrefix: string;
+  prefix: string;
   projectName: string;
+  branchName: string;
 };
 
 export namespace Runner {

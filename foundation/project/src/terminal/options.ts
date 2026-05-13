@@ -11,6 +11,7 @@ export const enum CommandType {
 
 export type InputOptions = {
   command?: CommandType;
+  branch?: string;
   project?: string;
   environment?: string;
   arguments?: string[];
@@ -42,9 +43,9 @@ export const getInputOptions = () => {
         options.command = argument;
         break;
 
-      case '--environment':
-      case '-e':
-        options.environment = input[++index];
+      case '-b':
+      case '--branch':
+        options.branch = input[++index];
         break;
 
       case '--project':
@@ -52,28 +53,33 @@ export const getInputOptions = () => {
         options.project = input[++index];
         break;
 
-      case '--force':
-        options.force = true;
-        break;
-
-      case '--inspect':
-        options.inspect = true;
-        break;
-
-      case '--coverage':
-        options.coverage = true;
+      case '--environment':
+      case '-e':
+        options.environment = input[++index];
         break;
 
       case '--suppress':
         options.suppress = true;
         break;
 
-      case '--debug':
-        options.debug = true;
+      case '--coverage':
+        options.coverage = true;
+        break;
+
+      case '--inspect':
+        options.inspect = true;
         break;
 
       case '--reset':
         options.reset = true;
+        break;
+
+      case '--debug':
+        options.debug = true;
+        break;
+
+      case '--force':
+        options.force = true;
         break;
 
       case '--local':

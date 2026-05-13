@@ -34,7 +34,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('queue mapping', () => {
+describe('queue mapping', { timeout: 60000 }, () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

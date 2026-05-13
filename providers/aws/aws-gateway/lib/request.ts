@@ -51,6 +51,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     method: requestContext.http.method,
     path: requestContext.http.path,
     encoded: event.isBase64Encoded,
+    data: event.body,
     traceId
   };
 
@@ -96,8 +97,7 @@ const getIncomingRequest = async (event: RequestEvent) => {
     parameters: __EZ4_PARAMETERS_SCHEMA ? await getIncomingRequestParameters(event) : undefined,
     query: __EZ4_QUERY_SCHEMA ? await getIncomingRequestQueryStrings(event) : undefined,
     identity: __EZ4_IDENTITY_SCHEMA ? await getIncomingRequestIdentity(event) : undefined,
-    body: __EZ4_BODY_SCHEMA ? await getIncomingRequestBody(event) : undefined,
-    data: event.body
+    body: __EZ4_BODY_SCHEMA ? await getIncomingRequestBody(event) : undefined
   };
 };
 

@@ -36,6 +36,7 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
 
   const clusterState = createCluster(state, {
     clusterName: getClusterName(service, options),
+    branchMode: !!options.branchName,
     tags: options.tags,
     enableInsights: true,
     enableHttp: true,
@@ -44,6 +45,7 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
 
   const instanceState = createInstance(state, clusterState, {
     instanceName: getInstanceName(service, options),
+    branchMode: !!options.branchName,
     tags: options.tags
   });
 

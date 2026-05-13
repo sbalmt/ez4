@@ -4,6 +4,10 @@ import type { DeployOptions } from '@ez4/project/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
+export const getDisplayName = (displayName: string, branchName?: string) => {
+  return branchName ? `${displayName} [${branchName}]` : displayName;
+};
+
 export const getInternalName = (service: HttpService | WsService, suffixName: string) => {
   return `${toKebabCase(service.name)}-${toKebabCase(suffixName)}`;
 };

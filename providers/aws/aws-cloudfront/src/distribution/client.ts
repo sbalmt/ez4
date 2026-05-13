@@ -31,7 +31,8 @@ import {
   HttpVersion,
   PriceClass,
   Method,
-  NoSuchDistribution
+  NoSuchDistribution,
+  EventType
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
@@ -43,6 +44,7 @@ export type DefaultOrigin = {
   originPolicyId?: string;
   headers?: Headers;
   location?: string;
+  rewrite?: boolean;
   http?: boolean;
   port?: number;
 };
@@ -63,6 +65,7 @@ export type CreateRequest = {
   defaultIndex?: string;
   defaultOrigin: DefaultOrigin;
   origins?: AdditionalOrigin[];
+  rewriteFunctionArn?: Arn;
   certificateArn?: Arn;
   originAccessId?: string;
   description?: string;
@@ -118,9 +121,9 @@ export const createDistribution = async (logger: OperationLogLine, request: Crea
 };
 
 export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
-  logger.update(`Updating distribution`);
+  const { version, configuration } = await getCurrentDistribution(logger, distributionId);
 
-  const version = await getCurrentDistributionVersion(logger, distributionId);
+  logger.update(`Updating distribution`);
 
   const client = getCloudFrontClient();
 
@@ -129,7 +132,7 @@ export const updateDistribution = async (logger: OperationLogLine, distributionI
       Id: distributionId,
       IfMatch: version,
       DistributionConfig: {
-        ...upsertDistributionRequest(request)
+        ...upsertDistributionRequest(request, configuration)
       }
     })
   );
@@ -172,7 +175,7 @@ export const deleteDistribution = async (logger: OperationLogLine, distributionI
   logger.update(`Deleting distribution`);
 
   try {
-    const version = await getCurrentDistributionVersion(logger, distributionId);
+    const { version } = await getCurrentDistribution(logger, distributionId);
 
     await getCloudFrontClient().send(
       new DeleteDistributionCommand({
@@ -191,7 +194,7 @@ export const deleteDistribution = async (logger: OperationLogLine, distributionI
   }
 };
 
-const getCurrentDistributionVersion = async (logger: OperationLogLine, distributionId: string) => {
+const getCurrentDistribution = async (logger: OperationLogLine, distributionId: string) => {
   logger.update(`Fetching distribution`);
 
   const response = await getCloudFrontClient().send(
@@ -200,27 +203,31 @@ const getCurrentDistributionVersion = async (logger: OperationLogLine, distribut
     })
   );
 
-  return response.ETag!;
+  return {
+    version: response.ETag!,
+    configuration: response.Distribution?.DistributionConfig
+  };
 };
 
-const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): DistributionConfig => {
+const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defaults?: DistributionConfig): DistributionConfig => {
   const allCustomErrors = getAllCustomErrors(request);
   const allCacheBehaviors = getAllCacheBehaviors(request);
   const allOrigins = getAllOrigins(request);
 
-  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, aliases, enabled, compress } = request;
+  const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, rewriteFunctionArn, aliases, enabled, compress } =
+    request;
 
   return {
-    Comment: description,
     CallerReference: distributionName,
     DefaultRootObject: defaultIndex ?? '',
-    PriceClass: PriceClass.PriceClass_All,
+    PriceClass: defaults?.PriceClass ?? PriceClass.PriceClass_All,
+    ContinuousDeploymentPolicyId: defaults?.ContinuousDeploymentPolicyId ?? '',
     HttpVersion: HttpVersion.http2and3,
-    ContinuousDeploymentPolicyId: '',
+    WebACLId: defaults?.WebACLId ?? '',
+    Comment: description ?? '',
     Enabled: enabled,
     IsIPV6Enabled: true,
     Staging: false,
-    WebACLId: '',
     Aliases: {
       Quantity: aliases?.length ?? 0,
       Items: aliases
@@ -233,7 +240,7 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
       Quantity: 0
     },
     DefaultCacheBehavior: {
-      ...getCacheBehavior(defaultOrigin, compress)
+      ...getCacheBehavior(defaultOrigin, compress, rewriteFunctionArn)
     },
     CacheBehaviors: {
       Quantity: allCacheBehaviors?.length ?? 0,
@@ -243,12 +250,6 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
     },
     CustomErrorResponses: {
       ...allCustomErrors
-    },
-    Logging: {
-      Enabled: false,
-      IncludeCookies: false,
-      Bucket: '',
-      Prefix: ''
     },
     ViewerCertificate: {
       SSLSupportMethod: SSLSupportMethod.sni_only,
@@ -264,7 +265,13 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest): Dist
             CertificateSource: CertificateSource.cloudfront
           })
     },
-    Restrictions: {
+    Logging: defaults?.Logging ?? {
+      Enabled: false,
+      IncludeCookies: false,
+      Bucket: '',
+      Prefix: ''
+    },
+    Restrictions: defaults?.Restrictions ?? {
       GeoRestriction: {
         RestrictionType: GeoRestrictionType.none,
         Quantity: 0
@@ -286,7 +293,7 @@ const getOriginHeaders = (headers: Record<string, string> | undefined): OriginCu
   return headerList;
 };
 
-const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined): DefaultCacheBehavior => {
+const getCacheBehavior = (origin: DefaultOrigin, compress?: boolean, rewriteFunctionArn?: Arn): DefaultCacheBehavior => {
   return {
     TargetOriginId: origin.id,
     CachePolicyId: origin.cachePolicyId,
@@ -304,19 +311,29 @@ const getCacheBehavior = (origin: DefaultOrigin, compress: boolean | undefined):
       Quantity: 0
     },
     AllowedMethods: {
+      Quantity: 7,
+      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE],
       CachedMethods: {
         Quantity: 3,
         Items: [Method.GET, Method.HEAD, Method.OPTIONS]
-      },
-      Quantity: 7,
-      Items: [Method.GET, Method.HEAD, Method.OPTIONS, Method.POST, Method.PUT, Method.PATCH, Method.DELETE]
+      }
     },
     LambdaFunctionAssociations: {
       Quantity: 0
     },
-    FunctionAssociations: {
-      Quantity: 0
-    }
+    FunctionAssociations: origin.rewrite
+      ? {
+          Quantity: 1,
+          Items: [
+            {
+              EventType: EventType.viewer_request,
+              FunctionARN: rewriteFunctionArn
+            }
+          ]
+        }
+      : {
+          Quantity: 0
+        }
   };
 };
 
@@ -371,10 +388,10 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
 };
 
 const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
-  const { origins, compress } = request;
+  const { rewriteFunctionArn, origins, compress } = request;
 
   return origins?.map((origin) => ({
-    ...getCacheBehavior(origin, compress),
+    ...getCacheBehavior(origin, compress, rewriteFunctionArn),
     PathPattern: origin.path
   }));
 };

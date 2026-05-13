@@ -15,6 +15,7 @@ import { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 export default {
   prefix: 'dev', // Project prefix
   projectName: 'backend', // Project name (required)
+  branchName: 'feat-1', // Optional branch name to share deployed resources
   sourceFiles: ['./src/api.ts'], // Entry-point source files
 
   tsconfigFile: 'tsconfig.json', // Specify a custom tsconfig.json location

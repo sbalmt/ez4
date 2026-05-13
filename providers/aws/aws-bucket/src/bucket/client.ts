@@ -11,7 +11,6 @@ import {
   PutBucketTaggingCommand,
   PutBucketCorsCommand,
   PutBucketLifecycleConfigurationCommand,
-  PutBucketNotificationConfigurationCommand,
   DeleteBucketLifecycleCommand,
   DeleteBucketCorsCommand,
   ExpirationStatus,
@@ -191,40 +190,4 @@ export const deleteLifecycle = async (logger: OperationLogLine, bucketName: stri
 
     return false;
   }
-};
-
-export const updateEventNotifications = async (logger: OperationLogLine, bucketName: string, request: UpdateNotificationRequest) => {
-  logger.update(`Update bucket event stream`);
-
-  const { functionArn, eventsPath, eventsType } = request;
-
-  await getS3Client().send(
-    new PutBucketNotificationConfigurationCommand({
-      Bucket: bucketName,
-      SkipDestinationValidation: true,
-      NotificationConfiguration: {
-        ...(functionArn && {
-          LambdaFunctionConfigurations: [
-            {
-              Id: 'ID0',
-              LambdaFunctionArn: functionArn,
-              Events: eventsType,
-              ...(eventsPath && {
-                Filter: {
-                  Key: {
-                    FilterRules: [
-                      {
-                        Name: 'prefix',
-                        Value: eventsPath
-                      }
-                    ]
-                  }
-                }
-              })
-            }
-          ]
-        })
-      }
-    })
-  );
 };

@@ -13,7 +13,7 @@ export type BucketService = Omit<ServiceMetadata, 'variables' | 'services'> &
     localPath?: string;
     globalName?: string;
     autoExpireDays?: number;
-    events?: BucketEvent;
+    events?: BucketEvent[];
     cors?: BucketCors;
   };
 
@@ -28,7 +28,7 @@ export type BucketCors = {
 export type EventHandler = FunctionSignature;
 
 export type BucketEvent = {
-  path?: string;
+  path: string;
   listener?: ServiceListener;
   handler: EventHandler;
   variables?: LinkedVariables;

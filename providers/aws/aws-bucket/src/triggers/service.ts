@@ -3,7 +3,7 @@ import type { ServiceEvent, ConnectResourceEvent, PrepareResourceEvent } from '@
 import { isBucketService } from '@ez4/storage/library';
 
 import { createBucket } from '../bucket/service';
-import { connectEvents, prepareEvents } from './events';
+import { connectEvents, prepareBucketEvents } from './events';
 import { prepareLocalContent } from './content';
 import { prepareLinkedClient } from './client';
 import { getBucketName } from './utils';
@@ -25,14 +25,11 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
     return false;
   }
 
-  const { localPath, autoExpireDays, events, cors } = service;
+  const { localPath, autoExpireDays, cors } = service;
 
   const bucketName = await getBucketName(service, options);
 
-  const functionState = prepareEvents(state, service, options, context);
-
-  const bucketState = createBucket(state, functionState, {
-    eventsPath: events?.path,
+  const bucketState = createBucket(state, {
     tags: options.tags,
     bucketName,
     autoExpireDays,
@@ -45,6 +42,8 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   if (localPath) {
     await prepareLocalContent(state, bucketState, localPath);
   }
+
+  prepareBucketEvents(state, service, bucketState, options, context);
 
   return true;
 };

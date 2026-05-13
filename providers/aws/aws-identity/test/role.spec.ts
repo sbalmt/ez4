@@ -30,7 +30,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('role', () => {
+describe('role', { timeout: 60000 }, () => {
   let lastState: EntryStates | undefined;
   let roleId: string | undefined;
 

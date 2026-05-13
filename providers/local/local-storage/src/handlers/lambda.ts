@@ -10,8 +10,8 @@ export const processLambdaEvent = async (
   service: BucketService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  events: BucketEvent,
-  event: Bucket.Event
+  event: BucketEvent,
+  input: Bucket.ObjectEvent
 ) => {
   const { services } = service;
 
@@ -19,13 +19,13 @@ export const processLambdaEvent = async (
   const traceId = getRandomUUID();
 
   const module = await createModule({
-    listener: events.listener,
-    handler: events.handler,
+    listener: event.listener,
+    handler: event.handler,
     version: options.version,
     variables: {
       ...options.variables,
       ...service.variables,
-      ...events.variables
+      ...event.variables
     }
   });
 
@@ -40,7 +40,7 @@ export const processLambdaEvent = async (
 
     currentRequest = {
       ...request,
-      ...event,
+      ...input,
       traceId
     };
 

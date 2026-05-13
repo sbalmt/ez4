@@ -8,7 +8,7 @@ import { Client } from '@ez4/aws-topic/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 
-describe('topic client', () => {
+describe('topic client', { timeout: 90000 }, () => {
   let lastState: EntryStates | undefined;
   let topicId: string | undefined;
   let topicClient: ReturnType<typeof Client.make>;

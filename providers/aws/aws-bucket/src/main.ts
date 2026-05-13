@@ -7,8 +7,11 @@ export * from './bucket/service';
 export * from './bucket/types';
 export * from './bucket/utils';
 
-export * from './bucket/function/service';
-export * from './bucket/function/types';
+export * from './event/function/service';
+export * from './event/function/types';
+export * from './event/service';
+export * from './event/types';
+export * from './event/utils';
 
 export * from './policy/service';
 export * from './policy/types';

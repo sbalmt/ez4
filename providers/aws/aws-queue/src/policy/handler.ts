@@ -86,14 +86,12 @@ const updateResource = (candidate: QueuePolicyState, _current: QueuePolicyState,
 const deleteResource = async (current: QueuePolicyState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { fromService } = parameters;
+    const { queueUrl } = result;
+
+    await OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'deletion', async (logger) => {
+      await detachPolicy(logger, queueUrl);
+    });
   }
-
-  const { fromService } = parameters;
-  const { queueUrl } = result;
-
-  await OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'deletion', async (logger) => {
-    await detachPolicy(logger, queueUrl);
-  });
 };

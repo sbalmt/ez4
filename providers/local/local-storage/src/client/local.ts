@@ -14,9 +14,10 @@ import { Logger } from '@ez4/logger';
 
 export type LocalClientOptions = ServeOptions & {
   events?: {
-    handler: (event: Bucket.Event) => Promise<void>;
-    path?: string;
-  };
+    handler: (event: Bucket.ObjectEvent) => Promise<void>;
+    prefix: string;
+    suffix: string;
+  }[];
 };
 
 export const createLocalClient = (resourceName: string, options: LocalClientOptions): Client => {
@@ -59,16 +60,18 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`⬆️  File ${key} uploaded.`);
 
-      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
-        const stats = await stat(filePath);
+      storageEvents?.forEach(async ({ prefix, suffix, handler }) => {
+        if (key.startsWith(prefix) && key.endsWith(suffix)) {
+          const stats = await stat(filePath);
 
-        await storageEvents.handler({
-          eventType: BucketEventType.Create,
-          bucketName: storageIdentifier,
-          objectSize: stats.size,
-          objectKey: key
-        });
-      }
+          await handler({
+            eventType: BucketEventType.Create,
+            bucketName: storageIdentifier,
+            objectSize: stats.size,
+            objectKey: key
+          });
+        }
+      });
     }
 
     async read(key: string): Promise<Buffer> {
@@ -87,13 +90,15 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`ℹ️  File ${key} deleted.`);
 
-      if (storageEvents && (!storageEvents.path || key.startsWith(storageEvents.path))) {
-        await storageEvents.handler({
-          eventType: BucketEventType.Delete,
-          bucketName: storageIdentifier,
-          objectKey: key
-        });
-      }
+      storageEvents?.forEach(async ({ prefix, suffix, handler }) => {
+        if (key.startsWith(prefix) && key.endsWith(suffix)) {
+          await handler({
+            eventType: BucketEventType.Delete,
+            bucketName: storageIdentifier,
+            objectKey: key
+          });
+        }
+      });
     }
 
     async copy(sourceKey: string, targetKey: string) {
@@ -105,13 +110,15 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
       Logger.log(`ℹ️  File ${sourceKey} copied.`);
     }
 
-    async *scan(): AsyncGenerator<ObjectEntry, void> {
-      const allFiles = await readdir(storageDirectory, {
+    async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
+      const basePath = keyPrefix ? join(storageDirectory, keyPrefix) : storageDirectory;
+
+      const allFiles = await readdir(basePath, {
         recursive: true
       });
 
       for (const filePath of allFiles) {
-        const { size, mtime } = await stat(join(storageDirectory, filePath));
+        const { size, mtime } = await stat(join(basePath, filePath));
 
         yield {
           key: filePath,

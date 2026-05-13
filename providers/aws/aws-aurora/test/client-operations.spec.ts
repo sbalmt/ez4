@@ -38,7 +38,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('aurora client operations', () => {
+describe('aurora client operations', { timeout: 180000 }, () => {
   let dbClient: DbClient<Test>;
 
   const repository: PgTableRepository = {

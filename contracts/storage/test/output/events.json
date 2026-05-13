@@ -7,32 +7,42 @@
     "services": {
       "selfClient": "TestStorage"
     },
-    "events": {
-      "path": "uploads/*",
-      "runtime": "node24",
-      "architecture": "arm",
-      "logLevel": "warning",
-      "logRetention": 14,
-      "memory": 128,
-      "timeout": 5,
-      "debug": true,
-      "handler": {
-        "description": "Test storage event.",
-        "name": "eventHandler",
-        "file": "test/input/output-events.ts",
-        "position": [
-          32,
-          1
+    "events": [
+      {
+        "path": "uploads/",
+        "handler": {
+          "description": "Test storage event.",
+          "name": "eventHandler",
+          "file": "test/input/output-events.ts",
+          "position": [
+            34,
+            1
+          ]
+        },
+        "files": [
+          "path/to/file-a.txt",
+          "path/to/file-b.json"
         ]
       },
-      "files": [
-        "path/to/file-a.txt",
-        "path/to/file-b.json"
-      ],
-      "variables": {
-        "TEST_VAR1": "test-literal-value",
-        "TEST_VAR2": "test-env-var-value"
+      {
+        "path": "others/",
+        "runtime": "node24",
+        "architecture": "arm",
+        "logLevel": "warning",
+        "logRetention": 14,
+        "memory": 128,
+        "timeout": 5,
+        "debug": true,
+        "handler": {
+          "description": "Test storage event.",
+          "name": "eventHandler",
+          "file": "test/input/output-events.ts",
+          "position": [
+            34,
+            1
+          ]
+        }
       }
-    }
+    ]
   }
 }
