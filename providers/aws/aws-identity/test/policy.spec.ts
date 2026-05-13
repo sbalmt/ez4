@@ -29,7 +29,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('policy', () => {
+describe('policy', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let policyId: string | undefined;
 

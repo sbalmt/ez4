@@ -3,7 +3,7 @@ import { ok, equal } from 'node:assert/strict';
 
 import { Client } from '@ez4/aws-valkey/client';
 
-describe('cache client', () => {
+describe('cache client', { timeout: Infinity }, () => {
   const cacheIdentifier = 'test';
 
   const cacheClient = Client.make({

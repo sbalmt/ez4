@@ -26,7 +26,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('gateway stage', () => {
+describe('gateway stage', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let stageId: string | undefined;
 

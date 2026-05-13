@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('group', () => {
+describe('group', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let groupId: string | undefined;
 

@@ -42,7 +42,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('aurora client schema', async () => {
+describe('aurora client schema', { timeout: Infinity }, async () => {
   let dbClient: DbClient<Test>;
 
   const repository: PgTableRepository = {

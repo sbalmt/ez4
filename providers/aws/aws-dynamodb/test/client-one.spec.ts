@@ -30,7 +30,7 @@ declare class Test extends Database.Service {
   ];
 }
 
-describe('dynamodb client (one operation)', () => {
+describe('dynamodb client (one operation)', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let dbClient: DbClient<Test>;
   let tableId: string | undefined;

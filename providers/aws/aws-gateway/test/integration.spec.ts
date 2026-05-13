@@ -42,7 +42,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('gateway integration', () => {
+describe('gateway integration', { timeout: Infinity }, () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

@@ -9,7 +9,7 @@ import { createBucket, isBucketState, registerTriggers } from '@ez4/aws-bucket';
 import { Client } from '@ez4/aws-bucket/client';
 import { deploy } from '@ez4/aws-common';
 
-describe('bucket client', () => {
+describe('bucket client', { timeout: Infinity }, () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

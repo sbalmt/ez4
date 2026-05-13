@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('cloudfront :: cache policy', () => {
+describe('cloudfront :: cache policy', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let cacheId: string | undefined;
 

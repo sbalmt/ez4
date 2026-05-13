@@ -38,7 +38,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('bucket resources', () => {
+describe('bucket resources', { timeout: Infinity }, () => {
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;

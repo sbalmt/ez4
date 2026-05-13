@@ -3,7 +3,7 @@ import { ok, equal } from 'node:assert/strict';
 
 import { getDefaultVpcId, getDefaultSubnetIds, getDefaultSecurityGroupId } from '@ez4/aws-vpc';
 
-describe('vpc utils', () => {
+describe('vpc utils', { timeout: Infinity }, () => {
   it('assert :: default vpc', async () => {
     const defaultVpcId = await getDefaultVpcId();
 

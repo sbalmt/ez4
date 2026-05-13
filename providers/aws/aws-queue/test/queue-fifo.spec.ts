@@ -25,7 +25,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
   };
 };
 
-describe('queue fifo mode', () => {
+describe('queue fifo mode', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let queueId: string | undefined;
 

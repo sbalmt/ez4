@@ -4,7 +4,7 @@ import { describe, it, mock } from 'node:test';
 import { WaitMaxAttemptsError, Wait } from '@ez4/utils';
 import { rejects } from 'node:assert';
 
-describe('system wait utils', () => {
+describe('system wait utils', { timeout: 10000 }, () => {
   it('assert :: wait for (success)', async () => {
     const callback = mock.fn(() => true);
 

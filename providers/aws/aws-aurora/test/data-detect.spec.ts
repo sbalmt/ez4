@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { detectFieldData } from '@ez4/aws-aurora/client';
 
-describe('aurora data detect', () => {
+describe('aurora data detect', { timeout: Infinity }, () => {
   it('assert :: detect null data', () => {
     const data = detectFieldData('field', null);
 

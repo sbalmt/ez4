@@ -8,7 +8,7 @@ import { createIdentity, isIdentityState, registerTriggers } from '@ez4/aws-emai
 import { Client } from '@ez4/aws-email/client';
 import { deploy } from '@ez4/aws-common';
 
-describe('email client', () => {
+describe('email client', { timeout: Infinity }, () => {
   let lastState: EntryStates | undefined;
   let identityId: string | undefined;
   let emailClient: EmailClient;
