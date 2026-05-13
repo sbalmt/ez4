@@ -97,7 +97,8 @@ export const testCommand = async (input: InputOptions) => {
     coverageIncludeGlobs: [`${workingDirectory}/**/*`],
     isolation: 'none',
     files: testFiles,
-    forceExit: true
+    forceExit: true,
+    timeout: 5000
   });
 
   testRunner.compose(spec).pipe(process.stdout);
