@@ -20,6 +20,7 @@ export const getAuthHandlerMetadata = (
   parent: TypeModel,
   reflection: ReflectionTypes,
   errorList: Error[],
+  external: boolean,
   namespace: string
 ) => {
   if (!isAuthHandlerDeclaration(type)) {
@@ -37,7 +38,7 @@ export const getAuthHandlerMetadata = (
 
     handler.request = getAuthRequestMetadata(requestType, parent, reflection, errorList, namespace);
 
-    if (contextType) {
+    if (contextType && !external) {
       handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, namespace);
       handler.isolated = true;
     }

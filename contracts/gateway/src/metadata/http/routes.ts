@@ -164,7 +164,7 @@ const getTypeFromMembers = (
       }
 
       case 'authorizer': {
-        route.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, HttpNamespaceType);
+        route.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, external, HttpNamespaceType);
         break;
       }
 

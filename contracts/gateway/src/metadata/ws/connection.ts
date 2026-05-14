@@ -97,7 +97,7 @@ const getTypeFromMembers = (
       }
 
       case 'authorizer': {
-        target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, WsNamespaceType);
+        target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, false, WsNamespaceType);
         break;
       }
 
