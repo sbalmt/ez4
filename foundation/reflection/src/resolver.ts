@@ -181,6 +181,7 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
       const source = trySource(sourceFile, sourceContext);
 
       Object.assign(reflection, source);
+
       sourceContext.pending.clear();
     }
   }

@@ -45,13 +45,13 @@ export const getLinkedServiceName = (
     return undefined;
   }
 
-  if (!isClassDeclaration(declaration)) {
-    errorList.push(new InvalidServiceError(declaration.name, declaration.file));
+  if (isExternalDeclaration(declaration)) {
+    errorList.push(new ExternalReferenceError(declaration.name, parent.file));
     return undefined;
   }
 
-  if (isExternalDeclaration(declaration)) {
-    errorList.push(new ExternalReferenceError(declaration.name, declaration.file));
+  if (!isClassDeclaration(declaration)) {
+    errorList.push(new InvalidServiceError(declaration.name, declaration.file));
     return undefined;
   }
 
