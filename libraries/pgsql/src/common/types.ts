@@ -20,6 +20,7 @@ export const enum SqlOperator {
   IsBetween = 'isBetween',
   IsMissing = 'isMissing',
   IsNull = 'isNull',
+  IsMissingOrNull = 'isMissingOrNull',
   StartsWith = 'startsWith',
   Contains = 'contains'
 }

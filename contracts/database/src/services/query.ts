@@ -189,6 +189,7 @@ export namespace Query {
     | WhereBetween<V>
     | WhereIsMissing
     | WhereIsNull
+    | WhereIsMissingOrNull
     | WhereStartsWith<E>
     | WhereContains<V, E>;
 
@@ -254,6 +255,7 @@ export namespace Query {
     WhereBetween<any> &
     WhereIsMissing &
     WhereIsNull &
+    WhereIsMissingOrNull &
     WhereStartsWith<never> &
     WhereContains<any, never>);
 
@@ -325,6 +327,13 @@ export namespace Query {
      * Check whether the entity value is null.
      */
     isNull: boolean;
+  };
+
+  type WhereIsMissingOrNull = {
+    /**
+     * Check whether the entity value is missing or null.
+     */
+    isMissingOrNull: boolean;
   };
 
   type WhereStartsWith<E extends DatabaseEngine> = InsensitiveModeUtils.Input<E> & {

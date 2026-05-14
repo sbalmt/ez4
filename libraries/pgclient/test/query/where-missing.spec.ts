@@ -66,4 +66,28 @@ describe('where missing', () => {
 
     deepEqual(variables, []);
   });
+
+  it('assert :: prepare where missing or null (operator)', () => {
+    const [whereClause, variables] = getWhereOperation({
+      string: {
+        isMissingOrNull: true
+      }
+    });
+
+    equal(whereClause, `WHERE "string" IS null`);
+
+    deepEqual(variables, []);
+  });
+
+  it('assert :: prepare where not missing or null (operator)', () => {
+    const [whereClause, variables] = getWhereOperation({
+      string: {
+        isMissingOrNull: false
+      }
+    });
+
+    equal(whereClause, `WHERE "string" IS NOT null`);
+
+    deepEqual(variables, []);
+  });
 });
