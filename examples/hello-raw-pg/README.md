@@ -32,19 +32,17 @@ table repository state and apply only changed statements.
 npm run deploy
 ```
 
-At deploy time the `@ez4/raw-pg` provider reads `EZ4_RAW_PG_DB_URL` from
-your env and propagates it to the deployed Lambda as a runtime env var.
-The Lambda constructs the Postgres client from that env var via
-`@ez4/raw-pg/client`'s `Client.make({ connection: { connectionString, ... } })`.
+At deploy time the `@ez4/raw-pg` provider:
+
+1. Reads `EZ4_RAW_PG_DB_URL` from your env.
+2. Runs `getUpdateQueries` against the live database — same migration
+   logic as `ez4 serve`, but persisted in the deploy state file so future
+   deploys only apply the delta.
+3. Propagates the env var to the deployed Lambda so the runtime can
+   construct an `@ez4/raw-pg/client` `Client.make({ connection: { connectionString } })`.
 
 **Env var convention:** `EZ4_RAW_PG_<SERVICE_NAME>_URL` (snake-uppercase).
 Service named `Db` → `EZ4_RAW_PG_DB_URL`.
 
-## Limitations (v0.2)
-
-- The connection string lives in the Lambda's plaintext env (visible in
-  AWS console). For production secret hygiene, use AWS Secrets Manager
-  or Parameter Store + a custom resolver (future scope).
-- No `CREATE DATABASE` — the target database must exist before deploy.
-- Reset (`ez4 serve --reset`) drops only the configured tables, not the
-  database itself.
+See `providers/raw/raw-pg/README.md` for limitations (plaintext env,
+no `CREATE DATABASE`, table-scoped reset).

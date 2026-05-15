@@ -1,0 +1,18 @@
+import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { MigrationParameters, MigrationState } from './types';
+
+import { attachEntry } from '@ez4/stateful';
+import { hashData } from '@ez4/utils';
+
+import { MigrationServiceType } from './types';
+
+export const createMigration = <E extends EntryState>(state: EntryStates<E>, parameters: MigrationParameters) => {
+  const migrationId = hashData(MigrationServiceType, parameters.database);
+
+  return attachEntry<E | MigrationState, MigrationState>(state, {
+    type: MigrationServiceType,
+    entryId: migrationId,
+    dependencies: [],
+    parameters
+  });
+};

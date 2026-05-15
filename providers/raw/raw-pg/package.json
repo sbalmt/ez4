@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sbalmt/ez4.git",
-    "directory": "providers/external/raw-pg"
+    "directory": "providers/raw/raw-pg"
   },
   "engines": {
     "node": ">=22.7"
@@ -45,11 +45,13 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
+    "@ez4/aws-common": "^0.47.0",
     "@ez4/common": "^0.47.0",
     "@ez4/database": "^0.47.0",
     "@ez4/pgclient": "^0.47.0",
     "@ez4/pgmigration": "^0.47.0",
     "@ez4/project": "^0.47.0",
+    "@ez4/stateful": "^0.47.0",
     "@ez4/utils": "^0.47.0"
   }
 }

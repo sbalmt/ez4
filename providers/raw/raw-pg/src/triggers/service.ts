@@ -2,23 +2,32 @@ import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
 
+import { createMigration } from '../migration/service';
 import { MissingConnectionStringError } from './errors';
 import { getConnectionEnvName, isRawPgService } from './utils';
 
 export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
-  const { service } = event;
+  const { state, service, options, context } = event;
 
   if (!isRawPgService(service)) {
     return false;
   }
 
-  // No AWS resource to create — external Postgres is operator-managed.
-  // Validate that the operator has provided a connection string at deploy time.
   const envName = getConnectionEnvName(service);
 
   if (!process.env[envName]) {
     throw new MissingConnectionStringError(envName, service.name);
   }
+
+  const database = getDatabaseName(service, options);
+
+  const migrationState = createMigration(state, {
+    repository: getTableRepository(service.tables),
+    database,
+    envName
+  });
+
+  context.setServiceState(service, options, migrationState);
 
   return true;
 };
