@@ -61,6 +61,7 @@
     "providers/aws/aws-certificate",
     "providers/aws/aws-cloudfront",
     "providers/aws/aws-email",
+    "providers/external/raw-pg",
     "examples/*"
   ],
   "scripts": {

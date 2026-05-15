@@ -7,12 +7,13 @@ import { Pool } from 'pg';
 import { ClientDriver } from './client';
 
 export type ClientConnection = {
-  password: string;
   database: string;
-  user: string;
-  host: string;
+  password?: string;
+  user?: string;
+  host?: string;
   port?: number;
-  ssl?: boolean;
+  ssl?: boolean | object;
+  connectionString?: string;
 };
 
 export type ClientContext = {
@@ -40,21 +41,29 @@ export namespace Client {
   };
 
   const createPool = (connection: ClientConnection) => {
-    const { database, password, user, host, port, ssl } = connection;
+    const { database, password, user, host, port, ssl, connectionString } = connection;
 
-    return new Pool({
+    const baseOptions = {
       allowExitOnIdle: true,
       connectionTimeoutMillis: 10000,
       idleTimeoutMillis: 15000,
       maxUses: 500,
       min: 0,
       max: 2,
+      ssl
+    };
+
+    if (connectionString) {
+      return new Pool({ ...baseOptions, connectionString });
+    }
+
+    return new Pool({
+      ...baseOptions,
       database,
       password,
       user,
       host,
-      port,
-      ssl
+      port
     });
   };
 }

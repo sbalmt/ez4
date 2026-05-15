@@ -1,0 +1,55 @@
+{
+  "name": "@ez4/raw-pg",
+  "description": "EZ4: External Postgres provider (connect to any Postgres via TCP, e.g. Supabase, Neon, RDS direct)",
+  "version": "0.47.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4",
+    "postgres",
+    "pg",
+    "supabase",
+    "neon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "providers/external/raw-pg"
+  },
+  "engines": {
+    "node": ">=22.7"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "require": "./dist/main.cjs",
+      "import": "./dist/main.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs"
+    }
+  },
+  "sideEffects": [
+    "./dist/main.cjs",
+    "./dist/main.mjs"
+  ],
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "build": "tsc && node tools/bundler.mjs",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../../.registry/@ez4/raw-pg",
+    "live:publish": "npm run build && npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/common": "^0.47.0",
+    "@ez4/database": "^0.47.0",
+    "@ez4/pgclient": "^0.47.0",
+    "@ez4/pgmigration": "^0.47.0",
+    "@ez4/project": "^0.47.0",
+    "@ez4/utils": "^0.47.0"
+  }
+}
