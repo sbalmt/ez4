@@ -16,11 +16,11 @@ npm install @ez4/raw-pg
 In your app code, import the engine type and reference it in the service:
 
 ```ts
-import type { RawPgEngine } from '@ez4/raw-pg';
+import type { PostgresEngine } from '@ez4/raw-pg/client';
 import type { Database, Index } from '@ez4/database';
 
 export declare class Db extends Database.Service {
-  engine: RawPgEngine;
+  engine: PostgresEngine;
   tables: [
     Database.UseTable<{
       name: 'users';
@@ -30,6 +30,9 @@ export declare class Db extends Database.Service {
   ];
 }
 ```
+
+> If you also use `@ez4/aws-aurora` in the same project, alias the import to
+> disambiguate: `import type { PostgresEngine as RawPgEngine } from '@ez4/raw-pg/client'`.
 
 Register the provider in your `ez4.project.js` (any import is enough — the
 side effect registers triggers):

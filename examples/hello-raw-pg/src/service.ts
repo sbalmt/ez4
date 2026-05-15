@@ -1,4 +1,4 @@
-import type { RawPgEngine } from '@ez4/raw-pg';
+import type { PostgresEngine } from '@ez4/raw-pg/client';
 import type { Database, Index } from '@ez4/database';
 import type { UserSchema } from './types';
 
@@ -10,7 +10,7 @@ import type { UserSchema } from './types';
  * `EZ4_RAW_PG_DB_URL` propagated to Lambda runtime.
  */
 export declare class Db extends Database.Service {
-  engine: RawPgEngine;
+  engine: PostgresEngine;
 
   tables: [
     Database.UseTable<{
