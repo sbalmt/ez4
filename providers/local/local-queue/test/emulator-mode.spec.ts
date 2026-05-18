@@ -52,9 +52,11 @@ describe('local queue emulator mode', () => {
     const emulator = await registerQueueEmulator(createTestService(), createTestOptions(), createTestContext());
 
     await rejects(() =>
-      emulator!.requestHandler({
+      emulator!.requestHandler!({
         method: 'GET',
         path: '/',
+        headers: {},
+        query: {},
         body: Buffer.from('{}')
       })
     );

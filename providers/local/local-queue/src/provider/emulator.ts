@@ -1,4 +1,3 @@
-import type { Client } from '@ez4/queue';
 import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
 import type { QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
@@ -14,25 +13,7 @@ export const registerQueueEmulator = async (service: QueueService, options: Serv
   const externalClient = await getExternalClient(service, options);
 
   if (externalClient) {
-    const queueClient = externalClient as Client<any, any>;
-
-    return {
-      type: 'Queue',
-      name: resourceName,
-      identifier: getServiceName(resourceName, options),
-      exportHandler: () => queueClient,
-      requestHandler: (request: EmulatorRequestEvent) => {
-        const { method, path, body } = request;
-
-        if (method !== 'POST' || path !== '/' || !body) {
-          throw new Error('Unsupported queue request.');
-        }
-
-        const parsedMessage = JSON.parse(body.toString());
-
-        return queueClient.sendMessage(parsedMessage);
-      }
-    };
+    return null;
   }
 
   const clientOptions = {

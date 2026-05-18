@@ -15,7 +15,7 @@ import { getElasticMqOptions } from './options';
 import { ensureQueueTopology, getQueueName, purgeQueueTopology } from './queues';
 import { createQueuePoller, stopQueuePoller } from './poller';
 
-export const registerElasticMqEmulator = (service: QueueService, options: ServeOptions, _context: EmulateServiceContext) => {
+export const registerElasticMqEmulator = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
   const identifier = getServiceName(service.name, options);
   const elasticMqOptions = getElasticMqOptions(options);
   const sqsClient = getElasticMqClient(elasticMqOptions.endpoint);
@@ -34,7 +34,7 @@ export const registerElasticMqEmulator = (service: QueueService, options: ServeO
     identifier,
     exportHandler: () => queueClient,
     prepareHandler: () => runQueueReset(service, sqsClient, options),
-    bootstrapHandler: () => runStartQueue(service, sqsClient, identifier, queueUrl, options),
+    bootstrapHandler: () => runStartQueue(service, sqsClient, identifier, queueUrl, options, context),
     shutdownHandler: () => runStopQueue(identifier)
   };
 };
@@ -47,7 +47,14 @@ const runQueueReset = async (service: QueueService, sqsClient: SQSClient, option
   }
 };
 
-const runStartQueue = async (service: QueueService, sqsClient: SQSClient, identifier: string, queueUrl: string, options: ServeOptions) => {
+const runStartQueue = async (
+  service: QueueService,
+  sqsClient: SQSClient,
+  identifier: string,
+  queueUrl: string,
+  options: ServeOptions,
+  context: EmulateServiceContext
+) => {
   await ensureQueueTopology(sqsClient, service, options);
 
   const poller = createQueuePoller({
@@ -57,7 +64,7 @@ const runStartQueue = async (service: QueueService, sqsClient: SQSClient, identi
     waitTime: 1,
     maxMessages: 10,
     dispatch: async (message) => {
-      return dispatchToSubscribers(service, options, message);
+      return dispatchToSubscribers(service, options, context, message);
     }
   });
 
@@ -68,16 +75,11 @@ const runStopQueue = (identifier: string) => {
   stopQueuePoller(identifier);
 };
 
-const dispatchToSubscribers = async (service: QueueService, options: ServeOptions, message: AnyObject) => {
+const dispatchToSubscribers = async (service: QueueService, options: ServeOptions, context: EmulateServiceContext, message: AnyObject) => {
   const subscriptionIndex = getRandomInteger(0, service.subscriptions.length - 1);
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
   if (queueSubscription) {
-    const mockContext: EmulateServiceContext = {
-      makeClients: (_linkedServices) => Promise.resolve({}),
-      makeClient: (_serviceName) => Promise.resolve(null)
-    };
-
-    await processQueueMessage(service, options, mockContext, queueSubscription, message);
+    await processQueueMessage(service, options, context, queueSubscription, message);
   }
 };
