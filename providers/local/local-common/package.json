@@ -41,6 +41,8 @@
     "@ez4/common": "^0.49.0",
     "@ez4/logger": "^0.49.0",
     "@ez4/project": "^0.49.0",
-    "@ez4/utils": "^0.49.0"
+    "@ez4/queue": "^0.49.0",
+    "@ez4/utils": "^0.49.0",
+    "@ez4/validator": "^0.49.0"
   }
 }
