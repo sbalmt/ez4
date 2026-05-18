@@ -42,6 +42,7 @@
     "providers/local/local-storage",
     "providers/local/local-gateway",
     "providers/local/local-queue",
+    "providers/local/local-elasticmq",
     "providers/local/local-topic",
     "providers/docs/docs-database",
     "providers/docs/docs-gateway",
