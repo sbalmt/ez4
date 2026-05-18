@@ -1,0 +1,30 @@
+{
+  "name": "hello-local-elasticmq",
+  "description": "Example of a service using local ElasticMQ emulator.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.7"
+  },
+  "workspaces": [
+    "examples/*"
+  ],
+  "exports": {
+    ".": "./src/export.ts"
+  },
+  "scripts": {
+    "serve": "tsc && ez4 serve -e local.env --debug",
+    "test": "ez4 test -e local.env"
+  },
+  "dependencies": {
+    "@ez4/common": "^0.47.0",
+    "@ez4/local-elasticmq": "^0.47.0",
+    "@ez4/local-queue": "^0.47.0",
+    "@ez4/queue": "^0.47.0",
+    "@ez4/project": "^0.47.0",
+    "@ez4/validation": "^0.47.0"
+  }
+}
