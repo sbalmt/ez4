@@ -38,7 +38,7 @@ export const registerLocalService = (service: QueueService, options: ServeOption
   };
 };
 
-const handleQueueRequest = async (
+export const handleQueueRequest = async (
   service: QueueService,
   options: ServeOptions,
   context: EmulateServiceContext,
@@ -69,7 +69,7 @@ const handleQueueRequest = async (
   }
 };
 
-const handleQueueMessage = async (
+export const handleQueueMessage = async (
   service: QueueService | QueueImport,
   options: ServeOptions,
   context: EmulateServiceContext,
