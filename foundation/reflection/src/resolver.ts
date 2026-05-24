@@ -1,4 +1,4 @@
-import type { Node, Program } from 'typescript';
+import type { CompilerHost, CompilerOptions, Node, Program } from 'typescript';
 import type { TypeAnyEvents } from './types/type-any';
 import type { TypeVoidEvents } from './types/type-void';
 import type { TypeNeverEvents } from './types/type-never';
@@ -112,7 +112,7 @@ export type ReflectionOptions = {
 
 export type ReflectionFiles = Record<string, string[]>;
 
-export const resolveReflectionFiles = (program: Program) => {
+export const resolveReflectionFiles = (program: Program, compilerOptions: CompilerOptions, compilerHost: CompilerHost) => {
   const basePath = program.getCurrentDirectory();
   const importGraph: ReflectionFiles = {};
 
@@ -129,7 +129,7 @@ export const resolveReflectionFiles = (program: Program) => {
       }
 
       const moduleName = node.moduleSpecifier.text;
-      const modulePath = getModulePath(moduleName, sourceFile.fileName);
+      const modulePath = getModulePath(moduleName, sourceFile.fileName, compilerOptions, compilerHost);
 
       if (modulePath) {
         importFiles.push(relative(basePath, modulePath));
