@@ -35,11 +35,11 @@ export const prepareHttpImports = (event: PrepareResourceEvent) => {
       throw new MissingImportedProjectError(project);
     }
 
-    const { name, displayName, description } = service;
+    const { reference, displayName, description } = service;
 
     const gatewayState = createGateway(state, {
       gatewayId: getServiceName(service, options),
-      gatewayName: displayName ?? name,
+      gatewayName: displayName ?? reference,
       protocol: GatewayProtocol.Http,
       description,
       import: true
