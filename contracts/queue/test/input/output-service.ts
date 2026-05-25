@@ -8,7 +8,9 @@ interface TestMessage extends Queue.Message {
 }
 
 /**
- * First test queue description.
+ * Internal queue description.
+ *
+ * @description Test queue service.
  */
 export declare class TestQueue1 extends Queue.Ordered<TestMessage> {
   subscriptions: [];

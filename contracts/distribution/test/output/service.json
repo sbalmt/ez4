@@ -3,7 +3,7 @@
     "type": "@ez4/cdn",
     "name": "TestCdn",
     "context": {},
-    "description": "Test distribution.",
+    "description": "Test distribution service.",
     "disabled": true,
     "defaultIndex": "index.html",
     "defaultOrigin": {

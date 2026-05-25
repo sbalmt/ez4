@@ -5,6 +5,11 @@ class TestServiceA {
   public helloWorld() {}
 }
 
+/**
+ * Internal factory description.
+ *
+ * @description Test service factory.
+ */
 export declare class TestServiceAFactory extends Factory.Service<TestServiceA> {
   handler: typeof testServiceAInitializer;
 

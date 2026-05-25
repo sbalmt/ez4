@@ -9,8 +9,9 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getPropertyString,
+  getModelDescription,
   getModelMembers,
+  getPropertyString,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -42,14 +43,10 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createHttpService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createHttpService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['routes']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {

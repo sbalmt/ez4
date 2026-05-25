@@ -2,7 +2,9 @@ import type { Environment } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
 /**
- * First test service description.
+ * Internal gateway description.
+ *
+ * @description Test gateway service.
  */
 export declare class TestService1 extends Http.Service {
   name: 'Test Service 1';

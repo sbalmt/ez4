@@ -20,6 +20,10 @@ export const hasHeritageType = (type: TypeModel, ...names: string[]) => {
   return names.some((name) => !!getHeritageType(type, name));
 };
 
+export const getModelDescription = (type: TypeModel) => {
+  return type.tags?.find(({ name }) => name === 'description')?.text;
+};
+
 export const getHeritageType = (type: TypeModel, name: string) => {
   return type.heritage?.find((reference) => {
     const { namespace } = reference;

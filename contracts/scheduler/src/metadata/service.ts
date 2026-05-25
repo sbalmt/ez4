@@ -7,12 +7,13 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
   getLinkedVariableList,
+  getLinkedServiceList,
+  getModelDescription,
+  getModelMembers,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
-  getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -38,14 +39,10 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createCronService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createCronService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['target', 'expression']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {

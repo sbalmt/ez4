@@ -9,6 +9,7 @@ import {
   isClassDeclaration,
   getLinkedVariableList,
   getLinkedServiceList,
+  getModelDescription,
   getModelMembers,
   getPropertyNumber,
   getPropertyString,
@@ -38,9 +39,9 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createBucketService(declaration.name);
+    const { file: fileName, description } = declaration;
 
-    const fileName = declaration.file;
+    const service = createBucketService(declaration.name, getModelDescription(declaration) ?? description);
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {

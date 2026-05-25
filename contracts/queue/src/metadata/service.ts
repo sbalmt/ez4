@@ -9,6 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
+  getModelDescription,
   getModelMembers,
   getPropertyNumber,
   hasHeritageType
@@ -45,14 +46,10 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createQueueService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createQueueService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['schema', 'subscriptions']);
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
-
-    const fileName = declaration.file;
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {

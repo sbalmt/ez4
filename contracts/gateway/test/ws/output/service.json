@@ -8,7 +8,7 @@
     "type": "@ez4/ws",
     "name": "TestService1",
     "displayName": "Test Service 1",
-    "description": "First test service description.",
+    "description": "Test websocket service.",
     "context": {},
     "variables": {},
     "services": {},
@@ -29,7 +29,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          66,
           1
         ]
       }
@@ -39,7 +39,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          66,
+          68,
           1
         ]
       }
@@ -49,7 +49,7 @@
         "name": "messageHandler1",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          68,
+          70,
           1
         ]
       }
@@ -84,7 +84,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          66,
           1
         ]
       }
@@ -102,7 +102,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          66,
+          68,
           1
         ]
       }
@@ -119,7 +119,7 @@
         "name": "messageHandler2",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          79,
+          81,
           1
         ],
         "response": {

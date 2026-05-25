@@ -10,7 +10,7 @@
     "context": {},
     "variables": {},
     "services": {},
-    "description": "First test cache.",
+    "description": "Test cache service.",
     "engine": {
       "name": "test"
     }

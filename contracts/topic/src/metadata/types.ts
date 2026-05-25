@@ -71,9 +71,10 @@ export const isTopicService = (service: ServiceMetadata): service is TopicServic
   return service.type === ServiceType;
 };
 
-export const createTopicService = (name: string) => {
+export const createTopicService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<TopicService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };
@@ -83,9 +84,10 @@ export const isTopicImport = (service: ServiceMetadata): service is TopicImport 
   return service.type === ImportType;
 };
 
-export const createTopicImport = (name: string) => {
+export const createTopicImport = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<TopicImport>(ImportType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

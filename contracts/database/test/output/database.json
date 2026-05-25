@@ -2,6 +2,7 @@
   "TestDatabase1": {
     "type": "@ez4/database",
     "name": "TestDatabase1",
+    "description": "Test database 1.",
     "context": {},
     "variables": {},
     "services": {
@@ -21,6 +22,7 @@
   "TestDatabase2": {
     "type": "@ez4/database",
     "name": "TestDatabase2",
+    "description": "Test database 2.",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
@@ -41,6 +43,7 @@
   "TestDatabase3": {
     "type": "@ez4/database",
     "name": "TestDatabase3",
+    "description": "Test database 3.",
     "context": {},
     "variables": {},
     "services": {},

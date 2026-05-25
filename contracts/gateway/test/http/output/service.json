@@ -11,7 +11,7 @@
     "variables": {},
     "services": {},
     "displayName": "Test Service 1",
-    "description": "First test service description.",
+    "description": "Test gateway service.",
     "routes": []
   },
   "TestService2": {

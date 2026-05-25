@@ -80,9 +80,10 @@ export const isWsService = (service: ServiceMetadata): service is WsService => {
   return service.type === WsServiceType;
 };
 
-export const createWsService = (name: string) => {
+export const createWsService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<WsService>(WsServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

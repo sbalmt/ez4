@@ -6,6 +6,7 @@
   },
   "TestServiceAFactory": {
     "type": "@ez4/factory",
+    "description": "Test service factory.",
     "context": {},
     "variables": {
       "TEST_VAR": "test-var"
@@ -18,7 +19,7 @@
       "name": "testServiceAInitializer",
       "file": "test/input/output-service.ts",
       "position": [
-        20,
+        25,
         1
       ]
     }
@@ -35,7 +36,7 @@
       "name": "testServiceBInitializer",
       "file": "test/input/output-service.ts",
       "position": [
-        41,
+        46,
         1
       ]
     }

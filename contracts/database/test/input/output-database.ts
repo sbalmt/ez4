@@ -3,7 +3,9 @@ import type { Database, OrderMode, PaginationMode, TransactionMode } from '@ez4/
 import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } from '../common/engines';
 
 /**
- * Test database 1.
+ * Internal database description.
+ *
+ * @description Test database 1.
  */
 export declare class TestDatabase1 extends Database.Service {
   engine: TestEngineTransaction<TransactionMode.Interactive>;

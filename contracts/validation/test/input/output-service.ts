@@ -6,6 +6,11 @@ type TestInput = {
   bar: number;
 };
 
+/**
+ * Internal validation description.
+ *
+ * @description Test validation service.
+ */
 export declare class TestValidation extends Validation.Service<TestInput> {
   handler: typeof performValidation;
 

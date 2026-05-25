@@ -10,7 +10,8 @@ import {
   getLinkedServiceList,
   getLinkedVariableList,
   getModelMembers,
-  hasHeritageType
+  hasHeritageType,
+  getModelDescription
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
@@ -36,14 +37,10 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createValidationService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createValidationService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['handler', 'schema']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {

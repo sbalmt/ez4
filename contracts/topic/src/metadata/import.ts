@@ -9,6 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
+  getModelDescription,
   getModelMembers,
   getPropertyString,
   getReferenceName,
@@ -40,14 +41,10 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createTopicImport(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createTopicImport(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['project', 'reference', 'schema']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {

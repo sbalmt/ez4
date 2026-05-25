@@ -7,6 +7,7 @@
   "TestValidation": {
     "type": "@ez4/validation",
     "name": "TestValidation",
+    "description": "Test validation service.",
     "context": {},
     "variables": {
       "TEST_VAR": "test-var"
@@ -30,7 +31,7 @@
       "name": "performValidation",
       "file": "test/input/output-service.ts",
       "position": [
-        21,
+        26,
         1
       ]
     }

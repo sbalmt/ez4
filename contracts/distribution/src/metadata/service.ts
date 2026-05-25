@@ -7,6 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
+  getModelDescription,
   getModelMembers,
   getPropertyBoolean,
   getPropertyStringList,
@@ -38,14 +39,10 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createCdnService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createCdnService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['defaultOrigin']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {

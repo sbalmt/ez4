@@ -9,6 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
+  getModelDescription,
   getModelMembers,
   getPropertyString,
   hasHeritageType
@@ -42,14 +43,10 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createWsService(declaration.name);
+    const { file: fileName, description } = declaration;
+
+    const service = createWsService(declaration.name, getModelDescription(declaration) ?? description);
     const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {

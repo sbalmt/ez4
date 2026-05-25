@@ -8,7 +8,9 @@ type TestData = {
 };
 
 /**
- * First test service description.
+ * Internal websocket description.
+ *
+ * @description Test websocket service.
  */
 export declare class TestService1 extends Ws.Service<TestData> {
   name: 'Test Service 1';

@@ -7,7 +7,7 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {},
-    "description": "Scheduler cron description.",
+    "description": "Test scheduler service.",
     "group": "test-group",
     "expression": "rate(1 minute)",
     "timezone": "America/Sao_Paulo",
@@ -28,7 +28,7 @@
         "name": "targetHandler",
         "file": "test/input/output-service.ts",
         "position": [
-          45,
+          47,
           1
         ]
       },

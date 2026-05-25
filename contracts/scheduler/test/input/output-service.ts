@@ -3,7 +3,9 @@ import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
 /**
- * Scheduler cron description.
+ * Internal scheduler description.
+ *
+ * @description Test scheduler service.
  */
 export declare class TestScheduler extends Cron.Service {
   group: 'test-group';

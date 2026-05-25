@@ -47,9 +47,10 @@ export const isBucketService = (service: ServiceMetadata): service is BucketServ
   return service.type === ServiceType;
 };
 
-export const createBucketService = (name: string) => {
+export const createBucketService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<BucketService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

@@ -10,7 +10,7 @@
     "context": {},
     "variables": {},
     "services": {},
-    "description": "First test email.",
+    "description": "Test email service.",
     "domain": "test.ez4.dev"
   }
 }

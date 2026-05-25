@@ -19,9 +19,10 @@ export const isFactoryService = (service: ServiceMetadata): service is FactorySe
   return service.type === ServiceType;
 };
 
-export const createFactoryService = (name: string) => {
+export const createFactoryService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<FactoryService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

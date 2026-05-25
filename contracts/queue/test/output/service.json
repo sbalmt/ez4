@@ -12,7 +12,7 @@
     "services": {
       "testQueue": "TestQueue2"
     },
-    "description": "First test queue description.",
+    "description": "Test queue service.",
     "subscriptions": [],
     "fifoMode": {
       "uniqueId": "id",

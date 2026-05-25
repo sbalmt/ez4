@@ -8,7 +8,9 @@ import type { Environment } from '@ez4/common';
 export declare class TestBucket extends Bucket.Service {}
 
 /**
- * Test distribution.
+ * Internal distribution description.
+ *
+ * @description Test distribution service.
  */
 export declare class TestCdn extends Cdn.Service {
   aliases: ['test-1.ez4.dev', 'test-2.ez4.dev'];

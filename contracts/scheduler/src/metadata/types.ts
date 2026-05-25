@@ -53,9 +53,10 @@ export const isDynamicCronService = (service: CronService) => {
   return service.expression === DynamicExpression;
 };
 
-export const createCronService = (name: string) => {
+export const createCronService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<CronService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

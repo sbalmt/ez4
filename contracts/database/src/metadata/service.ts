@@ -12,6 +12,7 @@ import {
   getLinkedServiceList,
   getLinkedVariableList,
   getPropertyTuple,
+  getModelDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -41,10 +42,10 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createDatabaseService(declaration.name);
-    const properties = new Set(['engine', 'tables']);
+    const { file: fileName, description } = declaration;
 
-    const fileName = declaration.file;
+    const service = createDatabaseService(declaration.name, getModelDescription(declaration) ?? description);
+    const properties = new Set(['engine', 'tables']);
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {

@@ -1,7 +1,9 @@
 import type { Cache } from '@ez4/cache';
 
 /**
- * First test cache.
+ * Internal cache description.
+ *
+ * @description Test cache service.
  */
 export declare class TestCache extends Cache.Service {
   /**

@@ -15,9 +15,10 @@ export const isEmailService = (service: ServiceMetadata): service is EmailServic
   return service.type === ServiceType;
 };
 
-export const createEmailService = (name: string) => {
+export const createEmailService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<EmailService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

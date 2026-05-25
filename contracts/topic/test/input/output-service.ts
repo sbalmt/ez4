@@ -7,7 +7,9 @@ interface TestMessage extends Topic.Message {
 }
 
 /**
- * First test topic description.
+ * Internal topic description.
+ *
+ * @description First test topic description.
  */
 export declare class TestTopic1 extends Topic.Service<TestMessage, Topic.FifoMode<TestMessage>> {
   subscriptions: [];
