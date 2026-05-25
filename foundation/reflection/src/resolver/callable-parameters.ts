@@ -1,5 +1,5 @@
 import type { Node, ParameterDeclaration } from 'typescript';
-import type { TypeParameter, EveryType } from '../types';
+import type { TypeParameter, EveryType, TypeTag } from '../types';
 import type { CallbackNodes } from './type-callback';
 import type { FunctionNodes } from './type-function';
 import type { MethodNodes } from './model-method';
@@ -16,11 +16,12 @@ import { tryTypes } from './types';
 
 export type NodeWithParameters = MethodNodes | CallbackNodes | FunctionNodes;
 
-export const createParameter = (name: string, value: EveryType, description?: string | null): TypeParameter => {
+export const createParameter = (name: string, value: EveryType, description?: string, tags?: TypeTag[]): TypeParameter => {
   return {
     type: TypeName.Parameter,
     name,
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     value
   };
 };
@@ -56,17 +57,17 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
   }
 
   const name = node.name.getText();
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
 
   if (!node.questionToken || isOptional(valueType)) {
-    return createParameter(name, valueType, description);
+    return createParameter(name, valueType, documentation?.description, documentation?.tags);
   }
 
   const unionType = isTypeUnion(valueType) ? valueType : createUnion([valueType]);
 
   unionType.elements.push(createUndefined());
 
-  return createParameter(name, unionType, description);
+  return createParameter(name, unionType, documentation?.description, documentation?.tags);
 };
 
 export const tryCallableParameters = (nodes: NodeWithParameters, context: Context, state: State) => {

@@ -1,5 +1,5 @@
 import type { Node, PropertyDeclaration, PropertySignature } from 'typescript';
-import type { ModelProperty, EveryType, PropertyModifiers } from '../types';
+import type { ModelProperty, EveryType, PropertyModifiers, TypeTag } from '../types';
 import type { Context, State } from './common';
 
 import { isPropertyDeclaration, isPropertySignature } from 'typescript';
@@ -19,13 +19,15 @@ export type PropertyNodes = PropertySignature | PropertyDeclaration;
 export const createProperty = (
   name: string,
   value: EveryType,
-  description?: string | null,
-  modifiers?: PropertyModifiers | null
+  modifiers?: PropertyModifiers,
+  description?: string,
+  tags?: TypeTag[]
 ): ModelProperty => {
   return {
     type: TypeName.Property,
     name,
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     ...(modifiers && { modifiers }),
     value
   };
@@ -48,16 +50,16 @@ export const tryModelProperty = (node: Node, context: Context, state: State) => 
   }
 
   const name = getPropertyName(node.name, context.checker);
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
   if (!node.questionToken || isOptional(valueType)) {
-    return createProperty(name, valueType, description, modifiers);
+    return createProperty(name, valueType, modifiers, documentation?.description, documentation?.tags);
   }
 
   const unionType = isTypeUnion(valueType) ? valueType : createUnion([valueType]);
 
   unionType.elements.push(createUndefined());
 
-  return createProperty(name, unionType, description, modifiers);
+  return createProperty(name, unionType, modifiers, documentation?.description, documentation?.tags);
 };

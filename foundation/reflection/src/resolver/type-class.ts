@@ -1,5 +1,5 @@
 import type { ClassDeclaration, Node } from 'typescript';
-import type { ClassModifiers, EveryMemberType, ModelHeritage, TypeClass, TypePosition } from '../types';
+import type { ClassModifiers, EveryMemberType, ModelHeritage, TypeClass, TypePosition, TypeTag } from '../types';
 import type { Context, State } from './common';
 
 import { isClassDeclaration } from 'typescript';
@@ -18,8 +18,9 @@ export const createClass = (
   name: string,
   file: string | undefined,
   position: TypePosition | undefined,
-  description: string | undefined,
   modifiers: ClassModifiers | undefined,
+  description?: string,
+  tags?: TypeTag[],
   heritage?: ModelHeritage[],
   members?: EveryMemberType[]
 ): TypeClass => {
@@ -32,6 +33,7 @@ export const createClass = (
     ...(position && { position }),
     ...(module && { module }),
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),
     ...(members?.length && { members })
@@ -54,10 +56,10 @@ export const tryTypeClass = (node: Node, context: Context, state: State) => {
   const name = node.name.getText();
   const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
-  const reflectedType = createClass(name, file, position, description, modifiers);
+  const reflectedType = createClass(name, file, position, modifiers, documentation?.description, documentation?.tags);
 
   context.cache.set(node, reflectedType);
 

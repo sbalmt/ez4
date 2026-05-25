@@ -1,5 +1,5 @@
 import type { FunctionDeclaration, FunctionTypeNode, Node } from 'typescript';
-import type { TypeCallback, TypeParameter, EveryType, TypePosition } from '../types';
+import type { TypeCallback, TypeParameter, EveryType, TypePosition, TypeTag } from '../types';
 import type { Context, State } from './common';
 
 import { isFunctionDeclaration, isFunctionTypeNode } from 'typescript';
@@ -17,9 +17,10 @@ export const createCallback = (
   name: string | undefined,
   file: string | undefined,
   position: TypePosition | undefined,
-  description: string | undefined,
-  parameterTypes?: TypeParameter[] | undefined,
-  returnType?: EveryType | undefined
+  description?: string,
+  tags?: TypeTag[],
+  parameterTypes?: TypeParameter[],
+  returnType?: EveryType
 ): TypeCallback => {
   const module = file && getPathModule(file);
 
@@ -30,6 +31,7 @@ export const createCallback = (
     ...(position && { position }),
     ...(module && { module }),
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     ...(parameterTypes?.length && { parameters: parameterTypes }),
     ...(returnType && { return: returnType })
   };
@@ -51,9 +53,9 @@ export const tryTypeCallback = (node: Node, context: Context, state: State) => {
   const name = node.name?.getText();
   const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
-  const description = node.name && getNodeDocumentation(node.name, context.checker);
+  const documentation = node.name && getNodeDocumentation(node.name, context.checker);
 
-  const reflectedType = createCallback(name, file, position, description);
+  const reflectedType = createCallback(name, file, position, documentation?.description, documentation?.tags);
 
   context.cache.set(node, reflectedType);
 

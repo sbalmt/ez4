@@ -1,5 +1,5 @@
 import type { EnumDeclaration, Node } from 'typescript';
-import type { TypeEnum, EnumMember, TypePosition } from '../types';
+import type { TypeEnum, EnumMember, TypePosition, TypeTag } from '../types';
 import type { Context } from './common';
 
 import { isEnumDeclaration } from 'typescript';
@@ -16,8 +16,9 @@ export const createEnum = (
   name: string,
   file: string | undefined,
   position: TypePosition | undefined,
-  description: string | undefined,
-  members?: EnumMember[]
+  members?: EnumMember[],
+  description?: string,
+  tags?: TypeTag[]
 ): TypeEnum => {
   const module = file && getPathModule(file);
 
@@ -28,7 +29,8 @@ export const createEnum = (
     ...(position && { position }),
     ...(module && { module }),
     ...(description && { description }),
-    ...(members?.length && { members })
+    ...(tags?.length && { tags }),
+    ...(members && members)
   };
 };
 
@@ -48,9 +50,9 @@ export const tryTypeEnum = (node: Node, context: Context) => {
   const name = node.name.getText();
   const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
 
-  const reflectedType = createEnum(name, file, position, description);
+  const reflectedType = createEnum(name, file, position, undefined, documentation?.description, documentation?.tags);
 
   context.cache.set(node, reflectedType);
 

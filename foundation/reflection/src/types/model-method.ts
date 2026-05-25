@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypeTag } from './common';
 import type { TypeParameter } from './type-parameter';
 import type { EveryType } from './types';
 
@@ -17,6 +17,7 @@ export type ModelMethod = {
   type: TypeName.Method;
   name: string;
   description?: string;
+  tags?: TypeTag[];
   modifiers?: MethodModifiers;
   parameters?: TypeParameter[];
   return?: EveryType;

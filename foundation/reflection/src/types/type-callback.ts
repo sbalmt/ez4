@@ -1,4 +1,4 @@
-import type { AllType, TypePosition } from './common';
+import type { AllType, TypePosition, TypeTag } from './common';
 import type { TypeParameter } from './type-parameter';
 import type { EveryType } from './types';
 
@@ -11,6 +11,7 @@ export type TypeCallback = {
   position?: TypePosition;
   module?: string | null;
   description?: string;
+  tags?: TypeTag[];
   parameters?: TypeParameter[];
   return?: EveryType;
 };
