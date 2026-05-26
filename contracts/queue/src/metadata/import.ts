@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   getReferenceName,
@@ -44,9 +44,9 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createQueueImport(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createQueueImport(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'schema']);
 
     for (const member of getModelMembers(declaration, true)) {

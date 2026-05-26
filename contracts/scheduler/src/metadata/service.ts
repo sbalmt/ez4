@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedVariableList,
   getLinkedServiceList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyBoolean,
   getPropertyNumber,
@@ -39,9 +39,9 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createCronService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createCronService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['target', 'expression']);
 
     for (const member of getModelMembers(declaration, true)) {

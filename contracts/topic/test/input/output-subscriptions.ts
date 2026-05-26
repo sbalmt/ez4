@@ -8,7 +8,7 @@ interface TestMessage extends Topic.Message, Queue.Message {
 }
 
 /**
- * Topic to test subscriptions.
+ * @description Topic to test subscriptions.
  */
 export declare class TestTopic extends Topic.Unordered<TestMessage> {
   subscriptions: [

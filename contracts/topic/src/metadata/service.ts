@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -40,9 +40,9 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createTopicService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createTopicService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'subscriptions']);
 
     for (const member of getModelMembers(declaration, true)) {

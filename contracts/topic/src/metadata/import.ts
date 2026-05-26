@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   getReferenceName,
@@ -41,9 +41,9 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createTopicImport(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createTopicImport(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'schema']);
 
     for (const member of getModelMembers(declaration, true)) {

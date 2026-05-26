@@ -23,7 +23,6 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {},
-    "description": "Description of the second test service.",
     "routes": []
   }
 }

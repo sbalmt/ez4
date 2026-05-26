@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -36,9 +36,9 @@ export const getCacheServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createCacheService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createCacheService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['engine']);
 
     for (const member of getModelMembers(declaration)) {

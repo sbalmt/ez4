@@ -13,7 +13,7 @@ export declare class TestService1 extends Http.Service {
 }
 
 /**
- * Description of the second test service.
+ * Internal description of the second test service.
  */
 export declare class TestService2 extends Http.Service {
   routes: [];

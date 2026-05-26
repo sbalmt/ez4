@@ -58,7 +58,6 @@
   "TestService2": {
     "type": "@ez4/ws",
     "name": "TestService2",
-    "description": "Description of the second test service.",
     "stageName": "websocket",
     "context": {},
     "variables": {},

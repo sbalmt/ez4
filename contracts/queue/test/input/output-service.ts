@@ -26,7 +26,7 @@ export declare class TestQueue1 extends Queue.Ordered<TestMessage> {
 }
 
 /**
- * Description of the second test queue.
+ * @description Description of the second test queue.
  */
 export declare class TestQueue2 extends Queue.Unordered<TestMessage> {
   subscriptions: [];
@@ -41,7 +41,7 @@ export declare class TestQueue2 extends Queue.Unordered<TestMessage> {
 }
 
 /**
- * Third test queue description.
+ * @description Third test queue description.
  */
 export declare class TestQueue3 extends Queue.Unordered<TestMessage> {
   subscriptions: [];

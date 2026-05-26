@@ -26,7 +26,7 @@ export declare class TestTopic1 extends Topic.Service<TestMessage, Topic.FifoMod
 }
 
 /**
- * Description of the second test topic.
+ * @description Description of the second test topic.
  */
 export declare class TestTopic2 extends Topic.Service<TestMessage> {
   subscriptions: [];

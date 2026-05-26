@@ -3,7 +3,7 @@ import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
 /**
- * Service for testing route authorizers.
+ * @description Service for testing route authorizers.
  */
 export declare class TestService extends Http.Service {
   routes: [

@@ -7,7 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   getReferenceName,
@@ -39,9 +39,9 @@ export const getHttpImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createHttpImport(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createHttpImport(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'routes']);
 
     for (const member of getModelMembers(declaration, true)) {

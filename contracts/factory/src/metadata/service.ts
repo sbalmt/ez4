@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -36,9 +36,9 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createFactoryService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createFactoryService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['handler']);
 
     for (const member of getModelMembers(declaration)) {

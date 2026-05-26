@@ -56,6 +56,9 @@ declare class TestStream implements Database.Stream<TestSchema> {
 
 /**
  * Test table stream.
+ *
+ * @description Example of database stream.
+ * @summary Database stream example.
  */
 async function streamHandler(_change: StreamAnyChange<TestSchema>, context: Service.Context<TestDatabase>) {
   context.selfClient.rawQuery;

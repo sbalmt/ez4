@@ -1,7 +1,7 @@
 import type { Http } from '@ez4/gateway';
 
 /**
- * Service for testing route listener.
+ * @description Service for testing route listener.
  */
 export declare class TestService extends Http.Service {
   routes: [

@@ -11,9 +11,9 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getPropertyTuple,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
+  getPropertyTuple,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -42,9 +42,9 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createDatabaseService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createDatabaseService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['engine', 'tables']);
 
     for (const member of getModelMembers(declaration)) {

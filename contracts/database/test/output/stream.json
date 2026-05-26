@@ -33,10 +33,11 @@
           "architecture": "arm",
           "handler": {
             "name": "streamHandler",
-            "description": "Test table stream.",
+            "description": "Example of database stream.",
+            "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              60,
+              63,
               1
             ]
           },
@@ -63,10 +64,11 @@
           "debug": true,
           "handler": {
             "name": "streamHandler",
-            "description": "Test table stream.",
+            "description": "Example of database stream.",
+            "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              60,
+              63,
               1
             ]
           },

@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   hasHeritageType
@@ -36,9 +36,9 @@ export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createEmailService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createEmailService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['domain']);
 
     for (const member of getModelMembers(declaration)) {

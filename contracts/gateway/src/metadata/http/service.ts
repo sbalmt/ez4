@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedServiceList,
   getLinkedVariableList,
-  getModelDescription,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   hasHeritageType
@@ -43,9 +43,9 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const { file: fileName, description } = declaration;
+    const { file: fileName } = declaration;
 
-    const service = createHttpService(declaration.name, getModelDescription(declaration) ?? description);
+    const service = createHttpService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['routes']);
 
     for (const member of getModelMembers(declaration)) {

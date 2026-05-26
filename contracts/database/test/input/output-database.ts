@@ -19,7 +19,7 @@ export declare class TestDatabase1 extends Database.Service {
 }
 
 /**
- * Test database 2.
+ * Internal test database description 2.
  */
 export declare class TestDatabase2 extends Database.Service {
   engine: TestEnginePagination<PaginationMode.Cursor>;
@@ -34,7 +34,7 @@ export declare class TestDatabase2 extends Database.Service {
 }
 
 /**
- * Test database 3.
+ * Internal test database description 3.
  */
 export declare class TestDatabase3 extends Database.Service {
   engine: TestEngineOrder<OrderMode.IndexColumns>;

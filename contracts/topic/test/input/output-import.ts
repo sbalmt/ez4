@@ -33,7 +33,7 @@ function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Cont
 }
 
 /**
- * Import topic assigning handler.
+ * @description Import topic assigning handler.
  */
 export declare class TestImport1Topic extends Topic.Import<TestUnorderedTopic> {
   project: 'name from project in ez4.project.js';
@@ -55,7 +55,7 @@ export declare class TestImport1Topic extends Topic.Import<TestUnorderedTopic> {
 }
 
 /**
- * Import topic with no assigned handler.
+ * @description Import topic with no assigned handler.
  */
 export declare class TestImport2Topic extends Topic.Import<TestOrderedTopic> {
   project: 'name from project in ez4.project.js';
