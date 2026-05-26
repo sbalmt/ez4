@@ -25,6 +25,7 @@ import { getIsBetweenOperation } from './is-between';
 import { getStartsWithOperation } from './starts-with';
 import { getContainsOperation } from './contains';
 import { getIsMissingOperation } from './is-missing';
+import { getIsMissingOrNullOperation } from './is-missing-or-null';
 
 import { InvalidOperandError, MissingOperatorError } from './errors';
 
@@ -221,6 +222,9 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
 
     case SqlOperator.IsMissing:
       return getIsMissingOperation(column, operand, context);
+
+    case SqlOperator.IsMissingOrNull:
+      return getIsMissingOrNullOperation(column, operand, context);
 
     case SqlOperator.Equal:
       return getEqualOperation(column, schema, operand, context);
