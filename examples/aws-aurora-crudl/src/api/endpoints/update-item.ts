@@ -71,6 +71,9 @@ declare class UpdateItemResponse implements Http.Response {
 
 /**
  * Handle item update requests.
+ *
+ * @description Update an item corresponding to the given request.
+ * @summary Update items.
  */
 export async function updateItemHandler(
   request: Http.Incoming<UpdateItemRequest>,

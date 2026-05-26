@@ -69,6 +69,9 @@ declare class ListSchedulesResponse implements Http.Response {
 
 /**
  * Handle list schedules requests.
+ *
+ * @description List all schedules for the given `cursor` and `limit`.
+ * @summary List schedules.
  */
 export async function listSchedulesHandler(request: ListSchedulesRequest, context: Service.Context<Api>): Promise<ListSchedulesResponse> {
   const { cursor, limit } = request.query;

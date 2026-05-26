@@ -8,7 +8,8 @@ paths:
   /create-item:
     post:
       operationId: createItemHandler
-      summary: "Handle item create requests."
+      summary: "Create new items."
+      description: "Create a new item using data from teh given request."
       requestBody:
         content:
           application/json:
@@ -24,7 +25,8 @@ paths:
   /read-item/{id}:
     get:
       operationId: readItemHandler
-      summary: "Handle read item requests."
+      summary: "Read item details."
+      description: "Read details of an item corresponding to the given `id`."
       parameters:
         - name: id
           in: path
@@ -43,7 +45,8 @@ paths:
   /update-item/{id}:
     patch:
       operationId: updateItemHandler
-      summary: "Handle item update requests."
+      summary: "Update items."
+      description: "Update an item corresponding to the given request."
       parameters:
         - name: id
           in: path
@@ -67,7 +70,8 @@ paths:
   /delete-item/{id}:
     delete:
       operationId: deleteItemHandler
-      summary: "Handle item delete requests."
+      summary: "Delete items."
+      description: "Delete an item corresponding to the given `id`."
       parameters:
         - name: id
           in: path
@@ -86,7 +90,8 @@ paths:
   /list-items:
     get:
       operationId: listItemsHandler
-      summary: "Handle item list requests."
+      summary: "List items."
+      description: "List all items corresponding to the given filters."
       parameters:
         - name: cursor
           in: query
@@ -121,7 +126,7 @@ components:
   requestSchemes:
     createItemHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         name:
@@ -143,7 +148,7 @@ components:
         - type
     updateItemHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         name:
@@ -164,7 +169,7 @@ components:
   responseSchemes:
     createItemHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         item_id:
@@ -174,7 +179,7 @@ components:
         - item_id
     readItemHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
@@ -192,7 +197,7 @@ components:
         - type
     updateItemHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
@@ -210,7 +215,7 @@ components:
         - type
     deleteItemHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
@@ -228,7 +233,7 @@ components:
         - type
     listItemsHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         items:

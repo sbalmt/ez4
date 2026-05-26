@@ -8,7 +8,8 @@ paths:
   /post-route:
     post:
       operationId: postRoute
-      summary: "Handler for `post` requests."
+      summary: "Post endpoint."
+      description: "Example of a `POST` endpoint."
       requestBody:
         content:
           application/json:
@@ -24,7 +25,8 @@ paths:
   /patch-route/{id}:
     patch:
       operationId: patchRoute
-      summary: "Handler for `patch` requests."
+      summary: "Patch endpoint."
+      description: "Example of a `PATCH` endpoint."
       parameters:
         - name: id
           in: path
@@ -48,7 +50,8 @@ paths:
   /put-route/{id}:
     put:
       operationId: putRoute
-      summary: "Handler for `put` requests."
+      summary: "Put endpoint."
+      description: "Example of a `PUT` endpoint."
       parameters:
         - name: id
           in: path
@@ -72,7 +75,8 @@ paths:
   /get-route/{id}:
     get:
       operationId: getRoute
-      summary: "Handler for `get` requests."
+      summary: "Get endpoint."
+      description: "Example of a `GET` endpoint."
       parameters:
         - name: id
           in: path
@@ -105,7 +109,8 @@ paths:
   /delete-route/{id}:
     delete:
       operationId: deleteRoute
-      summary: "Handler for `delete` requests."
+      summary: "Delete endpoint."
+      description: "Example of a `DELETE` endpoint."
       parameters:
         - name: id
           in: path
@@ -120,7 +125,8 @@ paths:
   /raw-route/{proxy+}:
     any:
       operationId: rawRoute
-      summary: "Handler for `raw` requests."
+      summary: "Raw endpoint."
+      description: "Example of a raw endpoint accepting any HTTP-Verb and content."
       requestBody:
         content:
           application/json:
@@ -136,7 +142,8 @@ paths:
   /get-static-route:
     get:
       operationId: getStaticHandler
-      summary: "Handler for `get` requests."
+      summary: "Get static file."
+      description: "Example of a `GET` endpoint for static files."
       responses:
         200:
           description: "Successful response."
@@ -149,7 +156,7 @@ components:
   requestSchemes:
     postHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
@@ -159,7 +166,7 @@ components:
         - foo
     patchHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
@@ -169,7 +176,7 @@ components:
         - foo
     putHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
@@ -179,12 +186,12 @@ components:
         - foo
     rawHandler:
       type: string
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
 
   responseSchemes:
     postHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
@@ -194,7 +201,7 @@ components:
         - id
     patchHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
@@ -204,7 +211,7 @@ components:
         - message
     putHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
@@ -214,7 +221,7 @@ components:
         - message
     getHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         foo_bar:
@@ -229,10 +236,10 @@ components:
         - baz_qux
     rawHandler:
       type: string
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
     getStaticHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:

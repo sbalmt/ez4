@@ -41,6 +41,9 @@ declare class ListItemsResponse implements Http.Response {
 
 /**
  * Handle item list requests.
+ *
+ * @description List all items corresponding to the given page and limit.
+ * @summary List items.
  */
 export async function listItemsHandler(
   request: Http.Incoming<ListItemsRequest>,

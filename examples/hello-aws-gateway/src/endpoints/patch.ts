@@ -40,6 +40,10 @@ declare class PatchResponse implements Http.Response {
 
 /**
  * Handler for `patch` requests.
+ *
+ * @description Example of a `PATCH` endpoint.
+ * @summary Patch endpoint.
+ *
  * @param request Incoming request.
  * @returns Outgoing response.
  */

@@ -40,6 +40,9 @@ declare class UpdateScheduleResponse implements Http.Response {
 
 /**
  * Handle update schedule requests.
+ *
+ * @description Update the schedule corresponding to the given `scheduleId`.
+ * @summary Update schedules.
  */
 export async function updateScheduleHandler(
   request: UpdateScheduleRequest,

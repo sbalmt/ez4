@@ -25,6 +25,9 @@ declare class DeleteScheduleResponse implements Http.Response {
 
 /**
  * Handle delete schedule requests.
+ *
+ * @description Delete a schedule corresponding to the given `scheduleId`.
+ * @summary Delete schedules.
  */
 export async function deleteScheduleHandler(
   request: DeleteScheduleRequest,

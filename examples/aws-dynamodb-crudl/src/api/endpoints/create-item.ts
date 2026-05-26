@@ -38,6 +38,9 @@ declare class CreateItemResponse implements Http.Response {
 
 /**
  * Handle item create requests.
+ *
+ * @description Create a new item using data from teh given request.
+ * @summary Create new items.
  */
 export async function createItemHandler(request: CreateItemRequest, context: Service.Context<Api>): Promise<CreateItemResponse> {
   const { name, description, type } = request.body;
