@@ -99,7 +99,7 @@ const getIntegrationFunction = (
 
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
       functionName: integrationName,
-      description: handler.description,
+      description: handler.summary ?? handler.description,
       ...(request && {
         ...('headers' in request && { headersSchema: request.headers }),
         ...('query' in request && { querySchema: request.query }),
@@ -160,8 +160,8 @@ const getIntegrationFunction = (
     getIntegration(state, gatewayState, handlerState) ??
     createIntegration(state, gatewayState, handlerState, {
       fromService: handlerState.parameters.functionName,
-      timeout: handlerState.parameters.timeout,
-      description: handler.description
+      description: handler.summary ?? handler.description,
+      timeout: handlerState.parameters.timeout
     })
   );
 };
