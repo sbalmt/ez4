@@ -1,26 +1,28 @@
 type InnerType = {
   /**
-   * Inner required property.
+   * @description Inner required property.
    */
   foo?: number;
 
   /**
-   * Inner required property.
+   * @description Inner required property.
    */
   bar?: string;
 };
 
 /**
- * Required test object.
+ * Internal test description.
+ *
+ * @description Required test object.
  */
 export interface RequiredTestSchema {
   /**
-   * Single property with required object.
+   * @description Single property with required object.
    */
   single: Required<InnerType>;
 
   /**
-   * Union property with required object.
+   * @description Union property with required object.
    */
   union: Required<InnerType | { baz: boolean }>;
 }

@@ -1,7 +1,9 @@
 import type { Object } from '@ez4/schema';
 
 /**
- * Referenced object.
+ * Internal test description.
+ *
+ * @description Referenced object.
  */
 type ObjectType = {
   foo1: boolean;
@@ -10,7 +12,9 @@ type ObjectType = {
 };
 
 /**
- * Referenced interface.
+ * Internal test description.
+ *
+ * @description Referenced interface.
  */
 interface InterfaceTest {
   foo2: boolean;
@@ -19,7 +23,9 @@ interface InterfaceTest {
 }
 
 /**
- * Referenced class.
+ * Internal test description.
+ *
+ * @description Referenced class.
  */
 declare class ClassTest {
   foo3: boolean;
@@ -28,11 +34,13 @@ declare class ClassTest {
 }
 
 /**
- * Object test object.
+ * Internal test description.
+ *
+ * @description Object test object.
  */
 export interface ObjectTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: ObjectType;
 
@@ -43,67 +51,67 @@ export interface ObjectTestSchema {
   baz: ClassTest;
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: ObjectType | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: ObjectType | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: ObjectType | null;
 
   /**
-   * Any object type.
+   * @description Any object type.
    */
   any: Object.Any;
 
   /**
-   * Default object value.
+   * @description Default object value.
    */
   default: Object.Default<ObjectType, { foo1: true; bar1: 123; baz1: 'baz' }>;
 
   /**
-   * Dynamic properties.
+   * @description Dynamic properties.
    */
   dynamic: { [name: string | number]: boolean | undefined };
 
   /**
-   * Any object extending.
+   * @description Any object extending.
    */
   extends: Object.Extends<{ foo: boolean; bar: number; baz: string }>;
 
   /**
-   * Intersection object.
+   * @description Intersection object.
    */
   intersection: { foo: number } & { foo: string; bar: string };
 
   /**
-   * Any object extending intersection.
+   * @description Any object extending intersection.
    */
   extends_intersection: Object.Extends<{ foo: string } & { bar: number }>;
 
   /**
-   * Dynamic object intersection.
+   * @description Dynamic object intersection.
    */
   dynamic_intersection: Object.Extends<{ [name: string]: number }>;
 
   /**
-   * Base64-encoded object.
+   * @description Base64-encoded object.
    */
   encoded: Object.Base64<{ foo: number; bar: string }>;
 
   /**
-   * Combined base64-encoded, extended and default object.
+   * @description Combined base64-encoded, extended and default object.
    */
   combined: Object.Base64<Object.Extends<Object.Default<{ foo: string; bar: number }, { foo: 'foo'; bar: 123 }>>>;
 
   /**
-   * Preserve object naming style.
+   * @description Preserve object naming style.
    */
   preserve: Object.Preserve<{ foo: number; bar: string }>;
 }

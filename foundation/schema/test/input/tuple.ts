@@ -1,24 +1,26 @@
 /**
- * Tuple test object.
+ * Internal test description.
+ *
+ * @description Tuple test object.
  */
 export interface TupleTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: [boolean, number];
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: [string, boolean] | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: [number, string] | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: [boolean, number, string] | null;
 }

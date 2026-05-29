@@ -1,41 +1,43 @@
 import type { Boolean } from '@ez4/schema';
 
 /**
- * Boolean test object.
+ * Internal test description.
+ *
+ * @description Boolean test object.
  */
 export interface BooleanTestSchema {
   /**
-   * Literal true value.
+   * @description Literal true value.
    */
   literal_true: true;
 
   /**
-   * Literal false value.
+   * @description Literal false value.
    */
   literal_false: false;
 
   /**
-   * Default true value.
+   * @description Default true value.
    */
   value_true: Boolean.Default<true>;
 
   /**
-   * Default false value.
+   * @description Default false value.
    */
   value_false: Boolean.Default<false>;
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: boolean | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: boolean | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: boolean | null;
 }

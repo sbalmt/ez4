@@ -5,6 +5,7 @@ import type { SchemaDefinitions } from '../types/common';
 import type { SchemaContext } from '../types/context';
 
 import { isTypeIntersection, isTypeModel, isTypeObject } from '@ez4/reflection';
+import { getDeclarationDescription } from '@ez4/common/library';
 
 import { getPropertyName } from '../utils/naming';
 import { getModelProperties } from '../reflection/model';
@@ -92,7 +93,7 @@ export const getObjectSchema = (
 
     const modelSchema = createObjectSchema({
       properties: getAnySchemaFromMembers(reflection, context, getModelProperties(type)),
-      description: description ?? type.description,
+      description: description ?? getDeclarationDescription(type) ?? type.description,
       definitions: type.definitions,
       identity
     });
@@ -111,9 +112,10 @@ const getAnySchemaFromMembers = (reflection: ReflectionTypes, context: SchemaCon
   const { namingStyle } = context;
 
   for (const member of members) {
-    const { name, value, description } = member;
+    const { name, value } = member;
 
-    const propertySchema = getAnySchema(value, reflection, context, description);
+    const propertyDescription = getDeclarationDescription(member);
+    const propertySchema = getAnySchema(value, reflection, context, propertyDescription);
 
     if (propertySchema) {
       const propertyName = getPropertyName(name, namingStyle);
