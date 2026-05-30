@@ -131,5 +131,10 @@ export namespace Ws {
      * Service client.
      */
     readonly client: WsClient<T>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

@@ -3,6 +3,8 @@ import type { EntryState } from '@ez4/stateful';
 
 import { isAnyObject, isObjectWith } from '@ez4/utils';
 
+export type LinkedOptions = Record<string, unknown>;
+
 export type LinkedVariables = Record<string, string>;
 
 export type LinkedServices = Record<string, string>;
@@ -13,13 +15,15 @@ export type ServiceMetadata = {
   type: string;
   name: string;
   context: Record<string, LinkedContext>;
+  options?: LinkedOptions;
   variables?: LinkedVariables;
   services?: LinkedServices;
 };
 
 export type ContextSource = {
-  services?: LinkedServices;
+  options?: LinkedOptions;
   variables?: LinkedVariables;
+  services?: LinkedServices;
   dependencyIds?: string[];
   connectionIds?: string[];
   requireVpc?: boolean;

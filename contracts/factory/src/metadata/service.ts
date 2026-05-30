@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
+  getLinkedOptionsObject,
   getLinkedVariableList,
+  getLinkedServiceList,
   getDeclarationDescription,
   getModelMembers,
   hasHeritageType
@@ -56,6 +57,11 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
           if ((service.handler = getFactoryHandlerMetadata(member.value, errorList))) {
             properties.delete(member.name);
           }
+          break;
+        }
+
+        case 'options': {
+          service.options = getLinkedOptionsObject(member);
           break;
         }
 

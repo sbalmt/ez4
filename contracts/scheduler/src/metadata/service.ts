@@ -56,6 +56,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'schema': {

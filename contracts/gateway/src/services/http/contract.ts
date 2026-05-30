@@ -147,6 +147,11 @@ export namespace Http {
      * Service client.
      */
     readonly client: HttpClient<Service>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 
   /**
@@ -187,6 +192,11 @@ export namespace Http {
      * Imported service client (do not replace).
      */
     readonly client: HttpClient<T>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
 
     /**
      * Variables are not allowed.

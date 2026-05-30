@@ -59,6 +59,7 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'schema': {

@@ -14,14 +14,16 @@ export * from './reflection/reference';
 export * from './reflection/function';
 export * from './reflection/property';
 export * from './reflection/object';
+export * from './reflection/array';
 export * from './reflection/model';
 export * from './reflection/types';
 export * from './reflection/value';
 
-export * from './metadata/services';
 export * from './metadata/runtime';
+export * from './metadata/options';
 export * from './metadata/variables';
 export * from './metadata/architecture';
+export * from './metadata/services';
 export * from './metadata/listener';
 export * from './metadata/logging';
 export * from './metadata/types';

@@ -20,5 +20,9 @@ export namespace Service {
       ? S extends { variables: infer V }
         ? { [P in keyof V]: string }
         : never
-      : never;
+      : T extends { options: true }
+        ? S extends { options: infer O }
+          ? O
+          : never
+        : never;
 }

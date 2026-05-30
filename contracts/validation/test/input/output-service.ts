@@ -14,17 +14,25 @@ type TestInput = {
 export declare class TestValidation extends Validation.Service<TestInput> {
   handler: typeof performValidation;
 
+  options: {
+    testFlag: false;
+  };
+
   variables: {
     TEST_VAR: 'test-var';
   };
 
   services: {
+    selfOptions: Environment.ServiceOptions;
     selfVariables: Environment.ServiceVariables;
   };
 }
 
 export function performValidation(input: Validation.Input<TestInput>, context: Service.Context<TestValidation>) {
-  const { selfVariables } = context;
+  const { selfOptions, selfVariables } = context;
+
+  // Ensure test flag
+  selfOptions.testFlag;
 
   // Ensure test variable
   selfVariables.TEST_VAR;

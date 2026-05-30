@@ -27,7 +27,8 @@ export const getCommonServices = (_reflection: ReflectionTypes) => {
   return {
     errors: [],
     services: {
-      [ServiceName]: createServiceMetadata(ServiceType, ServiceName)
+      [ServiceName.Variables]: createServiceMetadata(ServiceType, ServiceName.Variables),
+      [ServiceName.Options]: createServiceMetadata(ServiceType, ServiceName.Options)
     }
   };
 };

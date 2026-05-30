@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -8,6 +13,7 @@
     "type": "@ez4/validation",
     "name": "TestValidationA",
     "context": {},
+    "options": {},
     "variables": {},
     "services": {},
     "schema": {
@@ -26,6 +32,7 @@
     "type": "@ez4/validation",
     "name": "TestValidationB",
     "context": {},
+    "options": {},
     "variables": {},
     "services": {},
     "schema": {

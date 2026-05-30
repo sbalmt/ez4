@@ -76,6 +76,11 @@ export namespace Topic {
      * Service client.
      */
     readonly client: Client<T>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 
   /**
@@ -136,5 +141,10 @@ export namespace Topic {
      * Imported service client (do not replace).
      */
     readonly client: T['client'];
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

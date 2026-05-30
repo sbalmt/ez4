@@ -85,8 +85,13 @@ export namespace Cdn {
     readonly disabled?: boolean;
 
     /**
-     * Service client.
+     * No service client available.
      */
     readonly client: never;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

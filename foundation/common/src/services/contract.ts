@@ -30,7 +30,12 @@ export namespace Service {
     readonly services?: Record<string, unknown>;
 
     /**
-     * Service client provided.
+     * Service options type.
+     */
+    readonly options: unknown;
+
+    /**
+     * Service client type.
      */
     readonly client: unknown;
   }

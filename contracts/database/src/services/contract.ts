@@ -83,5 +83,10 @@ export namespace Database {
      * Service client.
      */
     readonly client: Client<Service>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

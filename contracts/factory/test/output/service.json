@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -8,10 +13,14 @@
     "type": "@ez4/factory",
     "description": "Test service factory.",
     "context": {},
+    "options": {
+      "testFlag": true
+    },
     "variables": {
       "TEST_VAR": "test-var"
     },
     "services": {
+      "selfOptions": "@options",
       "selfVariables": "@variables"
     },
     "name": "TestServiceAFactory",
@@ -19,7 +28,7 @@
       "name": "testServiceAInitializer",
       "file": "test/input/output-service.ts",
       "position": [
-        25,
+        30,
         1
       ]
     }
@@ -36,7 +45,7 @@
       "name": "testServiceBInitializer",
       "file": "test/input/output-service.ts",
       "position": [
-        46,
+        54,
         1
       ]
     }

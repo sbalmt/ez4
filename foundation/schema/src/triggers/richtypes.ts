@@ -1,4 +1,4 @@
-import type { EveryType, TypeObject, TypeTuple } from '@ez4/reflection';
+import type { EveryType, TypeObject } from '@ez4/reflection';
 import type { AnyObject } from '@ez4/utils';
 
 import {
@@ -17,6 +17,7 @@ import {
 } from '@ez4/reflection';
 
 import { isAnyBoolean, isAnyNumber, isAnyString } from '@ez4/utils';
+import { getPlainArray, getPlainObject } from '@ez4/common/library';
 
 import { InvalidRichTypeProperty } from '../errors/richtype';
 import { isRichTypeObject } from '../metadata/object';
@@ -257,46 +258,4 @@ export const createRichType = (richTypes: RichTypes) => {
       };
     }
   }
-};
-
-const getPlainObject = (object: TypeObject) => {
-  const result: AnyObject = {};
-
-  if (!Array.isArray(object.members)) {
-    return result;
-  }
-
-  for (const member of object.members) {
-    if (!isModelProperty(member)) {
-      continue;
-    }
-
-    const { name, value } = member;
-
-    if (isTypeScalar(value)) {
-      result[name] = value.literal;
-    } else if (isTypeObject(value)) {
-      result[name] = getPlainObject(value);
-    } else if (isTypeTuple(value)) {
-      result[name] = getPlainArray(value);
-    }
-  }
-
-  return result;
-};
-
-const getPlainArray = (tuple: TypeTuple) => {
-  const results: unknown[] = [];
-
-  for (const element of tuple.elements) {
-    if (isTypeScalar(element)) {
-      results.push(element.literal);
-    } else if (isTypeObject(element)) {
-      results.push(getPlainObject(element));
-    } else if (isTypeTuple(element)) {
-      results.push(getPlainArray(element));
-    }
-  }
-
-  return results;
 };

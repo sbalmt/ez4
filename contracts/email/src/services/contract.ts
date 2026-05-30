@@ -18,5 +18,10 @@ export namespace Email {
      * Service client.
      */
     readonly client: Client;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

@@ -63,16 +63,18 @@ export const createRichType = (richTypes: RichTypes) => {
   const { format, variable, service, default: defaultValue } = richTypes;
 
   switch (format) {
+    case 'options':
     case 'variables': {
-      return createString('literal', '@variables');
+      return createString('literal', `@${format}`);
+    }
+
+    case 'service': {
+      return createString('literal', service);
     }
 
     case 'variable': {
       return createString('literal', variable && process.env[variable]);
     }
-
-    case 'service':
-      return createString('literal', service);
 
     case 'value': {
       const variableValue = variable ? process.env[variable] : undefined;

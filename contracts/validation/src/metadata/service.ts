@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
+  getLinkedOptionsObject,
   getLinkedVariableList,
+  getLinkedServiceList,
   getDeclarationDescription,
   getModelMembers,
   hasHeritageType
@@ -67,6 +68,11 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
           if ((service.schema = getAnySchema(member.value, reflection))) {
             properties.delete(member.name);
           }
+          break;
+        }
+
+        case 'options': {
+          service.options = getLinkedOptionsObject(member);
           break;
         }
 

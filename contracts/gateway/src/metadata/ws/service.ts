@@ -60,6 +60,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'name': {

@@ -5,8 +5,8 @@ import { createServiceMetadata } from '@ez4/project/library';
 
 export const ServiceType = '@ez4/factory';
 
-export type FactoryService = Omit<ServiceMetadata, 'variables' | 'services'> &
-  Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
+export type FactoryService = Omit<ServiceMetadata, 'options' | 'variables' | 'services'> &
+  Required<Pick<ServiceMetadata, 'options' | 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
     description?: string;

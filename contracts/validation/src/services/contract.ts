@@ -44,5 +44,10 @@ export namespace Validation {
      * Service instance.
      */
     readonly client: Client;
+
+    /**
+     * Service options.
+     */
+    readonly options: unknown;
   }
 }

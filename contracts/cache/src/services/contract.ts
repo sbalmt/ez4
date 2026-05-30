@@ -27,5 +27,10 @@ export namespace Cache {
      * Service client.
      */
     readonly client: Client;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }
