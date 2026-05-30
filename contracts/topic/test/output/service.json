@@ -16,7 +16,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testTopic": "TestTopic2"
+      "testTopic": {
+        "reference": "TestTopic2"
+      }
     },
     "fifoMode": {
       "groupId": "user",

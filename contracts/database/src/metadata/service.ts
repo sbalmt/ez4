@@ -9,7 +9,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getLinkedVariableList,
   getDeclarationDescription,
   getModelMembers,
@@ -86,7 +86,7 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

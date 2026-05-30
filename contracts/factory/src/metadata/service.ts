@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedOptionsObject,
   getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
   hasHeritageType
@@ -71,7 +71,7 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

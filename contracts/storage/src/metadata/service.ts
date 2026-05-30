@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
   getPropertyNumber,
@@ -84,7 +84,7 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

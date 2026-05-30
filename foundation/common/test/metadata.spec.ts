@@ -1,4 +1,4 @@
-import { equal, deepEqual } from 'assert/strict';
+import { equal, deepEqual, ok } from 'assert/strict';
 import { describe, it } from 'node:test';
 
 import { tryCreateTrigger } from '@ez4/project/library';
@@ -6,13 +6,14 @@ import { tryCreateTrigger } from '@ez4/project/library';
 import {
   registerTriggers,
   getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString
 } from '@ez4/common/library';
 
 import { loadTestMember } from './common';
+
 describe('common metadata', () => {
   registerTriggers();
 
@@ -62,18 +63,28 @@ describe('common metadata', () => {
 
     tryCreateTrigger('@ez4/project:test-service', {
       'metadata:getLinkedService': (type) => {
-        equal(type.name, 'TestService');
+        ok(type.name === 'TestServiceA' || type.name === 'TestServiceB');
 
         return 'test-ok';
       }
     });
 
-    const services = getLinkedServiceList(members[0], reflection, testErrors);
+    const services = getLinkedServicesObject(members[0], reflection, testErrors);
 
     equal(testErrors.length, 0);
 
     deepEqual(services, {
-      testService: 'test-ok'
+      testServiceA: {
+        reference: 'test-ok'
+      },
+      testServiceB: {
+        reference: 'test-ok',
+        options: {
+          foo: true,
+          bar: 123,
+          baz: 'abc'
+        }
+      }
     });
   });
 });

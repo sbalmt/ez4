@@ -5,7 +5,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testCron": "TestScheduler"
+      "testCron": {
+        "reference": "TestScheduler"
+      }
     },
     "group": "test-group",
     "expression": "dynamic",

@@ -7,7 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getLinkedVariableList,
   getDeclarationDescription,
   getModelMembers,
@@ -128,7 +128,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }

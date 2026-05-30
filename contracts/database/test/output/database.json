@@ -6,7 +6,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestDatabase2"
+      "testQueue": {
+        "reference": "TestDatabase2"
+      }
     },
     "engine": {
       "parametersMode": "index",

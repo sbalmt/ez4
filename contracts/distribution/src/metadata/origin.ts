@@ -6,7 +6,7 @@ import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin, CdnRewrite } from '.
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedServiceName,
+  getLinkedServiceObject,
   getLiteralTuple,
   getObjectMembers,
   getModelMembers,
@@ -107,7 +107,7 @@ const getTypeFromMembers = (
       }
 
       case 'bucket': {
-        if ((origin.bucket = getLinkedServiceName(member, parent, reflection, errorList))) {
+        if ((origin.bucket = getLinkedServiceObject(member, reflection, errorList)?.reference)) {
           origin.type = CdnOriginType.Bucket;
           properties.delete(member.name);
         }

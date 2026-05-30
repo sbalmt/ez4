@@ -15,7 +15,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestQueue"
+      "selfClient": {
+        "reference": "TestQueue"
+      }
     },
     "description": "Queue to test subscriptions.",
     "schema": {

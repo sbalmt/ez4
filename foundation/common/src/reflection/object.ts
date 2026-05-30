@@ -40,6 +40,8 @@ export const getPlainObject = (object: TypeObject) => {
       result[name] = getPlainObject(value);
     } else if (isTypeTuple(value)) {
       result[name] = getPlainArray(value);
+    } else {
+      result[name] = undefined;
     }
   }
 

@@ -7,7 +7,12 @@ export type LinkedOptions = Record<string, unknown>;
 
 export type LinkedVariables = Record<string, string>;
 
-export type LinkedServices = Record<string, string>;
+export type LinkedServices = Record<string, LinkedService>;
+
+export type LinkedService = {
+  reference: string;
+  options?: LinkedOptions;
+};
 
 export type ServiceStates = Record<string, EntryState>;
 
@@ -33,6 +38,7 @@ export type ContextSource = {
 };
 
 export type LinkedContext = {
+  options?: LinkedOptions;
   context?: Record<string, LinkedContext>;
   dependencyIds?: string[];
   connectionIds?: string[];

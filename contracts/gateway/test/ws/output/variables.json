@@ -18,7 +18,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
     "schema": {
       "type": "object",

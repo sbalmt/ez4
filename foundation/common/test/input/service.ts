@@ -10,7 +10,7 @@ export declare class TestServiceB {
 
   options: {
     foo: boolean;
-    bar: number;
+    bar?: number;
     baz: string;
   };
 }

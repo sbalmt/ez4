@@ -15,7 +15,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestService"
+      "selfClient": {
+        "reference": "TestService"
+      }
     },
     "description": "Service for testing route authorizers.",
     "routes": [
@@ -92,7 +94,9 @@
           ],
           "provider": {
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             },
             "variables": {
               "TEST_VAR": "test-literal-value"

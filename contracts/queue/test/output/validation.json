@@ -53,8 +53,12 @@
     "context": {},
     "variables": {},
     "services": {
-      "@TestValidationB": "TestValidationB",
-      "@TestValidationA": "TestValidationA"
+      "@TestValidationB": {
+        "reference": "TestValidationB"
+      },
+      "@TestValidationA": {
+        "reference": "TestValidationA"
+      }
     },
     "schema": {
       "type": "object",

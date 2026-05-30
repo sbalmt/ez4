@@ -15,7 +15,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue2"
+      "testQueue": {
+        "reference": "TestQueue2"
+      }
     },
     "description": "Test queue service.",
     "subscriptions": [],
@@ -45,7 +47,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue3"
+      "testQueue": {
+        "reference": "TestQueue3"
+      }
     },
     "description": "Description of the second test queue.",
     "subscriptions": [],

@@ -14,7 +14,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestService"
+      "selfClient": {
+        "reference": "TestService"
+      }
     },
     "name": "TestService",
     "routes": [
@@ -34,7 +36,9 @@
           },
           "provider": {
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             }
           }
         }
@@ -55,7 +59,9 @@
           },
           "provider": {
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             },
             "variables": {
               "TEST_VAR1": "test-literal-value",

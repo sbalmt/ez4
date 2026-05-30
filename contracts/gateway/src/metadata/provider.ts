@@ -7,7 +7,7 @@ import {
   isModelDeclaration,
   getModelMembers,
   getReferenceType,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getLinkedVariableList,
   hasHeritageType
 } from '@ez4/common/library';
@@ -78,7 +78,7 @@ const getTypeFromMembers = (
       }
 
       case 'services': {
-        if ((provider.services = getLinkedServiceList(member, reflection, errorList))) {
+        if ((provider.services = getLinkedServicesObject(member, reflection, errorList))) {
           properties.delete(member.name);
         }
         break;

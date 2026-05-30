@@ -30,7 +30,7 @@ export const attachProviderLinkedServices = (
       continue;
     }
 
-    if (currentServiceType !== handlerServiceType) {
+    if (currentServiceType.reference !== handlerServiceType.reference) {
       errorList.push(new ServiceCollisionError(serviceName, fileName));
     }
   }

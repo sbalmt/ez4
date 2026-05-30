@@ -1,14 +1,15 @@
-import type { ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
+import type { EveryMemberType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { LinkedServices } from '@ez4/project/library';
 
 import { triggerAllSync } from '@ez4/project/library';
 import { isModelProperty } from '@ez4/reflection';
+import { isAnyArray } from '@ez4/utils';
 
 import { ExternalReferenceError, InvalidServiceError, MissingServiceError, MissingServiceProviderError } from '../errors/services';
 import { getPropertyObject, getPropertyString } from '../reflection/property';
+import { getObjectMembers, getPlainObject } from '../reflection/object';
 import { isExternalDeclaration } from '../reflection/declaration';
 import { isClassDeclaration } from '../reflection/model';
-import { getObjectMembers } from '../reflection/object';
 
 export const isLinkedService = (member: ModelProperty, reflection: ReflectionTypes) => {
   const referencePath = getPropertyString(member);
@@ -16,22 +17,66 @@ export const isLinkedService = (member: ModelProperty, reflection: ReflectionTyp
   return !!(referencePath && reflection[referencePath]);
 };
 
-export const getLinkedServiceList = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getLinkedServicesObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
   const object = getPropertyObject(member);
 
-  if (object) {
-    return getObjectServices(object, reflection, errorList);
+  if (!object) {
+    return {};
   }
 
-  return {};
+  const members = getObjectMembers(object);
+  const services: LinkedServices = {};
+
+  for (const member of members) {
+    if (!isModelProperty(member)) {
+      continue;
+    }
+
+    const service = getLinkedServiceObject(member, reflection, errorList);
+
+    if (!service) {
+      errorList.push(new MissingServiceError(member.name, object.file));
+      continue;
+    }
+
+    services[member.name] = service;
+  }
+
+  return services;
 };
 
-export const getLinkedServiceName = (
-  member: ModelProperty,
-  parent: TypeObject | TypeModel,
-  reflection: ReflectionTypes,
-  errorList: Error[]
-) => {
+export const getLinkedServiceObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
+  const object = getPropertyObject(member);
+  const members = object?.members;
+
+  if (!object || !isAnyArray(members)) {
+    return undefined;
+  }
+
+  const referenceMember = members.find(({ name }) => name === 'reference');
+  const optionsMember = members.find(({ name }) => name === 'options');
+
+  if (!referenceMember || !isModelProperty(referenceMember)) {
+    return undefined;
+  }
+
+  const reference = getObjectServiceName(referenceMember, object, reflection, errorList);
+
+  if (!reference) {
+    return undefined;
+  }
+
+  const options = optionsMember && getObjectServiceOptions(optionsMember);
+
+  return {
+    reference,
+    ...(options && {
+      options
+    })
+  };
+};
+
+const getObjectServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   const referencePath = getPropertyString(member);
 
   if (referencePath?.startsWith('@')) {
@@ -64,21 +109,14 @@ export const getLinkedServiceName = (
   return serviceName;
 };
 
-const getObjectServices = (type: TypeObject, reflection: ReflectionTypes, errorList: Error[]) => {
-  const members = getObjectMembers(type);
-  const linkedServices: LinkedServices = {};
+const getObjectServiceOptions = (member: EveryMemberType) => {
+  if (isModelProperty(member)) {
+    const optionsObject = getPropertyObject(member);
 
-  for (const member of members) {
-    if (!isModelProperty(member)) {
-      continue;
-    }
-
-    const service = getLinkedServiceName(member, type, reflection, errorList);
-
-    if (service) {
-      linkedServices[member.name] = service;
+    if (optionsObject) {
+      return getPlainObject(optionsObject);
     }
   }
 
-  return linkedServices;
+  return undefined;
 };

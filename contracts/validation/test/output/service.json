@@ -21,8 +21,12 @@
       "TEST_VAR": "test-var"
     },
     "services": {
-      "selfOptions": "@options",
-      "selfVariables": "@variables"
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      }
     },
     "schema": {
       "type": "object",

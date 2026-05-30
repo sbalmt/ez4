@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
   getPropertyBoolean,
@@ -119,7 +119,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }

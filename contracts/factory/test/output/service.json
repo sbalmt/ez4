@@ -20,8 +20,12 @@
       "TEST_VAR": "test-var"
     },
     "services": {
-      "selfOptions": "@options",
-      "selfVariables": "@variables"
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      }
     },
     "name": "TestServiceAFactory",
     "handler": {
@@ -38,7 +42,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "serviceA": "TestServiceAFactory"
+      "serviceA": {
+        "reference": "TestServiceAFactory"
+      }
     },
     "name": "TestServiceBFactory",
     "handler": {

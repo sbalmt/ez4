@@ -1,4 +1,4 @@
-import type { EmulateServiceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
+import type { EmulateServiceEvent, LinkServiceEvent, PrepareResourceEvent, ServiceEmulator } from '@ez4/project/library';
 import type { ReflectionTypes } from '@ez4/reflection';
 
 import { createServiceMetadata, getServiceName } from '@ez4/project/library';
@@ -8,8 +8,14 @@ import { ServiceName, ServiceType, isCommonService } from '../metadata/types';
 import { createVirtualState } from '../virtual/service';
 import { prepareLinkedClient } from './client';
 
-export const prepareLinkedServices = (event: ServiceEvent) => {
-  return isCommonService(event.service) ? prepareLinkedClient() : null;
+export const prepareLinkedServices = (event: LinkServiceEvent) => {
+  const { target, service } = event;
+
+  if (isCommonService(service)) {
+    return prepareLinkedClient(target, service);
+  }
+
+  return null;
 };
 
 export const prepareCommonServices = (event: PrepareResourceEvent) => {
@@ -33,7 +39,7 @@ export const getCommonServices = (_reflection: ReflectionTypes) => {
   };
 };
 
-export const getCommonEmulators = (event: EmulateServiceEvent) => {
+export const getCommonEmulators = (event: EmulateServiceEvent): ServiceEmulator | null => {
   const { service, options } = event;
 
   if (!isCommonService(service)) {
@@ -46,6 +52,12 @@ export const getCommonEmulators = (event: EmulateServiceEvent) => {
     type: 'Common',
     name: resourceName,
     identifier: getServiceName(resourceName, options),
-    exportHandler: () => Client.make()
+    exportHandler: (serviceOptions = {}) => {
+      if (resourceName === ServiceName.Variables) {
+        return Client.make(process.env, 'Environment variable');
+      }
+
+      return Client.make(serviceOptions, 'Service option');
+    }
   };
 };

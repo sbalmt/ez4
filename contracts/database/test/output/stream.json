@@ -5,7 +5,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestDatabase"
+      "selfClient": {
+        "reference": "TestDatabase"
+      }
     },
     "engine": {
       "parametersMode": "index",

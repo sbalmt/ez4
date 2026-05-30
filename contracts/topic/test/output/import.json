@@ -58,7 +58,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport1Topic"
+      "selfClient": {
+        "reference": "TestImport1Topic"
+      }
     },
     "subscriptions": [
       {
@@ -96,7 +98,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport2Topic"
+      "selfClient": {
+        "reference": "TestImport2Topic"
+      }
     },
     "fifoMode": {
       "groupId": "foo"

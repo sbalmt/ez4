@@ -20,7 +20,7 @@ export namespace Environment {
 
   export type Service<T, U> = {
     '@ez4/project': 'service';
-    service: T;
+    reference: T;
     options: U;
   };
 }

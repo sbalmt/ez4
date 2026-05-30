@@ -15,7 +15,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestTopic"
+      "selfClient": {
+        "reference": "TestTopic"
+      }
     },
     "description": "Topic to test subscriptions.",
     "schema": {

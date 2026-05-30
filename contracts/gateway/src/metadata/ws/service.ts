@@ -7,7 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getLinkedVariableList,
   getDeclarationDescription,
   getModelMembers,
@@ -117,7 +117,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           } else {
             service.services = {};
           }

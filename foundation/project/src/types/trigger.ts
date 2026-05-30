@@ -38,7 +38,7 @@ export type AsyncEvent = {
   'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:stopService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:fallbackRequest': (event: EmulatorFallbackRequestEvent) => AsyncEventResult<EmulatorResponse>;
-  'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ContextSource>;
+  'deploy:prepareLinkedService': (event: LinkServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
   'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;
@@ -66,6 +66,10 @@ export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   context: EventContext;
+};
+
+export type LinkServiceEvent = ServiceEvent & {
+  target: ServiceMetadata;
 };
 
 export type IdentityEvent = {

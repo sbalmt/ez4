@@ -9,7 +9,7 @@ import {
   isClassDeclaration,
   getLinkedOptionsObject,
   getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
   hasHeritageType
@@ -85,7 +85,7 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }

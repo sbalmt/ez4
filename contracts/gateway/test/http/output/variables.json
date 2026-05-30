@@ -17,7 +17,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
     "name": "TestService",
     "routes": [
@@ -37,7 +39,9 @@
           "request": {},
           "provider": {
             "services": {
-              "selfSettings": "@variables"
+              "selfSettings": {
+                "reference": "@variables"
+              }
             },
             "variables": {
               "TEST_VAR1": "test-literal-value",
