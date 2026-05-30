@@ -19,21 +19,21 @@ export declare class TestService extends Ws.Service<{}> {
 
 declare class TestAuthRequest implements Ws.AuthRequest {
   /**
-   * Request headers.
+   * @description Request headers.
    */
   headers: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Path parameters.
+   * @description Path parameters.
    */
   parameters: {
     bar: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
 
   /**
-   * Query strings.
+   * @description Query strings.
    */
   query: {
     baz: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
@@ -42,7 +42,7 @@ declare class TestAuthRequest implements Ws.AuthRequest {
 
 declare class TestAuthResponse implements Ws.AuthResponse {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     foo: string;
@@ -59,21 +59,21 @@ export function authorizerHandler(_request: TestAuthRequest): TestAuthResponse {
 
 declare class TestEvent implements Ws.Event {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     foo: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
 
   /**
-   * Request headers.
+   * @description Request headers.
    */
   headers: {
     bar: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Query strings.
+   * @description Query strings.
    */
   query: {
     baz: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
@@ -86,14 +86,14 @@ export function disconnectHandler(_event: Ws.Incoming<TestEvent>) {}
 
 declare class TestRequest implements Ws.Request {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Body payload.
+   * @description Body payload.
    */
   body: {
     yay: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;

@@ -22,7 +22,7 @@ declare class TestRequest implements Http.Request {
 }
 
 /**
- * Test the PUT route documentation.
+ * @summary Test the PUT route documentation.
  */
 function testHandler(_request: TestRequest): Http.SuccessEmptyResponse {
   return {

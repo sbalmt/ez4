@@ -34,7 +34,7 @@ declare class TestResponse implements Http.Response {
 }
 
 /**
- * Test the POST route documentation.
+ * @summary Test the POST route documentation.
  */
 function testHandler(_request: TestRequest): TestResponse {
   return {

@@ -23,9 +23,6 @@ export declare class TestService extends Http.Service {
 }
 
 interface SuccessAuthResponse extends Http.AuthResponse {
-  /**
-   * Authorization identity.
-   */
   identity: {};
 }
 

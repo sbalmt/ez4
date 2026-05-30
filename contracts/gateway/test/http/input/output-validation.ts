@@ -14,21 +14,21 @@ export declare class TestService extends Http.Service {
 
 declare class TestAuthRequest implements Http.AuthRequest {
   /**
-   * Request headers.
+   * @description Request headers.
    */
   headers: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Path parameters.
+   * @description Path parameters.
    */
   parameters: {
     bar: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
 
   /**
-   * Query strings.
+   * @description Query strings.
    */
   query: {
     baz: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
@@ -37,7 +37,7 @@ declare class TestAuthRequest implements Http.AuthRequest {
 
 declare class TestAuthResponse implements Http.AuthResponse {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     foo: string;
@@ -46,35 +46,35 @@ declare class TestAuthResponse implements Http.AuthResponse {
 
 declare class TestRequest implements Http.Request {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     foo: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Request headers.
+   * @description Request headers.
    */
   headers: {
     bar: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
 
   /**
-   * Path parameters.
+   * @description Path parameters.
    */
   parameters: {
     baz: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;
   };
 
   /**
-   * Query strings.
+   * @description Query strings.
    */
   query: {
     qux: string & Validation.Use<TestValidationA> & Validation.Use<TestValidationB>;
   };
 
   /**
-   * Body payload.
+   * @description Body payload.
    */
   body: {
     yay: string & Validation.Use<TestValidationB> & Validation.Use<TestValidationA>;

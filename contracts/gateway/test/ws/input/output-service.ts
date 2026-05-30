@@ -71,7 +71,7 @@ function messageHandler1() {}
 
 declare class Message2Response implements Ws.Response {
   /**
-   * WS Message response.
+   * @description WS Message response.
    */
   body: {
     status: boolean;

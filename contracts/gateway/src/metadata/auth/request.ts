@@ -8,6 +8,7 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   hasHeritageType,
+  getDeclarationDescription,
   getObjectMembers,
   getModelMembers,
   getReferenceType
@@ -82,6 +83,8 @@ const getTypeFromMembers = (
       continue;
     }
 
+    const description = getDeclarationDescription(member);
+
     switch (member.name) {
       default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
@@ -91,8 +94,8 @@ const getTypeFromMembers = (
       case 'headers': {
         request.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, namespace);
 
-        if (request.headers && member.description) {
-          request.headers.description = member.description;
+        if (request.headers && description) {
+          request.headers.description = description;
         }
 
         break;
@@ -101,8 +104,8 @@ const getTypeFromMembers = (
       case 'parameters': {
         request.parameters = getWebParametersMetadata(member.value, type, reflection, errorList, namespace);
 
-        if (request.parameters && member.description) {
-          request.parameters.description = member.description;
+        if (request.parameters && description) {
+          request.parameters.description = description;
         }
 
         break;
@@ -111,8 +114,8 @@ const getTypeFromMembers = (
       case 'query': {
         request.query = getWebQueryMetadata(member.value, type, reflection, errorList, namespace);
 
-        if (request.query && member.description) {
-          request.query.description = member.description;
+        if (request.query && description) {
+          request.query.description = description;
         }
 
         break;
