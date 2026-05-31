@@ -6,7 +6,7 @@ import type { BucketEvent } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getObjectMembers,
   getModelMembers,
   getReferenceType,
@@ -147,7 +147,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
       }
 
       case 'variables': {
-        event.variables = getLinkedVariableList(member, errorList);
+        event.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

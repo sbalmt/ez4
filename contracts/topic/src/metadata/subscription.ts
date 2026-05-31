@@ -6,7 +6,7 @@ import type { TopicSubscription } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getLinkedServiceObject,
   getObjectMembers,
   getModelMembers,
@@ -198,7 +198,7 @@ const getLambdaSubscription = (
       }
 
       case 'variables': {
-        subscription.variables = getLinkedVariableList(member, errorList);
+        subscription.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

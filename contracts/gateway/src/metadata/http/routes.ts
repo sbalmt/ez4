@@ -10,7 +10,7 @@ import { isObjectWith } from '@ez4/utils';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getPropertyNumber,
   getPropertyString,
   getPropertyStringList,
@@ -219,7 +219,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables': {
-        route.variables = getLinkedVariableList(member, errorList);
+        route.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

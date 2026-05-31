@@ -5,7 +5,7 @@ import { tryCreateTrigger } from '@ez4/project/library';
 
 import {
   registerTriggers,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getLinkedServicesObject,
   getPropertyBoolean,
   getPropertyNumber,
@@ -25,7 +25,7 @@ describe('common metadata', () => {
     const { members } = loadTestMember('variable');
     const testErrors: Error[] = [];
 
-    const variables = getLinkedVariableList(members[0], testErrors);
+    const variables = getLinkedVariablesObject(members[0], testErrors);
 
     equal(testErrors.length, 0);
 

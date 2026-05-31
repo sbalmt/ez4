@@ -8,7 +8,7 @@ import {
   getModelMembers,
   getReferenceType,
   getLinkedServicesObject,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -73,7 +73,7 @@ const getTypeFromMembers = (
 
     switch (member.name) {
       case 'variables': {
-        provider.variables = getLinkedVariableList(member, errorList);
+        provider.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
 

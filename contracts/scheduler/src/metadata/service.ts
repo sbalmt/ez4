@@ -7,7 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
@@ -112,7 +112,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }

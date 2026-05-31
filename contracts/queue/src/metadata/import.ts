@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedServicesObject,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getDeclarationDescription,
   getModelMembers,
   getPropertyString,
@@ -131,7 +131,7 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }

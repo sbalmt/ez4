@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedServicesObject,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getDeclarationDescription,
   getModelMembers,
   hasHeritageType
@@ -63,7 +63,7 @@ export const getCacheServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          service.variables = getLinkedVariablesObject(member, errorList);
           break;
         }
 

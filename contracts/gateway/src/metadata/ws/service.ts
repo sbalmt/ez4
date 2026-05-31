@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedServicesObject,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getDeclarationDescription,
   getModelMembers,
   getPropertyString,
@@ -108,7 +108,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           } else {
             service.variables = {};
           }

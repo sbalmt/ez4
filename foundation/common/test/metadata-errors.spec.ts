@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { InvalidServiceError, MissingServiceProviderError, MissingServiceError, MissingVariableError } from '@ez4/common/library';
 
-import { registerTriggers, getLinkedVariableList, getLinkedServicesObject } from '@ez4/common/library';
+import { registerTriggers, getLinkedVariablesObject, getLinkedServicesObject } from '@ez4/common/library';
 
 import { loadTestMember } from './common';
 
@@ -14,7 +14,7 @@ describe('common metadata errors', () => {
     const { members } = loadTestMember('missing-variable');
     const testErrors: Error[] = [];
 
-    getLinkedVariableList(members[0], testErrors);
+    getLinkedVariablesObject(members[0], testErrors);
 
     equal(testErrors.length, 1);
 

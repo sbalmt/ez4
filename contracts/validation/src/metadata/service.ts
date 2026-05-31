@@ -8,7 +8,7 @@ import {
   isExternalDeclaration,
   isClassDeclaration,
   getLinkedOptionsObject,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
@@ -78,7 +78,7 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }
