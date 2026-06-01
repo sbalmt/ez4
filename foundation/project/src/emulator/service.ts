@@ -4,35 +4,32 @@ import type { MetadataReflection } from '../types/metadata';
 import type { ServeOptions } from '../types/options';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+import { hashObject, isAnyString } from '@ez4/utils';
 
 import { MissingEmulatorProvider } from './errors';
 
 export type ServiceEmulators = Record<string, ServiceEmulator>;
 
 export const getServiceEmulators = async (metadata: MetadataReflection, options: ServeOptions) => {
-  const scopeCache = new WeakMap<EmulatorLinkedServices, EmulatorServiceClients>();
+  const clientsCache: Record<string, EmulatorServiceClients> = {};
   const emulators: ServiceEmulators = {};
 
   const context = {
     makeClient: (resourceName: string, resourceOptions?: AnyObject) => {
-      return makeEmulatorClient(resourceName, resourceOptions, emulators, options);
+      return makeEmulatorClient(resourceName, resourceOptions, undefined, emulators, options);
     },
-    makeClients: async (linkedServices: EmulatorLinkedServices, linkedOptions?: AnyObject) => {
-      const clientsCache = scopeCache.get(linkedServices);
+    makeClients: (linkedServices: EmulatorLinkedServices, linkedOptions?: AnyObject) => {
+      const clientKey = hashObject({ linkedServices, linkedOptions });
 
-      if (!clientsCache) {
-        const allClients = {};
+      if (!clientsCache[clientKey]) {
+        clientsCache[clientKey] = {};
 
-        scopeCache.set(linkedServices, allClients);
+        const allClients = makeEmulatorClients(linkedServices, linkedOptions, emulators, options);
 
-        const newClients = await makeEmulatorClients(linkedServices, linkedOptions, emulators, options);
-
-        Object.assign(allClients, newClients);
-
-        return allClients;
+        Object.assign(clientsCache[clientKey], allClients);
       }
 
-      return clientsCache;
+      return makeLazyClients(clientsCache[clientKey]);
     }
   };
 
@@ -59,7 +56,7 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   return emulators;
 };
 
-const makeEmulatorClients = async (
+const makeEmulatorClients = (
   linkedServices: EmulatorLinkedServices,
   linkedOptions: AnyObject | undefined,
   emulators: ServiceEmulators,
@@ -68,19 +65,20 @@ const makeEmulatorClients = async (
   const allClients: EmulatorServiceClients = {};
 
   for (const linkedServiceName in linkedServices) {
-    const { reference: serviceName, options: serviceOptions } = linkedServices[linkedServiceName];
+    const { reference: resourceName, options: resourceOptions } = linkedServices[linkedServiceName];
 
-    const client = await makeEmulatorClient(serviceName, { ...serviceOptions, ...linkedOptions }, emulators, options);
+    const resourceClient = makeEmulatorClient(resourceName, resourceOptions, linkedOptions, emulators, options);
 
-    allClients[linkedServiceName] = client;
+    allClients[linkedServiceName] = resourceClient;
   }
 
   return allClients;
 };
 
-const makeEmulatorClient = async (
+const makeEmulatorClient = (
   resourceName: string,
   resourceOptions: AnyObject | undefined,
+  linkedOptions: AnyObject | undefined,
   emulators: ServiceEmulators,
   options: ServeOptions
 ) => {
@@ -88,14 +86,38 @@ const makeEmulatorClient = async (
   const serviceEmulator = emulators[serviceName];
 
   if (!serviceEmulator) {
-    throw new Error(`Service ${resourceName} has no emulators.`);
+    throw new Error(`Service '${resourceName}' has no emulators.`);
   }
 
-  const client = await serviceEmulator.exportHandler?.(resourceOptions);
+  const serviceClient = serviceEmulator.exportHandler?.({
+    ...(serviceEmulator.inheritOptions && linkedOptions),
+    ...serviceEmulator.options,
+    ...resourceOptions
+  });
 
-  if (!client) {
-    throw new Error(`Service ${resourceName} has no client emulator.`);
+  if (!serviceClient) {
+    throw new Error(`Service '${resourceName}' has no client emulator.`);
   }
 
-  return client;
+  return serviceClient;
+};
+
+const makeLazyClients = (clients: EmulatorServiceClients) => {
+  return new Proxy(clients, {
+    get: (target, property) => {
+      if (!isAnyString(property) || !(property in target)) {
+        if (property !== 'then') {
+          throw new Error(`Context service '${property.toString()}' not found.`);
+        }
+
+        return undefined;
+      }
+
+      if (target[property] instanceof Function) {
+        target[property] = target[property]();
+      }
+
+      return target[property];
+    }
+  });
 };

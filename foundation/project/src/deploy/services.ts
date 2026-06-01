@@ -65,7 +65,13 @@ const prepareLinkedContext = async (
         if (contextCache[linkedKey]) {
           linkedContexts[linkedName].context = contextCache[linkedKey].context;
         } else if (services) {
-          linkedContexts[linkedName].context = await buildLinkedContexts(linkedService, services);
+          linkedContexts[linkedName].context = {};
+
+          contextCache[linkedKey] = linkedContexts[linkedName];
+
+          const subContext = await buildLinkedContexts(linkedService, services);
+
+          Object.assign(linkedContexts[linkedName].context, subContext);
         }
 
         if (variables) {

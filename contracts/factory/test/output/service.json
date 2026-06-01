@@ -13,6 +13,7 @@
     "type": "@ez4/factory",
     "description": "Test service factory.",
     "context": {},
+    "options": {},
     "variables": {
       "TEST_VAR": "test-var"
     },

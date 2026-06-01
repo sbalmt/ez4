@@ -52,13 +52,15 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
-        case 'options':
-          break;
-
         case 'handler': {
           if ((service.handler = getFactoryHandlerMetadata(member.value, errorList))) {
             properties.delete(member.name);
           }
+          break;
+        }
+
+        case 'options': {
+          service.options = {};
           break;
         }
 

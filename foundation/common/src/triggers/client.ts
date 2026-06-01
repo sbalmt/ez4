@@ -6,14 +6,15 @@ export const prepareLinkedClient = (target: ServiceMetadata, service: ServiceMet
   const isVariables = service.name === ServiceName.Variables;
 
   return {
-    module: 'Client',
     from: '@ez4/common/client',
     ...(isVariables
       ? {
-          constructor: `@{EZ4_MODULE_IMPORT}.make(process.env, "Environment variable")`
+          module: 'VariablesClient',
+          constructor: `@{EZ4_MODULE_IMPORT}.make()`
         }
       : {
-          constructor: `@{EZ4_MODULE_IMPORT}.make(@{EZ4_MODULE_OPTIONS}, "Service option")`,
+          module: 'OptionsClient',
+          constructor: `@{EZ4_MODULE_IMPORT}.make(@{EZ4_MODULE_OPTIONS})`,
           options: target.options
         })
   };

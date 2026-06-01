@@ -14,17 +14,18 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
 
   const { name: resourceName, schema, services, handler } = service;
 
+  let validationModule: EntrypointModule;
+
   return {
     type: 'Validation',
     name: resourceName,
     identifier: getServiceName(resourceName, options),
-    exportHandler: async (serviceOptions) => {
-      const clients = await context.makeClients(services, {
-        ...service.options,
-        ...serviceOptions
-      });
-
-      const validationModule = await createEmulatorModule({
+    options: service.options,
+    exportHandler: (serviceOptions) => () => {
+      return createClient(schema, validationModule, context.makeClients(services, serviceOptions));
+    },
+    bootstrapHandler: async () => {
+      validationModule = await createEmulatorModule({
         version: options.version,
         entrypoint: handler,
         variables: {
@@ -32,8 +33,6 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
           ...service.variables
         }
       });
-
-      return createClient(schema, validationModule, clients);
     }
   };
 };

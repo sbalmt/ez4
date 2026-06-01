@@ -8,8 +8,11 @@ export namespace ValidationTester {
     handler: (input: Pick<Validation.Input<T>, 'value'>) => Promise<void> | void;
   };
 
-  export const getClient = (resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Promise<Client>;
+  export const getClient = <T extends Validation.Service<any>>(
+    resourceName: string,
+    resourceOptions?: T extends { options: infer O } ? O : undefined
+  ) => {
+    return Tester.getServiceClient(resourceName, resourceOptions) as Client;
   };
 
   export const getClientMock = <T>(_resourceName: string, options?: MockOptions<T>) => {
