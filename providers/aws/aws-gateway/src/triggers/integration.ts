@@ -70,8 +70,8 @@ const getIntegrationFunction = (
     logLevel = defaults.logLevel ?? Defaults.LogLevel,
     timeout = defaults.timeout ?? Defaults.Timeout,
     memory = defaults.memory ?? Defaults.Memory,
+    debug = defaults.debug ?? options.debug,
     listener = defaults.listener,
-    debug = defaults.debug,
     handler,
     files,
     vpc
