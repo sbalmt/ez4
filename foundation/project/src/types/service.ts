@@ -14,6 +14,17 @@ export type LinkedService = {
   options?: LinkedOptions;
 };
 
+export type LinkedContext = {
+  options?: LinkedOptions;
+  context?: Record<string, LinkedContext>;
+  dependencyIds?: string[];
+  connectionIds?: string[];
+  requireVpc?: boolean;
+  constructor: string;
+  module: string;
+  from: string;
+};
+
 export type ServiceStates = Record<string, EntryState>;
 
 export type ServiceMetadata = {
@@ -29,17 +40,6 @@ export type ContextSource = {
   options?: LinkedOptions;
   variables?: LinkedVariables;
   services?: LinkedServices;
-  dependencyIds?: string[];
-  connectionIds?: string[];
-  requireVpc?: boolean;
-  constructor: string;
-  module: string;
-  from: string;
-};
-
-export type LinkedContext = {
-  options?: LinkedOptions;
-  context?: Record<string, LinkedContext>;
   dependencyIds?: string[];
   connectionIds?: string[];
   requireVpc?: boolean;

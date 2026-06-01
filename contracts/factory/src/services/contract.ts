@@ -27,10 +27,5 @@ export namespace Factory {
      * Service instance.
      */
     readonly client: T;
-
-    /**
-     * Service options.
-     */
-    readonly options: unknown;
   }
 }

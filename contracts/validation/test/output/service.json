@@ -14,9 +14,6 @@
     "name": "TestValidation",
     "description": "Test validation service.",
     "context": {},
-    "options": {
-      "testFlag": false
-    },
     "variables": {
       "TEST_VAR": "test-var"
     },

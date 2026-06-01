@@ -14,7 +14,7 @@ export declare class TestApi extends Http.Service {
 
 declare class TestRequest implements Http.Request {
   /**
-   * POST route request.
+   * @description POST route request.
    */
   body: {
     foo: string;
@@ -26,7 +26,7 @@ declare class TestResponse implements Http.Response {
   status: 201;
 
   /**
-   * POST route response.
+   * @description POST route response.
    */
   body: {
     id: String.UUID;

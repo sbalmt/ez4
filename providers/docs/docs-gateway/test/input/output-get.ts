@@ -13,7 +13,7 @@ export declare class TestApi extends Http.Service {
 
 declare class TestRequest implements Http.Request {
   /**
-   * GET route query string.
+   * @description GET route query string.
    */
   query: {
     foo: string;
@@ -22,13 +22,13 @@ declare class TestRequest implements Http.Request {
 }
 
 /**
- * Get route response.
+ * @description Get route response.
  */
 declare class TestResponse implements Http.Response {
   status: 200;
 
   /**
-   * GET route response.
+   * @description GET route response.
    */
   body: {
     foo: string;

@@ -13,7 +13,7 @@ export declare class TestApi extends Http.Service {
 
 declare class TestRequest implements Http.Request {
   /**
-   * PUT route request.
+   * @description PUT route request.
    */
   body: {
     foo: string;
