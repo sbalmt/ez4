@@ -8,10 +8,8 @@ import type { ExampleSchema } from './schema';
 /**
  * Example of AWS DynamoDB with Stream deployed with EZ4.
  */
-export declare class Db extends Database.Service {
+export declare class Db extends Database.Service<DynamoDbEngine> {
   client: Client<typeof this>;
-
-  engine: DynamoDbEngine;
 
   tables: [
     Database.UseTable<{

@@ -7,9 +7,7 @@ import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } fro
  *
  * @description Test database 1.
  */
-export declare class TestDatabase1 extends Database.Service {
-  engine: TestEngineTransaction<TransactionMode.Interactive>;
-
+export declare class TestDatabase1 extends Database.Service<TestEngineTransaction<TransactionMode.Interactive>> {
   tables: [];
 
   // Services to all streams.
@@ -21,9 +19,7 @@ export declare class TestDatabase1 extends Database.Service {
 /**
  * Internal test database description 2.
  */
-export declare class TestDatabase2 extends Database.Service {
-  engine: TestEnginePagination<PaginationMode.Cursor>;
-
+export declare class TestDatabase2 extends Database.Service<TestEnginePagination<PaginationMode.Cursor>> {
   tables: [];
 
   // Variables to all streams.
@@ -36,8 +32,6 @@ export declare class TestDatabase2 extends Database.Service {
 /**
  * Internal test database description 3.
  */
-export declare class TestDatabase3 extends Database.Service {
-  engine: TestEngineOrder<OrderMode.IndexColumns>;
-
+export declare class TestDatabase3 extends Database.Service<TestEngineOrder<OrderMode.IndexColumns>> {
   tables: [];
 }

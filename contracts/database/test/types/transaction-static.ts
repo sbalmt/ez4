@@ -7,9 +7,7 @@ declare class TestTable implements Database.Schema {
   value: number;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngineTransaction<TransactionMode.Static>;
-
+export declare class TestDatabase extends Database.Service<TestEngineTransaction<TransactionMode.Static>> {
   client: Client<TestDatabase>;
 
   tables: [

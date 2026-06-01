@@ -15,9 +15,7 @@ declare class TestSchema implements Database.Schema {
   value: string;
 }
 
-declare class Test extends Database.Service {
-  engine: DynamoDbEngine;
-
+declare class Test extends Database.Service<DynamoDbEngine> {
   tables: [
     {
       name: 'testTable';

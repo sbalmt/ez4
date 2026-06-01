@@ -7,5 +7,6 @@ export type TestEngine = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };

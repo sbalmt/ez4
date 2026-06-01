@@ -24,9 +24,7 @@ declare class TestSchema implements Database.Schema {
   };
 }
 
-declare class Test extends Database.Service {
-  engine: PostgresEngine;
-
+declare class Test extends Database.Service<PostgresEngine> {
   tables: [
     {
       name: 'ez4_test_operations';

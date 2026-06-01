@@ -58,7 +58,7 @@ export type TableRelation<P, T extends AnyObject> =
 /**
  * Given a database service `T`, it returns all table clients.
  */
-export type TableClients<T extends Database.Service> = {
+export type TableClients<T extends Database.Service<any>> = {
   [P in keyof TableSchemas<T>]: TableSchemas<T>[P] extends Database.Schema
     ? Table<{
         schema: TableSchemas<T>[P];

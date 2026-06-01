@@ -9,8 +9,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServicesObject,
+  getLinkedOptionsObject,
   getLinkedVariablesObject,
+  getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
   getPropertyTuple,
@@ -47,14 +48,16 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
     const service = createDatabaseService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['engine', 'tables']);
 
-    for (const member of getModelMembers(declaration)) {
-      if (!isModelProperty(member) || member.inherited) {
+    for (const member of getModelMembers(declaration, true)) {
+      if (!isModelProperty(member)) {
         continue;
       }
 
       switch (member.name) {
         default: {
-          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          if (!member.inherited) {
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          }
           break;
         }
 
@@ -62,7 +65,9 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
           break;
 
         case 'scalability': {
-          service.scalability = getDatabaseScalabilityMetadata(member.value, declaration, reflection, errorList);
+          if (!member.inherited) {
+            service.scalability = getDatabaseScalabilityMetadata(member.value, declaration, reflection, errorList);
+          }
           break;
         }
 
@@ -74,19 +79,30 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'tables': {
-          if ((service.tables = getAllTables(member, declaration, reflection, errorList))) {
+          if (!member.inherited && (service.tables = getAllTables(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
         }
 
+        case 'options': {
+          if (!member.inherited) {
+            service.options = getLinkedOptionsObject(member);
+          }
+          break;
+        }
+
         case 'variables': {
-          service.variables = getLinkedVariablesObject(member, errorList);
+          if (!member.inherited) {
+            service.variables = getLinkedVariablesObject(member, errorList);
+          }
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServicesObject(member, reflection, errorList);
+          if (!member.inherited) {
+            service.services = getLinkedServicesObject(member, reflection, errorList);
+          }
           break;
         }
       }

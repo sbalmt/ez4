@@ -10,9 +10,7 @@ declare class TestTable implements Database.Schema {
   value: number;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngineOrder<OrderMode.AnyColumns>;
-
+export declare class TestDatabase extends Database.Service<TestEngineOrder<OrderMode.AnyColumns>> {
   client: Client<TestDatabase>;
 
   tables: [

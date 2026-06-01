@@ -11,7 +11,7 @@ import { deploy } from '@ez4/aws-common';
 import { createCluster, createInstance, isClusterState, isInstanceState, registerTriggers } from '@ez4/aws-aurora';
 
 describe('aurora client driver', { timeout: 180000 }, async () => {
-  let dbClient: DbClient<Database.Service>;
+  let dbClient: DbClient<Database.Service<any>>;
 
   const repository: PgTableRepository = {};
 
@@ -60,7 +60,7 @@ describe('aurora client driver', { timeout: 180000 }, async () => {
   });
 
   it('assert :: transaction', async () => {
-    const result = await dbClient.transaction(async (transaction: DbClient<Database.Service>) => {
+    const result = await dbClient.transaction(async (transaction: DbClient<Database.Service<any>>) => {
       return transaction.rawQuery('SELECT 1 AS alive');
     });
 
@@ -68,8 +68,8 @@ describe('aurora client driver', { timeout: 180000 }, async () => {
   });
 
   it('assert :: transaction (nested)', async () => {
-    const result = await dbClient.transaction(async (transaction: DbClient<Database.Service>) => {
-      return transaction.transaction(async (innerTransaction: DbClient<Database.Service>) => {
+    const result = await dbClient.transaction(async (transaction: DbClient<Database.Service<any>>) => {
+      return transaction.transaction(async (innerTransaction: DbClient<Database.Service<any>>) => {
         return innerTransaction.rawQuery('SELECT 1 AS alive');
       });
     });

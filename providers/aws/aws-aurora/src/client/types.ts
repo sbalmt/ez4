@@ -10,5 +10,6 @@ export type PostgresEngine = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Supported;
+  options: never;
   name: 'aurora';
 };

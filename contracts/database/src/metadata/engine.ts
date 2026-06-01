@@ -76,6 +76,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
+      case 'options': {
+        break;
+      }
+
       case 'name': {
         if ((engine.name = getPropertyString(member))) {
           properties.delete(member.name);

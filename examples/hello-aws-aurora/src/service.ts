@@ -5,12 +5,7 @@ import type { TableSchema } from './types';
 /**
  * Example of AWS Aurora deployed with EZ4.
  */
-export declare class Db extends Database.Service {
-  /**
-   * Database engine.
-   */
-  engine: PostgresEngine;
-
+export declare class Db extends Database.Service<PostgresEngine> {
   /**
    * Database tables.
    */

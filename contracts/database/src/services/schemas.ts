@@ -10,7 +10,7 @@ export interface TableSchema {}
 /**
  * Given a database service `T`, it produces an object containing all tables with schemas.
  */
-export type TableSchemas<T extends Database.Service> = MergeTables<DatabaseTables<T>>;
+export type TableSchemas<T extends Database.Service<any>> = MergeTables<DatabaseTables<T>>;
 
 /**
  * Given a list of tables with schema `T`, it produces an object containing all schemas.

@@ -5,9 +5,7 @@ declare class TestSchema implements Database.Schema {
   foo: string;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngine;
-
+export declare class TestDatabase extends Database.Service<TestEngine> {
   tables: [
     Database.UseTable<{
       name: 'inlineTestTable';

@@ -19,7 +19,7 @@ export type ClientContext = {
 };
 
 export namespace Client {
-  export const make = <T extends Database.Service>(context: ClientContext): DbClient<T> => {
+  export const make = <T extends Database.Service<any>>(context: ClientContext): DbClient<T> => {
     const { repository, debug, client } = context;
 
     const tableCache: Record<string, TableType> = {};
@@ -81,11 +81,13 @@ export namespace Client {
   };
 }
 
-const isStaticTransaction = <T extends Database.Service>(operation: unknown): operation is TransactionModeUtils.StaticOperationType<T> => {
+const isStaticTransaction = <T extends Database.Service<any>>(
+  operation: unknown
+): operation is TransactionModeUtils.StaticOperationType<T> => {
   return !(operation instanceof Function);
 };
 
-const prepareStaticTransaction = async <T extends Database.Service>(
+const prepareStaticTransaction = async <T extends Database.Service<any>>(
   repository: Repository,
   operations: TransactionModeUtils.StaticOperationType<T>
 ) => {

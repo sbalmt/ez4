@@ -27,10 +27,8 @@ type MyTableSchema = {
 };
 
 // MyDb declaration
-export declare class MyDb extends Database.Service {
+export declare class MyDb extends Database.Service<PostgresEngine> {
   client: Client<Db>;
-
-  engine: PostgresEngine;
 
   tables: [
     Database.UseTable<{

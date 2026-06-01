@@ -14,9 +14,7 @@ import { Index } from '@ez4/database';
 
 import { createCluster, createInstance, createMigration, isClusterState, registerTriggers } from '@ez4/aws-aurora';
 
-declare class Test extends Database.Service {
-  engine: PostgresEngine;
-
+declare class Test extends Database.Service<PostgresEngine> {
   tables: [
     {
       name: 'ez4_test_schema';
