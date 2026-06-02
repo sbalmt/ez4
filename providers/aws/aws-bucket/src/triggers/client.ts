@@ -28,6 +28,9 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
   }
 
   const bucketName = await getBucketName(service, options);
+  const instance = Client.make(bucketName);
 
-  return Client.make(bucketName);
+  return {
+    make: () => instance
+  };
 };

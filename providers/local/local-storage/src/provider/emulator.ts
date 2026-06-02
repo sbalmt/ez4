@@ -30,28 +30,28 @@ export const registerBucketEmulator = async (service: BucketService, options: Se
 };
 
 const getStorageClient = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
-  const client = await triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
+  const clientFactory = await triggerAllAsync('emulator:clientFactory', (handler) => handler({ service, options }));
 
-  if (!client) {
-    const { events } = service;
-
-    return createLocalClient(service.name, {
-      ...options,
-      events: events?.map((event) => {
-        const [prefix, suffix] = event.path.split('*', 2);
-
-        return {
-          prefix,
-          suffix,
-          handler: (input) => {
-            return processLambdaEvent(service, options, context, event, input);
-          }
-        };
-      })
-    });
+  if (clientFactory) {
+    return clientFactory.make() as StorageClient;
   }
 
-  return client as StorageClient;
+  const { events } = service;
+
+  return createLocalClient(service.name, {
+    ...options,
+    events: events?.map((event) => {
+      const [prefix, suffix] = event.path.split('*', 2);
+
+      return {
+        prefix,
+        suffix,
+        handler: (input) => {
+          return processLambdaEvent(service, options, context, event, input);
+        }
+      };
+    })
+  });
 };
 
 const handleRequest = async (client: StorageClient, request: EmulatorRequestEvent) => {

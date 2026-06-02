@@ -69,6 +69,11 @@ export namespace Database {
     abstract readonly tables: Table<any>[];
 
     /**
+     * Service options.
+     */
+    readonly options: T['options'];
+
+    /**
      * Determines which database engine to use.
      * Check the provider package to know all the possible values.
      */
@@ -83,10 +88,5 @@ export namespace Database {
      * Service client.
      */
     readonly client: Client<Service<T>>;
-
-    /**
-     * No service options available.
-     */
-    readonly options: never;
   }
 }

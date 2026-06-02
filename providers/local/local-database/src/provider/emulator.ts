@@ -1,13 +1,17 @@
-import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
-export const registerDatabaseEmulator = async (service: DatabaseService, options: ServeOptions, context: EmulateServiceContext) => {
-  const client = await getDatabaseClient(service, options);
+export const registerDatabaseEmulator = async (
+  service: DatabaseService,
+  options: ServeOptions,
+  context: EmulateServiceContext
+): Promise<ServiceEmulator | null> => {
+  const clientFactory = await getDatabaseClient(service, options);
 
-  if (!client) {
+  if (!clientFactory) {
     return null;
   }
 
@@ -21,8 +25,8 @@ export const registerDatabaseEmulator = async (service: DatabaseService, options
     bootstrapHandler: async () => {
       await runDatabaseMigration(service, options, context);
     },
-    exportHandler: () => {
-      return client;
+    exportHandler: (serviceOptions) => {
+      return clientFactory.make(serviceOptions);
     }
   };
 };
@@ -40,5 +44,5 @@ const runDatabaseMigration = (service: DatabaseService, options: ServeOptions, c
 };
 
 const getDatabaseClient = (service: DatabaseService, options: ServeOptions) => {
-  return triggerAllAsync('emulator:getClient', (handler) => handler({ service, options }));
+  return triggerAllAsync('emulator:clientFactory', (handler) => handler({ service, options }));
 };

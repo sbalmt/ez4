@@ -24,7 +24,7 @@ export const registerTriggers = () => {
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareBucketServices,
     'deploy:connectResources': connectBucketServices,
-    'emulator:getClient': prepareEmulatorClient
+    'emulator:clientFactory': prepareEmulatorClient
   });
 
   registerBucketProvider();

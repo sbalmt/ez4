@@ -19,8 +19,8 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 
 import { setTimeout } from 'node:timers/promises';
 
-import { detectFieldData, prepareFieldData } from './fields';
-import { logQueryError, logQuerySuccess } from './logger';
+import { detectFieldData, prepareFieldData } from '../fields';
+import { logQueryError, logQuerySuccess } from '../logger';
 import { Runtime } from '@ez4/common';
 
 const client = new RDSDataClient({
@@ -28,14 +28,14 @@ const client = new RDSDataClient({
   maxAttempts: 10
 });
 
-export type DataClientConnection = {
-  resourceArn: Arn;
+export type ApiClientConnection = {
   secretArn: Arn;
+  resourceArn: Arn;
   database: string;
 };
 
-export class DataClientDriver implements PgClientDriver {
-  constructor(private connection: DataClientConnection) {}
+export class ApiClientDriver implements PgClientDriver {
+  constructor(private connection: ApiClientConnection) {}
 
   async executeStatement(statement: PgExecuteStatement, options?: PgExecuteOptions) {
     const transactionId = options?.transactionId;

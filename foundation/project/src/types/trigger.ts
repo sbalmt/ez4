@@ -32,7 +32,7 @@ export type SyncEvent = {
 
 export type AsyncEvent = {
   'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<boolean>;
-  'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
+  'emulator:clientFactory': (event: EmulateClientEvent) => AsyncEventResult<ClientFactory>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<ServiceEmulator>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
@@ -66,6 +66,10 @@ export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   context: EventContext;
+};
+
+export type ClientFactory = {
+  make: (...options: any[]) => unknown;
 };
 
 export type LinkServiceEvent = ServiceEvent & {

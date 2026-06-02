@@ -19,7 +19,7 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
   if (options.local) {
     const connection = getConnectionOptions(service, options);
 
-    return Client.make({
+    const instance = Client.make({
       identifier: cacheName,
       debug: options.debug,
       connection: {
@@ -28,6 +28,10 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
         tls: false
       }
     });
+
+    return {
+      make: () => instance
+    };
   }
 
   const cacheData = await importCache(undefined, cacheName);
@@ -36,13 +40,17 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
     throw new RemoteCacheNotFoundError(service.name);
   }
 
-  return Client.make({
+  const instance = Client.make({
     identifier: cacheName,
     debug: options.debug,
     connection: {
       endpoint: cacheData.writerEndpoint
     }
   });
+
+  return {
+    make: () => instance
+  };
 };
 
 export const resetEmulatorService = async (event: EmulateServiceEvent) => {
