@@ -1,6 +1,6 @@
 import type { StringSchema } from '@ez4/schema';
 
-import { ExpectedRegexTypeError } from '../errors/regex';
+import { ExpectedRegexFormatError } from '../errors/regex';
 import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('regex', (value: string, schema: StringSchema, property?: string) => {
@@ -14,5 +14,5 @@ registerStringFormat('regex', (value: string, schema: StringSchema, property?: s
     }
   }
 
-  return [new ExpectedRegexTypeError(definitions?.name, property)];
+  return [new ExpectedRegexFormatError(definitions?.name, property)];
 });

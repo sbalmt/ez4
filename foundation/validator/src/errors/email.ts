@@ -1,6 +1,8 @@
 import { UnexpectedFormatError } from '../errors/common';
 
-export class ExpectedEmailTypeError extends UnexpectedFormatError {
+export class ExpectedEmailFormatError extends UnexpectedFormatError {
+  public name = 'ExpectedEmailFormat';
+
   constructor(propertyName?: string) {
     super('string', 'email', propertyName);
   }

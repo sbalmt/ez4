@@ -3,7 +3,7 @@ import type { AnySchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { isScalarSchema, NamingStyle } from '@ez4/schema';
 import { isAnyArray, isAnyObject } from '@ez4/utils';
 import { HttpBadRequestError } from '@ez4/gateway';
@@ -64,7 +64,7 @@ export const resolveRequestBody = async <T extends Http.JsonBody | Http.RawBody>
 
   if (validationErrors.length) {
     throw new HttpBadRequestError('Malformed body payload.', {
-      details: getUniqueErrorMessages(validationErrors)
+      details: getErrorDetails(validationErrors)
     });
   }
 

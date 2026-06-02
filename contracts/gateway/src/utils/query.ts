@@ -3,7 +3,7 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { base64Encode, isNotNullish, isNullish } from '@ez4/utils';
 import { getSchemaProperty, isArraySchema } from '@ez4/schema';
 import { HttpBadRequestError } from '@ez4/gateway';
@@ -48,7 +48,7 @@ export const resolveQueryStrings = async <T extends Http.QueryStrings>(
 
   if (validationErrors.length) {
     throw new HttpBadRequestError('Malformed query strings.', {
-      details: getUniqueErrorMessages(validationErrors)
+      details: getErrorDetails(validationErrors)
     });
   }
 
