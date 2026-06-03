@@ -6,7 +6,7 @@ import type { EntryStates } from '@ez4/stateful';
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 
-import { Client } from '@ez4/aws-aurora/client';
+import { Client, ConnectionMode } from '@ez4/aws-aurora/client';
 import { Index, Order } from '@ez4/database';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
@@ -116,6 +116,7 @@ describe('aurora client operations', { timeout: 180000 }, () => {
     ok(resultResource.result);
 
     dbClient = Client.make({
+      mode: ConnectionMode.Api,
       repository,
       connection: {
         database: migrationState.parameters.database,

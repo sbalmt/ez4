@@ -5,7 +5,7 @@ import type { EntryStates } from '@ez4/stateful';
 import { deepEqual, ok } from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 
-import { Client } from '@ez4/aws-aurora/client';
+import { Client, ConnectionMode } from '@ez4/aws-aurora/client';
 import { deploy } from '@ez4/aws-common';
 
 import { createCluster, createInstance, isClusterState, isInstanceState, registerTriggers } from '@ez4/aws-aurora';
@@ -44,6 +44,7 @@ describe('aurora client driver', { timeout: 180000 }, async () => {
     ok(resultResource.result);
 
     dbClient = Client.make({
+      mode: ConnectionMode.Api,
       repository,
       connection: {
         database: 'postgres',

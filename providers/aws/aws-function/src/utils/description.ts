@@ -1,6 +1,6 @@
 export const getSafeDescription = (description: string) => {
   const line = description
-    .replaceAll(/[\t\n]/, ' ')
+    .replaceAll(/[\t\n]/g, ' ')
     .replaceAll('\r', '')
     .trim();
 
