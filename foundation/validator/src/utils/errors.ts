@@ -5,12 +5,14 @@ import { UnexpectedFormatError, UnexpectedPropertiesError, UnexpectedTypeError, 
  */
 export type ErrorDetails = {
   code: string;
+  path?: string;
   message: string;
   properties?: string[];
-  path?: string;
-  values?: unknown[];
-  format?: string;
-  type?: string;
+  expected?: {
+    value?: unknown;
+    format?: string;
+    type?: string;
+  };
 };
 
 /**
@@ -48,7 +50,9 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
-        values: error.rawValues
+        expected: {
+          value: error.rawValue
+        }
       });
 
       continue;
@@ -59,8 +63,10 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
-        format: error.formatName,
-        type: error.typeName
+        expected: {
+          format: error.formatName,
+          type: error.typeName
+        }
       });
 
       continue;
@@ -71,7 +77,9 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
-        type: error.typeName
+        expected: {
+          type: error.typeName
+        }
       });
 
       continue;

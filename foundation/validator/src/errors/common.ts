@@ -16,22 +16,14 @@ export class UnexpectedValueError extends Error {
   public name = 'UnexpectedValue';
 
   constructor(
-    public values: string[],
+    public formattedValue: string,
     public propertyName?: string,
-    public rawValues: unknown[] = values
+    public rawValue: unknown = formattedValue
   ) {
-    if (values.length === 1) {
-      if (propertyName) {
-        super(`Value ${values[0]} for [${propertyName}] is expected.`);
-      } else {
-        super(`Value ${values[0]} is expected.`);
-      }
+    if (propertyName) {
+      super(`Value ${formattedValue} for [${propertyName}] is expected.`);
     } else {
-      if (propertyName) {
-        super(`A value in [${values.join(', ')}] for ${propertyName} is expected.`);
-      } else {
-        super(`A value in [${values.join(', ')}] is expected.`);
-      }
+      super(`Value ${formattedValue} is expected.`);
     }
   }
 }
@@ -57,9 +49,12 @@ export class UnexpectedFormatError extends Error {
   constructor(
     public typeName: string,
     public formatName: string,
+    public formatHint?: string,
     public propertyName?: string
   ) {
-    if (propertyName) {
+    if (propertyName && formatHint) {
+      super(`Type ${typeName} with format ${formatName} (${formatHint}) for [${propertyName}] is expected.`);
+    } else if (propertyName) {
       super(`Type ${typeName} with format ${formatName} for [${propertyName}] is expected.`);
     } else {
       super(`Type ${typeName} with format ${formatName} is expected.`);

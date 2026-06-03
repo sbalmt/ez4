@@ -6,7 +6,11 @@ export class UnexpectedEnumValueError extends UnexpectedValueError {
   public name = 'UnexpectedEnumValue';
 
   constructor(enumOptions: EnumSchemaOption[], propertyName?: string) {
-    super(getEnumOptions(enumOptions), propertyName);
+    super(
+      getEnumOptions(enumOptions).join(', '),
+      propertyName,
+      enumOptions.map(({ value }) => value)
+    );
   }
 }
 

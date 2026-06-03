@@ -20,7 +20,7 @@ export class UnexpectedMinRangeError extends UnexpectedValueError {
   public name = 'UnexpectedMinRange';
 
   constructor(minValue: number, propertyName?: string) {
-    super([`with min ${minValue}`], propertyName, [minValue]);
+    super(`with min ${minValue}`, propertyName, minValue);
   }
 }
 
@@ -28,7 +28,7 @@ export class UnexpectedMaxRangeError extends UnexpectedValueError {
   public name = 'UnexpectedMaxRange';
 
   constructor(maxValue: number, propertyName?: string) {
-    super([`with max ${maxValue}`], propertyName, [maxValue]);
+    super(`with max ${maxValue}`, propertyName, [maxValue]);
   }
 }
 
@@ -36,6 +36,6 @@ export class UnexpectedNumberError extends UnexpectedValueError {
   public name = 'UnexpectedNumber';
 
   constructor(value: number, propertyName?: string) {
-    super([`${value}`], propertyName);
+    super(`${value}`, propertyName);
   }
 }

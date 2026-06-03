@@ -12,6 +12,6 @@ export class UnexpectedBooleanError extends UnexpectedValueError {
   public name = 'UnexpectedBoolean';
 
   constructor(value: boolean, propertyName?: string) {
-    super([`${value}`], propertyName, [value]);
+    super(`${value}`, propertyName, value);
   }
 }

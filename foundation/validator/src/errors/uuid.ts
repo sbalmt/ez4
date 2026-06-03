@@ -4,6 +4,6 @@ export class ExpectedUUIDTypeError extends UnexpectedFormatError {
   public name = 'ExpectedUUIDType';
 
   constructor(propertyName?: string) {
-    super('string', 'UUID', propertyName);
+    super('string', 'UUID', undefined, propertyName);
   }
 }
