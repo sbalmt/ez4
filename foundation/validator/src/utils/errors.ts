@@ -1,4 +1,10 @@
-import { UnexpectedFormatError, UnexpectedPropertiesError, UnexpectedTypeError, UnexpectedValueError } from '../errors/common';
+import {
+  ValidationError,
+  UnexpectedFormatError,
+  UnexpectedPropertiesError,
+  UnexpectedTypeError,
+  UnexpectedValueError
+} from '../errors/common';
 
 /**
  * Error details
@@ -27,7 +33,7 @@ export const getErrorDetails = (errorList: Error[]) => {
   const errorSet = new Set<string>();
 
   for (const error of errorList) {
-    const code = error.constructor.name;
+    const code = (error.cause ?? error).constructor.name;
     const message = error.message;
 
     if (errorSet.has(message)) {
@@ -40,21 +46,9 @@ export const getErrorDetails = (errorList: Error[]) => {
       errorDetails.push({
         code,
         message,
-        properties: error.propertyNames
-      });
-
-      continue;
-    }
-
-    if (error instanceof UnexpectedValueError) {
-      errorDetails.push({
-        code,
-        message,
         path: error.propertyName,
-        input: error.inputValue,
-        expected: {
-          value: error.expectedValue
-        }
+        properties: error.propertyNames,
+        input: error.inputValue
       });
 
       continue;
@@ -75,6 +69,20 @@ export const getErrorDetails = (errorList: Error[]) => {
       continue;
     }
 
+    if (error instanceof UnexpectedValueError) {
+      errorDetails.push({
+        code,
+        message,
+        path: error.propertyName,
+        input: error.inputValue,
+        expected: {
+          value: error.expectedValue
+        }
+      });
+
+      continue;
+    }
+
     if (error instanceof UnexpectedTypeError) {
       errorDetails.push({
         code,
@@ -84,6 +92,17 @@ export const getErrorDetails = (errorList: Error[]) => {
         expected: {
           type: error.typeName
         }
+      });
+
+      continue;
+    }
+
+    if (error instanceof ValidationError) {
+      errorDetails.push({
+        code,
+        message,
+        path: error.propertyName,
+        input: error.inputValue
       });
 
       continue;

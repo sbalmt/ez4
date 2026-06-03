@@ -100,7 +100,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       return preservePropertyName ? propertyKey : getPropertyPath(propertyKey, parentProperty);
     });
 
-    allErrors.push(new UnexpectedPropertiesError(extraProperties));
+    allErrors.push(new UnexpectedPropertiesError(extraProperties, parentProperty, objectValue));
   }
 
   if (!allErrors.length && definitions?.types && context) {
