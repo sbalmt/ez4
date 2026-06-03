@@ -6,5 +6,5 @@ import { ExpectedEmailFormatError } from '../errors/email';
 import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('email', (value: string, _schema: StringSchema, property?: string) => {
-  return isEmail(value) ? [] : [new ExpectedEmailFormatError(property)];
+  return isEmail(value) ? [] : [new ExpectedEmailFormatError(value, property)];
 });

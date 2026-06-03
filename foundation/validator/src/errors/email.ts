@@ -1,9 +1,7 @@
 import { UnexpectedFormatError } from '../errors/common';
 
 export class ExpectedEmailFormatError extends UnexpectedFormatError {
-  public name = 'ExpectedEmailFormat';
-
-  constructor(propertyName?: string) {
-    super('string', 'email', undefined, propertyName);
+  constructor(inputValue: unknown, propertyName?: string) {
+    super('string', 'email', undefined, propertyName, inputValue);
   }
 }

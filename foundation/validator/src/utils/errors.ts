@@ -8,6 +8,7 @@ export type ErrorDetails = {
   path?: string;
   message: string;
   properties?: string[];
+  input?: unknown;
   expected?: {
     value?: unknown;
     format?: string;
@@ -26,8 +27,8 @@ export const getErrorDetails = (errorList: Error[]) => {
   const errorSet = new Set<string>();
 
   for (const error of errorList) {
+    const code = error.constructor.name;
     const message = error.message;
-    const code = error.name;
 
     if (errorSet.has(message)) {
       continue;
@@ -50,8 +51,9 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
+        input: error.inputValue,
         expected: {
-          value: error.rawValue
+          value: error.expectedValue
         }
       });
 
@@ -63,6 +65,7 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
+        input: error.inputValue,
         expected: {
           format: error.formatName,
           type: error.typeName
@@ -77,6 +80,7 @@ export const getErrorDetails = (errorList: Error[]) => {
         code,
         message,
         path: error.propertyName,
+        input: error.inputValue,
         expected: {
           type: error.typeName
         }

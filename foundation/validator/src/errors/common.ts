@@ -1,6 +1,4 @@
 export class UnexpectedPropertiesError extends Error {
-  public name = 'UnexpectedProperties';
-
   constructor(public propertyNames: string[]) {
     if (propertyNames.length === 1) {
       super(`Property [${propertyNames[0]}] is not expected.`);
@@ -13,12 +11,11 @@ export class UnexpectedPropertiesError extends Error {
 }
 
 export class UnexpectedValueError extends Error {
-  public name = 'UnexpectedValue';
-
   constructor(
     public formattedValue: string,
     public propertyName?: string,
-    public rawValue: unknown = formattedValue
+    public expectedValue: unknown = formattedValue,
+    public inputValue?: unknown
   ) {
     if (propertyName) {
       super(`Value ${formattedValue} for [${propertyName}] is expected.`);
@@ -29,11 +26,10 @@ export class UnexpectedValueError extends Error {
 }
 
 export class UnexpectedTypeError extends Error {
-  public name = 'UnexpectedType';
-
   constructor(
     public typeName: string,
-    public propertyName?: string
+    public propertyName?: string,
+    public inputValue?: unknown
   ) {
     if (propertyName) {
       super(`Type ${typeName} for [${propertyName}] is expected.`);
@@ -44,13 +40,12 @@ export class UnexpectedTypeError extends Error {
 }
 
 export class UnexpectedFormatError extends Error {
-  public name = 'UnexpectedFormat';
-
   constructor(
     public typeName: string,
     public formatName: string,
     public formatHint?: string,
-    public propertyName?: string
+    public propertyName?: string,
+    public inputValue?: unknown
   ) {
     if (propertyName && formatHint) {
       super(`Type ${typeName} with format ${formatName} (${formatHint}) for [${propertyName}] is expected.`);

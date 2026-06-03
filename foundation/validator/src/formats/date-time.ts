@@ -6,5 +6,5 @@ import { ExpectedDateTimeFormatError } from '../errors/date-time';
 import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('date-time', (value: string, _schema: StringSchema, property?: string) => {
-  return isDateTime(value) ? [] : [new ExpectedDateTimeFormatError(property)];
+  return isDateTime(value) ? [] : [new ExpectedDateTimeFormatError(value, property)];
 });

@@ -6,5 +6,5 @@ import { ExpectedUUIDTypeError } from '../errors/uuid';
 import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('uuid', (value: string, _schema: StringSchema, property?: string) => {
-  return isUUID(value) ? [] : [new ExpectedUUIDTypeError(property)];
+  return isUUID(value) ? [] : [new ExpectedUUIDTypeError(value, property)];
 });

@@ -14,5 +14,5 @@ registerStringFormat('regex', (value: string, schema: StringSchema, property?: s
     }
   }
 
-  return [new ExpectedRegexFormatError(definitions?.name, property)];
+  return [new ExpectedRegexFormatError(value, definitions?.name, property)];
 });

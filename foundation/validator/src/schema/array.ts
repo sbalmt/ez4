@@ -24,17 +24,17 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
   const arrayValues = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
   if (!(arrayValues instanceof Array)) {
-    return [new ExpectedArrayTypeError(property)];
+    return [new ExpectedArrayTypeError(arrayValues, property)];
   }
 
   const allErrors: Error[] = [];
 
   if (isAnyNumber(definitions?.minLength) && arrayValues.length < definitions.minLength) {
-    allErrors.push(new UnexpectedMinItemsError(definitions.minLength, property));
+    allErrors.push(new UnexpectedMinItemsError(arrayValues, definitions.minLength, property));
   }
 
   if (isAnyNumber(definitions?.maxLength) && arrayValues.length > definitions.maxLength) {
-    allErrors.push(new UnexpectedMaxItemsError(definitions.maxLength, property));
+    allErrors.push(new UnexpectedMaxItemsError(arrayValues, definitions.maxLength, property));
   }
 
   if (depth > 0) {

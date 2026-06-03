@@ -3,13 +3,12 @@ import type { EnumSchemaOption } from '@ez4/schema';
 import { UnexpectedValueError } from './common';
 
 export class UnexpectedEnumValueError extends UnexpectedValueError {
-  public name = 'UnexpectedEnumValue';
-
-  constructor(enumOptions: EnumSchemaOption[], propertyName?: string) {
+  constructor(inputValue: unknown, enumOptions: EnumSchemaOption[], propertyName?: string) {
     super(
       getEnumOptions(enumOptions).join(', '),
       propertyName,
-      enumOptions.map(({ value }) => value)
+      enumOptions.map(({ value }) => value),
+      inputValue
     );
   }
 }

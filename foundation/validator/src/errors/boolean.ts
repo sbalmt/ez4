@@ -1,17 +1,13 @@
 import { UnexpectedTypeError, UnexpectedValueError } from './common';
 
 export class ExpectedBooleanTypeError extends UnexpectedTypeError {
-  public name = 'ExpectedBooleanType';
-
-  constructor(propertyName?: string) {
-    super('boolean', propertyName);
+  constructor(inputValue: unknown, propertyName?: string) {
+    super('boolean', propertyName, inputValue);
   }
 }
 
 export class UnexpectedBooleanError extends UnexpectedValueError {
-  public name = 'UnexpectedBoolean';
-
-  constructor(value: boolean, propertyName?: string) {
-    super(`${value}`, propertyName, value);
+  constructor(inputValue: boolean, expectedValue: boolean, propertyName?: string) {
+    super(`${expectedValue}`, propertyName, expectedValue, inputValue);
   }
 }

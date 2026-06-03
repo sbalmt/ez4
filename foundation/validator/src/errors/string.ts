@@ -1,33 +1,25 @@
 import { UnexpectedTypeError, UnexpectedValueError } from './common';
 
 export class ExpectedStringTypeError extends UnexpectedTypeError {
-  public name = 'ExpectedStringType';
-
-  constructor(propertyName?: string) {
-    super('string', propertyName);
+  constructor(inputValue: unknown, propertyName?: string) {
+    super('string', propertyName, inputValue);
   }
 }
 
 export class UnexpectedMinLengthError extends UnexpectedValueError {
-  public name = 'UnexpectedMinLength';
-
-  constructor(minValue: number, propertyName?: string) {
-    super(`with min length (${minValue})`, propertyName, minValue);
+  constructor(inputValue: unknown, minValue: number, propertyName?: string) {
+    super(`with min length (${minValue})`, propertyName, minValue, inputValue);
   }
 }
 
 export class UnexpectedMaxLengthError extends UnexpectedValueError {
-  public name = 'UnexpectedMaxLength';
-
-  constructor(maxValue: number, propertyName?: string) {
-    super(`with max length (${maxValue})`, propertyName, maxValue);
+  constructor(inputValue: unknown, maxValue: number, propertyName?: string) {
+    super(`with max length (${maxValue})`, propertyName, maxValue, inputValue);
   }
 }
 
 export class UnexpectedStringError extends UnexpectedValueError {
-  public name = 'UnexpectedString';
-
-  constructor(value: string, propertyName?: string) {
-    super(`'${value}'`, propertyName, value);
+  constructor(inputValue: unknown, value: string, propertyName?: string) {
+    super(`'${value}'`, propertyName, value, inputValue);
   }
 }

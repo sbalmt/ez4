@@ -6,5 +6,5 @@ import { ExpectedTimeFormatError } from '../errors/time';
 import { registerStringFormat } from '../schema/string';
 
 registerStringFormat('time', (value: string, _schema: StringSchema, property?: string) => {
-  return isTime(value) ? [] : [new ExpectedTimeFormatError(property)];
+  return isTime(value) ? [] : [new ExpectedTimeFormatError(value, property)];
 });
