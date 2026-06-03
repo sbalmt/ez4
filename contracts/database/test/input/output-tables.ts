@@ -10,8 +10,10 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
       indexes: {};
     }>,
 
-    // Table reference.
-    TestTable
+    ...[
+      // Table reference.
+      TestTable
+    ]
   ];
 }
 

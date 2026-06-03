@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { DatabaseService } from './types';
 import type { DatabaseTable } from './types';
@@ -14,7 +14,6 @@ import {
   getLinkedServicesObject,
   getDeclarationDescription,
   getModelMembers,
-  getPropertyTuple,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -25,7 +24,7 @@ import { IncompleteServiceError } from '../errors/service';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
 import { getDatabaseScalabilityMetadata } from './scalability';
 import { getDatabaseEngineMetadata } from './engine';
-import { getDatabaseTableMetadata } from './table';
+import { getDatabaseTablesMetadata } from './table';
 import { createDatabaseService } from './types';
 
 export const isDatabaseServiceDeclaration = (type: AllType): type is TypeClass => {
@@ -79,7 +78,7 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'tables': {
-          if (!member.inherited && (service.tables = getAllTables(member, declaration, reflection, errorList))) {
+          if (!member.inherited && (service.tables = getDatabaseTablesMetadata(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
@@ -136,21 +135,6 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
 
 const isCompleteService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
   return isObjectWith(type, ['engine', 'tables', 'variables', 'services']);
-};
-
-const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
-  const tableItems = getPropertyTuple(member) ?? [];
-  const tableList: DatabaseTable[] = [];
-
-  for (const subscription of tableItems) {
-    const result = getDatabaseTableMetadata(subscription, parent, reflection, errorList);
-
-    if (result) {
-      tableList.push(result);
-    }
-  }
-
-  return tableList;
 };
 
 const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {
