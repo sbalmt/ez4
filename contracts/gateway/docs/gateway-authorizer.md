@@ -62,7 +62,7 @@ An authorizer is a function that receives a typed authorization request and retu
 
 ```ts
 export function authorizerHandler(
-  request: Http.Incoming<AuthorizerRequest>,
+  request: Http.AuthIncoming<AuthorizerRequest>,
   context: Service.Context<AuthorizerProvider>
 ): AuthorizerResponse {
   // Validate token, check permissions, etc.

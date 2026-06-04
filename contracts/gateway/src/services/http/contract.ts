@@ -2,6 +2,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { AuthProvider as HttpAuthProvider } from '../auth/provider';
 import type { AuthResponse as HttpAuthResponse } from '../auth/response';
+import type { AuthIncoming as HttpAuthIncoming } from '../auth/incoming';
 import type { AuthRequest as HttpAuthRequest } from '../auth/request';
 import type { AuthIdentity } from '../auth/identity';
 import type { AuthCache } from '../auth/cache';
@@ -54,6 +55,7 @@ export namespace Http {
   export type Errors = HttpErrors;
   export type Cors = HttpCors;
 
+  export type AuthIncoming<T extends AuthRequest> = HttpAuthIncoming<T>;
   export type Incoming<T extends Request> = HttpIncoming<T>;
 
   export type Listener<T extends Request> = HttpListener<T>;

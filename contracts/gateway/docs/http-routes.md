@@ -15,6 +15,7 @@ export declare class MyServer extends Http.Service {
       listener: typeof serverListener;
       authorizer: typeof authorizeHandler;
       handler: typeof routeHandler;
+      disabled: false;
       cors: true;
       httpErrors: {
         404: [UserNotFound];
