@@ -36,7 +36,7 @@ import {
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
-import { isManagedOriginId } from '../main';
+import { isManagedOriginId } from '../origin/utils';
 
 export type DefaultOrigin = {
   id: string;

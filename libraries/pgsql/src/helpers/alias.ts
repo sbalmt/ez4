@@ -1,4 +1,4 @@
-import type { SqlBuilderReferences } from '../main';
+import type { SqlBuilderReferences } from '../builder';
 
 export const getUniqueAlias = (alias: string, references: SqlBuilderReferences) => {
   const { aliases } = references;
