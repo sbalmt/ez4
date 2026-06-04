@@ -153,7 +153,6 @@ variables: {
 ## What's next
 
 - [HTTP routes](./http-routes.md)
-- [HTTP events](./http-events.md)
 - [HTTP requests](./http-requests.md)
 - [HTTP responses](./http-responses.md)
 - [Gateway handlers](./gateway-handler.md)

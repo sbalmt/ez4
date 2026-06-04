@@ -78,7 +78,7 @@ body: {
 }
 ```
 
-> Body is optional for responses such as `204 No Content`. It's field names are affected by the `NamingStyle` preference.
+> Body is optional for responses such as `204 No Content`. Its field names are affected by the `NamingStyle` preference.
 
 Scalar payload:
 

@@ -121,7 +121,7 @@ body: {
 }
 ```
 
-> Body is `undefined` for routes without a body (e.g., GET requests). It's field names are affected by the `NamingStyle` preference.
+> Body is `undefined` for routes without a body (e.g., GET requests). Its field names are affected by the `NamingStyle` preference.
 
 Raw String payload:
 
