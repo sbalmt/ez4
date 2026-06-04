@@ -29,16 +29,11 @@ export declare class Site extends Cdn.Service {
    */
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<SiteBucket>;
+    cache: StaticCache;
 
     // Prefer using rewrite than fallbacks approach when using API origins.
     rewrite: {
       '/path/*': 'index.html';
-    };
-
-    cache: {
-      ttl: 600;
-      minTTL: 0;
-      maxTTL: 3600;
     };
   }>;
 
@@ -60,10 +55,7 @@ export declare class Site extends Cdn.Service {
     Cdn.UseOrigin<{
       path: 'api/*';
       domain: 'api.domain';
-      cache: {
-        headers: ['Authorization'];
-        ttl: 1;
-      };
+      cache: ApiCache;
     }>
   ];
 
@@ -82,4 +74,21 @@ export declare class Site extends Cdn.Service {
    * Determines the invalidation paths.
    */
   invalidations: ['/path/*'];
+}
+
+/**
+ * Cache policy for static files.
+ */
+declare class StaticCache implements Cdn.Cache {
+  ttl: 600;
+  minTTL: 0;
+  maxTTL: 3600;
+}
+
+/**
+ * Cache policy for API requests.
+ */
+declare class ApiCache implements Cdn.Cache {
+  headers: ['Authorization'];
+  ttl: 1;
 }

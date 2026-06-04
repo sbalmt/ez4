@@ -17,6 +17,7 @@ export type CdnService = ServiceMetadata & {
 };
 
 export type CdnCache = {
+  name?: string;
   compress?: boolean;
   headers?: string[];
   cookies?: string[];

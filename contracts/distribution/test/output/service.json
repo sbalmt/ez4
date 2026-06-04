@@ -28,6 +28,7 @@
         "path": "default/regular/*",
         "domain": "ez4.default",
         "cache": {
+          "name": "TestCache",
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
@@ -69,6 +70,7 @@
         "location": "internal",
         "path": "bucket/*",
         "cache": {
+          "name": "TestCache",
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
