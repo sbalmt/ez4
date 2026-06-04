@@ -10,19 +10,25 @@ import { OriginProtocol } from '@ez4/distribution';
 
 import { DistributionServiceName } from '../distribution/types';
 import { createCachePolicy } from '../cache/service';
-import { getOriginPolicyId } from '../origin/utils';
+import { getManagedOriginId, getOriginPolicyId } from '../origin/utils';
 import { getCachePolicyId, tryGetCachePolicyState } from '../cache/utils';
 import { getCachePolicyName } from './utils';
 
 export const getDefaultOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
-  return getOriginCache<DistributionDefaultOrigin>(state, service, '@ez4/default', service.defaultOrigin, options, context);
+  const originId = getManagedOriginId('default');
+
+  const { defaultOrigin } = service;
+
+  return getOriginCache<DistributionDefaultOrigin>(state, service, originId, defaultOrigin, options, context);
 };
 
 export const getAdditionalOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   const { origins = [] } = service;
 
   return origins.map((origin, index) => {
-    return getOriginCache<DistributionAdditionalOrigin>(state, service, `@ez4/origin:${index + 1}`, origin, options, context);
+    const originId = getManagedOriginId(`origin:${index + 1}`);
+
+    return getOriginCache<DistributionAdditionalOrigin>(state, service, originId, origin, options, context);
   });
 };
 

@@ -36,6 +36,7 @@ import {
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
+import { isManagedOriginId } from '../main';
 
 export type DefaultOrigin = {
   id: string;
@@ -210,9 +211,9 @@ const getCurrentDistribution = async (logger: OperationLogLine, distributionId: 
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defaults?: DistributionConfig): DistributionConfig => {
-  const allCustomErrors = getAllCustomErrors(request);
-  const allCacheBehaviors = getAllCacheBehaviors(request);
-  const allOrigins = getAllOrigins(request);
+  const allCacheBehaviors = combineAllCacheBehaviors(prepareAllCacheBehaviors(request), defaults?.CacheBehaviors?.Items);
+  const allOrigins = combineAllOrigins(prepareAllOrigins(request), defaults?.Origins?.Items);
+  const allCustomErrors = prepareAllCustomErrors(request);
 
   const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, rewriteFunctionArn, aliases, enabled, compress } =
     request;
@@ -236,17 +237,15 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
       Quantity: allOrigins.length,
       Items: allOrigins
     },
-    OriginGroups: {
+    OriginGroups: defaults?.OriginGroups ?? {
       Quantity: 0
     },
     DefaultCacheBehavior: {
       ...getCacheBehavior(defaultOrigin, compress, rewriteFunctionArn)
     },
     CacheBehaviors: {
-      Quantity: allCacheBehaviors?.length ?? 0,
-      ...(allCacheBehaviors?.length && {
-        Items: allCacheBehaviors
-      })
+      Quantity: allCacheBehaviors.length,
+      Items: allCacheBehaviors
     },
     CustomErrorResponses: {
       ...allCustomErrors
@@ -337,16 +336,15 @@ const getCacheBehavior = (origin: DefaultOrigin, compress?: boolean, rewriteFunc
   };
 };
 
-const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
+const prepareAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   const { defaultOrigin, originAccessId, origins } = request;
 
   const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
 
   return originList.map(({ id, domain, location, headers, port, http }) => {
-    const isBucket = isBucketDomain(domain);
-
     const originProtocol = http ? OriginProtocolPolicy.http_only : OriginProtocolPolicy.https_only;
     const originHeaders = getOriginHeaders(headers);
+    const isBucket = isBucketDomain(domain);
 
     return {
       Id: id,
@@ -387,7 +385,7 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   });
 };
 
-const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
+const prepareAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
   const { rewriteFunctionArn, origins, compress } = request;
 
   return origins?.map((origin) => ({
@@ -396,7 +394,7 @@ const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBeha
   }));
 };
 
-const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
+const prepareAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
   const { customErrors } = request;
 
   if (!customErrors?.length) {
@@ -418,4 +416,34 @@ const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomError
     Quantity: allCustomErrors.length,
     Items: allCustomErrors
   };
+};
+
+const combineAllCacheBehaviors = (managedCacheBehaviors?: CacheBehavior[], userDefinedCacheBehaviors?: CacheBehavior[]) => {
+  const allCacheBehaviors = [];
+
+  if (managedCacheBehaviors) {
+    allCacheBehaviors.push(...managedCacheBehaviors);
+  }
+
+  const filteredUserCacheBehaviors = userDefinedCacheBehaviors?.filter(({ TargetOriginId, PathPattern }) => {
+    return !isManagedOriginId(TargetOriginId!) && !managedCacheBehaviors?.some((cache) => cache.PathPattern === PathPattern);
+  });
+
+  if (filteredUserCacheBehaviors) {
+    allCacheBehaviors.push(...filteredUserCacheBehaviors);
+  }
+
+  return allCacheBehaviors;
+};
+
+const combineAllOrigins = (managedOrigins: Origin[], userDefinedOrigins?: Origin[]) => {
+  const allOrigins = [...managedOrigins];
+
+  const filteredUserOrigins = userDefinedOrigins?.filter(({ Id }) => !isManagedOriginId(Id!));
+
+  if (filteredUserOrigins) {
+    allOrigins.push(...filteredUserOrigins);
+  }
+
+  return allOrigins;
 };
