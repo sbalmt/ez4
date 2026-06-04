@@ -219,14 +219,14 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
 
   return {
     CallerReference: distributionName,
-    DefaultRootObject: defaultIndex ?? '',
     PriceClass: defaults?.PriceClass ?? PriceClass.PriceClass_All,
     ContinuousDeploymentPolicyId: defaults?.ContinuousDeploymentPolicyId ?? '',
-    HttpVersion: HttpVersion.http2and3,
+    DefaultRootObject: defaultIndex ?? defaults?.DefaultRootObject ?? '',
+    HttpVersion: defaults?.HttpVersion ?? HttpVersion.http2and3,
+    Comment: description ?? defaults?.Comment ?? '',
+    IsIPV6Enabled: defaults?.IsIPV6Enabled ?? true,
     WebACLId: defaults?.WebACLId ?? '',
-    Comment: description ?? '',
     Enabled: enabled,
-    IsIPV6Enabled: true,
     Staging: false,
     Aliases: {
       Quantity: aliases?.length ?? 0,
@@ -265,17 +265,17 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
             CertificateSource: CertificateSource.cloudfront
           })
     },
-    Logging: defaults?.Logging ?? {
-      Enabled: false,
-      IncludeCookies: false,
-      Bucket: '',
-      Prefix: ''
-    },
     Restrictions: defaults?.Restrictions ?? {
       GeoRestriction: {
         RestrictionType: GeoRestrictionType.none,
         Quantity: 0
       }
+    },
+    Logging: defaults?.Logging ?? {
+      Enabled: false,
+      IncludeCookies: false,
+      Bucket: '',
+      Prefix: ''
     }
   };
 };
