@@ -103,6 +103,9 @@
         "location": "/index.html",
         "ttl": 3600
       }
+    ],
+    "invalidations": [
+      "/path2/*"
     ]
   }
 }

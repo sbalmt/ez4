@@ -57,8 +57,10 @@ const updateResource = (candidate: InvalidationState, current: InvalidationState
   const distributionId = getDistributionId(InvalidationServiceName, 'invalidation', context);
 
   return OperationLogger.logExecution(InvalidationServiceName, distributionId, 'invalidation', async (logger) => {
-    if (parameters.contentVersion !== current.parameters.contentVersion) {
-      await createInvalidation(logger, distributionId, ['/*']);
+    const { contentVersion, invalidations = ['/*'] } = parameters;
+
+    if (contentVersion !== current.parameters.contentVersion) {
+      await createInvalidation(logger, distributionId, invalidations);
     }
 
     return {

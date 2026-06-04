@@ -98,7 +98,8 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
 
   if (allContentVersions.length > 0) {
     createInvalidation(state, distributionState, {
-      contentVersion: allContentVersions.join(',')
+      contentVersion: allContentVersions.join(','),
+      invalidations: service.invalidations
     });
   }
 };

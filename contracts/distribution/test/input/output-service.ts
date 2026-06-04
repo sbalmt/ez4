@@ -53,6 +53,8 @@ export declare class TestCdn extends Cdn.Service {
     }
   ];
 
+  invalidations: ['/path2/*'];
+
   disabled: true;
 }
 

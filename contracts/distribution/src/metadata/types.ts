@@ -12,6 +12,7 @@ export type CdnService = ServiceMetadata & {
   defaultIndex?: string;
   origins?: CdnOrigin[];
   fallbacks?: CdnFallback[];
+  invalidations?: string[];
   disabled?: boolean;
 };
 

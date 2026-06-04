@@ -15,13 +15,13 @@ export declare class Site extends Cdn.Service {
   /**
    * Aliases authorized to access CloudFront.
    */
-  aliases: ['a.custom-domain.tld', 'b.custom-domain.tld'];
+  aliases: ['a.custom-domain.com', 'b.custom-domain.com'];
 
   /**
    * Specify the certificate for the given alias domain.
    */
   certificate: Cdn.UseCertificate<{
-    domain: '*.custom-domain.tld';
+    domain: '*.custom-domain.com';
   }>;
 
   /**
@@ -29,9 +29,12 @@ export declare class Site extends Cdn.Service {
    */
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<SiteBucket>;
+
+    // Prefer using rewrite than fallbacks approach when using API origins.
     rewrite: {
       '/path/*': 'index.html';
     };
+
     cache: {
       ttl: 600;
       minTTL: 0;
@@ -66,6 +69,7 @@ export declare class Site extends Cdn.Service {
 
   /**
    * Fallback 404 to default index (Useful for SPAs)
+   * Prefer using fallbacks approach than rewrite for static only websites.
    */
   fallbacks: [
     Cdn.UseFallback<{
@@ -73,4 +77,9 @@ export declare class Site extends Cdn.Service {
       location: '/index.html';
     }>
   ];
+
+  /**
+   * Determines the invalidation paths.
+   */
+  invalidations: ['/path/*'];
 }
