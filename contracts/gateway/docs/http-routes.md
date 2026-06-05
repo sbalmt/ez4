@@ -65,8 +65,8 @@ Main entry‑point function for the route.
 ```ts
 handler: typeof routeHandler;
 ```
-
-> Use `typeof` since the route handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
+ 
+> Use `typeof` because the route handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Authorizer (optional)
 
@@ -79,8 +79,8 @@ Entry‑point authorization function.
 ```ts
 authorizer: typeof authorizeHandler;
 ```
-
-> Use `typeof` since the route authorizer is a type declaration. See the gateway [authorizer](./gateway-authorizer.md) for more details.
+ 
+> Use `typeof` because the route authorizer is referenced by type. See the gateway [authorizer](./gateway-authorizer.md) for more details.
 
 #### Listener (optional)
 
@@ -93,8 +93,8 @@ Lifecycle listener for the route.
 ```ts
 listener: typeof routeListener;
 ```
-
-> Use `typeof` since the route listener is a type declaration. See the gateway [listener](./gateway-listener.md) for more details.
+ 
+> Use `typeof` because the route listener is referenced by type. See the gateway [listener](./gateway-listener.md) for more details.
 
 #### HTTP errors (optional)
 
@@ -192,7 +192,7 @@ timeout: 29;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
 - Useful for compute‑heavy or parallel workloads.

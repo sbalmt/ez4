@@ -97,7 +97,7 @@ runtime: RuntimeType.Node24;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
 - Useful for compute‑heavy or parallel workloads.

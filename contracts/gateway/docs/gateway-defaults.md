@@ -63,7 +63,7 @@ Lifecycle listener for all handlers.
 listener: typeof globalListener;
 ```
 
-> Use `typeof` since the route listener is a type declaration.
+> Use `typeof` because the route listener is referenced by type.
 
 #### HTTP errors (optional)
 
@@ -148,7 +148,7 @@ timeout: 29;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
 - Useful for compute‑heavy or parallel workloads.

@@ -47,7 +47,7 @@ subscriptions: [
 ];
 ```
 
-> Use `typeof` since the handler is a type declaration. See the topic [handler](./topic-handler.md) for more details.
+> Use `typeof` because the handler is referenced by type. See the topic [handler](./topic-handler.md) for more details.
 
 #### FIFO Mode (ordered only)
 

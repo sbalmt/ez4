@@ -27,7 +27,7 @@ Topic.UseSubscription<{
 }>;
 ```
 
-> A subscription cannot be both a lambda subscription and a queue subscription.
+> A subscription must be either a lambda subscription or a queue subscription (not both).
 
 ## Queue subscription fields
 
@@ -43,6 +43,8 @@ References an existing queue service that receives topic messages.
 ```ts
 service: Environment.Service<MyQueueService>;
 ```
+
+> Note: runtime, memory, vpc, and other handler options are configured on the referenced queue service. The topic queue subscription only wires up the queue resource during the deployment.
 
 ## Handler subscription fields
 
@@ -71,7 +73,7 @@ Lifecycle listener for the subscription.
 listener: typeof topicListener;
 ```
 
-> Use `typeof` since the subscription listener is a type declaration. See the topic [listener](./topic-listener.md) for more details.
+> Use `typeof` because the subscription listener is referenced by type. See the topic [listener](./topic-listener.md) for more details.
 
 #### Variables (optional)
 
@@ -139,12 +141,13 @@ timeout: 120;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
+- Useful for compute‑heavy or parallel workloads.
 
 ```ts
-memory: 256;
+memory: 128;
 ```
 
 #### Files (optional)

@@ -31,18 +31,10 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
     messages: 10,
     polling: 20
   });
-
-  return messages;
 }
 ```
 
 > The `receiveMessage` call returns zero or more typed messages.
-
-## Notes
-
-- FIFO queues restrict standard send options through the generated client types.
-- The queue client is the preferred entry point for routine queue operations.
-- Implementation-specific runtime features like visibility timeouts or receipt-handle deletion are typically available through the provider SDK, not the generated client.
 
 ## What's next
 

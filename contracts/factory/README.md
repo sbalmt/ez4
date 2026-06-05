@@ -67,7 +67,7 @@ import type { Service } from '@ez4/common';
 import type { MyFactory } from './factory';
 
 // Any other handler that has injected MyFactory service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myFactory } = context;
 
   // Call my service

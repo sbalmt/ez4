@@ -48,7 +48,7 @@ subscriptions: [
 ];
 ```
 
-> Use `typeof` since the handler is a type declaration. See the queue [handler](./queue-handler.md) for more details.
+> Use `typeof` because the handler is referenced by type. See the queue [handler](./queue-handler.md) for more details.
 
 #### Dead Letter (optional)
 

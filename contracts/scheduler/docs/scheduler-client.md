@@ -34,6 +34,8 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 }
 ```
 
+> The `getEvent` call returns `undefined` when the scheduled event is not found.
+
 #### Update a scheduled event
 
 ```ts

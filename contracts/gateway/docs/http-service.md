@@ -44,7 +44,7 @@ routes: [
 ];
 ```
 
-> Use `typeof` since the handler is a type declaration. See the http [routes](./http-routes.md) and gateway [handler](./gateway-handler.md) for more details.
+ Use `typeof` because the handler is referenced by type. See the http [routes](./http-routes.md) and gateway [handler](./gateway-handler.md) for more details.
 
 #### Name (optional)
 

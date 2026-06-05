@@ -33,7 +33,7 @@ Main entry‑point function for the processing queue messages.
 handler: typeof processMessage;
 ```
 
-> Use `typeof` since the message handler is a type declaration. See the queue [handler](./queue-handler.md) for more details.
+> Use `typeof` because the message handler is referenced by type. See the queue [handler](./queue-handler.md) for more details.
 
 #### Listener (optional)
 
@@ -47,7 +47,7 @@ Lifecycle listener for the subscription.
 listener: typeof queueListener;
 ```
 
-> Use `typeof` since the subscription listener is a type declaration. See the queue [listener](./queue-listener.md) for more details.
+> Use `typeof` because the subscription listener is referenced by type. See the queue [listener](./queue-listener.md) for more details.
 
 #### Variables (optional)
 
@@ -123,7 +123,7 @@ runtime: RuntimeType.Node24;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
 - Useful for compute‑heavy or parallel workloads.
