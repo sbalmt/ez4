@@ -18,19 +18,19 @@ Queues are ideal for background jobs, event processing, fan‑out workflows, and
 import type { Environment, Service } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
 
-// MyQueue message
-type MyQueueMessage = {
+// My message declaration
+declare class MyMessage implements Queue.Message {
   foo: string;
   bar: number;
-};
+}
 
-// MyQueue declaration
-export declare class MyQueue extends Queue.Unordered<MyQueueMessage> {
+// My queue declaration
+export declare class MyQueue extends Queue.Unordered<MyMessage> {
   retention: 600;
 
   subscriptions: [
     Queue.UseSubscription<{
-      handler: typeof eventHandler;
+      handler: typeof processMessage;
     }>
   ];
 
@@ -50,8 +50,8 @@ export declare class MyQueue extends Queue.Unordered<MyQueueMessage> {
 EZ4 validates the incoming message, injects all variables and services, and then invokes your subscription handler.
 
 ```ts
-// MyQueue message handler
-export function eventHandler(request: Queue.Incoming<MyQueueMessage>, context: Service.Context<MyQueue>): void {
+// My message handler
+export function processMessage(request: Queue.Incoming<MyMessage>, context: Service.Context<MyQueue>): void {
   const { otherService, variables } = context;
   const { message } = request;
 
@@ -75,7 +75,7 @@ import type { Service } from '@ez4/common';
 import type { MyQueue } from './queue';
 
 // Any other handler that has injected MyQueue service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myQueue } = context;
 
   await myQueue.sendMessage({
@@ -89,41 +89,13 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 With your queue defined, EZ4 handles provisioning, message routing, retries, and execution according to your contract.
 
-## Queue properties
+## What's next
 
-#### Service
-
-| Name          | Type                    | Description                                                        |
-| ------------- | ----------------------- | ------------------------------------------------------------------ |
-| fifoMode      | Queue.UseFifoMode<>     | Enable and configure the FIFO mode options.                        |
-| deadLetter    | Queue.UseDeadLetter<>   | Enable and configure the dead-letter queue options.                |
-| subscriptions | Queue.UseSubscription<> | All subscriptions associated with the queue.                       |
-| delay         | integer                 | Maximum delay (in seconds) to make messages available.             |
-| polling       | integer                 | Maximum wait time (in seconds) for receiving messages.             |
-| retention     | integer                 | Maximum retention time (in minutes) for all messages in the queue. |
-| timeout       | integer                 | Maximum acknowledge time (in seconds) for the handler.             |
-| variables     | object                  | Environment variables associated with all subscriptions.           |
-| services      | object                  | Injected services associated with all subscriptions.               |
-
-> Use type helpers for `fifoMode`, `deadLetter` and `subscriptions` properties.
-
-#### Subscriptions
-
-| Name         | Type             | Description                                                 |
-| ------------ | ---------------- | ----------------------------------------------------------- |
-| listener     | function         | Life-cycle listener function for the subscription.          |
-| handler      | function         | Entry-point handler function for the subscription.          |
-| variables    | object           | Environment variables associated with the subscription.     |
-| logRetention | integer          | Log retention (in days) for the handler.                    |
-| logLevel     | LogLevel         | Log level for the handler.                                  |
-| architecture | ArchitectureType | Architecture type for the cloud function.                   |
-| runtime      | RuntimeType      | Runtime for the cloud function.                             |
-| files        | string[]         | Additional resource files added into the handler bundle.    |
-| memory       | integer          | Memory available (in megabytes) for the handler.            |
-| concurrency  | integer          | Maximum number of concurrent executions handlers.           |
-| batch        | integer          | Maximum number of messages per handler invocation.          |
-| debug        | boolean          | Determine whether the debug mode is active for the handler. |
-| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
+- [Queue service](./docs/queue-service.md)
+- [Queue subscriptions](./docs/queue-subscriptions.md)
+- [Queue requests](./docs/queue-requests.md)
+- [Queue handler](./docs/queue-handler.md)
+- [Queue listener](./docs/queue-listener.md)
 
 ## Examples
 

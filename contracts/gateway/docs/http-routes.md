@@ -91,7 +91,7 @@ Lifecycle listener for the route.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts
-listener: typeof userListener;
+listener: typeof routeListener;
 ```
 
 > Use `typeof` since the route listener is a type declaration. See the gateway [listener](./gateway-listener.md) for more details.
@@ -174,7 +174,7 @@ architecture: ArchitectureType.Arm;
 Specifies the runtime environment for the handler.
 
 - Determines the Node.js runtime version used.
-- Must match supported provider runtimes.
+- Must match supported cloud provider runtimes.
 
 ```ts
 runtime: RuntimeType.Node24;
@@ -217,7 +217,7 @@ files: ['icon.png', 'settings.json'];
 Enables debug mode for the handler.
 
 - May enable additional logging or diagnostics.
-- Behavior depends on the provider and runtime.
+- Behavior depends on the cloud provider and runtime.
 
 ```ts
 debug: true;

@@ -34,6 +34,20 @@ interface MyRequest extends Http.Request {
 
 > The request interface is always an extension of the base `Http.Request` interface.
 
+#### Using type
+
+```ts
+type MyRequest = {
+  identity: object;
+  headers: object;
+  parameters: object;
+  query: object;
+  body: object | string;
+};
+```
+
+> Less verbose, but no clear indication that the type is a strong typed contract.
+
 ## Request fields
 
 #### Identity (optional)

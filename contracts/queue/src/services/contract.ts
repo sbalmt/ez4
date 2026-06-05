@@ -91,7 +91,7 @@ export namespace Queue {
     /**
      * Fair mode options.
      */
-    readonly fairMode: U extends { fairMode: true } ? FairMode<T> : never;
+    readonly fairMode?: U extends { fairMode: true } ? FairMode<T> : never;
 
     /**
      * Enable and configure the dead-letter queue.

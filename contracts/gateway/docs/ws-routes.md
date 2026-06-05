@@ -145,7 +145,7 @@ architecture: ArchitectureType.Arm;
 Specifies the runtime environment for the handler.
 
 - Determines the Node.js runtime version used.
-- Must match supported provider runtimes.
+- Must match supported cloud provider runtimes.
 
 ```ts
 runtime: RuntimeType.Node24;
@@ -188,7 +188,7 @@ files: ['icon.png', 'settings.json'];
 Enables debug mode for the handler.
 
 - May enable additional logging or diagnostics.
-- Behavior depends on the provider and runtime.
+- Behavior depends on the cloud provider and runtime.
 
 ```ts
 debug: true;
