@@ -51,7 +51,7 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
   readonly authorizer?: AuthHandler<U>;
 
   /**
-   * Main entry‑point handler for the route.
+   * Main entry‑point function for the route.
    *
    * - Runs in its own cloud resource.
    * - Invoked only after the authorizer (if defined) succeeds.

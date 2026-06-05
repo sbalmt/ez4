@@ -57,7 +57,7 @@ path: 'GET /users/{id}';
 
 #### Handler
 
-Main entry‑point handler for the route.
+Main entry‑point function for the route.
 
 - Runs in its own cloud resource.
 - Invoked only after the authorizer (if defined) succeeds.

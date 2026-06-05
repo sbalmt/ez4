@@ -17,7 +17,7 @@ export interface WsDisconnect<T extends WsEvent> extends WebTarget {
   readonly listener?: WsListener<T>;
 
   /**
-   * Main entry‑point handler for the disconnect handler.
+   * Main entry‑point function for the disconnect handler.
    *
    * - Runs in its own cloud resource.
    * - Invoked only when the connection is closed.

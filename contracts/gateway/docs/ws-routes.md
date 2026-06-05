@@ -40,7 +40,7 @@ The following fields define the behavior, infrastructure, and runtime configurat
 
 #### Handler
 
-Main entry‑point handler for the route.
+Main entry‑point function for the route.
 
 - Runs in its own cloud resource.
 - For **connect**: invoked once when a new connection is opened and after the authorizer (if defined) succeeds.

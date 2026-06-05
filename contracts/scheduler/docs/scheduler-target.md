@@ -1,53 +1,43 @@
-# EZ4: Queue Subscriptions
+# EZ4: Scheduler Target
 
-Subscriptions represent how a queue consumes messages. Each subscription is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the subscription declaration to generate the necessary infrastructure, permissions, handler binding plus optional lifecycle listeners, batching, concurrency, and more.
+Scheduler targets define the **execution configuration** for scheduled events. The target declaration attached to `Cron.Service` controls the handler, listener, and runtime options used for each event invocation.
 
-## Subscription declaration
+## Target declaration
 
-Declare subscriptions using the `Queue.UseSubscription` helper on the service.
+A scheduler target is declared using `Cron.UseTarget` inside the scheduler service.
 
 ```ts
-subscriptions: [
-  Queue.UseSubscription<{
-    listener: typeof queueListener;
-    handler: typeof processMessage;
-    concurrency: 4;
-    timeout: 120;
-    batch: 5;
-  }>
-];
+target: Cron.UseTarget<{
+  handler: typeof eventHandler;
+  listener: typeof schedulerListener;
+  timeout: 30;
+}>;
 ```
 
-## Subscription fields
-
-The following fields define the behavior, infrastructure, and runtime configuration of a queue subscription.
+## Target fields
 
 #### Handler
 
-Main entry‑point function for the processing queue messages.
+Defines the entry-point function for scheduled events.
 
-- Invoked per message in the batch.
+- Invoked every time a scheduler event is triggered.
 - Runs in its own cloud resource.
 
 ```ts
-handler: typeof processMessage;
+handler: typeof eventHandler;
 ```
-
-> Use `typeof` since the message handler is a type declaration. See the queue [handler](./queue-handler.md) for more details.
 
 #### Listener (optional)
 
-Lifecycle listener for the subscription.
+Defines an optional listener that observes scheduler execution events.
 
-- Runs inside the same cloud resource as the subscription handler.
+- Runs inside the same cloud resource as the target handler.
 - Receives events such as request begin, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 
 ```ts
-listener: typeof queueListener;
+listener: typeof schedulerListener;
 ```
-
-> Use `typeof` since the subscription listener is a type declaration. See the queue [listener](./queue-listener.md) for more details.
 
 #### Variables (optional)
 
@@ -61,22 +51,6 @@ variables: {
   VARIABLE_A: Environment.Variable<'ENV_VAR_NAME'>;
   VARIABLE_B: 'literal value';
 }
-```
-
-#### Concurrency (optional)
-
-Maximum number of concurrent executions handlers.
-
-```ts
-concurrency: 10;
-```
-
-#### Batch (optional)
-
-Maximum number of messages per handler invocation.
-
-```ts
-batch: 5;
 ```
 
 #### Log retention (optional)
@@ -156,7 +130,7 @@ debug: true;
 
 #### VPC (optional)
 
-Enables VPC access for the subscription handler.
+Enables VPC access for the scheduler handler.
 
 - Allows the handler to access private resources inside the default VPC.
 - May increase cold‑start latency.
@@ -167,11 +141,10 @@ vpc: true;
 
 ## What's next
 
-- [Queue service](./queue-service.md)
-- [Queue requests](./queue-requests.md)
-- [Queue handlers](./queue-handler.md)
-- [Queue listeners](./queue-listener.md)
-- [Queue client](./queue-client.md)
+- [Scheduler service](./scheduler-service.md)
+- [Scheduler requests](./scheduler-requests.md)
+- [Scheduler listener](./scheduler-listener.md)
+- [Scheduler client](./scheduler-client.md)
 
 ## License
 

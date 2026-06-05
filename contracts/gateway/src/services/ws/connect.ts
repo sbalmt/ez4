@@ -28,7 +28,7 @@ export interface WsConnect<T extends WsEvent, U extends AuthRequest> extends Web
   readonly authorizer?: AuthHandler<U>;
 
   /**
-   * Main entry‑point handler for the connect handler.
+   * Main entry‑point function for the connect handler.
    *
    * - Runs in its own cloud resource.
    * - Invoked only when a new connection is opened.

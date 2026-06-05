@@ -9,7 +9,7 @@ The client API provides a unified, provider-agnostic way to access the queue ser
 #### Send a message
 
 ```ts
-export async function publishMessage(_request: any, context: Service.Context<MyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
   const { myQueue } = context;
 
   await myQueue.sendMessage({
@@ -24,7 +24,7 @@ export async function publishMessage(_request: any, context: Service.Context<MyS
 #### Receive messages
 
 ```ts
-export async function pollQueue(_request: any, context: Service.Context<MyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
   const { myQueue } = context;
 
   const messages = await myQueue.receiveMessage({
@@ -36,7 +36,7 @@ export async function pollQueue(_request: any, context: Service.Context<MyServic
 }
 ```
 
-> The `receiveMessage` call returns zero or more typed messages and supports optional polling and batch size configuration.
+> The `receiveMessage` call returns zero or more typed messages.
 
 ## Notes
 

@@ -155,7 +155,7 @@ Additional files to include in the handler bundle.
 - Paths are relative to the project root.
 
 ```ts
-files: ['data.xml', 'settings.json'];
+files: ['settings.json'];
 ```
 
 #### Debug (optional)

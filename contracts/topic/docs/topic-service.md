@@ -7,7 +7,12 @@ A topic service defines the **publish/subscribe event stream** interface of an a
 A topic service is declared by extending `Topic.Unordered<T>` or `Topic.Ordered<T>` (FIFO) and providing the subscriptions that compose the topic.
 
 ```ts
-export declare class MyTopic extends Topic.Unordered<MyTopicMessage> {
+declare class MyMessage implements Topic.Message {
+  bar: boolean;
+  foo: number;
+}
+
+export declare class MyTopic extends Topic.Unordered<MyMessage> {
   subscriptions: [
     Topic.UseSubscription<{
       handler: typeof processMessage;

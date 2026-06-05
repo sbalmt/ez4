@@ -7,7 +7,12 @@ A queue service defines the **asynchronous message processing** interface of an 
 A queue service is declared by extending `Queue.Unordered<T>` or `Queue.Ordered<T>` (FIFO) and providing the subscriptions that compose the queue.
 
 ```ts
-export declare class MyQueue extends Queue.Unordered<MyQueueMessage> {
+declare class MyMessage implements Queue.Message {
+  foo: number;
+  bar: boolean;
+}
+
+export declare class MyQueue extends Queue.Unordered<MyMessage> {
   subscriptions: [
     Queue.UseSubscription<{
       handler: typeof processMessage;

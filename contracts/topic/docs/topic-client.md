@@ -9,7 +9,7 @@ The client API provides a unified, provider-agnostic way to access the topic ser
 #### Publish a message
 
 ```ts
-export async function publishEvent(_request: any, context: Service.Context<MyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
   const { myTopic } = context;
 
   await myTopic.sendMessage({

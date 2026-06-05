@@ -39,32 +39,6 @@ type MyMessage = {
 
 > Less verbose, but no clear indication that the type is a strongly typed contract.
 
-## Request fields
-
-#### Trace Id
-
-Unique identifier shared across services. It may come from the message attributes.
-
-```ts
-traceId: string;
-```
-
-#### Request Id
-
-Unique identifier for the request.
-
-```ts
-requestId: string;
-```
-
-#### Message
-
-Typed topic message payload.
-
-```ts
-message: MyMessage;
-```
-
 ## Contract schema
 
 Request validation and transformation are powered by the rich schema system provided by the [@ez4/schema](../../../foundation/schema/) package. Schemas define the structure, validation rules, and transformations applied before the request reaches your handler.
