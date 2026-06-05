@@ -4,7 +4,7 @@ Gateway listeners allow you to observe and react to the **lifecycle events** of 
 
 ## Listener implementation
 
-A listener is a function that receives a typed service event and a provider context. The event type is defined by `Http.ServiceEvent<T>` or `Ws.ServiceEvent<T>`, where `T` is the request contract type.
+A listener is a function that receives a typed service event and a provider context. The event type is defined by `Http.ServiceEvent<T>` or `Ws.ServiceEvent<T>`, where `T` is the request type.
 
 ```ts
 export function myListener(event: Http.ServiceEvent | Ws.ServiceEvent, context: Service.Context<MyServer>) {

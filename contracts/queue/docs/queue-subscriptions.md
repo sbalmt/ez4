@@ -1,6 +1,6 @@
 # EZ4: Queue Subscriptions
 
-Subscriptions represent how a queue consumes messages. Each subscription is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the subscription contract to generate the necessary infrastructure, permissions, handler binding plus optional lifecycle listeners, batching, concurrency, and more.
+Subscriptions represent how a queue consumes messages. Each subscription is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the subscription declaration to generate the necessary infrastructure, permissions, handler binding plus optional lifecycle listeners, batching, concurrency, and more.
 
 ## Subscription declaration
 

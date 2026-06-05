@@ -16,17 +16,17 @@ export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.C
 
 #### Request fields
 
-Handlers receive a typed request object generated from the message contract.
+Handlers receive a typed request object generated from the declared queue message type.
 
 - **Message** - Typed object containing the message payload.
 - **Trace Id** - A unique identifier across multiple services.
 - **Request Id** - A unique identifier for the request.
 
-All fields are validated and transformed according to the declared contract, as mentioned in the [requests](./queue-requests.md) documentation.
+All fields are validated and transformed according to the declared queue service schema, as mentioned in the [requests](./queue-requests.md) documentation.
 
 #### Error handling
 
-- Unhandled exceptions thrown by the handler follow retry semantics defined by the queue contract.
+- Unhandled exceptions thrown by the handler follow retry semantics defined by the queue service.
 - Use the `deadLetter` configuration to route permanently failing messages to a dead‑letter queue for inspection.
 
 #### Acknowledgement and Visibility
@@ -36,7 +36,7 @@ All fields are validated and transformed according to the declared contract, as 
 
 #### Timeouts and Resource limits
 
-- Keep handler execution within the `timeout` window configured at queue contract.
+- Keep handler execution within the `timeout` window configured on the queue service.
 - Use `batch` and `concurrency` to tune throughput vs latency.
 
 ## What's next

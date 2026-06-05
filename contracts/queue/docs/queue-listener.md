@@ -4,7 +4,7 @@ Listeners let you observe the **lifecycle events** of subscription handler execu
 
 ## Listener implementation
 
-Listeners receive typed service event `Queue.ServiceEvent<T>` where `T` is the message contract type.
+Listeners receive typed service event `Queue.ServiceEvent<T>` where `T` is the queue message type.
 
 ```ts
 export function myListener(event: Queue.ServiceEvent<MyMessage>, context: Service.Context<MyQueue>) {

@@ -1,6 +1,6 @@
 # EZ4: Queue Requests
 
-Queue requests define the **typed shape** of incoming messages processed by subscription handlers. The message type specified in the queue contract is used to validate incoming requests before invoking handlers.
+Queue requests define the **typed shape** of incoming messages processed by subscription handlers. The message type declared by the queue service is used to validate incoming requests before invoking handlers.
 
 ## Request declaration
 
