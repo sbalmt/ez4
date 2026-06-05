@@ -117,7 +117,7 @@ export class ClientDriver implements PgClientDriver {
     const client = await this.getConnection();
 
     try {
-      await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
+      await client.query('BEGIN');
       ALL_TRANSACTIONS[transactionId] = client;
       return transactionId;
     } catch (error) {
