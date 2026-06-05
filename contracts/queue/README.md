@@ -96,6 +96,7 @@ With your queue defined, EZ4 handles provisioning, message routing, retries, and
 - [Queue requests](./docs/queue-requests.md)
 - [Queue handler](./docs/queue-handler.md)
 - [Queue listener](./docs/queue-listener.md)
+- [Queue client](./docs/queue-client.md)
 
 ## Examples
 

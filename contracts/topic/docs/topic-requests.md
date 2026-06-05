@@ -1,43 +1,43 @@
-# EZ4: Queue Requests
+# EZ4: Topic Requests
 
-Queue requests define the **typed shape** of incoming messages processed by subscription handlers. The message type declared by the queue service is used to validate incoming requests before invoking handlers.
+Topic requests define the **typed shape** of incoming messages processed by subscription handlers. The message type specified in the topic service is used to validate incoming requests before invoking handlers.
 
 ## Request declaration
 
-The `Queue.Message` interface represents the full structure of an incoming message request, ensuring that handlers operate on strongly typed, validated, and [reflection‑driven](../../../foundation/reflection/) request data.
+The `Topic.Message` interface represents the full structure of an incoming topic message, ensuring that handlers operate on strongly typed, validated, and [reflection‑driven](../../../foundation/reflection/) request data.
 
 #### Using class (preferred)
 
 ```ts
-declare class MyMessage implements Queue.Message {
+declare class MyMessage implements Topic.Message {
   foo: string;
   bar: number;
 }
 ```
 
-> The request class is always an implementation of the base `Queue.Message` interface.
+> The request class is always an implementation of the base `Topic.Message` interface.
 
 #### Using interface
 
 ```ts
-interface MyRequest extends Queue.Message {
+interface MyMessage extends Topic.Message {
   foo: string;
   bar: number;
 }
 ```
 
-> The request interface is always an extension of the base `Queue.Message` interface.
+> The request interface is always an extension of the base `Topic.Message` interface.
 
 #### Using type
 
 ```ts
-type MyRequest = {
+type MyMessage = {
   foo: string;
   bar: number;
 };
 ```
 
-> Less verbose, but no clear indication that the type is a strong typed contract.
+> Less verbose, but no clear indication that the type is a strongly typed contract.
 
 ## Request fields
 
@@ -59,7 +59,7 @@ requestId: string;
 
 #### Message
 
-Typed queue message payload.
+Typed topic message payload.
 
 ```ts
 message: MyMessage;
@@ -81,11 +81,11 @@ Learn more about schemas:
 
 ## What's next
 
-- [Queue service](./queue-service.md)
-- [Queue subscriptions](./queue-subscriptions.md)
-- [Queue handler](./queue-handler.md)
-- [Queue listener](./queue-listener.md)
-- [Queue client](./queue-client.md)
+- [Topic service](./topic-service.md)
+- [Topic subscriptions](./topic-subscriptions.md)
+- [Topic handlers](./topic-handler.md)
+- [Topic listeners](./topic-listener.md)
+- [Topic client](./topic-client.md)
 
 ## License
 

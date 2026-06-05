@@ -171,6 +171,7 @@ vpc: true;
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
 - [Queue listeners](./queue-listener.md)
+- [Queue client](./queue-client.md)
 
 ## License
 

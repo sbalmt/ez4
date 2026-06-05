@@ -50,6 +50,7 @@ Listeners receive one or more of the following event types during the lifecycle 
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
+- [Queue client](./queue-client.md)
 
 ## License
 

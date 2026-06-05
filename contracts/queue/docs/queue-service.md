@@ -56,7 +56,7 @@ deadLetter: Queue.UseDeadLetter<{
 }>;
 ```
 
-#### Fifo Mode (ordered only)
+#### FIFO Mode (ordered only)
 
 Defines the FIFO mode for ordered queues.
 
@@ -169,6 +169,7 @@ variables: {
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
 - [Queue listeners](./queue-listener.md)
+- [Queue client](./queue-client.md)
 
 ## Examples
 

@@ -45,6 +45,7 @@ All fields are validated and transformed according to the declared queue service
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue listener](./queue-listener.md)
+- [Queue client](./queue-client.md)
 
 ## License
 
