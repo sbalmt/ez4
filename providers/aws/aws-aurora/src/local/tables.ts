@@ -21,7 +21,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   const queries = getUpdateQueries(repository, oldRepository);
   const client = getClient(connection);
 
-  await client.transaction((transaction: DbClient<Database.Service>) => {
+  await client.transaction((transaction: DbClient<Database.Service<any>>) => {
     return runAllStatements(transaction, [...queries.tables, ...queries.constraints]);
   });
 
@@ -53,13 +53,13 @@ const ensureDatabase = async (connection: ClientConnection) => {
   await runStatement(client, query);
 };
 
-const runAllStatements = async (client: DbClient<Database.Service>, statements: PgMigrationStatement[]) => {
+const runAllStatements = async (client: DbClient<Database.Service<any>>, statements: PgMigrationStatement[]) => {
   for (const query of statements) {
     await runStatement(client, query);
   }
 };
 
-const runStatement = async (client: DbClient<Database.Service>, statement: PgMigrationStatement) => {
+const runStatement = async (client: DbClient<Database.Service<any>>, statement: PgMigrationStatement) => {
   const { check, query } = statement;
 
   if (check) {

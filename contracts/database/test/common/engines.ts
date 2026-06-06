@@ -7,6 +7,7 @@ export type TestEngine = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -17,6 +18,7 @@ export type TestEngineParameters<P extends ParametersMode> = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -27,6 +29,7 @@ export type TestEngineTransaction<T extends TransactionMode> = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -37,6 +40,7 @@ export type TestEngineInsensitive<I extends InsensitiveMode> = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -47,6 +51,7 @@ export type TestEnginePagination<P extends PaginationMode> = {
   paginationMode: P;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -57,6 +62,7 @@ export type TestEngineOrder<O extends OrderMode> = {
   paginationMode: PaginationMode.Offset;
   orderMode: O;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'test';
 };
 
@@ -67,5 +73,6 @@ export type TestEngineLock<L extends LockMode> = {
   paginationMode: PaginationMode.Offset;
   orderMode: OrderMode.AnyColumns;
   lockMode: L;
+  options: never;
   name: 'test';
 };

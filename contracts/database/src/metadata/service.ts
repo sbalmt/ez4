@@ -1,4 +1,4 @@
-import type { AllType, ModelProperty, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeClass, TypeModel, TypeObject } from '@ez4/reflection';
 import type { Incomplete } from '@ez4/utils';
 import type { DatabaseService } from './types';
 import type { DatabaseTable } from './types';
@@ -9,9 +9,10 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
-  getPropertyTuple,
+  getLinkedOptionsObject,
+  getLinkedVariablesObject,
+  getLinkedServicesObject,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -23,7 +24,7 @@ import { IncompleteServiceError } from '../errors/service';
 import { InvalidRelationAliasError, InvalidRelationColumnError, InvalidRelationTableError } from '../errors/relations';
 import { getDatabaseScalabilityMetadata } from './scalability';
 import { getDatabaseEngineMetadata } from './engine';
-import { getDatabaseTableMetadata } from './table';
+import { getDatabaseTablesMetadata } from './table';
 import { createDatabaseService } from './types';
 
 export const isDatabaseServiceDeclaration = (type: AllType): type is TypeClass => {
@@ -41,19 +42,21 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createDatabaseService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createDatabaseService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['engine', 'tables']);
 
-    const fileName = declaration.file;
-
-    for (const member of getModelMembers(declaration)) {
-      if (!isModelProperty(member) || member.inherited) {
+    for (const member of getModelMembers(declaration, true)) {
+      if (!isModelProperty(member)) {
         continue;
       }
 
       switch (member.name) {
         default: {
-          errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          if (!member.inherited) {
+            errorList.push(new InvalidServicePropertyError(service.name, member.name, fileName));
+          }
           break;
         }
 
@@ -61,7 +64,9 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
           break;
 
         case 'scalability': {
-          service.scalability = getDatabaseScalabilityMetadata(member.value, declaration, reflection, errorList);
+          if (!member.inherited) {
+            service.scalability = getDatabaseScalabilityMetadata(member.value, declaration, reflection, errorList);
+          }
           break;
         }
 
@@ -73,19 +78,30 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'tables': {
-          if ((service.tables = getAllTables(member, declaration, reflection, errorList))) {
+          if (!member.inherited && (service.tables = getDatabaseTablesMetadata(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;
         }
 
+        case 'options': {
+          if (!member.inherited) {
+            service.options = getLinkedOptionsObject(member);
+          }
+          break;
+        }
+
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          if (!member.inherited) {
+            service.variables = getLinkedVariablesObject(member, errorList);
+          }
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          if (!member.inherited) {
+            service.services = getLinkedServicesObject(member, reflection, errorList);
+          }
           break;
         }
       }
@@ -119,21 +135,6 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
 
 const isCompleteService = (type: Incomplete<DatabaseService>): type is DatabaseService => {
   return isObjectWith(type, ['engine', 'tables', 'variables', 'services']);
-};
-
-const getAllTables = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
-  const tableItems = getPropertyTuple(member) ?? [];
-  const tableList: DatabaseTable[] = [];
-
-  for (const subscription of tableItems) {
-    const result = getDatabaseTableMetadata(subscription, parent, reflection, errorList);
-
-    if (result) {
-      tableList.push(result);
-    }
-  }
-
-  return tableList;
 };
 
 const validateRelations = (type: TypeObject | TypeModel, tables: DatabaseTable[]) => {

@@ -5,16 +5,11 @@ import type { FileSchema } from '@/schemas/file';
 /**
  * Example of AWS DynamoDB deployed with EZ4.
  */
-export declare class FileDb extends Database.Service {
+export declare class FileDb extends Database.Service<DynamoDbEngine> {
   /**
    * Database client.
    */
   client: Client<typeof this>;
-
-  /**
-   * Database engine.
-   */
-  engine: DynamoDbEngine;
 
   /**
    * Database tables.

@@ -1,7 +1,7 @@
 import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
 import type { Database } from '@ez4/database';
 
-export declare class TestDatabase extends Database.Service {
+export declare class TestDatabase extends Database.Service<TestEngine> {
   engine: TestEngine;
 
   tables: [];
@@ -15,5 +15,6 @@ class TestEngine implements Database.Engine {
   paginationMode!: PaginationMode.Offset;
   orderMode!: OrderMode.AnyColumns;
   lockMode!: LockMode.Unsupported;
+  options!: never;
   name!: 'test';
 }

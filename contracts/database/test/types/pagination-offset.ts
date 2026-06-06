@@ -8,9 +8,7 @@ declare class TestTable implements Database.Schema {
   value: number;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEnginePagination<PaginationMode.Offset>;
-
+export declare class TestDatabase extends Database.Service<TestEnginePagination<PaginationMode.Offset>> {
   client: Client<TestDatabase>;
 
   tables: [

@@ -7,10 +7,11 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
-  getPropertyString,
+  getLinkedServicesObject,
+  getLinkedVariablesObject,
+  getDeclarationDescription,
   getModelMembers,
+  getPropertyString,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -42,14 +43,10 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createHttpService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createHttpService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['routes']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -95,12 +92,12 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          service.variables = getLinkedVariablesObject(member, errorList);
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

@@ -1,26 +1,28 @@
 type InnerType = {
   /**
-   * Inner optional property.
+   * @description Inner optional property.
    */
   foo: number;
 
   /**
-   * Inner optional property.
+   * @description Inner optional property.
    */
   bar: string;
 };
 
 /**
- * Partial test object.
+ * Internal test description.
+ *
+ * @description Partial test object.
  */
 export interface PartialTestSchema {
   /**
-   * Single property with partial object.
+   * @description Single property with partial object.
    */
   single: Partial<InnerType>;
 
   /**
-   * Union property with partial object.
+   * @description Union property with partial object.
    */
   union: Partial<InnerType | { baz: boolean }>;
 }

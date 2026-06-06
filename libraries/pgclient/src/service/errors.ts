@@ -1,9 +1,11 @@
+import type { ErrorDetails } from '@ez4/validator';
+
 import { ServiceError } from '@ez4/common';
 
 export class MalformedRequestError extends ServiceError {
   constructor(
     public field: string,
-    details: string[]
+    details: ErrorDetails[]
   ) {
     super(`Malformed table schema for field '${field}'.`, { details });
   }
@@ -11,6 +13,6 @@ export class MalformedRequestError extends ServiceError {
 
 export class MissingRepositoryTableError extends Error {
   constructor(public tableAlias: string) {
-    super(`Table ${tableAlias} isn't part of the repository.`);
+    super(`Table '${tableAlias}' isn't part of the repository.`);
   }
 }

@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -10,9 +15,11 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue2"
+      "testQueue": {
+        "reference": "TestQueue2"
+      }
     },
-    "description": "First test queue description.",
+    "description": "Test queue service.",
     "subscriptions": [],
     "fifoMode": {
       "uniqueId": "id",
@@ -40,7 +47,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue3"
+      "testQueue": {
+        "reference": "TestQueue3"
+      }
     },
     "description": "Description of the second test queue.",
     "subscriptions": [],

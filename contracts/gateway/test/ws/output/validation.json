@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -46,8 +51,12 @@
     "context": {},
     "variables": {},
     "services": {
-      "@TestValidationA": "TestValidationA",
-      "@TestValidationB": "TestValidationB"
+      "@TestValidationA": {
+        "reference": "TestValidationA"
+      },
+      "@TestValidationB": {
+        "reference": "TestValidationB"
+      }
     },
     "schema": {
       "type": "object",

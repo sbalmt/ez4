@@ -14,7 +14,7 @@ export const processSchedulerEvent = async (
 ) => {
   const { services, target } = service;
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   Runtime.setScope({

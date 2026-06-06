@@ -1,6 +1,6 @@
 # EZ4: HTTP Requests
 
-Gateway requests define the **typed shape** of all incoming HTTP data processed by a gateway route. Every handler receives a fully typed object, which includes identity information, headers, path parameters, query strings, and body payloads. These types are generated from the request contract and validated at runtime.
+Gateway requests define the **typed shape** of all incoming HTTP data processed by a gateway route. Every handler receives a fully typed object, which includes identity information, headers, path parameters, query strings, and body payloads. These types are generated from the declared request type and validated at runtime.
 
 ## Request declaration
 
@@ -33,6 +33,20 @@ interface MyRequest extends Http.Request {
 ```
 
 > The request interface is always an extension of the base `Http.Request` interface.
+
+#### Using type
+
+```ts
+type MyRequest = {
+  identity: object;
+  headers: object;
+  parameters: object;
+  query: object;
+  body: object | string;
+};
+```
+
+> Less verbose, but no clear indication that the type is a strong typed contract.
 
 ## Request fields
 
@@ -109,7 +123,7 @@ Typed request body payload.
 
 - Automatically parsed into the declared types.
 - Supports JSON objects and raw string payloads.
-- Shape is determined by the declared contract.
+- Shape is determined by the declared request type.
 
 JSON payload (preferred):
 
@@ -121,7 +135,7 @@ body: {
 }
 ```
 
-> Body is `undefined` for routes without a body (e.g., GET requests). It's field names are affected by the `NamingStyle` preference.
+> Body is `undefined` for routes without a body (e.g., GET requests). Its field names are affected by the `NamingStyle` preference.
 
 Raw String payload:
 

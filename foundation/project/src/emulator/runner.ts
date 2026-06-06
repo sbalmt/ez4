@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from './service';
 
 import { getServiceName } from '../utils/service';
@@ -34,7 +35,7 @@ export namespace Runner {
     });
   };
 
-  export const getServiceClient = (resourceName: string): Promise<unknown> | unknown => {
+  export const getServiceClient = (resourceName: string, resourceOptions?: AnyObject): unknown => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Runner is not configured yet.');
     }
@@ -50,6 +51,12 @@ export namespace Runner {
       throw new EmulatorClientNotFoundError(resourceName);
     }
 
-    return serviceEmulator.exportHandler();
+    const serviceClient = serviceEmulator.exportHandler(resourceOptions ?? {});
+
+    if (serviceClient instanceof Function) {
+      return serviceClient();
+    }
+
+    return serviceClient;
   };
 }

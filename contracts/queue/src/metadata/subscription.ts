@@ -6,7 +6,7 @@ import type { QueueSubscription } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getObjectMembers,
   getModelMembers,
   getPropertyNumber,
@@ -155,7 +155,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables': {
-        subscription.variables = getLinkedVariableList(member, errorList);
+        subscription.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

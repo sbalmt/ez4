@@ -23,7 +23,7 @@ export const validateString = async (value: unknown, schema: StringSchema, conte
   const property = context?.property;
 
   if (typeof value !== 'string') {
-    return [new ExpectedStringTypeError(property)];
+    return [new ExpectedStringTypeError(value, property)];
   }
 
   const definitions = schema.definitions;
@@ -31,15 +31,15 @@ export const validateString = async (value: unknown, schema: StringSchema, conte
   const input = definitions?.trim ? value.trim() : value;
 
   if (definitions?.value && input !== definitions.value) {
-    return [new UnexpectedStringError(definitions.value, property)];
+    return [new UnexpectedStringError(value, definitions.value, property)];
   }
 
   if (isAnyNumber(definitions?.minLength) && input.length < definitions.minLength) {
-    return [new UnexpectedMinLengthError(definitions.minLength, property)];
+    return [new UnexpectedMinLengthError(value, definitions.minLength, property)];
   }
 
   if (isAnyNumber(definitions?.maxLength) && input.length > definitions.maxLength) {
-    return [new UnexpectedMaxLengthError(definitions.maxLength, property)];
+    return [new UnexpectedMaxLengthError(value, definitions.maxLength, property)];
   }
 
   const allErrors = await validateStringFormat(input, schema, property);

@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -9,7 +14,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestService"
+      "selfClient": {
+        "reference": "TestService"
+      }
     },
     "name": "TestService",
     "routes": [
@@ -29,7 +36,9 @@
           },
           "provider": {
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             }
           }
         }
@@ -50,7 +59,9 @@
           },
           "provider": {
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             },
             "variables": {
               "TEST_VAR1": "test-literal-value",

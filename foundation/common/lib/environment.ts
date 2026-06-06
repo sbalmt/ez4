@@ -14,8 +14,13 @@ export namespace Environment {
     '@ez4/project': 'variables';
   };
 
-  export type Service<T> = {
+  export type ServiceOptions = {
+    '@ez4/project': 'options';
+  };
+
+  export type Service<T, U> = {
     '@ez4/project': 'service';
-    service: T;
+    reference: T;
+    options: U;
   };
 }

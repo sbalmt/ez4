@@ -40,6 +40,8 @@ const attachSchemaValidatorServices = (services: LinkedServices, schema: AnySche
   for (const validatorType of validatorTypes) {
     const serviceName = getValidatorName(validatorType);
 
-    services[serviceName] = validatorType;
+    services[serviceName] = {
+      reference: validatorType
+    };
   }
 };

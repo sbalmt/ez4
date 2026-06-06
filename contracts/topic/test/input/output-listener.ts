@@ -5,7 +5,7 @@ interface TestMessage extends Topic.Message {
 }
 
 /**
- * Topic to test subscription listener.
+ * @description Topic to test subscription listener.
  */
 export declare class TestTopic extends Topic.Unordered<TestMessage> {
   subscriptions: [

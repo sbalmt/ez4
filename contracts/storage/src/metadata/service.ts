@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedVariableList,
-  getLinkedServiceList,
+  getLinkedVariablesObject,
+  getLinkedServicesObject,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyNumber,
   getPropertyString,
@@ -38,9 +39,9 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createBucketService(declaration.name);
+    const { file: fileName } = declaration;
 
-    const fileName = declaration.file;
+    const service = createBucketService(declaration.name, getDeclarationDescription(declaration));
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -78,12 +79,12 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          service.variables = getLinkedVariablesObject(member, errorList);
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

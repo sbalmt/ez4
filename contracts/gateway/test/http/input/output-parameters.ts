@@ -15,7 +15,7 @@ export declare class TestService extends Http.Service {
 
 declare class TestRequest implements Http.Request {
   /**
-   * Validated path parameters.
+   * @description Validated path parameters.
    */
   parameters: {
     foo: string;

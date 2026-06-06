@@ -20,7 +20,7 @@ export const processWsMessage = async (
 ) => {
   const { message, defaults, services } = service;
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const handler = message.handler;
   const traceId = getRandomUUID();
 

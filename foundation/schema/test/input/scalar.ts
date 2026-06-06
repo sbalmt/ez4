@@ -1,34 +1,36 @@
 /**
- * Scalar test object.
+ * Internal test description.
+ *
+ * @description Scalar test object.
  */
 export interface ScalarTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: string;
 
   /**
-   * Bar property.
+   * @description Bar property.
    */
   bar: number;
 
   /**
-   * Baz property.
+   * @description Baz property.
    */
   baz: boolean;
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: boolean | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: number | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: string | null;
 }

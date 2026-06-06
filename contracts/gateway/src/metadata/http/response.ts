@@ -6,6 +6,7 @@ import type { HttpResponse } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
+  getDeclarationDescription,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
@@ -79,6 +80,8 @@ const getTypeFromMembers = (
       continue;
     }
 
+    const description = getDeclarationDescription(member);
+
     switch (member.name) {
       default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
@@ -93,8 +96,8 @@ const getTypeFromMembers = (
       case 'headers': {
         response.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, HttpNamespaceType);
 
-        if (response.headers && member.description) {
-          response.headers.description = member.description;
+        if (response.headers && description) {
+          response.headers.description = description;
         }
 
         break;
@@ -103,8 +106,8 @@ const getTypeFromMembers = (
       case 'body': {
         response.body = getWebBodyMetadata(member.value, type, reflection, errorList, HttpNamespaceType);
 
-        if (response.body && member.description) {
-          response.body.description = member.description;
+        if (response.body && description) {
+          response.body.description = description;
         }
 
         break;

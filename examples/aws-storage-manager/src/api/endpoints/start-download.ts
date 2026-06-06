@@ -33,6 +33,9 @@ declare class StartDownloadResponse implements Http.Response {
 
 /**
  * Handle start download requests.
+ *
+ * @description Generate a signed URL for download the file corresponding to the given `fileId`.
+ * @summary Download file.
  */
 export async function startDownloadHandler(
   request: StartDownloadRequest,

@@ -91,7 +91,7 @@ export namespace Queue {
     /**
      * Fair mode options.
      */
-    readonly fairMode: U extends { fairMode: true } ? FairMode<T> : never;
+    readonly fairMode?: U extends { fairMode: true } ? FairMode<T> : never;
 
     /**
      * Enable and configure the dead-letter queue.
@@ -132,6 +132,11 @@ export namespace Queue {
      * Service client.
      */
     readonly client: Client<T, U>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 
   /**
@@ -189,12 +194,12 @@ export namespace Queue {
     readonly fifoMode: T['fifoMode'];
 
     /**
-     * Imported dead-letter configuration options.
+     * Imported dead-letter configuration options (do not replace).
      */
     readonly deadLetter: T['deadLetter'];
 
     /**
-     * Imported backoff configuration options.
+     * Imported backoff configuration options (do not replace).
      */
     readonly backoff: T['backoff'];
 
@@ -207,5 +212,10 @@ export namespace Queue {
      * Imported service client (do not replace).
      */
     readonly client: T['client'];
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

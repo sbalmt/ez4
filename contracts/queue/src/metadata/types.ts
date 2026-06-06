@@ -83,9 +83,10 @@ export const isQueueService = (service: ServiceMetadata): service is QueueServic
   return service.type === ServiceType;
 };
 
-export const createQueueService = (name: string) => {
+export const createQueueService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<QueueService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };
@@ -95,9 +96,10 @@ export const isQueueImport = (service: ServiceMetadata): service is QueueImport 
   return service.type === ImportType;
 };
 
-export const createQueueImport = (name: string) => {
+export const createQueueImport = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<QueueImport>(ImportType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

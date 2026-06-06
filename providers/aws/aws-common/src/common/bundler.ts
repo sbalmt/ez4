@@ -1,4 +1,5 @@
 import type { LinkedContext } from '@ez4/project/library';
+import type { AnyObject } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
 import { readFile, stat } from 'node:fs/promises';
@@ -7,7 +8,7 @@ import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 import { cpus } from 'node:os';
 
-import { arrayUnique, hashData, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
+import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
@@ -254,21 +255,22 @@ const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
     const services: string[] = [];
 
     for (const serviceName of Object.keys(linkedContext).sort()) {
-      const { constructor, module, from, context } = linkedContext[serviceName];
+      const { constructor, module, from, options, context } = linkedContext[serviceName];
 
-      const constructorPath = hashData(`${serviceName}/${module}/${from}`);
-      const constructorHash = `__EZ4_${toSnakeCase(constructorPath).toUpperCase()}`;
+      const constructorHash = hashObject({ serviceName, options, module, from });
+      const constructorName = `__EZ4_${toSnakeCase(constructorHash).toUpperCase()}`;
 
-      services.push(`['${serviceName}']: __EZ4_REPOSITORY.${constructorHash}`);
+      services.push(`['${serviceName}']: __EZ4_REPOSITORY.${constructorName}`);
 
-      if (!resolutionCache.has(constructorHash)) {
-        resolutionCache.add(constructorHash);
+      if (!resolutionCache.has(constructorName)) {
+        resolutionCache.add(constructorName);
 
-        packages.push(`import { ${module} as ${constructorHash} } from '${from}';`);
+        packages.push(`import { ${module} as ${constructorName} } from '${from}';`);
 
-        repository[constructorHash] = applyTemplateVariables(constructor, {
+        repository[constructorName] = applyTemplateVariables(constructor, {
+          EZ4_MODULE_OPTIONS: buildServiceOptions(options ?? {}),
           EZ4_MODULE_CONTEXT: context && buildContext(context),
-          EZ4_MODULE_IMPORT: constructorHash
+          EZ4_MODULE_IMPORT: constructorName
         });
       }
     }
@@ -297,4 +299,18 @@ const applyTemplateVariables = (constructor: string, variables: Record<string, s
 
     return variables[variableName];
   });
+};
+
+const buildServiceOptions = (options: AnyObject) => {
+  const result = [];
+
+  for (const property in options) {
+    if (property !== undefined) {
+      result.push(`${property}: ${JSON.stringify(options[property])}`);
+    } else {
+      result.push(`${property}: undefined`);
+    }
+  }
+
+  return `{${result.join(',')}}`;
 };

@@ -32,7 +32,7 @@
             "name": "streamListener",
             "file": "test/input/output-listener.ts",
             "position": [
-              26,
+              24,
               1
             ]
           },
@@ -40,7 +40,7 @@
             "name": "streamHandler",
             "file": "test/input/output-listener.ts",
             "position": [
-              28,
+              26,
               1
             ]
           }

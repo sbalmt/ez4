@@ -64,11 +64,11 @@ const handleSchedulerRequest = async (
 
   try {
     if (service.schema && !body) {
-      throw new MalformedEventError(['Event body is required.']);
+      throw new Error('Event body is required.');
     }
 
     if (!service.schema && body) {
-      throw new MalformedEventError(['Event body is not required.']);
+      throw new Error('Event body is not required.');
     }
 
     await handleSchedulerEvent(service, options, context, body);

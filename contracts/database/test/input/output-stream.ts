@@ -3,8 +3,8 @@ import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngine;
+export declare class TestDatabase extends Database.Service<TestEngine> {
+  client: Client<TestDatabase>;
 
   tables: [
     Database.UseTable<{
@@ -32,8 +32,6 @@ export declare class TestDatabase extends Database.Service {
   services: {
     selfClient: Environment.Service<TestDatabase>;
   };
-
-  client: Client<TestDatabase>;
 }
 
 declare class TestSchema implements Database.Schema {
@@ -56,6 +54,9 @@ declare class TestStream implements Database.Stream<TestSchema> {
 
 /**
  * Test table stream.
+ *
+ * @description Example of database stream.
+ * @summary Database stream example.
  */
 async function streamHandler(_change: StreamAnyChange<TestSchema>, context: Service.Context<TestDatabase>) {
   context.selfClient.rawQuery;

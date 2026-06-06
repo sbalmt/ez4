@@ -10,38 +10,37 @@ import {
   ExecuteStatementCommand,
   RecordsFormatType,
   DecimalReturnType,
-  LongReturnType,
-  DatabaseErrorException
+  LongReturnType
 } from '@aws-sdk/client-rds-data';
 
 import { DatabaseResumingException } from '@aws-sdk/client-rds-data';
 import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
-
-import { setTimeout } from 'node:timers/promises';
-
-import { detectFieldData, prepareFieldData } from './fields';
-import { logQueryError, logQuerySuccess } from './logger';
 import { Runtime } from '@ez4/common';
+import { Wait } from '@ez4/utils';
+
+import { detectFieldData, prepareFieldData } from '../fields';
+import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
+import { logQueryError, logQuerySuccess } from '../logger';
 
 const client = new RDSDataClient({
   retryMode: 'adaptive',
   maxAttempts: 10
 });
 
-export type DataClientConnection = {
-  resourceArn: Arn;
+export type ApiClientConnection = {
   secretArn: Arn;
+  resourceArn: Arn;
   database: string;
 };
 
-export class DataClientDriver implements PgClientDriver {
-  constructor(private connection: DataClientConnection) {}
+export class ApiClientDriver implements PgClientDriver {
+  constructor(private connection: ApiClientConnection) {}
 
   async executeStatement(statement: PgExecuteStatement, options?: PgExecuteOptions) {
     const transactionId = options?.transactionId;
 
     try {
-      return await withRetryOnResume(async () => {
+      return await withRetryOnFailures(async () => {
         const { formattedRecords, numberOfRecordsUpdated } = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
@@ -88,7 +87,7 @@ export class DataClientDriver implements PgClientDriver {
         logQueryError(statement, transactionId);
       }
 
-      if (error instanceof DatabaseErrorException && error.message.includes('23505')) {
+      if (isDuplicateUniqueKeyException(error)) {
         throw new DuplicateUniqueKeyError();
       }
 
@@ -128,7 +127,7 @@ export class DataClientDriver implements PgClientDriver {
   }
 
   async beginTransaction() {
-    return withRetryOnResume(async () => {
+    return withRetryOnFailures(async () => {
       const { transactionId } = await client.send(new BeginTransactionCommand(this.connection));
 
       return transactionId!;
@@ -162,25 +161,27 @@ export class DataClientDriver implements PgClientDriver {
   }
 }
 
-/**
- * Perform the given callback and retry in case of failure due to a resume exception.
- * In every retry, `500ms` will be decreased from the initial timeout until it reaches zero.
- * When the initial timeout reaches zero, the original exception is thrown.
- *
- * @param callback Callback performed in every retry.
- * @returns Returns the callback result.
- */
-const withRetryOnResume = async <T>(callback: () => Promise<T>) => {
-  for (let timeout = 4500; ; timeout -= 500) {
-    try {
-      return await callback();
-    } catch (error) {
-      if (error instanceof DatabaseResumingException && timeout > 0) {
-        await setTimeout(timeout);
-        continue;
-      }
+const withRetryOnFailures = async <T>(callback: () => Promise<T>) => {
+  return Wait.until(
+    async () => {
+      try {
+        return await callback();
+      } catch (error) {
+        if (error instanceof DatabaseResumingException) {
+          return Wait.RetryAttempt;
+        }
 
-      throw error;
+        if (isAuthenticationException(error)) {
+          return Wait.RetryAttempt;
+        }
+
+        throw error;
+      }
+    },
+    {
+      minDelay: 1,
+      maxDelay: 10,
+      attempts: 5
     }
-  }
+  );
 };

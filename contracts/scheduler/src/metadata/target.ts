@@ -6,7 +6,7 @@ import type { CronTarget } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getObjectMembers,
   getModelMembers,
   getPropertyNumber,
@@ -132,7 +132,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables': {
-        target.variables = getLinkedVariableList(member, errorList);
+        target.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

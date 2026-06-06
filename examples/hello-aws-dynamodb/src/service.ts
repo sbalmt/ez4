@@ -5,12 +5,7 @@ import type { TableSchema } from './types';
 /**
  * Example of AWS DynamoDB deployed with EZ4.
  */
-export declare class Db extends Database.Service {
-  /**
-   * Database engine.
-   */
-  engine: DynamoDbEngine;
-
+export declare class Db extends Database.Service<DynamoDbEngine> {
   /**
    * Database tables.
    */

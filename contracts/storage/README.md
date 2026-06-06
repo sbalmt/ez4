@@ -68,7 +68,7 @@ import type { Service } from '@ez4/common';
 import type { MyStorage } from './storage';
 
 // Any other handler that has injected MyStorage service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myStorage } = context;
 
   // Write a file

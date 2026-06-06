@@ -3,7 +3,7 @@ import type { Queue } from '@ez4/queue';
 interface TestMessage extends Queue.Message {}
 
 /**
- * Queue to test backoff configuration.
+ * @description Queue to test backoff configuration.
  */
 export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];

@@ -34,6 +34,10 @@ declare class PostResponse implements Http.Response {
 
 /**
  * Handler for `post` requests.
+ *
+ * @description Example of a `POST` endpoint.
+ * @summary Post endpoint.
+ *
  * @param request Incoming request.
  * @returns Outgoing response.
  */

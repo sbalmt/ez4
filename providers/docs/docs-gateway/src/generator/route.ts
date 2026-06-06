@@ -38,8 +38,12 @@ const getRouteOutput = (route: HttpRoute, namingStyle?: NamingStyle) => {
 
   output.push(`operationId: ${getNameOutput(name ?? handler.name)}`);
 
+  if (handler.summary) {
+    output.push(`summary: "${getMultilineOutput(handler.summary)}"`);
+  }
+
   if (handler.description) {
-    output.push(`summary: "${getMultilineOutput(handler.description)}"`);
+    output.push(`description: "${getMultilineOutput(handler.description)}"`);
   }
 
   if (authorizer?.request) {

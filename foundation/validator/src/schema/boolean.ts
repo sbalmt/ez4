@@ -19,13 +19,13 @@ export const validateBoolean = (value: unknown, schema: BooleanSchema, context?:
   const property = context?.property;
 
   if (typeof value !== 'boolean') {
-    return [new ExpectedBooleanTypeError(property)];
+    return [new ExpectedBooleanTypeError(value, property)];
   }
 
   const { definitions } = schema;
 
   if (isAnyBoolean(definitions?.value) && value !== definitions?.value) {
-    return [new UnexpectedBooleanError(definitions.value, property)];
+    return [new UnexpectedBooleanError(value, definitions.value, property)];
   }
 
   if (definitions?.types && context) {

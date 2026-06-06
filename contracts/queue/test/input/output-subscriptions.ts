@@ -7,7 +7,7 @@ interface TestMessage extends Queue.Message {
 }
 
 /**
- * Queue to test subscriptions.
+ * @description Queue to test subscriptions.
  */
 export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [

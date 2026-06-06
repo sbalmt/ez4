@@ -24,7 +24,7 @@ export declare class AuthorizerResponse implements Ws.AuthResponse {
 /**
  * Check the `token` query string and authorize or not the request.
  */
-export function tokenAuthorizer(request: AuthorizerRequest): AuthorizerResponse {
+export function tokenAuthorizer(request: Ws.AuthIncoming<AuthorizerRequest>): AuthorizerResponse {
   const { token } = request.query;
 
   if (token !== SUPER_SECRET_API_KEY) {

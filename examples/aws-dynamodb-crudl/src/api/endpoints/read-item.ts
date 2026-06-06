@@ -40,6 +40,9 @@ declare class ReadItemResponse implements Http.Response {
 
 /**
  * Handle read item requests.
+ *
+ * @description Read details of an item corresponding to the given `id`.
+ * @summary Read item details.
  */
 export async function readItemHandler(request: ReadItemRequest, context: Service.Context<Api>): Promise<ReadItemResponse> {
   const { id } = request.parameters;

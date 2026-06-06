@@ -125,9 +125,10 @@ export const isHttpService = (service: ServiceMetadata): service is HttpService 
   return service.type === HttpServiceType;
 };
 
-export const createHttpService = (name: string) => {
+export const createHttpService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<HttpService>(HttpServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };
@@ -137,6 +138,9 @@ export const isHttpImport = (service: ServiceMetadata): service is HttpImport =>
   return service.type === HttpImportType;
 };
 
-export const createHttpImport = (name: string) => {
-  return createServiceMetadata<HttpImport>(HttpImportType, name);
+export const createHttpImport = (name: string, description?: string) => {
+  return {
+    ...createServiceMetadata<HttpImport>(HttpImportType, name),
+    ...(description && { description })
+  };
 };

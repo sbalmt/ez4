@@ -20,7 +20,7 @@ export namespace TransactionModeUtils {
   /**
    * Determines the transaction operation based on the given database service.
    */
-  export type Type<T extends Database.Service, R> =
+  export type Type<T extends Database.Service<any>, R> =
     EngineUtils.GetTransactionMode<T> extends TransactionMode.Interactive
       ? StaticOperationType<T> | InteractiveOperationType<T, R>
       : StaticOperationType<T>;
@@ -28,12 +28,12 @@ export namespace TransactionModeUtils {
   /**
    * Interactive operation type.
    */
-  export type InteractiveOperationType<T extends Database.Service, R = void> = (client: Client<T>) => Promise<R> | R;
+  export type InteractiveOperationType<T extends Database.Service<any>, R = void> = (client: Client<T>) => Promise<R> | R;
 
   /**
    * Static operation type.
    */
-  export type StaticOperationType<T extends Database.Service> = {
+  export type StaticOperationType<T extends Database.Service<any>> = {
     [P in keyof TableSchemas<T>]?: (TableSchemas<T>[P] extends Database.Schema
       ? AnyOperationType<{
           schema: TableSchemas<T>[P];

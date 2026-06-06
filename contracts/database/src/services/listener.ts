@@ -8,5 +8,5 @@ import type { Database } from './contract';
  */
 export type TableStreamListener<T extends TableSchema> = (
   event: CommonService.AnyEvent<TableStreamIncoming<T>>,
-  context: CommonService.Context<Database.Service>
+  context: CommonService.Context<Database.Service<any>>
 ) => Promise<void> | void;

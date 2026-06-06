@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
-import { validate, getUniqueErrorMessages, createValidatorContext } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const preparePathParameters = (path: string, parameters: Record<string, string>) => {
@@ -32,7 +32,7 @@ export const resolvePathParameters = async <T extends Http.PathParameters>(
 
   if (validationErrors.length) {
     throw new HttpBadRequestError('Malformed path parameters.', {
-      details: getUniqueErrorMessages(validationErrors)
+      details: getErrorDetails(validationErrors)
     });
   }
 

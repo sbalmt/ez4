@@ -21,9 +21,10 @@ export const isValidationService = (service: ServiceMetadata): service is Valida
   return service.type === ServiceType;
 };
 
-export const createValidationService = (name: string) => {
+export const createValidationService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<ValidationService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

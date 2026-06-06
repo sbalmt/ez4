@@ -43,6 +43,9 @@ declare class CreateItemResponse implements Http.Response {
 
 /**
  * Handle item create requests.
+ *
+ * @description Create a new item corresponding to the given request.
+ * @summary Create new items.
  */
 export async function createItemHandler(
   request: Http.Incoming<CreateItemRequest>,

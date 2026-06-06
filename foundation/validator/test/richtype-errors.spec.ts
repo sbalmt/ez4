@@ -4,12 +4,12 @@ import { describe, it } from 'node:test';
 
 import {
   ExpectedIntegerTypeError,
-  ExpectedRegexTypeError,
+  ExpectedRegexFormatError,
   ExpectedUUIDTypeError,
-  ExpectedEmailTypeError,
-  ExpectedTimeTypeError,
-  ExpectedDateTypeError,
-  ExpectedDateTimeTypeError,
+  ExpectedEmailFormatError,
+  ExpectedTimeFormatError,
+  ExpectedDateFormatError,
+  ExpectedDateTimeFormatError,
   ExpectedBase64TypeError,
   UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
@@ -122,7 +122,7 @@ describe('rich type validation errors', () => {
       }
     };
 
-    await assertError('123', schema, [ExpectedRegexTypeError]);
+    await assertError('123', schema, [ExpectedRegexFormatError]);
   });
 
   it('assert :: string (uuid) errors', async () => {
@@ -140,7 +140,7 @@ describe('rich type validation errors', () => {
       format: 'email'
     };
 
-    await assertError('', schema, [ExpectedEmailTypeError]);
+    await assertError('', schema, [ExpectedEmailFormatError]);
   });
 
   it('assert :: string (time) errors', async () => {
@@ -149,7 +149,7 @@ describe('rich type validation errors', () => {
       format: 'time'
     };
 
-    await assertError('abc', schema, [ExpectedTimeTypeError]);
+    await assertError('abc', schema, [ExpectedTimeFormatError]);
   });
 
   it('assert :: string (date) errors', async () => {
@@ -158,7 +158,7 @@ describe('rich type validation errors', () => {
       format: 'date'
     };
 
-    await assertError('abc', schema, [ExpectedDateTypeError]);
+    await assertError('abc', schema, [ExpectedDateFormatError]);
   });
 
   it('assert :: string (date-time) errors', async () => {
@@ -167,7 +167,7 @@ describe('rich type validation errors', () => {
       format: 'date-time'
     };
 
-    await assertError('abc', schema, [ExpectedDateTimeTypeError]);
+    await assertError('abc', schema, [ExpectedDateTimeFormatError]);
   });
 
   it('assert :: string (base64) errors', async () => {

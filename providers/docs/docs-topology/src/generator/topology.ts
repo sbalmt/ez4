@@ -49,9 +49,10 @@ export namespace TopologyGenerator {
         continue;
       }
 
-      for (const serviceName in resource.services) {
-        const linkedService = resource.services[serviceName];
-        const linkedResource = metadata[linkedService];
+      for (const linkedName in resource.services) {
+        const { reference: serviceName } = resource.services[linkedName];
+
+        const linkedResource = metadata[serviceName];
 
         if (isCommonService(linkedResource)) {
           continue;

@@ -39,7 +39,7 @@ describe('validation client mock tests', () => {
       }
     });
 
-    const clientMock = await ValidationTester.getClient('TestServiceValidation');
+    const clientMock = ValidationTester.getClient('TestServiceValidation');
 
     equal(await clientMock.tryValidate('not-fail'), true);
     equal(await clientMock.tryValidate('fail'), false);
@@ -48,7 +48,7 @@ describe('validation client mock tests', () => {
 
     ValidationTester.restoreClient('TestServiceValidation');
 
-    const realClient = await ValidationTester.getClient('TestServiceValidation');
+    const realClient = ValidationTester.getClient('TestServiceValidation');
 
     equal(await realClient.tryValidate('not-fail'), true);
     equal(await realClient.tryValidate('fail'), true);

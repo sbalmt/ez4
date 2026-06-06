@@ -6,9 +6,7 @@ import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/pgclient';
 
-declare class TestDb extends Database.Service {
-  engine: PostgresEngine;
-
+declare class TestDb extends Database.Service<PostgresEngine> {
   tables: [];
 }
 
@@ -43,7 +41,7 @@ describe('client raw driver', () => {
   });
 
   it('assert :: transaction', async () => {
-    const result = await client.transaction(async (transaction: DbClient<Database.Service>) => {
+    const result = await client.transaction(async (transaction: DbClient<Database.Service<any>>) => {
       return transaction.rawQuery('SELECT 1 AS alive');
     });
 
@@ -51,8 +49,8 @@ describe('client raw driver', () => {
   });
 
   it('assert :: transaction (nested)', async () => {
-    const result = await client.transaction(async (transaction: DbClient<Database.Service>) => {
-      return transaction.transaction(async (innerTransaction: DbClient<Database.Service>) => {
+    const result = await client.transaction(async (transaction: DbClient<Database.Service<any>>) => {
+      return transaction.transaction(async (innerTransaction: DbClient<Database.Service<any>>) => {
         return innerTransaction.rawQuery('SELECT 1 AS alive');
       });
     });

@@ -29,7 +29,7 @@ export declare class MyServer extends Http.Service {
 }
 ```
 
-> For more details, check the HTTP [service](./docs/http-service.md) documentation.
+> See the HTTP [service](./docs/http-service.md) documentation.
 
 #### Define request and response types
 
@@ -53,7 +53,7 @@ declare class MyResponse implements Http.Response {
 }
 ```
 
-> For more details, check the HTTP [requests](./docs/http-requests.md) and [responses](./docs/http-responses.md) documentation.
+> See the HTTP [requests](./docs/http-requests.md) and [responses](./docs/http-responses.md) documentation.
 
 #### Provide variables and services
 
@@ -73,7 +73,7 @@ interface MyProvider extends Http.Provider {
 }
 ```
 
-> For more details, check the gateway [provider](./docs/gateway-provider.md) documentation.
+> See the gateway [provider](./docs/gateway-provider.md) documentation.
 
 #### Handle requests
 
@@ -103,7 +103,7 @@ export function postHandler(request: Http.Incoming<MyRequest>, context: Service.
 }
 ```
 
-> For more details, check the gateway [handler](./docs/gateway-handler.md) documentation.
+> See the gateway [handler](./docs/gateway-handler.md) documentation.
 
 ## What's next
 

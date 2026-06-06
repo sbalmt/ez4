@@ -24,7 +24,7 @@ declare class TestAuthorizerResponse implements Http.AuthResponse {
   };
 }
 
-function testAuthorizer(_request: TestAuthorizerRequest): TestAuthorizerResponse {
+function testAuthorizer(_request: Http.AuthIncoming<TestAuthorizerRequest>): TestAuthorizerResponse {
   return {
     identity: undefined
   };

@@ -9,9 +9,7 @@ import { Index } from '@ez4/database';
 
 import { runMigration } from './migration';
 
-export declare class TestSchemaDb extends Database.Service {
-  engine: PostgresEngine;
-
+export declare class TestSchemaDb extends Database.Service<PostgresEngine> {
   tables: [
     Database.UseTable<{
       name: 'ez4_test_table';

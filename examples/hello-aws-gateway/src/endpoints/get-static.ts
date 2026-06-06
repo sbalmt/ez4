@@ -15,6 +15,10 @@ declare class GetStaticResponse implements Http.Response {
 
 /**
  * Handler for `get` requests.
+ *
+ * @description Example of a `GET` endpoint for static files.
+ * @summary Get static file.
+ *
  * @returns Outgoing response.
  */
 export async function getStaticHandler(): Promise<GetStaticResponse> {

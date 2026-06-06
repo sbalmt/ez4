@@ -3,10 +3,10 @@ import type { ValidationCustomContext } from '@ez4/validator';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import { getJsonMessage, getRetryDelay, resolveValidation } from '@ez4/queue/utils';
+import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
 import { SQSClient, DeleteMessageCommand, ChangeMessageVisibilityCommand } from '@aws-sdk/client-sqs';
 import { ServiceEventType, Runtime } from '@ez4/common';
-import { getRandomUUID } from '@ez4/utils';
+import { getRandomUUID, Wait } from '@ez4/utils';
 
 const client = new SQSClient({});
 
@@ -137,7 +137,7 @@ const retryMessage = async (record: SQSRecord) => {
 
   try {
     const retryCount = Number(attributes.ApproximateReceiveCount) || 1;
-    const retryDelay = getRetryDelay(retryCount, __EZ4_MAX_RETRIES, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
+    const retryDelay = Wait.delay(retryCount, __EZ4_MAX_RETRIES, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
 
     await client.send(
       new ChangeMessageVisibilityCommand({

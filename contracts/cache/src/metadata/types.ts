@@ -19,9 +19,10 @@ export const isCacheService = (service: ServiceMetadata): service is CacheServic
   return service.type === ServiceType;
 };
 
-export const createCacheService = (name: string) => {
+export const createCacheService = (name: string, description?: string) => {
   return {
     ...createServiceMetadata<CacheService>(ServiceType, name),
+    ...(description && { description }),
     variables: {},
     services: {}
   };

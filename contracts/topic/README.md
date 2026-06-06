@@ -18,17 +18,17 @@ Topics are ideal for fan‑out messaging, event‑driven workflows, and loosely 
 import type { Environment, Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
-// MyTopic message
-type MyTopicMessage = {
+// My message declaration
+declare class MyMessage implements Topic.Message {
   foo: string;
   bar: number;
-};
+}
 
-// MyTopic declaration
-export declare class MyTopic extends Topic.Unordered<MyTopicMessage> {
+// My topic declaration
+export declare class MyTopic extends Topic.Unordered<MyMessage> {
   subscriptions: [
     Topic.UseSubscription<{
-      handler: typeof eventHandler;
+      handler: typeof processMessage;
     }>
   ];
 
@@ -48,8 +48,8 @@ export declare class MyTopic extends Topic.Unordered<MyTopicMessage> {
 EZ4 validates the incoming event, injects all variables and services, and then invokes your subscription handler.
 
 ```ts
-// MyTopic message handler
-export function eventHandler(request: Topic.Incoming<MyTopicMessage>, context: Service.Context<MyTopic>): void {
+// My message handler
+export function processMessage(request: Topic.Incoming<MyMessage>, context: Service.Context<MyTopic>): void {
   const { otherService, variables } = context;
   const { message } = request;
 
@@ -73,7 +73,7 @@ import type { Service } from '@ez4/common';
 import type { MyTopic } from './topic';
 
 // Any other handler that has injected MyTopic service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myTopic } = context;
 
   await myTopic.sendMessage({
@@ -87,41 +87,14 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 With your topic defined, EZ4 handles provisioning, event routing, retries, and execution according to your contract.
 
-## Topic properties
+## What's next
 
-#### Service
-
-| Name          | Type                    | Description                                              |
-| ------------- | ----------------------- | -------------------------------------------------------- |
-| fifoMode      | Topic.UseFifoMode<>     | Enable and configure the FIFO mode options.              |
-| subscriptions | Topic.UseSubscription<> | All subscriptions associated to the topic.               |
-| variables     | object                  | Environment variables associated with all subscriptions. |
-| services      | object                  | Injected services associated with all subscriptions.     |
-
-> Use type helpers for `fifoMode` and `subscriptions` properties.
-
-#### Subscriptions (Function)
-
-| Name         | Type             | Description                                                 |
-| ------------ | ---------------- | ----------------------------------------------------------- |
-| listener     | function         | Life-cycle listener function for the subscription.          |
-| handler      | function         | Entry-point handler function for the subscription.          |
-| variables    | object           | Environment variables associated to the subscription.       |
-| logRetention | integer          | Log retention (in days) for the handler.                    |
-| logLevel     | LogLevel         | Log level for the handler.                                  |
-| architecture | ArchitectureType | Architecture type for the cloud function.                   |
-| runtime      | RuntimeType      | Runtime for the cloud function.                             |
-| files        | string[]         | Additional resource files added into the handler bundle.    |
-| timeout      | integer          | Maximum execution time (in seconds) for the handler.        |
-| memory       | integer          | Memory available (in megabytes) for the handler.            |
-| debug        | boolean          | Determine whether the debug mode is active for the handler. |
-| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
-
-#### Subscriptions (Queue)
-
-| Name    | Type                  | Description                     |
-| ------- | --------------------- | ------------------------------- |
-| service | Environment.Service<> | Reference to the queue service. |
+- [Topic service](./docs/topic-service.md)
+- [Topic subscriptions](./docs/topic-subscriptions.md)
+- [Topic requests](./docs/topic-requests.md)
+- [Topic handler](./docs/topic-handler.md)
+- [Topic listener](./docs/topic-listener.md)
+- [Topic client](./docs/topic-client.md)
 
 ## Examples
 

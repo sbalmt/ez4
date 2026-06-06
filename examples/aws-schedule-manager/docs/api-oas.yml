@@ -8,7 +8,8 @@ paths:
   /create-schedule:
     post:
       operationId: createScheduleHandler
-      summary: "Handle create schedule requests."
+      summary: "Create new schedules."
+      description: "Create a new schedule based on the given request."
       requestBody:
         content:
           application/json:
@@ -24,7 +25,8 @@ paths:
   /read-schedule/{scheduleId}:
     get:
       operationId: readScheduleHandler
-      summary: "Handle read schedule requests."
+      summary: "Read schedule details."
+      description: "Read all the details of a schedule for the given `scheduleId`."
       parameters:
         - name: scheduleId
           in: path
@@ -42,7 +44,8 @@ paths:
   /update-schedule/{scheduleId}:
     patch:
       operationId: updateScheduleHandler
-      summary: "Handle update schedule requests."
+      summary: "Update schedules."
+      description: "Update the schedule corresponding to the given `scheduleId`."
       parameters:
         - name: scheduleId
           in: path
@@ -65,7 +68,8 @@ paths:
   /delete-schedule/{scheduleId}:
     delete:
       operationId: deleteScheduleHandler
-      summary: "Handle delete schedule requests."
+      summary: "Delete schedules."
+      description: "Delete a schedule corresponding to the given `scheduleId`."
       parameters:
         - name: scheduleId
           in: path
@@ -79,7 +83,8 @@ paths:
   /list-schedules:
     get:
       operationId: listSchedulesHandler
-      summary: "Handle list schedules requests."
+      summary: "List schedules."
+      description: "List all schedules for the given `cursor` and `limit`."
       parameters:
         - name: cursor
           in: query
@@ -107,7 +112,7 @@ components:
   requestSchemes:
     createScheduleHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         date:
@@ -122,7 +127,7 @@ components:
         - message
     updateScheduleHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         date:
@@ -136,7 +141,7 @@ components:
   responseSchemes:
     createScheduleHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
@@ -145,7 +150,7 @@ components:
         - id
     readScheduleHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         date:
@@ -160,7 +165,7 @@ components:
         - message
     updateScheduleHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
@@ -169,7 +174,7 @@ components:
         - message
     listSchedulesHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         next:

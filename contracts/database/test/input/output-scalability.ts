@@ -1,10 +1,8 @@
 import type { Database, Client } from '@ez4/database';
 import type { TestEngine } from '../common/engines';
 
-export declare class TestDatabase extends Database.Service {
+export declare class TestDatabase extends Database.Service<TestEngine> {
   client: Client<typeof this>;
-
-  engine: TestEngine;
 
   tables: [];
 

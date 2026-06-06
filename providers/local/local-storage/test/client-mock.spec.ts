@@ -140,7 +140,7 @@ describe('local storage tests', () => {
   it('assert :: read key (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    rejects(() => client.read('random-key'));
+    await rejects(() => client.read('random-key'));
 
     equal(client.read.mock.callCount(), 1);
   });
@@ -172,7 +172,7 @@ describe('local storage tests', () => {
   it('assert :: delete key (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    rejects(() => client.delete('random-key'));
+    await rejects(() => client.delete('random-key'));
 
     equal(client.delete.mock.callCount(), 1);
   });
@@ -212,7 +212,7 @@ describe('local storage tests', () => {
   it('assert :: copy key (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
 
-    rejects(() => client.copy('random-key', 'foo'));
+    await rejects(() => client.copy('random-key', 'foo'));
 
     equal(client.copy.mock.callCount(), 1);
   });

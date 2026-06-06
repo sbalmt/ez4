@@ -59,8 +59,8 @@ export const prepareSubscriptions = (
 
       handlerState = createQueueFunction(state, context.role, logGroupState, {
         functionName: subscriptionName,
-        description: handler.description,
         messageSchema: service.schema,
+        description: handler.summary ?? handler.description,
         context: service.context,
         variables: [options.variables, service.variables, subscription.variables],
         timeout: service.timeout ?? Defaults.Timeout,

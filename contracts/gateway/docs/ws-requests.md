@@ -1,6 +1,6 @@
 # EZ4: WebSocket Requests
 
-Gateway requests for WebSocket define the **typed shape** of all incoming WS data processed by the gateway **message** route handler (connect and disconnect handlers don't produce responses). The handler receives a fully typed object, which includes identity information and body payloads. These types are generated from the request contract and validated at runtime.
+Gateway requests for WebSocket define the **typed shape** of all incoming WS data processed by the gateway **message** route handler (connect and disconnect handlers don't produce responses). The handler receives a fully typed object, which includes identity information and body payloads. These types are generated from the declared request type and validated at runtime.
 
 ## Request declaration
 
@@ -54,7 +54,7 @@ Typed request body payload.
 
 - Automatically parsed into the declared types.
 - Supports JSON objects and raw string payloads.
-- Shape is determined by the declared contract.
+- Shape is determined by the declared request type.
 
 JSON payload (preferred):
 

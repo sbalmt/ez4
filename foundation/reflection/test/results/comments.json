@@ -42,11 +42,23 @@
         "type": "method",
         "name": "method",
         "description": "Class method.",
+        "tags": [
+          {
+            "name": "param",
+            "text": "_param Class method parameter."
+          }
+        ],
         "parameters": [
           {
             "type": "parameter",
             "name": "_param",
             "description": "Class method parameter.",
+            "tags": [
+              {
+                "name": "param",
+                "text": "_param Class method parameter."
+              }
+            ],
             "value": {
               "type": "any"
             }
@@ -83,11 +95,23 @@
         "type": "method",
         "name": "method",
         "description": "Interface method.",
+        "tags": [
+          {
+            "name": "param",
+            "text": "param Interface method parameter."
+          }
+        ],
         "parameters": [
           {
             "type": "parameter",
             "name": "param",
             "description": "Interface method parameter.",
+            "tags": [
+              {
+                "name": "param",
+                "text": "param Interface method parameter."
+              }
+            ],
             "value": {
               "type": "any"
             }
@@ -104,6 +128,12 @@
     "type": "function",
     "name": "Function",
     "description": "Function doc comments test.",
+    "tags": [
+      {
+        "name": "param",
+        "text": "param Function parameter."
+      }
+    ],
     "position": {
       "line": 48,
       "character": 1
@@ -117,6 +147,12 @@
         "type": "parameter",
         "name": "param",
         "description": "Function parameter.",
+        "tags": [
+          {
+            "name": "param",
+            "text": "param Function parameter."
+          }
+        ],
         "value": {
           "type": "any"
         }

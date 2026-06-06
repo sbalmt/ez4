@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -59,7 +64,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport1Queue"
+      "selfClient": {
+        "reference": "TestImport1Queue"
+      }
     },
     "timeout": 20,
     "schema": {
@@ -96,7 +103,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport2Queue"
+      "selfClient": {
+        "reference": "TestImport2Queue"
+      }
     },
     "fifoMode": {
       "groupId": "foo"

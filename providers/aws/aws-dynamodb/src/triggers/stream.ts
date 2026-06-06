@@ -62,8 +62,8 @@ export const prepareTableStream = (
 
     handlerState = createStreamFunction(state, context.role, logGroupState, {
       functionName: streamName,
-      description: handler.description,
       tableSchema: table.schema,
+      description: handler.summary ?? handler.description,
       context: service.context,
       variables: [options.variables, service.variables, variables],
       handler: {

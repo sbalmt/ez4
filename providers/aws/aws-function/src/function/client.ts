@@ -29,6 +29,7 @@ import { assertVariables } from './helpers/variables';
 import { getLogLevel } from './helpers/logging';
 import { getZipBuffer } from './helpers/zip';
 import { getDefaultVpcConfig } from './utils';
+import { getSafeDescription } from '../utils/description';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -129,13 +130,13 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
     return client.send(
       new CreateFunctionCommand({
         FunctionName: functionName,
-        Description: description,
         MemorySize: memory,
         Timeout: timeout,
         Role: roleArn,
         Publish: publish,
         Handler: handlerName,
         Architectures: [getFunctionArchitecture(architecture)],
+        Description: description && getSafeDescription(description),
         Runtime: getFunctionRuntime(runtime),
         PackageType: 'Zip',
         VpcConfig: {

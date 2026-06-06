@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -12,7 +17,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
     "name": "TestTopic",
     "schema": {

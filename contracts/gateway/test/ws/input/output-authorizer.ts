@@ -22,7 +22,7 @@ export declare class TestService extends Ws.Service<{}> {
 
 declare class AuthorizerRequest implements Ws.AuthRequest {
   /**
-   * Authorizer query strings.
+   * @description Authorizer query strings.
    */
   query: {
     apiKey: string;
@@ -31,7 +31,7 @@ declare class AuthorizerRequest implements Ws.AuthRequest {
 
 declare class AuthorizerResponse implements Ws.AuthResponse {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity?: TestIdentity;
 }
@@ -65,7 +65,7 @@ function authorizerHandler(request: AuthorizerRequest, context: Service.Context<
 
 declare class ConnectEvent implements Ws.Event {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: TestIdentity;
 }
@@ -74,7 +74,7 @@ function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
 declare class DisconnectEvent implements Ws.Event {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: TestIdentity;
 }
@@ -83,7 +83,7 @@ function disconnectHandler(_event: Ws.Incoming<DisconnectEvent>) {}
 
 declare class MessageRequest implements Ws.Request {
   /**
-   * JSON payload.
+   * @description JSON payload.
    */
   body: {};
 }

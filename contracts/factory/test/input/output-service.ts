@@ -5,20 +5,33 @@ class TestServiceA {
   public helloWorld() {}
 }
 
+/**
+ * Internal factory description.
+ *
+ * @description Test service factory.
+ */
 export declare class TestServiceAFactory extends Factory.Service<TestServiceA> {
   handler: typeof testServiceAInitializer;
+
+  options: {
+    testFlag: true;
+  };
 
   variables: {
     TEST_VAR: 'test-var';
   };
 
   services: {
+    selfOptions: Environment.ServiceOptions;
     selfVariables: Environment.ServiceVariables;
   };
 }
 
 export function testServiceAInitializer(context: Service.Context<TestServiceAFactory>) {
-  const { selfVariables } = context;
+  const { selfOptions, selfVariables } = context;
+
+  // Ensure test flag
+  selfOptions.testFlag;
 
   // Ensure test variable
   selfVariables.TEST_VAR;

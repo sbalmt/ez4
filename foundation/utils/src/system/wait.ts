@@ -1,5 +1,7 @@
 import { scheduler } from 'node:timers/promises';
 
+import { getRandomInteger } from '../number/random';
+
 export class WaitMaxAttemptsError extends Error {
   constructor() {
     super('Maximum retry attempts reached.');
@@ -15,7 +17,7 @@ export namespace Wait {
   /**
    * Attempt function.
    */
-  export type Callback<T> = (count: number, attempts: number) => Promise<Result<T>> | Result<T>;
+  export type Callback<T> = (attempt: number, attempts: number) => Promise<Result<T>> | Result<T>;
 
   /**
    * Retry attempt symbol.
@@ -45,6 +47,29 @@ export namespace Wait {
   };
 
   /**
+   * Get the next retry delay (in seconds) based on the input parameters.
+   *
+   * @param attempt Current attempt.
+   * @param maxAttempts Maximum number of attempts.
+   * @param minDelay Minimum delay for the first attempt.
+   * @param maxDelay Maximum delay for the last attempt.
+   * @returns Returns the next retry delay value.
+   */
+  export const delay = (attempt: number, maxAttempts: number, minDelay: number, maxDelay: number) => {
+    const priorScale = (attempt - 1) / maxAttempts;
+    const newerScale = attempt / maxAttempts;
+
+    const range = maxDelay - minDelay;
+
+    const lower = (range / 2) * priorScale;
+    const upper = range * newerScale;
+
+    const delay = getRandomInteger(lower, upper);
+
+    return Math.min(maxDelay, minDelay + delay);
+  };
+
+  /**
    * Wait until the given `callback` function returns a truthy value or the maximum number
    * of `attempts` is reached.
    *
@@ -58,14 +83,14 @@ export namespace Wait {
 
     let lastResult: Result<T> | undefined;
 
-    for (let count = 1; count <= attempts; count++) {
-      lastResult = await callback(count, attempts);
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      lastResult = await callback(attempt, attempts);
 
       if (lastResult !== RetryAttempt) {
         return lastResult;
       }
 
-      const seconds = Math.max(minDelay, Math.min(maxDelay, (2.25 * count) / 1.5));
+      const seconds = delay(attempt, attempts, minDelay, maxDelay);
 
       await scheduler.wait(seconds * 1000);
     }

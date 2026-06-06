@@ -1,4 +1,4 @@
-import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, EveryType, ModelProperty, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { Incomplete } from '@ez4/utils';
@@ -11,10 +11,11 @@ import {
   getObjectMembers,
   getPropertyString,
   getReferenceType,
+  getPropertyTuple,
   hasHeritageType
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isModelProperty, isTypeObject, isTypeReference, isTypeTuple } from '@ez4/reflection';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteTableError, IncorrectTableTypeError, InvalidTableTypeError } from '../errors/table';
@@ -28,15 +29,45 @@ export const isDatabaseTableDeclaration = (type: TypeModel) => {
   return hasHeritageType(type, 'Database.Table');
 };
 
-export const getDatabaseTableMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getDatabaseTablesMetadata = (member: ModelProperty, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+  if (!isTypeReference(member.value)) {
+    return getTableFromTuple(getPropertyTuple(member) ?? [], parent, reflection, errorList);
+  }
+
+  const declaration = getReferenceType(member.value, reflection);
+
+  if (declaration && isTypeTuple(declaration)) {
+    return getTableFromTuple(declaration.elements, parent, reflection, errorList);
+  }
+
+  return undefined;
+};
+
+const getTableFromTuple = (tableItems: EveryType[], parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+  const tableList: DatabaseTable[] = [];
+
+  for (const table of tableItems) {
+    const result = getTypeFromTable(table, parent, reflection, errorList);
+
+    if (Array.isArray(result)) {
+      tableList.push(...result);
+    } else if (result) {
+      tableList.push(result);
+    }
+  }
+
+  return tableList;
+};
+
+const getTypeFromTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeTable(type, parent, reflection, errorList);
+    return getTableType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeTable(declaration, parent, reflection, errorList);
+    return getTableType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
@@ -46,9 +77,13 @@ const isCompleteTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable
   return isObjectWith(type, ['name', 'schema', 'indexes']);
 };
 
-const getTypeTable = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getTableType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+  }
+
+  if (isTypeTuple(type) && type.spread) {
+    return getTableFromTuple(type.elements, parent, reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {

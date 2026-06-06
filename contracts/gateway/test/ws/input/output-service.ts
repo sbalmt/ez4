@@ -8,7 +8,9 @@ type TestData = {
 };
 
 /**
- * First test service description.
+ * Internal websocket description.
+ *
+ * @description Test websocket service.
  */
 export declare class TestService1 extends Ws.Service<TestData> {
   name: 'Test Service 1';
@@ -27,7 +29,7 @@ export declare class TestService1 extends Ws.Service<TestData> {
 }
 
 /**
- * Description of the second test service.
+ * Internal description of the second test service.
  */
 export declare class TestService2 extends Ws.Service<TestData> {
   stage: 'websocket';
@@ -69,7 +71,7 @@ function messageHandler1() {}
 
 declare class Message2Response implements Ws.Response {
   /**
-   * WS Message response.
+   * @description WS Message response.
    */
   body: {
     status: boolean;

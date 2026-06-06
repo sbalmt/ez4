@@ -5,9 +5,9 @@ import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
 export const registerCacheEmulator = async (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
-  const client = await getCacheClient(service, options);
+  const clientFactory = await getCacheClient(service, options);
 
-  if (!client) {
+  if (!clientFactory) {
     return null;
   }
 
@@ -25,7 +25,7 @@ export const registerCacheEmulator = async (service: CacheService, options: Serv
       await runStopCache(service, options, context);
     },
     exportHandler: () => {
-      return client;
+      return clientFactory.make();
     }
   };
 };
@@ -65,7 +65,7 @@ const runStopCache = (service: CacheService, options: ServeOptions, context: Emu
 };
 
 const getCacheClient = (service: CacheService, options: ServeOptions) => {
-  return triggerAllAsync('emulator:getClient', (handler) =>
+  return triggerAllAsync('emulator:clientFactory', (handler) =>
     handler({
       service,
       options

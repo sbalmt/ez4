@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from './service';
 import type { EmulatorExportHandler } from './types';
 
@@ -37,7 +38,7 @@ export namespace Tester {
     });
   };
 
-  export const getServiceClient = (resourceName: string): Promise<unknown> | unknown => {
+  export const getServiceClient = (resourceName: string, resourceOptions?: AnyObject): unknown => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Tester is not configured yet.');
     }
@@ -53,7 +54,13 @@ export namespace Tester {
       throw new EmulatorClientNotFoundError(resourceName);
     }
 
-    return serviceEmulator.exportHandler();
+    const serviceClient = serviceEmulator.exportHandler(resourceOptions ?? {});
+
+    if (serviceClient instanceof Function) {
+      return serviceClient();
+    }
+
+    return serviceClient;
   };
 
   export const mockServiceClient = (resourceName: string, client: unknown) => {

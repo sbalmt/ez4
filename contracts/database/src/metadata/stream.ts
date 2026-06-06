@@ -6,7 +6,7 @@ import type { TableStream } from './types';
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getModelMembers,
   getObjectMembers,
   getPropertyNumber,
@@ -131,7 +131,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables': {
-        stream.variables = getLinkedVariableList(member, errorList);
+        stream.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

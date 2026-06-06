@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
 import { createTransformContext, transform } from '@ez4/transform';
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const resolveHeaders = async <T extends Http.Headers>(
@@ -22,7 +22,7 @@ export const resolveHeaders = async <T extends Http.Headers>(
 
   if (validationErrors.length) {
     throw new HttpBadRequestError('Malformed request headers.', {
-      details: getUniqueErrorMessages(validationErrors)
+      details: getErrorDetails(validationErrors)
     });
   }
 

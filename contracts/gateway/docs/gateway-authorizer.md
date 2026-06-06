@@ -30,7 +30,7 @@ declare class AuthorizerRequest implements Http.AuthRequest {
 - **Parameters** - Typed path parameters, useful for resource‑level authorization (e.g., `/users/{id}`).
 - **Query** - Typed query strings, often used for signed URLs, expiration tokens, or filters.
 
-All fields are validated and transformed according to the declared contract, , as mentioned in the HTTP [requests](./http-requests.md) documentation.
+All fields are validated and transformed according to the declared contract, as mentioned in the HTTP [requests](./http-requests.md) documentation.
 
 ## Authorizer response
 
@@ -62,7 +62,7 @@ An authorizer is a function that receives a typed authorization request and retu
 
 ```ts
 export function authorizerHandler(
-  request: Http.Incoming<AuthorizerRequest>,
+  request: Http.AuthIncoming<AuthorizerRequest>,
   context: Service.Context<AuthorizerProvider>
 ): AuthorizerResponse {
   // Validate token, check permissions, etc.

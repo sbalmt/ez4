@@ -9,9 +9,7 @@ declare class TestTable implements Database.Schema {
   value: number;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngine;
-
+export declare class TestDatabase extends Database.Service<TestEngine> {
   client: Client<TestDatabase>;
 
   tables: [

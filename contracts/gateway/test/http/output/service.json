@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -11,7 +16,7 @@
     "variables": {},
     "services": {},
     "displayName": "Test Service 1",
-    "description": "First test service description.",
+    "description": "Test gateway service.",
     "routes": []
   },
   "TestService2": {
@@ -23,7 +28,6 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {},
-    "description": "Description of the second test service.",
     "routes": []
   }
 }

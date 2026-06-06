@@ -40,6 +40,19 @@ export namespace Environment {
   };
 
   /**
+   * Inject all options declared in the current service into the execution context.
+   *
+   * @example
+   * ```ts
+   * services: {
+   *   options: Environment.ServiceOptions;
+   * }
+   */
+  export type ServiceOptions = {
+    options: true;
+  };
+
+  /**
    * Bind another service into the current service context.
    *
    * @example
@@ -48,7 +61,8 @@ export namespace Environment {
    *   anotherService: Environment.Service<AnotherService>;
    * }
    */
-  export type Service<T extends ServiceContract.Provider> = {
+  export type Service<T extends ServiceContract.Provider, U extends T['options'] = T['options']> = {
     reference: T;
+    options: U;
   };
 }

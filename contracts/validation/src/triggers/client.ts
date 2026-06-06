@@ -26,6 +26,7 @@ export const prepareLinkedClient = (context: EventContext, service: ValidationSe
         }
       })`,
     connectionIds: getVirtualConnections(services, context, options),
+    options: service.options,
     variables,
     services
   };

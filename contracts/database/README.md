@@ -27,10 +27,8 @@ type MyTableSchema = {
 };
 
 // MyDb declaration
-export declare class MyDb extends Database.Service {
+export declare class MyDb extends Database.Service<PostgresEngine> {
   client: Client<Db>;
-
-  engine: PostgresEngine;
 
   tables: [
     Database.UseTable<{
@@ -53,7 +51,7 @@ import type { Service } from '@ez4/common';
 import type { MyDb } from './db';
 
 // Any other handler that has injected MyDb service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myDb } = context;
 
   // Insert one record

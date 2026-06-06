@@ -20,6 +20,7 @@ export type DynamoDbEngine = {
   paginationMode: PaginationMode.Cursor;
   orderMode: OrderMode.IndexColumns;
   lockMode: LockMode.Unsupported;
+  options: never;
   name: 'dynamodb';
 };
 

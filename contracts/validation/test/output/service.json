@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,12 +12,19 @@
   "TestValidation": {
     "type": "@ez4/validation",
     "name": "TestValidation",
+    "description": "Test validation service.",
     "context": {},
+    "options": {},
     "variables": {
       "TEST_VAR": "test-var"
     },
     "services": {
-      "selfVariables": "@variables"
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      }
     },
     "schema": {
       "type": "object",
@@ -30,7 +42,7 @@
       "name": "performValidation",
       "file": "test/input/output-service.ts",
       "position": [
-        21,
+        31,
         1
       ]
     }

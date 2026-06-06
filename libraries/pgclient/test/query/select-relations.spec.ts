@@ -9,9 +9,7 @@ import { Index, Order } from '@ez4/database';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
-declare class Test extends Database.Service {
-  engine: PostgresEngine;
-
+declare class Test extends Database.Service<PostgresEngine> {
   tables: [
     {
       name: 'ez4_test_table';

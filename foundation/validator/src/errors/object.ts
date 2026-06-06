@@ -1,7 +1,7 @@
 import { UnexpectedTypeError } from './common';
 
 export class ExpectedObjectTypeError extends UnexpectedTypeError {
-  constructor(propertyName?: string) {
-    super('object', propertyName);
+  constructor(inputValue: unknown, propertyName?: string) {
+    super('object', propertyName, inputValue);
   }
 }

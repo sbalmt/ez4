@@ -11,6 +11,7 @@ export const prepareLinkedClient = (context: EventContext, service: FactoryServi
     from: `./${handler.file}`,
     constructor: `@{EZ4_MODULE_IMPORT}(@{EZ4_MODULE_CONTEXT})`,
     connectionIds: getVirtualConnections(services, context, options),
+    options: service.options,
     variables,
     services
   };

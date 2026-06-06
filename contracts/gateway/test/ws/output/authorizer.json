@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -10,7 +15,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestService"
+      "selfClient": {
+        "reference": "TestService"
+      }
     },
     "schema": {
       "type": "object",
@@ -48,7 +55,9 @@
         ],
         "provider": {
           "services": {
-            "selfClient": "TestService"
+            "selfClient": {
+              "reference": "TestService"
+            }
           },
           "variables": {
             "TEST_VAR": "test-literal-value"

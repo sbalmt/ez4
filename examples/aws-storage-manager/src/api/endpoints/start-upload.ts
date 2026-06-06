@@ -60,6 +60,9 @@ declare class StartUploadResponse implements Http.Response {
 
 /**
  * Handle start upload requests.
+ *
+ * @description Generate a signed URL for uploading a new file.
+ * @summary Upload file.
  */
 export async function startUploadHandler(request: StartUploadRequest, context: Service.Context<ApiProvider>): Promise<StartUploadResponse> {
   const { contentType, maxCacheAge } = request.body;

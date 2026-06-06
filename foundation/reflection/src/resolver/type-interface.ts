@@ -1,7 +1,7 @@
 import type { InterfaceDeclaration, Node } from 'typescript';
 import type { Context, State } from './common';
 
-import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface, TypePosition } from '../types';
+import type { EveryMemberType, InterfaceModifiers, ModelHeritage, TypeInterface, TypePosition, TypeTag } from '../types';
 
 import { isInterfaceDeclaration } from 'typescript';
 
@@ -19,8 +19,9 @@ export const createInterface = (
   name: string,
   file: string | undefined,
   position: TypePosition | undefined,
-  description: string | undefined,
   modifiers: InterfaceModifiers | undefined,
+  description?: string,
+  tags?: TypeTag[],
   heritage?: ModelHeritage[],
   members?: EveryMemberType[]
 ): TypeInterface => {
@@ -33,6 +34,7 @@ export const createInterface = (
     ...(position && { position }),
     ...(module && { module }),
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     ...(modifiers && { modifiers }),
     ...(heritage?.length && { heritage }),
     ...(members?.length && { members })
@@ -55,10 +57,10 @@ export const tryTypeInterface = (node: Node, context: Context, state: State) => 
   const name = node.name.getText();
   const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
-  const reflectedType = createInterface(name, file, position, description, modifiers);
+  const reflectedType = createInterface(name, file, position, modifiers, documentation?.description, documentation?.tags);
 
   context.cache.set(node, reflectedType);
 

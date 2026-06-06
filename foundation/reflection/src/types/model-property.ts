@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypeTag } from './common';
 import type { EveryType } from './types';
 
 import { TypeName } from './common';
@@ -15,6 +15,7 @@ export type ModelProperty = {
   type: TypeName.Property;
   name: string;
   description?: string;
+  tags?: TypeTag[];
   modifiers?: PropertyModifiers;
   value: EveryType;
 };

@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -17,7 +22,7 @@
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            38,
+            35,
             1
           ],
           "response": {
@@ -31,14 +36,13 @@
           "name": "testAuthorizer",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            32,
+            29,
             1
           ],
           "response": {
             "identity": {
               "identity": 1,
               "type": "object",
-              "description": "Authorization identity.",
               "properties": {}
             }
           }
@@ -47,7 +51,7 @@
           "name": "testRoute",
           "file": "test/http/input/output-cache.ts",
           "position": [
-            38,
+            35,
             1
           ],
           "response": {

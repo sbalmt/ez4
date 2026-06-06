@@ -2,7 +2,7 @@ import type { Enum } from '@ez4/schema';
 
 enum TestEnum {
   /**
-   * Foo option.
+   * @description Foo option.
    */
   FOO = 'foo',
   BAR = 'bar'
@@ -13,46 +13,48 @@ const enum TestSingleEnum {
 }
 
 /**
- * Enum test object.
+ * Internal test description.
+ *
+ * @description Enum test object.
  */
 export interface EnumTestSchema {
   /**
-   * Any enum value.
+   * @description Any enum value.
    */
   any: TestEnum[];
 
   /**
-   * Strict enum value.
+   * @description Strict enum value.
    */
   strict: TestEnum.BAR;
 
   /**
-   * Single enum value.
+   * @description Single enum value.
    */
   single: TestSingleEnum;
 
   /**
-   * Enum values union.
+   * @description Enum values union.
    */
   union: TestSingleEnum | TestEnum | 'literal' | 123;
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: TestEnum | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: TestEnum | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: TestEnum | null;
 
   /**
-   * Default enum value.
+   * @description Default enum value.
    */
   default: Enum.Default<TestEnum, TestEnum.FOO>;
 }

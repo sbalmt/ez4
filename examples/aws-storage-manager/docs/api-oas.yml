@@ -8,7 +8,8 @@ paths:
   /start-upload:
     post:
       operationId: startUploadHandler
-      summary: "Handle start upload requests."
+      summary: "Upload file."
+      description: "Generate a signed URL for uploading a new file."
       requestBody:
         content:
           application/json:
@@ -21,10 +22,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responseSchemes/startUploadHandler'
-  /start-download/{fileId}:
+  /file/{fileId}/download:
     get:
       operationId: startDownloadHandler
-      summary: "Handle start download requests."
+      summary: "Download file."
+      description: "Generate a signed URL for download the file corresponding to the given `fileId`."
       parameters:
         - name: fileId
           in: path
@@ -40,10 +42,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responseSchemes/startDownloadHandler'
-  /delete-file/{fileId}:
+  /file/{fileId}:
+    get:
+      operationId: fileStatHandler
+      summary: "Read file details."
+      description: "Read details of a file for the given `fileId`."
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+            description: "File Id."
+            format: uuid
+      responses:
+        200:
+          description: "Successful response."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responseSchemes/fileStatHandler'
     delete:
       operationId: deleteFileHandler
-      summary: "Handle delete file requests."
+      summary: "Delete file."
+      description: "Delete a file corresponding to the given `fileId`."
       parameters:
         - name: fileId
           in: path
@@ -55,10 +77,11 @@ paths:
       responses:
         204:
           description: "Successful response."
-  /list-files:
+  /files:
     get:
       operationId: listFilesHandler
-      summary: "Handle list files requests."
+      summary: "List files."
+      description: "List all files corresponding to the given `cursor` and `limit`."
       parameters:
         - name: cursor
           in: path
@@ -86,20 +109,23 @@ components:
   requestSchemes:
     startUploadHandler:
       type: object
-      description: "Expected HTTP body payload."
+      description: "Typed request body payload.\n\n- Automatically parsed into the declared types.\n- Supports JSON objects and raw string payloads.\n- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         contentType:
           enum: 
             - 'image/jpeg'
             - 'image/png'
+        maxCacheAge:
+          type: integer
+          description: "Max cache age (in seconds) for the given file."
       required:
         - contentType
 
   responseSchemes:
     startUploadHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
@@ -107,22 +133,52 @@ components:
           description: "File Id."
         url:
           type: string
-          description: "Signed upload URL."
+          description: "Signed URL to upload the file."
+        headers:
+          type: object
+          description: "Headers required when uploading the file."
+          additionalProperties: false
+          properties:
+            cacheControl:
+              type: string
+              description: "Cache control header to send."
+            expires:
+              type: string
+              description: "Expiration date header to send."
       required:
         - id
         - url
     startDownloadHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         url:
           type: string
+          description: "URL to download the given file."
       required:
         - url
+    fileStatHandler:
+      type: object
+      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          description: "MIME type of the given file."
+        metadata:
+          type: object
+          description: "Custom metadata for the given file."
+          additionalProperties: true
+        size:
+          type: number
+          description: "File size."
+      required:
+        - type
+        - size
     listFilesHandler:
       type: object
-      description: "HTTP body payload."
+      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         next:

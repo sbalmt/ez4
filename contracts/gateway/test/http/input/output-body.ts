@@ -27,14 +27,14 @@ export declare class TestService extends Http.Service {
 
 declare class TestRawRequest implements Http.Request {
   /**
-   * Raw String payload.
+   * @description Raw String payload.
    */
   body: Http.RawBody;
 }
 
 declare class TestJsonRequest implements Http.Request {
   /**
-   * JSON payload.
+   * @description JSON payload.
    */
   body: {
     foo: string;
@@ -44,7 +44,7 @@ declare class TestJsonRequest implements Http.Request {
 
 declare class TestOptionalRequest implements Http.Request {
   /**
-   * Optional JSON payload.
+   * @description Optional JSON payload.
    */
   body?: {
     foo: string;
@@ -53,7 +53,7 @@ declare class TestOptionalRequest implements Http.Request {
 
 declare class TestNamingStyleRequest implements Http.Request {
   /**
-   * JSON payload with `NamingStyle` transformation.
+   * @description JSON payload with `NamingStyle` transformation.
    */
   body: {
     fooKey: string;

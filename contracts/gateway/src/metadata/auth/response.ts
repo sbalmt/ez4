@@ -7,6 +7,7 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   hasHeritageType,
+  getDeclarationDescription,
   getModelMembers,
   getObjectMembers,
   getReferenceType
@@ -82,6 +83,8 @@ const getTypeFromMembers = (
       continue;
     }
 
+    const description = getDeclarationDescription(member);
+
     switch (member.name) {
       default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
@@ -91,8 +94,8 @@ const getTypeFromMembers = (
       case 'identity': {
         response.identity = getAuthIdentityMetadata(member.value, type, reflection, errorList, namespace);
 
-        if (response.identity && member.description) {
-          response.identity.description = member.description;
+        if (response.identity && description) {
+          response.identity.description = description;
         }
 
         break;

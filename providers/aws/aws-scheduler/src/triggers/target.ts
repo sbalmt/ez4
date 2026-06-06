@@ -53,7 +53,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
 
   handlerState = createTargetFunction(state, context.role, logGroupState, {
     functionName: targetName,
-    description: handler.description,
+    description: handler.summary ?? handler.description,
     eventSchema: service.schema,
     context: service.context,
     variables: [options.variables, service.variables, variables],

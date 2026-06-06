@@ -3,10 +3,10 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
-import { getUpdateQueries } from '@ez4/pgmigration';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
+import { getUpdateQueries } from '@ez4/pgmigration';
 
-import { DataClientDriver } from '../client/driver';
+import { ApiClientDriver } from '../client/drivers/api';
 import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
 
 export type ConnectionRequest = {
@@ -24,7 +24,7 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
 
   const { clusterArn, secretArn, database, repository } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
@@ -51,7 +51,7 @@ const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
   }
 };
 
-const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClientDriver, validations: PgValidationStatement[]) => {
+const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClientDriver, validations: PgValidationStatement[]) => {
   const operations = validations.map(
     (statement) => () =>
       Wait.until(async (attempt) => {
@@ -94,7 +94,7 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: DataClie
   });
 };
 
-const executeMigrationStatement = async (driver: DataClientDriver, statement: PgValidationStatement) => {
+const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgValidationStatement) => {
   const { check, ...change } = statement;
 
   if (check) {

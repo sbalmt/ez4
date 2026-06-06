@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedServicesObject,
+  getLinkedVariablesObject,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   getReferenceName,
@@ -43,14 +44,10 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createQueueImport(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createQueueImport(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'schema']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
@@ -134,14 +131,14 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }

@@ -5,7 +5,9 @@
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestDatabase"
+      "selfClient": {
+        "reference": "TestDatabase"
+      }
     },
     "engine": {
       "parametersMode": "index",
@@ -33,10 +35,11 @@
           "architecture": "arm",
           "handler": {
             "name": "streamHandler",
-            "description": "Test table stream.",
+            "description": "Example of database stream.",
+            "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              60,
+              61,
               1
             ]
           },
@@ -63,10 +66,11 @@
           "debug": true,
           "handler": {
             "name": "streamHandler",
-            "description": "Test table stream.",
+            "description": "Example of database stream.",
+            "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              60,
+              61,
               1
             ]
           },

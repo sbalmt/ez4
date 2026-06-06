@@ -1,40 +1,42 @@
 /**
- * Circular object.
+ * @description Circular object.
  */
 type ObjectType = {
   foo1: ObjectType;
 };
 
 /**
- * Circular interface.
+ * @description Circular interface.
  */
 interface InterfaceTest {
   foo2: InterfaceTest;
 }
 
 /**
- * Circular class.
+ * @description Circular class.
  */
 declare class ClassTest {
   foo3: ClassTest;
 }
 
 /**
- * Reference test object.
+ * Internal test description.
+ *
+ * @description Reference test object.
  */
 export interface ReferenceTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: ObjectType;
 
   /**
-   * Bar property.
+   * @description Bar property.
    */
   bar: InterfaceTest;
 
   /**
-   * Baz property.
+   * @description Baz property.
    */
   baz: ClassTest;
 }

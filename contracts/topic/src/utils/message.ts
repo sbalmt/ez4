@@ -1,7 +1,7 @@
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Topic } from '@ez4/topic';
 
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { transform, createTransformContext } from '@ez4/transform';
 
 import { MalformedMessageError } from './errors';
@@ -14,7 +14,7 @@ export const getJsonMessage = async <T extends Topic.Message>(input: T, schema: 
   const errors = await validate(message, schema, createValidatorContext({ property: '$message' }));
 
   if (errors.length) {
-    throw new MalformedMessageError(getUniqueErrorMessages(errors));
+    throw new MalformedMessageError(getErrorDetails(errors));
   }
 
   return message as T;

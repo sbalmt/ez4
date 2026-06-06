@@ -70,4 +70,32 @@ describe('where json missing', () => {
 
     deepEqual(variables, []);
   });
+
+  it('assert :: prepare where json missing or null (operator)', () => {
+    const [whereClause, variables] = getWhereOperation({
+      json: {
+        number: {
+          isMissingOrNull: true
+        }
+      }
+    });
+
+    equal(whereClause, `WHERE (NOT ("json" ? 'number') OR "json"->>'number' IS null)`);
+
+    deepEqual(variables, []);
+  });
+
+  it('assert :: prepare where json not missing or null (operator)', () => {
+    const [whereClause, variables] = getWhereOperation({
+      json: {
+        number: {
+          isMissingOrNull: false
+        }
+      }
+    });
+
+    equal(whereClause, `WHERE ("json" ? 'number' AND "json"->>'number' IS NOT null)`);
+
+    deepEqual(variables, []);
+  });
 });

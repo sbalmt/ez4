@@ -80,13 +80,24 @@ export namespace Cdn {
     readonly fallbacks?: Fallback[];
 
     /**
+     * Designate all path patterns for the invalidation.
+     * When omitted, the invalidation is `['/*']` and occurs for all paths.
+     */
+    readonly invalidations?: string[];
+
+    /**
      * Determines whether or not the distribution is disabled.
      */
     readonly disabled?: boolean;
 
     /**
-     * Service client.
+     * No service client available.
      */
     readonly client: never;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

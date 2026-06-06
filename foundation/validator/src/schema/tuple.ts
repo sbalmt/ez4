@@ -21,7 +21,7 @@ export const validateTuple = async (value: unknown, schema: TupleSchema, context
   const { definitions } = schema;
 
   if (!(value instanceof Array)) {
-    return [new ExpectedTupleTypeError(property)];
+    return [new ExpectedTupleTypeError(value, property)];
   }
 
   const allErrors: Error[] = [];

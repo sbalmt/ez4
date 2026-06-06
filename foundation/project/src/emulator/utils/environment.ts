@@ -2,14 +2,23 @@ import type { LinkedVariables } from '@ez4/project/library';
 
 const referencesCount: Record<string, number> = {};
 
-export const runWithVariables = async <T>(variables: LinkedVariables, callback: () => Promise<T> | T) => {
+export const runWithVariables = <T>(variables: LinkedVariables, callback: () => Promise<T> | T) => {
   try {
     attachVariables(variables);
-    return await callback();
-  } catch (error) {
-    throw error;
-  } finally {
+
+    const result = callback();
+
+    if (result instanceof Promise) {
+      return result.finally(() => detachVariables(variables));
+    }
+
     detachVariables(variables);
+
+    return result;
+    //
+  } catch (error) {
+    detachVariables(variables);
+    throw error;
   }
 };
 

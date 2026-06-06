@@ -2,7 +2,9 @@ import type { Environment } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 
 /**
- * First test service description.
+ * Internal gateway description.
+ *
+ * @description Test gateway service.
  */
 export declare class TestService1 extends Http.Service {
   name: 'Test Service 1';
@@ -11,7 +13,7 @@ export declare class TestService1 extends Http.Service {
 }
 
 /**
- * Description of the second test service.
+ * Internal description of the second test service.
  */
 export declare class TestService2 extends Http.Service {
   routes: [];

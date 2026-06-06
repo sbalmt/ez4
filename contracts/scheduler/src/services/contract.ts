@@ -93,5 +93,10 @@ export namespace Cron {
      * Service client.
      */
     readonly client: T extends null ? never : Client<NonNullable<T>>;
+
+    /**
+     * No service options available.
+     */
+    readonly options: never;
   }
 }

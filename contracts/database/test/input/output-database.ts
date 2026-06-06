@@ -3,11 +3,11 @@ import type { Database, OrderMode, PaginationMode, TransactionMode } from '@ez4/
 import type { TestEngineOrder, TestEnginePagination, TestEngineTransaction } from '../common/engines';
 
 /**
- * Test database 1.
+ * Internal database description.
+ *
+ * @description Test database 1.
  */
-export declare class TestDatabase1 extends Database.Service {
-  engine: TestEngineTransaction<TransactionMode.Interactive>;
-
+export declare class TestDatabase1 extends Database.Service<TestEngineTransaction<TransactionMode.Interactive>> {
   tables: [];
 
   // Services to all streams.
@@ -17,11 +17,9 @@ export declare class TestDatabase1 extends Database.Service {
 }
 
 /**
- * Test database 2.
+ * Internal test database description 2.
  */
-export declare class TestDatabase2 extends Database.Service {
-  engine: TestEnginePagination<PaginationMode.Cursor>;
-
+export declare class TestDatabase2 extends Database.Service<TestEnginePagination<PaginationMode.Cursor>> {
   tables: [];
 
   // Variables to all streams.
@@ -32,10 +30,8 @@ export declare class TestDatabase2 extends Database.Service {
 }
 
 /**
- * Test database 3.
+ * Internal test database description 3.
  */
-export declare class TestDatabase3 extends Database.Service {
-  engine: TestEngineOrder<OrderMode.IndexColumns>;
-
+export declare class TestDatabase3 extends Database.Service<TestEngineOrder<OrderMode.IndexColumns>> {
   tables: [];
 }

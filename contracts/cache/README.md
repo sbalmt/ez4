@@ -37,7 +37,7 @@ import type { Service } from '@ez4/common';
 import type { MyCache } from './cache';
 
 // Any other handler that has injected MyCache service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myCache } = context;
 
   await myCache.set('key', 'value');

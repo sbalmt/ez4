@@ -8,7 +8,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
     "engine": {
       "parametersMode": "index",
@@ -37,7 +39,7 @@
             "name": "streamHandler",
             "file": "test/input/output-variables.ts",
             "position": [
-              33,
+              31,
               1
             ]
           }

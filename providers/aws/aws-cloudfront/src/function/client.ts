@@ -91,8 +91,8 @@ export const updateFunction = async (logger: OperationLogLine, functionName: str
   const response = await client.send(
     new UpdateFunctionCommand({
       Name: functionName,
-      IfMatch: version,
       FunctionCode: functionCode,
+      IfMatch: version,
       FunctionConfig: {
         Runtime: FunctionRuntime.cloudfront_js_2_0,
         Comment: description
@@ -104,20 +104,26 @@ export const updateFunction = async (logger: OperationLogLine, functionName: str
 };
 
 export const deleteFunction = async (logger: OperationLogLine, functionName: string) => {
-  const version = await getFunctionVersion(logger, functionName);
+  try {
+    const version = await getFunctionVersion(logger, functionName);
 
-  logger.update(`Deleting function`);
+    logger.update(`Deleting function`);
 
-  await getCloudFrontClient().send(
-    new DeleteFunctionCommand({
-      Name: functionName,
-      IfMatch: version
-    })
-  );
+    await getCloudFrontClient().send(
+      new DeleteFunctionCommand({
+        Name: functionName,
+        IfMatch: version
+      })
+    );
+  } catch (error) {
+    if (!(error instanceof NoSuchFunctionExists)) {
+      throw error;
+    }
+  }
 };
 
 const getFunctionVersion = async (logger: OperationLogLine, functionName: string) => {
-  logger.update(`Fetching distribution`);
+  logger.update(`Fetching function`);
 
   const response = await getCloudFrontClient().send(
     new GetFunctionCommand({
@@ -135,8 +141,8 @@ const publishFunction = async (logger: OperationLogLine, functionName: string, f
 
   await getCloudFrontClient().send(
     new PublishFunctionCommand({
-      IfMatch: version,
-      Name: functionName
+      Name: functionName,
+      IfMatch: version
     })
   );
 };

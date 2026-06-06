@@ -40,15 +40,23 @@ export const prepareEmulatorClient = (event: EmulateClientEvent) => {
   if (options.local) {
     const connection = getConnectionOptions(service, options);
 
-    return Client.make({
+    const instance = Client.make({
       repository: getTableRepository(service, options),
       client: getClientInstance(connection),
       debug: options.debug
     });
+
+    return {
+      make: () => instance
+    };
   }
 
-  return Client.make({
+  const instance = Client.make({
     repository: getTableRepository(service, options),
     debug: options.debug
   });
+
+  return {
+    make: () => instance
+  };
 };

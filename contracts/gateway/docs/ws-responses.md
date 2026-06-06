@@ -1,6 +1,6 @@
 # EZ4: WebSocket Responses
 
-Gateway responses for WebSocket define the **typed shape** of all outgoing WS data produced by the gateway **message** route handler (connect and disconnect handlers don't produce responses). The handler returns a fully typed object that includes an optional body payload. These types are generated from the response contract and validated at runtime.
+Gateway responses for WebSocket define the **typed shape** of all outgoing WS data produced by the gateway **message** route handler (connect and disconnect handlers don't produce responses). The handler returns a fully typed object that includes an optional body payload. These types are generated from the declared response type and validated at runtime.
 
 ## Response declaration
 
@@ -32,8 +32,8 @@ interface MyResponse extends Ws.Response {
 
 Typed message response body.
 
-- Automatically removes fields not matching the contract.
-- Shape is determined by the declared contract.
+- Automatically removes fields not matching the declared response type.
+- Shape is determined by the declared response type.
 - Supports JSON objects and scalar payloads.
 
 JSON payload (preferred):

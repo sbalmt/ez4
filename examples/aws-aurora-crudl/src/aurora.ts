@@ -6,16 +6,11 @@ import type { ItemSchema } from './schemas/item';
 /**
  * Example of AWS Aurora RDS deployed with EZ4.
  */
-export declare class Db extends Database.Service {
+export declare class Db extends Database.Service<PostgresEngine> {
   /**
    * Database client.
    */
   client: Client<Db>;
-
-  /**
-   * Database engine.
-   */
-  engine: PostgresEngine;
 
   /**
    * Database scalability.

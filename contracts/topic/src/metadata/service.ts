@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedServicesObject,
+  getLinkedVariablesObject,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -39,14 +40,10 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createTopicService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createTopicService(declaration.name, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'subscriptions']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
@@ -62,6 +59,7 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'schema': {
@@ -87,14 +85,14 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }
