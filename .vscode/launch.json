@@ -4,7 +4,7 @@
 		{
 			"port": 9229,
 			"address": "0.0.0.0",
-			"name": "Attach debugger",
+			"name": "Attach Debugger",
 			"localRoot": "${workspaceFolder}",
 			"remoteRoot": "${workspaceFolder}",
 			"sourceMaps": true,
@@ -13,6 +13,17 @@
 			"skipFiles": [
 				"<node_internals>/**",
 				"**/node_modules/**"
+			],
+		},
+		{
+			"name": "Run VSCode Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode"
+			],
+			"outFiles": [
+				"${workspaceFolder}/extensions/vscode/dist/**/*.js"
 			],
 		}
 	]

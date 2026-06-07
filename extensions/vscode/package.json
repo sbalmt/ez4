@@ -1,0 +1,61 @@
+{
+  "name": "ez4-vscode",
+  "displayName": "EZ4",
+  "description": "Provide a seamless EZ4 development environment.",
+  "icon": "media/icon.png",
+  "publisher": "sbalmt",
+  "version": "0.1.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "private": true,
+  "main": "./dist/main.js",
+  "engines": {
+    "vscode": "^1.120.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "extensions/vscode"
+  },
+  "workspaces": [
+    "foundation/*"
+  ],
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ez4",
+          "title": "EZ4",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ez4": [
+        {
+          "id": "ez4.componentsView",
+          "icon": "media/icon.svg",
+          "name": "Components",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "build": "tsc && node tools/bundler.mjs",
+    "vscode:prepublish": "npm run build",
+    "vscode:package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.120.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "vsce": "^2.15.0"
+  }
+}

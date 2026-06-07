@@ -30,6 +30,7 @@
     "contracts/factory",
     "contracts/validation",
     "contracts/email",
+    "extensions/vscode",
     "libraries/pgsql",
     "libraries/pgclient",
     "libraries/pgmigration",
@@ -87,7 +88,7 @@
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.2",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "verdaccio": "^6.0.5"
   }
 }

@@ -1,0 +1,11 @@
+../../**
+../**
+**
+
+!package.json
+!README.md
+!LICENSE
+
+!media/**
+
+!dist/main.js
