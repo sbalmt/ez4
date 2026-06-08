@@ -4,7 +4,7 @@ import type { ServeOptions } from '../types/options';
 
 import { isAnyArray } from '@ez4/utils';
 
-export const getIncomingService = (emulator: ServiceEmulators, request: IncomingMessage, options: ServeOptions) => {
+export const getIncomingService = (emulators: ServiceEmulators, request: IncomingMessage, options: ServeOptions) => {
   if (!request.url) {
     return undefined;
   }
@@ -12,11 +12,13 @@ export const getIncomingService = (emulator: ServiceEmulators, request: Incoming
   const { pathname, searchParams } = new URL(request.url, `ez4://${options.serviceHost}`);
   const [, identifier, ...path] = pathname.split('/');
 
+  const emulator = emulators[identifier];
+
   return {
     identifier,
-    emulator: emulator[identifier],
+    emulator,
     request: {
-      path: `/${path.join('/')}`,
+      path: emulator ? `/${path.join('/')}` : pathname,
       headers: getDistinctHeaders(request.headersDistinct),
       query: getQueryParameters(searchParams)
     }

@@ -1,8 +1,11 @@
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedService, ServiceMetadata } from '../types/service';
+import type { ServiceManifest } from '../manifest/types';
 import type { ServeOptions } from '../types/options';
 
 export type EmulatorExportHandler = (options: AnyObject) => unknown;
+
+export type EmulatorManifestHandler = () => ServiceManifest;
 
 export type EmulatorPrepareHandler = () => Promise<void> | void;
 
@@ -55,6 +58,7 @@ export type ServiceEmulator = {
   options?: AnyObject;
   inheritOptions?: boolean;
   exportHandler?: EmulatorExportHandler;
+  manifestHandler?: EmulatorManifestHandler;
   prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
   shutdownHandler?: EmulatorShutdownHandler;
