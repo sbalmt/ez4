@@ -29,18 +29,38 @@
       "activitybar": [
         {
           "id": "ez4",
-          "title": "EZ4",
-          "icon": "media/icon.svg"
+          "icon": "media/icon.svg",
+          "title": "EZ4"
         }
       ]
     },
+    "commands": [
+      {
+        "command": "ez4.manifests.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
     "views": {
       "ez4": [
         {
-          "id": "ez4.componentsView",
+          "id": "ez4.liveView",
           "icon": "media/icon.svg",
-          "name": "Components",
-          "type": "webview"
+          "name": "Live"
+        },
+        {
+          "id": "ez4.offlineView",
+          "icon": "media/icon.svg",
+          "name": "Offline"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "ez4.manifests.refresh",
+          "when": "view == ez4.offlineView || view == ez4.liveView",
+          "group": "navigation"
         }
       ]
     }
@@ -53,6 +73,8 @@
     "vscode:package": "vsce package"
   },
   "devDependencies": {
+    "@ez4/project": "0.48.0",
+    "@ez4/utils": "0.48.0",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",

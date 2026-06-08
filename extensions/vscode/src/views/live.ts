@@ -1,0 +1,48 @@
+import type { TreeDataProvider } from 'vscode';
+import type { WorkspaceManifest } from '../services/manifest';
+
+import { EventEmitter } from 'vscode';
+
+import { PlaceholderTreeItem } from './items/placeholder';
+import { LiveProjectTreeItem } from './items/project';
+import { ResourceTreeItem } from './items/resource';
+
+export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderTreeItem;
+
+export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
+  private eventEmitter = new EventEmitter<void>();
+  private viewData?: WorkspaceManifest[];
+
+  onDidChangeTreeData = this.eventEmitter.event;
+
+  getTreeItem(element: LiveTreeItem) {
+    return element;
+  }
+
+  getChildren(element?: LiveProjectTreeItem) {
+    if (element) {
+      return element.children ?? [];
+    }
+
+    if (!this.viewData) {
+      return [new PlaceholderTreeItem('No live projects found.')];
+    }
+
+    const projectItems = this.viewData.map(({ project, manifest }) => {
+      const serviceItems = [];
+
+      for (const service in manifest) {
+        serviceItems.push(new ResourceTreeItem(service));
+      }
+
+      return new LiveProjectTreeItem(project, serviceItems);
+    });
+
+    return projectItems;
+  }
+
+  refresh(manifests?: WorkspaceManifest[]) {
+    this.viewData = manifests?.filter(({ manifest }) => !!manifest);
+    this.eventEmitter.fire();
+  }
+}

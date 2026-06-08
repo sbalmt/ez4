@@ -20,7 +20,8 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode"
+				"--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode",
+				"${workspaceFolder}/examples"
 			],
 			"outFiles": [
 				"${workspaceFolder}/extensions/vscode/dist/**/*.js"
