@@ -24,7 +24,7 @@ export function activate(context: ExtensionContext) {
   });
 
   context.subscriptions.push(commands.registerCommand('ez4.manifests.refresh', () => manifests.refresh()));
-  context.subscriptions.push(commands.registerCommand('ez4.manifest.open', (item) => PanelWebView.open(item.name)));
+  context.subscriptions.push(commands.registerCommand('ez4.manifest.open', (item) => PanelWebView.open(item.name, context)));
 
   context.subscriptions.push(window.registerTreeDataProvider('ez4.offlineView', offlineView));
   context.subscriptions.push(window.registerTreeDataProvider('ez4.liveView', liveView));

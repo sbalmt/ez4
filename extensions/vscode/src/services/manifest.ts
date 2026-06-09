@@ -11,57 +11,59 @@ export type WorkspaceManifest = {
   project: string;
 };
 
-export const fetchWorkspaceManifests = async () => {
-  const files = await workspace.findFiles('**/ez4.project.js');
+export namespace ManifestService {
+  export const fetchAll = async () => {
+    const files = await workspace.findFiles('**/ez4.project.js');
 
-  const projects: WorkspaceManifest[] = [];
+    const projects: WorkspaceManifest[] = [];
 
-  const allOperations = files.map(async (file) => {
-    const workspacePath = dirname(file.path);
-    const projectFile = basename(file.path);
+    const allOperations = files.map(async (file) => {
+      const workspacePath = dirname(file.path);
+      const projectFile = basename(file.path);
 
-    const { prefix = 'ez4', projectName, serveOptions } = await tryLoadProject(projectFile, workspacePath);
+      const { prefix = 'ez4', projectName, serveOptions } = await tryLoadProject(projectFile, workspacePath);
 
-    const project = toKebabCase(`${prefix}-${projectName}`);
+      const project = toKebabCase(`${prefix}-${projectName}`);
 
-    const host = serveOptions?.localHost ?? 'localhost';
-    const port = serveOptions?.localPort ?? 3734;
+      const host = serveOptions?.localHost ?? 'localhost';
+      const port = serveOptions?.localPort ?? 3734;
 
-    const manifest = await fetchProjectManifest(project, host, port);
+      const manifest = await fetchProjectManifest(project, host, port);
 
-    projects.push({
-      project,
-      manifest
-    });
-  });
-
-  await Promise.all(allOperations);
-
-  projects.sort((a, b) => {
-    if ((!a.manifest && !b.manifest) || (a.manifest && b.manifest)) {
-      return a.project.localeCompare(b.project);
-    } else if (a.manifest) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
-
-  return projects;
-};
-
-const fetchProjectManifest = async (project: string, host: string, port: number) => {
-  try {
-    const response = await fetch(`http://${host}:${port}/${project}/manifest`, {
-      method: 'GET'
+      projects.push({
+        project,
+        manifest
+      });
     });
 
-    if (response.ok) {
-      return (await response.json()) as Record<string, ServiceManifest>;
-    }
-  } catch (error) {
-    console.warn(error);
-  }
+    await Promise.all(allOperations);
 
-  return undefined;
-};
+    projects.sort((a, b) => {
+      if ((!a.manifest && !b.manifest) || (a.manifest && b.manifest)) {
+        return a.project.localeCompare(b.project);
+      } else if (a.manifest) {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+
+    return projects;
+  };
+
+  const fetchProjectManifest = async (project: string, host: string, port: number) => {
+    try {
+      const response = await fetch(`http://${host}:${port}/${project}/manifest`, {
+        method: 'GET'
+      });
+
+      if (response.ok) {
+        return (await response.json()) as Record<string, ServiceManifest>;
+      }
+    } catch (error) {
+      console.warn(error);
+    }
+
+    return undefined;
+  };
+}
