@@ -12,9 +12,10 @@ import { processRemoteMessage } from '../handlers/remote';
 import { processLambdaMessage } from '../handlers/lambda';
 import { processQueueMessage } from '../handlers/queue';
 import { createLocalClient } from '../client/local';
+import { TopicManifest } from '../service/manifest';
 import { InMemoryTopic } from '../service/topic';
 
-export const registerLocalServices = (service: TopicService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalService = (service: TopicService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: resourceName, schema: messageSchema } = service;
 
   const clientOptions = {
@@ -33,6 +34,9 @@ export const registerLocalServices = (service: TopicService, options: ServeOptio
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
+    },
+    manifestHandler: () => {
+      return TopicManifest.build(service);
     }
   };
 };

@@ -12,7 +12,7 @@ import { processLambdaMessage } from '../handlers/lambda';
 import { processQueueMessage } from '../handlers/queue';
 import { getTopicServiceHost } from '../utils/topic';
 
-export const registerRemoteServices = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerRemoteService = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
   const { imports } = options;
 

@@ -1,12 +1,23 @@
 import type { AnyObject } from '@ez4/utils';
 
 export const enum ManifestActionType {
-  Post = 'post'
+  None = 'none',
+  Head = 'head',
+  Get = 'get',
+  Post = 'post',
+  Put = 'put',
+  Patch = 'path'
 }
 
 export type ManifestAction = {
   type: ManifestActionType;
-  schema?: AnyObject;
+  name: string;
+  path?: string;
+  identity?: AnyObject;
+  parameters?: AnyObject;
+  query?: AnyObject;
+  headers?: AnyObject;
+  body?: AnyObject;
 };
 
 export type ServiceManifest = {

@@ -9,10 +9,11 @@ import { Logger } from '@ez4/logger';
 
 import { processTimerEvent } from '../handlers/timer';
 import { processSchedulerEvent } from '../handlers/scheduler';
-import { InMemoryScheduler } from '../service/scheduler';
 import { createServiceClient } from '../client/service';
+import { InMemoryScheduler } from '../service/scheduler';
+import { CronManifest } from '../service/manifest';
 
-export const registerCronEmulator = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalService = (service: CronService, options: ServeOptions, context: EmulateServiceContext) => {
   const resourceName = service.name;
 
   return {
@@ -39,6 +40,9 @@ export const registerCronEmulator = (service: CronService, options: ServeOptions
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleSchedulerRequest(service, options, context, request);
+    },
+    manifestHandler: () => {
+      return CronManifest.build(service);
     },
     shutdownHandler: () => {
       InMemoryScheduler.deleteScheduler(resourceName);

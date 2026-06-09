@@ -18,7 +18,7 @@ import { processWsConnection } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
 import { getWsErrorResponse } from '../../utils/ws/response';
 
-export const registerWsLocalServices = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: resourceName, defaults, connect, message } = service;
 
   const allConnections: Record<string, EmulatorConnection> = {};

@@ -6,9 +6,10 @@ import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
 import { processLambdaEvent } from '../handlers/lambda';
+import { BucketManifest } from '../service/manifest';
 import { createLocalClient } from '../client/local';
 
-export const registerBucketEmulator = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalService = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
   const client = await getStorageClient(service, options, context);
 
   const { name: resourceName } = service;
@@ -25,6 +26,9 @@ export const registerBucketEmulator = async (service: BucketService, options: Se
     },
     exportHandler: () => {
       return client;
+    },
+    manifestHandler: () => {
+      return BucketManifest.build(service);
     }
   };
 };
@@ -68,6 +72,7 @@ const handleRequest = async (client: StorageClient, request: EmulatorRequestEven
     case 'GET':
       return loadFile(client, path);
 
+    case 'POST':
     case 'PUT': {
       if (!body) {
         throw new Error("File content wasn't given.");
