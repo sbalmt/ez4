@@ -23,9 +23,9 @@ export namespace HttpManifest {
           path: endpoint,
           type: METHOD_ACTION_TYPES[method] ?? ManifestActionType.None,
           identity: request?.identity,
+          headers: request?.headers,
           parameters: request?.parameters,
           query: request?.query,
-          headers: request?.headers,
           body: request?.body,
           name: handler.name,
           description

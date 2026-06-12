@@ -10,7 +10,8 @@ export namespace QueueManifest {
           type: ManifestActionType.Post,
           body: service.schema,
           description: 'Send a message to the queue.',
-          name: 'sendMessage'
+          name: 'sendMessage',
+          path: '/'
         }
       ]
     };

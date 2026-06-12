@@ -13,7 +13,7 @@ export const enum ManifestActionType {
 export type ManifestAction = {
   type: ManifestActionType;
   name: string;
-  path?: string;
+  path: string;
   description?: string;
   identity?: AnyObject;
   parameters?: AnyObject;

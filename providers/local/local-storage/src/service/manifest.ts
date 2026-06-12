@@ -8,15 +8,18 @@ export namespace BucketManifest {
       actions: [
         {
           type: ManifestActionType.Head,
-          name: 'stat'
+          name: 'stat',
+          path: '/'
         },
         {
           type: ManifestActionType.Put,
-          name: 'write'
+          name: 'write',
+          path: '/'
         },
         {
           type: ManifestActionType.Get,
-          name: 'read'
+          name: 'read',
+          path: '/'
         }
       ]
     };

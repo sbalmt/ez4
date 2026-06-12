@@ -12,7 +12,8 @@ export namespace CronManifest {
           type: ManifestActionType.Post,
           description: 'Trigger the event immediately.',
           body: service.schema,
-          name: handler.name
+          name: handler.name,
+          path: '/'
         }
       ]
     };
