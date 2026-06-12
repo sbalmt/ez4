@@ -3,10 +3,11 @@ import type { ObjectSchema } from '@ez4/schema';
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getClientRequestUrl } from '@ez4/gateway/utils';
 import { SchemaType } from '@ez4/schema';
 
-describe('http client utils', () => {
+import { prepareRequestUrl } from '../src/main';
+
+describe('http url utils', () => {
   const schema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -45,14 +46,25 @@ describe('http client utils', () => {
     }
   };
 
-  it('assert :: get request url', () => {
-    const url = getClientRequestUrl('https://localhost', '/test-path', {});
+  it('assert :: request url', () => {
+    const url = prepareRequestUrl('https://localhost', '/test-path', {});
 
     equal(url, 'https://localhost/test-path');
   });
 
-  it('assert :: get request with query strings (no schema)', () => {
-    const url = getClientRequestUrl('https://localhost', '/test-path', {
+  it('assert :: request url with parameters', () => {
+    const url = prepareRequestUrl('https://localhost', '/test-path/{foo}/{bar}', {
+      parameters: {
+        foo: 'foo-abc',
+        bar: 'bar-123'
+      }
+    });
+
+    equal(url, 'https://localhost/test-path/foo-abc/bar-123');
+  });
+
+  it('assert :: request url with query strings (no schema)', () => {
+    const url = prepareRequestUrl('https://localhost', '/test-path', {
       query: {
         numeric: 123,
         string: 'abc',
@@ -80,8 +92,8 @@ describe('http client utils', () => {
     );
   });
 
-  it('assert :: get request with query strings (with schema)', () => {
-    const url = getClientRequestUrl('https://localhost', '/test-path', {
+  it('assert :: request url with query strings (with schema)', () => {
+    const url = prepareRequestUrl('https://localhost', '/test-path', {
       querySchema: schema,
       query: {
         numeric: 456,

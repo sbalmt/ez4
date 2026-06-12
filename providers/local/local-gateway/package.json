@@ -47,6 +47,7 @@
   "dependencies": {
     "@ez4/common": "^0.48.0",
     "@ez4/gateway": "^0.48.0",
+    "@ez4/http": "^0.48.0",
     "@ez4/local-common": "^0.48.0",
     "@ez4/logger": "^0.48.0",
     "@ez4/project": "^0.48.0",

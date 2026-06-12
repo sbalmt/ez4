@@ -60,6 +60,7 @@
     "@ez4/aws-identity": "^0.48.0",
     "@ez4/aws-logs": "^0.48.0",
     "@ez4/common": "^0.48.0",
+    "@ez4/http": "^0.48.0",
     "@ez4/gateway": "^0.48.0",
     "@ez4/project": "^0.48.0",
     "@ez4/schema": "^0.48.0",
