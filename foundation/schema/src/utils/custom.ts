@@ -11,8 +11,8 @@ export const getSchemaCustomValidation = (schema: AnySchema) => {
     }
 
     if (isObjectSchema(schema)) {
-      for (const property in schema.properties) {
-        collectCustomValidation(schema.properties[property]);
+      for (const propertyName in schema.properties) {
+        collectCustomValidation(schema.properties[propertyName]);
       }
     }
 

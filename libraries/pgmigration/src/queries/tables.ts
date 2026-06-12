@@ -10,17 +10,17 @@ export namespace TableQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, indexes: PgIndexRepository) => {
     const statement = builder.table(table).create().missing();
 
-    for (const columnName in schema.properties) {
-      const columnSchema = schema.properties[columnName];
+    for (const columnKey in schema.properties) {
+      const columnSchema = schema.properties[columnKey];
 
-      const columnIndexType = indexes[columnName]?.type;
+      const columnIndexType = indexes[columnKey]?.type;
       const columnIsPrimary = columnIndexType === Index.Primary;
 
       const columnRequired = !isOptionalColumn(columnSchema);
       const columnType = getColumnType(columnSchema, columnIsPrimary);
       const columnValue = getColumnDefault(columnSchema, columnIsPrimary);
 
-      statement.column(columnName, columnType, columnRequired, columnValue).missing();
+      statement.column(columnKey, columnType, columnRequired, columnValue).missing();
     }
 
     return {

@@ -4,12 +4,15 @@ import { ManifestActionType } from '@ez4/project/library';
 
 export namespace CronManifest {
   export const build = (service: CronService) => {
+    const { handler } = service.target;
+
     return {
       actions: [
         {
           type: ManifestActionType.Post,
+          description: 'Trigger the event immediately.',
           body: service.schema,
-          name: 'Trigger event'
+          name: handler.name
         }
       ]
     };

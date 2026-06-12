@@ -9,7 +9,8 @@ export namespace TopicManifest {
         {
           type: ManifestActionType.Post,
           body: service.schema,
-          name: 'Send message'
+          description: 'Send a message to all topic subscriptions.',
+          name: 'sendMessage'
         }
       ]
     };

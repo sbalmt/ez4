@@ -15,7 +15,7 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse,
 
   if (!service?.emulator) {
     if (request.method === 'GET' && service?.request.path === `/${options.prefix}-${options.projectName}/manifest`) {
-      return sendSuccessResponse(stream, request, { status: 200, body: JSON.stringify(getServicesManifest(emulators)) });
+      return sendSuccessResponse(stream, request, { status: 200, body: JSON.stringify(getServicesManifest(emulators, options)) });
     }
 
     return sendErrorResponse(stream, request, 404, 'Service emulator not found.');

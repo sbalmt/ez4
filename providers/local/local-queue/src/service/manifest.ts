@@ -9,7 +9,8 @@ export namespace QueueManifest {
         {
           type: ManifestActionType.Post,
           body: service.schema,
-          name: 'Send message'
+          description: 'Send a message to the queue.',
+          name: 'sendMessage'
         }
       ]
     };

@@ -5,14 +5,16 @@ export const enum ManifestActionType {
   Head = 'head',
   Get = 'get',
   Post = 'post',
-  Put = 'put',
-  Patch = 'path'
+  Delete = 'delete',
+  Patch = 'patch',
+  Put = 'put'
 }
 
 export type ManifestAction = {
   type: ManifestActionType;
   name: string;
   path?: string;
+  description?: string;
   identity?: AnyObject;
   parameters?: AnyObject;
   query?: AnyObject;
@@ -21,5 +23,10 @@ export type ManifestAction = {
 };
 
 export type ServiceManifest = {
+  actions: ManifestAction[];
+  host: string;
+};
+
+export type EmulatorServiceManifest = {
   actions: ManifestAction[];
 };

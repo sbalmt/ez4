@@ -6,27 +6,29 @@ const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
   HEAD: ManifestActionType.Head,
   GET: ManifestActionType.Get,
   POST: ManifestActionType.Post,
-  PUT: ManifestActionType.Put,
-  PATCH: ManifestActionType.Patch
+  DELETE: ManifestActionType.Delete,
+  PATCH: ManifestActionType.Patch,
+  PUT: ManifestActionType.Put
 };
 
 export namespace HttpManifest {
   export const build = (service: HttpService) => {
     return {
-      actions: service.routes.map(({ path, name, handler }) => {
-        const { request } = handler;
+      actions: service.routes.map(({ path, handler }) => {
+        const { request, description } = handler;
 
         const [method, endpoint] = path.split(' ', 2);
 
         return {
           path: endpoint,
           type: METHOD_ACTION_TYPES[method] ?? ManifestActionType.None,
-          name: name ?? handler.name,
           identity: request?.identity,
           parameters: request?.parameters,
           query: request?.query,
           headers: request?.headers,
-          body: request?.body
+          body: request?.body,
+          name: handler.name,
+          description
         };
       })
     };
