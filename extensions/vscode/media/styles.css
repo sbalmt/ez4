@@ -1,0 +1,266 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 16px;
+  font-family: var(--vscode-font-family);
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  overflow: hidden;
+  line-height: 1.4;
+  height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input[type='checkbox'] {
+  border-radius: unset;
+  width: unset;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+button:disabled {
+  background: var(--vscode-button-background);
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Main Container */
+
+body > main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Form and Field */
+
+.field-like {
+  border-radius: 4px;
+  border: 1px solid var(--vscode-input-border);
+}
+
+.field-like label {
+  font-weight: 600;
+}
+
+.field-like input,
+.field-like select,
+.field-like textarea {
+  height: 30px;
+  border: none;
+}
+
+.field-like input:focus,
+.field-like select:focus,
+.field-like textarea:focus {
+  box-shadow: none;
+  outline: none;
+  border: none;
+}
+
+.field-group {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.field-grid {
+  display: grid;
+  border-collapse: collapse;
+  border: 1px solid var(--vscode-panel-border);
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+}
+
+.field-grid > .field-row > label {
+  padding: 6px 8px;
+}
+
+.field-grid > .field-row > * {
+  border-bottom: 1px solid var(--vscode-panel-border);
+  border-right: 1px solid var(--vscode-panel-border);
+  height: 100%;
+}
+
+.field-grid > .field-row > *:nth-child(2) {
+  border-right: none;
+}
+
+.field-grid > .field-row:last-child > * {
+  border-bottom: none;
+}
+
+.field-grid > .field-row {
+  display: contents;
+}
+
+.field-grid > .field-row > .field-flex {
+  display: flex;
+  align-items: center;
+}
+
+.field-grid > .field-row > .field-grid {
+  border: none;
+}
+
+.field-editor {
+  flex: 1;
+}
+
+/* Action Bar */
+
+.action-bar {
+  padding: 6px 8px;
+  gap: 8px;
+}
+
+.action-bar #actionType {
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.action-bar #actionPath {
+  flex: 1;
+}
+
+/* Action Content */
+
+.action-content {
+  padding-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.action-content .action-fields {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.action-content .action-details {
+  padding: 0px 8px;
+  min-width: 250px;
+  width: 20%;
+}
+
+/* Action Details */
+
+.action-details #title {
+  margin-top: 8px;
+}
+
+/* Action Tabs */
+
+.action-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.action-tab {
+  padding: 8px 12px;
+  border-bottom: 2px solid transparent;
+  border-radius: unset;
+}
+
+.action-tab,
+.action-tab:hover {
+  color: var(--vscode-foreground);
+  background: transparent;
+}
+
+.action-tab.active {
+  border-bottom: 2px solid var(--vscode-button-background);
+  color: var(--vscode-tab-activeForeground);
+}
+
+.action-tab-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1;
+}
+
+/* Action Badges */
+
+.action-badges {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  padding-right: 12px;
+  width: 100%;
+  top: -28px;
+  z-index: -1;
+  gap: 8px;
+}
+
+/* Response Content*/
+
+.action-badges .response-success {
+  color: #388a34;
+}
+
+.action-badges .response-error {
+  color: #a1260d;
+}
+
+.action-badges .response-status,
+.action-badges .response-time {
+  padding-right: 2px;
+}
+
+.action-badges .response-status:has(+ :empty) {
+  display: none;
+}
+
+.action-badges .response-time:has(+ :empty) {
+  display: none;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src vscode-resource:; font-src data:; style-src vscode-resource: 'unsafe-inline'; worker-src vscode-resource: blob:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="{{SCRIPT_PATH}}/webview.js" type="module"></script>
+  <link rel="stylesheet" href="{{STYLES_PATH}}/editor.css">
+  <link rel="stylesheet" href="{{STYLES_PATH}}/styles.css">
+</head>
+
+<body>
+  <main id="panel">
+    <div class="field-like field-group action-bar">
+      <div id="actionType">
+        <!-- Action type -->
+      </div>
+      <div id="actionPath">
+        <!-- Action path -->
+      </div>
+      <button id="runAction">
+        Run
+      </button>
+    </div>
+    <div class="action-content">
+      <div class="action-fields">
+        <div class="action-tabs">
+          <button id="action-parameters" class="action-tab active" data-tab="parameters" hidden>Parameters</button>
+          <button id="action-headers" class="action-tab" data-tab="headers" hidden>Headers</button>
+          <button id="action-query" class="action-tab" data-tab="query" hidden>Query</button>
+          <button id="action-body" class="action-tab" data-tab="body" hidden>Body</button>
+          <button id="action-response" class="action-tab" data-tab="response">Response</button>
+        </div>
+        <div id="tab-parameters" class="action-tab-content" hidden>
+          <h4>Path parameters</h4>
+          <div class="field-grid" id="parametersInputs"></div>
+        </div>
+        <div id="tab-headers" class="action-tab-content" hidden>
+          <h4>Request headers</h4>
+          <div class="field-grid" id="headersInputs"></div>
+        </div>
+        <div id="tab-query" class="action-tab-content" hidden>
+          <h4>Query strings</h4>
+          <div class="field-grid" id="queryInputs"></div>
+        </div>
+        <div id="tab-body" class="action-tab-content" hidden>
+          <div id="request-editor" class="field-editor">
+            <!-- Request editor -->
+          </div>
+        </div>
+        <div id="tab-response" class="action-tab-content" hidden>
+          <div class="action-badges">
+            <div>
+              <span class="response-status">Status:</span>
+              <span id="response-status"></span>
+            </div>
+            <div>
+              <span class="response-time">Time:</span>
+              <span id="response-time"></span>
+            </div>
+          </div>
+          <div id="response-viewer" class="field-editor">
+            <!-- Response viewer -->
+          </div>
+        </div>
+      </div>
+      <div class="action-details">
+        <h4 id="title">
+          <!-- Action title -->
+        </h4>
+        <p id="description">
+          <!-- Action description -->
+        </p>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>

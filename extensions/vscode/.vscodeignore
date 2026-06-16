@@ -8,5 +8,7 @@
 
 !media/**
 
-!dist/main.js
+!dist/editor.worker.js
+!dist/json.worker.js
+!dist/extension.js
 !dist/webview.js

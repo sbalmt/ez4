@@ -6,6 +6,7 @@ import { EventEmitter } from 'vscode';
 import { PlaceholderTreeItem } from './items/placeholder';
 import { LiveProjectTreeItem } from './items/project';
 import { ResourceTreeItem } from './items/resource';
+import { ActionTreeItem } from './items/action';
 
 export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderTreeItem;
 
@@ -24,15 +25,20 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
       return element.children ?? [];
     }
 
-    if (!this.viewData) {
+    if (!this.viewData?.length) {
       return [new PlaceholderTreeItem('No live projects found.')];
     }
 
     const projectItems = this.viewData.map(({ project, manifest }) => {
       const serviceItems = [];
 
-      for (const service in manifest) {
-        serviceItems.push(new ResourceTreeItem(service));
+      for (const identifier in manifest) {
+        const { host, actions } = manifest[identifier];
+
+        const actionItems = actions.map((action) => new ActionTreeItem(host, action));
+        const serviceName = identifier.substring(project.length + 1);
+
+        serviceItems.push(new ResourceTreeItem(serviceName, actionItems));
       }
 
       return new LiveProjectTreeItem(project, serviceItems);

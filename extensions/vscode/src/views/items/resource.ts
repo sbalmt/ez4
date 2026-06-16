@@ -1,17 +1,14 @@
-import { TreeItem, TreeItemCollapsibleState } from 'vscode';
+import type { ActionTreeItem } from './action';
+
+import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode';
 
 export class ResourceTreeItem extends TreeItem {
-  constructor(public readonly label: string) {
-    super(label, TreeItemCollapsibleState.None);
+  constructor(
+    public readonly label: string,
+    public readonly children?: ActionTreeItem[]
+  ) {
+    super(label, TreeItemCollapsibleState.Collapsed);
 
-    this.command = {
-      command: 'ez4.manifest.open',
-      title: 'Open',
-      arguments: [
-        {
-          name: label
-        }
-      ]
-    };
+    this.iconPath = new ThemeIcon('symbol-constant');
   }
 }

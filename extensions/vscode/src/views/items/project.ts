@@ -8,6 +8,8 @@ export class LiveProjectTreeItem extends TreeItem {
     public readonly children?: ResourceTreeItem[]
   ) {
     super(label, TreeItemCollapsibleState.Expanded);
+
+    this.iconPath = new ThemeIcon('multiple-windows');
   }
 }
 

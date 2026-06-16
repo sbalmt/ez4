@@ -8,7 +8,7 @@
   "author": "Silas B.",
   "license": "MIT",
   "private": true,
-  "main": "./dist/main.js",
+  "main": "./dist/extension.js",
   "engines": {
     "vscode": "^1.120.0"
   },
@@ -73,11 +73,15 @@
     "vscode:package": "vsce package"
   },
   "devDependencies": {
+    "@ez4/http": "0.48.0",
     "@ez4/project": "0.48.0",
+    "@ez4/schema": "0.48.0",
     "@ez4/utils": "0.48.0",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "monaco-editor": "^0.55.1",
+    "strip-json-comments": "^3.1.1",
     "vsce": "^2.15.0"
   }
 }

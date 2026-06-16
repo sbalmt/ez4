@@ -23,7 +23,7 @@ export class OfflineTreeView implements TreeDataProvider<OfflineTreeItem> {
       return [];
     }
 
-    if (!this.viewData) {
+    if (!this.viewData?.length) {
       return [new PlaceholderTreeItem('No offline projects found.')];
     }
 

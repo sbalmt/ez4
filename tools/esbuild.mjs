@@ -24,8 +24,9 @@ export const bundlePackage = async (entryFile, outFile, format, options) => {
     outfile: outFile,
     packages: options?.packages ?? 'external',
     sourcemap: options?.sourcemap ?? 'linked',
+    platform: options?.platform ?? 'node',
     target: options?.target ?? 'node22',
-    platform: 'node',
+    loader: options?.loader,
     format,
     define: {
       ...(format === 'esm' && esmDefinitions),
