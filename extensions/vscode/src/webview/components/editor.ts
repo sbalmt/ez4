@@ -2,6 +2,7 @@ import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import stripJsonComments from 'strip-json-comments';
 
+import { registerEditorDecorations } from './editor/decorations';
 import { getElementById } from '../utils/elements';
 
 const WORKER_NAME_MAP: Record<string, string | undefined> = {
@@ -53,6 +54,8 @@ export const registerEditors = () => {
     domReadOnly: true,
     readOnly: true
   });
+
+  registerEditorDecorations(responseEditor);
 
   self.onresize = () => {
     resizeEditor(requestEditor);

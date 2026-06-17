@@ -264,3 +264,17 @@ body > main {
 .action-badges .response-time:has(+ :empty) {
   display: none;
 }
+
+/* Editor Decorations */
+.copy-hint::after {
+  content: 'Copied';
+  display: inline-block;
+  position: relative;
+  box-shadow: 0 2px 4px var(--vscode-widget-shadow);
+  background-color: var(--vscode-editorHoverWidget-background);
+  font-family: var(--vscode-font-family);
+  border-radius: 4px;
+  z-index: 9999999;
+  margin-top: 18px;
+  padding: 2px 6px;
+}
