@@ -67,6 +67,13 @@ button:disabled {
   opacity: 0.5;
 }
 
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+}
+
 [hidden] {
   display: none !important;
 }
@@ -220,6 +227,10 @@ body > main {
 .action-tab.active {
   border-bottom: 2px solid var(--vscode-button-background);
   color: var(--vscode-tab-activeForeground);
+}
+
+.action-tab.active:focus-visible {
+  border-bottom-color: transparent;
 }
 
 .action-tab-content {
