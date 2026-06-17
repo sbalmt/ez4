@@ -70,7 +70,6 @@ export const registerEditors = () => {
 
 export const setEditorContent = (editor: editor.IStandaloneCodeEditor, content: string) => {
   editor.setValue(content);
-  editor.setScrollTop(0);
 
   resizeEditor(editor);
 };

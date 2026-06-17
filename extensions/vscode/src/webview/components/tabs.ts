@@ -22,10 +22,8 @@ export const registerTabs = () => {
   });
 
   return {
-    actionHeaders: getElementById<HTMLButtonElement>('button', 'action-headers'),
     actionParameters: getElementById<HTMLButtonElement>('button', 'action-parameters'),
-    actionQuery: getElementById<HTMLButtonElement>('button', 'action-query'),
-    actionBody: getElementById<HTMLButtonElement>('button', 'action-body'),
+    actionRequest: getElementById<HTMLButtonElement>('button', 'action-request'),
     actionResponse: getElementById<HTMLButtonElement>('button', 'action-response')
   };
 };

@@ -12,7 +12,7 @@ export const getFieldsPayload = (id: string, schema?: AnyObject) => {
   return undefined;
 };
 
-export const setFieldsSchema = (container: HTMLDivElement, id: string, schema?: AnyObject, values?: AnyObject) => {
+export const setFieldsSchema = (container: HTMLFormElement, id: string, schema?: AnyObject, values?: AnyObject) => {
   if (!schema || !isAnySchema(schema) || !isObjectSchema(schema)) {
     return false;
   }

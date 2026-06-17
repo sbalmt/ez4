@@ -175,7 +175,14 @@ body > main {
 }
 
 .action-bar #actionPath {
+  cursor: pointer;
   flex: 1;
+}
+
+.action-bar #actionPath .variable {
+  color: var(--vscode-symbolIcon-variableForeground);
+  font-weight: 500;
+  padding: 2px 0px;
 }
 
 /* Action Content */
@@ -203,6 +210,11 @@ body > main {
 
 .action-details #title {
   margin-top: 8px;
+}
+
+/* Action Inputs */
+.action-inputs:has(form:empty) {
+  display: none;
 }
 
 /* Action Tabs */

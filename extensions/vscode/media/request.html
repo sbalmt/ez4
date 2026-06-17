@@ -28,24 +28,24 @@
       <div class="action-fields">
         <div class="action-tabs">
           <button id="action-parameters" class="action-tab active" data-tab="parameters" hidden>Parameters</button>
-          <button id="action-headers" class="action-tab" data-tab="headers" hidden>Headers</button>
-          <button id="action-query" class="action-tab" data-tab="query" hidden>Query</button>
-          <button id="action-body" class="action-tab" data-tab="body" hidden>Body</button>
+          <button id="action-request" class="action-tab" data-tab="request" hidden>Request</button>
           <button id="action-response" class="action-tab" data-tab="response">Response</button>
         </div>
         <div id="tab-parameters" class="action-tab-content" hidden>
-          <h4>Path parameters</h4>
-          <div class="field-grid" id="parametersInputs"></div>
+          <div class="action-inputs">
+            <h4>Headers</h4>
+            <form class="field-grid" id="headersForm" novalidate></form>
+          </div>
+          <div class="action-inputs">
+            <h4>Path parameters</h4>
+            <form class="field-grid" id="parametersForm" novalidate></form>
+          </div>
+          <div class="action-inputs">
+            <h4>Query strings</h4>
+            <form class="field-grid" id="queryForm" novalidate></form>
+          </div>
         </div>
-        <div id="tab-headers" class="action-tab-content" hidden>
-          <h4>Request headers</h4>
-          <div class="field-grid" id="headersInputs"></div>
-        </div>
-        <div id="tab-query" class="action-tab-content" hidden>
-          <h4>Query strings</h4>
-          <div class="field-grid" id="queryInputs"></div>
-        </div>
-        <div id="tab-body" class="action-tab-content" hidden>
+        <div id="tab-request" class="action-tab-content" hidden>
           <div id="request-editor" class="field-editor">
             <!-- Request editor -->
           </div>

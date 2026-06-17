@@ -8,6 +8,7 @@ import { getEditorContent, setEditorContent } from './webview/components/editor'
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
 import { registerLayout } from './webview/components/layout';
 import { formatTime } from './webview/utils/time';
+import { formatPath } from './webview/utils/path';
 import { SignalType } from './types/signals';
 
 const vscode = acquireVsCodeApi<AnyActionSignal, RequestState>();
@@ -28,7 +29,7 @@ self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
 };
 
 const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
-  const { title, description, actionType, actionPath, runAction, tabs, editors, fields } = elements;
+  const { title, description, actionType, actionPath, runAction, tabs, forms, editors } = elements;
 
   const state = vscode.getState();
 
@@ -36,15 +37,27 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   description.textContent = action.description ?? '';
 
   actionType.textContent = action.type.toUpperCase();
-  actionPath.textContent = action.path ?? '/';
+  actionPath.textContent = action.path;
 
-  tabs.actionHeaders.hidden = !setFieldsSchema(fields.headersInputs, 'headers', action.headers, state?.headers);
-  tabs.actionParameters.hidden = !setFieldsSchema(fields.parametersInputs, 'parameters', action.parameters, state?.parameters);
-  tabs.actionQuery.hidden = !setFieldsSchema(fields.queryInputs, 'query', action.query, state?.query);
-  tabs.actionBody.hidden = !action.body || isEmptyObject(action.body);
+  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', action.headers, state?.headers);
+  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', action.parameters, state?.parameters);
+  const hasQuery = setFieldsSchema(forms.queryForm, 'query', action.query, state?.query);
+
+  tabs.actionParameters.hidden = !(hasHeaders || hasParameters || hasQuery);
+  tabs.actionRequest.hidden = !action.body || isEmptyObject(action.body);
 
   if (!state) {
     getFirstTab()?.click();
+
+    actionPath.onclick = () => {
+      tabs.actionParameters.click();
+    };
+
+    forms.parametersForm.oninput = () => {
+      const parameters = getFieldsPayload('parameters', action.parameters);
+
+      actionPath.innerHTML = formatPath(action.path, parameters);
+    };
 
     runAction.onclick = () => {
       runAction.disabled = true;
