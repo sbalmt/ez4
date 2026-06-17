@@ -4,6 +4,8 @@ export * from './common/check';
 export * from './common/generics';
 export * from './common/object';
 
+export * from './encoding/base64';
+
 export * from './system/tasks';
 
 export * from './array/check';
