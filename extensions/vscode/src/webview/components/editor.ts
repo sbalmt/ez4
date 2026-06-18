@@ -1,8 +1,11 @@
+import type { ObjectSchema } from '@ez4/schema';
+
 import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import stripJsonComments from 'strip-json-comments';
 
 import { registerEditorDecorations } from './editor/decorations';
+import { registerEditorSuggestions } from './editor/suggestions';
 import { getElementById } from '../utils/elements';
 
 const WORKER_NAME_MAP: Record<string, string | undefined> = {
@@ -14,6 +17,7 @@ const EDITOR_OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: 'on',
   language: 'json',
   insertSpaces: true,
+  wordBasedSuggestions: 'off',
   tabSize: 2,
   minimap: {
     enabled: false
@@ -66,6 +70,10 @@ export const registerEditors = () => {
     requestEditor,
     responseEditor
   };
+};
+
+export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: ObjectSchema) => {
+  registerEditorSuggestions(editor, schema);
 };
 
 export const setEditorContent = (editor: editor.IStandaloneCodeEditor, content: string) => {

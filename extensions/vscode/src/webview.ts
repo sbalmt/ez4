@@ -4,7 +4,7 @@ import type { RequestState } from './webview/types/state';
 import { isEmptyObject } from '@ez4/utils';
 
 import { getFirstTab } from './webview/components/tabs';
-import { getEditorContent, setEditorContent } from './webview/components/editor';
+import { getEditorContent, setEditorContent, setEditorSchema } from './webview/components/editor';
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
 import { registerLayout } from './webview/components/layout';
 import { formatTime } from './webview/utils/time';
@@ -46,11 +46,13 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   tabs.actionParameters.hidden = !(hasHeaders || hasParameters || hasQuery);
   tabs.actionRequest.hidden = !action.body || isEmptyObject(action.body);
 
+  setEditorSchema(editors.requestEditor, action.body);
+
   if (!state) {
     getFirstTab()?.click();
 
     actionPath.onclick = () => {
-      tabs.actionParameters.click();
+      getFirstTab()?.click();
     };
 
     forms.parametersForm.oninput = () => {
