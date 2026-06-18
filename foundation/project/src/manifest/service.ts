@@ -1,9 +1,10 @@
+import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from '../emulator/service';
 import type { ServeOptions } from '../types/options';
 import type { ServiceManifest } from './types';
 
 export const getServicesManifest = (emulators: ServiceEmulators, options: ServeOptions) => {
-  const manifest: Record<string, ServiceManifest> = {};
+  const manifest: Record<string, ServiceManifest<AnyObject>> = {};
 
   for (const identifier in emulators) {
     const emulator = emulators[identifier];

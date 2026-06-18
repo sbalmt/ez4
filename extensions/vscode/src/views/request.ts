@@ -1,4 +1,5 @@
 import type { ManifestAction } from '@ez4/project/library';
+import type { ObjectSchema } from '@ez4/schema';
 import type { ExtensionContext, LogOutputChannel, Webview, WebviewPanel } from 'vscode';
 import type { ActionPayload, AnyActionSignal } from '../types/signals';
 
@@ -14,7 +15,7 @@ const ALL_PANELS: Record<string, WebviewPanel | undefined> = {};
 export namespace RequestWebView {
   export type Input = {
     host: string;
-    action: ManifestAction;
+    action: ManifestAction<ObjectSchema>;
   };
 
   export const open = (input: Input, context: ExtensionContext, logger: LogOutputChannel) => {

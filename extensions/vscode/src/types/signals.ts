@@ -1,4 +1,5 @@
 import type { ManifestAction } from '@ez4/project/library';
+import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
 export const enum SignalType {
@@ -13,7 +14,7 @@ export type AnyActionSignal = RunActionSignal;
 
 export type WebviewUpdateSignal = {
   type: SignalType.WebviewUpdate;
-  action: ManifestAction;
+  action: ManifestAction<ObjectSchema>;
 };
 
 export type WebviewResultsSignal = {

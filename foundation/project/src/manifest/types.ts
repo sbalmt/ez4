@@ -10,23 +10,23 @@ export const enum ManifestActionType {
   Put = 'put'
 }
 
-export type ManifestAction = {
+export type ManifestAction<T extends AnyObject> = {
   type: ManifestActionType;
   name: string;
   path: string;
   description?: string;
-  identity?: AnyObject;
-  parameters?: AnyObject;
-  query?: AnyObject;
-  headers?: AnyObject;
-  body?: AnyObject;
+  identity?: T;
+  parameters?: T;
+  query?: T;
+  headers?: T;
+  body?: T;
 };
 
-export type ServiceManifest = {
-  actions: ManifestAction[];
+export type ServiceManifest<T extends AnyObject> = {
+  actions: ManifestAction<T>[];
   host: string;
 };
 
-export type EmulatorServiceManifest = {
-  actions: ManifestAction[];
+export type EmulatorServiceManifest<T extends AnyObject> = {
+  actions: ManifestAction<T>[];
 };

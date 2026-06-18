@@ -1,19 +1,20 @@
+import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { isAnySchema, isObjectSchema } from '@ez4/schema';
+import { isObjectSchema } from '@ez4/schema';
 
 import { ObjectField } from './fields/object';
 
-export const getFieldsPayload = (id: string, schema?: AnyObject) => {
-  if (schema && isAnySchema(schema) && isObjectSchema(schema)) {
+export const getFieldsPayload = (id: string, schema?: ObjectSchema) => {
+  if (schema) {
     return ObjectField.getInputValue(id, schema);
   }
 
   return undefined;
 };
 
-export const setFieldsSchema = (container: HTMLFormElement, id: string, schema?: AnyObject, values?: AnyObject) => {
-  if (!schema || !isAnySchema(schema) || !isObjectSchema(schema)) {
+export const setFieldsSchema = (container: HTMLFormElement, id: string, schema?: ObjectSchema, values?: AnyObject) => {
+  if (!schema || !isObjectSchema(schema)) {
     return false;
   }
 

@@ -1,4 +1,5 @@
 import type { ServiceManifest } from '@ez4/project/library';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { basename, dirname } from 'node:path';
 import { workspace } from 'vscode';
@@ -7,7 +8,7 @@ import { tryLoadProject } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 export type WorkspaceManifest = {
-  manifest?: Record<string, ServiceManifest>;
+  manifest?: Record<string, ServiceManifest<ObjectSchema>>;
   project: string;
 };
 
@@ -58,7 +59,7 @@ export namespace ManifestService {
       });
 
       if (response.ok) {
-        return (await response.json()) as Record<string, ServiceManifest>;
+        return (await response.json()) as Record<string, ServiceManifest<ObjectSchema>>;
       }
     } catch (error) {
       console.warn(error);

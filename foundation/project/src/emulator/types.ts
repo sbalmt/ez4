@@ -5,7 +5,7 @@ import type { ServeOptions } from '../types/options';
 
 export type EmulatorExportHandler = (options: AnyObject) => unknown;
 
-export type EmulatorManifestHandler = () => EmulatorServiceManifest;
+export type EmulatorManifestHandler = () => EmulatorServiceManifest<AnyObject>;
 
 export type EmulatorPrepareHandler = () => Promise<void> | void;
 
