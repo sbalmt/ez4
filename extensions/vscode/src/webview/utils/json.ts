@@ -94,7 +94,6 @@ export const getJsonPath = (text: string, offset: number) => {
     if (character === ',' && type[type.length - 1] !== SchemaType.Array) {
       path.pop();
       keyName = '';
-      continue;
     }
   }
 

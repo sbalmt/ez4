@@ -68,9 +68,11 @@
   "scripts": {
     "lint": "eslint --cache",
     "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
     "build": "tsc && node tools/bundler.mjs",
     "vscode:prepublish": "npm run build",
-    "vscode:package": "vsce package"
+    "vscode:package": "vsce package",
+    "vscode:package:ls": "vsce ls"
   },
   "devDependencies": {
     "@ez4/http": "0.48.0",
