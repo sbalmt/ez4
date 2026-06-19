@@ -25,15 +25,15 @@ export namespace RequestWebView {
     if (!ALL_PANELS[name]) {
       ALL_PANELS[name] = create(input, context, logger);
     } else {
+      const { webview } = ALL_PANELS[name];
+
       ALL_PANELS[name].reveal(ViewColumn.One);
+
+      webview.postMessage({
+        type: SignalType.WebviewUpdate,
+        action
+      });
     }
-
-    const { webview } = ALL_PANELS[name];
-
-    webview.postMessage({
-      type: SignalType.WebviewUpdate,
-      action
-    });
   };
 
   const create = (input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
@@ -55,7 +55,14 @@ export namespace RequestWebView {
     });
 
     webview.onDidReceiveMessage((signal: AnyActionSignal) => {
-      sendActionRequest(webview, logger, input, signal.payload);
+      if (signal.type === SignalType.Run) {
+        sendActionRequest(webview, logger, input, signal.payload);
+      } else {
+        webview.postMessage({
+          type: SignalType.WebviewUpdate,
+          action
+        });
+      }
     });
 
     panel.onDidDispose(() => {

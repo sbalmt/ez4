@@ -5,12 +5,13 @@ import type { AnyObject } from '@ez4/utils';
 export const enum SignalType {
   WebviewUpdate = 'wv-update',
   WebviewResults = 'wv-results',
-  RunAction = 'run-action'
+  Ready = 'ready',
+  Run = 'run'
 }
 
 export type AnyWebviewSignal = WebviewUpdateSignal | WebviewResultsSignal;
 
-export type AnyActionSignal = RunActionSignal;
+export type AnyActionSignal = ReadySignal | RunSignal;
 
 export type WebviewUpdateSignal = {
   type: SignalType.WebviewUpdate;
@@ -25,8 +26,12 @@ export type WebviewResultsSignal = {
   time?: number;
 };
 
-export type RunActionSignal = {
-  type: SignalType.RunAction;
+export type ReadySignal = {
+  type: SignalType.Ready;
+};
+
+export type RunSignal = {
+  type: SignalType.Run;
   payload: ActionPayload;
 };
 

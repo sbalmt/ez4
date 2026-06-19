@@ -14,6 +14,12 @@ import { SignalType } from './types/signals';
 const vscode = acquireVsCodeApi<AnyActionSignal, RequestState>();
 const elements = registerLayout();
 
+self.onload = () => {
+  vscode.postMessage({
+    type: SignalType.Ready
+  });
+};
+
 self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
   switch (data.type) {
     case SignalType.WebviewUpdate: {
@@ -76,7 +82,7 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
       });
 
       vscode.postMessage({
-        type: SignalType.RunAction,
+        type: SignalType.Run,
         payload
       });
     };
