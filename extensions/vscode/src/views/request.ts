@@ -2,11 +2,13 @@ import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { ExtensionContext, LogOutputChannel, Webview, WebviewPanel } from 'vscode';
 import type { ActionPayload, AnyActionSignal } from '../types/signals';
+import type { WorkspaceManifest } from '../services/manifest';
 
 import { prepareRequestBody, prepareRequestUrl } from '@ez4/http';
 
 import { ThemeIcon, Uri, ViewColumn, window } from 'vscode';
 
+import { ActionUtils } from '../utils/action';
 import { TemplateUtils } from '../utils/template';
 import { SignalType } from '../types/signals';
 
@@ -19,28 +21,40 @@ export namespace RequestWebView {
   };
 
   export const open = (input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
-    const { action } = input;
-    const { name } = action;
+    const { host, action } = input;
 
-    if (!ALL_PANELS[name]) {
-      ALL_PANELS[name] = create(input, context, logger);
+    const currentId = ActionUtils.getId(host, action);
+
+    if (!ALL_PANELS[currentId]) {
+      ALL_PANELS[currentId] = create(currentId, input, context, logger);
     } else {
-      const { webview } = ALL_PANELS[name];
+      ALL_PANELS[currentId].reveal(ViewColumn.One);
+      update(ALL_PANELS[currentId].webview, action);
+    }
+  };
 
-      ALL_PANELS[name].reveal(ViewColumn.One);
+  export const refresh = (manifests: WorkspaceManifest[]) => {
+    for (const { manifest } of manifests) {
+      if (!manifest) {
+        continue;
+      }
 
-      webview.postMessage({
-        type: SignalType.WebviewUpdate,
-        action
+      Object.values(manifest).forEach(({ host, actions }) => {
+        for (const action of actions) {
+          const currentId = ActionUtils.getId(host, action);
+
+          if (ALL_PANELS[currentId]) {
+            update(ALL_PANELS[currentId].webview, action);
+          }
+        }
       });
     }
   };
 
-  const create = (input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
+  const create = (id: string, input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
     const { action } = input;
-    const { name } = action;
 
-    const panel = window.createWebviewPanel('ez4.livePanel', name, ViewColumn.One, {
+    const panel = window.createWebviewPanel('ez4.requestPanel', action.name, ViewColumn.One, {
       retainContextWhenHidden: true,
       enableScripts: true
     });
@@ -56,23 +70,27 @@ export namespace RequestWebView {
 
     webview.onDidReceiveMessage((signal: AnyActionSignal) => {
       if (signal.type === SignalType.Run) {
-        sendActionRequest(webview, logger, input, signal.payload);
+        run(webview, logger, input, signal.payload);
       } else {
-        webview.postMessage({
-          type: SignalType.WebviewUpdate,
-          action
-        });
+        update(webview, action);
       }
     });
 
     panel.onDidDispose(() => {
-      delete ALL_PANELS[name];
+      delete ALL_PANELS[id];
     });
 
     return panel;
   };
 
-  const sendActionRequest = async (webview: Webview, logger: LogOutputChannel, input: Input, payload: ActionPayload) => {
+  const update = (webview: Webview, action: ManifestAction<ObjectSchema>) => {
+    webview.postMessage({
+      type: SignalType.WebviewUpdate,
+      action
+    });
+  };
+
+  const run = async (webview: Webview, logger: LogOutputChannel, input: Input, payload: ActionPayload) => {
     const { headers, parameters, query, body } = payload;
     const { type, path, request } = input.action;
 

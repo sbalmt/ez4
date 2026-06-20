@@ -7,11 +7,21 @@ import { ManifestService } from '../services/manifest';
 export class ManifestStore {
   private eventEmitter = new vscode.EventEmitter<WorkspaceManifest[]>();
 
+  private fetchTimer: NodeJS.Timeout | null = null;
+
   readonly onDidChange = this.eventEmitter.event;
 
-  async refresh() {
-    const manifests = await ManifestService.fetchAll();
+  refresh(delay?: number) {
+    if (this.fetchTimer) {
+      return;
+    }
 
-    this.eventEmitter.fire(manifests);
+    this.fetchTimer = setTimeout(async () => {
+      this.fetchTimer = null;
+
+      const manifests = await ManifestService.fetchAll();
+
+      this.eventEmitter.fire(manifests);
+    }, delay);
   }
 }

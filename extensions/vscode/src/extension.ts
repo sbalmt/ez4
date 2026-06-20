@@ -13,12 +13,14 @@ export function activate(context: ExtensionContext) {
   const liveView = new LiveTreeView();
 
   const watcher = workspace.createFileSystemWatcher('**/*.ts');
+  const delay = 1000;
 
-  watcher.onDidChange(() => manifests.refresh());
-  watcher.onDidCreate(() => manifests.refresh());
-  watcher.onDidDelete(() => manifests.refresh());
+  watcher.onDidChange(() => manifests.refresh(delay));
+  watcher.onDidCreate(() => manifests.refresh(delay));
+  watcher.onDidDelete(() => manifests.refresh(delay));
 
   manifests.onDidChange((manifests) => {
+    RequestWebView.refresh(manifests);
     offlineView.refresh(manifests);
     liveView.refresh(manifests);
   });
