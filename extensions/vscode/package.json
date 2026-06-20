@@ -75,10 +75,10 @@
     "vscode:package:ls": "vsce ls"
   },
   "devDependencies": {
-    "@ez4/http": "0.48.0",
-    "@ez4/project": "0.48.0",
-    "@ez4/schema": "0.48.0",
-    "@ez4/utils": "0.48.0",
+    "@ez4/http": "0.49.0",
+    "@ez4/project": "0.49.0",
+    "@ez4/schema": "0.49.0",
+    "@ez4/utils": "0.49.0",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
