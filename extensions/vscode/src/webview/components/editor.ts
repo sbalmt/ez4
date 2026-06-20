@@ -8,12 +8,11 @@ import { registerEditorCommands } from './editor/commands';
 import { registerEditorDecorations } from './editor/decorations';
 import { registerEditorDocumentation } from './editor/documentation';
 import { registerEditorSuggestions } from './editor/suggestions';
+import { registerEditorWorkers } from './editor/workers';
 import { getElementById } from '../utils/elements';
 
-const WORKER_NAME_MAP: Record<string, string | undefined> = {
-  editorWorkerService: 'editor',
-  json: 'json'
-};
+registerEditorWorkers();
+registerEditorCommands();
 
 const EDITOR_OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: 'on',
@@ -26,32 +25,7 @@ const EDITOR_OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   }
 };
 
-self.MonacoEnvironment = {
-  getWorker: async (_, name) => {
-    const script = document.querySelector<HTMLScriptElement>('script[src*="webview.js"]');
-    const base = script?.src.substring(0, script.src.lastIndexOf('/'));
-
-    const file = WORKER_NAME_MAP[name] ?? name;
-    const url = `${base}/${file}.worker.js`;
-
-    //! IMPORTANT: None of those options worked so far.
-    //! - Loading *.worker.js inside WSL with/without baseUrl (failed).
-    //! - importScripts and await import inside worker blob (failed).
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Unable to load worker script: ${url}`);
-    }
-
-    const code = await response.text();
-
-    return new Worker(URL.createObjectURL(new Blob([code], { type: 'application/javascript' })));
-  }
-};
-
 export const registerEditors = () => {
-  registerEditorCommands();
-
   const requestEditor = editor.create(getElementById('div', 'request-editor'), {
     ...EDITOR_OPTIONS
   });
