@@ -40,7 +40,8 @@ export const registerEditorDocumentation = (instance: editor.IStandaloneCodeEdit
         range,
         contents: [
           {
-            value: getDocumentation(result)
+            value: getSchemaDocumentation(result),
+            supportHtml: true
           }
         ]
       };
@@ -50,7 +51,7 @@ export const registerEditorDocumentation = (instance: editor.IStandaloneCodeEdit
   EDITOR_PROVIDERS.set(instance, provider);
 };
 
-const getDocumentation = (schema: AnySchema | undefined): string => {
+const getSchemaDocumentation = (schema: AnySchema | undefined): string => {
   if (!schema || !('description' in schema) || !schema.description) {
     return `<i>No documentation found.</i>`;
   }
