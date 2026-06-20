@@ -1,11 +1,11 @@
 import type { WorkspaceManifest } from '../services/manifest';
 
-import * as vscode from 'vscode';
+import { EventEmitter } from 'vscode';
 
 import { ManifestService } from '../services/manifest';
 
 export class ManifestStore {
-  private eventEmitter = new vscode.EventEmitter<WorkspaceManifest[]>();
+  private eventEmitter = new EventEmitter<WorkspaceManifest[]>();
 
   private fetchTimer: NodeJS.Timeout | null = null;
 

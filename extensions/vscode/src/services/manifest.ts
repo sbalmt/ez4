@@ -7,6 +7,8 @@ import { workspace } from 'vscode';
 import { tryLoadProject } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
+import { LoggerService } from './logger';
+
 export type WorkspaceManifest = {
   manifest?: Record<string, ServiceManifest<ObjectSchema>>;
   project: string;
@@ -14,13 +16,17 @@ export type WorkspaceManifest = {
 
 export namespace ManifestService {
   export const fetchAll = async () => {
-    const files = await workspace.findFiles('**/ez4.project.js');
+    const files = await workspace.findFiles('**/ez4.project.js', '**/node_modules');
 
     const projects: WorkspaceManifest[] = [];
+
+    const logger = LoggerService.get();
 
     const allOperations = files.map(async (file) => {
       const workspacePath = dirname(file.path);
       const projectFile = basename(file.path);
+
+      logger.debug(`Project found at:`, workspacePath);
 
       const { prefix = 'ez4', projectName, serveOptions } = await tryLoadProject(projectFile, workspacePath);
 
@@ -53,16 +59,22 @@ export namespace ManifestService {
   };
 
   const fetchProjectManifest = async (project: string, host: string, port: number) => {
+    const logger = LoggerService.get();
+
     try {
+      logger.debug(`Fetch project manifest:`, project);
+
       const response = await fetch(`http://${host}:${port}/${project}/manifest`, {
         method: 'GET'
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        logger.error(`Project ${project} unavailable:`, `status ${response.status}`);
+      } else {
         return (await response.json()) as Record<string, ServiceManifest<ObjectSchema>>;
       }
     } catch (error) {
-      console.warn(error);
+      logger.warn(`Project ${project} unavailable:`, error);
     }
 
     return undefined;

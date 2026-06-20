@@ -1,6 +1,6 @@
 import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
-import type { ExtensionContext, LogOutputChannel, Webview, WebviewPanel } from 'vscode';
+import type { ExtensionContext, Webview, WebviewPanel } from 'vscode';
 import type { ActionPayload, AnyActionSignal } from '../types/signals';
 import type { WorkspaceManifest } from '../services/manifest';
 
@@ -10,6 +10,7 @@ import { ThemeIcon, Uri, ViewColumn, window } from 'vscode';
 
 import { ActionUtils } from '../utils/action';
 import { TemplateUtils } from '../utils/template';
+import { LoggerService } from '../services/logger';
 import { SignalType } from '../types/signals';
 
 const ALL_PANELS: Record<string, WebviewPanel | undefined> = {};
@@ -20,13 +21,13 @@ export namespace RequestWebView {
     action: ManifestAction<ObjectSchema>;
   };
 
-  export const open = (input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
+  export const open = (input: Input, context: ExtensionContext) => {
     const { host, action } = input;
 
     const currentId = ActionUtils.getId(host, action);
 
     if (!ALL_PANELS[currentId]) {
-      ALL_PANELS[currentId] = create(currentId, input, context, logger);
+      ALL_PANELS[currentId] = create(currentId, input, context);
     } else {
       ALL_PANELS[currentId].reveal(ViewColumn.One);
       update(ALL_PANELS[currentId].webview, action);
@@ -51,7 +52,7 @@ export namespace RequestWebView {
     }
   };
 
-  const create = (id: string, input: Input, context: ExtensionContext, logger: LogOutputChannel) => {
+  const create = (id: string, input: Input, context: ExtensionContext) => {
     const { action } = input;
 
     const panel = window.createWebviewPanel('ez4.requestPanel', action.name, ViewColumn.One, {
@@ -70,7 +71,7 @@ export namespace RequestWebView {
 
     webview.onDidReceiveMessage((signal: AnyActionSignal) => {
       if (signal.type === SignalType.Run) {
-        run(webview, logger, input, signal.payload);
+        run(webview, input, signal.payload);
       } else {
         update(webview, action);
       }
@@ -90,9 +91,11 @@ export namespace RequestWebView {
     });
   };
 
-  const run = async (webview: Webview, logger: LogOutputChannel, input: Input, payload: ActionPayload) => {
+  const run = async (webview: Webview, input: Input, payload: ActionPayload) => {
     const { headers, parameters, query, body } = payload;
     const { type, path, request } = input.action;
+
+    const logger = LoggerService.get();
 
     try {
       const method = type.toUpperCase();
@@ -130,9 +133,9 @@ export namespace RequestWebView {
       const success = response.ok;
 
       if (!success) {
-        logger.error('Response', results);
+        logger.error('Response:', results);
       } else {
-        logger.info('Response', results);
+        logger.info('Response:', results);
       }
 
       webview.postMessage({

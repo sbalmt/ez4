@@ -3,11 +3,14 @@ import type { ExtensionContext } from 'vscode';
 import { commands, window, workspace } from 'vscode';
 
 import { RequestWebView } from './views/request';
-import { ManifestStore } from './stores/manifest';
 import { OfflineTreeView } from './views/offline';
+import { LoggerService } from './services/logger';
+import { ManifestStore } from './stores/manifest';
 import { LiveTreeView } from './views/live';
 
 export function activate(context: ExtensionContext) {
+  const logger = LoggerService.get();
+
   const manifests = new ManifestStore();
   const offlineView = new OfflineTreeView();
   const liveView = new LiveTreeView();
@@ -25,9 +28,7 @@ export function activate(context: ExtensionContext) {
     liveView.refresh(manifests);
   });
 
-  const logger = window.createOutputChannel('EZ4', { log: true });
-
-  context.subscriptions.push(commands.registerCommand('ez4.manifest.useAction', (input) => RequestWebView.open(input, context, logger)));
+  context.subscriptions.push(commands.registerCommand('ez4.manifest.useAction', (input) => RequestWebView.open(input, context)));
   context.subscriptions.push(commands.registerCommand('ez4.manifests.refresh', () => manifests.refresh()));
 
   context.subscriptions.push(window.registerTreeDataProvider('ez4.offlineView', offlineView));
