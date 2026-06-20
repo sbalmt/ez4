@@ -30,7 +30,7 @@ declare class CreateItemRequest implements Http.Request {
     category?: NewItemCategory | SetItemCategory;
 
     /**
-     * @description New items tags.
+     * @description New item tags.
      */
     tags?: NewItemTag[];
   };

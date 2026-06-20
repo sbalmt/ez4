@@ -22,15 +22,15 @@ export const registerEditorDocumentation = (instance: editor.IStandaloneCodeEdit
         return;
       }
 
-      const ending = word.endColumn - position.column + 2;
-      const offset = model.getOffsetAt(position) + ending;
+      const range = new Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+
+      const bounds = getBoundaryOffset(model, range);
+      const ending = word.endColumn - position.column;
+      const offset = model.getOffsetAt(position) + ending + bounds;
 
       const { path } = getJsonPath(instance.getValue(), offset);
 
-      const range = new Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
       const result = getPathSchema(schema, path);
-
-      console.log(path, instance.getValue().substring(0, offset), word, result);
 
       return {
         range,
@@ -52,4 +52,15 @@ const getDocumentation = (schema: AnySchema | undefined): string => {
   }
 
   return schema.description;
+};
+
+const getBoundaryOffset = (model: editor.ITextModel, range: Range): number => {
+  const nextRange = new Range(range.endLineNumber, range.endColumn, range.endLineNumber, range.endColumn + 1);
+  const nextValue = model.getValueInRange(nextRange);
+
+  if (nextValue && ![',', ']', '}'].includes(nextValue)) {
+    return 1 + getBoundaryOffset(model, nextRange);
+  }
+
+  return 0;
 };

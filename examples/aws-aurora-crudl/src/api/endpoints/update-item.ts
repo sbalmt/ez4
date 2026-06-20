@@ -39,7 +39,7 @@ declare class UpdateItemRequest implements Http.Request {
     category?: NewItemCategory;
 
     /**
-     * @description New items tags.
+     * @description New item tags.
      */
     tags?: NewItemTag[];
   };
