@@ -36,6 +36,7 @@ self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
 
 const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   const { title, description, actionType, actionPath, runAction, tabs, forms, editors } = elements;
+  const { request, response } = action;
 
   const state = vscode.getState();
 
@@ -45,14 +46,15 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   actionType.textContent = action.type.toUpperCase();
   actionPath.textContent = action.path;
 
-  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', action.headers, state?.headers);
-  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', action.parameters, state?.parameters);
-  const hasQuery = setFieldsSchema(forms.queryForm, 'query', action.query, state?.query);
+  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', request?.headers, state?.headers);
+  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, state?.parameters);
+  const hasQuery = setFieldsSchema(forms.queryForm, 'query', request?.query, state?.query);
 
   tabs.actionParameters.hidden = !(hasHeaders || hasParameters || hasQuery);
-  tabs.actionRequest.hidden = !action.body || isEmptyObject(action.body);
+  tabs.actionRequest.hidden = !request?.body || isEmptyObject(request.body);
 
-  setEditorSchema(editors.requestEditor, action.body);
+  setEditorSchema(editors.requestEditor, request?.body);
+  setEditorSchema(editors.responseEditor, response?.body);
 
   if (!state) {
     getFirstTab()?.click();
@@ -62,7 +64,7 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
     };
 
     forms.parametersForm.oninput = () => {
-      const parameters = getFieldsPayload('parameters', action.parameters);
+      const parameters = getFieldsPayload('parameters', request?.parameters);
 
       actionPath.innerHTML = formatPath(action.path, parameters);
     };
@@ -71,9 +73,9 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
       runAction.disabled = true;
 
       const payload = {
-        headers: getFieldsPayload('headers', action.headers),
-        parameters: getFieldsPayload('parameters', action.parameters),
-        query: getFieldsPayload('query', action.query),
+        headers: getFieldsPayload('headers', request?.headers),
+        parameters: getFieldsPayload('parameters', request?.parameters),
+        query: getFieldsPayload('query', request?.query),
         body: getEditorContent(editors.requestEditor)
       };
 

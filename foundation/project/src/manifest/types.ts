@@ -11,15 +11,21 @@ export const enum ManifestActionType {
 }
 
 export type ManifestAction<T extends AnyObject> = {
-  type: ManifestActionType;
   name: string;
+  type: ManifestActionType;
   path: string;
   description?: string;
-  identity?: T;
-  parameters?: T;
-  query?: T;
-  headers?: T;
-  body?: T;
+  request?: {
+    identity?: T;
+    parameters?: T;
+    query?: T;
+    headers?: T;
+    body?: T;
+  };
+  response?: {
+    headers?: T;
+    body?: T;
+  };
 };
 
 export type ServiceManifest<T extends AnyObject> = {

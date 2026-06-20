@@ -4,6 +4,7 @@ import type { Http } from '@ez4/gateway';
 import type { Api } from '../../api';
 
 import { listItems } from '../repository';
+import { ItemTagType } from '../../schemas/item';
 
 declare class ListItemsRequest implements Http.Request {
   query: {
@@ -29,12 +30,27 @@ declare class ListItemsResponse implements Http.Response {
     total: number;
 
     /**
-     * @description Items of the current.
+     * @description Items of the current page.
      */
     items: {
+      /**
+       * @description Item id.
+       */
       id: string;
+
+      /**
+       * @description Item name.
+       */
       name: string;
+
+      /**
+       * @description Item category name.
+       */
       category?: string;
+
+      /**
+       * @description All visible tags for the item.
+       */
       tags?: string[];
     }[];
   };
@@ -56,11 +72,13 @@ export async function listItemsHandler(
   const { total, items: rawItems } = await listItems(auroraDb, page, limit);
 
   const items = rawItems.map(({ id, name, category, tags }) => {
+    const regularTags = tags?.filter(({ type }) => type === ItemTagType.Regular);
+
     return {
       id,
       name,
       category: category?.name,
-      tags: tags?.map(({ label }) => label)
+      tags: regularTags?.map(({ label }) => label)
     };
   });
 

@@ -74,14 +74,13 @@ export namespace RequestWebView {
 
   const sendActionRequest = async (webview: Webview, logger: LogOutputChannel, input: Input, payload: ActionPayload) => {
     const { headers, parameters, query, body } = payload;
-    const { host, action } = input;
-    const { type, path } = action;
+    const { type, path, request } = input.action;
 
     try {
       const method = type.toUpperCase();
 
-      const requestUri = prepareRequestUrl(`http://${host}`, path, {
-        querySchema: action.query as any,
+      const requestUri = prepareRequestUrl(`http://${input.host}`, path, {
+        querySchema: request?.query,
         parameters,
         query
       });
@@ -97,7 +96,7 @@ export namespace RequestWebView {
         method,
         ...(body
           ? {
-              ...prepareRequestBody(body, action.body as any),
+              ...prepareRequestBody(body, request?.body),
               headers: {
                 ...headers,
                 'content-type': 'application/json'

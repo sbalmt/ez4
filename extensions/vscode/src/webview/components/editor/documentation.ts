@@ -16,6 +16,10 @@ export const registerEditorDocumentation = (instance: editor.IStandaloneCodeEdit
 
   const provider = languages.registerHoverProvider('json', {
     provideHover: (model, position) => {
+      if (!instance.getDomNode()?.checkVisibility()) {
+        return;
+      }
+
       const word = model.getWordAtPosition(position);
 
       if (!word) {

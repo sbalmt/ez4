@@ -143,7 +143,8 @@ export const listItems = async (client: DbClient, page: number, limit: number) =
         name: true
       },
       tags: {
-        label: true
+        label: true,
+        type: true
       }
     },
     order: {

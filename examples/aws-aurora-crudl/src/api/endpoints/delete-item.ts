@@ -21,12 +21,12 @@ declare class DeleteItemResponse implements Http.Response {
 
   body: {
     /**
-     * @description Old item name.
+     * @description Deleted item name.
      */
     name: string;
 
     /**
-     * @description Old item description.
+     * @description Deleted item description.
      */
     description?: string;
   };

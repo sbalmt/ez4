@@ -20,6 +20,12 @@ export const registerEditorSuggestions = (instance: editor.IStandaloneCodeEditor
   const provider = languages.registerCompletionItemProvider('json', {
     triggerCharacters: ['"', ':'],
     provideCompletionItems: (model, position) => {
+      if (!instance.hasTextFocus()) {
+        return {
+          suggestions: []
+        };
+      }
+
       const word = model.getWordUntilPosition(position);
       const offset = model.getOffsetAt(position);
 

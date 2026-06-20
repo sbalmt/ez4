@@ -56,7 +56,7 @@ declare class ReadItemResponse implements Http.Response {
       label: string;
 
       /**
-       * @descriptionItem tag type.
+       * @description Item tag type.
        */
       type: ItemTagType;
     }[];
