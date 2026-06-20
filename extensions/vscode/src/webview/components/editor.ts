@@ -5,6 +5,7 @@ import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import stripJsonComments from 'strip-json-comments';
 
 import { registerEditorDecorations } from './editor/decorations';
+import { registerEditorDocumentation } from './editor/documentation';
 import { registerEditorSuggestions } from './editor/suggestions';
 import { getElementById } from '../utils/elements';
 
@@ -74,6 +75,7 @@ export const registerEditors = () => {
 
 export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: ObjectSchema) => {
   registerEditorSuggestions(editor, schema);
+  registerEditorDocumentation(editor, schema);
 };
 
 export const setEditorContent = (editor: editor.IStandaloneCodeEditor, content: string) => {

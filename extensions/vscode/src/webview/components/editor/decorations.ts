@@ -12,7 +12,6 @@ export const registerEditorDecorations = (instance: editor.IStandaloneCodeEditor
     const { position } = target;
 
     const model = instance.getModel();
-
     const word = model?.getWordAtPosition(position);
 
     if (word) {
