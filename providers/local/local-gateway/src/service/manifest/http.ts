@@ -1,6 +1,7 @@
 import type { HttpService } from '@ez4/gateway/library';
 
 import { ManifestActionType } from '@ez4/project/library';
+import { SchemaType } from '@ez4/schema';
 
 const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
   HEAD: ManifestActionType.Head,
@@ -14,7 +15,7 @@ const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
 export namespace HttpManifest {
   export const build = (service: HttpService) => {
     return {
-      actions: service.routes.map(({ path, handler }) => {
+      actions: service.routes.map(({ path, handler, authorizer }) => {
         const { request, response, description } = handler;
 
         const [method, endpoint] = path.split(' ', 2);
@@ -22,19 +23,35 @@ export namespace HttpManifest {
         return {
           path: endpoint,
           type: METHOD_ACTION_TYPES[method] ?? ManifestActionType.None,
+          name: handler.name,
+          description,
           request: {
             identity: request?.identity,
-            headers: request?.headers,
             parameters: request?.parameters,
-            query: request?.query,
-            body: request?.body
+            body: request?.body,
+            ...((request?.headers || authorizer?.request?.headers) && {
+              headers: {
+                type: SchemaType.Object,
+                properties: {
+                  ...request?.headers?.properties,
+                  ...authorizer?.request?.headers?.properties
+                }
+              }
+            }),
+            ...((request?.query || authorizer?.request?.query) && {
+              query: {
+                type: SchemaType.Object,
+                properties: {
+                  ...request?.query?.properties,
+                  ...authorizer?.request?.query?.properties
+                }
+              }
+            })
           },
           response: {
             body: response.body,
             headers: response.headers
-          },
-          name: handler.name,
-          description
+          }
         };
       })
     };
