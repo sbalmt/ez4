@@ -4,6 +4,7 @@ import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import stripJsonComments from 'strip-json-comments';
 
+import { registerEditorCommands } from './editor/commands';
 import { registerEditorDecorations } from './editor/decorations';
 import { registerEditorDocumentation } from './editor/documentation';
 import { registerEditorSuggestions } from './editor/suggestions';
@@ -49,6 +50,8 @@ self.MonacoEnvironment = {
 };
 
 export const registerEditors = () => {
+  registerEditorCommands();
+
   const requestEditor = editor.create(getElementById('div', 'request-editor'), {
     ...EDITOR_OPTIONS
   });
