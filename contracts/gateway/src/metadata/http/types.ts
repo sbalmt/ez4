@@ -117,6 +117,7 @@ export type HttpCors = {
 };
 
 export type HttpProvider = {
+  name: string;
   variables?: LinkedVariables;
   services?: LinkedServices;
 };

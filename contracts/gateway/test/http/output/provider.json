@@ -35,6 +35,7 @@
             "status": 204
           },
           "provider": {
+            "name": "TestService",
             "services": {
               "selfClient": {
                 "reference": "TestService"
@@ -58,6 +59,7 @@
             "status": 204
           },
           "provider": {
+            "name": "TestProvider",
             "services": {
               "selfClient": {
                 "reference": "TestService"

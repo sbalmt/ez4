@@ -5,7 +5,7 @@ import { basename, dirname } from 'node:path';
 import { workspace } from 'vscode';
 
 import { tryLoadProject } from '@ez4/project/library';
-import { toKebabCase } from '@ez4/utils';
+import { sortObject, toKebabCase } from '@ez4/utils';
 
 import { LoggerService } from './logger';
 
@@ -71,7 +71,9 @@ export namespace ManifestService {
       if (!response.ok) {
         logger.error(`Project ${project} unavailable:`, `status ${response.status}`);
       } else {
-        return (await response.json()) as Record<string, ServiceManifest<ObjectSchema>>;
+        const manifest = (await response.json()) as Record<string, ServiceManifest<ObjectSchema>>;
+
+        return sortObject(manifest);
       }
     } catch (error) {
       logger.warn(`Project ${project} unavailable:`, error);

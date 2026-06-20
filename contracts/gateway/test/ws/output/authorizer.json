@@ -54,6 +54,7 @@
           1
         ],
         "provider": {
+          "name": "AuthorizerProvider",
           "services": {
             "selfClient": {
               "reference": "TestService"

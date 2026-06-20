@@ -2,6 +2,7 @@ import type { HttpService } from '@ez4/gateway/library';
 
 import { ManifestActionType } from '@ez4/project/library';
 import { SchemaType } from '@ez4/schema';
+import { toKebabCase } from '@ez4/utils';
 
 const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
   HEAD: ManifestActionType.Head,
@@ -16,13 +17,16 @@ export namespace HttpManifest {
   export const build = (service: HttpService) => {
     return {
       actions: service.routes.map(({ path, handler, authorizer }) => {
-        const { request, response, description } = handler;
+        const { description, provider, request, response } = handler;
 
         const [method, endpoint] = path.split(' ', 2);
+
+        const group = provider?.name;
 
         return {
           path: endpoint,
           type: METHOD_ACTION_TYPES[method] ?? ManifestActionType.None,
+          group: group && toKebabCase(group),
           name: handler.name,
           description,
           request: {

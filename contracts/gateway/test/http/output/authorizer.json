@@ -93,6 +93,7 @@
             1
           ],
           "provider": {
+            "name": "TestAuthProvider",
             "services": {
               "selfClient": {
                 "reference": "TestService"

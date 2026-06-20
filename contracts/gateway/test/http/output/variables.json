@@ -38,6 +38,7 @@
           ],
           "request": {},
           "provider": {
+            "name": "TestService",
             "services": {
               "selfSettings": {
                 "reference": "@variables"

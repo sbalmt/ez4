@@ -7,6 +7,8 @@ import { PlaceholderTreeItem } from './items/placeholder';
 import { LiveProjectTreeItem } from './items/project';
 import { ResourceTreeItem } from './items/resource';
 import { ActionTreeItem } from './items/action';
+import { GroupTreeItem } from './items/group';
+import { ActionUtils } from '../utils/action';
 
 export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderTreeItem;
 
@@ -35,8 +37,20 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
       for (const identifier in manifest) {
         const { host, actions } = manifest[identifier];
 
-        const actionItems = actions.map((action) => new ActionTreeItem(host, action));
         const serviceName = identifier.substring(project.length + 1);
+        const actionGroup = ActionUtils.getGroups(actions);
+
+        const actionItems = Object.entries(actionGroup).flatMap(([label, actions]) => {
+          actions.sort((a, b) => a.name.localeCompare(b.name));
+
+          const children = actions.map((action) => new ActionTreeItem(host, action));
+
+          if (label !== ActionUtils.DefaultGroup) {
+            return new GroupTreeItem(label, children);
+          }
+
+          return children;
+        });
 
         serviceItems.push(new ResourceTreeItem(serviceName, actionItems));
       }

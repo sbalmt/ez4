@@ -7,14 +7,14 @@ import type { AnyObject } from './generics';
  * @param comparison Optional comparison function. If omitted, a default `sort` method is used.
  * @returns Returns a new object with all keys sorted.
  */
-export const getSortedObject = (object: AnyObject, comparison?: (a: string, b: string) => number) => {
+export const getSortedObject = <T extends AnyObject>(object: T, comparison?: (a: string, b: string) => number) => {
   const newer: AnyObject = {};
 
   for (const key of Object.keys(object).sort(comparison)) {
     newer[key] = object[key];
   }
 
-  return newer;
+  return newer as T;
 };
 
 /**
@@ -24,13 +24,13 @@ export const getSortedObject = (object: AnyObject, comparison?: (a: string, b: s
  * @param comparison Optional comparison function. If omitted, a default `sort` method is used.
  * @returns Returns the same object with all keys sorted.
  */
-export const sortObject = (object: AnyObject, comparison?: (a: string, b: string) => number) => {
+export const sortObject = <T extends AnyObject>(object: T, comparison?: (a: string, b: string) => number) => {
   for (const key of Object.keys(object).sort(comparison)) {
     const current = object[key];
 
     delete object[key];
 
-    object[key] = current;
+    object[key as keyof T] = current;
   }
 
   return object;

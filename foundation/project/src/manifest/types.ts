@@ -13,6 +13,7 @@ export const enum ManifestActionType {
 export type ManifestAction<T extends AnyObject> = {
   name: string;
   type: ManifestActionType;
+  group?: string;
   path: string;
   description?: string;
   request?: {
