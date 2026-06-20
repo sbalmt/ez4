@@ -115,7 +115,7 @@ const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround
 
     case SchemaType.Enum: {
       return schema.options.map((option) => ({
-        kind: languages.CompletionItemKind.Value,
+        kind: languages.CompletionItemKind.EnumMember,
         insertText: isAnyString(option.value) ? (surround ? `"${option.value}"` : `${option.value}"`) : `${option.value}`,
         documentation: option.description,
         label: `${option.value}`,
