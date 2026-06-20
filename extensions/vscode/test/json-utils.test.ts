@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { getJsonPath } from '../src/webview/utils/json';
 
 describe('extension json utils', () => {
-  const JSON_INPUT = `{"foo":1,"bar":{"bar_foo":"2","bar_bar":[]},"baz":[[],{"baz_foo":3},[{"baz_bar":"4"}]]}`;
+  const JSON_INPUT = `{"foo":1,"bar":{"bar_foo":"2","bar_bar":[]},"baz":[[],{"baz_foo":3},"baz_bar",[{"baz_baz":"4"}]]}`;
 
   it('assert :: find property (incomplete)', () => {
     const result = getJsonPath(JSON_INPUT, 6); // Before ':'
@@ -70,10 +70,10 @@ describe('extension json utils', () => {
   });
 
   it('assert :: find deep complete property (array -> array -> object)', () => {
-    const result = getJsonPath(JSON_INPUT, 81);
+    const result = getJsonPath(JSON_INPUT, 90);
 
     deepEqual(result, {
-      path: ['baz', 'baz_bar'],
+      path: ['baz', 'baz_baz'],
       depth: 2
     });
   });

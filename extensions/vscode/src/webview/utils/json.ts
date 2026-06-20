@@ -1,6 +1,11 @@
 import type { AnySchema } from '@ez4/schema';
 
-import { getSchemaProperty, hasSchemaProperty, isArraySchema, isUnionSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, hasSchemaProperty, isArraySchema, isUnionSchema } from '@ez4/schema';
+
+const enum ScopeType {
+  Object = 0,
+  Array = 1
+}
 
 export const getPathSchema = (schema: AnySchema, path: string[]) => {
   let current: AnySchema | undefined = schema;
@@ -32,15 +37,16 @@ export const getPathSchema = (schema: AnySchema, path: string[]) => {
   return current;
 };
 
-export const getJsonPath = (text: string, offset: number) => {
+export const getJsonPath = (text: string, limit: number) => {
+  const scopes = [];
   const path = [];
-  const type = [];
 
   let keyName = '';
   let inString = false;
   let escape = false;
 
-  for (let index = 0; index < offset; index++) {
+  for (let index = 0; index < limit; index++) {
+    const scope = scopes[scopes.length - 1];
     const character = text[index];
 
     if (escape) {
@@ -59,46 +65,53 @@ export const getJsonPath = (text: string, offset: number) => {
     }
 
     if (inString) {
-      keyName += character;
+      if (scope === ScopeType.Object) {
+        keyName += character;
+      }
       continue;
     }
 
     if (character === '{') {
-      type.push(SchemaType.Object);
+      scopes.push(ScopeType.Object);
+      keyName = '';
       continue;
     }
 
     if (character === '[') {
-      type.push(SchemaType.Array);
+      scopes.push(ScopeType.Array);
+      keyName = '';
       continue;
     }
 
     if (character === ']') {
-      type.pop();
+      scopes.pop();
+      keyName = '';
       continue;
     }
 
     if (character === '}') {
-      type.pop();
+      scopes.pop();
       path.pop();
       keyName = '';
       continue;
     }
 
-    if (character === ':') {
-      path.push(keyName);
-      keyName = '';
-      continue;
-    }
+    if (scope === ScopeType.Object) {
+      if (character === ':') {
+        path.push(keyName);
+        keyName = '';
+        continue;
+      }
 
-    if (character === ',' && type[type.length - 1] !== SchemaType.Array) {
-      path.pop();
-      keyName = '';
+      if (character === ',') {
+        path.pop();
+        keyName = '';
+      }
     }
   }
 
   return {
-    depth: type.length - path.length,
+    depth: scopes.length - path.length,
     path
   };
 };
