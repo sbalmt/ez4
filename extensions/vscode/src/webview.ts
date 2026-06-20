@@ -44,7 +44,6 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   description.textContent = action.description ?? '';
 
   actionType.textContent = action.type.toUpperCase();
-  actionPath.textContent = action.path;
 
   const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', request?.headers, state?.headers);
   const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, state?.parameters);
@@ -56,7 +55,11 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   setEditorSchema(editors.requestEditor, request?.body);
   setEditorSchema(editors.responseEditor, response?.body);
 
-  if (!state) {
+  if (state) {
+    updatePath(action);
+  } else {
+    actionPath.textContent = action.path;
+
     getFirstTab()?.click();
 
     actionPath.onclick = () => {
@@ -64,28 +67,15 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
     };
 
     forms.parametersForm.oninput = () => {
-      const parameters = getFieldsPayload('parameters', request?.parameters);
-
-      actionPath.innerHTML = formatPath(action.path, parameters);
+      updatePath(action);
     };
 
     runAction.onclick = () => {
       runAction.disabled = true;
 
-      const payload = {
-        headers: getFieldsPayload('headers', request?.headers),
-        parameters: getFieldsPayload('parameters', request?.parameters),
-        query: getFieldsPayload('query', request?.query),
-        body: getEditorContent(editors.requestEditor)
-      };
-
-      vscode.setState({
-        ...payload
-      });
-
       vscode.postMessage({
         type: SignalType.Run,
-        payload
+        payload: saveState(action)
       });
     };
   }
@@ -105,4 +95,29 @@ const handleActionResults = ({ success, status, time, results }: WebviewResultsS
   setEditorContent(editors.responseEditor, JSON.stringify(results, undefined, 2));
 
   runAction.disabled = false;
+};
+
+const updatePath = (action: WebviewUpdateSignal['action']) => {
+  const { actionPath } = elements;
+  const { request } = action;
+
+  const parameters = getFieldsPayload('parameters', request?.parameters);
+
+  actionPath.innerHTML = formatPath(action.path, parameters);
+};
+
+const saveState = (action: WebviewUpdateSignal['action']) => {
+  const { editors } = elements;
+  const { request } = action;
+
+  const data = {
+    headers: getFieldsPayload('headers', request?.headers),
+    parameters: getFieldsPayload('parameters', request?.parameters),
+    query: getFieldsPayload('query', request?.query),
+    body: getEditorContent(editors.requestEditor)
+  };
+
+  vscode.setState(data);
+
+  return data;
 };

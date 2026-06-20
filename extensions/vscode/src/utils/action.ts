@@ -5,6 +5,6 @@ import { hashData } from '@ez4/utils';
 
 export namespace ActionUtils {
   export const getId = (host: string, action: ManifestAction<AnyObject>) => {
-    return hashData(host, action.path, action.name);
+    return hashData(host, action.name);
   };
 }
