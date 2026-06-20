@@ -128,8 +128,9 @@ export namespace RequestWebView {
             })
       });
 
-      const results = await response.json();
       const elapsed = Date.now() - start;
+
+      const results = await response.json();
       const success = response.ok;
 
       if (!success) {
