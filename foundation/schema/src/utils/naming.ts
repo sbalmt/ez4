@@ -28,7 +28,11 @@ export const getPropertyName = (property: string, namingStyle?: NamingStyle) => 
   }
 };
 
-export const getWithNamingStyle = <T extends AnySchema>(schema: T, namingStyle: NamingStyle): T => {
+export const getWithNamingStyle = <T extends AnySchema>(schema: T, namingStyle?: NamingStyle): T => {
+  if (!namingStyle) {
+    return schema;
+  }
+
   switch (schema.type) {
     case SchemaType.Object:
       return getObjectWithNamingStyle(schema, namingStyle) as T;
