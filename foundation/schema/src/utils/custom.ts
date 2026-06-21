@@ -3,11 +3,11 @@ import type { AnySchema } from '@ez4/schema';
 import { isArraySchema, isObjectSchema, isTupleSchema, isUnionSchema } from '@ez4/schema';
 
 export const getSchemaCustomValidation = (schema: AnySchema) => {
-  const validators = new Set<string>();
+  const validations = new Set<string>();
 
   const collectCustomValidation = (schema: AnySchema) => {
     if (schema.definitions?.types) {
-      schema.definitions.types.forEach((type) => validators.add(type));
+      schema.definitions.types.forEach((type) => validations.add(type));
     }
 
     if (isObjectSchema(schema)) {
@@ -29,5 +29,5 @@ export const getSchemaCustomValidation = (schema: AnySchema) => {
 
   collectCustomValidation(schema);
 
-  return [...validators];
+  return [...validations];
 };

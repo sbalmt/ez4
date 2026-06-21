@@ -5,30 +5,34 @@ import { NamingStyle } from '@ez4/schema';
 
 import { testFile } from './common';
 
-describe('schema naming', () => {
+describe('schema naming style', () => {
   registerTriggers();
 
-  it('assert :: camel case', () =>
+  it('assert :: camel case', () => {
     testFile('naming', {
       namingStyle: NamingStyle.CamelCase,
       fileName: 'camelcase'
-    }));
+    });
+  });
 
-  it('assert :: pascal case', () =>
+  it('assert :: pascal case', () => {
     testFile('naming', {
       namingStyle: NamingStyle.PascalCase,
       fileName: 'pascalcase'
-    }));
+    });
+  });
 
-  it('assert :: snake case', () =>
+  it('assert :: snake case', () => {
     testFile('naming', {
       namingStyle: NamingStyle.SnakeCase,
       fileName: 'snakecase'
-    }));
+    });
+  });
 
-  it('assert :: kebab case', () =>
+  it('assert :: kebab case', () => {
     testFile('naming', {
       namingStyle: NamingStyle.KebabCase,
       fileName: 'kebabcase'
-    }));
+    });
+  });
 });

@@ -29,15 +29,15 @@ export const getOptionalObjectSchema = (schema: ObjectSchema): ObjectSchema => {
   const properties: ObjectSchemaProperties = {};
 
   for (const propertyName in schema.properties) {
-    const objectProperty = schema.properties[propertyName];
+    const propertySchema = schema.properties[propertyName];
 
-    if (objectProperty.optional) {
-      properties[propertyName] = objectProperty;
+    if (propertySchema.optional) {
+      properties[propertyName] = propertySchema;
       continue;
     }
 
     properties[propertyName] = {
-      ...getOptionalSchema(objectProperty),
+      ...getOptionalSchema(propertySchema),
       optional: true
     };
   }
