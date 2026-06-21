@@ -51,8 +51,8 @@ export const registerEditors = () => {
 };
 
 export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: ObjectSchema) => {
-  registerEditorSuggestions(editor, schema);
   registerEditorDocumentation(editor, schema);
+  registerEditorSuggestions(editor, schema);
 };
 
 export const setEditorContent = (editor: editor.IStandaloneCodeEditor, content: string) => {

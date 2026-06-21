@@ -46,57 +46,76 @@ export const registerEditorSuggestions = (instance: editor.IStandaloneCodeEditor
   EDITOR_PROVIDERS.set(instance, provider);
 };
 
-const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround: boolean, range: Range): languages.CompletionItem[] => {
+const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround: boolean, range: Range) => {
+  const suggestions: languages.CompletionItem[] = [];
+
+  if (schema?.nullable) {
+    suggestions.push({
+      kind: languages.CompletionItemKind.Value,
+      insertText: getSuggestionValue('null', surround),
+      label: 'null',
+      range
+    });
+  }
+
   switch (schema?.type) {
     default:
-      return [];
+      return suggestions;
 
     case SchemaType.Boolean:
     case SchemaType.Number:
     case SchemaType.String: {
-      return [
-        {
+      suggestions.push({
+        kind: languages.CompletionItemKind.Value,
+        insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        insertText: getSuggestionText(schema, surround),
+        documentation: schema.description,
+        label: schema.type,
+        range
+      });
+
+      break;
+    }
+
+    case SchemaType.Object: {
+      if (depth === 0) {
+        suggestions.push({
           kind: languages.CompletionItemKind.Value,
           insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
           insertText: getSuggestionText(schema, surround),
           documentation: schema.description,
           label: schema.type,
           range
-        }
-      ];
-    }
+        });
 
-    case SchemaType.Object: {
-      if (depth > 0) {
-        return Object.entries(schema.properties).map(([propertyName, propertySchema]) => {
+        break;
+      }
+
+      suggestions.push(
+        ...Object.entries(schema.properties).map(([propertyName, propertySchema]) => {
           const value = getSuggestionText(propertySchema, true);
 
           return {
             kind: languages.CompletionItemKind.Property,
             insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
             insertText: surround ? `"${propertyName}": ${value}` : `${propertyName}": ${value}`,
-            label: propertyName,
+            label: propertySchema.optional ? `?${propertyName}` : propertyName,
             range
           };
-        });
-      }
+        })
+      );
 
-      return [
-        {
-          kind: languages.CompletionItemKind.Value,
-          insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          insertText: getSuggestionText(schema, surround),
-          documentation: schema.description,
-          label: schema.type,
-          range
-        }
-      ];
+      break;
     }
 
     case SchemaType.Union: {
-      return schema.elements.flatMap((elementSchema) => {
-        return buildSuggestions(elementSchema, depth, surround, range);
-      });
+      suggestions.push(
+        ...schema.elements.flatMap((elementSchema) => {
+          return buildSuggestions(elementSchema, depth, surround, range);
+        })
+      );
+
+      break;
     }
 
     case SchemaType.Array:
@@ -104,40 +123,51 @@ const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround
       const elementSchema = isArraySchema(schema) ? schema.element : schema.elements[0];
 
       if (depth > 0) {
-        return buildSuggestions(elementSchema, depth - 1, surround, range);
+        suggestions.push(...buildSuggestions(elementSchema, depth - 1, surround, range));
+        break;
       }
 
-      return [
-        {
-          kind: languages.CompletionItemKind.Value,
-          insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          insertText: getSuggestionText(schema, surround, getSuggestionText(elementSchema, true)),
-          documentation: schema.description,
-          label: schema.type,
-          range
-        }
-      ];
+      suggestions.push({
+        kind: languages.CompletionItemKind.Value,
+        insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        insertText: getSuggestionText(schema, surround, getSuggestionText(elementSchema, true)),
+        documentation: schema.description,
+        label: schema.type,
+        range
+      });
+
+      break;
     }
 
     case SchemaType.Enum: {
-      return schema.options.map((option) => ({
-        kind: languages.CompletionItemKind.Value,
-        insertText: isAnyString(option.value) ? (surround ? `"${option.value}"` : `${option.value}"`) : `${option.value}`,
-        documentation: option.description,
-        label: `${option.value}`,
-        range
-      }));
+      suggestions.push(
+        ...schema.options.map((option) => ({
+          kind: languages.CompletionItemKind.Value,
+          insertText: isAnyString(option.value) ? (surround ? `"${option.value}"` : `${option.value}"`) : `${option.value}`,
+          documentation: option.description,
+          label: `${option.value}`,
+          range
+        }))
+      );
+
+      break;
     }
   }
+
+  return suggestions;
+};
+
+const getSuggestionValue = (value: string, surround: boolean) => {
+  return surround ? `${value}` : `${value}"`;
 };
 
 const getSuggestionText = (schema: AnySchema, surround: boolean, value?: string) => {
   switch (schema.type) {
     case SchemaType.Boolean:
-      return surround ? '${1:true}' : '${1:true}"';
+      return getSuggestionValue('${1:true}', surround);
 
     case SchemaType.Number:
-      return surround ? '${1:123}' : '${1:123}"';
+      return getSuggestionValue('${1:123}', surround);
 
     case SchemaType.String:
       return surround ? '"${1:text}"' : '${1:text}"';

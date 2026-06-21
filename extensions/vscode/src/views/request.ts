@@ -117,7 +117,7 @@ export namespace RequestWebView {
         method,
         ...(body
           ? {
-              ...prepareRequestBody(body, request?.body),
+              body: prepareRequestBody(body, request?.body).body,
               headers: {
                 ...headers,
                 'content-type': 'application/json'
