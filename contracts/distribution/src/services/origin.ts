@@ -26,6 +26,13 @@ export interface CdnOrigin {
 
   /**
    * Rewrite rules for the origin.
+   *
+   * New format:
+   * - `{ from, to }` performs an internal rewrite.
+   * - `{ from, to, status: 301 | 302 }` performs an HTTP redirect.
+   *
+   * Deprecated legacy format:
+   * - `{ '/old/*': '/new/*' }`
    */
   readonly rewrite?: CdnRewrite;
 

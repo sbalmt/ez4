@@ -34,9 +34,15 @@ export type CdnFallback = {
   ttl?: number;
 };
 
-export type CdnRewrite = {
-  [path: string]: string;
+export type CdnRewriteStatus = 301 | 302;
+
+export type CdnRewriteRule = {
+  from: string;
+  to: string;
+  status?: CdnRewriteStatus;
 };
+
+export type CdnRewrite = CdnRewriteRule[];
 
 export type CdnCertificate = {
   domain: string;

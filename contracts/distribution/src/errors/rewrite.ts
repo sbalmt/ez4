@@ -1,4 +1,4 @@
-import { IncorrectTypeError, InvalidTypeError } from '@ez4/common/library';
+import { IncorrectTypeError, InvalidTypeError, IncompleteTypeError } from '@ez4/common/library';
 
 export class InvalidRewriteTypeError extends InvalidTypeError {
   constructor(fileName?: string) {
@@ -12,5 +12,20 @@ export class IncorrectRewriteTypeError extends IncorrectTypeError {
     fileName?: string
   ) {
     super('Incorrect CDN rewrite type', fallbackType, 'Cdn.Rewrite', fileName);
+  }
+}
+
+export class IncompleteRewriteRuleError extends IncompleteTypeError {
+  constructor(properties: string[], fileName?: string) {
+    super('Incomplete CDN rewrite rule', properties, fileName);
+  }
+}
+
+export class InvalidRewriteStatusError extends Error {
+  constructor(
+    public status: number,
+    fileName?: string
+  ) {
+    super(`Invalid CDN rewrite status '${status}'. Expected 301 or 302.${fileName ? ` (${fileName})` : ''}`);
   }
 }

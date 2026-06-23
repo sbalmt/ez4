@@ -191,12 +191,9 @@ const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewrite) => {
   const [basePath] = pathPattern.split('*');
   const baseUri = formatUri(basePath);
 
-  for (const path in rewriteRules) {
-    const location = rewriteRules[path];
-
-    if (!path.startsWith(baseUri)) {
-      rewriteRules[combineUri(baseUri, path)] = location;
-      delete rewriteRules[path];
+  for (const rule of rewriteRules) {
+    if (!rule.from.startsWith(baseUri)) {
+      rule.from = combineUri(baseUri, rule.from);
     }
   }
 };

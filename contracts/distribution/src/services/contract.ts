@@ -4,6 +4,7 @@ import type { CdnBucketOrigin, CdnRegularOrigin } from './origin';
 import type { CdnCertificate } from './certificate';
 import type { CdnFallback } from './fallback';
 import type { CdnCache } from './cache';
+import type { CdnRewriteMap, CdnRewriteRule, CdnRewriteStatus } from './rewrite';
 
 /**
  * Provide all contracts for a self-managed CDN service.
@@ -44,6 +45,15 @@ export namespace Cdn {
    * CDN Cache definition.
    */
   export type UseCache<T extends CdnCache> = T;
+
+  export type RewriteStatus = CdnRewriteStatus;
+
+  export type RewriteRule = CdnRewriteRule;
+
+  /**
+   * @deprecated Use `Cdn.RewriteRule[]` instead.
+   */
+  export type Rewrite = CdnRewriteMap;
 
   /**
    * CDN service.
