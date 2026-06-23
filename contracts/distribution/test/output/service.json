@@ -11,10 +11,16 @@
       "type": "bucket",
       "bucket": "TestBucket",
       "location": "/site",
-      "rewrite": {
-        "/path1": "/index.html",
-        "/path2/*": "/index.html"
-      }
+      "rewrite": [
+        {
+          "from": "/path1",
+          "to": "/index.html"
+        },
+        {
+          "from": "/path2/*",
+          "to": "/index.html"
+        }
+      ]
     },
     "aliases": [
       "test-1.ez4.dev",
@@ -94,10 +100,22 @@
         "type": "regular",
         "domain": "test-env-var-value",
         "path": "inline/*",
-        "rewrite": {
-          "/inline/path1/*": "/index.html",
-          "/inline/path2/*": "/index.html"
-        }
+        "rewrite": [
+          {
+            "from": "/inline/legacy/*",
+            "to": "/modern/*"
+          },
+          {
+            "from": "/inline/redirect/*",
+            "to": "https://docs.ez4.dev/*",
+            "status": 301
+          },
+          {
+            "from": "/inline/temporary/*",
+            "to": "/temp/*",
+            "status": 302
+          }
+        ]
       }
     ],
     "fallbacks": [

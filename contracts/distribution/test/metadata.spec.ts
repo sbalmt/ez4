@@ -31,4 +31,10 @@ describe('distribution metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: basic distribution', () => testFile('service'));
+
+  it('assert :: legacy rewrite map', () => testFile('legacy-rewrite'));
+
+  it('assert :: referenced rewrite rule', () => testFile('referenced-rewrite'));
+
+  it('assert :: mixed rewrite formats', () => testFile('mixed-rewrite'));
 });
