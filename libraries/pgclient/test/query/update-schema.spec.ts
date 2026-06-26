@@ -630,7 +630,7 @@ describe('update schema', () => {
       statement,
       `WITH ` +
         // Select
-        `"Q0" AS (SELECT "scalar", json_build_object('scalar', "json"['scalar']) AS "json" ` +
+        `"Q0" AS (SELECT "scalar", jsonb_build_object('scalar', "json"['scalar']) AS "json" ` +
         `FROM "ez4-test-update-schema"), ` +
         // Update
         `"Q1" AS (UPDATE ONLY "ez4-test-update-schema" AS "U" SET "scalar" = :0, "json"['scalar'] = :1 ` +

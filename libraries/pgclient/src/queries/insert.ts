@@ -375,9 +375,9 @@ const getInsertSelectFields = (
         const relationRecord = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
 
         if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-          relationQuery.objectColumn(relationRecord, { binary: true });
+          relationQuery.objectColumn(relationRecord);
         } else {
-          relationQuery.arrayColumn(relationRecord, { binary: true });
+          relationQuery.arrayColumn(relationRecord);
         }
 
         output[fieldKey] = relationQuery;
@@ -404,9 +404,9 @@ const getInsertSelectFields = (
       const record = getInsertSelectFields(builder, relationFields, sourceSchema, relations, undefined, relationQuery, fieldPath, true);
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-        relationQuery.objectColumn(record, { binary: true });
+        relationQuery.objectColumn(record);
       } else {
-        relationQuery.arrayColumn(record, { binary: true });
+        relationQuery.arrayColumn(record);
       }
 
       output[fieldKey] = relationQuery;

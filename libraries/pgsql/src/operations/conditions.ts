@@ -128,7 +128,7 @@ const getFieldOperation = (
       const columnSchema = schema && getSchemaProperty(schema, field);
       const hasSubColumn = columnSchema && isNestedSchema(columnSchema);
 
-      const columnName = columnSchema && !hasSubColumn ? mergeSqlJsonPath(field, path) : mergeSqlPath(field, path);
+      const columnName = columnSchema && !hasSubColumn ? mergeSqlJsonPath(field, path, true) : mergeSqlPath(field, path);
       const columnPath = path ? columnName : mergeSqlAlias(columnName, source?.alias);
 
       if (value === null) {

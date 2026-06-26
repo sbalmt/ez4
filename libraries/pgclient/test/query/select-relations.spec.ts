@@ -28,6 +28,9 @@ declare class Test extends Database.Service<PostgresEngine> {
         foo?: number;
         relation1_id?: string;
         relation2_id?: string;
+        json: {
+          bar?: string;
+        };
       };
     }
   ];
@@ -93,6 +96,15 @@ describe('select relations', () => {
           foo: {
             type: SchemaType.Number,
             optional: true
+          },
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              bar: {
+                type: SchemaType.String,
+                optional: true
+              }
+            }
           }
         }
       }
@@ -139,7 +151,8 @@ describe('select relations', () => {
         `'id', "S1"."id", ` +
         `'relation1_id', "S1"."relation1_id", ` +
         `'relation2_id', "S1"."relation2_id", ` +
-        `'foo', "S1"."foo") ` +
+        `'foo', "S1"."foo", ` +
+        `'json', "S1"."json") ` +
         `FROM "ez4_test_table" AS "S1" WHERE "S1"."relation2_id" = "R0"."id" LIMIT 1) AS "primary_to_unique", ` +
         // Third relation
         `(SELECT COALESCE(json_agg(jsonb_build_object('foo', "S2"."foo")), '[]'::json) ` +
@@ -453,6 +466,70 @@ describe('select relations', () => {
         /****/ `FROM "ez4_test_table" AS "S3" WHERE "S3"."relation2_id" = "S2"."id" LIMIT 1), ` +
         //
         /****/ `'primary_to_secondary', (SELECT COALESCE(json_agg(jsonb_build_object('foo', "S4"."foo")), '[]'::json) ` +
+        /****/ `FROM "ez4_test_table" AS "S4" WHERE "S4"."relation1_id" = "S2"."id")` +
+        //
+        `) FROM "ez4_test_table" AS "S2" WHERE "S2"."id" = "R0"."relation1_id" LIMIT 1) AS "secondary_to_unique" ` +
+        //
+        `FROM "ez4_test_table" AS "R0" ` +
+        `WHERE "R0"."id" = :0`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare select nested relations (with json)', ({ assert }) => {
+    const [statement, variables] = prepareSelect({
+      select: {
+        id: true,
+        primary_to_unique: {
+          json: {
+            bar: true
+          }
+        },
+        primary_to_secondary: {
+          json: {
+            bar: true
+          }
+        },
+        secondary_to_unique: {
+          json: {
+            bar: true
+          },
+          primary_to_unique: {
+            json: {
+              bar: true
+            }
+          },
+          primary_to_secondary: {
+            json: {
+              bar: true
+            }
+          }
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id", ` +
+        // First relation
+        `(SELECT jsonb_build_object('json', jsonb_build_object('bar', "S0"."json"['bar'])) FROM "ez4_test_table" AS "S0" ` +
+        `WHERE "S0"."relation2_id" = "R0"."id" LIMIT 1) AS "primary_to_unique", ` +
+        // Second relation
+        `(SELECT COALESCE(json_agg(jsonb_build_object('json', jsonb_build_object('bar', "S1"."json"['bar']))), '[]'::json) ` +
+        `FROM "ez4_test_table" AS "S1" WHERE "S1"."relation1_id" = "R0"."id") AS "primary_to_secondary", ` +
+        // Third relation
+        `(SELECT jsonb_build_object('json', jsonb_build_object('bar', "S2"."json"['bar']), ` +
+        //
+        /****/ `'primary_to_unique', ` +
+        /****/ `(SELECT jsonb_build_object('json', jsonb_build_object('bar', "S3"."json"['bar'])) ` +
+        /****/ `FROM "ez4_test_table" AS "S3" WHERE "S3"."relation2_id" = "S2"."id" LIMIT 1), ` +
+        //
+        /****/ `'primary_to_secondary', ` +
+        /****/ `(SELECT COALESCE(json_agg(jsonb_build_object('json', jsonb_build_object('bar', "S4"."json"['bar']))), '[]'::json) ` +
         /****/ `FROM "ez4_test_table" AS "S4" WHERE "S4"."relation1_id" = "S2"."id")` +
         //
         `) FROM "ez4_test_table" AS "S2" WHERE "S2"."id" = "R0"."relation1_id" LIMIT 1) AS "secondary_to_unique" ` +
