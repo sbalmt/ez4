@@ -19,7 +19,7 @@ export const loadReferences = async (projectOptions: ProjectOptions, workspacePa
   for (const alias in references) {
     const { projectFile } = references[alias];
 
-    const projectRoot = join(workspacePath ?? process.cwd(), dirname(projectFile));
+    const projectRoot = join(workspacePath ?? '.', dirname(projectFile));
     const projectOptions = await loadProject(projectFile, projectRoot);
     const projectPaths = await getPathsFrom(projectOptions, projectRoot);
 
