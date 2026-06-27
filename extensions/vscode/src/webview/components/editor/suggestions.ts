@@ -46,6 +46,17 @@ export const registerEditorSuggestions = (instance: editor.IStandaloneCodeEditor
   EDITOR_PROVIDERS.set(instance, provider);
 };
 
+const mergeSuggestions = (target: languages.CompletionItem[], source: languages.CompletionItem[]) => {
+  const currentLabels = new Set(target.map(({ label }) => label));
+
+  for (const suggestion of source) {
+    if (!currentLabels.has(suggestion.label)) {
+      currentLabels.add(suggestion.label);
+      target.push(suggestion);
+    }
+  }
+};
+
 const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround: boolean, range: Range) => {
   const suggestions: languages.CompletionItem[] = [];
 
@@ -70,7 +81,7 @@ const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround
         insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
         insertText: getSuggestionText(schema, surround),
         documentation: schema.description,
-        label: schema.type,
+        label: getSuggestionLabel(schema),
         range
       });
 
@@ -84,7 +95,7 @@ const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround
           insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
           insertText: getSuggestionText(schema, surround),
           documentation: schema.description,
-          label: schema.type,
+          label: getSuggestionLabel(schema),
           range
         });
 
@@ -93,46 +104,67 @@ const buildSuggestions = (schema: AnySchema | undefined, depth: number, surround
 
       suggestions.push(
         ...Object.entries(schema.properties).map(([propertyName, propertySchema]) => {
+          const name = `${propertyName} (${getSuggestionLabel(propertySchema)})`;
           const value = getSuggestionText(propertySchema, true);
 
           return {
             kind: languages.CompletionItemKind.Property,
             insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
             insertText: surround ? `"${propertyName}": ${value}` : `${propertyName}": ${value}`,
-            label: propertySchema.optional ? `?${propertyName}` : propertyName,
+            label: propertySchema.optional ? `?${name}` : name,
             range
           };
         })
       );
 
+      if (schema.additional) {
+        const { property: propertySchema, value: valueSchema } = schema.additional;
+
+        const value = getSuggestionText(valueSchema, true);
+        const name = getSuggestionLabel(propertySchema);
+
+        suggestions.push({
+          kind: languages.CompletionItemKind.Property,
+          insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          insertText: surround ? `"\${1:name}": ${value}` : `\${1:name}": ${value}`,
+          label: propertySchema.optional ? `?${name}` : name,
+          range
+        });
+      }
+
       break;
     }
 
     case SchemaType.Union: {
-      suggestions.push(
-        ...schema.elements.flatMap((elementSchema) => {
-          return buildSuggestions(elementSchema, depth, surround, range);
-        })
-      );
+      const unionSuggestions = schema.elements.flatMap((elementSchema) => {
+        return buildSuggestions(elementSchema, depth, surround, range);
+      });
 
+      mergeSuggestions(suggestions, unionSuggestions);
       break;
     }
 
     case SchemaType.Array:
     case SchemaType.Tuple: {
-      const elementSchema = isArraySchema(schema) ? schema.element : schema.elements[0];
+      const elementSchemas = isArraySchema(schema) ? [schema.element] : schema.elements;
 
       if (depth > 0) {
-        suggestions.push(...buildSuggestions(elementSchema, depth - 1, surround, range));
+        const listSuggestions = elementSchemas.flatMap((elementSchema) => {
+          return buildSuggestions(elementSchema, depth, surround, range);
+        });
+
+        mergeSuggestions(suggestions, listSuggestions);
         break;
       }
+
+      const elementValue = isArraySchema(schema) ? getSuggestionText(schema.element, true) : undefined;
 
       suggestions.push({
         kind: languages.CompletionItemKind.Value,
         insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        insertText: getSuggestionText(schema, surround, getSuggestionText(elementSchema, true)),
+        insertText: getSuggestionText(schema, surround, elementValue),
         documentation: schema.description,
-        label: schema.type,
+        label: getSuggestionLabel(schema),
         range
       });
 
@@ -163,27 +195,53 @@ const getSuggestionValue = (value: string, surround: boolean) => {
 
 const getSuggestionText = (schema: AnySchema, surround: boolean, value?: string) => {
   switch (schema.type) {
-    case SchemaType.Boolean:
-      return getSuggestionValue('${1:true}', surround);
+    case SchemaType.Boolean: {
+      const boolean = value ?? schema.definitions?.value?.toString() ?? '${1:true}';
 
-    case SchemaType.Number:
-      return getSuggestionValue('${1:123}', surround);
+      return getSuggestionValue(boolean, surround);
+    }
 
-    case SchemaType.String:
-      return surround ? '"${1:text}"' : '${1:text}"';
+    case SchemaType.Number: {
+      const number = value ?? schema.definitions?.value?.toString() ?? '${1:1234}';
+
+      return getSuggestionValue(number, surround);
+    }
+
+    case SchemaType.String: {
+      const text = value ?? schema.definitions?.value?.toString() ?? '${1:text}';
+
+      return surround ? `"${text}"` : `${text}"`;
+    }
 
     case SchemaType.Object:
-    case SchemaType.Reference:
+    case SchemaType.Reference: {
       return `{\n\t${value ?? '${0}'}\n}`;
+    }
 
-    case SchemaType.Union:
+    case SchemaType.Union: {
       return getSuggestionText(schema.elements[0], surround);
+    }
 
     case SchemaType.Array:
-    case SchemaType.Tuple:
+    case SchemaType.Tuple: {
       return `[\n\t${value ?? '${0}'}\n]`;
+    }
 
-    case SchemaType.Enum:
+    case SchemaType.Enum: {
       return '';
+    }
+  }
+};
+
+const getSuggestionLabel = (schema: AnySchema) => {
+  switch (schema.type) {
+    case SchemaType.Boolean:
+    case SchemaType.Number:
+    case SchemaType.String: {
+      return schema.definitions?.value?.toString() ?? schema.type;
+    }
+
+    default:
+      return schema.type;
   }
 };
