@@ -31,7 +31,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
       return [new PlaceholderTreeItem('No live projects found.')];
     }
 
-    const projectItems = this.viewData.map(({ project, manifest }) => {
+    const projectItems = this.viewData.map(({ project, workspace, manifest }) => {
       const serviceItems = [];
 
       for (const identifier in manifest) {
@@ -43,7 +43,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
         const actionItems = Object.entries(actionGroup).flatMap(([label, actions]) => {
           actions.sort((a, b) => a.name.localeCompare(b.name));
 
-          const children = actions.map((action) => new ActionTreeItem(host, action));
+          const children = actions.map((action) => new ActionTreeItem(host, workspace, action));
 
           if (label !== ActionUtils.DefaultGroup) {
             return new GroupTreeItem(label, children);

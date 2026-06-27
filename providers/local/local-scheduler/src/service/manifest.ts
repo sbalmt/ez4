@@ -13,6 +13,11 @@ export namespace CronManifest {
           description: 'Trigger the event immediately.',
           name: handler.name,
           path: '/',
+          sources: [
+            {
+              file: handler.file
+            }
+          ],
           request: {
             body: service.schema
           }

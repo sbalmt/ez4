@@ -11,6 +11,7 @@ import { getFormState } from './webview/utils/forms';
 import { formatTime } from './webview/utils/time';
 import { formatPath } from './webview/utils/path';
 import { SignalType } from './types/signals';
+import { setSourceLinks } from './webview/components/sources';
 
 const vscode = acquireVsCodeApi<AnyActionSignal, RequestState>();
 const elements = registerLayout();
@@ -40,14 +41,14 @@ self.onchange = () => {
 };
 
 const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
-  const { title, description, actionType, actionPath, runAction, tabs, forms, editors } = elements;
+  const { title, description, sourceLinks, actionType, actionPath, runAction, tabs, forms, editors } = elements;
   const { request, response } = action;
 
   const localState = vscode.getState();
   const currentState = localState ?? state;
 
   title.textContent = action.name;
-  description.textContent = action.description ?? '';
+  description.textContent = action.description ?? 'No documentation found.';
 
   actionType.textContent = action.type.toUpperCase();
 
@@ -60,6 +61,13 @@ const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
 
   setEditorSchema(editors.requestEditor, request?.body);
   setEditorSchema(editors.responseEditor, response?.body);
+
+  setSourceLinks(sourceLinks, action.sources, (path) => {
+    vscode.postMessage({
+      type: SignalType.Show,
+      path
+    });
+  });
 
   if (localState) {
     updatePath(action);

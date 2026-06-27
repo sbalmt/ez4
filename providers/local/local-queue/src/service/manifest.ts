@@ -4,6 +4,10 @@ import { ManifestActionType } from '@ez4/project/library';
 
 export namespace QueueManifest {
   export const build = (service: QueueService) => {
+    const sources = service.subscriptions.map(({ handler }) => ({
+      file: handler.file
+    }));
+
     return {
       actions: [
         {
@@ -11,6 +15,7 @@ export namespace QueueManifest {
           description: 'Send a message to the queue.',
           name: 'sendMessage',
           path: '/',
+          sources,
           request: {
             body: service.schema
           }

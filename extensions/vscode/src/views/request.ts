@@ -2,12 +2,13 @@ import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { ExtensionContext, Webview, WebviewPanel } from 'vscode';
-import type { RunData, AnyActionSignal } from '../types/signals';
 import type { WorkspaceManifest } from '../services/manifest';
+import type { RunData, AnyActionSignal } from '../types/signals';
+import type { RequestInput } from '../types/request';
 
 import { prepareRequestBody, prepareRequestUrl } from '@ez4/http';
 
-import { ThemeIcon, Uri, ViewColumn, window } from 'vscode';
+import { ThemeIcon, Uri, ViewColumn, window, workspace } from 'vscode';
 
 import { ActionUtils } from '../utils/action';
 import { TemplateUtils } from '../utils/template';
@@ -17,12 +18,7 @@ import { SignalType } from '../types/signals';
 const ALL_PANELS: Record<string, WebviewPanel | undefined> = {};
 
 export namespace RequestWebView {
-  export type Input = {
-    host: string;
-    action: ManifestAction<ObjectSchema>;
-  };
-
-  export const open = (input: Input, context: ExtensionContext) => {
+  export const open = (input: RequestInput, context: ExtensionContext) => {
     const { host, action } = input;
 
     const currentId = ActionUtils.getId(host, action);
@@ -53,7 +49,7 @@ export namespace RequestWebView {
     }
   };
 
-  const create = (id: string, input: Input, context: ExtensionContext) => {
+  const create = (id: string, input: RequestInput, context: ExtensionContext) => {
     const { action } = input;
 
     const panel = window.createWebviewPanel('ez4.requestPanel', action.name, ViewColumn.One, {
@@ -78,6 +74,9 @@ export namespace RequestWebView {
         case SignalType.Store:
           return store(id, context, signal.data);
 
+        case SignalType.Show:
+          return show(input, signal.path);
+
         case SignalType.Run:
           return run(webview, input, signal.data);
       }
@@ -98,7 +97,15 @@ export namespace RequestWebView {
     context.workspaceState.update(id, data);
   };
 
-  const run = async (webview: Webview, input: Input, data: RunData) => {
+  const show = async (input: RequestInput, path: string) => {
+    const fileUri = Uri.joinPath(Uri.file(input.workspace), path);
+
+    const source = await workspace.openTextDocument(fileUri);
+
+    window.showTextDocument(source);
+  };
+
+  const run = async (webview: Webview, input: RequestInput, data: RunData) => {
     const { headers, parameters, query, body } = data;
     const { type, path, request } = input.action;
 

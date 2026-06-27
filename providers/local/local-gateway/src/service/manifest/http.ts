@@ -30,12 +30,17 @@ export namespace HttpManifest {
 
         const [method, endpoint] = path.split(' ', 2);
 
+        const sources = [handler, ...(authorizer ? [authorizer] : [])].map(({ file }) => ({
+          file
+        }));
+
         return {
           path: endpoint,
           type: METHOD_ACTION_TYPES[method] ?? ManifestActionType.None,
           group: provider?.name,
           name: handler.name,
           description,
+          sources,
           request: {
             identity: request?.identity,
             headers: combinedHeaders,

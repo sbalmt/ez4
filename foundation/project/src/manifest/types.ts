@@ -16,6 +16,7 @@ export type ManifestAction<T extends AnyObject> = {
   description?: string;
   group?: string;
   path: string;
+  sources?: ManifestSource[];
   request?: {
     identity?: T;
     parameters?: T;
@@ -27,6 +28,10 @@ export type ManifestAction<T extends AnyObject> = {
     headers?: T;
     body?: T;
   };
+};
+
+export type ManifestSource = {
+  file: string;
 };
 
 export type ServiceManifest<T extends AnyObject> = {

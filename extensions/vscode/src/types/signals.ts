@@ -7,12 +7,13 @@ export const enum SignalType {
   WebviewResults = 'wv-results',
   Store = 'store',
   Ready = 'ready',
+  Show = 'show',
   Run = 'run'
 }
 
 export type AnyWebviewSignal = WebviewUpdateSignal | WebviewResultsSignal;
 
-export type AnyActionSignal = ReadySignal | StoreSignal | RunSignal;
+export type AnyActionSignal = ReadySignal | StoreSignal | ShowSignal | RunSignal;
 
 export type WebviewUpdateSignal = {
   type: SignalType.WebviewUpdate;
@@ -35,6 +36,11 @@ export type ReadySignal = {
 export type StoreSignal = {
   type: SignalType.Store;
   data: AnyObject;
+};
+
+export type ShowSignal = {
+  type: SignalType.Show;
+  path: string;
 };
 
 export type RunSignal = {

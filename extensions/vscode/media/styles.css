@@ -71,7 +71,9 @@ button:disabled {
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-button:focus-visible {
+button:focus-visible,
+a:focus-visible,
+a:focus {
   outline: 1px solid var(--vscode-focusBorder);
 }
 
@@ -326,12 +328,18 @@ button:focus-visible {
 
 .action-details {
   padding: 0px 8px;
-  min-width: 250px;
+  min-width: 300px;
   width: 20%;
 }
 
-.action-details > #title {
-  margin-top: 8px;
+.action-details #sources {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-details #sources a {
+  cursor: pointer;
 }
 
 /* Action Badges */
