@@ -5,25 +5,25 @@ import { isObjectSchema } from '@ez4/schema';
 
 import { ObjectField } from './fields/object';
 
-export const getFieldsPayload = (id: string, schema?: ObjectSchema) => {
+export const getFieldsPayload = (form: HTMLFormElement, id: string, schema?: ObjectSchema) => {
   if (schema) {
-    return ObjectField.getInputValue(id, schema);
+    return ObjectField.getInputValue(id, schema, form);
   }
 
   return undefined;
 };
 
-export const setFieldsSchema = (container: HTMLFormElement, id: string, schema?: ObjectSchema, values?: AnyObject) => {
+export const setFieldsSchema = (form: HTMLFormElement, id: string, schema?: ObjectSchema, state?: AnyObject) => {
   if (!schema || !isObjectSchema(schema)) {
     return false;
   }
 
   const elements = ObjectField.getInputElement(id, schema);
 
-  container.innerHTML = elements.join('');
+  form.replaceChildren(...elements);
 
-  if (values) {
-    ObjectField.setInputValue(id, schema, values);
+  if (state) {
+    ObjectField.setInputState(id, schema, form, state);
   }
 
   return !!elements.length;

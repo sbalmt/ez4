@@ -39,9 +39,17 @@ export const registerEditors = () => {
 
   registerEditorDecorations(responseEditor);
 
+  let renderId: number | undefined;
+
   self.onresize = () => {
-    resizeEditor(requestEditor);
-    resizeEditor(responseEditor);
+    if (renderId) {
+      self.cancelAnimationFrame(renderId);
+    }
+
+    renderId = self.requestAnimationFrame(() => {
+      resizeEditor(requestEditor);
+      resizeEditor(responseEditor);
+    });
   };
 
   return {
@@ -55,13 +63,15 @@ export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: O
   registerEditorSuggestions(editor, schema);
 };
 
-export const setEditorContent = (editor: editor.IStandaloneCodeEditor, content: string) => {
-  editor.setValue(content);
+export const setEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
+  if (content) {
+    editor.setValue(content);
+  }
 
   resizeEditor(editor);
 };
 
-export const getEditorContent = (editor: editor.IStandaloneCodeEditor) => {
+export const getEditorJson = (editor: editor.IStandaloneCodeEditor) => {
   try {
     const content = stripJsonComments(editor.getValue());
 
@@ -76,14 +86,14 @@ export const getEditorContent = (editor: editor.IStandaloneCodeEditor) => {
 };
 
 const resizeEditor = (editor: editor.IStandaloneCodeEditor) => {
-  const { verticalScrollbarWidth, horizontalScrollbarHeight } = editor.getLayoutInfo();
+  const { verticalScrollbarWidth } = editor.getLayoutInfo();
   const { top, left } = editor.getContainerDomNode().getBoundingClientRect();
 
   const viewportHeight = window.innerHeight - top;
   const viewportWidth = window.innerWidth - left;
 
   editor.layout({
-    height: viewportHeight - horizontalScrollbarHeight,
-    width: viewportWidth - verticalScrollbarWidth
+    width: viewportWidth - verticalScrollbarWidth,
+    height: viewportHeight
   });
 };

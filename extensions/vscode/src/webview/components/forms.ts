@@ -1,9 +1,9 @@
 import { getElementById } from '../utils/elements';
 
 export const registerForms = () => {
-  const headersForm = getElementById<HTMLFormElement>('form', 'headersForm');
-  const parametersForm = getElementById<HTMLFormElement>('form', 'parametersForm');
-  const queryForm = getElementById<HTMLFormElement>('form', 'queryForm');
+  const headersForm = getElementById('form', 'headersForm');
+  const parametersForm = getElementById('form', 'parametersForm');
+  const queryForm = getElementById('form', 'queryForm');
 
   setupForm(headersForm);
   setupForm(parametersForm);

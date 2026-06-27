@@ -4,9 +4,10 @@ import type { RequestState } from './webview/types/state';
 import { isEmptyObject } from '@ez4/utils';
 
 import { getFirstTab } from './webview/components/tabs';
-import { getEditorContent, setEditorContent, setEditorSchema } from './webview/components/editor';
+import { getEditorJson, setEditorValue, setEditorSchema } from './webview/components/editor';
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
 import { registerLayout } from './webview/components/layout';
+import { getFormState } from './webview/utils/forms';
 import { formatTime } from './webview/utils/time';
 import { formatPath } from './webview/utils/path';
 import { SignalType } from './types/signals';
@@ -34,20 +35,39 @@ self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
   }
 };
 
-const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
+self.onchange = () => {
+  const { forms, editors } = elements;
+
+  const state = {
+    headers: getFormState(forms.headersForm),
+    parameters: getFormState(forms.parametersForm),
+    query: getFormState(forms.queryForm),
+    body: editors.requestEditor.getValue()
+  };
+
+  vscode.setState(state);
+
+  vscode.postMessage({
+    type: SignalType.Store,
+    data: state
+  });
+};
+
+const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
   const { title, description, actionType, actionPath, runAction, tabs, forms, editors } = elements;
   const { request, response } = action;
 
-  const state = vscode.getState();
+  const localState = vscode.getState();
+  const currentState = localState ?? state;
 
   title.textContent = action.name;
   description.textContent = action.description ?? '';
 
   actionType.textContent = action.type.toUpperCase();
 
-  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', request?.headers, state?.headers);
-  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, state?.parameters);
-  const hasQuery = setFieldsSchema(forms.queryForm, 'query', request?.query, state?.query);
+  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', request?.headers, currentState?.headers);
+  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, currentState?.parameters);
+  const hasQuery = setFieldsSchema(forms.queryForm, 'query', request?.query, currentState?.query);
 
   tabs.actionParameters.hidden = !(hasHeaders || hasParameters || hasQuery);
   tabs.actionRequest.hidden = !request?.body || isEmptyObject(request.body);
@@ -55,30 +75,33 @@ const handleActionUpdate = ({ action }: WebviewUpdateSignal) => {
   setEditorSchema(editors.requestEditor, request?.body);
   setEditorSchema(editors.responseEditor, response?.body);
 
-  if (state) {
+  if (localState) {
     updatePath(action);
-  } else {
-    actionPath.textContent = action.path;
-
-    getFirstTab()?.click();
-
-    actionPath.onclick = () => {
-      getFirstTab()?.click();
-    };
-
-    forms.parametersForm.oninput = () => {
-      updatePath(action);
-    };
-
-    runAction.onclick = () => {
-      runAction.disabled = true;
-
-      vscode.postMessage({
-        type: SignalType.Run,
-        payload: saveState(action)
-      });
-    };
+    return;
   }
+
+  actionPath.onclick = () => {
+    getFirstTab()?.click();
+  };
+
+  forms.parametersForm.oninput = () => {
+    updatePath(action);
+  };
+
+  runAction.onclick = () => {
+    runAction.disabled = true;
+
+    vscode.postMessage({
+      type: SignalType.Run,
+      data: getPayload(action)
+    });
+  };
+
+  actionPath.textContent = action.path;
+
+  setEditorValue(editors.requestEditor, currentState?.body);
+
+  getFirstTab()?.click();
 };
 
 const handleActionResults = ({ success, status, time, results }: WebviewResultsSignal) => {
@@ -92,32 +115,28 @@ const handleActionResults = ({ success, status, time, results }: WebviewResultsS
 
   tabs.actionResponse.click();
 
-  setEditorContent(editors.responseEditor, JSON.stringify(results, undefined, 2));
+  setEditorValue(editors.responseEditor, JSON.stringify(results, undefined, 2));
 
   runAction.disabled = false;
 };
 
 const updatePath = (action: WebviewUpdateSignal['action']) => {
-  const { actionPath } = elements;
+  const { forms, actionPath } = elements;
   const { request } = action;
 
-  const parameters = getFieldsPayload('parameters', request?.parameters);
+  const parameters = getFieldsPayload(forms.parametersForm, 'parameters', request?.parameters);
 
   actionPath.innerHTML = formatPath(action.path, parameters);
 };
 
-const saveState = (action: WebviewUpdateSignal['action']) => {
-  const { editors } = elements;
+const getPayload = (action: WebviewUpdateSignal['action']) => {
+  const { forms, editors } = elements;
   const { request } = action;
 
-  const data = {
-    headers: getFieldsPayload('headers', request?.headers),
-    parameters: getFieldsPayload('parameters', request?.parameters),
-    query: getFieldsPayload('query', request?.query),
-    body: getEditorContent(editors.requestEditor)
+  return {
+    headers: getFieldsPayload(forms.headersForm, 'headers', request?.headers),
+    parameters: getFieldsPayload(forms.parametersForm, 'parameters', request?.parameters),
+    query: getFieldsPayload(forms.queryForm, 'query', request?.query),
+    body: getEditorJson(editors.requestEditor)
   };
-
-  vscode.setState(data);
-
-  return data;
 };

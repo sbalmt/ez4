@@ -1,120 +1,52 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { SchemaType } from '@ez4/schema';
+import { isEmptyObject } from '@ez4/utils';
 
-import { BooleanField } from './boolean';
-import { StringField } from './string';
-import { NumberField } from './number';
-import { EnumField } from './enum';
+import { createElement } from '../../utils/elements';
+import { getFieldName } from '../../utils/forms';
+import { AnyField } from './any';
 
 export namespace ObjectField {
-  const getPropertyId = (parentId: string, id: string) => {
-    return `${parentId}_${id}`;
-  };
-
-  export const getInputValue = (id: string, schema: ObjectSchema) => {
-    const payload: AnyObject = {};
+  export const getInputValue = (name: string, schema: ObjectSchema, form: HTMLFormElement) => {
+    const value: AnyObject = {};
 
     for (const propertyKey in schema.properties) {
       const propertySchema = schema.properties[propertyKey];
-      const propertyId = getPropertyId(id, propertyKey);
+      const fieldName = getFieldName(name, propertyKey);
 
-      switch (propertySchema.type) {
-        case SchemaType.Object:
-          payload[propertyKey] = ObjectField.getInputValue(propertyId, propertySchema);
-          break;
-
-        case SchemaType.Boolean:
-          payload[propertyKey] = BooleanField.getInputValue(propertyId, propertySchema);
-          break;
-
-        case SchemaType.Number:
-          payload[propertyKey] = NumberField.getInputValue(propertyId, propertySchema);
-          break;
-
-        case SchemaType.String:
-          payload[propertyKey] = StringField.getInputValue(propertyId, propertySchema);
-          break;
-
-        case SchemaType.Enum:
-          payload[propertyKey] = EnumField.getInputValue(propertyId, propertySchema);
-          break;
-      }
+      value[propertyKey] = AnyField.getInputValue(fieldName, propertySchema, form);
     }
 
-    return payload;
-  };
-
-  export const setInputValue = (id: string, schema: ObjectSchema, value: AnyObject) => {
-    const payload: AnyObject = {};
-
-    for (const propertyKey in schema.properties) {
-      const propertyValue = value[propertyKey];
-      const propertySchema = schema.properties[propertyKey];
-      const propertyId = getPropertyId(id, propertyKey);
-
-      switch (propertySchema.type) {
-        case SchemaType.Object:
-          payload[propertyKey] = ObjectField.setInputValue(propertyId, propertySchema, propertyValue);
-          break;
-
-        case SchemaType.Boolean:
-          payload[propertyKey] = BooleanField.setInputValue(propertyId, propertySchema, propertyValue);
-          break;
-
-        case SchemaType.Number:
-          payload[propertyKey] = NumberField.setInputValue(propertyId, propertySchema, propertyValue);
-          break;
-
-        case SchemaType.String:
-          payload[propertyKey] = StringField.setInputValue(propertyId, propertySchema, propertyValue);
-          break;
-
-        case SchemaType.Enum:
-          payload[propertyKey] = EnumField.setInputValue(propertyId, propertySchema, propertyValue);
-          break;
-      }
+    if (schema.optional && isEmptyObject(value)) {
+      return undefined;
     }
 
-    return payload;
+    return value;
   };
 
-  export const getInputElement = (id: string, schema: ObjectSchema) => {
-    const elements: string[] = [];
+  export const setInputState = (name: string, schema: ObjectSchema, form: HTMLFormElement, state?: AnyObject) => {
+    for (const propertyKey in schema.properties) {
+      const propertySchema = schema.properties[propertyKey];
+      const fieldName = getFieldName(name, propertyKey);
+
+      AnyField.setInputState(fieldName, propertySchema, form, state);
+    }
+  };
+
+  export const getInputElement = (name: string, schema: ObjectSchema) => {
+    const elements = [];
 
     for (const propertyKey in schema.properties) {
       const propertySchema = schema.properties[propertyKey];
-      const propertyId = getPropertyId(id, propertyKey);
+      const fieldName = getFieldName(name, propertyKey);
 
-      elements.push('<div class="field-like field-row">', `<label for="${propertyId}">${propertyKey}</label>`);
-
-      switch (propertySchema.type) {
-        case SchemaType.Object:
-          elements.push(`<div class="field-grid">`, ...ObjectField.getInputElement(propertyId, propertySchema), '</div>');
-          break;
-
-        case SchemaType.Boolean:
-          elements.push('<div class="field-flex">', ...BooleanField.getInputElement(propertyId, propertySchema), '</div>');
-          break;
-
-        case SchemaType.Number:
-          elements.push('<div class="field-flex">', ...NumberField.getInputElement(propertyId, propertySchema), '</div>');
-          break;
-
-        case SchemaType.String:
-          elements.push('<div class="field-flex">', ...StringField.getInputElement(propertyId, propertySchema), '</div>');
-          break;
-
-        case SchemaType.Enum:
-          elements.push('<div class="field-flex">', ...EnumField.getInputElement(propertyId, propertySchema), '</div>');
-          break;
-
-        default:
-          elements.push('<div>', '</div>');
-      }
-
-      elements.push('</div>');
+      elements.push(
+        createElement('div', { className: 'field-like field-row' }, [
+          createElement('label', {}, [propertyKey]),
+          ...AnyField.getInputElement(fieldName, propertySchema)
+        ])
+      );
     }
 
     return elements;

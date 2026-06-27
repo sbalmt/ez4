@@ -1,25 +1,42 @@
 import type { EnumSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 
-import { getElementById } from '../../utils/elements';
+import { createElement } from '../../utils/elements';
 
 export namespace EnumField {
-  const getInput = (id: string) => {
-    return getElementById<HTMLSelectElement>('select', id);
+  const getInput = (name: string, form: HTMLFormElement) => {
+    return form.elements.namedItem(name) as HTMLSelectElement;
   };
 
-  export const getInputValue = (id: string, _schema: EnumSchema) => {
-    return getInput(id).value;
+  export const getInputValue = (name: string, schema: EnumSchema, form: HTMLFormElement) => {
+    const value = getInput(name, form).value;
+
+    if (schema.optional && !value) {
+      return undefined;
+    }
+
+    return value;
   };
 
-  export const setInputValue = (id: string, schema: EnumSchema, value?: string | number) => {
-    getInput(id).value = (value ?? schema.definitions?.default)?.toString() ?? '';
+  export const setInputState = (name: string, schema: EnumSchema, form: HTMLFormElement, state?: AnyObject) => {
+    const value = state?.[name] ?? schema.definitions?.default ?? '';
+
+    getInput(name, form).value = value;
   };
 
-  export const getInputElement = (id: string, schema: EnumSchema) => {
-    const options = schema.options.map((option, index) => {
-      return `<option value="${option.value}"${index === 0 ? ' selected' : ''}>${option.value}</option>`;
-    });
+  export const getInputElement = (name: string, schema: EnumSchema) => {
+    const options = [];
 
-    return [`<select id="${id}">`, ...options, `</select>`];
+    if (schema.optional) {
+      options.push(createElement('option', { value: '' }, ['-']));
+    }
+
+    options.push(
+      ...schema.options.map(({ value }) => {
+        return createElement('option', { value }, [value.toString()]);
+      })
+    );
+
+    return [createElement('select', { name }, options)];
   };
 }

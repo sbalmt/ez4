@@ -8,14 +8,14 @@ export const registerLayout = () => {
     tabs: registerTabs(),
     forms: registerForms(),
     editors: registerEditors(),
-    title: getElementById<HTMLHeadingElement>('h4', 'title'),
-    description: getElementById<HTMLParagraphElement>('p', 'description'),
-    actionType: getElementById<HTMLDivElement>('div', 'actionType'),
-    actionPath: getElementById<HTMLDivElement>('div', 'actionPath'),
-    runAction: getElementById<HTMLButtonElement>('button', 'runAction'),
+    title: getElementById('h4', 'title'),
+    description: getElementById('p', 'description'),
+    actionType: getElementById('div', 'actionType'),
+    actionPath: getElementById('div', 'actionPath'),
+    runAction: getElementById('button', 'runAction'),
     badges: {
-      responseStatus: getElementById<HTMLButtonElement>('span', 'response-status'),
-      responseTime: getElementById<HTMLButtonElement>('span', 'response-time')
+      responseStatus: getElementById('span', 'response-status'),
+      responseTime: getElementById('span', 'response-time')
     }
   };
 };

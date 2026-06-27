@@ -1,47 +1,66 @@
 import type { StringSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 
-import { isAnyNumber } from '@ez4/utils';
+import { isAnyNumber, isAnyString } from '@ez4/utils';
 
-import { getElementById } from '../../utils/elements';
+import { createElement } from '../../utils/elements';
 
 export namespace StringField {
-  const getInput = (id: string) => {
-    return getElementById<HTMLInputElement>('input', id);
+  const getInput = (name: string, form: HTMLFormElement) => {
+    return form.elements.namedItem(name) as HTMLInputElement;
   };
 
-  export const getInputValue = (id: string, _schema: StringSchema) => {
-    return getInput(id).value;
+  export const getInputValue = (name: string, schema: StringSchema, form: HTMLFormElement) => {
+    const value = getInput(name, form).value;
+
+    if (schema.optional && !value) {
+      return undefined;
+    }
+
+    return value;
   };
 
-  export const setInputValue = (id: string, schema: StringSchema, value?: string) => {
-    getInput(id).value = value ?? schema.definitions?.default ?? '';
+  export const setInputState = (name: string, schema: StringSchema, form: HTMLFormElement, state?: AnyObject) => {
+    const value = state?.[name] ?? schema.definitions?.default ?? '';
+
+    getInput(name, form).value = value;
   };
 
-  export const getInputElement = (id: string, schema: StringSchema) => {
+  export const getInputElement = (name: string, schema: StringSchema) => {
     const { optional, definitions } = schema;
 
+    const element = createElement('input', {
+      placeholder: schema.description ?? schema.type,
+      type: 'text',
+      name
+    });
+
+    const pattern = definitions?.pattern;
     const minLength = definitions?.minLength;
     const maxLength = definitions?.maxLength;
-    const pattern = definitions?.pattern;
-
-    const attributes = [];
+    const value = definitions?.value;
 
     if (!optional) {
-      attributes.push(`required`);
-    }
-
-    if (isAnyNumber(minLength)) {
-      attributes.push(`minlength="${minLength}"`);
-    }
-
-    if (isAnyNumber(maxLength)) {
-      attributes.push(`maxlength="${maxLength}"`);
+      element.required = true;
     }
 
     if (pattern) {
-      attributes.push(`pattern="${pattern}"`);
+      element.pattern = pattern;
     }
 
-    return [`<input type="text" placeholder="${schema.description ?? schema.type}" id="${id}" ${attributes.join(' ')}/>`];
+    if (isAnyNumber(minLength)) {
+      element.minLength = minLength;
+    }
+
+    if (isAnyNumber(maxLength)) {
+      element.maxLength = maxLength;
+    }
+
+    if (isAnyString(value)) {
+      element.readOnly = true;
+      element.value = value;
+    }
+
+    return [element];
   };
 }

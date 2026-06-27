@@ -12,70 +12,72 @@
 </head>
 
 <body>
-  <main id="panel">
-    <div class="field-like field-group action-bar">
-      <div id="actionType">
-        <!-- Action type -->
-      </div>
-      <div id="actionPath">
-        <!-- Action path -->
-      </div>
-      <button id="runAction">
-        Run
-      </button>
+  <div class="field-like field-group action-bar">
+    <div id="actionType">
+      <!-- Action type -->
     </div>
-    <div class="action-content">
-      <div class="action-fields">
-        <div class="action-tabs">
-          <button id="action-parameters" class="action-tab active" data-tab="parameters" hidden>Parameters</button>
-          <button id="action-request" class="action-tab" data-tab="request" hidden>Request</button>
-          <button id="action-response" class="action-tab" data-tab="response">Response</button>
-        </div>
-        <div id="tab-parameters" class="action-tab-content" hidden>
-          <div class="action-inputs">
+    <div id="actionPath">
+      <!-- Action path -->
+    </div>
+    <button id="runAction">
+      Run
+    </button>
+  </div>
+  <div class="action-content">
+    <div class="action-tabs">
+      <button id="action-parameters" class="action-tab active" data-tab="parameters" hidden>Parameters</button>
+      <button id="action-request" class="action-tab" data-tab="request" hidden>Request</button>
+      <button id="action-response" class="action-tab" data-tab="response">Response</button>
+    </div>
+    <div class="action-tab-contents">
+      <div id="tab-parameters" class="action-tab-content" hidden>
+        <div class="action-forms">
+          <div class="action-form">
             <h4>Headers</h4>
             <form class="field-grid" id="headersForm" novalidate></form>
           </div>
-          <div class="action-inputs">
-            <h4>Path parameters</h4>
+          <div class="action-form">
+            <h4>Path Parameters</h4>
             <form class="field-grid" id="parametersForm" novalidate></form>
           </div>
-          <div class="action-inputs">
-            <h4>Query strings</h4>
+          <div class="action-form">
+            <h4>Query Strings</h4>
             <form class="field-grid" id="queryForm" novalidate></form>
           </div>
         </div>
-        <div id="tab-request" class="action-tab-content" hidden>
-          <div id="request-editor" class="field-editor">
-            <!-- Request editor -->
+        <div class="action-details">
+          <h4 id="title">
+            <!-- Action title -->
+          </h4>
+          <p id="description">
+            <!-- Action description -->
+          </p>
+        </div>
+      </div>
+      <div id="tab-request" class="action-tab-content" hidden>
+        <div id="request-editor" class="field-editor">
+          <!-- Request editor -->
+        </div>
+      </div>
+      <div id="tab-response" class="action-tab-content" hidden>
+        <div class="action-badges">
+          <div>
+            <span class="response-status">Status:</span>
+            <span id="response-status"></span>
+          </div>
+          <div>
+            <span class="response-time">Time:</span>
+            <span id="response-time"></span>
           </div>
         </div>
-        <div id="tab-response" class="action-tab-content" hidden>
-          <div class="action-badges">
-            <div>
-              <span class="response-status">Status:</span>
-              <span id="response-status"></span>
-            </div>
-            <div>
-              <span class="response-time">Time:</span>
-              <span id="response-time"></span>
-            </div>
-          </div>
-          <div id="response-viewer" class="field-editor">
+        <div class="field-editor">
+          <div id="response-viewer">
             <!-- Response viewer -->
           </div>
         </div>
       </div>
-      <div class="action-details">
-        <h4 id="title">
-          <!-- Action title -->
-        </h4>
-        <p id="description">
-          <!-- Action description -->
-        </p>
-      </div>
     </div>
-  </main>
+  </div>
 </body>
 
 </html>

@@ -5,17 +5,19 @@ import type { AnyObject } from '@ez4/utils';
 export const enum SignalType {
   WebviewUpdate = 'wv-update',
   WebviewResults = 'wv-results',
+  Store = 'store',
   Ready = 'ready',
   Run = 'run'
 }
 
 export type AnyWebviewSignal = WebviewUpdateSignal | WebviewResultsSignal;
 
-export type AnyActionSignal = ReadySignal | RunSignal;
+export type AnyActionSignal = ReadySignal | StoreSignal | RunSignal;
 
 export type WebviewUpdateSignal = {
   type: SignalType.WebviewUpdate;
   action: ManifestAction<ObjectSchema>;
+  state?: AnyObject;
 };
 
 export type WebviewResultsSignal = {
@@ -30,12 +32,17 @@ export type ReadySignal = {
   type: SignalType.Ready;
 };
 
-export type RunSignal = {
-  type: SignalType.Run;
-  payload: ActionPayload;
+export type StoreSignal = {
+  type: SignalType.Store;
+  data: AnyObject;
 };
 
-export type ActionPayload = {
+export type RunSignal = {
+  type: SignalType.Run;
+  data: RunData;
+};
+
+export type RunData = {
   headers?: Record<string, string>;
   parameters?: Record<string, string>;
   query?: Record<string, string>;

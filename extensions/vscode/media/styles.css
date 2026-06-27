@@ -5,11 +5,12 @@
 }
 
 body {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
   font-family: var(--vscode-font-family);
   background: var(--vscode-editor-background);
   color: var(--vscode-foreground);
-  overflow: hidden;
+  padding: 16px 16px 0px 16px;
   line-height: 1.4;
   height: 100vh;
 }
@@ -23,8 +24,8 @@ h6 {
   font-weight: 500;
 }
 
-input,
 select,
+input,
 textarea {
   width: 100%;
   padding: 6px 8px;
@@ -36,8 +37,8 @@ textarea {
   font-size: inherit;
 }
 
+input[type='radio'],
 input[type='checkbox'] {
-  border-radius: unset;
   width: unset;
 }
 
@@ -78,15 +79,7 @@ button:focus-visible {
   display: none !important;
 }
 
-/* Main Container */
-
-body > main {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* Form and Field */
+/* Form and Fields */
 
 .field-like {
   border-radius: 4px;
@@ -97,8 +90,8 @@ body > main {
   font-weight: 600;
 }
 
-.field-like input,
 .field-like select,
+.field-like input:is([type='text'], [type='number']),
 .field-like textarea {
   height: 30px;
   border: none;
@@ -107,16 +100,42 @@ body > main {
 .field-like input:focus,
 .field-like select:focus,
 .field-like textarea:focus {
-  box-shadow: none;
-  outline: none;
-  border: none;
+  border-radius: 0px;
+}
+
+.field-text {
+  padding: 6px 8px;
 }
 
 .field-group {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
-  gap: 4px;
+}
+
+.field-column {
+  flex-direction: column;
+}
+
+.field-row {
+  align-items: center;
+}
+
+.field-row,
+.field-column {
+  display: flex;
+  width: 100%;
+}
+
+.field-column > .field-like {
+  border: none;
+}
+
+.field-column > .field-like:first-child {
+  border-top: 1px solid var(--vscode-panel-border);
+}
+
+.field-column > .field-like:not(:last-child) {
+  border-bottom: 1px solid var(--vscode-panel-border);
 }
 
 .field-grid {
@@ -128,6 +147,8 @@ body > main {
 }
 
 .field-grid > .field-row > label {
+  text-align: right;
+  font-weight: 400;
   padding: 6px 8px;
 }
 
@@ -149,16 +170,13 @@ body > main {
   display: contents;
 }
 
-.field-grid > .field-row > .field-flex {
-  display: flex;
-  align-items: center;
-}
-
 .field-grid > .field-row > .field-grid {
-  border: none;
+  border-left: none;
+  border-top: none;
 }
 
 .field-editor {
+  position: relative;
   flex: 1;
 }
 
@@ -184,7 +202,6 @@ body > main {
 }
 
 .action-bar #runAction:disabled {
-  position: relative;
   color: transparent;
 }
 
@@ -212,33 +229,32 @@ body > main {
 /* Action Content */
 
 .action-content {
-  padding-top: 8px;
-  display: flex;
-  gap: 8px;
-  flex: 1;
-}
-
-.action-content .action-fields {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  padding-top: 8px;
+  overflow: hidden;
 }
 
-.action-content .action-details {
-  padding: 0px 8px;
-  min-width: 250px;
-  width: 20%;
+.action-content .action-form button,
+.action-content .action-form .field-like {
+  border-radius: 0;
 }
 
-/* Action Details */
-
-.action-details #title {
-  margin-top: 8px;
+.action-content .action-form .link-button {
+  margin-right: 6px;
+  padding: 4px 8px;
+  color: var(--vscode-textLink-foreground);
+  background: none;
+  height: 25px;
 }
 
-/* Action Inputs */
-.action-inputs:has(form:empty) {
-  display: none;
+.action-content .action-form .link-button:hover {
+  color: var(--vscode-textLink-hoverForeground);
+  text-decoration: underline;
+}
+
+.action-content .action-form .link-button:focus {
+  color: var(--vscode-textLink-activeForeground);
 }
 
 /* Action Tabs */
@@ -246,50 +262,90 @@ body > main {
 .action-tabs {
   display: flex;
   border-bottom: 1px solid var(--vscode-panel-border);
+  flex: 0 0 auto;
 }
 
-.action-tab {
+.action-tabs > .action-tab {
   padding: 8px 12px;
   border-bottom: 2px solid transparent;
   border-radius: unset;
 }
 
-.action-tab,
-.action-tab:hover {
+.action-tabs > .action-tab,
+.action-tabs > .action-tab:hover {
   color: var(--vscode-foreground);
   background: transparent;
 }
 
-.action-tab.active {
+.action-tabs > .action-tab.active {
   border-bottom: 2px solid var(--vscode-button-background);
   color: var(--vscode-tab-activeForeground);
 }
 
-.action-tab.active:focus-visible {
+.action-tabs > .action-tab.active:focus-visible {
   border-bottom-color: transparent;
 }
 
-.action-tab-content {
+.action-tab-contents {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+.action-tab-contents > .action-tab-content {
+  display: flex;
+  flex-direction: row;
   position: relative;
+}
+
+.action-tab-contents > .action-tab-content#tab-parameters {
+  overflow: hidden;
+}
+
+/* Action Forms */
+
+.action-forms {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  min-height: 0;
   flex: 1;
+}
+
+.action-forms > .action-form {
+  padding-bottom: 16px;
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.action-forms > .action-form:has(form:empty) {
+  display: none;
+}
+
+/* Action Details */
+
+.action-details {
+  padding: 0px 8px;
+  min-width: 250px;
+  width: 20%;
+}
+
+.action-details > #title {
+  margin-top: 8px;
 }
 
 /* Action Badges */
 
 .action-badges {
   display: flex;
-  justify-content: flex-end;
   position: absolute;
-  padding-right: 12px;
-  width: 100%;
-  top: -28px;
+  justify-content: flex-end;
+  margin-top: -34px;
+  padding: 6px 8px;
   z-index: -1;
+  width: 100%;
   gap: 8px;
 }
-
-/* Response Content*/
 
 .action-badges .response-success {
   color: #388a34;
@@ -313,6 +369,7 @@ body > main {
 }
 
 /* Editor Decorations */
+
 .copy-hint::after {
   content: 'Copied';
   display: inline-block;
@@ -327,6 +384,7 @@ body > main {
 }
 
 /* Animations */
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

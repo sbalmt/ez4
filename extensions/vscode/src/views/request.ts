@@ -1,7 +1,8 @@
 import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 import type { ExtensionContext, Webview, WebviewPanel } from 'vscode';
-import type { ActionPayload, AnyActionSignal } from '../types/signals';
+import type { RunData, AnyActionSignal } from '../types/signals';
 import type { WorkspaceManifest } from '../services/manifest';
 
 import { prepareRequestBody, prepareRequestUrl } from '@ez4/http';
@@ -70,10 +71,15 @@ export namespace RequestWebView {
     });
 
     webview.onDidReceiveMessage((signal: AnyActionSignal) => {
-      if (signal.type === SignalType.Run) {
-        run(webview, input, signal.payload);
-      } else {
-        update(webview, action);
+      switch (signal.type) {
+        case SignalType.Ready:
+          return update(webview, action, context.workspaceState.get(id));
+
+        case SignalType.Store:
+          return store(id, context, signal.data);
+
+        case SignalType.Run:
+          return run(webview, input, signal.data);
       }
     });
 
@@ -84,15 +90,16 @@ export namespace RequestWebView {
     return panel;
   };
 
-  const update = (webview: Webview, action: ManifestAction<ObjectSchema>) => {
-    webview.postMessage({
-      type: SignalType.WebviewUpdate,
-      action
-    });
+  const update = (webview: Webview, action: ManifestAction<ObjectSchema>, state?: AnyObject) => {
+    webview.postMessage({ type: SignalType.WebviewUpdate, action, state });
   };
 
-  const run = async (webview: Webview, input: Input, payload: ActionPayload) => {
-    const { headers, parameters, query, body } = payload;
+  const store = (id: string, context: ExtensionContext, data: AnyObject) => {
+    context.workspaceState.update(id, data);
+  };
+
+  const run = async (webview: Webview, input: Input, data: RunData) => {
+    const { headers, parameters, query, body } = data;
     const { type, path, request } = input.action;
 
     const logger = LoggerService.get();
