@@ -36,21 +36,7 @@ self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
 };
 
 self.onchange = () => {
-  const { forms, editors } = elements;
-
-  const state = {
-    headers: getFormState(forms.headersForm),
-    parameters: getFormState(forms.parametersForm),
-    query: getFormState(forms.queryForm),
-    body: editors.requestEditor.getValue()
-  };
-
-  vscode.setState(state);
-
-  vscode.postMessage({
-    type: SignalType.Store,
-    data: state
-  });
+  saveCurrentState();
 };
 
 const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
@@ -87,6 +73,10 @@ const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
   forms.parametersForm.oninput = () => {
     updatePath(action);
   };
+
+  editors.requestEditor.onDidChangeModelContent(() => {
+    saveCurrentState();
+  });
 
   runAction.onclick = () => {
     runAction.disabled = true;
@@ -139,4 +129,22 @@ const getPayload = (action: WebviewUpdateSignal['action']) => {
     query: getFieldsPayload(forms.queryForm, 'query', request?.query),
     body: getEditorJson(editors.requestEditor)
   };
+};
+
+const saveCurrentState = () => {
+  const { forms, editors } = elements;
+
+  const state = {
+    headers: getFormState(forms.headersForm),
+    parameters: getFormState(forms.parametersForm),
+    query: getFormState(forms.queryForm),
+    body: editors.requestEditor.getValue()
+  };
+
+  vscode.setState(state);
+
+  vscode.postMessage({
+    type: SignalType.Store,
+    data: state
+  });
 };
