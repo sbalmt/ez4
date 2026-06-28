@@ -309,6 +309,7 @@ a:focus {
 .action-forms {
   display: flex;
   flex-direction: column;
+  scrollbar-gutter: stable;
   overflow: hidden;
   min-height: 0;
   flex: 1;
@@ -333,17 +334,27 @@ a:focus {
 .action-details {
   padding: 0px 8px;
   min-width: 300px;
-  width: 20%;
+  scrollbar-gutter: stable;
+  overflow: hidden;
+  width: 35%;
+}
+
+.action-details:hover {
+  overflow: auto;
 }
 
 .action-details #sources {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  padding-inline-start: 1em;
 }
 
 .action-details #sources a {
+  word-wrap: break-word;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.action-details #sources a:hover {
+  text-decoration: underline;
 }
 
 /* Action Badges */

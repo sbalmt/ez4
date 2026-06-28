@@ -3,16 +3,18 @@ import type { ManifestSource } from '@ez4/project/library';
 import { createElement } from '../utils/elements';
 import { isEmptyArray } from '@ez4/utils';
 
-export const setSourceLinks = (container: HTMLParagraphElement, sources: ManifestSource[] | undefined, handler: (path: string) => void) => {
-  const links: HTMLAnchorElement[] = [];
+export const setSourceLinks = (container: HTMLUListElement, sources: ManifestSource[] | undefined, handler: (path: string) => void) => {
+  const elements: HTMLLIElement[] = [];
+
+  sources?.sort((a, b) => a.file.localeCompare(b.file));
 
   sources?.forEach(({ file }) => {
-    links.push(createElement('a', { href: '#', onclick: () => handler(file) }, [`.../${file}`]));
+    elements.push(createElement('li', {}, [createElement('a', { href: '#', onclick: () => handler(file) }, [file])]));
   });
 
-  if (isEmptyArray(links)) {
-    container.innerText = 'No sources found.';
-  } else {
-    container.replaceChildren(...links);
+  if (isEmptyArray(elements)) {
+    elements.push(createElement('li', {}, ['No source found.']));
   }
+
+  container.replaceChildren(...elements);
 };

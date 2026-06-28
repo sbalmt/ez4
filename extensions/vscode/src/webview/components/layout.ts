@@ -10,7 +10,7 @@ export const registerLayout = () => {
     editors: registerEditors(),
     title: getElementById('h4', 'title'),
     description: getElementById('p', 'description'),
-    sourceLinks: getElementById('p', 'sources'),
+    sourceLinks: getElementById('ul', 'sources'),
     actionType: getElementById('div', 'actionType'),
     actionPath: getElementById('div', 'actionPath'),
     runAction: getElementById('button', 'runAction'),

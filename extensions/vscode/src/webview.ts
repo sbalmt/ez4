@@ -6,12 +6,12 @@ import { isEmptyObject } from '@ez4/utils';
 import { getFirstTab } from './webview/components/tabs';
 import { getEditorJson, setEditorValue, setEditorSchema } from './webview/components/editor';
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
+import { setSourceLinks } from './webview/components/sources';
 import { registerLayout } from './webview/components/layout';
 import { getFormState } from './webview/utils/forms';
 import { formatTime } from './webview/utils/time';
 import { formatPath } from './webview/utils/path';
 import { SignalType } from './types/signals';
-import { setSourceLinks } from './webview/components/sources';
 
 const vscode = acquireVsCodeApi<AnyActionSignal, RequestState>();
 const elements = registerLayout();
