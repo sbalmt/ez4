@@ -2,6 +2,7 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
+    "file": "test/input/output-listener.ts",
     "context": {},
     "variables": {},
     "services": {},

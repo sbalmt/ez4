@@ -309,9 +309,13 @@ a:focus {
 .action-forms {
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
   min-height: 0;
   flex: 1;
+}
+
+.action-forms:hover {
+  overflow: auto;
 }
 
 .action-forms > .action-form {

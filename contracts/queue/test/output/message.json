@@ -12,6 +12,7 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",
+    "file": "test/input/output-message.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -54,6 +55,7 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
+    "file": "test/input/output-message.ts",
     "context": {},
     "variables": {},
     "services": {},

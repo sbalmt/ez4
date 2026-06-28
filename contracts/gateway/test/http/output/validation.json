@@ -12,6 +12,7 @@
   "TestValidationA": {
     "type": "@ez4/validation",
     "name": "TestValidationA",
+    "file": "test/common/validations.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -30,6 +31,7 @@
   "TestValidationB": {
     "type": "@ez4/validation",
     "name": "TestValidationB",
+    "file": "test/common/validations.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -48,6 +50,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "file": "test/http/input/output-validation.ts",
     "context": {},
     "variables": {},
     "services": {},

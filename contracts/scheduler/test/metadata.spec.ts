@@ -30,7 +30,7 @@ describe('scheduler metadata', () => {
 
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
-  it('assert :: basic scheduler', () => testFile('service'));
+  it('assert :: static scheduler', () => testFile('static'));
   it('assert :: dynamic scheduler', () => testFile('dynamic'));
   it('assert :: target listener', () => testFile('listener'));
   it('assert :: target vpc', () => testFile('vpc'));

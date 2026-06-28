@@ -12,6 +12,7 @@
   "TestValidation": {
     "type": "@ez4/validation",
     "name": "TestValidation",
+    "file": "test/input/output-service.ts",
     "description": "Test validation service.",
     "context": {},
     "options": {},

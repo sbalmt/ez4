@@ -11,6 +11,8 @@
   },
   "TestService": {
     "type": "@ez4/http",
+    "file": "test/http/input/output-variables.ts",
+    "name": "TestService",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
@@ -21,7 +23,6 @@
         "reference": "@variables"
       }
     },
-    "name": "TestService",
     "routes": [
       {
         "path": "ANY /test-route",

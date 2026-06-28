@@ -9,6 +9,7 @@ export type FactoryService = Omit<ServiceMetadata, 'options' | 'variables' | 'se
   Required<Pick<ServiceMetadata, 'options' | 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     description?: string;
     handler: FactoryHandler;
   };
@@ -19,10 +20,11 @@ export const isFactoryService = (service: ServiceMetadata): service is FactorySe
   return service.type === ServiceType;
 };
 
-export const createFactoryService = (name: string, description?: string) => {
+export const createFactoryService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<FactoryService>(ServiceType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

@@ -12,10 +12,11 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "file": "test/http/input/output-listener.ts",
+    "description": "Service for testing route listener.",
     "context": {},
     "variables": {},
     "services": {},
-    "description": "Service for testing route listener.",
     "routes": [
       {
         "path": "ANY /test-route",

@@ -12,6 +12,7 @@
   "TestTopic": {
     "type": "@ez4/topic",
     "name": "TestTopic",
+    "file": "test/input/output-listener.ts",
     "context": {},
     "variables": {},
     "services": {},

@@ -12,6 +12,7 @@
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
+    "file": "test/input/output-vpc.ts",
     "context": {},
     "variables": {},
     "services": {},

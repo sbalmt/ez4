@@ -12,6 +12,7 @@
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",
+    "file": "test/input/output-message.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -55,6 +56,7 @@
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
+    "file": "test/input/output-message.ts",
     "context": {},
     "variables": {},
     "services": {},

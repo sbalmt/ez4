@@ -11,10 +11,11 @@
   },
   "TestService": {
     "type": "@ez4/http",
+    "name": "TestService",
+    "file": "test/http/input/output-errors.ts",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestService",
     "routes": [
       {
         "path": "GET /test-route-a",

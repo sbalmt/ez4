@@ -38,7 +38,7 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createFactoryService(declaration.name, getDeclarationDescription(declaration));
+    const service = createFactoryService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['handler']);
 
     for (const member of getModelMembers(declaration)) {

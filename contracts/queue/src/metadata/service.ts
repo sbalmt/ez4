@@ -48,7 +48,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createQueueService(declaration.name, getDeclarationDescription(declaration));
+    const service = createQueueService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'subscriptions']);
 
     for (const member of getModelMembers(declaration, true)) {

@@ -39,7 +39,7 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createValidationService(declaration.name, getDeclarationDescription(declaration));
+    const service = createValidationService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['handler', 'schema']);
 
     for (const member of getModelMembers(declaration, true)) {

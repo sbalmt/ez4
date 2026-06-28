@@ -45,7 +45,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createWsService(declaration.name, getDeclarationDescription(declaration));
+    const service = createWsService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
 
     for (const member of getModelMembers(declaration, true)) {

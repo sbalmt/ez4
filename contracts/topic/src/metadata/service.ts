@@ -42,7 +42,7 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createTopicService(declaration.name, getDeclarationDescription(declaration));
+    const service = createTopicService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'subscriptions']);
 
     for (const member of getModelMembers(declaration, true)) {

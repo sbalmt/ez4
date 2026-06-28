@@ -19,6 +19,7 @@ export type HttpDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSc
 export type HttpService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof HttpServiceType;
+    file?: string;
     displayName?: string;
     description?: string;
     defaults?: HttpDefaults;
@@ -30,6 +31,7 @@ export type HttpService = Omit<ServiceMetadata, 'variables' | 'services'> &
 
 export type HttpImport = ServiceMetadata & {
   type: typeof HttpImportType;
+  file?: string;
   reference: string;
   project: string;
   displayName?: string;
@@ -126,10 +128,11 @@ export const isHttpService = (service: ServiceMetadata): service is HttpService 
   return service.type === HttpServiceType;
 };
 
-export const createHttpService = (name: string, description?: string) => {
+export const createHttpService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<HttpService>(HttpServiceType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };
@@ -139,9 +142,10 @@ export const isHttpImport = (service: ServiceMetadata): service is HttpImport =>
   return service.type === HttpImportType;
 };
 
-export const createHttpImport = (name: string, description?: string) => {
+export const createHttpImport = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<HttpImport>(HttpImportType, name),
-    ...(description && { description })
+    ...(description && { description }),
+    ...(file && { file })
   };
 };

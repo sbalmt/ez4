@@ -2,6 +2,7 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
+    "file": "test/input/output-cors.ts",
     "context": {},
     "variables": {},
     "services": {},

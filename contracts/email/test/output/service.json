@@ -12,6 +12,7 @@
   "TestEmail": {
     "type": "@ez4/email",
     "name": "TestEmail",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {},

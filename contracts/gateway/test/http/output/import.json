@@ -11,11 +11,12 @@
   },
   "TestService": {
     "type": "@ez4/http",
+    "name": "TestService",
+    "file": "test/http/input/output-import.ts",
+    "displayName": "Remote API",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestService",
-    "displayName": "Remote API",
     "routes": [
       {
         "name": "testRoute",
@@ -50,9 +51,17 @@
   "TestImport": {
     "type": "@ez4/import:http",
     "name": "TestImport",
+    "file": "test/http/input/output-import.ts",
     "description": "Import API gateway.",
     "reference": "TestService",
+    "displayName": "Remote API",
+    "project": "name from project in ez4.project.js",
     "context": {},
+    "defaults": {
+      "preferences": {
+        "namingStyle": "preserve"
+      }
+    },
     "authorization": {
       "header": "x-custom-api",
       "type": "bearer",
@@ -82,13 +91,6 @@
           }
         }
       }
-    ],
-    "displayName": "Remote API",
-    "project": "name from project in ez4.project.js",
-    "defaults": {
-      "preferences": {
-        "namingStyle": "preserve"
-      }
-    }
+    ]
   }
 }

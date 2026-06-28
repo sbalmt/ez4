@@ -12,6 +12,7 @@
   "TestService": {
     "type": "@ez4/ws",
     "name": "TestService",
+    "file": "test/ws/input/output-variables.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

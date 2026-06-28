@@ -13,6 +13,7 @@ export type CronService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     schema?: CronEventSchema;
     description?: string;
     target: CronTarget;
@@ -53,10 +54,11 @@ export const isDynamicCronService = (service: CronService) => {
   return service.expression === DynamicExpression;
 };
 
-export const createCronService = (name: string, description?: string) => {
+export const createCronService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<CronService>(ServiceType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

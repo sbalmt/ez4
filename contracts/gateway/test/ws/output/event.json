@@ -12,6 +12,7 @@
   "TestService1": {
     "type": "@ez4/ws",
     "name": "TestService1",
+    "file": "test/ws/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -72,6 +73,7 @@
   "TestService2": {
     "type": "@ez4/ws",
     "name": "TestService2",
+    "file": "test/ws/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},

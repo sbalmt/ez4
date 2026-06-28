@@ -12,6 +12,7 @@
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",
+    "file": "test/input/output-service.ts",
     "description": "First test topic description.",
     "context": {},
     "variables": {},
@@ -41,6 +42,7 @@
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

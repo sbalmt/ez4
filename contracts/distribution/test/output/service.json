@@ -2,6 +2,7 @@
   "TestCdn": {
     "type": "@ez4/cdn",
     "name": "TestCdn",
+    "file": "test/input/output-service.ts",
     "context": {},
     "description": "Test distribution service.",
     "disabled": true,

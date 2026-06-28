@@ -2,18 +2,24 @@ import type { TopicService } from '@ez4/topic/library';
 
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { ManifestActionType } from '@ez4/project/library';
+import { arrayUnique } from '@ez4/utils';
 
 export namespace TopicManifest {
   export const build = (service: TopicService) => {
-    const sources = service.subscriptions.flatMap((subscriptions) => {
-      if (subscriptions.type !== TopicSubscriptionType.Lambda) {
-        return [];
-      }
+    const { subscriptions, schema, file } = service;
 
-      return {
-        file: subscriptions.handler.file
-      };
-    });
+    const sources = arrayUnique(
+      subscriptions.flatMap((subscriptions) => {
+        if (subscriptions.type === TopicSubscriptionType.Lambda) {
+          return subscriptions.handler.file;
+        }
+
+        return [];
+      }),
+      file ? [file] : []
+    ).map((file) => ({
+      file
+    }));
 
     return {
       actions: [
@@ -24,7 +30,7 @@ export namespace TopicManifest {
           path: '/',
           sources,
           request: {
-            body: service.schema
+            body: schema
           }
         }
       ]

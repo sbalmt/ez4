@@ -3,6 +3,7 @@ import type { HttpService } from '@ez4/gateway/library';
 
 import { getWithNamingStyle, SchemaType } from '@ez4/schema';
 import { ManifestActionType } from '@ez4/project/library';
+import { arrayUnique } from '@ez4/utils';
 
 const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
   HEAD: ManifestActionType.Head,
@@ -15,7 +16,7 @@ const METHOD_ACTION_TYPES: Record<string, ManifestActionType> = {
 
 export namespace HttpManifest {
   export const build = (service: HttpService) => {
-    const { defaults, routes } = service;
+    const { defaults, routes, file } = service;
 
     const defaultNamingStyle = defaults?.preferences?.namingStyle;
 
@@ -30,7 +31,7 @@ export namespace HttpManifest {
 
         const [method, endpoint] = path.split(' ', 2);
 
-        const sources = [handler, ...(authorizer ? [authorizer] : [])].map(({ file }) => ({
+        const sources = arrayUnique([handler.file], authorizer ? [authorizer.file] : [], file ? [file] : []).map((file) => ({
           file
         }));
 

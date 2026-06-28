@@ -12,6 +12,7 @@
   "TestTopic": {
     "type": "@ez4/topic",
     "name": "TestTopic",
+    "file": "test/input/output-subscriptions.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -79,6 +80,7 @@
   "TestOrderedQueue": {
     "type": "@ez4/queue",
     "name": "TestOrderedQueue",
+    "file": "test/input/output-subscriptions.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -99,6 +101,7 @@
   "TestUnorderedQueue": {
     "type": "@ez4/queue",
     "name": "TestUnorderedQueue",
+    "file": "test/input/output-subscriptions.ts",
     "context": {},
     "variables": {},
     "services": {},

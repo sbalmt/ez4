@@ -41,7 +41,7 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createBucketService(declaration.name, getDeclarationDescription(declaration));
+    const service = createBucketService(declaration.name, fileName, getDeclarationDescription(declaration));
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {

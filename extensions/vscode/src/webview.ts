@@ -52,15 +52,14 @@ const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
 
   actionType.textContent = action.type.toUpperCase();
 
-  const hasHeaders = setFieldsSchema(forms.headersForm, 'headers', request?.headers, currentState?.headers);
-  const hasParameters = setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, currentState?.parameters);
-  const hasQuery = setFieldsSchema(forms.queryForm, 'query', request?.query, currentState?.query);
-
-  tabs.actionParameters.hidden = !(hasHeaders || hasParameters || hasQuery);
   tabs.actionRequest.hidden = !request?.body || isEmptyObject(request.body);
 
-  setEditorSchema(editors.requestEditor, request?.body);
+  setFieldsSchema(forms.headersForm, 'headers', request?.headers, currentState?.headers);
+  setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, currentState?.parameters);
+  setFieldsSchema(forms.queryForm, 'query', request?.query, currentState?.query);
+
   setEditorSchema(editors.responseEditor, response?.body);
+  setEditorSchema(editors.requestEditor, request?.body);
 
   setSourceLinks(sourceLinks, action.sources, (path) => {
     vscode.postMessage({
@@ -95,11 +94,9 @@ const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
     });
   };
 
-  actionPath.textContent = action.path;
-
   setEditorValue(editors.requestEditor, currentState?.body);
 
-  getFirstTab()?.click();
+  actionPath.textContent = action.path;
 };
 
 const handleActionResults = ({ success, status, time, results }: WebviewResultsSignal) => {
