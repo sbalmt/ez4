@@ -8,7 +8,7 @@ export namespace CronManifest {
     const { target, schema, file } = service;
     const { handler } = target;
 
-    const sources = arrayUnique([handler.file], file ? [file] : []).map((file) => ({
+    const sources = arrayUnique([handler.file, file]).map((file) => ({
       file
     }));
 

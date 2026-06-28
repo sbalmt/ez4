@@ -9,14 +9,14 @@ export namespace TopicManifest {
     const { subscriptions, schema, file } = service;
 
     const sources = arrayUnique(
-      subscriptions.flatMap((subscriptions) => {
+      subscriptions.map((subscriptions) => {
         if (subscriptions.type === TopicSubscriptionType.Lambda) {
           return subscriptions.handler.file;
         }
 
-        return [];
+        return undefined;
       }),
-      file ? [file] : []
+      [file]
     ).map((file) => ({
       file
     }));

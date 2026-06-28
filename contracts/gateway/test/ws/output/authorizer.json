@@ -56,6 +56,7 @@
         ],
         "provider": {
           "name": "AuthorizerProvider",
+          "file": "test/ws/input/output-authorizer.ts",
           "services": {
             "selfClient": {
               "reference": "TestService"

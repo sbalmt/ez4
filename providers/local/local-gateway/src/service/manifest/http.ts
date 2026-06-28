@@ -31,9 +31,11 @@ export namespace HttpManifest {
 
         const [method, endpoint] = path.split(' ', 2);
 
-        const sources = arrayUnique([handler.file], authorizer ? [authorizer.file] : [], file ? [file] : []).map((file) => ({
-          file
-        }));
+        const sources = arrayUnique([handler.file, handler.provider?.file, authorizer?.file, authorizer?.provider?.file, file]).map(
+          (file) => ({
+            file
+          })
+        );
 
         return {
           path: endpoint,

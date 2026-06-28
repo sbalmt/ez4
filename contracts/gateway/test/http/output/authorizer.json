@@ -95,6 +95,7 @@
           ],
           "provider": {
             "name": "TestAuthProvider",
+            "file": "test/http/input/output-authorizer.ts",
             "services": {
               "selfClient": {
                 "reference": "TestService"

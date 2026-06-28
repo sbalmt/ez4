@@ -40,6 +40,7 @@
           "request": {},
           "provider": {
             "name": "TestService",
+            "file": "test/http/input/output-variables.ts",
             "services": {
               "selfSettings": {
                 "reference": "@variables"

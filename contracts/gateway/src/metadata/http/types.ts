@@ -1,10 +1,11 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { LinkedServices, LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AuthorizationType } from '../../services/http/authorization';
 import type { HttpPath } from '../../services/http/path';
 import type { AuthHandler } from '../auth/types';
+import type { WebProvider } from '../types';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -66,7 +67,7 @@ export type HttpResponse = {
 };
 
 export type HttpHandler = FunctionSignature & {
-  provider?: HttpProvider;
+  provider?: WebProvider;
   response: HttpResponse;
   request?: HttpRequest;
   isolated?: boolean;
@@ -116,12 +117,6 @@ export type HttpCors = {
   exposeHeaders?: string[];
   allowHeaders?: string[];
   maxAge?: number;
-};
-
-export type HttpProvider = {
-  name: string;
-  variables?: LinkedVariables;
-  services?: LinkedServices;
 };
 
 export const isHttpService = (service: ServiceMetadata): service is HttpService => {

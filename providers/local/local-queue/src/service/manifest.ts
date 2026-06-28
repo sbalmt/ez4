@@ -9,7 +9,7 @@ export namespace QueueManifest {
 
     const sources = arrayUnique(
       subscriptions.map(({ handler }) => handler.file),
-      file ? [file] : []
+      [file]
     ).map((file) => ({
       file
     }));
