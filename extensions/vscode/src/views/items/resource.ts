@@ -1,5 +1,3 @@
-import type { ActionTreeItem } from './action';
-
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode';
 
 import { toKebabCase } from '@ez4/utils';
@@ -7,7 +5,7 @@ import { toKebabCase } from '@ez4/utils';
 export class ResourceTreeItem extends TreeItem {
   constructor(
     label: string,
-    public readonly children?: ActionTreeItem[]
+    public readonly children?: TreeItem[]
   ) {
     super(toKebabCase(label), TreeItemCollapsibleState.Collapsed);
 

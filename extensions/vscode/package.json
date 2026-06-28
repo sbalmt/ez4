@@ -4,7 +4,7 @@
   "description": "Provide a seamless EZ4 development environment.",
   "icon": "media/icon.png",
   "publisher": "sbalmt",
-  "version": "0.1.0",
+  "version": "0.49.0",
   "author": "Silas B.",
   "license": "MIT",
   "private": true,
@@ -37,8 +37,25 @@
     "commands": [
       {
         "command": "ez4.manifests.refresh",
+        "enablement": "view == ez4.liveView || view == ez4.offlineView",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "ez4.actionItem.model",
+        "title": "Add Model",
+        "enablement": "view == ez4.liveView && viewItem == actionItem",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "ez4.modelItem.rename",
+        "enablement": "view == ez4.liveView && viewItem == modelItem",
+        "title": "Rename"
+      },
+      {
+        "command": "ez4.modelItem.delete",
+        "enablement": "view == ez4.liveView && viewItem == modelItem",
+        "title": "Delete Permanently"
       }
     ],
     "views": {
@@ -59,7 +76,24 @@
       "view/title": [
         {
           "command": "ez4.manifests.refresh",
-          "when": "view == ez4.offlineView || view == ez4.liveView",
+          "when": "view == ez4.liveView || view == ez4.offlineView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ez4.actionItem.model",
+          "when": "viewItem == actionItem",
+          "group": "inline"
+        },
+        {
+          "command": "ez4.modelItem.rename",
+          "when": "viewItem == modelItem",
+          "group": "navigation"
+        },
+        {
+          "command": "ez4.modelItem.delete",
+          "when": "viewItem == modelItem",
           "group": "navigation"
         }
       ]

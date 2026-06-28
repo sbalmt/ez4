@@ -1,6 +1,7 @@
 import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
+import type { ModelData } from '../services/models';
 
 export const enum SignalType {
   WebviewUpdate = 'wv-update',
@@ -19,7 +20,7 @@ export type AnyActionSignal = ReadySignal | StoreSignal | ShowSignal | RunSignal
 export type WebviewUpdateSignal = {
   type: SignalType.WebviewUpdate;
   action: ManifestAction<ObjectSchema>;
-  state?: AnyObject;
+  model?: ModelData;
 };
 
 export type WebviewResultSignal = {

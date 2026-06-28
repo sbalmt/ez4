@@ -1,8 +1,9 @@
 import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 
-export type RequestInput = {
+export type ActionInput = {
   host: string;
-  workspace: string;
+  location: string;
   action: ManifestAction<ObjectSchema>;
+  id: string;
 };

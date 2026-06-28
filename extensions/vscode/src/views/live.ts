@@ -1,20 +1,23 @@
-import type { TreeDataProvider } from 'vscode';
+import type { ExtensionContext, TreeDataProvider, TreeItem } from 'vscode';
 import type { WorkspaceManifest } from '../services/manifest';
 
 import { EventEmitter } from 'vscode';
 
+import { ActionUtils } from '../utils/action';
+import { ModelsService } from '../services/models';
 import { PlaceholderTreeItem } from './items/placeholder';
 import { LiveProjectTreeItem } from './items/project';
 import { ResourceTreeItem } from './items/resource';
 import { ActionTreeItem } from './items/action';
 import { GroupTreeItem } from './items/group';
-import { ActionUtils } from '../utils/action';
 
 export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderTreeItem;
 
 export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
   private eventEmitter = new EventEmitter<void>();
   private viewData?: WorkspaceManifest[];
+
+  constructor(private readonly context: ExtensionContext) {}
 
   onDidChangeTreeData = this.eventEmitter.event;
 
@@ -31,7 +34,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
       return [new PlaceholderTreeItem('No live projects found.')];
     }
 
-    const projectItems = this.viewData.map(({ project, workspace, manifest }) => {
+    const projectItems = this.viewData.map(({ project, location, manifest }) => {
       const serviceItems = [];
 
       for (const identifier in manifest) {
@@ -40,10 +43,16 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
         const serviceName = identifier.substring(project.length + 1);
         const actionGroup = ActionUtils.getGroups(actions);
 
-        const actionItems = Object.entries(actionGroup).flatMap(([label, actions]) => {
+        const actionItems = Object.entries(actionGroup).flatMap(([label, actions]): TreeItem | TreeItem[] => {
           actions.sort((a, b) => a.name.localeCompare(b.name));
 
-          const children = actions.map((action) => new ActionTreeItem(host, workspace, action));
+          const children = actions.map((action) => {
+            const actionId = ActionUtils.getId(host, action);
+
+            const models = ModelsService.getModels(this.context, actionId);
+
+            return new ActionTreeItem(host, location, action, models);
+          });
 
           if (label !== ActionUtils.DefaultGroup) {
             return new GroupTreeItem(label, children);
@@ -62,7 +71,10 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
   }
 
   refresh(manifests?: WorkspaceManifest[]) {
-    this.viewData = manifests?.filter(({ manifest }) => !!manifest);
+    if (manifests) {
+      this.viewData = manifests?.filter(({ manifest }) => !!manifest);
+    }
+
     this.eventEmitter.fire();
   }
 }

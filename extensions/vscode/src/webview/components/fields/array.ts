@@ -73,8 +73,9 @@ export namespace ArrayField {
     const inputs = createElement('div', { className: 'field-like field-group' }, [...AnyField.getInputElement(fieldName, schema), button]);
 
     button.onclick = () => {
-      removeElementId(elementId, list);
       inputs.remove();
+      removeElementId(elementId, list);
+      list.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
     container.append(inputs);

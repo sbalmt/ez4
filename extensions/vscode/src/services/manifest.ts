@@ -11,7 +11,7 @@ import { LoggerService } from './logger';
 
 export type WorkspaceManifest = {
   manifest?: Record<string, ServiceManifest<ObjectSchema>>;
-  workspace: string;
+  location: string;
   project: string;
 };
 
@@ -39,8 +39,8 @@ export namespace ManifestService {
       const manifest = await fetchProjectManifest(project, host, port);
 
       projects.push({
-        workspace: workspacePath,
         project,
+        location: workspacePath,
         manifest
       });
     });

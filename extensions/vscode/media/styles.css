@@ -39,6 +39,7 @@ textarea {
 
 input[type='radio'],
 input[type='checkbox'] {
+  outline: unset;
   width: unset;
 }
 

@@ -35,7 +35,10 @@ export class OfflineTreeView implements TreeDataProvider<OfflineTreeItem> {
   }
 
   refresh(manifests?: WorkspaceManifest[]) {
-    this.viewData = manifests?.filter(({ manifest }) => !manifest);
+    if (manifests) {
+      this.viewData = manifests?.filter(({ manifest }) => !manifest);
+    }
+
     this.eventEmitter.fire();
   }
 }

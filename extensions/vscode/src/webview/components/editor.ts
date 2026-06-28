@@ -64,9 +64,7 @@ export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: O
 };
 
 export const setEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
-  if (content) {
-    editor.setValue(content);
-  }
+  editor.setValue(content ?? '');
 
   resizeEditor(editor);
 };
