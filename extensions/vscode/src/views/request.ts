@@ -1,7 +1,7 @@
 import type { ManifestAction } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
-import type { ExtensionContext, Webview, WebviewPanel } from 'vscode';
+import type { ColorTheme, ExtensionContext, Webview, WebviewPanel } from 'vscode';
 import type { WorkspaceManifest } from '../services/manifest';
 import type { RunData, AnyActionSignal } from '../types/signals';
 import type { RequestInput } from '../types/request';
@@ -11,6 +11,7 @@ import { prepareRequestBody, prepareRequestUrl } from '@ez4/http';
 import { ThemeIcon, Uri, ViewColumn, window, workspace } from 'vscode';
 
 import { ActionUtils } from '../utils/action';
+import { getEditorTheme } from '../utils/theme';
 import { TemplateUtils } from '../utils/template';
 import { LoggerService } from '../services/logger';
 import { SignalType } from '../types/signals';
@@ -18,6 +19,19 @@ import { SignalType } from '../types/signals';
 const ALL_PANELS: Record<string, WebviewPanel | undefined> = {};
 
 export namespace RequestWebView {
+  let currentTheme = getEditorTheme(window.activeColorTheme);
+
+  export const theme = (theme: ColorTheme) => {
+    currentTheme = getEditorTheme(theme);
+
+    for (const currentId in ALL_PANELS) {
+      ALL_PANELS[currentId]?.webview.postMessage({
+        type: SignalType.WebviewTheme,
+        name: currentTheme
+      });
+    }
+  };
+
   export const open = (input: RequestInput, context: ExtensionContext) => {
     const { host, action } = input;
 
@@ -90,6 +104,7 @@ export namespace RequestWebView {
   };
 
   const update = (webview: Webview, action: ManifestAction<ObjectSchema>, state?: AnyObject) => {
+    webview.postMessage({ type: SignalType.WebviewTheme, name: currentTheme });
     webview.postMessage({ type: SignalType.WebviewUpdate, action, state });
   };
 
@@ -154,7 +169,7 @@ export namespace RequestWebView {
       }
 
       webview.postMessage({
-        type: SignalType.WebviewResults,
+        type: SignalType.WebviewResult,
         status: `${response.status} ${response.statusText}`,
         time: elapsed,
         success,
@@ -164,7 +179,7 @@ export namespace RequestWebView {
       logger.error(error);
 
       webview.postMessage({
-        type: SignalType.WebviewResults,
+        type: SignalType.WebviewResult,
         success: false,
         results: {
           error: error instanceof Error ? error.message : `${error}`

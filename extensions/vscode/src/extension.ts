@@ -28,6 +28,8 @@ export function activate(context: ExtensionContext) {
     liveView.refresh(manifests);
   });
 
+  window.onDidChangeActiveColorTheme((color) => RequestWebView.theme(color));
+
   context.subscriptions.push(commands.registerCommand('ez4.manifest.useAction', (input) => RequestWebView.open(input, context)));
   context.subscriptions.push(commands.registerCommand('ez4.manifests.refresh', () => manifests.refresh()));
 

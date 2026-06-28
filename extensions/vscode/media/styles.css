@@ -95,8 +95,9 @@ a:focus {
 .field-like select,
 .field-like input:is([type='text'], [type='number']),
 .field-like textarea {
-  height: 30px;
+  border-radius: 0;
   border: none;
+  height: 30px;
 }
 
 .field-like input:focus,

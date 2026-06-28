@@ -4,14 +4,15 @@ import type { AnyObject } from '@ez4/utils';
 
 export const enum SignalType {
   WebviewUpdate = 'wv-update',
-  WebviewResults = 'wv-results',
+  WebviewResult = 'wv-result',
+  WebviewTheme = 'wv-theme',
   Store = 'store',
   Ready = 'ready',
   Show = 'show',
   Run = 'run'
 }
 
-export type AnyWebviewSignal = WebviewUpdateSignal | WebviewResultsSignal;
+export type AnyWebviewSignal = WebviewUpdateSignal | WebviewResultSignal | WebviewThemeSignal;
 
 export type AnyActionSignal = ReadySignal | StoreSignal | ShowSignal | RunSignal;
 
@@ -21,12 +22,17 @@ export type WebviewUpdateSignal = {
   state?: AnyObject;
 };
 
-export type WebviewResultsSignal = {
-  type: SignalType.WebviewResults;
+export type WebviewResultSignal = {
+  type: SignalType.WebviewResult;
   success: boolean;
   results?: AnyObject;
   status?: string;
   time?: number;
+};
+
+export type WebviewThemeSignal = {
+  type: SignalType.WebviewTheme;
+  name: string;
 };
 
 export type ReadySignal = {

@@ -1,10 +1,10 @@
-import type { AnyActionSignal, AnyWebviewSignal, WebviewResultsSignal, WebviewUpdateSignal } from './types/signals';
+import type { AnyActionSignal, AnyWebviewSignal, WebviewResultSignal, WebviewUpdateSignal } from './types/signals';
 import type { RequestState } from './webview/types/state';
 
 import { isEmptyObject } from '@ez4/utils';
 
 import { getFirstTab } from './webview/components/tabs';
-import { getEditorJson, setEditorValue, setEditorSchema } from './webview/components/editor';
+import { getEditorJson, setEditorValue, setEditorSchema, setEditorTheme } from './webview/components/editor';
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
 import { setSourceLinks } from './webview/components/sources';
 import { registerLayout } from './webview/components/layout';
@@ -29,8 +29,13 @@ self.onmessage = ({ data }: MessageEvent<AnyWebviewSignal>) => {
       break;
     }
 
-    case SignalType.WebviewResults: {
+    case SignalType.WebviewResult: {
       handleActionResults(data);
+      break;
+    }
+
+    case SignalType.WebviewTheme: {
+      setEditorTheme(data.name);
       break;
     }
   }
@@ -99,7 +104,7 @@ const handleActionUpdate = ({ action, state }: WebviewUpdateSignal) => {
   actionPath.textContent = action.path;
 };
 
-const handleActionResults = ({ success, status, time, results }: WebviewResultsSignal) => {
+const handleActionResults = ({ success, status, time, results }: WebviewResultSignal) => {
   const { runAction, editors, badges, tabs } = elements;
 
   badges.responseTime.textContent = time ? formatTime(time) : '';

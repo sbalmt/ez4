@@ -85,6 +85,10 @@ export const getEditorJson = (editor: editor.IStandaloneCodeEditor) => {
   return undefined;
 };
 
+export const setEditorTheme = (name: string) => {
+  editor.setTheme(name);
+};
+
 const resizeEditor = (editor: editor.IStandaloneCodeEditor) => {
   const { verticalScrollbarWidth } = editor.getLayoutInfo();
   const { top, left } = editor.getContainerDomNode().getBoundingClientRect();
