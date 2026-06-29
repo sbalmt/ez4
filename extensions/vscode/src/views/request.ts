@@ -224,7 +224,7 @@ export namespace RequestWebView {
 
       const elapsed = Date.now() - start;
 
-      const results = await response.json();
+      const results = await response.text();
       const success = response.ok;
 
       if (!success) {

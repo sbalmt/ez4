@@ -32,7 +32,7 @@ export const registerEditors = () => {
 
   const responseEditor = editor.create(getElementById('div', 'response-viewer'), {
     ...EDITOR_OPTIONS,
-    placeholder: 'No request made yet...',
+    placeholder: 'No request made yet.',
     domReadOnly: true,
     readOnly: true
   });
@@ -64,9 +64,19 @@ export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: O
 };
 
 export const setEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
-  editor.setValue(content ?? '');
-
-  resizeEditor(editor);
+  try {
+    if (content) {
+      editor.setValue(JSON.stringify(JSON.parse(content), undefined, 2));
+    } else {
+      editor.updateOptions({ placeholder: 'Empty response.' });
+      editor.setValue('');
+    }
+  } catch (error) {
+    editor.setValue(content ?? '');
+    console.error(error);
+  } finally {
+    resizeEditor(editor);
+  }
 };
 
 export const getEditorJson = (editor: editor.IStandaloneCodeEditor) => {

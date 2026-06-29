@@ -26,7 +26,7 @@ export type WebviewUpdateSignal = {
 export type WebviewResultSignal = {
   type: SignalType.WebviewResult;
   success: boolean;
-  results?: AnyObject;
+  results?: string;
   status?: string;
   time?: number;
 };

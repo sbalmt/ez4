@@ -151,7 +151,7 @@ const handleActionResults = setUpdatingFunction(({ success, status, time, result
 
   tabs.actionResponse.click();
 
-  setEditorValue(editors.responseEditor, JSON.stringify(results, undefined, 2));
+  setEditorValue(editors.responseEditor, results);
 
   runAction.disabled = false;
 });
