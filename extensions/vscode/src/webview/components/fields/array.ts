@@ -61,6 +61,8 @@ export namespace ArrayField {
 
       appendNewElement(name, elementId, element, list, container);
       insertElementId(elementId, list);
+
+      list.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
     return [button, container, list];

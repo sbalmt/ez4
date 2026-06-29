@@ -95,6 +95,7 @@ export function activate(context: ExtensionContext) {
 
       if (choice === 'Delete') {
         ModelsService.deleteModel(context, item.parentItem.actionInput.id, item.modelInput.index);
+        RequestWebView.close(item.parentItem.actionInput, item.modelInput);
         liveView.refresh();
       }
     })

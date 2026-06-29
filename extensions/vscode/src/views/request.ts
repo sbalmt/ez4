@@ -79,6 +79,16 @@ export namespace RequestWebView {
     });
   };
 
+  export const close = (actionInput: ActionInput, modelInput?: ModelInput) => {
+    const { id } = actionInput;
+
+    if (ALL_PANELS[id] && ALL_PANELS[id].model?.index === modelInput?.index) {
+      ALL_PANELS[id].panel.dispose();
+
+      delete ALL_PANELS[id];
+    }
+  };
+
   export const refresh = (manifests: WorkspaceManifest[]) => {
     for (const { location, manifest } of manifests) {
       if (!manifest) {
