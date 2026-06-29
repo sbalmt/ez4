@@ -49,7 +49,8 @@ export namespace RequestWebView {
       webPanel.action = actionInput;
       webPanel.model = modelInput;
 
-      update(ALL_PANELS[id], context);
+      update(webPanel, context);
+
       return;
     }
 
@@ -94,12 +95,7 @@ export namespace RequestWebView {
 
           const { panel, model } = ALL_PANELS[id];
 
-          ALL_PANELS[id].action = {
-            action,
-            location,
-            host,
-            id
-          };
+          ALL_PANELS[id].action = { action, location, host, id };
 
           panel.webview.postMessage({
             type: SignalType.WebviewUpdate,
@@ -159,7 +155,7 @@ export namespace RequestWebView {
 
     webview.postMessage({
       type: SignalType.WebviewUpdate,
-      model: model ?? context.workspaceState.get(id),
+      model: model ?? context.workspaceState.get(id) ?? { data: {} },
       action
     });
   };

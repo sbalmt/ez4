@@ -9,7 +9,7 @@ export class ModelTreeItem extends TreeItem {
 
   constructor(
     public readonly parentItem: ActionTreeItem,
-    index: number,
+    index: string,
     model: ModelData
   ) {
     super(model.name, TreeItemCollapsibleState.None);

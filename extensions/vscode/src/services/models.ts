@@ -1,50 +1,50 @@
 import type { AnyObject } from '@ez4/utils';
 import type { ExtensionContext } from 'vscode';
 
+import { getRandomUUID } from '@ez4/utils';
+
 export type ModelData = {
   name: string;
   data: AnyObject;
 };
 
 export namespace ModelsService {
+  type ModelDataMap = Record<string, ModelData>;
+
   const getKey = (id: string) => {
     return `${id}_models`;
   };
 
   export const getModels = (context: ExtensionContext, id: string) => {
-    return context.workspaceState.get<(ModelData | null)[]>(getKey(id)) || [];
+    const models = context.workspaceState.get<ModelDataMap>(getKey(id)) || {};
+
+    return Object.entries(models).map(([index, model]) => ({ index, model }));
   };
 
   export const createModel = (context: ExtensionContext, id: string, input: ModelData) => {
     const key = getKey(id);
 
-    const models = context.workspaceState.get<ModelData[]>(key) || [];
+    const models = context.workspaceState.get<ModelDataMap>(key) || {};
 
-    const index = models.findIndex((model) => !model);
+    const index = getRandomUUID();
 
-    const model = {
+    const model = (models[index] = {
       name: input.name,
       data: input.data
-    };
-
-    if (index > -1) {
-      models[index] = model;
-    } else {
-      models.push(model);
-    }
+    });
 
     context.workspaceState.update(key, models);
 
     return {
-      index: models.length,
-      model: input
+      model,
+      index
     };
   };
 
-  export const updateModel = (context: ExtensionContext, id: string, index: number, input: Partial<ModelData>) => {
+  export const updateModel = (context: ExtensionContext, id: string, index: string, input: Partial<ModelData>) => {
     const key = getKey(id);
 
-    const models = context.workspaceState.get<ModelData[]>(key) || [];
+    const models = context.workspaceState.get<ModelDataMap>(key) || {};
 
     if (models[index]) {
       models[index] = { ...models[index], ...input };
@@ -53,10 +53,10 @@ export namespace ModelsService {
     }
   };
 
-  export const deleteModel = (context: ExtensionContext, id: string, index: number) => {
+  export const deleteModel = (context: ExtensionContext, id: string, index: string) => {
     const key = getKey(id);
 
-    const models = context.workspaceState.get<ModelData[]>(key) || [];
+    const models = context.workspaceState.get<ModelDataMap>(key) || {};
 
     delete models[index];
 

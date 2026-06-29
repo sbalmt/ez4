@@ -80,6 +80,12 @@ export function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
+    commands.registerCommand('ez4.modelItem.select', (item: ModelTreeItem) => {
+      RequestWebView.open(context, item.parentItem.actionInput, item.modelInput);
+    })
+  );
+
+  context.subscriptions.push(
     commands.registerCommand('ez4.modelItem.delete', async (item: ModelTreeItem) => {
       const choice = await window.showWarningMessage(
         `Are you sure you want to permanently delete '${item.modelInput.model.name}'?`,
@@ -108,12 +114,6 @@ export function activate(context: ExtensionContext) {
 
         liveView.refresh();
       }
-    })
-  );
-
-  context.subscriptions.push(
-    commands.registerCommand('ez4.modelItem.select', (item: ModelTreeItem) => {
-      RequestWebView.open(context, item.parentItem.actionInput, item.modelInput);
     })
   );
 

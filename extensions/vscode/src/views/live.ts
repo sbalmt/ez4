@@ -51,6 +51,8 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
 
             const models = ModelsService.getModels(this.context, actionId);
 
+            models.sort(({ model: a }, { model: b }) => a.name.localeCompare(b.name));
+
             return new ActionTreeItem(host, location, action, models);
           });
 
