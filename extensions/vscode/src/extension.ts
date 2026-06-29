@@ -42,9 +42,9 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(logger);
 
   manifests.onDidChange((manifests) => {
-    liveView.refresh(manifests);
-    RequestWebView.refresh(manifests);
+    RequestWebView.refresh(context, manifests);
     offlineView.refresh(manifests);
+    liveView.refresh(manifests);
   });
 
   context.subscriptions.push(

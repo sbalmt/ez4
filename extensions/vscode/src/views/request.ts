@@ -89,7 +89,7 @@ export namespace RequestWebView {
     }
   };
 
-  export const refresh = (manifests: WorkspaceManifest[]) => {
+  export const refresh = (context: ExtensionContext, manifests: WorkspaceManifest[]) => {
     for (const { location, manifest } of manifests) {
       if (!manifest) {
         continue;
@@ -103,15 +103,9 @@ export namespace RequestWebView {
             continue;
           }
 
-          const { panel, model } = ALL_PANELS[id];
-
           ALL_PANELS[id].action = { action, location, host, id };
 
-          panel.webview.postMessage({
-            type: SignalType.WebviewUpdate,
-            action,
-            model
-          });
+          update(ALL_PANELS[id], context);
         }
       });
     }
