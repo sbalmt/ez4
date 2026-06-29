@@ -15,7 +15,7 @@ export class ActionTreeItem extends TreeItem {
 
   public readonly actionInput: ActionInput;
 
-  constructor(host: string, location: string, action: ManifestAction<ObjectSchema>, models: ModelData[]) {
+  constructor(host: string, location: string, action: ManifestAction<ObjectSchema>, models: (ModelData | null)[]) {
     super(toKebabCase(action.name), models.length ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
 
     this.iconPath = new ThemeIcon('run', new ThemeColor('debugIcon.startForeground'));
@@ -29,8 +29,12 @@ export class ActionTreeItem extends TreeItem {
       action
     };
 
-    this.children = models.map((model, index) => {
-      return new ModelTreeItem(this, index, model);
+    this.children = models.flatMap((model, index) => {
+      return model ? new ModelTreeItem(this, index, model) : [];
+    });
+
+    this.children.sort(({ modelInput: a }, { modelInput: b }) => {
+      return a.model.name.localeCompare(b.model.name);
     });
 
     this.command = {

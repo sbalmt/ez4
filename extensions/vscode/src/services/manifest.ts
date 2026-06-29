@@ -5,7 +5,7 @@ import { basename, dirname } from 'node:path';
 import { workspace } from 'vscode';
 
 import { tryLoadProject } from '@ez4/project/library';
-import { sortObject, toKebabCase } from '@ez4/utils';
+import { sortObject } from '@ez4/utils';
 
 import { LoggerService } from './logger';
 
@@ -29,17 +29,15 @@ export namespace ManifestService {
 
       logger.debug(`Project found at:`, workspacePath);
 
-      const { prefix = 'ez4', projectName, serveOptions } = await tryLoadProject(projectFile, workspacePath);
-
-      const project = toKebabCase(`${prefix}-${projectName}`);
+      const { projectName, serveOptions } = await tryLoadProject(projectFile, workspacePath);
 
       const host = serveOptions?.localHost ?? 'localhost';
       const port = serveOptions?.localPort ?? 3734;
 
-      const manifest = await fetchProjectManifest(project, host, port);
+      const manifest = await fetchProjectManifest(projectName, host, port);
 
       projects.push({
-        project,
+        project: projectName,
         location: workspacePath,
         manifest
       });

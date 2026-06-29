@@ -10,6 +10,7 @@ import { LiveProjectTreeItem } from './items/project';
 import { ResourceTreeItem } from './items/resource';
 import { ActionTreeItem } from './items/action';
 import { GroupTreeItem } from './items/group';
+import { ModelTreeItem } from './items/model';
 
 export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderTreeItem;
 
@@ -37,10 +38,9 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
     const projectItems = this.viewData.map(({ project, location, manifest }) => {
       const serviceItems = [];
 
-      for (const identifier in manifest) {
-        const { host, actions } = manifest[identifier];
+      for (const serviceName in manifest) {
+        const { host, actions } = manifest[serviceName];
 
-        const serviceName = identifier.substring(project.length + 1);
         const actionGroup = ActionUtils.getGroups(actions);
 
         const actionItems = Object.entries(actionGroup).flatMap(([label, actions]): TreeItem | TreeItem[] => {
@@ -68,6 +68,14 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
     });
 
     return projectItems;
+  }
+
+  getParent(element: TreeItem): ActionTreeItem | undefined {
+    if (element instanceof ModelTreeItem) {
+      return element.parentItem;
+    }
+
+    return undefined;
   }
 
   refresh(manifests?: WorkspaceManifest[]) {

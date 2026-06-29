@@ -94,14 +94,16 @@ export namespace RequestWebView {
 
           const { panel, model } = ALL_PANELS[id];
 
+          ALL_PANELS[id].action = {
+            action,
+            location,
+            host,
+            id
+          };
+
           panel.webview.postMessage({
             type: SignalType.WebviewUpdate,
-            action: (ALL_PANELS[id].action = {
-              action,
-              location,
-              host,
-              id
-            }),
+            action,
             model
           });
         }

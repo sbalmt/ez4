@@ -7,7 +7,7 @@ import { toKebabCase } from '@ez4/utils';
 export class LiveProjectTreeItem extends TreeItem {
   constructor(
     label: string,
-    public readonly children?: ResourceTreeItem[]
+    public readonly children: ResourceTreeItem[]
   ) {
     super(toKebabCase(label), TreeItemCollapsibleState.Expanded);
 

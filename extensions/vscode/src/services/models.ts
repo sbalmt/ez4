@@ -12,7 +12,7 @@ export namespace ModelsService {
   };
 
   export const getModels = (context: ExtensionContext, id: string) => {
-    return context.workspaceState.get<ModelData[]>(getKey(id)) || [];
+    return context.workspaceState.get<(ModelData | null)[]>(getKey(id)) || [];
   };
 
   export const createModel = (context: ExtensionContext, id: string, input: ModelData) => {
@@ -20,12 +20,25 @@ export namespace ModelsService {
 
     const models = context.workspaceState.get<ModelData[]>(key) || [];
 
-    models.push({
+    const index = models.findIndex((model) => !model);
+
+    const model = {
       name: input.name,
       data: input.data
-    });
+    };
+
+    if (index > -1) {
+      models[index] = model;
+    } else {
+      models.push(model);
+    }
 
     context.workspaceState.update(key, models);
+
+    return {
+      index: models.length,
+      model: input
+    };
   };
 
   export const updateModel = (context: ExtensionContext, id: string, index: number, input: Partial<ModelData>) => {
@@ -45,7 +58,7 @@ export namespace ModelsService {
 
     const models = context.workspaceState.get<ModelData[]>(key) || [];
 
-    models.splice(index, 1);
+    delete models[index];
 
     context.workspaceState.update(key, models);
   };
