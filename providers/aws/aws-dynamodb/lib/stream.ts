@@ -136,7 +136,7 @@ const transformRecord = (input: AnyObject, schema: ObjectSchema) => {
   return record as AnyObject;
 };
 
-const onBegin = async (request: Database.Request) => {
+const onBegin = (request: Partial<Database.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -146,7 +146,7 @@ const onBegin = async (request: Database.Request) => {
   );
 };
 
-const onReady = async (request: Database.Incoming<Database.Schema>) => {
+const onReady = (request: Partial<Database.Incoming<Database.Schema>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -156,7 +156,7 @@ const onReady = async (request: Database.Incoming<Database.Schema>) => {
   );
 };
 
-const onDone = async (request: Database.Incoming<Database.Schema>) => {
+const onDone = (request: Partial<Database.Incoming<Database.Schema>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -166,7 +166,7 @@ const onDone = async (request: Database.Incoming<Database.Schema>) => {
   );
 };
 
-const onError = async (error: unknown, request: Database.Request | Database.Incoming<Database.Schema>) => {
+const onError = (error: unknown, request: Partial<Database.Request | Database.Incoming<Database.Schema>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -179,7 +179,7 @@ const onError = async (error: unknown, request: Database.Request | Database.Inco
   );
 };
 
-const onEnd = async (request: Database.Request) => {
+const onEnd = (request: Partial<Database.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

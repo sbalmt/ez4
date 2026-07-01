@@ -8,7 +8,7 @@ import { getRandomUUID } from '@ez4/utils';
 declare const __EZ4_CONTEXT: object;
 
 declare function dispatch(event: Bucket.ServiceEvent, context: object): Promise<void>;
-declare function handle(event: Bucket.Event, context: object): Promise<any>;
+declare function handle(event: Bucket.Request, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle S3 events.
@@ -66,7 +66,7 @@ const getKnownEventType = (eventName: string) => {
   throw new Error(`Event type ${eventName} isn't supported.`);
 };
 
-const onBegin = async (request: Bucket.Request) => {
+const onBegin = (request: Partial<Bucket.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -76,7 +76,7 @@ const onBegin = async (request: Bucket.Request) => {
   );
 };
 
-const onReady = async (request: Bucket.Incoming) => {
+const onReady = (request: Partial<Bucket.Incoming>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -86,7 +86,7 @@ const onReady = async (request: Bucket.Incoming) => {
   );
 };
 
-const onDone = async (request: Bucket.Incoming) => {
+const onDone = (request: Partial<Bucket.Incoming>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -96,7 +96,7 @@ const onDone = async (request: Bucket.Incoming) => {
   );
 };
 
-const onError = async (error: unknown, request: Bucket.Request | Bucket.Incoming) => {
+const onError = (error: unknown, request: Partial<Bucket.Request | Bucket.Incoming>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -109,7 +109,7 @@ const onError = async (error: unknown, request: Bucket.Request | Bucket.Incoming
   );
 };
 
-const onEnd = async (request: Bucket.Request) => {
+const onEnd = (request: Partial<Bucket.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

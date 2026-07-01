@@ -46,7 +46,7 @@ export async function eventEntryPoint(payload: AnyObject | null, context: Contex
   }
 }
 
-const onBegin = async (request: Cron.Incoming<Cron.Event | null>) => {
+const onBegin = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -56,7 +56,7 @@ const onBegin = async (request: Cron.Incoming<Cron.Event | null>) => {
   );
 };
 
-const onReady = async (request: Cron.Incoming<Cron.Event | null>) => {
+const onReady = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -66,7 +66,7 @@ const onReady = async (request: Cron.Incoming<Cron.Event | null>) => {
   );
 };
 
-const onDone = async (request: Cron.Incoming<Cron.Event | null>) => {
+const onDone = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -76,7 +76,7 @@ const onDone = async (request: Cron.Incoming<Cron.Event | null>) => {
   );
 };
 
-const onError = async (error: unknown, request: Cron.Incoming<Cron.Event | null>) => {
+const onError = (error: unknown, request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -89,7 +89,7 @@ const onError = async (error: unknown, request: Cron.Incoming<Cron.Event | null>
   );
 };
 
-const onEnd = async (request: Cron.Incoming<Cron.Event | null>) => {
+const onEnd = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

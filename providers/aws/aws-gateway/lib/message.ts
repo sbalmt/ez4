@@ -162,7 +162,7 @@ const onCustomValidation = (value: unknown, context: ValidationCustomContext) =>
   return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
-const onBegin = async (request: Ws.Incoming<Ws.Request>) => {
+const onBegin = (request: Partial<Ws.Incoming<Ws.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -172,7 +172,7 @@ const onBegin = async (request: Ws.Incoming<Ws.Request>) => {
   );
 };
 
-const onReady = async (request: Ws.Incoming<Ws.Request>) => {
+const onReady = (request: Partial<Ws.Incoming<Ws.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -182,7 +182,7 @@ const onReady = async (request: Ws.Incoming<Ws.Request>) => {
   );
 };
 
-const onDone = async (request: Ws.Incoming<Ws.Request>) => {
+const onDone = (request: Partial<Ws.Incoming<Ws.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -192,7 +192,7 @@ const onDone = async (request: Ws.Incoming<Ws.Request>) => {
   );
 };
 
-const onError = async (error: unknown, request: Ws.Incoming<Ws.Request>) => {
+const onError = (error: unknown, request: Partial<Ws.Incoming<Ws.Request>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -205,7 +205,7 @@ const onError = async (error: unknown, request: Ws.Incoming<Ws.Request>) => {
   );
 };
 
-const onEnd = async (request: Ws.Incoming<Ws.Request>) => {
+const onEnd = (request: Partial<Ws.Incoming<Ws.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.End,
