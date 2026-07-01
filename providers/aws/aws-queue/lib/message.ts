@@ -28,7 +28,9 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   }
 
   const request = {
-    requestId: context.awsRequestId
+    requestId: context.awsRequestId,
+    maxRetries: __EZ4_MAX_RETRIES,
+    attempt: Number.NaN
   };
 
   try {
@@ -71,6 +73,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
 
       currentRequest = {
         ...request,
+        attempt: Number(record.attributes.ApproximateReceiveCount),
         traceId,
         message
       };
@@ -136,7 +139,7 @@ const retryMessage = async (record: SQSRecord) => {
   const { messageId, receiptHandle, attributes } = record;
 
   try {
-    const retryCount = Number(attributes.ApproximateReceiveCount) || 1;
+    const retryCount = Number(attributes.ApproximateReceiveCount);
     const retryDelay = Wait.delay(retryCount, __EZ4_MAX_RETRIES, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
 
     await client.send(
@@ -159,7 +162,7 @@ const onCustomValidation = (value: unknown, context: ValidationCustomContext) =>
   return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
-const onBegin = async (request: Queue.Request) => {
+const onBegin = async (request: Partial<Queue.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -202,7 +205,7 @@ const onError = async (error: unknown, request: Queue.Request | Queue.Incoming<Q
   );
 };
 
-const onEnd = async (request: Queue.Request) => {
+const onEnd = async (request: Partial<Queue.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,
