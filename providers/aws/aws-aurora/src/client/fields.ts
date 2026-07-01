@@ -1,4 +1,4 @@
-import type { SqlParameter } from '@aws-sdk/client-rds-data';
+import type { SqlParameter, Field, ArrayValue, ColumnMetadata } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
@@ -195,4 +195,74 @@ const getStringFieldData = (name: string, value: string, format?: string): SqlPa
     default:
       return getTextFieldData(name, value);
   }
+};
+
+export const mapResultRecords = (records: Field[][], columns: ColumnMetadata[]): Record<string, unknown>[] => {
+  const names = columns.map(({ label, name }) => label ?? name ?? '');
+
+  return records.map((record) => {
+    const result: Record<string, unknown> = {};
+
+    for (let index = 0; index < names.length; index++) {
+      result[names[index]] = readFieldValue(record[index]);
+    }
+
+    return result;
+  });
+};
+
+const readFieldValue = (field: Field): unknown => {
+  if (field.isNull) {
+    return null;
+  }
+
+  if (field.stringValue !== undefined) {
+    return field.stringValue;
+  }
+
+  if (field.longValue !== undefined) {
+    return field.longValue;
+  }
+
+  if (field.doubleValue !== undefined) {
+    return field.doubleValue;
+  }
+
+  if (field.booleanValue !== undefined) {
+    return field.booleanValue;
+  }
+
+  if (field.arrayValue !== undefined) {
+    return readArrayValue(field.arrayValue);
+  }
+
+  if (field.blobValue !== undefined) {
+    return field.blobValue;
+  }
+
+  return null;
+};
+
+const readArrayValue = (array: ArrayValue): unknown[] => {
+  if (array.stringValues !== undefined) {
+    return array.stringValues;
+  }
+
+  if (array.longValues !== undefined) {
+    return array.longValues;
+  }
+
+  if (array.doubleValues !== undefined) {
+    return array.doubleValues;
+  }
+
+  if (array.booleanValues !== undefined) {
+    return array.booleanValues;
+  }
+
+  if (array.arrayValues !== undefined) {
+    return array.arrayValues.map(readArrayValue);
+  }
+
+  return [];
 };

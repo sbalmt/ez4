@@ -1,6 +1,7 @@
 import type { PgClientDriver, PgExecuteOptions, PgExecuteStatement } from '@ez4/pgclient';
 import type { AnySchema } from '@ez4/schema';
 import type { Arn } from '@ez4/aws-common';
+import type { AnyObject } from '@ez4/utils';
 
 import {
   RDSDataClient,
@@ -8,7 +9,6 @@ import {
   RollbackTransactionCommand,
   CommitTransactionCommand,
   ExecuteStatementCommand,
-  RecordsFormatType,
   DecimalReturnType,
   LongReturnType
 } from '@aws-sdk/client-rds-data';
@@ -18,7 +18,7 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 
-import { detectFieldData, prepareFieldData } from '../fields';
+import { detectFieldData, prepareFieldData, mapResultRecords } from '../fields';
 import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
 import { logQueryError, logQuerySuccess } from '../logger';
 
@@ -41,10 +41,10 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
-        const { formattedRecords, numberOfRecordsUpdated } = await client.send(
+        const { records, columnMetadata, numberOfRecordsUpdated } = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            formatRecordsAs: RecordsFormatType.JSON,
+            includeResultMetadata: true,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,
@@ -60,26 +60,26 @@ export class ApiClientDriver implements PgClientDriver {
           logQuerySuccess(statement, transactionId);
         }
 
-        if (!formattedRecords) {
+        if (!records || !columnMetadata) {
           return {
             rows: numberOfRecordsUpdated,
             records: []
           };
         }
 
-        const records = JSON.parse(formattedRecords);
+        const objectRecords = mapResultRecords(records, columnMetadata);
         const metadata = statement.metadata;
 
         if (metadata) {
           return {
-            records: parseRecords(records, metadata),
+            records: parseRecords(objectRecords, metadata) as AnyObject[],
             rows: numberOfRecordsUpdated
           };
         }
 
         return {
           rows: numberOfRecordsUpdated,
-          records
+          records: objectRecords
         };
       });
     } catch (error) {
