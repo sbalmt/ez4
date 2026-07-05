@@ -54,8 +54,14 @@ export function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand('ez4.actionItem.open', (item: ActionTreeItem) => {
+    commands.registerCommand('ez4.actionItem.open', async (item: ActionTreeItem) => {
       RequestWebView.open(context, item.actionInput);
+
+      const firstModelItem = item.children[0];
+
+      if (firstModelItem) {
+        await liveViewTree.reveal(firstModelItem);
+      }
     })
   );
 
