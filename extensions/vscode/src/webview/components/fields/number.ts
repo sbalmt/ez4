@@ -21,9 +21,11 @@ export namespace NumberField {
   };
 
   export const setInputState = (name: string, schema: NumberSchema, form: HTMLFormElement, state?: AnyObject) => {
-    const value = state?.[name] ?? schema.definitions?.default ?? NaN;
+    const value = state?.[name] ?? schema.definitions?.default ?? '';
 
-    getInput(name, form).value = value;
+    if (!isAnyNumber(schema.definitions?.value)) {
+      getInput(name, form).value = value;
+    }
   };
 
   export const getInputElement = (name: string, schema: NumberSchema) => {

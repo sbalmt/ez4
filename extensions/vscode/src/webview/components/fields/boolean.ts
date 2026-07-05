@@ -21,9 +21,9 @@ export namespace BooleanField {
   };
 
   export const setInputState = (name: string, schema: BooleanSchema, form: HTMLFormElement, state?: AnyObject) => {
-    const value = state?.[name] ?? schema.definitions?.default;
+    const value = state?.[name] ?? schema.definitions?.default ?? '';
 
-    getInput(name, form).value = value;
+    getInput(name, form).value = value.toString();
   };
 
   export const getInputElement = (name: string, schema: BooleanSchema) => {

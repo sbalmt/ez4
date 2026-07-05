@@ -38,12 +38,16 @@ export namespace ArrayField {
 
     const { element } = schema;
 
-    list.value = state?.[name];
+    const elementIds = state?.[name];
 
-    for (const elementId of unpackElementIds(list.value)) {
-      const fieldName = appendNewElement(name, Number(elementId), element, list, container);
+    if (elementIds) {
+      list.value = elementIds;
 
-      self.requestAnimationFrame(() => AnyField.setInputState(fieldName, element, form, state));
+      for (const elementId of unpackElementIds(list.value)) {
+        const fieldName = appendNewElement(name, Number(elementId), element, list, container);
+
+        self.requestAnimationFrame(() => AnyField.setInputState(fieldName, element, form, state));
+      }
     }
   };
 

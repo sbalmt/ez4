@@ -23,7 +23,9 @@ export namespace StringField {
   export const setInputState = (name: string, schema: StringSchema, form: HTMLFormElement, state?: AnyObject) => {
     const value = state?.[name] ?? schema.definitions?.default ?? '';
 
-    getInput(name, form).value = value;
+    if (!isAnyString(schema.definitions?.value)) {
+      getInput(name, form).value = value;
+    }
   };
 
   export const getInputElement = (name: string, schema: StringSchema) => {
