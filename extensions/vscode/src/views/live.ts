@@ -16,7 +16,7 @@ export type LiveTreeItem = LiveProjectTreeItem | ResourceTreeItem | PlaceholderT
 
 export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
   private eventEmitter = new EventEmitter<void>();
-  private viewData?: WorkspaceManifest[];
+  private viewData?: Required<WorkspaceManifest>[];
 
   constructor(private readonly context: ExtensionContext) {}
 
@@ -35,25 +35,26 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
       return [new PlaceholderTreeItem('No live projects found.')];
     }
 
-    const projectItems = this.viewData.map(({ project, location, manifest }) => {
+    const projectItems = this.viewData.map(({ name, location, project }) => {
       const serviceItems = [];
 
-      for (const serviceName in manifest) {
-        const { host, actions } = manifest[serviceName];
+      for (const serviceName in project.services) {
+        const service = project.services[serviceName];
 
-        const actionGroup = ActionUtils.getGroups(actions);
+        const actionGroup = ActionUtils.getGroups(service.actions);
+        const actionHost = ActionUtils.getHost(project, service);
 
         const actionItems = Object.entries(actionGroup).flatMap(([label, actions]): TreeItem | TreeItem[] => {
           actions.sort((a, b) => a.name.localeCompare(b.name));
 
           const children = actions.map((action) => {
-            const actionId = ActionUtils.getId(host, action);
+            const actionId = ActionUtils.getId(project, action);
 
             const models = ModelsService.getModels(this.context, actionId);
 
             models.sort(({ model: a }, { model: b }) => a.name.localeCompare(b.name));
 
-            return new ActionTreeItem(host, location, action, models);
+            return new ActionTreeItem(actionId, actionHost, location, action, models);
           });
 
           if (label !== ActionUtils.DefaultGroup) {
@@ -66,7 +67,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
         serviceItems.push(new ResourceTreeItem(serviceName, actionItems));
       }
 
-      return new LiveProjectTreeItem(project, serviceItems);
+      return new LiveProjectTreeItem(name, serviceItems);
     });
 
     return projectItems;
@@ -82,7 +83,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
 
   refresh(manifests?: WorkspaceManifest[]) {
     if (manifests) {
-      this.viewData = manifests?.filter(({ manifest }) => !!manifest);
+      this.viewData = manifests?.filter((manifest): manifest is Required<WorkspaceManifest> => !!manifest.project);
     }
 
     this.eventEmitter.fire();

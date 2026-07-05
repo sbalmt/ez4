@@ -36,7 +36,19 @@ export type ManifestSource = {
 
 export type ServiceManifest<T extends AnyObject> = {
   actions: ManifestAction<T>[];
+  type: string;
+  path: string;
+};
+
+export type ProjectManifest<T extends AnyObject> = {
   host: string;
+  identifier: string;
+  services: Record<string, ServiceManifest<T>>;
+  settings: {
+    prefix: string;
+    branch: string;
+    name: string;
+  };
 };
 
 export type EmulatorServiceManifest<T extends AnyObject> = {

@@ -1,4 +1,4 @@
-import type { ServiceManifest } from '@ez4/project/library';
+import type { ProjectManifest } from '@ez4/project/library';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { basename, dirname } from 'node:path';
@@ -10,9 +10,9 @@ import { sortObject } from '@ez4/utils';
 import { LoggerService } from './logger';
 
 export type WorkspaceManifest = {
-  manifest?: Record<string, ServiceManifest<ObjectSchema>>;
+  project?: ProjectManifest<ObjectSchema>;
   location: string;
-  project: string;
+  name: string;
 };
 
 export namespace ManifestService {
@@ -34,21 +34,21 @@ export namespace ManifestService {
       const host = serveOptions?.localHost ?? 'localhost';
       const port = serveOptions?.localPort ?? 3734;
 
-      const manifest = await fetchProjectManifest(projectName, host, port);
+      const project = await fetchProjectManifest(projectName, host, port);
 
       projects.push({
-        project: projectName,
+        name: project ? project.identifier : projectName,
         location: workspacePath,
-        manifest
+        project
       });
     });
 
     await Promise.all(allOperations);
 
     projects.sort((a, b) => {
-      if ((!a.manifest && !b.manifest) || (a.manifest && b.manifest)) {
-        return a.project.localeCompare(b.project);
-      } else if (a.manifest) {
+      if ((!a.project && !b.project) || (a.project && b.project)) {
+        return a.name.localeCompare(b.name);
+      } else if (a.project) {
         return -1;
       } else {
         return 1;
@@ -71,9 +71,11 @@ export namespace ManifestService {
       if (!response.ok) {
         logger.error(`Project ${project} unavailable:`, `status ${response.status}`);
       } else {
-        const manifest = (await response.json()) as Record<string, ServiceManifest<ObjectSchema>>;
+        const project = (await response.json()) as ProjectManifest<ObjectSchema>;
 
-        return sortObject(manifest);
+        sortObject(project.services);
+
+        return project;
       }
     } catch (error) {
       logger.warn(`Project ${project} unavailable:`, error);

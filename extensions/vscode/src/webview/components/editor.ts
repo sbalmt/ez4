@@ -58,12 +58,23 @@ export const registerEditors = () => {
   };
 };
 
+export const setEditorTheme = (name: string) => {
+  editor.setTheme(name);
+};
+
 export const setEditorSchema = (editor: editor.IStandaloneCodeEditor, schema?: ObjectSchema) => {
   registerEditorDocumentation(editor, schema);
   registerEditorSuggestions(editor, schema);
 };
 
-export const setEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
+export const clearResponseEditor = (editor: editor.IStandaloneCodeEditor) => {
+  editor.updateOptions({ placeholder: 'No request made yet.' });
+  editor.setValue('');
+
+  resizeEditor(editor);
+};
+
+export const setResponseEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
   try {
     if (content) {
       editor.setValue(JSON.stringify(JSON.parse(content), undefined, 2));
@@ -79,7 +90,13 @@ export const setEditorValue = (editor: editor.IStandaloneCodeEditor, content?: s
   }
 };
 
-export const getEditorJson = (editor: editor.IStandaloneCodeEditor) => {
+export const setRequestEditorValue = (editor: editor.IStandaloneCodeEditor, content?: string) => {
+  editor.setValue(content ?? '');
+
+  resizeEditor(editor);
+};
+
+export const getRequestEditorJson = (editor: editor.IStandaloneCodeEditor) => {
   try {
     const content = stripJsonComments(editor.getValue());
 
@@ -93,11 +110,11 @@ export const getEditorJson = (editor: editor.IStandaloneCodeEditor) => {
   return undefined;
 };
 
-export const setEditorTheme = (name: string) => {
-  editor.setTheme(name);
-};
-
 const resizeEditor = (editor: editor.IStandaloneCodeEditor) => {
+  if (editor.hasTextFocus()) {
+    return;
+  }
+
   const { verticalScrollbarWidth } = editor.getLayoutInfo();
   const { top, left } = editor.getContainerDomNode().getBoundingClientRect();
 

@@ -1,11 +1,15 @@
-import type { ManifestAction } from '@ez4/project/library';
+import type { ManifestAction, ServiceManifest, ProjectManifest } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { hashData, sortObject } from '@ez4/utils';
 
 export namespace ActionUtils {
-  export const getId = <T extends AnyObject>(host: string, action: ManifestAction<T>) => {
-    return hashData(host, action.name);
+  export const getId = <T extends AnyObject>(project: ProjectManifest<T>, action: ManifestAction<T>) => {
+    return hashData(project.settings.name, action.name);
+  };
+
+  export const getHost = <T extends AnyObject>(project: ProjectManifest<T>, service: ServiceManifest<T>) => {
+    return `${project.host}${service.path}`;
   };
 
   export const DefaultGroup = '*';

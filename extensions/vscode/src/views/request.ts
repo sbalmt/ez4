@@ -90,20 +90,25 @@ export namespace RequestWebView {
   };
 
   export const refresh = (context: ExtensionContext, manifests: WorkspaceManifest[]) => {
-    for (const { location, manifest } of manifests) {
-      if (!manifest) {
+    for (const { location, project } of manifests) {
+      if (!project) {
         continue;
       }
 
-      Object.values(manifest).forEach(({ host, actions }) => {
-        for (const action of actions) {
-          const id = ActionUtils.getId(host, action);
+      Object.values(project.services).forEach((service) => {
+        for (const action of service.actions) {
+          const id = ActionUtils.getId(project, action);
 
           if (!ALL_PANELS[id]) {
             continue;
           }
 
-          ALL_PANELS[id].action = { action, location, host, id };
+          ALL_PANELS[id].action = {
+            host: ActionUtils.getHost(project, service),
+            location,
+            action,
+            id
+          };
 
           update(ALL_PANELS[id], context);
         }

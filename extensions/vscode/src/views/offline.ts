@@ -27,8 +27,8 @@ export class OfflineTreeView implements TreeDataProvider<OfflineTreeItem> {
       return [new PlaceholderTreeItem('No offline projects found.')];
     }
 
-    const projectItems = this.viewData.map(({ project }) => {
-      return new OfflineProjectTreeItem(project, `Project ${project} is unavailable.`);
+    const projectItems = this.viewData.map(({ name }) => {
+      return new OfflineProjectTreeItem(name, `Project ${name} is unavailable.`);
     });
 
     return projectItems;
@@ -36,7 +36,7 @@ export class OfflineTreeView implements TreeDataProvider<OfflineTreeItem> {
 
   refresh(manifests?: WorkspaceManifest[]) {
     if (manifests) {
-      this.viewData = manifests?.filter(({ manifest }) => !manifest);
+      this.viewData = manifests?.filter(({ project }) => !project);
     }
 
     this.eventEmitter.fire();

@@ -1,10 +1,9 @@
 import type { AnyActionSignal, AnyWebviewSignal, WebviewResultSignal, WebviewUpdateSignal } from './types/signals';
 import type { RequestState } from './webview/types/state';
 
-import { isEmptyObject } from '@ez4/utils';
+import { deepEqual, isEmptyObject } from '@ez4/utils';
 
 import { getFirstTab } from './webview/components/tabs';
-import { getEditorJson, setEditorValue, setEditorSchema, setEditorTheme } from './webview/components/editor';
 import { getFieldsPayload, setFieldsSchema } from './webview/components/fields';
 import { setSourceLinks } from './webview/components/sources';
 import { registerLayout } from './webview/components/layout';
@@ -13,9 +12,21 @@ import { formatTime } from './webview/utils/time';
 import { formatPath } from './webview/utils/path';
 import { SignalType } from './types/signals';
 
+import {
+  setEditorSchema,
+  setEditorTheme,
+  clearResponseEditor,
+  setResponseEditorValue,
+  getRequestEditorJson,
+  setRequestEditorValue
+} from './webview/components/editor';
+
 const vscode = acquireVsCodeApi<AnyActionSignal, RequestState>();
 const elements = registerLayout();
-const global = { updating: false };
+
+const global = {
+  updating: false
+};
 
 self.onload = () => {
   vscode.postMessage({
@@ -92,7 +103,7 @@ const handleActionUpdate = setUpdatingFunction(({ action, model }: WebviewUpdate
   setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, currentState?.parameters);
   setFieldsSchema(forms.queryForm, 'query', request?.query, currentState?.query);
 
-  setEditorValue(editors.requestEditor, currentState?.body);
+  setRequestEditorValue(editors.requestEditor, currentState?.body);
 
   setEditorSchema(editors.responseEditor, response?.body);
   setEditorSchema(editors.requestEditor, request?.body);
@@ -103,6 +114,11 @@ const handleActionUpdate = setUpdatingFunction(({ action, model }: WebviewUpdate
       path
     });
   });
+
+  if (localState && currentState && !deepEqual(localState, currentState)) {
+    clearResponseEditor(editors.responseEditor);
+    getFirstTab()?.click();
+  }
 
   if (localState) {
     updatePath(action);
@@ -130,8 +146,10 @@ const handleActionUpdate = setUpdatingFunction(({ action, model }: WebviewUpdate
       headers: getFieldsPayload(forms.headersForm, 'headers', request?.headers),
       parameters: getFieldsPayload(forms.parametersForm, 'parameters', request?.parameters),
       query: getFieldsPayload(forms.queryForm, 'query', request?.query),
-      body: getEditorJson(editors.requestEditor)
+      body: getRequestEditorJson(editors.requestEditor)
     };
+
+    saveCurrentState();
 
     vscode.postMessage({
       type: SignalType.Run,
@@ -151,7 +169,7 @@ const handleActionResults = setUpdatingFunction(({ success, status, time, result
 
   tabs.actionResponse.click();
 
-  setEditorValue(editors.responseEditor, results);
+  setResponseEditorValue(editors.responseEditor, results);
 
   runAction.disabled = false;
 });
