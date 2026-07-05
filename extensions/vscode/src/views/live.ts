@@ -64,7 +64,7 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
           return children;
         });
 
-        serviceItems.push(new ResourceTreeItem(serviceName, actionItems));
+        serviceItems.push(new ResourceTreeItem(serviceName, service.type, actionItems));
       }
 
       return new LiveProjectTreeItem(name, serviceItems);
