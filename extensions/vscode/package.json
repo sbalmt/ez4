@@ -1,6 +1,6 @@
 {
-  "name": "ez4-vscode",
-  "displayName": "EZ4",
+  "name": "vscode-ez4",
+  "displayName": "EZ4 Development",
   "description": "Provide a seamless EZ4 development environment.",
   "icon": "media/icon.png",
   "publisher": "sbalmt",
