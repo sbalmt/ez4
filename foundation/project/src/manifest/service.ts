@@ -1,7 +1,7 @@
+import type { ProjectManifest, ServiceManifest } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from '../emulator/service';
 import type { ServeOptions } from '../types/options';
-import type { ProjectManifest, ServiceManifest } from './types';
 
 import { getServiceName } from '../utils/service';
 

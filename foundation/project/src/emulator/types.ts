@@ -1,6 +1,6 @@
+import type { EmulatorServiceManifest } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedService, ServiceMetadata } from '../types/service';
-import type { EmulatorServiceManifest } from '../manifest/types';
 import type { ServeOptions } from '../types/options';
 
 export type EmulatorExportHandler = (options: AnyObject) => unknown;

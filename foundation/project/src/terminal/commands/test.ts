@@ -1,7 +1,6 @@
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
-import { Tester } from '@ez4/project/library';
 
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
@@ -13,6 +12,7 @@ import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
 import { loadPaths } from '../../config/tsconfig';
+import { Tester } from '../../emulator/tester';
 
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
