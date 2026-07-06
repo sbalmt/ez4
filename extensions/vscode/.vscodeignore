@@ -6,7 +6,7 @@
 !README.md
 !LICENSE
 
-!assets/**
+!images/**
 !media/**
 
 !dist/editor.worker.js
