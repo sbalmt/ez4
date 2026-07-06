@@ -7,7 +7,7 @@ import type { Http } from '@ez4/gateway';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime, ServiceError } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 import {
@@ -237,7 +237,10 @@ const getMappedErrorResponse = (error: Error) => {
   return getDefaultErrorResponse({
     status: statusCode,
     message: error.message,
-    name: errorName
+    name: errorName,
+    ...(error instanceof ServiceError && {
+      context: error.context
+    })
   });
 };
 
