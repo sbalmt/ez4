@@ -8,7 +8,6 @@ import {
   RollbackTransactionCommand,
   CommitTransactionCommand,
   ExecuteStatementCommand,
-  RecordsFormatType,
   DecimalReturnType,
   LongReturnType
 } from '@aws-sdk/client-rds-data';
@@ -18,7 +17,7 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 
-import { detectFieldData, prepareFieldData } from '../fields';
+import { detectFieldData, prepareFieldData, parseFieldRecords } from '../fields';
 import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
 import { logQueryError, logQuerySuccess } from '../logger';
 
@@ -41,10 +40,10 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
-        const { formattedRecords, numberOfRecordsUpdated } = await client.send(
+        const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            formatRecordsAs: RecordsFormatType.JSON,
+            includeResultMetadata: true,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,
@@ -56,18 +55,20 @@ export class ApiClientDriver implements PgClientDriver {
           })
         );
 
+        const { records: rawRecords, columnMetadata, numberOfRecordsUpdated } = result;
+
         if (options?.debug || Runtime.isDebug()) {
           logQuerySuccess(statement, transactionId);
         }
 
-        if (!formattedRecords) {
+        if (!rawRecords || !columnMetadata) {
           return {
             rows: numberOfRecordsUpdated,
             records: []
           };
         }
 
-        const records = JSON.parse(formattedRecords);
+        const records = parseFieldRecords(rawRecords, columnMetadata);
         const metadata = statement.metadata;
 
         if (metadata) {
