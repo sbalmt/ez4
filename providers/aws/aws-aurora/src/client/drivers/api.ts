@@ -18,7 +18,7 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 
-import { detectFieldData, prepareFieldData, mapResultRecords } from '../fields';
+import { detectFieldData, prepareFieldData, parseFieldRecords } from '../fields';
 import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
 import { logQueryError, logQuerySuccess } from '../logger';
 
@@ -67,7 +67,7 @@ export class ApiClientDriver implements PgClientDriver {
           };
         }
 
-        const objectRecords = mapResultRecords(records, columnMetadata);
+        const objectRecords = parseFieldRecords(records, columnMetadata);
         const metadata = statement.metadata;
 
         if (metadata) {

@@ -1,5 +1,6 @@
 import type { SqlParameter, Field, ArrayValue, ColumnMetadata } from '@aws-sdk/client-rds-data';
 import type { AnySchema } from '@ez4/schema';
+import type { AnyObject } from '@ez4/utils';
 
 import { TypeHint } from '@aws-sdk/client-rds-data';
 import { UnsupportedFieldTypeError, isJsonFieldSchema } from '@ez4/pgclient';
@@ -79,6 +80,20 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
     default:
       throw new UnsupportedFieldTypeError(name, typeof value);
   }
+};
+
+export const parseFieldRecords = (records: Field[][], columns: ColumnMetadata[]): AnyObject[] => {
+  const names = columns.map(({ label, name }) => label ?? name ?? '');
+
+  return records.map((record) => {
+    const result: AnyObject = {};
+
+    for (let index = 0; index < names.length; index++) {
+      result[names[index]] = readFieldValue(record[index]);
+    }
+
+    return result;
+  });
 };
 
 const getBooleanFieldData = (name: string, value: boolean): SqlParameter => {
@@ -197,47 +212,31 @@ const getStringFieldData = (name: string, value: string, format?: string): SqlPa
   }
 };
 
-export const mapResultRecords = (records: Field[][], columns: ColumnMetadata[]): Record<string, unknown>[] => {
-  const names = columns.map(({ label, name }) => label ?? name ?? '');
-
-  return records.map((record) => {
-    const result: Record<string, unknown> = {};
-
-    for (let index = 0; index < names.length; index++) {
-      result[names[index]] = readFieldValue(record[index]);
+const readFieldValue = (field: Field): unknown => {
+  if (!field.isNull) {
+    if (field.stringValue !== undefined) {
+      return field.stringValue;
     }
 
-    return result;
-  });
-};
+    if (field.longValue !== undefined) {
+      return field.longValue;
+    }
 
-const readFieldValue = (field: Field): unknown => {
-  if (field.isNull) {
-    return null;
-  }
+    if (field.doubleValue !== undefined) {
+      return field.doubleValue;
+    }
 
-  if (field.stringValue !== undefined) {
-    return field.stringValue;
-  }
+    if (field.booleanValue !== undefined) {
+      return field.booleanValue;
+    }
 
-  if (field.longValue !== undefined) {
-    return field.longValue;
-  }
+    if (field.arrayValue !== undefined) {
+      return readArrayValue(field.arrayValue);
+    }
 
-  if (field.doubleValue !== undefined) {
-    return field.doubleValue;
-  }
-
-  if (field.booleanValue !== undefined) {
-    return field.booleanValue;
-  }
-
-  if (field.arrayValue !== undefined) {
-    return readArrayValue(field.arrayValue);
-  }
-
-  if (field.blobValue !== undefined) {
-    return field.blobValue;
+    if (field.blobValue !== undefined) {
+      return field.blobValue;
+    }
   }
 
   return null;
