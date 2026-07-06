@@ -76,7 +76,7 @@ const notUpdatingFunction = <T>(callback: (...parameters: T[]) => void) => {
   };
 };
 
-const updatePath = (action: WebviewUpdateSignal['action']) => {
+const updateRequestPath = (action: WebviewUpdateSignal['action']) => {
   const { forms, actionPath } = elements;
   const { request } = action;
 
@@ -103,6 +103,8 @@ const handleActionUpdate = setUpdatingFunction(({ action, model }: WebviewUpdate
   setFieldsSchema(forms.parametersForm, 'parameters', request?.parameters, currentState?.parameters);
   setFieldsSchema(forms.queryForm, 'query', request?.query, currentState?.query);
 
+  updateRequestPath(action);
+
   setRequestEditorValue(editors.requestEditor, currentState?.body);
 
   setEditorSchema(editors.responseEditor, response?.body);
@@ -120,42 +122,37 @@ const handleActionUpdate = setUpdatingFunction(({ action, model }: WebviewUpdate
     getFirstTab()?.click();
   }
 
-  if (localState) {
-    updatePath(action);
-    return;
-  }
-
-  actionPath.textContent = action.path;
-
-  actionPath.onclick = () => {
-    getFirstTab()?.click();
-  };
-
-  forms.parametersForm.oninput = () => {
-    updatePath(action);
-  };
-
-  editors.requestEditor.onDidChangeModelContent(() => {
-    saveCurrentState();
-  });
-
-  runAction.onclick = () => {
-    runAction.disabled = true;
-
-    const payload = {
-      headers: getFieldsPayload(forms.headersForm, 'headers', request?.headers),
-      parameters: getFieldsPayload(forms.parametersForm, 'parameters', request?.parameters),
-      query: getFieldsPayload(forms.queryForm, 'query', request?.query),
-      body: getRequestEditorJson(editors.requestEditor)
+  if (!localState) {
+    actionPath.onclick = () => {
+      getFirstTab()?.click();
     };
 
-    saveCurrentState();
+    forms.parametersForm.oninput = () => {
+      updateRequestPath(action);
+    };
 
-    vscode.postMessage({
-      type: SignalType.Run,
-      data: payload
+    editors.requestEditor.onDidChangeModelContent(() => {
+      saveCurrentState();
     });
-  };
+
+    runAction.onclick = () => {
+      runAction.disabled = true;
+
+      const payload = {
+        headers: getFieldsPayload(forms.headersForm, 'headers', request?.headers),
+        parameters: getFieldsPayload(forms.parametersForm, 'parameters', request?.parameters),
+        query: getFieldsPayload(forms.queryForm, 'query', request?.query),
+        body: getRequestEditorJson(editors.requestEditor)
+      };
+
+      saveCurrentState();
+
+      vscode.postMessage({
+        type: SignalType.Run,
+        data: payload
+      });
+    };
+  }
 });
 
 const handleActionResults = setUpdatingFunction(({ success, status, time, results }: WebviewResultSignal) => {
