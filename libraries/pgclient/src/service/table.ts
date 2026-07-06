@@ -222,8 +222,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records } = await this.sendStatement(statement);
 
-    const [{ __EZ4_COUNT }] = records;
+    const [result] = records;
 
-    return Number(__EZ4_COUNT);
+    return Number(result?.__EZ4_COUNT) || 0;
   }
 }

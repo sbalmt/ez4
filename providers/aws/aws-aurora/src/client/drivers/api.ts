@@ -1,7 +1,6 @@
 import type { PgClientDriver, PgExecuteOptions, PgExecuteStatement } from '@ez4/pgclient';
 import type { AnySchema } from '@ez4/schema';
 import type { Arn } from '@ez4/aws-common';
-import type { AnyObject } from '@ez4/utils';
 
 import {
   RDSDataClient,
@@ -41,7 +40,7 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
-        const { records, columnMetadata, numberOfRecordsUpdated } = await client.send(
+        const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
             includeResultMetadata: true,
@@ -56,30 +55,32 @@ export class ApiClientDriver implements PgClientDriver {
           })
         );
 
+        const { records: rawRecords, columnMetadata, numberOfRecordsUpdated } = result;
+
         if (options?.debug || Runtime.isDebug()) {
           logQuerySuccess(statement, transactionId);
         }
 
-        if (!records || !columnMetadata) {
+        if (!rawRecords || !columnMetadata) {
           return {
             rows: numberOfRecordsUpdated,
             records: []
           };
         }
 
-        const objectRecords = parseFieldRecords(records, columnMetadata);
+        const records = parseFieldRecords(rawRecords, columnMetadata);
         const metadata = statement.metadata;
 
         if (metadata) {
           return {
-            records: parseRecords(objectRecords, metadata) as AnyObject[],
+            records: parseRecords(records, metadata),
             rows: numberOfRecordsUpdated
           };
         }
 
         return {
           rows: numberOfRecordsUpdated,
-          records: objectRecords
+          records
         };
       });
     } catch (error) {
