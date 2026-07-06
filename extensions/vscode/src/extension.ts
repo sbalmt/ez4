@@ -60,7 +60,7 @@ export function activate(context: ExtensionContext) {
       const firstModelItem = item.children[0];
 
       if (firstModelItem) {
-        await liveViewTree.reveal(firstModelItem);
+        await liveViewTree.reveal(firstModelItem, { select: false, focus: false });
       }
     })
   );

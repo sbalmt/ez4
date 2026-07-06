@@ -4,8 +4,8 @@ import type { AnyObject } from '@ez4/utils';
 import { hashData, sortObject } from '@ez4/utils';
 
 export namespace ActionUtils {
-  export const getId = <T extends AnyObject>(project: ProjectManifest<T>, action: ManifestAction<T>) => {
-    return hashData(project.settings.name, action.name);
+  export const getId = <T extends AnyObject>(project: ProjectManifest<T>, serviceName: string, action: ManifestAction<T>) => {
+    return hashData(project.settings.name, serviceName, action.name);
   };
 
   export const getHost = <T extends AnyObject>(project: ProjectManifest<T>, service: ServiceManifest<T>) => {

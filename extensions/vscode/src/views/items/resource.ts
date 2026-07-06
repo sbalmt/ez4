@@ -2,12 +2,7 @@ import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode';
 
 import { toKebabCase } from '@ez4/utils';
 
-const RESOURCE_ICONS: Record<string, string> = {
-  Database: 'database',
-  Gateway: 'globe',
-  Scheduler: 'clock',
-  Topic: 'broadcast'
-};
+import { getResourceIcon } from '../../utils/icon';
 
 export class ResourceTreeItem extends TreeItem {
   constructor(
@@ -17,6 +12,6 @@ export class ResourceTreeItem extends TreeItem {
   ) {
     super(toKebabCase(label), TreeItemCollapsibleState.Collapsed);
 
-    this.iconPath = new ThemeIcon(RESOURCE_ICONS[type] ?? 'symbol-constant');
+    this.iconPath = new ThemeIcon(getResourceIcon(type) ?? 'symbol-constant');
   }
 }

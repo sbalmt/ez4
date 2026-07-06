@@ -83,7 +83,7 @@ export const setResponseEditorValue = (editor: editor.IStandaloneCodeEditor, con
       editor.setValue('');
     }
   } catch (error) {
-    editor.setValue(content ?? '');
+    editor.setValue(content?.toString() ?? '');
     console.error(error);
   } finally {
     resizeEditor(editor);

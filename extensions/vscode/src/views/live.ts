@@ -48,13 +48,13 @@ export class LiveTreeView implements TreeDataProvider<LiveTreeItem> {
           actions.sort((a, b) => a.name.localeCompare(b.name));
 
           const children = actions.map((action) => {
-            const actionId = ActionUtils.getId(project, action);
+            const actionId = ActionUtils.getId(project, serviceName, action);
 
             const models = ModelsService.getModels(this.context, actionId);
 
             models.sort(({ model: a }, { model: b }) => a.name.localeCompare(b.name));
 
-            return new ActionTreeItem(actionId, actionHost, location, action, models);
+            return new ActionTreeItem(serviceName, actionId, actionHost, action, location, models);
           });
 
           if (label !== ActionUtils.DefaultGroup) {

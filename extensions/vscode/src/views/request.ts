@@ -95,9 +95,9 @@ export namespace RequestWebView {
         continue;
       }
 
-      Object.values(project.services).forEach((service) => {
+      Object.entries(project.services).forEach(([serviceName, service]) => {
         for (const action of service.actions) {
-          const id = ActionUtils.getId(project, action);
+          const id = ActionUtils.getId(project, serviceName, action);
 
           if (!ALL_PANELS[id]) {
             continue;
@@ -105,6 +105,7 @@ export namespace RequestWebView {
 
           ALL_PANELS[id].action = {
             host: ActionUtils.getHost(project, service),
+            service: serviceName,
             location,
             action,
             id
@@ -149,13 +150,13 @@ export namespace RequestWebView {
   };
 
   const update = (webPanel: RequestWebPanel, context: ExtensionContext) => {
-    const { id, action } = webPanel.action;
+    const { id, service, action } = webPanel.action;
     const { panel } = webPanel;
     const { webview } = panel;
 
     const model = webPanel.model?.model;
 
-    panel.title = model?.name ? `${model.name}: ${action.name}` : action.name;
+    panel.title = `${model?.name ?? service}: ${action.name}`;
 
     webview.postMessage({
       type: SignalType.WebviewTheme,
@@ -251,9 +252,9 @@ export namespace RequestWebView {
       webview.postMessage({
         type: SignalType.WebviewResult,
         success: false,
-        results: {
+        results: JSON.stringify({
           error: error instanceof Error ? error.message : `${error}`
-        }
+        })
       });
     }
   };

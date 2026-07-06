@@ -14,7 +14,7 @@ export class ActionTreeItem extends TreeItem {
 
   public readonly actionInput: ActionInput;
 
-  constructor(id: string, host: string, location: string, action: ManifestAction<ObjectSchema>, models: ModelInput[]) {
+  constructor(service: string, id: string, host: string, action: ManifestAction<ObjectSchema>, location: string, models: ModelInput[]) {
     super(toKebabCase(action.name), models.length ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
 
     this.iconPath = new ThemeIcon('run', new ThemeColor('debugIcon.startForeground'));
@@ -23,6 +23,7 @@ export class ActionTreeItem extends TreeItem {
 
     this.actionInput = {
       id,
+      service,
       location,
       action,
       host
