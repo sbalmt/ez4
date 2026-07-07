@@ -1,6 +1,7 @@
 import type { String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
+import type { ItemTagType } from '../../schemas/item';
 import type { Api } from '../../api';
 
 import { HttpNotFoundError } from '@ez4/gateway';
@@ -10,7 +11,7 @@ import { readItem } from '../repository';
 declare class ReadItemRequest implements Http.Request {
   parameters: {
     /**
-     * Item Id.
+     * @description Item Id.
      */
     id: String.UUID;
   };
@@ -21,24 +22,44 @@ declare class ReadItemResponse implements Http.Response {
 
   body: {
     /**
-     * Item name.
+     * @description Item name.
      */
     name: string;
 
     /**
-     * Item description.
+     * @description Item description.
      */
     description?: string;
 
     /**
-     * Item category name.
+     * @description Item category name.
      */
     category_name?: string;
 
     /**
-     * Item category description.
+     * @description Item category description.
      */
     category_description?: string;
+
+    /**
+     * @description Item order.
+     */
+    order?: number;
+
+    /**
+     * @description Item tags.
+     */
+    tags?: {
+      /**
+       * @description Item tag label.
+       */
+      label: string;
+
+      /**
+       * @description Item tag type.
+       */
+      type: ItemTagType;
+    }[];
   };
 }
 
@@ -49,8 +70,8 @@ declare class ReadItemResponse implements Http.Response {
  * @summary Read item details.
  */
 export async function readItemHandler(request: Http.Incoming<ReadItemRequest>, context: Service.Context<Api>): Promise<ReadItemResponse> {
-  const { auroraDb } = context;
   const { id } = request.parameters;
+  const { auroraDb } = context;
 
   const item = await readItem(auroraDb, id);
 
@@ -64,7 +85,9 @@ export async function readItemHandler(request: Http.Incoming<ReadItemRequest>, c
       name: item.name,
       description: item.description,
       category_name: item.category?.name,
-      category_description: item.category?.description
+      category_description: item.category?.description,
+      order: item.order,
+      tags: item.tags
     }
   };
 }

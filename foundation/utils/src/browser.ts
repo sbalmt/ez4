@@ -4,6 +4,8 @@ export * from './common/check';
 export * from './common/generics';
 export * from './common/object';
 
+export * from './encoding/base64';
+
 export * from './system/tasks';
 
 export * from './array/check';
@@ -25,6 +27,7 @@ export * from './object/clone';
 export * from './object/merge';
 export * from './object/empty';
 export * from './object/size';
+export * from './object/sort';
 
 export * from './boolean/check';
 

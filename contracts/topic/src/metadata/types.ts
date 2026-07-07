@@ -12,6 +12,7 @@ export type TopicService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     description?: string;
     schema: TopicMessageSchema;
     subscriptions: TopicSubscription[];
@@ -22,6 +23,7 @@ export type TopicImport = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ImportType;
     name: string;
+    file?: string;
     reference: string;
     project: string;
     description?: string;
@@ -71,10 +73,11 @@ export const isTopicService = (service: ServiceMetadata): service is TopicServic
   return service.type === ServiceType;
 };
 
-export const createTopicService = (name: string, description?: string) => {
+export const createTopicService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<TopicService>(ServiceType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };
@@ -84,10 +87,11 @@ export const isTopicImport = (service: ServiceMetadata): service is TopicImport 
   return service.type === ImportType;
 };
 
-export const createTopicImport = (name: string, description?: string) => {
+export const createTopicImport = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<TopicImport>(ImportType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

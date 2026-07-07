@@ -12,6 +12,7 @@
   "TestUnorderedQueue": {
     "type": "@ez4/queue",
     "name": "TestUnorderedQueue",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -35,6 +36,7 @@
   "TestOrderedQueue": {
     "type": "@ez4/queue",
     "name": "TestOrderedQueue",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -55,6 +57,7 @@
   "TestImport1Queue": {
     "type": "@ez4/import:queue",
     "name": "TestImport1Queue",
+    "file": "test/input/output-import.ts",
     "description": "Import queue assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestUnorderedQueue",
@@ -94,6 +97,7 @@
   "TestImport2Queue": {
     "type": "@ez4/import:queue",
     "name": "TestImport2Queue",
+    "file": "test/input/output-import.ts",
     "description": "Import queue with no assigned handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestOrderedQueue",

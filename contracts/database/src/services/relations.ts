@@ -70,8 +70,9 @@ type MergeRelations<
   T extends DatabaseTable<TableSchema>[],
   C extends DatabaseTable<TableSchema>[],
   S extends Record<string, TableSchema>,
-  I extends Record<string, TableIndexes>
-> = IsArrayEmpty<C> extends false ? ExtractRelations<T, C[0], S, I> & MergeRelations<T, ArrayRest<C>, S, I> : {};
+  I extends Record<string, TableIndexes>,
+  A = {}
+> = IsArrayEmpty<C> extends false ? MergeRelations<T, ArrayRest<C>, S, I, A & ExtractRelations<T, C[0], S, I>> : A;
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.

@@ -41,7 +41,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createCronService(declaration.name, getDeclarationDescription(declaration));
+    const service = createCronService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['target', 'expression']);
 
     for (const member of getModelMembers(declaration, true)) {

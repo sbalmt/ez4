@@ -2,8 +2,9 @@ import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library'
 import type { HttpClient, HttpClientRequest, Http } from '@ez4/gateway';
 import type { CommonOptions } from '@ez4/project/library';
 
-import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
+import { sendClientRequest } from '@ez4/gateway/utils';
 import { getServiceName } from '@ez4/project/library';
+import { prepareRequestUrl } from '@ez4/http';
 import { isAnyString } from '@ez4/utils';
 import { HttpError } from '@ez4/gateway';
 import { Logger } from '@ez4/logger';
@@ -38,7 +39,7 @@ export const createHttpServiceClient = <T extends Http.Service>(
         return async (request: HttpClientRequest) => {
           const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
-          const requestUrl = getClientRequestUrl(gatewayHost, path, {
+          const requestUrl = prepareRequestUrl(gatewayHost, path, {
             ...request,
             querySchema,
             namingStyle

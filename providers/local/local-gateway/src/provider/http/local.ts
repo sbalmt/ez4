@@ -6,13 +6,14 @@ import { getClientOperations } from '@ez4/gateway/library';
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
+import { HttpManifest } from '../../service/manifest/http';
 import { processHttpRequest } from '../../handlers/http/request';
 import { processHttpAuthorization } from '../../handlers/http/authorizer';
 import { createHttpServiceClient } from '../../client/http/service';
 import { getHttpErrorResponse } from '../../utils/http/response';
 import { getMatchingRoute } from '../../utils/route';
 
-export const registerHttpLocalServices = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerHttpLocalService = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: resourceName } = service;
 
   const httpRoutes = buildHttpRoutes(service);
@@ -28,6 +29,9 @@ export const registerHttpLocalServices = (service: HttpService, options: ServeOp
     identifier: getServiceName(resourceName, options),
     exportHandler: () => {
       return createHttpServiceClient(resourceName, clientOptions);
+    },
+    manifestHandler: () => {
+      return HttpManifest.build(service);
     },
     requestHandler: async (request: EmulatorRequestEvent) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };

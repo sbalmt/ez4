@@ -5,7 +5,7 @@ import type { AccessState, AccessResult, AccessParameters } from './types';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createOriginAccess, updateOriginAccess, deleteOriginAccess } from './client';
+import { createOriginAccess, updateOriginAccess, deleteOriginAccess, importOriginAccess } from './client';
 import { AccessServiceName } from './types';
 
 export const getAccessHandler = (): StepHandler<AccessState> => ({
@@ -46,11 +46,21 @@ const replaceResource = async (candidate: AccessState, current: AccessState) => 
 };
 
 const createResource = (candidate: AccessState): Promise<AccessResult> => {
-  const { parameters } = candidate;
-
-  const accessName = parameters.accessName;
+  const { accessName } = candidate.parameters;
 
   return OperationLogger.logExecution(AccessServiceName, accessName, 'creation', async (logger) => {
+    const importedOriginAccess = await importOriginAccess(logger, accessName);
+
+    if (importedOriginAccess) {
+      const { accessId } = importedOriginAccess;
+
+      await updateOriginAccess(logger, accessId, candidate.parameters);
+
+      return {
+        accessId
+      };
+    }
+
     const { accessId } = await createOriginAccess(logger, candidate.parameters);
 
     return {

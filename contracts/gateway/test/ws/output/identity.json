@@ -11,10 +11,11 @@
   },
   "TestService": {
     "type": "@ez4/ws",
+    "name": "TestService",
+    "file": "test/ws/input/output-identity.ts",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestService",
     "schema": {
       "type": "object",
       "identity": 1,

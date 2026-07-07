@@ -12,6 +12,7 @@
   "TestUnorderedTopic": {
     "type": "@ez4/topic",
     "name": "TestUnorderedTopic",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -29,6 +30,7 @@
   "TestOrderedTopic": {
     "type": "@ez4/topic",
     "name": "TestOrderedTopic",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -49,6 +51,7 @@
   "TestImport1Topic": {
     "type": "@ez4/import:topic",
     "name": "TestImport1Topic",
+    "file": "test/input/output-import.ts",
     "description": "Import topic assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestUnorderedTopic",
@@ -88,6 +91,7 @@
   "TestImport2Topic": {
     "type": "@ez4/import:topic",
     "name": "TestImport2Topic",
+    "file": "test/input/output-import.ts",
     "description": "Import topic with no assigned handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestOrderedTopic",

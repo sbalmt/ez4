@@ -38,7 +38,7 @@ export const getCacheServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createCacheService(declaration.name, getDeclarationDescription(declaration));
+    const service = createCacheService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['engine']);
 
     for (const member of getModelMembers(declaration)) {

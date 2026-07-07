@@ -6,16 +6,6 @@ import { createTransformContext, transform } from '@ez4/transform';
 import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
-export const preparePathParameters = (path: string, parameters: Record<string, string>) => {
-  return path.replaceAll(/\{(\w+)\}/g, (_, parameterName) => {
-    if (parameterName in parameters) {
-      return `${parameters[parameterName]}`;
-    }
-
-    return `{${parameterName}}`;
-  });
-};
-
 export const resolvePathParameters = async <T extends Http.PathParameters>(
   input: T,
   schema: ObjectSchema,

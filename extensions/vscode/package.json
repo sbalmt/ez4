@@ -1,0 +1,123 @@
+{
+  "name": "vscode-ez4",
+  "displayName": "EZ4 Development",
+  "description": "Provide a seamless EZ4 development environment.",
+  "icon": "media/icon.png",
+  "publisher": "sbalmt",
+  "version": "0.49.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "private": true,
+  "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.120.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "extensions/vscode"
+  },
+  "workspaces": [
+    "foundation/*"
+  ],
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ez4",
+          "icon": "media/icon.svg",
+          "title": "EZ4"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "ez4.manifests.refresh",
+        "enablement": "view == ez4.liveView || view == ez4.offlineView",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "ez4.actionItem.model",
+        "title": "Add Model",
+        "enablement": "view == ez4.liveView && viewItem == actionItem",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "ez4.modelItem.rename",
+        "enablement": "view == ez4.liveView && viewItem == modelItem",
+        "title": "Rename"
+      },
+      {
+        "command": "ez4.modelItem.delete",
+        "enablement": "view == ez4.liveView && viewItem == modelItem",
+        "title": "Delete Permanently"
+      }
+    ],
+    "views": {
+      "ez4": [
+        {
+          "id": "ez4.liveView",
+          "icon": "media/icon.svg",
+          "name": "Live"
+        },
+        {
+          "id": "ez4.offlineView",
+          "icon": "media/icon.svg",
+          "name": "Offline"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "ez4.manifests.refresh",
+          "when": "view == ez4.liveView || view == ez4.offlineView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ez4.actionItem.model",
+          "when": "viewItem == actionItem",
+          "group": "inline"
+        },
+        {
+          "command": "ez4.modelItem.rename",
+          "when": "viewItem == modelItem",
+          "group": "navigation"
+        },
+        {
+          "command": "ez4.modelItem.delete",
+          "when": "viewItem == modelItem",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
+    "build": "tsc && node tools/bundler.mjs",
+    "vscode:prepublish": "npm run build",
+    "vscode:package": "vsce package",
+    "vscode:package:ls": "vsce ls"
+  },
+  "devDependencies": {
+    "@ez4/http": "0.49.0",
+    "@ez4/project": "0.49.0",
+    "@ez4/schema": "0.49.0",
+    "@ez4/utils": "0.49.0",
+    "@types/vscode": "^1.120.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "monaco-editor": "^0.55.1",
+    "strip-json-comments": "^3.1.1",
+    "vsce": "^2.15.0"
+  }
+}

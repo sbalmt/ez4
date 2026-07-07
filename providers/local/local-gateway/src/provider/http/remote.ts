@@ -6,7 +6,7 @@ import { getClientAuthorization, getClientOperations } from '@ez4/gateway/librar
 
 import { createHttpServiceClient } from '../../client/http/service';
 
-export const registerHttpRemoteServices = (service: HttpImport, options: ServeOptions, _context: EmulateServiceContext) => {
+export const registerHttpRemoteService = (service: HttpImport, options: ServeOptions, _context: EmulateServiceContext) => {
   const { name: resourceName, reference: referenceName, project } = service;
   const { imports } = options;
 

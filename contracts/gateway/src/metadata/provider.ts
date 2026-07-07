@@ -1,7 +1,7 @@
-import type { AllType, ReflectionTypes, TypeIntersection, TypeModel, TypeObject } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { HttpProvider } from './http/types';
+import type { WebProvider } from './types';
 
 import {
   isModelDeclaration,
@@ -44,8 +44,8 @@ export const getWebProviderMetadata = (
   return undefined;
 };
 
-const isCompleteProvider = (type: Incomplete<HttpProvider>): type is HttpProvider => {
-  return isObjectWith(type, ['services']);
+const isCompleteProvider = (type: Incomplete<WebProvider>): type is WebProvider => {
+  return isObjectWith(type, ['name', 'services']);
 };
 
 const getProviderType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
@@ -57,13 +57,8 @@ const getProviderType = (type: AllType, parent: TypeModel, reflection: Reflectio
   return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
 };
 
-const getTypeFromMembers = (
-  type: TypeObject | TypeModel | TypeIntersection,
-  members: MemberType[],
-  reflection: ReflectionTypes,
-  errorList: Error[]
-) => {
-  const provider: HttpProvider = {};
+const getTypeFromMembers = (type: TypeModel, members: MemberType[], reflection: ReflectionTypes, errorList: Error[]) => {
+  const provider: WebProvider = { name: type.name, file: type.file };
   const properties = new Set(['services']);
 
   for (const member of members) {

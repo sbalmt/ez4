@@ -5,6 +5,10 @@
  * @returns Returns the base64 encoded version.
  */
 export const base64Encode = (value: string) => {
+  if (typeof Buffer !== 'function') {
+    return btoa(String.fromCharCode(...new TextEncoder().encode(value)));
+  }
+
   return Buffer.from(value).toString('base64');
 };
 
@@ -15,5 +19,9 @@ export const base64Encode = (value: string) => {
  * @returns Return the base64 decoded version.
  */
 export const base64Decode = (value: string) => {
+  if (typeof Buffer !== 'function') {
+    return new TextDecoder().decode(Uint8Array.from(atob(value), (character) => character.charCodeAt(0)));
+  }
+
   return Buffer.from(value, 'base64').toString();
 };

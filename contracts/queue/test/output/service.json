@@ -12,6 +12,7 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -44,6 +45,7 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -75,6 +77,7 @@
   "TestQueue3": {
     "type": "@ez4/queue",
     "name": "TestQueue3",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

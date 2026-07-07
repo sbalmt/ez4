@@ -6,9 +6,10 @@ import {
   CreateOriginAccessControlCommand,
   UpdateOriginAccessControlCommand,
   DeleteOriginAccessControlCommand,
+  ListOriginAccessControlsCommand,
   OriginAccessControlOriginTypes,
-  OriginAccessControlSigningBehaviors,
   OriginAccessControlSigningProtocols,
+  OriginAccessControlSigningBehaviors,
   NoSuchOriginAccessControl
 } from '@aws-sdk/client-cloudfront';
 
@@ -19,15 +20,37 @@ export type CreateRequest = {
   description?: string;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   accessId: string;
 };
 
 export type UpdateRequest = CreateRequest;
 
-export type UpdateResponse = CreateResponse;
+export type UpdateResponse = ImportOrCreateResponse;
 
-export const createOriginAccess = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+export const importOriginAccess = async (logger: OperationLogLine, accessName: string): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing origin access`);
+
+  const response = await getCloudFrontClient().send(
+    new ListOriginAccessControlsCommand({
+      MaxItems: 25
+    })
+  );
+
+  const originAccess = response?.OriginAccessControlList?.Items?.find(({ Name }) => {
+    return Name === accessName;
+  });
+
+  if (!originAccess) {
+    return undefined;
+  }
+
+  return {
+    accessId: originAccess.Id!
+  };
+};
+
+export const createOriginAccess = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating origin access`);
 
   const response = await getCloudFrontClient().send(

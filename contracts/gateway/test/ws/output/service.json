@@ -12,6 +12,7 @@
   "TestService1": {
     "type": "@ez4/ws",
     "name": "TestService1",
+    "file": "test/ws/input/output-service.ts",
     "displayName": "Test Service 1",
     "description": "Test websocket service.",
     "context": {},
@@ -63,6 +64,7 @@
   "TestService2": {
     "type": "@ez4/ws",
     "name": "TestService2",
+    "file": "test/ws/input/output-service.ts",
     "stageName": "websocket",
     "context": {},
     "variables": {},

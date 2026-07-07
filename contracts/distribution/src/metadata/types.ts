@@ -5,6 +5,7 @@ export const ServiceType = '@ez4/cdn';
 export type CdnService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
+  file?: string;
   aliases: string[];
   certificate?: CdnCertificate;
   description?: string;
@@ -71,10 +72,11 @@ export const isCdnService = (service: ServiceMetadata): service is CdnService =>
   return service.type === ServiceType;
 };
 
-export const createCdnService = (name: string, description?: string) => {
+export const createCdnService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<CdnService>(ServiceType, name),
-    ...(description && { description })
+    ...(description && { description }),
+    ...(file && { file })
   };
 };
 

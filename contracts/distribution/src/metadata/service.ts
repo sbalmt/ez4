@@ -42,7 +42,7 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createCdnService(declaration.name, getDeclarationDescription(declaration));
+    const service = createCdnService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['defaultOrigin']);
 
     for (const member of getModelMembers(declaration)) {

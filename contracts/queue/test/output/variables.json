@@ -11,6 +11,8 @@
   },
   "TestQueue": {
     "type": "@ez4/queue",
+    "name": "TestQueue",
+    "file": "test/input/output-variables.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
@@ -21,7 +23,6 @@
         "reference": "@variables"
       }
     },
-    "name": "TestQueue",
     "schema": {
       "type": "object",
       "properties": {

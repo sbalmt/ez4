@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client';
+import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const AccessServiceName = 'AWS:CloudFront/Access';
 
@@ -7,7 +7,7 @@ export const AccessServiceType = 'aws:cloudfront.access';
 
 export type AccessParameters = CreateRequest;
 
-export type AccessResult = CreateResponse;
+export type AccessResult = ImportOrCreateResponse;
 
 export type AccessState = EntryState & {
   type: typeof AccessServiceType;

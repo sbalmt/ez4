@@ -38,7 +38,7 @@ export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createEmailService(declaration.name, getDeclarationDescription(declaration));
+    const service = createEmailService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['domain']);
 
     for (const member of getModelMembers(declaration)) {

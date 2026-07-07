@@ -6,11 +6,19 @@ import type { ServeOptions } from '../types/options';
 import { Logger, LogFormat, LogColor } from '@ez4/logger';
 
 import { getIncomingService } from './incoming';
+import { getServicesManifest } from '../manifest/service';
 
 export const requestHandler = (request: IncomingMessage, stream: ServerResponse, emulators: ServiceEmulators, options: ServeOptions) => {
   const service = getIncomingService(emulators, request, options);
 
   Logger.log(`➡️  ${request.method} ${request.url}`);
+
+  if (request.method === 'GET' && service?.request.path === `/${options.projectName}/manifest`) {
+    return sendSuccessResponse(stream, request, {
+      body: JSON.stringify(getServicesManifest(emulators, options)),
+      status: 200
+    });
+  }
 
   if (!service?.emulator) {
     return sendErrorResponse(stream, request, 404, 'Service emulator not found.');
@@ -23,7 +31,7 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse,
   const { requestHandler, ...emulator } = service.emulator;
 
   if (!requestHandler) {
-    return sendErrorResponse(stream, request, 422, `Service ${emulator.name} can't handle requests.`);
+    return sendErrorResponse(stream, request, 422, `Service '${emulator.name}' can't handle requests.`);
   }
 
   const buffer: Buffer[] = [];

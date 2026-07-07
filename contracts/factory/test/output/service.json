@@ -11,6 +11,8 @@
   },
   "TestServiceAFactory": {
     "type": "@ez4/factory",
+    "name": "TestServiceAFactory",
+    "file": "test/input/output-service.ts",
     "description": "Test service factory.",
     "context": {},
     "options": {},
@@ -25,7 +27,6 @@
         "reference": "@variables"
       }
     },
-    "name": "TestServiceAFactory",
     "handler": {
       "name": "testServiceAInitializer",
       "file": "test/input/output-service.ts",
@@ -37,6 +38,8 @@
   },
   "TestServiceBFactory": {
     "type": "@ez4/factory",
+    "name": "TestServiceBFactory",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -44,7 +47,6 @@
         "reference": "TestServiceAFactory"
       }
     },
-    "name": "TestServiceBFactory",
     "handler": {
       "name": "testServiceBInitializer",
       "file": "test/input/output-service.ts",

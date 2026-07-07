@@ -2,6 +2,7 @@
   "TestDatabase": {
     "type": "@ez4/database",
     "name": "TestDatabase",
+    "file": "test/input/output-schema.ts",
     "context": {},
     "variables": {},
     "services": {},

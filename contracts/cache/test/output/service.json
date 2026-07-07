@@ -12,6 +12,7 @@
   "TestCache": {
     "type": "@ez4/cache",
     "name": "TestCache",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {},

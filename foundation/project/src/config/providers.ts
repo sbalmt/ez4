@@ -8,9 +8,9 @@ import { join } from 'node:path';
 
 import { ProviderVersionMismatchError } from '../errors/provider';
 
-export const loadProviders = async (options: ProjectOptions) => {
+export const loadProviders = async (options: ProjectOptions, workspacePath?: string) => {
   const packageFile = options.packageFile ?? 'package.json';
-  const packagePath = join(process.cwd(), packageFile);
+  const packagePath = join(workspacePath ?? process.cwd(), packageFile);
 
   const { namespace, providers } = await fetchAllProviderPackages(packagePath);
 

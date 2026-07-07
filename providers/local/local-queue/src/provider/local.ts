@@ -9,8 +9,9 @@ import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda';
 import { createLocalClient } from '../client/local';
+import { QueueManifest } from '../service/manifest';
 
-export const registerLocalServices = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalService = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
   const { name: resourceName, schema: messageSchema } = service;
 
   const clientOptions = {
@@ -30,6 +31,9 @@ export const registerLocalServices = (service: QueueService, options: ServeOptio
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueRequest(service, options, context, request);
+    },
+    manifestHandler: () => {
+      return QueueManifest.build(service);
     }
   };
 };

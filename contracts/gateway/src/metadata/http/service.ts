@@ -45,7 +45,7 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createHttpService(declaration.name, getDeclarationDescription(declaration));
+    const service = createHttpService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['routes']);
 
     for (const member of getModelMembers(declaration)) {

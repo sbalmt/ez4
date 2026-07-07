@@ -2,6 +2,7 @@
   "TestDatabase1": {
     "type": "@ez4/database",
     "name": "TestDatabase1",
+    "file": "test/input/output-database.ts",
     "description": "Test database 1.",
     "context": {},
     "variables": {},
@@ -24,6 +25,7 @@
   "TestDatabase2": {
     "type": "@ez4/database",
     "name": "TestDatabase2",
+    "file": "test/input/output-database.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
@@ -44,6 +46,7 @@
   "TestDatabase3": {
     "type": "@ez4/database",
     "name": "TestDatabase3",
+    "file": "test/input/output-database.ts",
     "context": {},
     "variables": {},
     "services": {},

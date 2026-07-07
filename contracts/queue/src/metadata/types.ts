@@ -12,6 +12,7 @@ export type QueueService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     schema: QueueMessageSchema;
     subscriptions: QueueSubscription[];
     description?: string;
@@ -29,6 +30,7 @@ export type QueueImport = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ImportType;
     name: string;
+    file?: string;
     reference: string;
     project: string;
     schema: QueueMessageSchema;
@@ -83,10 +85,11 @@ export const isQueueService = (service: ServiceMetadata): service is QueueServic
   return service.type === ServiceType;
 };
 
-export const createQueueService = (name: string, description?: string) => {
+export const createQueueService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<QueueService>(ServiceType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };
@@ -96,10 +99,11 @@ export const isQueueImport = (service: ServiceMetadata): service is QueueImport 
   return service.type === ImportType;
 };
 
-export const createQueueImport = (name: string, description?: string) => {
+export const createQueueImport = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<QueueImport>(ImportType, name),
     ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

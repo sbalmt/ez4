@@ -12,6 +12,7 @@
   "TestService1": {
     "type": "@ez4/ws",
     "name": "TestService1",
+    "file": "test/ws/input/output-vpc.ts",
     "context": {},
     "variables": {},
     "services": {},

@@ -12,6 +12,7 @@
   "TestService1": {
     "type": "@ez4/http",
     "name": "TestService1",
+    "file": "test/http/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -22,6 +23,7 @@
   "TestService2": {
     "type": "@ez4/http",
     "name": "TestService2",
+    "file": "test/http/input/output-service.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

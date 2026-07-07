@@ -114,7 +114,7 @@ export const getUpdateColumns = (
     if (!(value instanceof SqlRawOperation)) {
       pushUpdate(fieldName, `:${fieldIndex}`);
     } else {
-      const columnName = mergeSqlJsonPath(fieldName, parent);
+      const columnName = mergeSqlJsonPath(fieldName, parent, true);
       const columnPath = mergeSqlAlias(columnName, source.alias);
 
       if (!json) {

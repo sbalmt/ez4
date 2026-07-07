@@ -2,14 +2,16 @@ import type { OriginRequestPolicyConfig } from '@aws-sdk/client-cloudfront';
 import type { OperationLogLine } from '@ez4/aws-common';
 
 import {
+  GetOriginRequestPolicyCommand,
   CreateOriginRequestPolicyCommand,
-  OriginRequestPolicyCookieBehavior,
-  OriginRequestPolicyHeaderBehavior,
-  OriginRequestPolicyQueryStringBehavior,
   UpdateOriginRequestPolicyCommand,
   DeleteOriginRequestPolicyCommand,
-  GetOriginRequestPolicyCommand,
-  NoSuchOriginRequestPolicy
+  ListOriginRequestPoliciesCommand,
+  OriginRequestPolicyHeaderBehavior,
+  OriginRequestPolicyCookieBehavior,
+  OriginRequestPolicyQueryStringBehavior,
+  NoSuchOriginRequestPolicy,
+  OriginRequestPolicyType
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient } from '../utils/deploy';
@@ -19,15 +21,38 @@ export type CreateRequest = {
   description?: string;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   policyId: string;
 };
 
 export type UpdateRequest = CreateRequest;
 
-export type UpdateResponse = CreateResponse;
+export type UpdateResponse = ImportOrCreateResponse;
 
-export const createOriginPolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+export const importOriginPolicy = async (logger: OperationLogLine, policyName: string): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing origin policy`);
+
+  const response = await getCloudFrontClient().send(
+    new ListOriginRequestPoliciesCommand({
+      Type: OriginRequestPolicyType.custom,
+      MaxItems: 25
+    })
+  );
+
+  const originPolicy = response?.OriginRequestPolicyList?.Items?.find(({ OriginRequestPolicy }) => {
+    return OriginRequestPolicy?.OriginRequestPolicyConfig?.Name === policyName;
+  });
+
+  if (!originPolicy) {
+    return undefined;
+  }
+
+  return {
+    policyId: originPolicy.OriginRequestPolicy?.Id!
+  };
+};
+
+export const createOriginPolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating origin policy`);
 
   const response = await getCloudFrontClient().send(

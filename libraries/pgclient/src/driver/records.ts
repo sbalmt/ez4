@@ -17,6 +17,7 @@ export const parseRecords = <T extends Record<string, unknown>>(records: T[], me
 
 export const parseRecord = <T extends Record<string, unknown>>(record: T, metadata: PgStatementMetadata) => {
   const { table, schema, relations } = metadata;
+
   const result: Record<string, unknown> = {};
 
   for (const fieldKey in record) {

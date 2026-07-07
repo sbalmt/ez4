@@ -73,7 +73,7 @@ describe('sql select tests', () => {
         }
       },
       {
-        column: 'json'
+        column: 'jsonb'
       }
     );
 
@@ -82,8 +82,8 @@ describe('sql select tests', () => {
         foo: true
       },
       {
-        column: 'jsonb',
-        binary: true
+        column: 'json',
+        raw: true
       }
     );
 
@@ -94,16 +94,16 @@ describe('sql select tests', () => {
     equal(
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
-        `json_build_object(` +
-        /**/ `'foo', "alias"."json"['foo'], ` +
-        /**/ `'bar', json_build_object(` +
+        `jsonb_build_object(` +
+        /**/ `'foo', "alias"."jsonb"['foo'], ` +
+        /**/ `'bar', jsonb_build_object(` +
         /**/ `'baz', plain_baz, ` +
         /**/ `'qux', plain_qux` +
-        `)) AS "json", ` +
+        `)) AS "jsonb", ` +
         //
-        `jsonb_build_object(` +
-        /**/ `'foo', "alias"."jsonb"['foo']` +
-        `) AS "jsonb" ` +
+        `json_build_object(` +
+        /**/ `'foo', "alias"."json"->'foo'` +
+        `) AS "json" ` +
         //
         `FROM "table" AS "alias"`
     );
@@ -134,8 +134,8 @@ describe('sql select tests', () => {
       statement,
       `SELECT "alias"."foo", "alias"."bar", ` +
         `COALESCE(json_agg(` +
-        `json_build_object('foo', "alias"."foo", 'bar', "alias".column1, 'baz', "alias"."column2") ` +
-        `ORDER BY "alias"."qux" DESC` +
+        `jsonb_build_object('foo', "alias"."foo", 'bar', "alias".column1, 'baz', "alias"."column2") ` +
+        /**/ `ORDER BY "alias"."qux" DESC` +
         `), '[]'::json) AS "json" ` +
         `FROM "table" AS "alias"`
     );
@@ -184,10 +184,10 @@ describe('sql select tests', () => {
         `"alias"."foo", ` +
         `"alias"."bar" AS "alias_bar", ` +
         `(SELECT "foo" FROM "table2") AS "baz", ` +
-        `json_build_object(` +
-        `'innerFoo', "alias"."qux"['innerFoo'], ` +
-        `'innerBar', (SELECT "foo" FROM "table3")` +
-        `) AS "qux" ` +
+        /**/ `jsonb_build_object(` +
+        /****/ `'innerFoo', "alias"."qux"['innerFoo'], ` +
+        /****/ `'innerBar', (SELECT "foo" FROM "table3")` +
+        /**/ `) AS "qux" ` +
         `FROM "table" AS "alias"`
     );
   });

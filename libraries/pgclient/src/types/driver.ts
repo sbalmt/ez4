@@ -22,7 +22,7 @@ export type PgExecuteStatement = {
 };
 
 export type PgExecutionResult = {
-  records: AnyObject[];
+  records: (AnyObject | undefined)[];
   rows?: number | null;
 };
 

@@ -44,7 +44,7 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createDatabaseService(declaration.name, getDeclarationDescription(declaration));
+    const service = createDatabaseService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['engine', 'tables']);
 
     for (const member of getModelMembers(declaration, true)) {

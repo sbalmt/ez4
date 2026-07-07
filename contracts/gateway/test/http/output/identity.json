@@ -12,6 +12,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "file": "test/http/input/output-identity.ts",
     "context": {},
     "variables": {},
     "services": {},

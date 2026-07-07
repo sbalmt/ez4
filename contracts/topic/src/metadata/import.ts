@@ -43,7 +43,7 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createTopicImport(declaration.name, getDeclarationDescription(declaration));
+    const service = createTopicImport(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'schema']);
 
     for (const member of getModelMembers(declaration, true)) {

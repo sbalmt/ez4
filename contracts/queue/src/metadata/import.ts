@@ -46,7 +46,7 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
 
     const { file: fileName } = declaration;
 
-    const service = createQueueImport(declaration.name, getDeclarationDescription(declaration));
+    const service = createQueueImport(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['project', 'reference', 'schema']);
 
     for (const member of getModelMembers(declaration, true)) {

@@ -4,7 +4,7 @@ import type { SqlOrder } from './types';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { mergeSqlAlias, mergeSqlPath } from '../utils/merge';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { escapeSqlName, escapeSqlText } from '../utils/escape';
 import { SqlSelectStatement } from '../statements/select';
 import { SqlOrderClause } from '../clauses/query/order';
@@ -16,8 +16,8 @@ type SqlJsonColumnContext = {
   variables: unknown[];
   references: SqlBuilderReferences;
   parent?: string;
-  binary?: boolean;
   alias?: string;
+  raw?: boolean;
 };
 
 export type SqlJsonColumnRecord = {
@@ -28,8 +28,8 @@ export type SqlJsonColumnOptions = {
   order?: SqlOrder;
   aggregate: boolean;
   column?: string;
-  binary?: boolean;
   alias?: string;
+  raw?: boolean;
 };
 
 export class SqlJsonColumn {
@@ -40,12 +40,12 @@ export class SqlJsonColumn {
     order?: SqlOrderClause;
     aggregate: boolean;
     column?: string;
-    binary?: boolean;
     alias?: string;
+    raw?: boolean;
   };
 
   constructor(record: SqlJsonColumnRecord, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
-    const { order, aggregate, column, binary, alias } = options;
+    const { order, aggregate, column, alias, raw } = options;
 
     this.#state = {
       order: order ? new SqlOrderClause(source, order) : undefined,
@@ -54,13 +54,13 @@ export class SqlJsonColumn {
       record,
       aggregate,
       column,
-      binary,
-      alias
+      alias,
+      raw
     };
   }
 
   build() {
-    const { record, source, references, aggregate, order, column, binary, alias } = this.#state;
+    const { record, source, references, aggregate, order, column, alias, raw } = this.#state;
 
     const variables: unknown[] = [];
 
@@ -69,7 +69,7 @@ export class SqlJsonColumn {
       alias: source.alias,
       references,
       variables,
-      binary
+      raw
     });
 
     const jsonResult = aggregate ? getJsonArray(result, order) : result;
@@ -84,7 +84,7 @@ export class SqlJsonColumn {
 }
 
 const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContext): string => {
-  const { variables, references, parent, binary, alias } = context;
+  const { variables, references, parent, alias, raw } = context;
 
   const fields = [];
 
@@ -95,7 +95,7 @@ const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContex
       continue;
     }
 
-    const columnName = mergeSqlPath(field, parent);
+    const columnName = raw ? mergeSqlJsonPath(field, parent) : mergeSqlPath(field, parent);
 
     if (value instanceof SqlRawValue || value instanceof SqlColumnReference) {
       fields.push(`${escapeSqlText(field)}, ${value.build()}`);
@@ -127,7 +127,7 @@ const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContex
     fields.push(`${escapeSqlText(field)}, ${nestedObject}`);
   }
 
-  return `${binary ? 'jsonb' : 'json'}_build_object(${fields.join(', ')})`;
+  return `${raw ? 'json' : 'jsonb'}_build_object(${fields.join(', ')})`;
 };
 
 const getJsonArray = (value: string, order?: SqlOrderClause) => {

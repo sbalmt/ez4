@@ -1,0 +1,14 @@
+../../**
+../**
+**
+
+!package.json
+!README.md
+!LICENSE
+
+!media/**
+
+!dist/editor.worker.js
+!dist/json.worker.js
+!dist/extension.js
+!dist/webview.js

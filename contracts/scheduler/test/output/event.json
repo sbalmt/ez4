@@ -2,6 +2,7 @@
   "TestScheduler1": {
     "type": "@ez4/cron",
     "name": "TestScheduler1",
+    "file": "test/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -43,6 +44,7 @@
   "TestScheduler2": {
     "type": "@ez4/cron",
     "name": "TestScheduler2",
+    "file": "test/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},

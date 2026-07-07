@@ -2,6 +2,8 @@ export * from './library/triggers';
 export * from './library/reflection';
 export * from './library/metadata';
 
+export * from './config/project';
+
 export * from './errors/project';
 export * from './errors/triggers';
 export * from './errors/reflection';
@@ -14,6 +16,8 @@ export * from './emulator/module';
 export * from './emulator/tester';
 export * from './emulator/runner';
 export * from './emulator/types';
+
+export * from './manifest/types';
 
 export * from './generator/errors';
 export * from './generator/events';

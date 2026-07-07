@@ -11,6 +11,8 @@
   },
   "TestTopic": {
     "type": "@ez4/topic",
+    "name": "TestTopic",
+    "file": "test/input/output-variables.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
@@ -21,7 +23,6 @@
         "reference": "@variables"
       }
     },
-    "name": "TestTopic",
     "schema": {
       "type": "object",
       "properties": {

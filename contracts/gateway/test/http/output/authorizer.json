@@ -12,6 +12,7 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "file": "test/http/input/output-authorizer.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -93,6 +94,8 @@
             1
           ],
           "provider": {
+            "name": "TestAuthProvider",
+            "file": "test/http/input/output-authorizer.ts",
             "services": {
               "selfClient": {
                 "reference": "TestService"

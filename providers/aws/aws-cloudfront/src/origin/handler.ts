@@ -5,7 +5,7 @@ import type { OriginState, OriginResult, OriginParameters } from './types';
 import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy } from './client';
+import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy, importOriginPolicy } from './client';
 import { OriginServiceName } from './types';
 
 export const getPolicyHandler = (): StepHandler<OriginState> => ({
@@ -46,12 +46,21 @@ const replaceResource = async (candidate: OriginState, current: OriginState) => 
 };
 
 const createResource = (candidate: OriginState): Promise<OriginResult> => {
-  const { parameters } = candidate;
-
-  const policyName = parameters.policyName;
+  const { policyName } = candidate.parameters;
 
   return OperationLogger.logExecution(OriginServiceName, policyName, 'creation', async (logger) => {
-    const { policyId } = await createOriginPolicy(logger, parameters);
+    const importedOriginPolicy = await importOriginPolicy(logger, policyName);
+
+    if (importedOriginPolicy) {
+      const { policyId } = importedOriginPolicy;
+
+      await updateOriginPolicy(logger, policyId, candidate.parameters);
+
+      return {
+        policyId
+      };
+    }
+    const { policyId } = await createOriginPolicy(logger, candidate.parameters);
 
     return {
       policyId
