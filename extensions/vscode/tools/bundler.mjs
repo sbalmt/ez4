@@ -2,7 +2,10 @@ import { basename } from 'node:path';
 
 import { bundlePackage } from '../../../tools/esbuild.mjs';
 
-bundlePackage('src/extension.ts', 'dist/extension.js', 'cjs');
+bundlePackage('src/extension.ts', 'dist/extension.js', 'cjs', {
+  packages: 'bundle',
+  external: ['vscode']
+});
 
 bundlePackage('src/webview.ts', 'dist/webview.js', 'iife', {
   packages: 'bundle',

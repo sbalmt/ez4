@@ -23,7 +23,9 @@
   "workspaces": [
     "foundation/*"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:**/*.ts"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
