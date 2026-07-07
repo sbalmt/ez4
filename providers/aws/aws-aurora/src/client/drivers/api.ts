@@ -17,7 +17,7 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 
-import { detectFieldData, prepareFieldData, parseFieldRecords } from '../fields';
+import { detectFieldData, prepareFieldData, parseFieldRecords, parseFieldRecordsByNames } from '../fields';
 import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
 import { logQueryError, logQuerySuccess } from '../logger';
 
@@ -40,10 +40,15 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
+        const { columns } = statement;
+
         const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            includeResultMetadata: true,
+            // Result-set metadata is only needed when the query builder couldn't work
+            // out the output column names ahead of time (see `statement.columns`).
+            // Asking for it forces the Data API to introspect the catalog server-side.
+            includeResultMetadata: !columns,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,
@@ -61,14 +66,26 @@ export class ApiClientDriver implements PgClientDriver {
           logQuerySuccess(statement, transactionId);
         }
 
-        if (!rawRecords || !columnMetadata) {
+        if (!rawRecords) {
           return {
             rows: numberOfRecordsUpdated,
             records: []
           };
         }
 
-        const records = parseFieldRecords(rawRecords, columnMetadata);
+        const records = columns
+          ? parseFieldRecordsByNames(rawRecords, columns)
+          : columnMetadata
+            ? parseFieldRecords(rawRecords, columnMetadata)
+            : undefined;
+
+        if (!records) {
+          return {
+            rows: numberOfRecordsUpdated,
+            records: []
+          };
+        }
+
         const metadata = statement.metadata;
 
         if (metadata) {
