@@ -161,11 +161,20 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 
     const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
 
-    if (fieldColumn instanceof Function) {
-      output[fieldKey] = source.reference(fieldColumn);
-    } else {
+    if (!(fieldColumn instanceof Function)) {
       output[fieldKey] = true;
+      continue;
     }
+
+    if (json) {
+      output[fieldKey] = source.reference(fieldColumn);
+      continue;
+    }
+
+    // Top-level formatted columns already embed `AS <fieldKey>` in the generated
+    // expression; carrying the alias along lets the statement report its output
+    // column names statically (see SqlResults#names).
+    output[fieldKey] = builder.rawValue(fieldColumn, fieldKey);
   }
 
   return output;

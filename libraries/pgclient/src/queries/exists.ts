@@ -15,7 +15,7 @@ export const prepareExistsQuery = <T extends InternalTableMetadata>(
 ) => {
   const existsQuery = builder.select(schema).from(table);
 
-  existsQuery.rawColumn('1 AS "__EZ4_EXISTS"');
+  existsQuery.rawColumn('1 AS "__EZ4_EXISTS"', '__EZ4_EXISTS');
 
   if (query.where) {
     existsQuery.where(getSelectFilters(builder, query.where, relations, existsQuery, table));

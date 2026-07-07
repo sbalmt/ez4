@@ -80,8 +80,8 @@ export class SqlResults {
     return this;
   }
 
-  rawColumn(column: number | string | SqlRawGenerator) {
-    this.#state.columns.push(new SqlRawValue(column));
+  rawColumn(column: number | string | SqlRawGenerator, alias?: string) {
+    this.#state.columns.push(new SqlRawValue(column, alias));
     return this;
   }
 
@@ -114,6 +114,20 @@ export class SqlResults {
     };
 
     return [getResultColumns(columns, context), context.variables];
+  }
+
+  /**
+   * Return the final output column names for this result set, in the same order
+   * they'll be returned by Postgres, or `undefined` when any column's name can't
+   * be determined without a database round-trip (e.g. a raw column without an
+   * explicit alias, or a bare column reference). An empty result set returns `[]`
+   * (a statement that produces no result columns, e.g. DML without RETURNING).
+   *
+   * Must be called before `build()`: building may reassign sub-select column
+   * aliases to temporary ones, changing what this reports.
+   */
+  names(): string[] | undefined {
+    return getResultColumnNames(this.#state.columns);
   }
 }
 
@@ -192,4 +206,56 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
   });
 
   return columnsList.join(', ') || '*';
+};
+
+const getResultColumnNames = (columns: (SqlResultColumn | SqlJsonColumn)[]): string[] | undefined => {
+  const names: string[] = [];
+
+  for (const column of columns) {
+    if (column instanceof SqlRawValue) {
+      if (!column.alias) {
+        return undefined;
+      }
+
+      names.push(column.alias);
+      continue;
+    }
+
+    if (column instanceof SqlColumnReference) {
+      return undefined;
+    }
+
+    if (column instanceof SqlJsonColumn) {
+      const { label } = column;
+
+      if (!label) {
+        return undefined;
+      }
+
+      names.push(label);
+      continue;
+    }
+
+    if (column instanceof SqlSelectStatement) {
+      const { alias } = column;
+
+      if (!alias) {
+        return undefined;
+      }
+
+      names.push(alias);
+      continue;
+    }
+
+    if (!(column instanceof Array)) {
+      names.push(column);
+      continue;
+    }
+
+    const [, columnAlias] = column;
+
+    names.push(columnAlias);
+  }
+
+  return names;
 };
