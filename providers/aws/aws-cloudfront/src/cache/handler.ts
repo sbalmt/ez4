@@ -5,7 +5,7 @@ import type { CacheState, CacheResult, CacheParameters } from './types';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { createCachePolicy, updateCachePolicy, deleteCachePolicy } from './client';
+import { createCachePolicy, updateCachePolicy, deleteCachePolicy, importCachePolicy } from './client';
 import { CacheServiceName } from './types';
 
 export const getPolicyHandler = (): StepHandler<CacheState> => ({
@@ -49,6 +49,18 @@ const createResource = (candidate: CacheState): Promise<CacheResult> => {
   const { policyName } = candidate.parameters;
 
   return OperationLogger.logExecution(CacheServiceName, policyName, 'creation', async (logger) => {
+    const importedCachePolicy = await importCachePolicy(logger, policyName);
+
+    if (importedCachePolicy) {
+      const { policyId } = importedCachePolicy;
+
+      await updateCachePolicy(logger, policyId, candidate.parameters);
+
+      return {
+        policyId
+      };
+    }
+
     const { policyId } = await createCachePolicy(logger, candidate.parameters);
 
     return {

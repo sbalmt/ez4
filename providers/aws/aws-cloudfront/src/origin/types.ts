@@ -1,5 +1,5 @@
 import type { EntryState } from '@ez4/stateful';
-import type { CreateRequest, CreateResponse } from './client';
+import type { CreateRequest, ImportOrCreateResponse } from './client';
 
 export const OriginServiceName = 'AWS:CloudFront/Origin';
 
@@ -7,7 +7,7 @@ export const OriginServiceType = 'aws:cloudfront.origin';
 
 export type OriginParameters = CreateRequest;
 
-export type OriginResult = CreateResponse;
+export type OriginResult = ImportOrCreateResponse;
 
 export type OriginState = EntryState & {
   type: typeof OriginServiceType;

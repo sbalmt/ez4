@@ -21,6 +21,8 @@ import {
   waitUntilDistributionDeployed,
   TagResourceCommand,
   UntagResourceCommand,
+  DistributionAlreadyExists,
+  NoSuchDistribution,
   ViewerProtocolPolicy,
   GeoRestrictionType,
   CertificateSource,
@@ -30,9 +32,8 @@ import {
   SslProtocol,
   HttpVersion,
   PriceClass,
-  Method,
-  NoSuchDistribution,
-  EventType
+  EventType,
+  Method
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
@@ -91,34 +92,58 @@ export const createDistribution = async (logger: OperationLogLine, request: Crea
 
   const client = getCloudFrontClient();
 
-  const response = await client.send(
-    new CreateDistributionWithTagsCommand({
-      DistributionConfigWithTags: {
-        DistributionConfig: {
-          ...upsertDistributionRequest(request)
-        },
-        Tags: {
-          Items: getTagList({
-            ...request.tags,
-            ManagedBy: 'EZ4'
-          })
+  try {
+    const response = await client.send(
+      new CreateDistributionWithTagsCommand({
+        DistributionConfigWithTags: {
+          DistributionConfig: {
+            ...upsertDistributionRequest(request)
+          },
+          Tags: {
+            Items: getTagList({
+              ...request.tags,
+              ManagedBy: 'EZ4'
+            })
+          }
         }
-      }
-    })
-  );
+      })
+    );
 
-  const distribution = response.Distribution!;
-  const distributionId = distribution.Id!;
+    const distribution = response.Distribution!;
+    const distributionId = distribution.Id!;
 
-  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
-    Id: distributionId
-  });
+    await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
+      Id: distributionId
+    });
 
-  return {
-    distributionId,
-    distributionArn: distribution.ARN as Arn,
-    endpoint: distribution.DomainName!
-  };
+    return {
+      distributionId,
+      distributionArn: distribution.ARN as Arn,
+      endpoint: distribution.DomainName!
+    };
+  } catch (error) {
+    if (!(error instanceof DistributionAlreadyExists)) {
+      throw error;
+    }
+
+    const distributionId = error.message.match(/[A-Z][A-Z0-9]{13}/)?.[0];
+
+    if (!distributionId) {
+      throw error;
+    }
+
+    const { Distribution: distribution } = await getCloudFrontClient().send(
+      new GetDistributionCommand({
+        Id: distributionId
+      })
+    );
+
+    return {
+      distributionId,
+      distributionArn: distribution?.ARN as Arn,
+      endpoint: distribution?.DomainName!
+    };
+  }
 };
 
 export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
