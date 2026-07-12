@@ -6,19 +6,30 @@ export type ClientConnection = {
   user: string;
   host: string;
   port?: number;
+  ssl?: boolean | object;
+  connectionString?: string;
 };
 
 export const createPool = (connection: ClientConnection) => {
-  const { database, password, user, host, port } = connection;
+  const { database, password, user, host, port, ssl, connectionString } = connection;
 
-  return new Pool({
+  const baseOptions = {
     allowExitOnIdle: true,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 15000,
-    ssl: false,
     maxUses: 500,
     min: 0,
     max: 2,
+    ssl
+  };
+
+  if (connectionString) {
+    return new Pool({ ...baseOptions, connectionString });
+  }
+
+  return new Pool({
+    ...baseOptions,
+    ssl: false,
     database,
     password,
     user,
