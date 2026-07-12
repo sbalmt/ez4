@@ -2,6 +2,7 @@
   "ReferencedCdn": {
     "type": "@ez4/cdn",
     "name": "ReferencedCdn",
+    "file": "test/input/output-referenced-rewrite.ts",
     "context": {},
     "defaultOrigin": {
       "domain": "example.com",

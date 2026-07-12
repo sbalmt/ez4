@@ -2,6 +2,7 @@
   "MixedCdn": {
     "type": "@ez4/cdn",
     "name": "MixedCdn",
+    "file": "test/input/output-mixed-rewrite.ts",
     "context": {},
     "defaultOrigin": {
       "domain": "example.com",

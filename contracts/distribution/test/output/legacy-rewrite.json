@@ -2,6 +2,7 @@
   "LegacyCdn": {
     "type": "@ez4/cdn",
     "name": "LegacyCdn",
+    "file": "test/input/output-legacy-rewrite.ts",
     "context": {},
     "defaultOrigin": {
       "type": "regular",
