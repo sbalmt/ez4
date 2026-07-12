@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,8 +12,9 @@
   "TestService1": {
     "type": "@ez4/ws",
     "name": "TestService1",
+    "file": "test/ws/input/output-service.ts",
     "displayName": "Test Service 1",
-    "description": "First test service description.",
+    "description": "Test websocket service.",
     "context": {},
     "variables": {},
     "services": {},
@@ -29,7 +35,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          66,
           1
         ]
       }
@@ -39,7 +45,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          66,
+          68,
           1
         ]
       }
@@ -49,7 +55,7 @@
         "name": "messageHandler1",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          68,
+          70,
           1
         ]
       }
@@ -58,7 +64,7 @@
   "TestService2": {
     "type": "@ez4/ws",
     "name": "TestService2",
-    "description": "Description of the second test service.",
+    "file": "test/ws/input/output-service.ts",
     "stageName": "websocket",
     "context": {},
     "variables": {},
@@ -84,7 +90,7 @@
         "name": "connectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          64,
+          66,
           1
         ]
       }
@@ -102,7 +108,7 @@
         "name": "disconnectHandler",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          66,
+          68,
           1
         ]
       }
@@ -119,7 +125,7 @@
         "name": "messageHandler2",
         "file": "test/ws/input/output-service.ts",
         "position": [
-          79,
+          81,
           1
         ],
         "response": {

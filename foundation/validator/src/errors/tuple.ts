@@ -1,7 +1,7 @@
 import { UnexpectedTypeError } from './common';
 
 export class ExpectedTupleTypeError extends UnexpectedTypeError {
-  constructor(propertyName?: string) {
-    super('tuple', propertyName);
+  constructor(inputValue: unknown, propertyName?: string) {
+    super('tuple', propertyName, inputValue);
   }
 }

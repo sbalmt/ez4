@@ -1,24 +1,26 @@
 /**
- * Naming test object.
+ * Internal test description.
+ *
+ * @description Naming test object.
  */
 export interface NamingTestSchema {
   /**
-   * Camel-case property.
+   * @description Camel-case property.
    */
   fooFoo: string;
 
   /**
-   * Pascal-case property.
+   * @description Pascal-case property.
    */
   FooBar: number;
 
   /**
-   * Snake-case property.
+   * @description Snake-case property.
    */
   foo_baz: boolean;
 
   /**
-   * Kebab-case property.
+   * @description Kebab-case property.
    */
   'foo-qux': any;
 }

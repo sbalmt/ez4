@@ -15,7 +15,7 @@ export const processLambdaEvent = async (
 ) => {
   const { services } = service;
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   const module = await createModule({

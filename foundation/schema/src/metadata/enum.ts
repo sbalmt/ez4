@@ -5,6 +5,7 @@ import type { SchemaDefinitions } from '../types/common';
 import { isTypeEnum } from '@ez4/reflection';
 
 import { SchemaType } from '../types/common';
+import { getDeclarationDescription } from '@ez4/common/library';
 
 export type RichTypeEnum = TypeEnum & {
   definitions?: SchemaDefinitions;
@@ -46,9 +47,11 @@ export const getEnumSchema = (type: AllType, description?: string): EnumSchema |
 const getAnySchemaFromMembers = (members: EnumMember[]) => {
   const options: EnumSchemaOption[] = [];
 
-  for (const { value, description } of members) {
+  for (const member of members) {
+    const description = getDeclarationDescription(member);
+
     options.push({
-      value,
+      value: member.value,
       ...(description && { description })
     });
   }

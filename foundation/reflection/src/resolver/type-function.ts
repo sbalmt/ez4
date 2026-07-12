@@ -1,5 +1,5 @@
 import type { FunctionDeclaration, Node } from 'typescript';
-import type { TypeFunction, TypeParameter, EveryType, FunctionModifiers, TypePosition } from '../types';
+import type { TypeFunction, TypeParameter, EveryType, FunctionModifiers, TypePosition, TypeTag } from '../types';
 import type { Context, State } from './common';
 
 import { isFunctionDeclaration } from 'typescript';
@@ -18,8 +18,9 @@ export const createFunction = (
   name: string,
   file: string | undefined,
   position: TypePosition | undefined,
-  description: string | undefined,
   modifiers: FunctionModifiers | undefined,
+  description?: string | undefined,
+  tags?: TypeTag[],
   parameterTypes?: TypeParameter[] | undefined,
   returnType?: EveryType | undefined
 ): TypeFunction => {
@@ -32,6 +33,7 @@ export const createFunction = (
     ...(position && { position }),
     ...(module && { module }),
     ...(description && { description }),
+    ...(tags?.length && { tags }),
     ...(modifiers && { modifiers }),
     ...(parameterTypes?.length && { parameters: parameterTypes }),
     ...(returnType && { return: returnType })
@@ -54,10 +56,10 @@ export const tryTypeFunction = (node: Node, context: Context, state: State) => {
   const name = node.name.getText();
   const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
   const modifiers = getNodeModifiers(node);
 
-  const reflectedType = createFunction(name, file, position, description, modifiers);
+  const reflectedType = createFunction(name, file, position, modifiers, documentation?.description, documentation?.tags);
 
   context.cache.set(node, reflectedType);
 

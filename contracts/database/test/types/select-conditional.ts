@@ -4,9 +4,7 @@ import type { TestEngine } from '../common/engines';
 
 import { assertType } from '@ez4/utils';
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngine;
-
+export declare class TestDatabase extends Database.Service<TestEngine> {
   client: Client<TestDatabase>;
 
   tables: [

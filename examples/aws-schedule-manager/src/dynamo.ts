@@ -5,16 +5,11 @@ import type { EventSchema } from '@/schemas/event';
 /**
  * Example of AWS DynamoDB deployed with EZ4.
  */
-export declare class EventDb extends Database.Service {
+export declare class EventDb extends Database.Service<DynamoDbEngine> {
   /**
    * Database client.
    */
   client: Client<typeof this>;
-
-  /**
-   * Database engine.
-   */
-  engine: DynamoDbEngine;
 
   /**
    * Database tables.

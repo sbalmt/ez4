@@ -195,7 +195,7 @@ describe('select schema', () => {
       }
     );
 
-    assert.equal(statement, `SELECT "bar", json_build_object('quxBar', "qux"['quxBar']) AS "qux" FROM "ez4-test-select-schema"`);
+    assert.equal(statement, `SELECT "bar", jsonb_build_object('quxBar', "qux"['quxBar']) AS "qux" FROM "ez4-test-select-schema"`);
 
     assert.deepEqual(variables, []);
   });

@@ -10,7 +10,7 @@ import { deleteItem } from '../repository';
 declare class DeleteItemRequest implements Http.Request {
   parameters: {
     /**
-     * Item Id.
+     * @description Item Id.
      */
     id: String.UUID;
   };
@@ -21,12 +21,12 @@ declare class DeleteItemResponse implements Http.Response {
 
   body: {
     /**
-     * Old item name.
+     * @description Deleted item name.
      */
     name: string;
 
     /**
-     * Old item description.
+     * @description Deleted item description.
      */
     description?: string;
   };
@@ -34,6 +34,9 @@ declare class DeleteItemResponse implements Http.Response {
 
 /**
  * Handle item delete requests.
+ *
+ * @description Delete an item corresponding to the given `id`.
+ * @summary Delete items.
  */
 export async function deleteItemHandler(
   request: Http.Incoming<DeleteItemRequest>,

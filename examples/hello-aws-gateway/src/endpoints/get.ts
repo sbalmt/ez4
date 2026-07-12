@@ -51,6 +51,10 @@ declare class GetResponse implements Http.Response {
 
 /**
  * Handler for `get` requests.
+ *
+ * @description Example of a `GET` endpoint.
+ * @summary Get endpoint.
+ *
  * @returns Outgoing response.
  */
 export function getHandler(request: GetRequest, context: Service.Context<ApiProvider>): GetResponse {

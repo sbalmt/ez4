@@ -7,6 +7,7 @@ export const ServiceType = '@ez4/email';
 export type EmailService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
+    file?: string;
     description?: string;
     domain: string;
   };
@@ -15,9 +16,11 @@ export const isEmailService = (service: ServiceMetadata): service is EmailServic
   return service.type === ServiceType;
 };
 
-export const createEmailService = (name: string) => {
+export const createEmailService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<EmailService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

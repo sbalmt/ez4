@@ -1,7 +1,11 @@
-import type { ServiceMetadata } from '../types/service';
+import type { EmulatorServiceManifest } from '@ez4/project/library';
+import type { AnyObject } from '@ez4/utils';
+import type { LinkedService, ServiceMetadata } from '../types/service';
 import type { ServeOptions } from '../types/options';
 
-export type EmulatorExportHandler = () => Promise<unknown> | unknown;
+export type EmulatorExportHandler = (options: AnyObject) => unknown;
+
+export type EmulatorManifestHandler = () => EmulatorServiceManifest<AnyObject>;
 
 export type EmulatorPrepareHandler = () => Promise<void> | void;
 
@@ -49,9 +53,12 @@ export type EmulatorResponse = {
 
 export type ServiceEmulator = {
   type: string;
-  identifier: string;
   name: string;
+  identifier: string;
+  options?: AnyObject;
+  inheritOptions?: boolean;
   exportHandler?: EmulatorExportHandler;
+  manifestHandler?: EmulatorManifestHandler;
   prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
   shutdownHandler?: EmulatorShutdownHandler;
@@ -61,13 +68,13 @@ export type ServiceEmulator = {
   requestHandler?: EmulatorRequestHandler;
 };
 
+export type EmulatorLinkedServices = Record<string, LinkedService>;
+
 export type EmulatorServiceClients = Record<string, unknown>;
 
-export type EmulatorLinkedServices = Record<string, string>;
-
 export type EmulateServiceContext = {
-  makeClients: (linkedServices: EmulatorLinkedServices) => Promise<EmulatorServiceClients>;
-  makeClient: (serviceName: string) => Promise<unknown>;
+  makeClients: (linkedServices: EmulatorLinkedServices, linkedOptions?: AnyObject) => EmulatorServiceClients;
+  makeClient: (serviceName: string) => unknown;
 };
 
 export type EmulateServiceEvent = {

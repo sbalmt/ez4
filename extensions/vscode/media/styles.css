@@ -1,0 +1,417 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--vscode-font-family);
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  padding: 16px 16px 0px 16px;
+  line-height: 1.4;
+  height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+}
+
+select,
+input,
+textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  outline: unset;
+  width: unset;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+button:disabled {
+  background: var(--vscode-button-background);
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible,
+a:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Form and Fields */
+
+.field-like {
+  border-radius: 4px;
+  border: 1px solid var(--vscode-input-border);
+}
+
+.field-like label {
+  font-weight: 600;
+}
+
+.field-like select,
+.field-like input:is([type='text'], [type='number']),
+.field-like textarea {
+  border-radius: 0;
+  border: none;
+  height: 30px;
+}
+
+.field-like input:focus,
+.field-like select:focus,
+.field-like textarea:focus {
+  border-radius: 0px;
+}
+
+.field-text {
+  padding: 6px 8px;
+}
+
+.field-group {
+  display: flex;
+  align-items: center;
+}
+
+.field-column {
+  flex-direction: column;
+}
+
+.field-row {
+  align-items: center;
+}
+
+.field-row,
+.field-column {
+  display: flex;
+  width: 100%;
+}
+
+.field-column > .field-like {
+  border: none;
+}
+
+.field-column > .field-like:first-child {
+  border-top: 1px solid var(--vscode-panel-border);
+}
+
+.field-column > .field-like:not(:last-child) {
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.field-grid {
+  display: grid;
+  border-collapse: collapse;
+  border: 1px solid var(--vscode-panel-border);
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+}
+
+.field-grid > .field-row > label {
+  text-align: right;
+  font-weight: 400;
+  padding: 6px 8px;
+}
+
+.field-grid > .field-row > * {
+  border-bottom: 1px solid var(--vscode-panel-border);
+  border-right: 1px solid var(--vscode-panel-border);
+  height: 100%;
+}
+
+.field-grid > .field-row > *:nth-child(2) {
+  border-right: none;
+}
+
+.field-grid > .field-row:last-child > * {
+  border-bottom: none;
+}
+
+.field-grid > .field-row {
+  display: contents;
+}
+
+.field-grid > .field-row > .field-grid {
+  border-left: none;
+  border-top: none;
+}
+
+.field-editor {
+  position: relative;
+  flex: 1;
+}
+
+/* Action Bar */
+
+.action-bar {
+  padding: 6px 8px;
+  gap: 8px;
+}
+
+.action-bar #actionType {
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.action-bar #actionPath {
+  cursor: pointer;
+  flex: 1;
+}
+
+.action-bar #runAction {
+  position: relative;
+}
+
+.action-bar #runAction:disabled {
+  color: transparent;
+}
+
+.action-bar #runAction:disabled::after {
+  content: '';
+  position: absolute;
+  animation: spin 0.6s linear infinite;
+  border: 2px solid var(--vscode-button-foreground);
+  border-top-color: transparent;
+  border-radius: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  width: 16px;
+  height: 16px;
+  left: 50%;
+  top: 50%;
+}
+
+.action-bar #actionPath .variable {
+  color: var(--vscode-symbolIcon-variableForeground);
+  font-weight: 500;
+  padding: 2px 0px;
+}
+
+/* Action Content */
+
+.action-content {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  overflow: hidden;
+}
+
+.action-content .action-form button,
+.action-content .action-form .field-like {
+  border-radius: 0;
+}
+
+.action-content .action-form .link-button {
+  margin-right: 6px;
+  padding: 4px 8px;
+  color: var(--vscode-textLink-foreground);
+  background: none;
+  height: 25px;
+}
+
+.action-content .action-form .link-button:hover {
+  color: var(--vscode-textLink-hoverForeground);
+  text-decoration: underline;
+}
+
+.action-content .action-form .link-button:focus {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+/* Action Tabs */
+
+.action-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  flex: 0 0 auto;
+}
+
+.action-tabs > .action-tab {
+  padding: 8px 12px;
+  border-bottom: 2px solid transparent;
+  border-radius: unset;
+}
+
+.action-tabs > .action-tab,
+.action-tabs > .action-tab:hover {
+  color: var(--vscode-foreground);
+  background: transparent;
+}
+
+.action-tabs > .action-tab.active {
+  border-bottom: 2px solid var(--vscode-button-background);
+  color: var(--vscode-tab-activeForeground);
+}
+
+.action-tabs > .action-tab.active:focus-visible {
+  border-bottom-color: transparent;
+}
+
+.action-tab-contents {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.action-tab-contents > .action-tab-content {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+.action-tab-contents > .action-tab-content#tab-parameters {
+  overflow: hidden;
+}
+
+/* Action Forms */
+
+.action-forms {
+  display: flex;
+  flex-direction: column;
+  scrollbar-gutter: stable;
+  overflow: hidden;
+  min-height: 0;
+  flex: 1;
+}
+
+.action-forms:hover {
+  overflow: auto;
+}
+
+.action-forms > .action-form {
+  padding-bottom: 16px;
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.action-forms > .action-form:has(form:empty) {
+  display: none;
+}
+
+/* Action Details */
+
+.action-details {
+  padding: 0px 8px;
+  min-width: 300px;
+  scrollbar-gutter: stable;
+  overflow: hidden;
+  width: 35%;
+}
+
+.action-details:hover {
+  overflow: auto;
+}
+
+.action-details #sources {
+  padding-inline-start: 1em;
+}
+
+.action-details #sources a {
+  word-wrap: break-word;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action-details #sources a:hover {
+  text-decoration: underline;
+}
+
+/* Action Badges */
+
+.action-badges {
+  display: flex;
+  position: absolute;
+  justify-content: flex-end;
+  margin-top: -34px;
+  padding: 6px 8px;
+  z-index: -1;
+  width: 100%;
+  gap: 8px;
+}
+
+.action-badges .response-success {
+  color: #388a34;
+}
+
+.action-badges .response-error {
+  color: #a1260d;
+}
+
+.action-badges .response-status,
+.action-badges .response-time {
+  padding-right: 2px;
+}
+
+.action-badges .response-status:has(+ :empty) {
+  display: none;
+}
+
+.action-badges .response-time:has(+ :empty) {
+  display: none;
+}
+
+/* Editor Decorations */
+
+.copy-hint::after {
+  content: 'Copied';
+  display: inline-block;
+  position: relative;
+  box-shadow: 0 2px 4px var(--vscode-widget-shadow);
+  background-color: var(--vscode-editorHoverWidget-background);
+  font-family: var(--vscode-font-family);
+  border-radius: 4px;
+  z-index: 9999999;
+  margin-top: 18px;
+  padding: 2px 6px;
+}
+
+/* Animations */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

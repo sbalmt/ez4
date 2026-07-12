@@ -1,5 +1,5 @@
 import type { Node } from 'typescript';
-import type { EnumNumberMember, EnumStringMember, EnumMember } from '../types';
+import type { EnumNumberMember, EnumStringMember, EnumMember, TypeTag } from '../types';
 import type { EnumNodes } from './type-enum';
 import type { Context } from './common';
 
@@ -11,13 +11,15 @@ export const createEnumMember = <T extends EnumMember>(
   type: T['type'],
   value: T['value'],
   name: string,
-  description: string | undefined
+  description?: string,
+  tags?: TypeTag[]
 ) => {
   return {
     type,
     name,
     value,
-    ...(description && { description })
+    ...(description && { description }),
+    ...(tags?.length && { tags })
   } as T;
 };
 
@@ -27,15 +29,15 @@ export const tryEnumMember = (node: Node, context: Context) => {
   }
 
   const type = context.checker.getTypeAtLocation(node);
-  const description = getNodeDocumentation(node.name, context.checker);
+  const documentation = getNodeDocumentation(node.name, context.checker);
   const name = node.name.getText();
 
   if (type.isNumberLiteral()) {
-    return createEnumMember<EnumNumberMember>(TypeName.Number, type.value, name, description);
+    return createEnumMember<EnumNumberMember>(TypeName.Number, type.value, name, documentation?.description, documentation?.tags);
   }
 
   if (type.isStringLiteral()) {
-    return createEnumMember<EnumStringMember>(TypeName.String, type.value, name, description);
+    return createEnumMember<EnumStringMember>(TypeName.String, type.value, name, documentation?.description, documentation?.tags);
   }
 
   return undefined;

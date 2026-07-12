@@ -1,3 +1,5 @@
+import type { TestServiceFactory } from './cases/client-mock';
+
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -7,7 +9,7 @@ type TestService = {
   helloWorld(): string;
 };
 
-describe('factory client mock tests', async () => {
+describe('factory client mock tests', () => {
   const getServiceMock = (): TestService => {
     return {
       helloWorld: () => 'success'
@@ -22,18 +24,18 @@ describe('factory client mock tests', async () => {
     equal(client.helloWorld(), 'success');
   });
 
-  it('assert :: global instance mock', async () => {
+  it('assert :: global instance mock', () => {
     FactoryTester.setClientMock('TestServiceFactory', {
       handler: getServiceMock
     });
 
-    const clientMock = await FactoryTester.getClient<TestService>('TestServiceFactory');
+    const clientMock = FactoryTester.getClient<TestServiceFactory>('TestServiceFactory');
 
     equal(clientMock.helloWorld(), 'success');
 
     FactoryTester.restoreClient('TestServiceFactory');
 
-    const realClient = await FactoryTester.getClient<TestService>('TestServiceFactory');
+    const realClient = FactoryTester.getClient<TestServiceFactory>('TestServiceFactory');
 
     equal(realClient.helloWorld(), 'hey');
   });

@@ -55,7 +55,7 @@ export type RelationTargetAlias<T> = T extends `${string}@${infer U}` ? U : neve
 /**
  * Given a database service `T`, it produces an object with all relation tables.
  */
-export type RelationTables<T extends Database.Service> = MergeRelations<
+export type RelationTables<T extends Database.Service<any>> = MergeRelations<
   DatabaseTables<T>,
   DatabaseTables<T>,
   TableSchemas<T>,
@@ -70,8 +70,9 @@ type MergeRelations<
   T extends DatabaseTable<TableSchema>[],
   C extends DatabaseTable<TableSchema>[],
   S extends Record<string, TableSchema>,
-  I extends Record<string, TableIndexes>
-> = IsArrayEmpty<C> extends false ? ExtractRelations<T, C[0], S, I> & MergeRelations<T, ArrayRest<C>, S, I> : {};
+  I extends Record<string, TableIndexes>,
+  A = {}
+> = IsArrayEmpty<C> extends false ? MergeRelations<T, ArrayRest<C>, S, I, A & ExtractRelations<T, C[0], S, I>> : A;
 
 /**
  * Given a database table `T`, it produces an object containing all its relations.

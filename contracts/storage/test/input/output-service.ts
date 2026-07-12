@@ -1,6 +1,11 @@
 import type { Environment } from '@ez4/common';
 import type { Bucket } from '@ez4/storage';
 
+/**
+ * Internal storage description.
+ *
+ * @description Test storage service.
+ */
 export declare class TestStorage extends Bucket.Service {
   globalName: 'global-bucket-name';
 

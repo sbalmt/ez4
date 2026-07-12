@@ -69,7 +69,7 @@ export declare class Api extends Http.Service {
    */
   services: {
     dateValidation: Environment.Service<DateValidation>;
-    statsService: Environment.Service<StatsServiceFactory>;
+    statsService: Environment.Service<StatsServiceFactory, { log: true }>;
     eventScheduler: Environment.Service<EventScheduler>;
     eventDb: Environment.Service<EventDb>;
   };

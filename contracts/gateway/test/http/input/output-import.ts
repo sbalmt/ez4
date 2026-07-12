@@ -29,7 +29,7 @@ function testHandler(): Http.SuccessEmptyResponse {
 }
 
 /**
- * Import API gateway.
+ * @description Import API gateway.
  */
 export declare class TestImport extends Http.Import<TestService> {
   project: 'name from project in ez4.project.js';

@@ -7,12 +7,13 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
+  getLinkedServicesObject,
+  getDeclarationDescription,
+  getModelMembers,
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
-  getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -38,14 +39,10 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createCronService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createCronService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['target', 'expression']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
@@ -59,6 +56,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'schema': {
@@ -114,14 +112,14 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           }
           break;
         }
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           }
           break;
         }

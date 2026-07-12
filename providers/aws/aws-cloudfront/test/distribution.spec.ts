@@ -86,7 +86,7 @@ describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
       originCacheStates: [cachePolicyResource],
       enabled: true,
       defaultOrigin: {
-        id: 's3-bucket',
+        id: '@ez4/s3-bucket',
         location: '/home',
         domain: originBucketName,
         getDistributionOrigin: async (context) => {
@@ -102,7 +102,7 @@ describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
       },
       origins: [
         {
-          id: 'ez4-test',
+          id: '@ez4/ez4-test',
           path: 'test*',
           domain: 'unresolved.ez4.test',
           headers: {
@@ -157,7 +157,7 @@ describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
     ok(distributionResource.parameters.origins);
 
     distributionResource.parameters.origins.push({
-      id: 'ez4-test-new',
+      id: '@ez4/ez4-test-new',
       path: 'test-new*',
       domain: 'resolved.ez4.test',
       getDistributionOrigin: (context) => {

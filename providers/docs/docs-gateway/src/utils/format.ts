@@ -3,7 +3,7 @@ export const getIndentedOutput = (input: string[]) => {
 };
 
 export const getMultilineOutput = (input: string) => {
-  return input.replaceAll(/[\r\n]/g, (_, match) => {
+  return input.replaceAll(/[\r\n]/g, (match) => {
     switch (match) {
       case '\n':
         return '\\n';
@@ -12,7 +12,7 @@ export const getMultilineOutput = (input: string) => {
         return '';
     }
 
-    return match;
+    return '';
   });
 };
 

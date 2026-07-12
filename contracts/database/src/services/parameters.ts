@@ -9,6 +9,6 @@ export namespace ParametersModeUtils {
   /**
    * Get the parameters type based on the given database service.
    */
-  export type Type<T extends Database.Service> =
+  export type Type<T extends Database.Service<any>> =
     EngineUtils.GetParametersMode<T> extends ParametersMode.NameAndIndex ? unknown[] | Record<string, unknown> : unknown[];
 }

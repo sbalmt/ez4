@@ -13,7 +13,7 @@ export declare class TestApi extends Http.Service {
 
 declare class TestRequest implements Http.Request {
   /**
-   * PATCH route request.
+   * @description PATCH route request.
    */
   body: {
     foo?: string;
@@ -22,7 +22,7 @@ declare class TestRequest implements Http.Request {
 }
 
 /**
- * Test the PATCH route documentation.
+ * @summary Test the PATCH route documentation.
  */
 function testHandler(_request: TestRequest): Http.SuccessEmptyResponse {
   return {

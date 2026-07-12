@@ -21,6 +21,8 @@ import {
   waitUntilDistributionDeployed,
   TagResourceCommand,
   UntagResourceCommand,
+  DistributionAlreadyExists,
+  NoSuchDistribution,
   ViewerProtocolPolicy,
   GeoRestrictionType,
   CertificateSource,
@@ -30,12 +32,12 @@ import {
   SslProtocol,
   HttpVersion,
   PriceClass,
-  Method,
-  NoSuchDistribution,
-  EventType
+  EventType,
+  Method
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient, getCloudFrontWaiter } from '../utils/deploy';
+import { isManagedOriginId } from '../origin/utils';
 
 export type DefaultOrigin = {
   id: string;
@@ -90,34 +92,58 @@ export const createDistribution = async (logger: OperationLogLine, request: Crea
 
   const client = getCloudFrontClient();
 
-  const response = await client.send(
-    new CreateDistributionWithTagsCommand({
-      DistributionConfigWithTags: {
-        DistributionConfig: {
-          ...upsertDistributionRequest(request)
-        },
-        Tags: {
-          Items: getTagList({
-            ...request.tags,
-            ManagedBy: 'EZ4'
-          })
+  try {
+    const response = await client.send(
+      new CreateDistributionWithTagsCommand({
+        DistributionConfigWithTags: {
+          DistributionConfig: {
+            ...upsertDistributionRequest(request)
+          },
+          Tags: {
+            Items: getTagList({
+              ...request.tags,
+              ManagedBy: 'EZ4'
+            })
+          }
         }
-      }
-    })
-  );
+      })
+    );
 
-  const distribution = response.Distribution!;
-  const distributionId = distribution.Id!;
+    const distribution = response.Distribution!;
+    const distributionId = distribution.Id!;
 
-  await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
-    Id: distributionId
-  });
+    await waitUntilDistributionDeployed(getCloudFrontWaiter(client), {
+      Id: distributionId
+    });
 
-  return {
-    distributionId,
-    distributionArn: distribution.ARN as Arn,
-    endpoint: distribution.DomainName!
-  };
+    return {
+      distributionId,
+      distributionArn: distribution.ARN as Arn,
+      endpoint: distribution.DomainName!
+    };
+  } catch (error) {
+    if (!(error instanceof DistributionAlreadyExists)) {
+      throw error;
+    }
+
+    const distributionId = error.message.match(/[A-Z][A-Z0-9]{13}/)?.[0];
+
+    if (!distributionId) {
+      throw error;
+    }
+
+    const { Distribution: distribution } = await getCloudFrontClient().send(
+      new GetDistributionCommand({
+        Id: distributionId
+      })
+    );
+
+    return {
+      distributionId,
+      distributionArn: distribution?.ARN as Arn,
+      endpoint: distribution?.DomainName!
+    };
+  }
 };
 
 export const updateDistribution = async (logger: OperationLogLine, distributionId: string, request: UpdateRequest) => {
@@ -210,23 +236,23 @@ const getCurrentDistribution = async (logger: OperationLogLine, distributionId: 
 };
 
 const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defaults?: DistributionConfig): DistributionConfig => {
-  const allCustomErrors = getAllCustomErrors(request);
-  const allCacheBehaviors = getAllCacheBehaviors(request);
-  const allOrigins = getAllOrigins(request);
+  const allCacheBehaviors = combineAllCacheBehaviors(prepareAllCacheBehaviors(request), defaults?.CacheBehaviors?.Items);
+  const allOrigins = combineAllOrigins(prepareAllOrigins(request), defaults?.Origins?.Items);
+  const allCustomErrors = prepareAllCustomErrors(request);
 
   const { distributionName, description, certificateArn, defaultIndex, defaultOrigin, rewriteFunctionArn, aliases, enabled, compress } =
     request;
 
   return {
     CallerReference: distributionName,
-    DefaultRootObject: defaultIndex ?? '',
     PriceClass: defaults?.PriceClass ?? PriceClass.PriceClass_All,
     ContinuousDeploymentPolicyId: defaults?.ContinuousDeploymentPolicyId ?? '',
-    HttpVersion: HttpVersion.http2and3,
+    DefaultRootObject: defaultIndex ?? defaults?.DefaultRootObject ?? '',
+    HttpVersion: defaults?.HttpVersion ?? HttpVersion.http2and3,
+    Comment: description ?? defaults?.Comment ?? '',
+    IsIPV6Enabled: defaults?.IsIPV6Enabled ?? true,
     WebACLId: defaults?.WebACLId ?? '',
-    Comment: description ?? '',
     Enabled: enabled,
-    IsIPV6Enabled: true,
     Staging: false,
     Aliases: {
       Quantity: aliases?.length ?? 0,
@@ -236,17 +262,15 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
       Quantity: allOrigins.length,
       Items: allOrigins
     },
-    OriginGroups: {
+    OriginGroups: defaults?.OriginGroups ?? {
       Quantity: 0
     },
     DefaultCacheBehavior: {
       ...getCacheBehavior(defaultOrigin, compress, rewriteFunctionArn)
     },
     CacheBehaviors: {
-      Quantity: allCacheBehaviors?.length ?? 0,
-      ...(allCacheBehaviors?.length && {
-        Items: allCacheBehaviors
-      })
+      Quantity: allCacheBehaviors.length,
+      Items: allCacheBehaviors
     },
     CustomErrorResponses: {
       ...allCustomErrors
@@ -265,17 +289,17 @@ const upsertDistributionRequest = (request: CreateRequest | UpdateRequest, defau
             CertificateSource: CertificateSource.cloudfront
           })
     },
-    Logging: defaults?.Logging ?? {
-      Enabled: false,
-      IncludeCookies: false,
-      Bucket: '',
-      Prefix: ''
-    },
     Restrictions: defaults?.Restrictions ?? {
       GeoRestriction: {
         RestrictionType: GeoRestrictionType.none,
         Quantity: 0
       }
+    },
+    Logging: defaults?.Logging ?? {
+      Enabled: false,
+      IncludeCookies: false,
+      Bucket: '',
+      Prefix: ''
     }
   };
 };
@@ -337,16 +361,15 @@ const getCacheBehavior = (origin: DefaultOrigin, compress?: boolean, rewriteFunc
   };
 };
 
-const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
+const prepareAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   const { defaultOrigin, originAccessId, origins } = request;
 
   const originList = origins ? [defaultOrigin, ...origins] : [defaultOrigin];
 
   return originList.map(({ id, domain, location, headers, port, http }) => {
-    const isBucket = isBucketDomain(domain);
-
     const originProtocol = http ? OriginProtocolPolicy.http_only : OriginProtocolPolicy.https_only;
     const originHeaders = getOriginHeaders(headers);
+    const isBucket = isBucketDomain(domain);
 
     return {
       Id: id,
@@ -387,7 +410,7 @@ const getAllOrigins = (request: CreateRequest | UpdateRequest): Origin[] => {
   });
 };
 
-const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
+const prepareAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBehavior[] | undefined => {
   const { rewriteFunctionArn, origins, compress } = request;
 
   return origins?.map((origin) => ({
@@ -396,7 +419,7 @@ const getAllCacheBehaviors = (request: CreateRequest | UpdateRequest): CacheBeha
   }));
 };
 
-const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
+const prepareAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomErrorResponses => {
   const { customErrors } = request;
 
   if (!customErrors?.length) {
@@ -418,4 +441,34 @@ const getAllCustomErrors = (request: CreateRequest | UpdateRequest): CustomError
     Quantity: allCustomErrors.length,
     Items: allCustomErrors
   };
+};
+
+const combineAllCacheBehaviors = (managedCacheBehaviors?: CacheBehavior[], userDefinedCacheBehaviors?: CacheBehavior[]) => {
+  const allCacheBehaviors = [];
+
+  if (managedCacheBehaviors) {
+    allCacheBehaviors.push(...managedCacheBehaviors);
+  }
+
+  const filteredUserCacheBehaviors = userDefinedCacheBehaviors?.filter(({ TargetOriginId, PathPattern }) => {
+    return !isManagedOriginId(TargetOriginId!) && !managedCacheBehaviors?.some((cache) => cache.PathPattern === PathPattern);
+  });
+
+  if (filteredUserCacheBehaviors) {
+    allCacheBehaviors.push(...filteredUserCacheBehaviors);
+  }
+
+  return allCacheBehaviors;
+};
+
+const combineAllOrigins = (managedOrigins: Origin[], userDefinedOrigins?: Origin[]) => {
+  const allOrigins = [...managedOrigins];
+
+  const filteredUserOrigins = userDefinedOrigins?.filter(({ Id }) => !isManagedOriginId(Id!));
+
+  if (filteredUserOrigins) {
+    allOrigins.push(...filteredUserOrigins);
+  }
+
+  return allOrigins;
 };

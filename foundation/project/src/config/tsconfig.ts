@@ -2,9 +2,9 @@ import type { ProjectOptions } from '../types/project';
 
 import { isAnyObject } from '@ez4/utils';
 
-import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
+import { existsSync } from 'node:fs';
 
 import { MissingTsConfigFileError } from '../errors/tsconfig';
 
@@ -12,23 +12,22 @@ const DEFAULT_TSCONFIG_FILE = 'tsconfig.json';
 
 export type AliasPaths = Record<string, string[]>;
 
-export const loadPaths = async (options: ProjectOptions): Promise<AliasPaths> => {
-  return getPathsFrom(process.cwd(), options);
+export const loadPaths = async (options: ProjectOptions, workspacePath?: string): Promise<AliasPaths> => {
+  return getPathsFrom(options, workspacePath);
 };
 
-export const tryLoadPaths = (options: ProjectOptions): Promise<AliasPaths> | AliasPaths => {
-  const fileName = getTsConfigPath(options);
+export const tryLoadPaths = (options: ProjectOptions, workspacePath?: string): Promise<AliasPaths> | AliasPaths => {
+  const fileName = getTsConfigPath(options.tsconfigFile, workspacePath);
 
   if (existsSync(fileName)) {
-    return getPathsFrom(process.cwd(), options);
+    return getPathsFrom(options, workspacePath);
   }
 
   return {};
 };
 
-export const getPathsFrom = async (path: string, options: ProjectOptions): Promise<AliasPaths> => {
-  const fileName = getTsConfigPath(options);
-  const filePath = join(path, fileName);
+export const getPathsFrom = async (options: ProjectOptions, workspacePath?: string): Promise<AliasPaths> => {
+  const filePath = getTsConfigPath(options.tsconfigFile, workspacePath);
   const fileUrl = pathToFileURL(filePath).href;
 
   try {
@@ -43,13 +42,13 @@ export const getPathsFrom = async (path: string, options: ProjectOptions): Promi
     return compilerOptions?.paths ?? {};
   } catch (error) {
     if (isAnyObject(error) && error.code === 'ERR_MODULE_NOT_FOUND') {
-      throw new MissingTsConfigFileError(fileName);
+      throw new MissingTsConfigFileError(basename(filePath));
     }
 
     throw error;
   }
 };
 
-const getTsConfigPath = (options: ProjectOptions) => {
-  return options.tsconfigFile ?? DEFAULT_TSCONFIG_FILE;
+const getTsConfigPath = (fileName?: string, workspacePath?: string) => {
+  return join(workspacePath ?? process.cwd(), fileName || DEFAULT_TSCONFIG_FILE);
 };

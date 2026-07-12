@@ -41,8 +41,8 @@ export const getAuthorizerFunction = (
     logLevel = defaults.logLevel ?? Defaults.LogLevel,
     timeout = defaults.timeout ?? Defaults.Timeout,
     memory = defaults.memory ?? Defaults.Memory,
+    debug = defaults.debug ?? options.debug,
     listener = defaults.listener,
-    debug = defaults.debug,
     authorizer,
     files,
     vpc
@@ -66,10 +66,10 @@ export const getAuthorizerFunction = (
 
     authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
       functionName: authorizerName,
-      description: authorizer.description,
       headersSchema: request?.headers,
       parametersSchema: request?.parameters,
       querySchema: request?.query,
+      description: authorizer.summary ?? authorizer.description,
       timeout: Math.max(5, timeout - 1),
       services: provider?.services,
       context: service.context,

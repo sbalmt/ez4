@@ -62,17 +62,22 @@ export namespace Database {
   /**
    * Database service.
    */
-  export declare abstract class Service implements CommonService.Provider {
-    /**
-     * Determines which database engine to use.
-     * Check the provider package to know all the possible values.
-     */
-    abstract readonly engine: Engine;
-
+  export declare abstract class Service<T extends Engine> implements CommonService.Provider {
     /**
      * Describe all available tables for the service.
      */
     abstract readonly tables: Table<any>[];
+
+    /**
+     * Service options.
+     */
+    readonly options: T['options'];
+
+    /**
+     * Determines which database engine to use.
+     * Check the provider package to know all the possible values.
+     */
+    readonly engine: T;
 
     /**
      * Scalability configuration.
@@ -82,6 +87,6 @@ export namespace Database {
     /**
      * Service client.
      */
-    readonly client: Client<Service>;
+    readonly client: Client<Service<T>>;
   }
 }

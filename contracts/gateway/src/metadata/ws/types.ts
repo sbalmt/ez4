@@ -15,6 +15,7 @@ export type WsDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSche
 export type WsService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof WsServiceType;
+    file?: string;
     displayName?: string;
     stageName?: string;
     description?: string;
@@ -80,9 +81,11 @@ export const isWsService = (service: ServiceMetadata): service is WsService => {
   return service.type === WsServiceType;
 };
 
-export const createWsService = (name: string) => {
+export const createWsService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<WsService>(WsServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

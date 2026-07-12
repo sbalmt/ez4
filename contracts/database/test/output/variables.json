@@ -2,13 +2,16 @@
   "TestDatabase": {
     "type": "@ez4/database",
     "name": "TestDatabase",
+    "file": "test/input/output-variables.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
     "engine": {
       "parametersMode": "index",
@@ -37,7 +40,7 @@
             "name": "streamHandler",
             "file": "test/input/output-variables.ts",
             "position": [
-              33,
+              31,
               1
             ]
           }

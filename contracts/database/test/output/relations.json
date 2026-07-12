@@ -1,10 +1,11 @@
 {
   "TestDatabase": {
     "type": "@ez4/database",
+    "name": "TestDatabase",
+    "file": "test/input/output-relations.ts",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestDatabase",
     "engine": {
       "parametersMode": "index",
       "transactionMode": "static",

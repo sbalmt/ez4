@@ -1,0 +1,45 @@
+{
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "file": "test/input/output-static.ts",
+    "context": {},
+    "variables": {
+      "TEST_VAR2": "test-env-var-value"
+    },
+    "services": {},
+    "description": "Test scheduler service.",
+    "group": "test-group",
+    "expression": "rate(1 minute)",
+    "timezone": "America/Sao_Paulo",
+    "startDate": "2024-01-01T:00:00:00Z",
+    "endDate": "2024-01-01T:23:59:59Z",
+    "maxRetries": 0,
+    "maxAge": 20,
+    "disabled": true,
+    "target": {
+      "runtime": "node24",
+      "architecture": "arm",
+      "logLevel": "debug",
+      "logRetention": 14,
+      "timeout": 30,
+      "memory": 128,
+      "debug": true,
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-static.ts",
+        "position": [
+          47,
+          1
+        ]
+      },
+      "files": [
+        "path/to/file-a.txt",
+        "path/to/file-b.json"
+      ],
+      "variables": {
+        "TEST_VAR1": "test-literal-value"
+      }
+    }
+  }
+}

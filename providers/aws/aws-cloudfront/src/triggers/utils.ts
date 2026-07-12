@@ -9,9 +9,9 @@ import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
 export const getCachePolicyName = (service: CdnService, origin: CdnOrigin, options: DeployOptions) => {
-  const name = toKebabCase(origin.path ?? 'default');
+  const name = toKebabCase(origin.cache?.name ?? origin.path ?? 'default');
 
-  return `${getServiceName(service, options)}-${name}-cache`;
+  return `${getServiceName(service, options)}-${name}`;
 };
 
 export const getOriginPolicyName = (service: CdnService, options: DeployOptions) => {

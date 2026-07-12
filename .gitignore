@@ -7,6 +7,7 @@ bin/
 *.eslintcache
 *.tsbuildinfo
 *.ezstate
+*.vsix
 *.env
 
 !.github

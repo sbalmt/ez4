@@ -2,9 +2,7 @@ import type { Client, Database, ParametersMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngineParameters } from '../common/engines';
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngineParameters<ParametersMode.NameAndIndex>;
-
+export declare class TestDatabase extends Database.Service<TestEngineParameters<ParametersMode.NameAndIndex>> {
   client: Client<TestDatabase>;
 
   tables: [];

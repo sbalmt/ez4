@@ -7,6 +7,7 @@ import { isModelProperty, isTypeIntersection, isTypeObject, isTypeReference } fr
 import {
   InvalidServicePropertyError,
   isModelDeclaration,
+  getDeclarationDescription,
   getObjectMembers,
   getModelMembers,
   getReferenceType,
@@ -81,6 +82,8 @@ const getTypeFromMembers = (
       continue;
     }
 
+    const description = getDeclarationDescription(member);
+
     switch (member.name) {
       default: {
         errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
@@ -90,8 +93,8 @@ const getTypeFromMembers = (
       case 'headers': {
         request.headers = getWebHeadersMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
-        if (request.headers && member.description) {
-          request.headers.description = member.description;
+        if (request.headers && description) {
+          request.headers.description = description;
         }
 
         break;
@@ -100,8 +103,8 @@ const getTypeFromMembers = (
       case 'identity': {
         request.identity = getAuthIdentityMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
-        if (request.identity && member.description) {
-          request.identity.description = member.description;
+        if (request.identity && description) {
+          request.identity.description = description;
         }
 
         break;
@@ -110,8 +113,8 @@ const getTypeFromMembers = (
       case 'query': {
         request.query = getWebQueryMetadata(member.value, type, reflection, errorList, WsNamespaceType);
 
-        if (request.query && member.description) {
-          request.query.description = member.description;
+        if (request.query && description) {
+          request.query.description = description;
         }
 
         break;

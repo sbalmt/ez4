@@ -10,6 +10,7 @@ export type ValidationService = Omit<ServiceMetadata, 'variables' | 'services'> 
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     description?: string;
     handler: ValidationHandler;
     schema: AnySchema;
@@ -21,9 +22,11 @@ export const isValidationService = (service: ServiceMetadata): service is Valida
   return service.type === ServiceType;
 };
 
-export const createValidationService = (name: string) => {
+export const createValidationService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<ValidationService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

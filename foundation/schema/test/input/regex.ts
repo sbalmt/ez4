@@ -1,11 +1,13 @@
 import type { String } from '@ez4/schema';
 
 /**
- * String type enriched with regex format.
+ * Internal test description.
+ *
+ * @description String type enriched with regex format.
  */
 export interface RegexTestSchema {
   /**
-   * String following a regex format.
+   * @description String following a regex format.
    */
   test: String.Regex<'^[a-b]+$', 'test'>;
 }

@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,6 +12,7 @@
   "TestUnorderedTopic": {
     "type": "@ez4/topic",
     "name": "TestUnorderedTopic",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -24,6 +30,7 @@
   "TestOrderedTopic": {
     "type": "@ez4/topic",
     "name": "TestOrderedTopic",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -44,6 +51,7 @@
   "TestImport1Topic": {
     "type": "@ez4/import:topic",
     "name": "TestImport1Topic",
+    "file": "test/input/output-import.ts",
     "description": "Import topic assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestUnorderedTopic",
@@ -53,7 +61,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport1Topic"
+      "selfClient": {
+        "reference": "TestImport1Topic"
+      }
     },
     "subscriptions": [
       {
@@ -81,6 +91,7 @@
   "TestImport2Topic": {
     "type": "@ez4/import:topic",
     "name": "TestImport2Topic",
+    "file": "test/input/output-import.ts",
     "description": "Import topic with no assigned handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestOrderedTopic",
@@ -91,7 +102,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport2Topic"
+      "selfClient": {
+        "reference": "TestImport2Topic"
+      }
     },
     "fifoMode": {
       "groupId": "foo"

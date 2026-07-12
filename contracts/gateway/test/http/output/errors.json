@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -6,10 +11,11 @@
   },
   "TestService": {
     "type": "@ez4/http",
+    "name": "TestService",
+    "file": "test/http/input/output-errors.ts",
     "context": {},
     "variables": {},
     "services": {},
-    "name": "TestService",
     "routes": [
       {
         "path": "GET /test-route-a",

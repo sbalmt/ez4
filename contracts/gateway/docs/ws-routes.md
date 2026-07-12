@@ -40,7 +40,7 @@ The following fields define the behavior, infrastructure, and runtime configurat
 
 #### Handler
 
-Main entry‑point handler for the route.
+Main entry‑point function for the route.
 
 - Runs in its own cloud resource.
 - For **connect**: invoked once when a new connection is opened and after the authorizer (if defined) succeeds.
@@ -50,8 +50,8 @@ Main entry‑point handler for the route.
 ```ts
 handler: typeof routeHandler;
 ```
-
-> Use `typeof` since the route handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
+ 
+> Use `typeof` because the route handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Authorizer (optional, connect only)
 
@@ -64,8 +64,8 @@ Entry‑point authorization for the connect handler.
 ```ts
 authorizer: typeof authorizeHandler;
 ```
-
-> Use `typeof` since the route authorizer is a type declaration. See the gateway [authorizer](./gateway-authorizer.md) for more details.
+ 
+> Use `typeof` because the route authorizer is referenced by type. See the gateway [authorizer](./gateway-authorizer.md) for more details.
 
 #### Listener (optional)
 
@@ -78,8 +78,8 @@ Lifecycle listener for the connect, message, and disconnect handlers (and the au
 ```ts
 listener: typeof serverListener;
 ```
-
-> Use `typeof` since the route listener is a type declaration. See the gateway [listener](./gateway-listener.md) for more details.
+ 
+> Use `typeof` because the route listener is referenced by type. See the gateway [listener](./gateway-listener.md) for more details.
 
 #### Preferences (optional)
 
@@ -145,7 +145,7 @@ architecture: ArchitectureType.Arm;
 Specifies the runtime environment for the handler.
 
 - Determines the Node.js runtime version used.
-- Must match supported provider runtimes.
+- Must match supported cloud provider runtimes.
 
 ```ts
 runtime: RuntimeType.Node24;
@@ -163,7 +163,7 @@ timeout: 29;
 
 #### Memory (optional)
 
-Amount of memory allocated to the handler (in MB).
+Amount of memory available to the handler (in MB).
 
 - Higher memory increases CPU allocation proportionally.
 - Useful for compute‑heavy or parallel workloads.
@@ -188,7 +188,7 @@ files: ['icon.png', 'settings.json'];
 Enables debug mode for the handler.
 
 - May enable additional logging or diagnostics.
-- Behavior depends on the provider and runtime.
+- Behavior depends on the cloud provider and runtime.
 
 ```ts
 debug: true;

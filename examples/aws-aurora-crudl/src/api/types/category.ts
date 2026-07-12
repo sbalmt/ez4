@@ -4,19 +4,19 @@ import type { CategoryExists } from '../validations/category';
 
 export type NewItemCategory = {
   /**
-   * Category name.
+   * @description Category name.
    */
   name: String.Size<1, 32>;
 
   /**
-   * Category description.
+   * @description Category description.
    */
   description?: String.Size<1, 128>;
 };
 
 export type SetItemCategory = {
   /**
-   * Id of an existing category.
+   * @description Id of an existing category.
    */
   category_id: String.UUID & Validation.Use<CategoryExists>;
 };

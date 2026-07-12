@@ -7,7 +7,7 @@ import type { Http } from '@ez4/gateway';
 
 import { HttpError, HttpInternalServerError } from '@ez4/gateway';
 import { isObjectSchema, isScalarSchema } from '@ez4/schema';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime, ServiceError } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
 import {
@@ -237,7 +237,10 @@ const getMappedErrorResponse = (error: Error) => {
   return getDefaultErrorResponse({
     status: statusCode,
     message: error.message,
-    name: errorName
+    name: errorName,
+    ...(error instanceof ServiceError && {
+      context: error.context
+    })
   });
 };
 
@@ -245,7 +248,7 @@ const onCustomValidation = (value: unknown, context: ValidationCustomContext) =>
   return resolveValidation(value, __EZ4_CONTEXT, context.type);
 };
 
-const onBegin = async (request: Http.Incoming<Http.Request>) => {
+const onBegin = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -255,7 +258,7 @@ const onBegin = async (request: Http.Incoming<Http.Request>) => {
   );
 };
 
-const onReady = async (request: Http.Incoming<Http.Request>) => {
+const onReady = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -265,7 +268,7 @@ const onReady = async (request: Http.Incoming<Http.Request>) => {
   );
 };
 
-const onDone = async (request: Http.Incoming<Http.Request>) => {
+const onDone = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -275,7 +278,7 @@ const onDone = async (request: Http.Incoming<Http.Request>) => {
   );
 };
 
-const onError = async (error: unknown, request: Http.Incoming<Http.Request>) => {
+const onError = (error: unknown, request: Partial<Http.Incoming<Http.Request>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -288,7 +291,7 @@ const onError = async (error: unknown, request: Http.Incoming<Http.Request>) => 
   );
 };
 
-const onEnd = async (request: Http.Incoming<Http.Request>) => {
+const onEnd = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

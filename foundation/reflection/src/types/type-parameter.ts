@@ -1,4 +1,4 @@
-import type { AllType } from './common';
+import type { AllType, TypeTag } from './common';
 import type { EveryType } from './types';
 
 import { TypeName } from './common';
@@ -7,6 +7,7 @@ export type TypeParameter = {
   type: TypeName.Parameter;
   name: string;
   description?: string;
+  tags?: TypeTag[];
   value: EveryType;
 };
 

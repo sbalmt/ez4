@@ -1,0 +1,45 @@
+{
+  "name": "@ez4/http",
+  "description": "EZ4: HTTP utils",
+  "version": "0.49.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4",
+    "http",
+    "client",
+    "utils"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "libraries/http"
+  },
+  "engines": {
+    "node": ">=22.7"
+  },
+  "exports": {
+    "types": "./dist/main.d.ts",
+    "require": "./dist/main.cjs",
+    "import": "./dist/main.mjs"
+  },
+  "sideEffects": false,
+  "workspaces": [
+    "libraries/*"
+  ],
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "build": "tsc && node tools/bundler.mjs",
+    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/http",
+    "live:publish": "npm run build && npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/schema": "^0.49.0",
+    "@ez4/transform": "^0.49.0",
+    "@ez4/utils": "^0.49.0"
+  }
+}

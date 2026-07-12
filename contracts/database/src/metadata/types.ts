@@ -12,6 +12,8 @@ export const ServiceType = '@ez4/database';
 export type DatabaseService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
+    file?: string;
+    description?: string;
     scalability?: DatabaseScalability;
     engine: DatabaseEngine;
     tables: DatabaseTable[];
@@ -79,9 +81,11 @@ export const isDatabaseService = (service: ServiceMetadata): service is Database
   return service.type === ServiceType;
 };
 
-export const createDatabaseService = (name: string) => {
+export const createDatabaseService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<DatabaseService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

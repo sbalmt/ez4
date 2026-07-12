@@ -15,7 +15,7 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isModelProperty, isTypeModel, isTypeObject, isTypeReference } from '@ez4/reflection';
 import { isAnyNumber } from '@ez4/utils';
 
 import { IncompleteCacheError, IncorrectCacheTypeError, InvalidCacheTypeError } from '../errors/cache';
@@ -100,6 +100,10 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
     }
+  }
+
+  if (isTypeModel(type)) {
+    cache.name = type.name;
   }
 
   if (!isCompleteCache(cache)) {

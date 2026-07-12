@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -7,6 +12,7 @@
   "TestUnorderedQueue": {
     "type": "@ez4/queue",
     "name": "TestUnorderedQueue",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -30,6 +36,7 @@
   "TestOrderedQueue": {
     "type": "@ez4/queue",
     "name": "TestOrderedQueue",
+    "file": "test/input/output-import.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -50,6 +57,7 @@
   "TestImport1Queue": {
     "type": "@ez4/import:queue",
     "name": "TestImport1Queue",
+    "file": "test/input/output-import.ts",
     "description": "Import queue assigning handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestUnorderedQueue",
@@ -59,7 +67,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport1Queue"
+      "selfClient": {
+        "reference": "TestImport1Queue"
+      }
     },
     "timeout": 20,
     "schema": {
@@ -87,6 +97,7 @@
   "TestImport2Queue": {
     "type": "@ez4/import:queue",
     "name": "TestImport2Queue",
+    "file": "test/input/output-import.ts",
     "description": "Import queue with no assigned handler.",
     "project": "name from project in ez4.project.js",
     "reference": "TestOrderedQueue",
@@ -96,7 +107,9 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfClient": "TestImport2Queue"
+      "selfClient": {
+        "reference": "TestImport2Queue"
+      }
     },
     "fifoMode": {
       "groupId": "foo"

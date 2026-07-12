@@ -25,7 +25,8 @@ Ensure the user performing deployments has the permissions below:
         "cloudfront:GetOriginRequestPolicy",
         "cloudfront:CreateOriginRequestPolicy",
         "cloudfront:UpdateOriginRequestPolicy",
-        "cloudfront:DeleteOriginRequestPolicy"
+        "cloudfront:DeleteOriginRequestPolicy",
+        "cloudfront:ListOriginRequestPolicies"
       ],
       "Resource": ["arn:aws:cloudfront::{account-id}:origin-request-policy/*"]
     },
@@ -36,7 +37,8 @@ Ensure the user performing deployments has the permissions below:
         "cloudfront:GetOriginAccessControl",
         "cloudfront:CreateOriginAccessControl",
         "cloudfront:UpdateOriginAccessControl",
-        "cloudfront:DeleteOriginAccessControl"
+        "cloudfront:DeleteOriginAccessControl",
+        "cloudfront:ListOriginAccessControls"
       ],
       "Resource": ["arn:aws:cloudfront::{account-id}:origin-access-control/*"]
     },
@@ -47,7 +49,8 @@ Ensure the user performing deployments has the permissions below:
         "cloudfront:GetCachePolicy",
         "cloudfront:CreateCachePolicy",
         "cloudfront:UpdateCachePolicy",
-        "cloudfront:DeleteCachePolicy"
+        "cloudfront:DeleteCachePolicy",
+        "cloudfront:ListCachePolicies"
       ],
       "Resource": ["arn:aws:cloudfront::{account-id}:cache-policy/*"]
     },

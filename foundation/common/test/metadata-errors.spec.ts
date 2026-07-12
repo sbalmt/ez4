@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { InvalidServiceError, MissingServiceProviderError, MissingServiceError, MissingVariableError } from '@ez4/common/library';
 
-import { registerTriggers, getLinkedVariableList, getLinkedServiceList } from '@ez4/common/library';
+import { registerTriggers, getLinkedVariablesObject, getLinkedServicesObject } from '@ez4/common/library';
 
 import { loadTestMember } from './common';
 
@@ -14,7 +14,7 @@ describe('common metadata errors', () => {
     const { members } = loadTestMember('missing-variable');
     const testErrors: Error[] = [];
 
-    getLinkedVariableList(members[0], testErrors);
+    getLinkedVariablesObject(members[0], testErrors);
 
     equal(testErrors.length, 1);
 
@@ -28,7 +28,7 @@ describe('common metadata errors', () => {
     const { members, reflection } = loadTestMember('missing-service');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(members[0], reflection, testErrors);
+    getLinkedServicesObject(members[0], reflection, testErrors);
 
     equal(testErrors.length, 1);
 
@@ -42,27 +42,33 @@ describe('common metadata errors', () => {
     const { members, reflection } = loadTestMember('missing-service-provider');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(members[0], reflection, testErrors);
+    getLinkedServicesObject(members[0], reflection, testErrors);
 
-    equal(testErrors.length, 1);
+    equal(testErrors.length, 2);
 
-    const [error] = testErrors;
+    const [error1, error2] = testErrors;
 
-    ok(error instanceof MissingServiceProviderError);
-    equal(error.serviceName, 'TestService');
+    ok(error1 instanceof MissingServiceProviderError);
+    equal(error1.serviceName, 'TestService');
+
+    ok(error2 instanceof MissingServiceError);
+    equal(error2.serviceName, 'testService');
   });
 
   it('assert :: invalid service', () => {
     const { members, reflection } = loadTestMember('invalid-service');
     const testErrors: Error[] = [];
 
-    getLinkedServiceList(members[0], reflection, testErrors);
+    getLinkedServicesObject(members[0], reflection, testErrors);
 
-    equal(testErrors.length, 1);
+    equal(testErrors.length, 2);
 
-    const [error] = testErrors;
+    const [error1, error2] = testErrors;
 
-    ok(error instanceof InvalidServiceError);
-    equal(error.serviceName, 'TestService');
+    ok(error1 instanceof InvalidServiceError);
+    equal(error1.serviceName, 'TestService');
+
+    ok(error2 instanceof MissingServiceError);
+    equal(error2.serviceName, 'testService');
   });
 });

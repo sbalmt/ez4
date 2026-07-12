@@ -10,13 +10,13 @@ export interface TableSchema {}
 /**
  * Given a database service `T`, it produces an object containing all tables with schemas.
  */
-export type TableSchemas<T extends Database.Service> = MergeTables<DatabaseTables<T>>;
+export type TableSchemas<T extends Database.Service<any>> = MergeTables<DatabaseTables<T>>;
 
 /**
  * Given a list of tables with schema `T`, it produces an object containing all schemas.
  */
-type MergeTables<T extends DatabaseTable<TableSchema>[]> =
-  IsArrayEmpty<T> extends false ? ExtractSchema<T[0]> & MergeTables<ArrayRest<T>> : {};
+type MergeTables<T extends DatabaseTable<TableSchema>[], A = {}> =
+  IsArrayEmpty<T> extends false ? MergeTables<ArrayRest<T>, A & ExtractSchema<T[0]>> : A;
 
 /**
  * Given a database table `T`, it produces an object containing the table schema.

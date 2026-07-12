@@ -18,7 +18,7 @@ export const processLambdaMessage = async (
 ) => {
   const { services } = service;
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   const module = await createModule({
@@ -48,6 +48,8 @@ export const processLambdaMessage = async (
     currentRequest = {
       ...request,
       message: await getJsonMessage(message, service.schema, onCustomValidation),
+      maxRetries: 1,
+      attempt: 1,
       traceId
     };
 

@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,6 +12,7 @@
   "TestValidationA": {
     "type": "@ez4/validation",
     "name": "TestValidationA",
+    "file": "test/common/validations.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -25,6 +31,7 @@
   "TestValidationB": {
     "type": "@ez4/validation",
     "name": "TestValidationB",
+    "file": "test/common/validations.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -43,11 +50,16 @@
   "TestService": {
     "type": "@ez4/ws",
     "name": "TestService",
+    "file": "test/ws/input/output-validation.ts",
     "context": {},
     "variables": {},
     "services": {
-      "@TestValidationA": "TestValidationA",
-      "@TestValidationB": "TestValidationB"
+      "@TestValidationA": {
+        "reference": "TestValidationA"
+      },
+      "@TestValidationB": {
+        "reference": "TestValidationB"
+      }
     },
     "schema": {
       "type": "object",

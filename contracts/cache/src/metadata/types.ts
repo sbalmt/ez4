@@ -7,6 +7,7 @@ export const ServiceType = '@ez4/cache';
 export type CacheService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
+    file?: string;
     description?: string;
     engine: CacheEngine;
   };
@@ -19,9 +20,11 @@ export const isCacheService = (service: ServiceMetadata): service is CacheServic
   return service.type === ServiceType;
 };
 
-export const createCacheService = (name: string) => {
+export const createCacheService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<CacheService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

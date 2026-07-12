@@ -3,7 +3,7 @@ import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
 
 /**
- * Service for testing route authorizers.
+ * @description Service for testing route authorizers.
  */
 export declare class TestService extends Http.Service {
   routes: [
@@ -25,7 +25,7 @@ export declare class TestService extends Http.Service {
 
 declare class TestQueryAuthRequest implements Http.AuthRequest {
   /**
-   * Authorizer query strings.
+   * @description Authorizer query strings.
    */
   query: {
     apiKey: string;
@@ -34,7 +34,7 @@ declare class TestQueryAuthRequest implements Http.AuthRequest {
 
 declare class TestHeaderAuthRequest implements Http.AuthRequest {
   /**
-   * Authorizer headers.
+   * @description Authorizer headers.
    */
   headers: {
     'x-api-key': string;
@@ -43,7 +43,7 @@ declare class TestHeaderAuthRequest implements Http.AuthRequest {
 
 declare class TestAuthResponse implements Http.AuthResponse {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity?: {
     id: string;
@@ -89,7 +89,7 @@ function testHeaderAuthorizer(request: TestHeaderAuthRequest, context: Service.C
 
 declare class TestRequest implements Http.Request {
   /**
-   * Authorization identity.
+   * @description Authorization identity.
    */
   identity: {
     id: string;

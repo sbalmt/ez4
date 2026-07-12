@@ -7,16 +7,14 @@ import { before, after, describe, it } from 'node:test';
 import { deepEqual, ok } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-import { Client } from '@ez4/aws-aurora/client';
+import { Client, ConnectionMode } from '@ez4/aws-aurora/client';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Index } from '@ez4/database';
 
 import { createCluster, createInstance, createMigration, isClusterState, registerTriggers } from '@ez4/aws-aurora';
 
-declare class Test extends Database.Service {
-  engine: PostgresEngine;
-
+declare class Test extends Database.Service<PostgresEngine> {
   tables: [
     {
       name: 'ez4_test_schema';
@@ -158,7 +156,7 @@ describe('aurora client schema', { timeout: 180000 }, async () => {
     ok(resultResource.result);
 
     dbClient = Client.make({
-      debug: false,
+      mode: ConnectionMode.Api,
       repository,
       connection: {
         database: migrationState.parameters.database,
@@ -167,7 +165,7 @@ describe('aurora client schema', { timeout: 180000 }, async () => {
       }
     });
 
-    dbClient.ez4_test_schema.deleteMany({});
+    await dbClient.ez4_test_schema.deleteMany({});
   });
 
   after(async () => {

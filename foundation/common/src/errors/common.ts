@@ -13,7 +13,7 @@ export class TypeCollisionError extends TypeError {
     public property: string,
     public fileName?: string
   ) {
-    super(`${message}, property '${property}' is colliding.`, fileName);
+    super(`${message}, property '${property}' is colliding, use another name.`, fileName);
   }
 }
 

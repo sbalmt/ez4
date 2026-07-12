@@ -21,7 +21,7 @@ export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Co
 
 #### HTTP Request fields
 
-Handlers receive a typed request object generated from the route contract.
+Handlers receive a typed request object generated from the route request type.
 Depending on the route definition, the request may include:
 
 - **Identity** - Identity returned by the authorizer.
@@ -30,11 +30,11 @@ Depending on the route definition, the request may include:
 - **Query** - Typed query strings.
 - **Body** - Typed JSON or raw string payload.
 
-All fields are validated and transformed according to the declared contract, as mentioned in the HTTP [requests](./http-requests.md) documentation.
+All fields are validated and transformed according to the declared route schema, as mentioned in the HTTP [requests](./http-requests.md) documentation.
 
 #### HTTP Response fields
 
-Handlers must return a typed response object that matches the route's response contract.
+Handlers must return a typed response object that matches the route's response type.
 
 - **Status** - Required HTTP status code.
 - **Headers** - Optional typed headers.
@@ -70,7 +70,7 @@ export function myHandler(request: Ws.Incoming<MyMessage>, context: Service.Cont
 }
 ```
 
-> Message handlers use the gateway service contract itself as the context provider.
+> Message handlers use the gateway service itself as the context provider.
 
 #### Connection handlers
 
@@ -82,21 +82,21 @@ export function connectionHandler(request: Ws.Incoming<MyEvent>, context: Servic
 }
 ```
 
-> Connection handlers use the gateway service contract itself as the context provider.
+> Connection handlers use the gateway service itself as the context provider.
 
 #### WS Request fields (message handlers)
 
-Handlers receive a typed object generated from the request contract.
-Depending on the contract definition, the request may include:
+Handlers receive a typed object generated from the declared request type.
+Depending on the route definition, the request may include:
 
 - **Identity** - Identity returned by the connect authorizer.
 - **Body** - Typed JSON or raw string payload.
 
-All fields are validated and transformed according to the request contract, as mentioned in the WS [requests](./ws-requests.md) documentation.
+All fields are validated and transformed according to the declared request type, as mentioned in the WS [requests](./ws-requests.md) documentation.
 
 #### WS Response fields (message handlers)
 
-Handlers must return a typed response object that matches the response contract.
+Handlers must return a typed response object that matches the declared response type.
 
 - **Body** - Optional JSON or raw string payload.
 
@@ -104,14 +104,14 @@ WebSocket responses do not include status codes or headers; Unknown fields are a
 
 #### WS Event fields (connect and disconnect handlers)
 
-Handlers receive a typed object generated from the event contract.
-Depending on the contract definition, the event may include:
+Handlers receive a typed object generated from the declared event type.
+Depending on the route definition, the event may include:
 
 - **Identity** - Identity returned by the connect authorizer.
 - **Headers** - Typed HTTP headers captured during connect (copied to disconnect).
 - **Query** - Typed query strings captured during connect (copied to disconnect).
 
-All fields are validated and transformed according to the event contract, as mentioned in the WS [events](./ws-events.md) documentation.
+All fields are validated and transformed according to the declared event type, as mentioned in the WS [events](./ws-events.md) documentation.
 
 #### WS Error handling
 

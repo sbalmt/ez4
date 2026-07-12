@@ -26,25 +26,25 @@ export const validateNumber = (value: unknown, schema: NumberSchema, context?: V
   const property = context?.property;
 
   if (typeof value !== 'number' || Number.isNaN(value)) {
-    return [new ExpectedNumberTypeError(property)];
+    return [new ExpectedNumberTypeError(value, property)];
   }
 
   if (schema.format === 'integer' && !Number.isSafeInteger(value)) {
-    return [new ExpectedIntegerTypeError(property)];
+    return [new ExpectedIntegerTypeError(value, property)];
   }
 
   const { definitions } = schema;
 
   if (isAnyNumber(definitions?.value) && value !== definitions?.value) {
-    return [new UnexpectedNumberError(definitions.value, property)];
+    return [new UnexpectedNumberError(value, definitions.value, property)];
   }
 
   if (isAnyNumber(definitions?.minValue) && value < definitions.minValue) {
-    return [new UnexpectedMinRangeError(definitions.minValue, property)];
+    return [new UnexpectedMinRangeError(value, definitions.minValue, property)];
   }
 
   if (isAnyNumber(definitions?.maxValue) && value > definitions.maxValue) {
-    return [new UnexpectedMaxRangeError(definitions.maxValue, property)];
+    return [new UnexpectedMaxRangeError(value, definitions.maxValue, property)];
   }
 
   if (definitions?.types && context) {

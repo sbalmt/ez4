@@ -3,11 +3,14 @@ import type { AnyObject } from '@ez4/utils';
 
 import { isObjectWith } from '@ez4/utils';
 
+import { getDeclarationDescription, getDeclarationSummary } from './declaration';
+
 export type FunctionSignature = {
   name: string;
   file: string;
   position: [number, number];
   description?: string;
+  summary?: string;
   module?: string;
 };
 
@@ -16,13 +19,17 @@ export const isFunctionSignature = (type: AnyObject): type is FunctionSignature 
 };
 
 export const getFunctionSignature = (type: TypeCallback | TypeFunction) => {
-  const { description, name, file, position, module } = type;
+  const { name, file, position, module } = type;
+
+  const description = getDeclarationDescription(type);
+  const summary = getDeclarationSummary(type);
 
   const metadata = {
     ...(name && { name }),
     ...(file && { file }),
     ...(position && { position: [position.line, position.character] }),
     ...(description && { description }),
+    ...(summary && { summary }),
     ...(module && { module })
   };
 

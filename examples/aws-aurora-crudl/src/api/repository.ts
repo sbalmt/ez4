@@ -1,3 +1,4 @@
+import type { ItemTagType } from '../schemas/item';
 import type { Db } from '../aurora';
 
 import { randomUUID } from 'node:crypto';
@@ -9,6 +10,7 @@ type DbClient = Db['client'];
 export type CreateItemInput = {
   name: string;
   description?: string;
+  order?: number;
   category?:
     | {
         name: string;
@@ -17,6 +19,10 @@ export type CreateItemInput = {
     | {
         category_id: string;
       };
+  tags?: {
+    label: string;
+    type: ItemTagType;
+  }[];
 };
 
 export const createItem = async (client: DbClient, input: CreateItemInput) => {
@@ -33,6 +39,8 @@ export const createItem = async (client: DbClient, input: CreateItemInput) => {
       id: randomUUID(),
       name: input.name,
       description: input.description,
+      order: input.order,
+      tags: input.tags,
       ...(input.category && {
         category:
           'category_id' in input.category
@@ -60,7 +68,12 @@ export const readItem = async (client: DbClient, id: string) => {
     select: {
       name: true,
       description: true,
-      category: true
+      category: true,
+      order: true,
+      tags: {
+        label: true,
+        type: true
+      }
     },
     where: {
       id
@@ -73,7 +86,7 @@ export type UpdateItemInput = Partial<CreateItemInput> & {
 };
 
 export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
-  const { id, name, description, category } = input;
+  const { id, name, description, order, category, tags } = input;
 
   const now = new Date().toISOString();
 
@@ -81,11 +94,14 @@ export const updateItem = async (client: DbClient, input: UpdateItemInput) => {
     select: {
       name: true,
       description: true,
-      category: true
+      category: true,
+      order: true
     },
     data: {
       name,
       description,
+      order,
+      tags,
       ...(category && {
         category:
           'category_id' in category
@@ -125,9 +141,14 @@ export const listItems = async (client: DbClient, page: number, limit: number) =
       name: true,
       category: {
         name: true
+      },
+      tags: {
+        label: true,
+        type: true
       }
     },
     order: {
+      order: Order.Asc,
       created_at: Order.Desc
     },
     skip: (page - 1) * limit,

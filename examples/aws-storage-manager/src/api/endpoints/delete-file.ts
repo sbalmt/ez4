@@ -27,6 +27,9 @@ declare class DeleteFileResponse implements Http.Response {
 
 /**
  * Handle delete file requests.
+ *
+ * @description Delete a file corresponding to the given `fileId`.
+ * @summary Delete file.
  */
 export async function deleteFileHandler(request: DeleteFileRequest, context: Service.Context<ApiProvider>): Promise<DeleteFileResponse> {
   const { fileDb, fileStorage } = context;

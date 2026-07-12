@@ -32,13 +32,13 @@ export type SyncEvent = {
 
 export type AsyncEvent = {
   'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<boolean>;
-  'emulator:getClient': (event: EmulateClientEvent) => AsyncEventResult<unknown>;
+  'emulator:clientFactory': (event: EmulateClientEvent) => AsyncEventResult<ClientFactory>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<ServiceEmulator>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:stopService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:fallbackRequest': (event: EmulatorFallbackRequestEvent) => AsyncEventResult<EmulatorResponse>;
-  'deploy:prepareLinkedService': (event: ServiceEvent) => AsyncEventResult<ContextSource>;
+  'deploy:prepareLinkedService': (event: LinkServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
   'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;
@@ -66,6 +66,14 @@ export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   context: EventContext;
+};
+
+export type ClientFactory = {
+  make: (...options: any[]) => unknown;
+};
+
+export type LinkServiceEvent = ServiceEvent & {
+  target: ServiceMetadata;
 };
 
 export type IdentityEvent = {

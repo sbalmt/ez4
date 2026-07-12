@@ -37,7 +37,7 @@ interface ObjectResponse extends Http.Response {
   status: 204;
 
   /**
-   * JSON response.
+   * @description JSON response.
    */
   body: {
     foo: string;
@@ -57,7 +57,7 @@ declare class UnionResponse implements Http.Response {
   status: 204;
 
   /**
-   * Union response.
+   * @description Union response.
    */
   body: boolean | string;
 }
@@ -73,7 +73,7 @@ type ScalarResponse = {
   status: 204;
 
   /**
-   * Scalar response.
+   * @description Scalar response.
    */
   body: number;
 };
@@ -89,7 +89,7 @@ declare class NamingStyleResponse implements Http.Response {
   status: 204;
 
   /**
-   * JSON response with `NamingStyle` transformation.
+   * @description JSON response with `NamingStyle` transformation.
    */
   body: {
     fooBar: string;
@@ -108,7 +108,7 @@ function testRouteD(): NamingStyleResponse {
 }
 
 /**
- * Multi-status response.
+ * @description Multi-status response.
  */
 declare class MultiStatusResponse implements Http.Response {
   status: 200 | 204;

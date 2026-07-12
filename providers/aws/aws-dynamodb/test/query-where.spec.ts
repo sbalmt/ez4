@@ -173,6 +173,26 @@ describe('dynamodb query (where)', () => {
     deepEqual(variables, []);
   });
 
+  it('assert :: prepare where (is missing or null)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      bar: { barBar: { isMissingOrNull: true } }
+    });
+
+    equal(whereStatement, `WHERE ("bar"."barBar" IS MISSING OR "bar"."barBar" IS null)`);
+
+    deepEqual(variables, []);
+  });
+
+  it('assert :: prepare where (is not missing or null)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      bar: { barBar: { isMissingOrNull: false } }
+    });
+
+    equal(whereStatement, `WHERE ("bar"."barBar" IS NOT MISSING AND "bar"."barBar" IS NOT null)`);
+
+    deepEqual(variables, []);
+  });
+
   it('assert :: prepare where (contains)', () => {
     const [whereStatement, variables] = getWhereOperation({
       bar: { barFoo: { contains: 'abc' } }

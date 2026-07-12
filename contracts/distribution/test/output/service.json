@@ -2,8 +2,9 @@
   "TestCdn": {
     "type": "@ez4/cdn",
     "name": "TestCdn",
+    "file": "test/input/output-service.ts",
     "context": {},
-    "description": "Test distribution.",
+    "description": "Test distribution service.",
     "disabled": true,
     "defaultIndex": "index.html",
     "defaultOrigin": {
@@ -28,6 +29,7 @@
         "path": "default/regular/*",
         "domain": "ez4.default",
         "cache": {
+          "name": "TestCache",
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
@@ -69,6 +71,7 @@
         "location": "internal",
         "path": "bucket/*",
         "cache": {
+          "name": "TestCache",
           "ttl": 300,
           "minTTL": 1,
           "maxTTL": 3600,
@@ -103,6 +106,9 @@
         "location": "/index.html",
         "ttl": 3600
       }
+    ],
+    "invalidations": [
+      "/path2/*"
     ]
   }
 }

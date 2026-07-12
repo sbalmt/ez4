@@ -5,7 +5,7 @@ import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 
-import { DataClientDriver } from '../client/driver';
+import { ApiClientDriver } from '../client/drivers/api';
 import { MigrationFailedError } from './errors';
 
 export type ConnectionRequest = {
@@ -34,7 +34,7 @@ export const createDatabase = async (logger: OperationLogLine, request: Connecti
 
   const { clusterArn, secretArn, database } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
@@ -48,7 +48,7 @@ export const createTables = async (logger: OperationLogLine, request: CreateTabl
 
   const { clusterArn, secretArn, database, repository } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
@@ -64,7 +64,7 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
 
   const { clusterArn, secretArn, database, repository } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
@@ -80,7 +80,7 @@ export const deleteTables = async (logger: OperationLogLine, request: DeleteTabl
 
   const { clusterArn, secretArn, database, repository } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     resourceArn: clusterArn,
     secretArn,
     database
@@ -96,7 +96,7 @@ export const deleteDatabase = async (logger: OperationLogLine, request: Connecti
 
   const { clusterArn, secretArn, database } = request;
 
-  const driver = new DataClientDriver({
+  const driver = new ApiClientDriver({
     database: 'postgres',
     resourceArn: clusterArn,
     secretArn
@@ -105,7 +105,7 @@ export const deleteDatabase = async (logger: OperationLogLine, request: Connecti
   await executeMigrationStatement(driver, DatabaseQueries.prepareDelete(database));
 };
 
-const executeMigrationStatements = async (driver: DataClientDriver, statements: PgMigrationStatement[]) => {
+const executeMigrationStatements = async (driver: ApiClientDriver, statements: PgMigrationStatement[]) => {
   const errors = [];
 
   for (const statement of statements) {
@@ -121,7 +121,7 @@ const executeMigrationStatements = async (driver: DataClientDriver, statements: 
   }
 };
 
-const executeMigrationStatement = async (driver: DataClientDriver, statement: PgMigrationStatement) => {
+const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgMigrationStatement) => {
   const { check, ...query } = statement;
 
   if (check) {

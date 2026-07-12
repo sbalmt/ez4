@@ -40,6 +40,10 @@ declare class PutResponse implements Http.Response {
 
 /**
  * Handler for `put` requests.
+ *
+ * @description Example of a `PUT` endpoint.
+ * @summary Put endpoint.
+ *
  * @param request Incoming request.
  * @returns Outgoing response.
  */

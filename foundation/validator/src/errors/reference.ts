@@ -4,9 +4,9 @@ export class ReferenceNotFoundError extends Error {
     public propertyName?: string
   ) {
     if (reference) {
-      super(`Reference ${reference} for property ${propertyName} is not found.`);
+      super(`Reference '${reference}' for property '${propertyName}' is not found.`);
     } else {
-      super(`Reference ${reference} is not found.`);
+      super(`Reference '${reference}' is not found.`);
     }
   }
 }

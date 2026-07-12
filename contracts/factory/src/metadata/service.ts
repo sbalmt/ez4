@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
+  getLinkedServicesObject,
+  getDeclarationDescription,
   getModelMembers,
   hasHeritageType
 } from '@ez4/common/library';
@@ -35,14 +36,10 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createFactoryService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createFactoryService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['handler']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -62,13 +59,18 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
+        case 'options': {
+          service.options = {};
+          break;
+        }
+
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          service.variables = getLinkedVariablesObject(member, errorList);
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

@@ -2,10 +2,13 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
+    "file": "test/input/output-dynamic.ts",
     "context": {},
     "variables": {},
     "services": {
-      "testCron": "TestScheduler"
+      "testCron": {
+        "reference": "TestScheduler"
+      }
     },
     "group": "test-group",
     "expression": "dynamic",

@@ -1,8 +1,9 @@
 import type { HttpClient as HttpClientType, HttpClientRequest, Http } from '@ez4/gateway';
 import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library';
 
-import { getClientRequestUrl, sendClientRequest } from '@ez4/gateway/utils';
+import { sendClientRequest } from '@ez4/gateway/utils';
 import { getRandomUUID, isAnyString } from '@ez4/utils';
+import { prepareRequestUrl } from '@ez4/http';
 import { Runtime } from '@ez4/common';
 
 export type ClientOperations = Record<string, ClientOperation>;
@@ -29,7 +30,7 @@ export namespace HttpClient {
 
             const scope = Runtime.getScope();
 
-            const requestUrl = getClientRequestUrl(gatewayUrl, path, {
+            const requestUrl = prepareRequestUrl(gatewayUrl, path, {
               ...request,
               querySchema,
               namingStyle

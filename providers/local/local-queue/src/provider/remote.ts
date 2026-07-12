@@ -6,7 +6,7 @@ import { getServiceName, MissingImportedProjectError } from '@ez4/project/librar
 
 import { createRemoteClient } from '../client/remote';
 
-export const registerRemoteServices = (service: QueueImport, options: ServeOptions) => {
+export const registerRemoteService = (service: QueueImport, options: ServeOptions) => {
   const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
   const { imports } = options;
 

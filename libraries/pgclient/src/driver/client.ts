@@ -13,19 +13,29 @@ import { DuplicateUniqueKeyError } from './errors';
 import { prepareStatement } from './prepare';
 import { parseRecords } from './records';
 
-const POOL_CLIENTS: Record<string, PoolClient> = {};
+const ALL_TRANSACTIONS: Record<string, PoolClient> = {};
 
 export class ClientDriver implements PgClientDriver {
-  #pool: Pool;
+  protected pool?: Pool;
 
-  constructor(pool: Pool) {
-    this.#pool = pool;
+  constructor(pool?: Pool) {
+    this.pool = pool;
+  }
+
+  async getConnection() {
+    const connection = await this.pool?.connect();
+
+    if (!connection) {
+      throw new Error(`Unable to get a connection from the pool.`);
+    }
+
+    return connection;
   }
 
   async executeStatement(statement: PgExecuteStatement, options?: PgExecuteOptions) {
     const transactionId = options?.transactionId;
 
-    const client = transactionId ? POOL_CLIENTS[transactionId] : await this.#pool.connect();
+    const client = transactionId ? ALL_TRANSACTIONS[transactionId] : await this.getConnection();
 
     if (!client) {
       throw new Error(`Transaction '${transactionId}' wasn't found.`);
@@ -104,11 +114,11 @@ export class ClientDriver implements PgClientDriver {
 
   async beginTransaction() {
     const transactionId = randomUUID();
-    const client = await this.#pool.connect();
+    const client = await this.getConnection();
 
     try {
-      await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
-      POOL_CLIENTS[transactionId] = client;
+      await client.query('BEGIN');
+      ALL_TRANSACTIONS[transactionId] = client;
       return transactionId;
     } catch (error) {
       client.release();
@@ -117,7 +127,7 @@ export class ClientDriver implements PgClientDriver {
   }
 
   async commitTransaction(transactionId: string) {
-    const client = POOL_CLIENTS[transactionId];
+    const client = ALL_TRANSACTIONS[transactionId];
 
     if (!client) {
       throw new Error(`Transaction '${transactionId}' wasn't found, unable to commit.`);
@@ -128,13 +138,13 @@ export class ClientDriver implements PgClientDriver {
     } catch (error) {
       throw error;
     } finally {
-      delete POOL_CLIENTS[transactionId];
+      delete ALL_TRANSACTIONS[transactionId];
       client.release();
     }
   }
 
   async rollbackTransaction(transactionId: string) {
-    const client = POOL_CLIENTS[transactionId];
+    const client = ALL_TRANSACTIONS[transactionId];
 
     if (!client) {
       throw new Error(`Transaction '${transactionId}' wasn't found, unable to rollback.`);
@@ -145,7 +155,7 @@ export class ClientDriver implements PgClientDriver {
     } catch (error) {
       throw error;
     } finally {
-      delete POOL_CLIENTS[transactionId];
+      delete ALL_TRANSACTIONS[transactionId];
       client.release();
     }
   }

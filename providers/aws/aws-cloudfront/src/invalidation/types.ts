@@ -5,6 +5,7 @@ export const InvalidationServiceName = 'AWS:CloudFront/Invalidation';
 export const InvalidationServiceType = 'aws:cloudfront.invalidation';
 
 export type InvalidationParameters = {
+  invalidations?: string[];
   contentVersion: string;
 };
 

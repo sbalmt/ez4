@@ -1,20 +1,11 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
+import type { Pool } from 'pg';
 
 import { PgClient } from '@ez4/pgclient';
-import { Pool } from 'pg';
 
 import { ClientDriver } from './client';
-
-export type ClientConnection = {
-  database: string;
-  password?: string;
-  user?: string;
-  host?: string;
-  port?: number;
-  ssl?: boolean | object;
-  connectionString?: string;
-};
+import { createPool, type ClientConnection } from './pool';
 
 export type ClientContext = {
   connection: ClientConnection;
@@ -25,7 +16,7 @@ export type ClientContext = {
 const DB_POOL: Record<string, Pool> = {};
 
 export namespace Client {
-  export const make = <T extends Database.Service>(context: ClientContext): DbClient<T> => {
+  export const make = <T extends Database.Service<any>>(context: ClientContext): DbClient<T> => {
     const { connection, repository, debug } = context;
     const { database } = connection;
 
@@ -37,33 +28,6 @@ export namespace Client {
       driver: new ClientDriver(DB_POOL[database]),
       repository,
       debug
-    });
-  };
-
-  const createPool = (connection: ClientConnection) => {
-    const { database, password, user, host, port, ssl, connectionString } = connection;
-
-    const baseOptions = {
-      allowExitOnIdle: true,
-      connectionTimeoutMillis: 10000,
-      idleTimeoutMillis: 15000,
-      maxUses: 500,
-      min: 0,
-      max: 2,
-      ssl
-    };
-
-    if (connectionString) {
-      return new Pool({ ...baseOptions, connectionString });
-    }
-
-    return new Pool({
-      ...baseOptions,
-      database,
-      password,
-      user,
-      host,
-      port
     });
   };
 }

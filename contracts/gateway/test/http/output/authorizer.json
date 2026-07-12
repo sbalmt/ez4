@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -7,10 +12,13 @@
   "TestService": {
     "type": "@ez4/http",
     "name": "TestService",
+    "file": "test/http/input/output-authorizer.ts",
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestService"
+      "selfClient": {
+        "reference": "TestService"
+      }
     },
     "description": "Service for testing route authorizers.",
     "routes": [
@@ -86,8 +94,12 @@
             1
           ],
           "provider": {
+            "name": "TestAuthProvider",
+            "file": "test/http/input/output-authorizer.ts",
             "services": {
-              "selfClient": "TestService"
+              "selfClient": {
+                "reference": "TestService"
+              }
             },
             "variables": {
               "TEST_VAR": "test-literal-value"

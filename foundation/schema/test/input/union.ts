@@ -1,31 +1,33 @@
 type UnionGroup = string | number;
 
 /**
- * Union test object.
+ * Internal test description.
+ *
+ * @description Union test object.
  */
 export interface UnionTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: boolean | number | string;
 
   /**
-   * Union property group.
+   * @description Union property group.
    */
   group: number | UnionGroup | boolean;
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: string | boolean | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: number | string | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: boolean | number | null;
 }

@@ -1,6 +1,6 @@
 # EZ4: WebSocket Events
 
-Gateway events for WebSocket define the **typed shape** of all connection signals processed by the gateway **connect** and **disconnect** route handler. Every handler receives a fully typed object, which includes identity information, headers, and query strings. These types are generated from the request contract and validated at runtime.
+Gateway events for WebSocket define the **typed shape** of all connection signals processed by the gateway **connect** and **disconnect** route handler. Every handler receives a fully typed object, which includes identity information, headers, and query strings. These types are generated from the declared event type and validated at runtime.
 
 ## Event declaration
 

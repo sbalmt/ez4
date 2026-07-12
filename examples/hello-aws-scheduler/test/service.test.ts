@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { CronTester } from '@ez4/local-scheduler/test';
 import { setTimeout } from 'node:timers/promises';
 
-describe('hello aws scheduler', () => {
+describe('hello aws scheduler', { timeout: 30000 }, () => {
   it('create dynamic event with success', async () => {
     const client = CronTester.getClient('DynamicCron');
 

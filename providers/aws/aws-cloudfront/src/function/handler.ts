@@ -122,8 +122,8 @@ const deleteResource = async (current: FunctionState) => {
   if (result) {
     const { functionName } = parameters;
 
-    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
-      await deleteFunction(logger, functionName);
+    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', (logger) => {
+      return deleteFunction(logger, functionName);
     });
   }
 };

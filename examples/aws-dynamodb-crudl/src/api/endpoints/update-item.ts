@@ -57,6 +57,9 @@ declare class UpdateItemResponse implements Http.Response {
 
 /**
  * Handle item update requests.
+ *
+ * @description Update an item corresponding to the given request.
+ * @summary Update items.
  */
 export async function updateItemHandler(request: UpdateItemRequest, context: Service.Context<Api>): Promise<UpdateItemResponse> {
   const { name, description, type } = request.body;

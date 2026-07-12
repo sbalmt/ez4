@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "name": "@variables",
     "type": "@ez4/common",
@@ -7,12 +12,15 @@
   "TestQueue1": {
     "type": "@ez4/queue",
     "name": "TestQueue1",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue2"
+      "testQueue": {
+        "reference": "TestQueue2"
+      }
     },
-    "description": "First test queue description.",
+    "description": "Test queue service.",
     "subscriptions": [],
     "fifoMode": {
       "uniqueId": "id",
@@ -37,10 +45,13 @@
   "TestQueue2": {
     "type": "@ez4/queue",
     "name": "TestQueue2",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": "TestQueue3"
+      "testQueue": {
+        "reference": "TestQueue3"
+      }
     },
     "description": "Description of the second test queue.",
     "subscriptions": [],
@@ -66,6 +77,7 @@
   "TestQueue3": {
     "type": "@ez4/queue",
     "name": "TestQueue3",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

@@ -22,7 +22,7 @@ export const registerTriggers = () => {
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
     'deploy:connectResources': connectDatabaseServices,
-    'emulator:getClient': prepareEmulatorClient,
+    'emulator:clientFactory': prepareEmulatorClient,
     'emulator:startService': prepareEmulatorStart,
     'emulator:resetService': prepareEmulatorReset
   });

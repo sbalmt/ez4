@@ -3,7 +3,7 @@ import type { EmulateServiceEvent } from '@ez4/project/library';
 import { isBucketService, registerTriggers as registerStorageTriggers } from '@ez4/storage/library';
 import { tryCreateTrigger } from '@ez4/project/library';
 
-import { registerBucketEmulator } from './emulator';
+import { registerLocalService } from './local';
 
 export const registerTriggers = () => {
   registerStorageTriggers();
@@ -11,7 +11,7 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/local-storage', {
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
       if (isBucketService(service)) {
-        return registerBucketEmulator(service, options, context);
+        return registerLocalService(service, options, context);
       }
 
       return null;

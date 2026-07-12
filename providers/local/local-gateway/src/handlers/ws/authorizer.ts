@@ -25,7 +25,7 @@ export const processWsAuthorization = async (
   const provider = connect.authorizer.provider;
   const services = provider?.services ?? {};
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   Runtime.setScope({

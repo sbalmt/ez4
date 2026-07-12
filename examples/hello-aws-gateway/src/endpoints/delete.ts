@@ -24,6 +24,10 @@ declare class DeleteResponse implements Http.Response {
 
 /**
  * Handler for `delete` requests.
+ *
+ * @description Example of a `DELETE` endpoint.
+ * @summary Delete endpoint.
+ *
  * @param request Incoming request.
  * @returns Outgoing response.
  */

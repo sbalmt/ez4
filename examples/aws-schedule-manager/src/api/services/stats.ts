@@ -14,19 +14,26 @@ export declare class StatsServiceFactory extends Factory.Service<StatsService> {
   };
 
   services: {
+    options: Environment.ServiceOptions;
     variables: Environment.ServiceVariables;
     eventDb: Environment.Service<EventDb>;
+  };
+
+  options: {
+    log?: true;
   };
 }
 
 export function createService(context: Service.Context<StatsServiceFactory>) {
-  const { eventDb, variables } = context;
+  const { eventDb, variables, options } = context;
 
   return {
     countEvents: async () => {
       const count = await eventDb.events.count({});
 
-      console.log(`[${variables.LOGGER_NAME}]: Events created: ${count}`);
+      if (options.log) {
+        console.log(`[${variables.LOGGER_NAME}]: Events created: ${count}`);
+      }
     }
   };
 }

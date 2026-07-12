@@ -6,17 +6,17 @@ export const getVirtualConnections = (services: LinkedServices, context: EventCo
   const connectionIds: string[] = [];
   const resolutionCache = new Set();
 
-  const collectConnections = (services: LinkedServices) => {
-    for (const serviceName in services) {
-      const identity = services[serviceName];
+  const collectConnections = (linkedServices: LinkedServices) => {
+    for (const linkedName in linkedServices) {
+      const { reference: serviceName } = linkedServices[linkedName];
 
-      if (resolutionCache.has(identity)) {
+      if (resolutionCache.has(serviceName)) {
         continue;
       }
 
-      resolutionCache.add(identity);
+      resolutionCache.add(serviceName);
 
-      const serviceState = context.getVirtualServiceState(identity, options) ?? context.getServiceState(identity, options);
+      const serviceState = context.getVirtualServiceState(serviceName, options) ?? context.getServiceState(serviceName, options);
 
       if (serviceState) {
         if (!isVirtualState(serviceState)) {
@@ -24,10 +24,10 @@ export const getVirtualConnections = (services: LinkedServices, context: EventCo
           continue;
         }
 
-        const { services: linkedServices } = serviceState.parameters;
+        const { services: subLinkedServices } = serviceState.parameters;
 
-        if (linkedServices) {
-          collectConnections(linkedServices);
+        if (subLinkedServices) {
+          collectConnections(subLinkedServices);
         }
       }
     }

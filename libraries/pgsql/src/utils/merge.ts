@@ -4,8 +4,8 @@ export const mergeSqlPath = (column: string, path: string | undefined) => {
   return path ? `${path}[${escapeSqlText(column)}]` : escapeSqlName(column);
 };
 
-export const mergeSqlJsonPath = (column: string, path: string | undefined) => {
-  return path ? `${path}->>${escapeSqlText(column)}` : escapeSqlName(column);
+export const mergeSqlJsonPath = (column: string, path: string | undefined, text?: boolean) => {
+  return path ? `${path}${text ? '->>' : '->'}${escapeSqlText(column)}` : escapeSqlName(column);
 };
 
 export const mergeSqlAlias = (column: string, alias: string | undefined) => {

@@ -7,7 +7,7 @@
 </div>
 
 <div align="center">
-A collection of high‑quality, reflection‑driven components that make it EZ4 building modern applications on top of AWS with NodeJS and TypeScript.
+A collection of high‑quality, reflection‑driven components that make it EZ4 developers to build modern applications on top of AWS with NodeJS and TypeScript.
 </div>
 
 ## Why EZ4

@@ -10,6 +10,7 @@ export type BucketService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof ServiceType;
     name: string;
+    file?: string;
     localPath?: string;
     globalName?: string;
     autoExpireDays?: number;
@@ -47,9 +48,11 @@ export const isBucketService = (service: ServiceMetadata): service is BucketServ
   return service.type === ServiceType;
 };
 
-export const createBucketService = (name: string) => {
+export const createBucketService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<BucketService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };

@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedServicesObject,
+  getLinkedVariablesObject,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   hasHeritageType
@@ -35,14 +36,10 @@ export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createEmailService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createEmailService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['domain']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member)) {
@@ -66,12 +63,12 @@ export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'variables': {
-          service.variables = getLinkedVariableList(member, errorList);
+          service.variables = getLinkedVariablesObject(member, errorList);
           break;
         }
 
         case 'services': {
-          service.services = getLinkedServiceList(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList);
           break;
         }
       }

@@ -1,61 +1,63 @@
 import type { Array } from '@ez4/schema';
 
 /**
- * Array test object.
+ * Internal test description.
+ *
+ * @description Array test object.
  */
 export interface ArrayTestSchema {
   /**
-   * Foo property.
+   * @description Foo property.
    */
   foo: boolean[];
 
   /**
-   * Bar property.
+   * @description Bar property.
    */
   bar: (number | string | undefined)[];
 
   /**
-   * Nullable property.
+   * @description Nullable property.
    */
   nullable: boolean[] | null;
 
   /**
-   * Optional property.
+   * @description Optional property.
    */
   optional: number[] | undefined;
 
   /**
-   * Nullable and optional property.
+   * @description Nullable and optional property.
    */
   both?: string[] | null;
 
   /**
-   * Array with minimum length.
+   * @description Array with minimum length.
    */
   min: Array.Min<string, 1>;
 
   /**
-   * Array with maximum length.
+   * @description Array with maximum length.
    */
   max: Array.Max<string, 10>;
 
   /**
-   * Array with minimum and maximum length.
+   * @description Array with minimum and maximum length.
    */
   size: Array.Size<string, 1, 10>;
 
   /**
-   * Default array value.
+   * @description Default array value.
    */
   default: Array.Default<string | number, ['foo', 123]>;
 
   /**
-   * Base64-encoded array.
+   * @description Base64-encoded array.
    */
   encoded: Array.Base64<{ foo: number; bar: string }>;
 
   /**
-   * Combined base64-encoded and default array.
+   * @description Combined base64-encoded and default array.
    */
   combined: Array.Base64<Array.Default<{ foo: number; bar: boolean }, [{ foo: 123; bar: false }]>>;
 }

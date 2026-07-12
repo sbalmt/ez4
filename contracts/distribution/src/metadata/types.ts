@@ -5,6 +5,7 @@ export const ServiceType = '@ez4/cdn';
 export type CdnService = ServiceMetadata & {
   type: typeof ServiceType;
   name: string;
+  file?: string;
   aliases: string[];
   certificate?: CdnCertificate;
   description?: string;
@@ -12,10 +13,12 @@ export type CdnService = ServiceMetadata & {
   defaultIndex?: string;
   origins?: CdnOrigin[];
   fallbacks?: CdnFallback[];
+  invalidations?: string[];
   disabled?: boolean;
 };
 
 export type CdnCache = {
+  name?: string;
   compress?: boolean;
   headers?: string[];
   cookies?: string[];
@@ -69,8 +72,12 @@ export const isCdnService = (service: ServiceMetadata): service is CdnService =>
   return service.type === ServiceType;
 };
 
-export const createCdnService = (name: string) => {
-  return createServiceMetadata<CdnService>(ServiceType, name);
+export const createCdnService = (name: string, file?: string, description?: string) => {
+  return {
+    ...createServiceMetadata<CdnService>(ServiceType, name),
+    ...(description && { description }),
+    ...(file && { file })
+  };
 };
 
 export const isCdnRegularOrigin = (service: CdnOrigin): service is CdnRegularOrigin => {

@@ -47,7 +47,7 @@ function testHandler(request: Queue.Incoming<TestMessage>, context: Service.Cont
 }
 
 /**
- * Import queue assigning handler.
+ * @description Import queue assigning handler.
  */
 export declare class TestImport1Queue extends Queue.Import<TestUnorderedQueue> {
   project: 'name from project in ez4.project.js';
@@ -69,7 +69,7 @@ export declare class TestImport1Queue extends Queue.Import<TestUnorderedQueue> {
 }
 
 /**
- * Import queue with no assigned handler.
+ * @description Import queue with no assigned handler.
  */
 export declare class TestImport2Queue extends Queue.Import<TestOrderedQueue> {
   project: 'name from project in ez4.project.js';

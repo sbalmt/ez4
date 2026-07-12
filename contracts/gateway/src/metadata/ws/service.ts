@@ -7,8 +7,9 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedServiceList,
-  getLinkedVariableList,
+  getLinkedServicesObject,
+  getLinkedVariablesObject,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyString,
   hasHeritageType
@@ -42,14 +43,10 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createWsService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createWsService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['schema', 'connect', 'disconnect', 'message']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration, true)) {
       if (!isModelProperty(member)) {
@@ -63,6 +60,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options':
           break;
 
         case 'name': {
@@ -110,7 +108,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           if (!member.inherited) {
-            service.variables = getLinkedVariableList(member, errorList);
+            service.variables = getLinkedVariablesObject(member, errorList);
           } else {
             service.variables = {};
           }
@@ -119,7 +117,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServiceList(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList);
           } else {
             service.services = {};
           }

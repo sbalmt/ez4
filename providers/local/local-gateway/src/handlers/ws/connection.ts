@@ -23,7 +23,7 @@ export const processWsConnection = async (
   const target = connection.live ? connect : disconnect;
   const handler = target.handler;
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   Runtime.setScope({

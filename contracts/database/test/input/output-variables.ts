@@ -2,9 +2,7 @@ import type { StreamAnyChange, Database } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngine;
-
+export declare class TestDatabase extends Database.Service<TestEngine> {
   tables: [
     Database.UseTable<{
       name: 'testTable';

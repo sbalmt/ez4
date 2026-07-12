@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,10 +12,11 @@
   "TestEmail": {
     "type": "@ez4/email",
     "name": "TestEmail",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {},
     "services": {},
-    "description": "First test email.",
+    "description": "Test email service.",
     "domain": "test.ez4.dev"
   }
 }

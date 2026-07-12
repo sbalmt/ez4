@@ -35,3 +35,8 @@ export type TypePosition = {
   line: number;
   character: number;
 };
+
+export type TypeTag = {
+  name: string;
+  text?: string;
+};

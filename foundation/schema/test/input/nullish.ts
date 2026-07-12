@@ -1,10 +1,12 @@
 /**
- * Nullish test object.
+ * Internal test description.
+ *
+ * @description Nullish test object.
  */
 export interface NullishTestSchema {
   /**
-   * Treat optional as a nullish property.
-   * Must have the `nullish` option in the schema context.
+   * @description Treat optional as a nullish property.
+   * @description Must have the `nullish` option in the schema context.
    */
   nullish?: string;
 }

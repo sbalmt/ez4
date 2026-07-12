@@ -2,6 +2,8 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
+    "file": "test/input/output-service.ts",
+    "description": "Test storage service.",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

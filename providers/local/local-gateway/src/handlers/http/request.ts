@@ -31,7 +31,7 @@ export const processHttpRequest = async (
   const provider = handler.provider;
   const services = provider?.services ?? {};
 
-  const clients = await context.makeClients(services);
+  const clients = context.makeClients(services);
   const traceId = getRandomUUID();
 
   Runtime.setScope({

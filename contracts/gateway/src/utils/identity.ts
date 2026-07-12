@@ -2,7 +2,7 @@ import type { ValidationCustomHandler } from '@ez4/validator';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Http } from '../services/http/contract';
 
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { HttpBadRequestError } from '@ez4/gateway';
 
 export const resolveIdentity = async <T extends Http.Identity>(
@@ -19,7 +19,7 @@ export const resolveIdentity = async <T extends Http.Identity>(
 
   if (validationErrors.length) {
     throw new HttpBadRequestError('Malformed authorizer identity.', {
-      details: getUniqueErrorMessages(validationErrors)
+      details: getErrorDetails(validationErrors)
     });
   }
 

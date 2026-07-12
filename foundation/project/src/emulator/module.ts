@@ -7,7 +7,7 @@ import { join } from 'node:path';
 
 import { runWithVariables } from './utils/environment';
 
-export type EntrypointFunction = <T>(...inputs: unknown[]) => Promise<T>;
+export type EntrypointFunction = <T>(...inputs: unknown[]) => Promise<T> | T;
 
 export type EntrypointModule = {
   invoke: EntrypointFunction;
@@ -47,26 +47,37 @@ export const createEmulatorModule = async (module: EmulatorModuleDefinition): Pr
 const prepareFunction = (entrypoint: EntrypointSource, variables: LinkedVariables, callback: (...inputs: unknown[]) => any) => {
   const headline = `${entrypoint.file}:${entrypoint.position.join(':')} [${entrypoint.name}]`;
 
-  return async <T>(...inputs: unknown[]): Promise<T> => {
-    let failed = false;
+  const cleanupFunction = (error?: unknown) => {
+    if (!error) {
+      return Logger.success(`${headline} Finished`);
+    }
 
+    Logger.error(`${headline} ${error}`);
+    Logger.error(`${headline} Finished (with error)`);
+  };
+
+  return <T>(...inputs: unknown[]): Promise<T> | T => {
     try {
-      return await runWithVariables(variables, () => {
-        Logger.log(`▶️  ${headline} Started`);
-        return callback(...inputs);
-      });
+      Logger.log(`▶️  ${headline} Started`);
+
+      const result = runWithVariables(variables, () => callback(...inputs));
+
+      if (result instanceof Promise) {
+        return result
+          .finally(() => cleanupFunction())
+          .catch((error) => {
+            cleanupFunction(error);
+            throw error;
+          });
+      }
+
+      cleanupFunction();
+
+      return result;
       //
     } catch (error) {
-      Logger.error(`${headline} ${error}`);
-      failed = true;
+      cleanupFunction(error);
       throw error;
-      //
-    } finally {
-      if (failed) {
-        Logger.error(`${headline} Finished (with error)`);
-      } else {
-        Logger.success(`${headline} Finished`);
-      }
     }
   };
 };

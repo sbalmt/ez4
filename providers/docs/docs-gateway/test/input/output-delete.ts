@@ -12,7 +12,7 @@ export declare class TestApi extends Http.Service {
 }
 
 /**
- * Test the DELETE route documentation.
+ * @summary Test the DELETE route documentation.
  */
 function testHandler(): Http.SuccessEmptyResponse {
   return {

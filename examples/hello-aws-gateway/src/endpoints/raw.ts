@@ -19,6 +19,10 @@ declare class RawResponse implements Http.Response {
 
 /**
  * Handler for `raw` requests.
+ *
+ * @description Example of a raw endpoint accepting any HTTP-Verb and content.
+ * @summary Raw endpoint.
+ *
  * @param request Incoming request.
  * @returns Outgoing response.
  */

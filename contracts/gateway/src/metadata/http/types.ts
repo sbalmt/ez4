@@ -1,10 +1,11 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { LinkedServices, LinkedVariables, ServiceMetadata } from '@ez4/project/library';
+import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AuthorizationType } from '../../services/http/authorization';
 import type { HttpPath } from '../../services/http/path';
 import type { AuthHandler } from '../auth/types';
+import type { WebProvider } from '../types';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -19,6 +20,7 @@ export type HttpDataSchema = ObjectSchema | UnionSchema | ArraySchema | ScalarSc
 export type HttpService = Omit<ServiceMetadata, 'variables' | 'services'> &
   Required<Pick<ServiceMetadata, 'variables' | 'services'>> & {
     type: typeof HttpServiceType;
+    file?: string;
     displayName?: string;
     description?: string;
     defaults?: HttpDefaults;
@@ -30,6 +32,7 @@ export type HttpService = Omit<ServiceMetadata, 'variables' | 'services'> &
 
 export type HttpImport = ServiceMetadata & {
   type: typeof HttpImportType;
+  file?: string;
   reference: string;
   project: string;
   displayName?: string;
@@ -64,7 +67,7 @@ export type HttpResponse = {
 };
 
 export type HttpHandler = FunctionSignature & {
-  provider?: HttpProvider;
+  provider?: WebProvider;
   response: HttpResponse;
   request?: HttpRequest;
   isolated?: boolean;
@@ -116,18 +119,15 @@ export type HttpCors = {
   maxAge?: number;
 };
 
-export type HttpProvider = {
-  variables?: LinkedVariables;
-  services?: LinkedServices;
-};
-
 export const isHttpService = (service: ServiceMetadata): service is HttpService => {
   return service.type === HttpServiceType;
 };
 
-export const createHttpService = (name: string) => {
+export const createHttpService = (name: string, file?: string, description?: string) => {
   return {
     ...createServiceMetadata<HttpService>(HttpServiceType, name),
+    ...(description && { description }),
+    ...(file && { file }),
     variables: {},
     services: {}
   };
@@ -137,6 +137,10 @@ export const isHttpImport = (service: ServiceMetadata): service is HttpImport =>
   return service.type === HttpImportType;
 };
 
-export const createHttpImport = (name: string) => {
-  return createServiceMetadata<HttpImport>(HttpImportType, name);
+export const createHttpImport = (name: string, file?: string, description?: string) => {
+  return {
+    ...createServiceMetadata<HttpImport>(HttpImportType, name),
+    ...(description && { description }),
+    ...(file && { file })
+  };
 };

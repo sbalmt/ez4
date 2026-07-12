@@ -1,15 +1,18 @@
 {
   "TestStorage": {
     "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "file": "test/input/output-variables.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": "@variables"
+      "selfSettings": {
+        "reference": "@variables"
+      }
     },
-    "name": "TestStorage",
     "events": [
       {
         "path": "uploads/",

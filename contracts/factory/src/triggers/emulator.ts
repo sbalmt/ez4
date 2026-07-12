@@ -1,4 +1,4 @@
-import type { EmulateServiceEvent, ServiceEmulator } from '@ez4/project/library';
+import type { EmulateServiceEvent, EntrypointModule, ServiceEmulator } from '@ez4/project/library';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
 
@@ -13,14 +13,18 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
 
   const { name: resourceName, services, handler } = service;
 
+  let factoryModule: EntrypointModule;
+
   return {
     type: 'Factory',
     name: resourceName,
     identifier: getServiceName(resourceName, options),
-    exportHandler: async () => {
-      const clients = await context.makeClients(services);
-
-      const factoryModule = await createEmulatorModule({
+    options: service.options,
+    exportHandler: (serviceOptions) => () => {
+      return factoryModule.invoke(context.makeClients(services, serviceOptions));
+    },
+    bootstrapHandler: async () => {
+      factoryModule = await createEmulatorModule({
         version: options.version,
         entrypoint: handler,
         variables: {
@@ -28,8 +32,6 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
           ...service.variables
         }
       });
-
-      return factoryModule.invoke(clients);
     }
   };
 };

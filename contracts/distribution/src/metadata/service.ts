@@ -7,6 +7,7 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
+  getDeclarationDescription,
   getModelMembers,
   getPropertyBoolean,
   getPropertyStringList,
@@ -15,9 +16,10 @@ import {
 } from '@ez4/common/library';
 
 import { isModelProperty } from '@ez4/reflection';
-import { isObjectWith } from '@ez4/utils';
+import { arrayUnique, isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
+import { formatUri } from './utils/uri';
 import { getCdnOriginsMetadata, getCdnOriginMetadata } from './origin';
 import { getCdnCertificateMetadata } from './certificate';
 import { getCndFallbacksMetadata } from './fallback';
@@ -38,14 +40,10 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    const service = createCdnService(declaration.name);
+    const { file: fileName } = declaration;
+
+    const service = createCdnService(declaration.name, fileName, getDeclarationDescription(declaration));
     const properties = new Set(['defaultOrigin']);
-
-    const fileName = declaration.file;
-
-    if (declaration.description) {
-      service.description = declaration.description;
-    }
 
     for (const member of getModelMembers(declaration)) {
       if (!isModelProperty(member) || member.inherited) {
@@ -87,6 +85,16 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'fallbacks': {
           service.fallbacks = getCndFallbacksMetadata(member, declaration, reflection, errorList);
+          break;
+        }
+
+        case 'invalidations': {
+          const invalidations = getPropertyStringList(member);
+
+          if (invalidations?.length) {
+            service.invalidations = arrayUnique(invalidations.map((path) => formatUri(path)));
+          }
+
           break;
         }
 

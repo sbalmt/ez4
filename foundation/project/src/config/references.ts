@@ -10,7 +10,7 @@ import { getServiceBranch, getServicePrefix } from '../utils/resource';
 import { getPathsFrom } from './tsconfig';
 import { loadProject } from './project';
 
-export const loadReferences = async (projectOptions: ProjectOptions) => {
+export const loadReferences = async (projectOptions: ProjectOptions, workspacePath?: string) => {
   const { references = {} } = projectOptions;
 
   const imports: Record<string, ImportOptions> = {};
@@ -19,9 +19,9 @@ export const loadReferences = async (projectOptions: ProjectOptions) => {
   for (const alias in references) {
     const { projectFile } = references[alias];
 
-    const projectRoot = dirname(projectFile);
-    const projectOptions = await loadProject(projectFile);
-    const projectPaths = await getPathsFrom(projectRoot, projectOptions);
+    const projectRoot = join(workspacePath ?? '.', dirname(projectFile));
+    const projectOptions = await loadProject(projectFile, projectRoot);
+    const projectPaths = await getPathsFrom(projectOptions, projectRoot);
 
     imports[alias] = {
       prefix: getServicePrefix(projectOptions.prefix),

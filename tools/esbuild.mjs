@@ -13,7 +13,7 @@ const cjsDefinitions = {
   __MODULE_PATH: '__dirname'
 };
 
-export const bundlePackage = async (entryFile, outFile, format, target = 'node22') => {
+export const bundlePackage = async (entryFile, outFile, format, options) => {
   const result = await build({
     treeShaking: true,
     keepNames: true,
@@ -22,10 +22,11 @@ export const bundlePackage = async (entryFile, outFile, format, target = 'node22
     lineLimit: 80,
     entryPoints: [entryFile],
     outfile: outFile,
-    packages: 'external',
-    platform: 'node',
-    sourcemap: 'linked',
-    target,
+    packages: options?.packages ?? 'external',
+    sourcemap: options?.sourcemap ?? 'linked',
+    platform: options?.platform ?? 'node',
+    target: options?.target ?? 'node22',
+    loader: options?.loader,
     format,
     define: {
       ...(format === 'esm' && esmDefinitions),

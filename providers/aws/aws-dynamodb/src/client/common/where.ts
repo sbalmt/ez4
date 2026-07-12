@@ -164,6 +164,9 @@ const prepareOperation = (operation: [string, any], schema: AnySchema | undefine
     case 'isNull':
       return [`${path} IS ${value ? 'null' : 'NOT null'}`];
 
+    case 'isMissingOrNull':
+      return [value ? `(${path} IS MISSING OR ${path} IS null)` : `(${path} IS NOT MISSING AND ${path} IS NOT null)`];
+
     case 'startsWith':
       return [`begins_with(${path}, ?)`, value];
 

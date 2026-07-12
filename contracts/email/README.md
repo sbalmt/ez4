@@ -33,7 +33,7 @@ import type { Service } from '@ez4/common';
 import type { MyEmail } from './email';
 
 // Any other handler that has injected MyEmail service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myEmail } = context;
 
   await myEmail.send({

@@ -6,12 +6,12 @@ import {
   validate,
   UnexpectedEnumValueError,
   UnexpectedPropertiesError,
-  ExpectedDateTimeTypeError,
-  ExpectedDateTypeError,
-  ExpectedEmailTypeError,
+  ExpectedDateTimeFormatError,
+  ExpectedDateFormatError,
+  ExpectedEmailFormatError,
   ExpectedIntegerTypeError,
-  ExpectedRegexTypeError,
-  ExpectedTimeTypeError,
+  ExpectedRegexFormatError,
+  ExpectedTimeFormatError,
   ExpectedUUIDTypeError,
   UnexpectedMaxLengthError,
   UnexpectedMaxRangeError,
@@ -25,12 +25,12 @@ import {
 type ErrorTypes =
   | typeof UnexpectedEnumValueError
   | typeof UnexpectedPropertiesError
-  | typeof ExpectedDateTimeTypeError
-  | typeof ExpectedDateTypeError
-  | typeof ExpectedEmailTypeError
+  | typeof ExpectedDateTimeFormatError
+  | typeof ExpectedDateFormatError
+  | typeof ExpectedEmailFormatError
   | typeof ExpectedIntegerTypeError
-  | typeof ExpectedRegexTypeError
-  | typeof ExpectedTimeTypeError
+  | typeof ExpectedRegexFormatError
+  | typeof ExpectedTimeFormatError
   | typeof ExpectedUUIDTypeError
   | typeof UnexpectedMaxLengthError
   | typeof UnexpectedMaxRangeError

@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
 import type { Database } from './contract';
 
@@ -11,6 +12,7 @@ export type DatabaseEngine = {
   paginationMode: PaginationMode;
   orderMode: OrderMode;
   lockMode: LockMode;
+  options: AnyObject;
   name: string;
 };
 
@@ -21,12 +23,12 @@ export namespace EngineUtils {
   /**
    * Get the parameters mode from the given database service.
    */
-  export type GetParametersMode<T extends Database.Service> = T['engine'] extends { parametersMode: infer M } ? M : never;
+  export type GetParametersMode<T extends Database.Service<any>> = T['engine'] extends { parametersMode: infer M } ? M : never;
 
   /**
    * Get the transaction mode from the given database service.
    */
-  export type GetTransactionMode<T extends Database.Service> = T['engine'] extends { transactionMode: infer M } ? M : never;
+  export type GetTransactionMode<T extends Database.Service<any>> = T['engine'] extends { transactionMode: infer M } ? M : never;
 
   /**
    * Get the insensitive mode from the given database engine.
@@ -41,10 +43,10 @@ export namespace EngineUtils {
   /**
    * Get the order mode from the given database service.
    */
-  export type GetOrderMode<T extends Database.Service> = T['engine'] extends { orderMode: infer M } ? M : never;
+  export type GetOrderMode<T extends Database.Service<any>> = T['engine'] extends { orderMode: infer M } ? M : never;
 
   /**
    * Get the lock mode from the given database service.
    */
-  export type GetLockMode<T extends Database.Service> = T['engine'] extends { lockMode: infer M } ? M : never;
+  export type GetLockMode<T extends Database.Service<any>> = T['engine'] extends { lockMode: infer M } ? M : never;
 }

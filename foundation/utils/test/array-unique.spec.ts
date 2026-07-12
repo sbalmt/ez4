@@ -13,11 +13,22 @@ describe('array unique utils', () => {
     ok(result);
   });
 
-  it('assert :: multiple unique arrays', () => {
+  it('assert :: unique arrays (multiple)', () => {
     const targetA = ['foo', 'bar', 'bar', 'baz', 'foo'];
     const targetB = ['bar', 'qux', 'foo', 'baz'];
 
     const result = arrayUnique(targetA, targetB);
+
+    deepEqual(result, ['foo', 'bar', 'baz', 'qux']);
+
+    ok(result);
+  });
+
+  it('assert :: unique arrays (multiple and undefined)', () => {
+    const targetA = [undefined, 'foo', 'bar', 'bar', 'baz', 'foo'];
+    const targetB = ['bar', 'qux', 'foo', 'baz', undefined];
+
+    const result = arrayUnique(targetA, undefined, targetB);
 
     deepEqual(result, ['foo', 'bar', 'baz', 'qux']);
 

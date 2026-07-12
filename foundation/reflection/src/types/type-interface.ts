@@ -1,4 +1,4 @@
-import type { AllType, TypePosition } from './common';
+import type { AllType, TypePosition, TypeTag } from './common';
 import type { EveryMemberType } from './model-members';
 import type { ModelHeritage } from './model-heritage';
 
@@ -16,6 +16,7 @@ export type TypeInterface = {
   position?: TypePosition;
   module?: string | null;
   description?: string;
+  tags?: TypeTag[];
   modifiers?: InterfaceModifiers;
   heritage?: ModelHeritage[];
   members?: EveryMemberType[];

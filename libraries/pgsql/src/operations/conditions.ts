@@ -25,6 +25,7 @@ import { getIsBetweenOperation } from './is-between';
 import { getStartsWithOperation } from './starts-with';
 import { getContainsOperation } from './contains';
 import { getIsMissingOperation } from './is-missing';
+import { getIsMissingOrNullOperation } from './is-missing-or-null';
 
 import { InvalidOperandError, MissingOperatorError } from './errors';
 
@@ -127,7 +128,7 @@ const getFieldOperation = (
       const columnSchema = schema && getSchemaProperty(schema, field);
       const hasSubColumn = columnSchema && isNestedSchema(columnSchema);
 
-      const columnName = columnSchema && !hasSubColumn ? mergeSqlJsonPath(field, path) : mergeSqlPath(field, path);
+      const columnName = columnSchema && !hasSubColumn ? mergeSqlJsonPath(field, path, true) : mergeSqlPath(field, path);
       const columnPath = path ? columnName : mergeSqlAlias(columnName, source?.alias);
 
       if (value === null) {
@@ -221,6 +222,9 @@ const getFinalOperation = (column: string, schema: AnySchema | undefined, operat
 
     case SqlOperator.IsMissing:
       return getIsMissingOperation(column, operand, context);
+
+    case SqlOperator.IsMissingOrNull:
+      return getIsMissingOrNullOperation(column, operand, context);
 
     case SqlOperator.Equal:
       return getEqualOperation(column, schema, operand, context);

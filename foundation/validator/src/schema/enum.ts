@@ -28,5 +28,5 @@ export const validateEnum = (value: unknown, schema: EnumSchema, context?: Valid
     }
   }
 
-  return [new UnexpectedEnumValueError(schema.options, context?.property)];
+  return [new UnexpectedEnumValueError(value, schema.options, context?.property)];
 };

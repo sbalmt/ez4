@@ -92,10 +92,11 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: WatchRef
 
 export const getReflectionFiles = (fileNames: string[], options?: CompilerOptions) => {
   const compilerOptions = createCompilerOptions(options);
+  const compilerHost = createCompilerHost(compilerOptions, options);
 
   const program = createProgram({
-    host: createCompilerHost(compilerOptions, options),
     rootNames: fileNames,
+    host: compilerHost,
     options: {
       ...compilerOptions,
       skipLibCheck: true,
@@ -103,5 +104,5 @@ export const getReflectionFiles = (fileNames: string[], options?: CompilerOption
     }
   });
 
-  return resolveReflectionFiles(program);
+  return resolveReflectionFiles(program, compilerOptions, compilerHost);
 };

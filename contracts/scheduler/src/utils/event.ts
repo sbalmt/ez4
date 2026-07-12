@@ -1,7 +1,7 @@
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { Cron } from '@ez4/scheduler';
 
-import { validate, createValidatorContext, getUniqueErrorMessages } from '@ez4/validator';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { transform, createTransformContext } from '@ez4/transform';
 
 import { MalformedEventError } from './errors';
@@ -14,7 +14,7 @@ export const getJsonEvent = async <T extends Cron.Event>(input: T, schema: Event
   const errors = await validate(event, schema, createValidatorContext({ property: '$event' }));
 
   if (errors.length) {
-    throw new MalformedEventError(getUniqueErrorMessages(errors));
+    throw new MalformedEventError(getErrorDetails(errors));
   }
 
   return event as T;

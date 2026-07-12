@@ -2,10 +2,13 @@
   "TestStorage": {
     "type": "@ez4/bucket",
     "name": "TestStorage",
+    "file": "test/input/output-events.ts",
     "context": {},
     "variables": {},
     "services": {
-      "selfClient": "TestStorage"
+      "selfClient": {
+        "reference": "TestStorage"
+      }
     },
     "events": [
       {

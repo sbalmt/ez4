@@ -23,7 +23,7 @@ class MyService {
   public helloWorld() {}
 }
 
-// MyFactory declaration
+// My factory declaration
 export declare class MyFactory extends Factory.Service<MyService> {
   handler: typeof createMyService;
 
@@ -67,7 +67,7 @@ import type { Service } from '@ez4/common';
 import type { MyFactory } from './factory';
 
 // Any other handler that has injected MyFactory service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myFactory } = context;
 
   // Call my service
@@ -78,6 +78,10 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 > This makes it easy to centralize service creation and reuse logic across your application.
 
 With your factory defined, EZ4 handles injection, construction, and service wiring automatically according to your contract.
+
+## What's next
+
+- [Factory service](./docs/factory-service.md)
 
 ## Examples
 

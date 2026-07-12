@@ -11,12 +11,12 @@ import { MissingProjectExportError, MissingProjectFileError, MalformedProjectFil
 
 const DEFAULT_PROJECT_FILE = 'ez4.project.js';
 
-export const loadProject = async (fileName?: string): Promise<ProjectOptions> => {
-  return getProjectFrom(getProjectPath(fileName));
+export const loadProject = async (fileName?: string, workspacePath?: string): Promise<ProjectOptions> => {
+  return getProjectFrom(getProjectPath(fileName, workspacePath));
 };
 
-export const tryLoadProject = async (fileName?: string, suppress?: boolean): Promise<ProjectOptions> => {
-  const path = getProjectPath(fileName);
+export const tryLoadProject = async (fileName?: string, workspacePath?: string, suppress?: boolean): Promise<ProjectOptions> => {
+  const path = getProjectPath(fileName, workspacePath);
 
   if (existsSync(path)) {
     try {
@@ -60,8 +60,8 @@ export const getProjectFrom = async (path: string): Promise<ProjectOptions> => {
   }
 };
 
-const getProjectPath = (fileName?: string) => {
-  return join(process.cwd(), fileName || DEFAULT_PROJECT_FILE);
+const getProjectPath = (fileName?: string, workspacePath?: string) => {
+  return join(workspacePath ?? process.cwd(), fileName || DEFAULT_PROJECT_FILE);
 };
 
 const validateProject = (projectFile: string, projectData: AnyObject) => {

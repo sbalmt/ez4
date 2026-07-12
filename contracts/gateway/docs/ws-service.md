@@ -47,7 +47,7 @@ connect: Ws.UseConnect<{
 }>;
 ```
 
-> Use `typeof` since the handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
+> Use `typeof` because the handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Disconnect
 
@@ -62,8 +62,7 @@ disconnect: Ws.UseDisconnect<{
   handler: typeof disconnectHandler;
 }>;
 ```
-
-> Use `typeof` since the handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
+> Use `typeof` because the handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Message
 
@@ -78,8 +77,7 @@ message: Ws.UseMessage<{
   handler: typeof messageHandler;
 }>;
 ```
-
-> Use `typeof` since the handler is a type declaration. See the gateway [handler](./gateway-handler.md) for more details.
+> Use `typeof` because the handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
 
 #### Name (optional)
 

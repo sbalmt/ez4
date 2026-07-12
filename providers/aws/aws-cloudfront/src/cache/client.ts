@@ -6,10 +6,12 @@ import {
   CreateCachePolicyCommand,
   UpdateCachePolicyCommand,
   DeleteCachePolicyCommand,
+  ListCachePoliciesCommand,
   CachePolicyHeaderBehavior,
   CachePolicyCookieBehavior,
   CachePolicyQueryStringBehavior,
-  NoSuchCachePolicy
+  NoSuchCachePolicy,
+  CachePolicyType
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient } from '../utils/deploy';
@@ -30,15 +32,38 @@ export type CreateRequest = {
   maxTTL: number;
 };
 
-export type CreateResponse = {
+export type ImportOrCreateResponse = {
   policyId: string;
 };
 
 export type UpdateRequest = CreateRequest;
 
-export type UpdateResponse = CreateResponse;
+export type UpdateResponse = ImportOrCreateResponse;
 
-export const createCachePolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
+export const importCachePolicy = async (logger: OperationLogLine, policyName: string): Promise<ImportOrCreateResponse | undefined> => {
+  logger.update(`Importing cache policy`);
+
+  const response = await getCloudFrontClient().send(
+    new ListCachePoliciesCommand({
+      Type: CachePolicyType.custom,
+      MaxItems: 25
+    })
+  );
+
+  const cachePolicy = response?.CachePolicyList?.Items?.find(({ CachePolicy }) => {
+    return CachePolicy?.CachePolicyConfig?.Name === policyName;
+  });
+
+  if (!cachePolicy) {
+    return undefined;
+  }
+
+  return {
+    policyId: cachePolicy?.CachePolicy?.Id!
+  };
+};
+
+export const createCachePolicy = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
   logger.update(`Creating cache policy`);
 
   const response = await getCloudFrontClient().send(

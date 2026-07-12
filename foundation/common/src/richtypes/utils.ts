@@ -1,19 +1,33 @@
 import type { TypeObject } from '@ez4/reflection';
 
-import { createBoolean, createNumber, createString, isModelProperty, isTypeReference, isTypeScalar, isTypeString } from '@ez4/reflection';
-import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
+import {
+  createBoolean,
+  createNever,
+  createNumber,
+  createObject,
+  createString,
+  isModelProperty,
+  isTypeObject,
+  isTypeReference,
+  isTypeScalar,
+  isTypeString,
+  TypeName
+} from '@ez4/reflection';
+
+import { isAnyArray, isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 export type RichTypes = {
   format?: string;
   variable?: string;
   default?: number | string | boolean;
-  service?: string;
+  reference?: string;
+  options?: TypeObject;
 };
 
 export const getRichTypes = (type: TypeObject) => {
   const richTypes: RichTypes = {};
 
-  if (!Array.isArray(type.members)) {
+  if (!isAnyArray(type.members)) {
     return null;
   }
 
@@ -44,9 +58,15 @@ export const getRichTypes = (type: TypeObject) => {
         }
         break;
 
-      case 'service':
+      case 'reference':
         if (isTypeReference(type)) {
-          richTypes.service = type.path;
+          richTypes.reference = type.path;
+        }
+        break;
+
+      case 'options':
+        if (isTypeObject(type)) {
+          richTypes.options = type;
         }
         break;
     }
@@ -60,19 +80,12 @@ export const getRichTypes = (type: TypeObject) => {
 };
 
 export const createRichType = (richTypes: RichTypes) => {
-  const { format, variable, service, default: defaultValue } = richTypes;
+  const { format, variable, reference, options, default: defaultValue } = richTypes;
 
   switch (format) {
-    case 'variables': {
-      return createString('literal', '@variables');
-    }
-
     case 'variable': {
       return createString('literal', variable && process.env[variable]);
     }
-
-    case 'service':
-      return createString('literal', service);
 
     case 'value': {
       const variableValue = variable ? process.env[variable] : undefined;
@@ -86,6 +99,32 @@ export const createRichType = (richTypes: RichTypes) => {
       }
 
       return createString('literal', variableValue ?? defaultValue);
+    }
+
+    case 'options':
+    case 'variables': {
+      return createObject('literal', undefined, [
+        {
+          name: 'reference',
+          type: TypeName.Property,
+          value: createString('literal', `@${format}`)
+        }
+      ]);
+    }
+
+    case 'service': {
+      return createObject('literal', undefined, [
+        {
+          name: 'reference',
+          type: TypeName.Property,
+          value: createString('literal', reference)
+        },
+        {
+          name: 'options',
+          type: TypeName.Property,
+          value: options ?? createNever()
+        }
+      ]);
     }
   }
 

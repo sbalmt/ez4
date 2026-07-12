@@ -1,4 +1,9 @@
 {
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "@variables": {
     "type": "@ez4/common",
     "name": "@variables",
@@ -7,11 +12,14 @@
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",
+    "file": "test/input/output-service.ts",
     "description": "First test topic description.",
     "context": {},
     "variables": {},
     "services": {
-      "testTopic": "TestTopic2"
+      "testTopic": {
+        "reference": "TestTopic2"
+      }
     },
     "fifoMode": {
       "groupId": "user",
@@ -34,6 +42,7 @@
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
+    "file": "test/input/output-service.ts",
     "context": {},
     "variables": {
       "TEST_VAR1": "test-literal-value",

@@ -69,7 +69,7 @@ describe('local scheduler tests', () => {
   it('assert :: update event (not found)', async () => {
     const client = CronTester.getClientMock<TestEvent>('cron');
 
-    rejects(() => client.updateEvent('random', defaultEvent));
+    await rejects(() => client.updateEvent('random', defaultEvent));
 
     equal(client.updateEvent.mock.callCount(), 1);
   });

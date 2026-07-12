@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src data: vscode-resource:; style-src vscode-resource: 'unsafe-inline'; worker-src blob: vscode-resource:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="{{SCRIPT_PATH}}/webview.js" type="module"></script>
+  <link rel="stylesheet" href="{{STYLES_PATH}}/editor.css">
+  <link rel="stylesheet" href="{{STYLES_PATH}}/styles.css">
+</head>
+
+<body>
+  <div class="field-like field-group action-bar">
+    <div id="actionType">
+      <!-- Action type -->
+    </div>
+    <div id="actionPath">
+      <!-- Action path -->
+    </div>
+    <button id="runAction">
+      Run
+    </button>
+  </div>
+  <div class="action-content">
+    <div class="action-tabs">
+      <button id="action-parameters" class="action-tab active" data-tab="parameters">Parameters</button>
+      <button id="action-request" class="action-tab" data-tab="request">Request</button>
+      <button id="action-response" class="action-tab" data-tab="response">Response</button>
+    </div>
+    <div class="action-tab-contents">
+      <div id="tab-parameters" class="action-tab-content">
+        <div class="action-forms">
+          <div class="action-form">
+            <h4>Headers</h4>
+            <form class="field-grid" id="headersForm" novalidate></form>
+          </div>
+          <div class="action-form">
+            <h4>Path Parameters</h4>
+            <form class="field-grid" id="parametersForm" novalidate></form>
+          </div>
+          <div class="action-form">
+            <h4>Query Strings</h4>
+            <form class="field-grid" id="queryForm" novalidate></form>
+          </div>
+        </div>
+        <div class="action-details">
+          <div>
+            <h4 id="title">
+              <!-- Action title -->
+            </h4>
+            <p id="description">
+              <!-- Action description -->
+            </p>
+          </div>
+          <div>
+            <h4>
+              Sources
+            </h4>
+            <ul id="sources">
+              <!-- Action sources -->
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div id="tab-request" class="action-tab-content" hidden>
+        <div id="request-editor" class="field-editor">
+          <!-- Request editor -->
+        </div>
+      </div>
+      <div id="tab-response" class="action-tab-content" hidden>
+        <div class="action-badges">
+          <div>
+            <span class="response-status">Status:</span>
+            <span id="response-status"></span>
+          </div>
+          <div>
+            <span class="response-time">Time:</span>
+            <span id="response-time"></span>
+          </div>
+        </div>
+        <div class="field-editor">
+          <div id="response-viewer">
+            <!-- Response viewer -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

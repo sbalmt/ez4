@@ -16,7 +16,7 @@ export declare class TestService extends Ws.Service<{}> {
 
 declare class ConnectEvent implements Ws.Event {
   /**
-   * Connect headers.
+   * @description Connect headers.
    */
   headers: {
     'x-secret': string;
@@ -27,7 +27,7 @@ function connectHandler(_event: Ws.Incoming<ConnectEvent>) {}
 
 declare class DisconnectEvent implements Ws.Event {
   /**
-   * Disconnect headers.
+   * @description Disconnect headers.
    */
   headers: {
     'x-secret': string;

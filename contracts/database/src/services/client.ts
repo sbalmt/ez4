@@ -6,7 +6,7 @@ import type { Database } from './contract';
 /**
  * Database client.
  */
-export type Client<T extends Database.Service> = TableClients<T> & {
+export type Client<T extends Database.Service<any>> = TableClients<T> & {
   /**
    * Prepare and execute the given query.
    *

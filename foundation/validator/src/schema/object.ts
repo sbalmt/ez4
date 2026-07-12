@@ -34,7 +34,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
   const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
   if (!isAnyObject(objectValue)) {
-    return [new ExpectedObjectTypeError(parentProperty)];
+    return [new ExpectedObjectTypeError(objectValue, parentProperty)];
   }
 
   const allProperties = new Set(Object.keys(objectValue));
@@ -100,7 +100,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       return preservePropertyName ? propertyKey : getPropertyPath(propertyKey, parentProperty);
     });
 
-    allErrors.push(new UnexpectedPropertiesError(extraProperties));
+    allErrors.push(new UnexpectedPropertiesError(extraProperties, parentProperty, objectValue));
   }
 
   if (!allErrors.length && definitions?.types && context) {

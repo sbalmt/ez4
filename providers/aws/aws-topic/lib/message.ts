@@ -56,7 +56,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
   }
 }
 
-const onBegin = async (request: Topic.Request) => {
+const onBegin = (request: Partial<Topic.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.Begin,
@@ -66,7 +66,7 @@ const onBegin = async (request: Topic.Request) => {
   );
 };
 
-const onReady = async (request: Topic.Incoming<Topic.Message>) => {
+const onReady = (request: Partial<Topic.Incoming<Topic.Message>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -76,7 +76,7 @@ const onReady = async (request: Topic.Incoming<Topic.Message>) => {
   );
 };
 
-const onDone = async (request: Topic.Incoming<Topic.Message>) => {
+const onDone = (request: Partial<Topic.Incoming<Topic.Message>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -86,7 +86,7 @@ const onDone = async (request: Topic.Incoming<Topic.Message>) => {
   );
 };
 
-const onError = async (error: unknown, request: Topic.Request | Topic.Incoming<Topic.Message>) => {
+const onError = (error: unknown, request: Partial<Topic.Request | Topic.Incoming<Topic.Message>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(
@@ -99,7 +99,7 @@ const onError = async (error: unknown, request: Topic.Request | Topic.Incoming<T
   );
 };
 
-const onEnd = async (request: Topic.Request) => {
+const onEnd = (request: Partial<Topic.Request>) => {
   return dispatch(
     {
       type: ServiceEventType.End,

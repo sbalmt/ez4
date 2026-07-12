@@ -10,19 +10,25 @@ import { OriginProtocol } from '@ez4/distribution';
 
 import { DistributionServiceName } from '../distribution/types';
 import { createCachePolicy } from '../cache/service';
-import { getOriginPolicyId } from '../origin/utils';
-import { getCachePolicyId } from '../cache/utils';
+import { getManagedOriginId, getOriginPolicyId } from '../origin/utils';
+import { getCachePolicyId, tryGetCachePolicyState } from '../cache/utils';
 import { getCachePolicyName } from './utils';
 
 export const getDefaultOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
-  return getOriginCache<DistributionDefaultOrigin>(state, service, 'default', service.defaultOrigin, options, context);
+  const originId = getManagedOriginId('default');
+
+  const { defaultOrigin } = service;
+
+  return getOriginCache<DistributionDefaultOrigin>(state, service, originId, defaultOrigin, options, context);
 };
 
 export const getAdditionalOriginCache = (state: EntryStates, service: CdnService, options: DeployOptions, context: EventContext) => {
   const { origins = [] } = service;
 
   return origins.map((origin, index) => {
-    return getOriginCache<DistributionAdditionalOrigin>(state, service, `origin_${index + 1}`, origin, options, context);
+    const originId = getManagedOriginId(`origin:${index + 1}`);
+
+    return getOriginCache<DistributionAdditionalOrigin>(state, service, originId, origin, options, context);
   });
 };
 
@@ -32,23 +38,31 @@ const getOriginCache = <T extends DistributionDefaultOrigin | DistributionAdditi
   id: string,
   origin: CdnOrigin,
   options: DeployOptions,
-  eventContext: EventContext
+  context: EventContext
 ) => {
   const { location, path, cache } = origin;
 
-  const cacheState = createCachePolicy(state, {
-    policyName: getCachePolicyName(service, origin, options),
-    description: service.description,
-    compress: cache?.compress ?? true,
-    defaultTTL: cache?.ttl ?? 86400,
-    maxTTL: cache?.maxTTL ?? 31536000,
-    minTTL: cache?.minTTL ?? 0,
-    cacheKeys: {
-      headers: cache?.headers,
-      cookies: cache?.cookies,
-      queries: cache?.queries
-    }
-  });
+  const policyName = getCachePolicyName(service, origin, options);
+
+  let cacheState = tryGetCachePolicyState(context, policyName, options);
+
+  if (!cacheState) {
+    cacheState = createCachePolicy(state, {
+      policyName,
+      description: service.description,
+      compress: cache?.compress ?? true,
+      defaultTTL: cache?.ttl ?? 86400,
+      maxTTL: cache?.maxTTL ?? 31536000,
+      minTTL: cache?.minTTL ?? 0,
+      cacheKeys: {
+        headers: cache?.headers,
+        cookies: cache?.cookies,
+        queries: cache?.queries
+      }
+    });
+
+    context.setServiceState(policyName, options, cacheState);
+  }
 
   const isBucket = isCdnBucketOrigin(origin);
 
@@ -74,7 +88,7 @@ const getOriginCache = <T extends DistributionDefaultOrigin | DistributionAdditi
       const cachePolicyId = getCachePolicyId(DistributionServiceName, cacheState.entryId, stepContext);
 
       if (isBucket) {
-        const bucketState = getBucketState(eventContext, origin.bucket, options);
+        const bucketState = getBucketState(context, origin.bucket, options);
         const bucketName = bucketState.parameters.bucketName;
         const bucketDomain = await getBucketDomain(bucketName);
 

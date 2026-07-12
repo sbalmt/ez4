@@ -19,6 +19,7 @@
     "foundation/schema",
     "foundation/validator",
     "foundation/transform",
+    "libraries/http",
     "contracts/gateway",
     "contracts/database",
     "contracts/cache",
@@ -33,6 +34,7 @@
     "libraries/pgsql",
     "libraries/pgclient",
     "libraries/pgmigration",
+    "extensions/vscode",
     "providers/local/local-common",
     "providers/local/local-scheduler",
     "providers/local/local-database",
@@ -88,7 +90,7 @@
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.2",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "verdaccio": "^6.0.5"
   }
 }

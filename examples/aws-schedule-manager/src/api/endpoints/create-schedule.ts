@@ -39,6 +39,9 @@ declare class CreateScheduleResponse implements Http.Response {
 
 /**
  * Handle create schedule requests.
+ *
+ * @description Create a new schedule based on the given request.
+ * @summary Create new schedules.
  */
 export async function createScheduleHandler(
   request: CreateScheduleRequest,

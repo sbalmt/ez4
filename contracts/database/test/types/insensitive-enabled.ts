@@ -8,9 +8,7 @@ declare class TestTable implements Database.Schema {
   text: string;
 }
 
-export declare class TestDatabase extends Database.Service {
-  engine: TestEngineInsensitive<InsensitiveMode.Enabled>;
-
+export declare class TestDatabase extends Database.Service<TestEngineInsensitive<InsensitiveMode.Enabled>> {
   client: Client<TestDatabase>;
 
   tables: [

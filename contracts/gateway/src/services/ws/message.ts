@@ -18,7 +18,7 @@ export interface WsMessage<T extends WsRequest> extends WebTarget {
   readonly listener?: WsListener<T>;
 
   /**
-   * Main entry‑point handler for the message handler.
+   * Main entry‑point function for the message handler.
    *
    * - Runs in its own cloud resource.
    * - Invoked only when a new message is received.

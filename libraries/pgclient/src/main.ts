@@ -1,7 +1,9 @@
+export * from './driver/client';
 export * from './driver/service';
 export * from './driver/errors';
 export * from './driver/records';
 export * from './driver/schema';
+export * from './driver/pool';
 
 export * from './queries/errors';
 

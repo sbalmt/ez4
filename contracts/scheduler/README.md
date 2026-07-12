@@ -18,14 +18,14 @@ Schedulers are ideal for cron jobs, recurring tasks, delayed execution, and dyna
 import type { Environment, Service } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 
-// MyScheduler event
-type MySchedulerEvent = {
+// My event declaration
+type MyEvent = {
   foo: string;
   bar: number;
 };
 
-// MyScheduler declaration
-export declare class MyScheduler extends Cron.Service<MySchedulerEvent> {
+// My scheduler declaration
+export declare class MyScheduler extends Cron.Service<MyEvent> {
   expression: 'dynamic';
 
   target: Cron.UseTarget<{
@@ -48,8 +48,8 @@ export declare class MyScheduler extends Cron.Service<MySchedulerEvent> {
 EZ4 validates the incoming event, injects all variables and services, and then invokes your target handler.
 
 ```ts
-// MyScheduler event handler
-export function eventHandler(request: Cron.Incoming<MySchedulerEvent>, context: Service.Context<MyScheduler>): void {
+// My event handler
+export function eventHandler(request: Cron.Incoming<MyEvent>, context: Service.Context<MyScheduler>): void {
   const { otherService, variables } = context;
   const { event } = request;
 
@@ -73,7 +73,7 @@ import type { Service } from '@ez4/common';
 import type { MyScheduler } from './cron';
 
 // Any other handler that has injected MyScheduler service
-export async function anyHandler(_request: any, context: Service.Context<DummyService>) {
+export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myScheduler } = context;
 
   // Schedule a future execution
@@ -91,42 +91,13 @@ export async function anyHandler(_request: any, context: Service.Context<DummySe
 
 With your scheduler defined, EZ4 handles provisioning, event triggering, retries, and execution automatically according to your contract.
 
-## Scheduler properties
+## What's next
 
-#### Service
-
-| Name       | Type             | Description                                                               |
-| ---------- | ---------------- | ------------------------------------------------------------------------- |
-| target     | Cron.UseTarget<> | Entry-point handler for scheduler events.                                 |
-| group      | string           | Scheduler group name.                                                     |
-| timezone   | string           | Scheduler expression timezone.                                            |
-| startDate  | string           | An ISO date to determine when the scheduler should start to work.         |
-| endDate    | string           | An ISO date to determine when the scheduler should stop to work.          |
-| maxRetries | integer          | Maximum retry attempts for the event before it fails.                     |
-| maxAge     | integer          | Maximum age (in seconds) for the event to be eligible for retry attempts. |
-| expression | string           | Scheduler expression or literal 'dynamic'.                                |
-| disabled   | boolean          | Determines whether or not the scheduler is disabled.                      |
-| variables  | object           | Environment variables associated with the event handler.                  |
-| services   | object           | Injected services associated with handler function.                       |
-
-> Use type helpers for `target` property.
-
-#### Target
-
-| Name         | Type             | Description                                                 |
-| ------------ | ---------------- | ----------------------------------------------------------- |
-| listener     | function         | Life-cycle listener function for the target.                |
-| handler      | function         | Entry-point handler function for the target.                |
-| variables    | object           | Environment variables associated with the handler.          |
-| logRetention | integer          | Log retention (in days) for the handler.                    |
-| logLevel     | LogLevel         | Log level for the handler.                                  |
-| architecture | ArchitectureType | Architecture type for the cloud function.                   |
-| runtime      | RuntimeType      | Runtime for the cloud function.                             |
-| files        | string[]         | Additional resource files added into the handler bundle.    |
-| timeout      | integer          | Maximum execution time (in seconds) for the handler.        |
-| memory       | integer          | Memory available (in megabytes) for the handler.            |
-| debug        | boolean          | Determine whether the debug mode is active for the handler. |
-| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
+- [Scheduler service](./docs/scheduler-service.md)
+- [Scheduler target](./docs/scheduler-target.md)
+- [Scheduler requests](./docs/scheduler-requests.md)
+- [Scheduler listener](./docs/scheduler-listener.md)
+- [Scheduler client](./docs/scheduler-client.md)
 
 ## Examples
 

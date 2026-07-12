@@ -15,7 +15,7 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/aws-email', {
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareServices,
-    'emulator:getClient': createEmulatorClient,
+    'emulator:clientFactory': createEmulatorClient,
     'emulator:resetService': resetEmulatorService,
     'emulator:stopService': stopEmulatorService
   });

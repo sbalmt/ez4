@@ -1,7 +1,9 @@
+import type { ErrorDetails } from '@ez4/validator';
+
 import { ServiceError } from '@ez4/common';
 
 export class MalformedMessageError extends ServiceError {
-  constructor(details: string[]) {
+  constructor(details: ErrorDetails[]) {
     super('Malformed queue message payload.', { details });
   }
 }

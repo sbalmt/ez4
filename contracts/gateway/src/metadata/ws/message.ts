@@ -10,7 +10,7 @@ import {
   InvalidServicePropertyError,
   isModelDeclaration,
   getModelMembers,
-  getLinkedVariableList,
+  getLinkedVariablesObject,
   getObjectMembers,
   getReferenceType,
   getPropertyNumber,
@@ -135,7 +135,7 @@ const getTypeFromMembers = (
       }
 
       case 'variables': {
-        target.variables = getLinkedVariableList(member, errorList);
+        target.variables = getLinkedVariablesObject(member, errorList);
         break;
       }
     }

@@ -11,6 +11,8 @@ export const attachValidatorLinkedServices = (schema: AnySchema, services: Linke
   for (const validatorType of validatorTypes) {
     const serviceName = getValidatorName(validatorType);
 
-    services[serviceName] = validatorType;
+    services[serviceName] = {
+      reference: validatorType
+    };
   }
 };
