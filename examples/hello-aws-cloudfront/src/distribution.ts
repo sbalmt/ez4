@@ -32,9 +32,18 @@ export declare class Site extends Cdn.Service {
     cache: StaticCache;
 
     // Prefer using rewrite than fallbacks approach when using API origins.
-    rewrite: {
-      '/path/*': 'index.html';
-    };
+    rewrite: [
+      Cdn.UseRewriteRule<{
+        from: '/path/*';
+        to: 'index.html';
+      }>,
+
+      Cdn.UseRewriteRule<{
+        from: '/redirect/*';
+        to: 'https://b.custom-domain.com/*';
+        status: 301;
+      }>
+    ];
   }>;
 
   /**
@@ -73,7 +82,7 @@ export declare class Site extends Cdn.Service {
   /**
    * Determines the invalidation paths.
    */
-  invalidations: ['/path/*'];
+  invalidations: ['/path/*', '/redirect/*'];
 }
 
 /**

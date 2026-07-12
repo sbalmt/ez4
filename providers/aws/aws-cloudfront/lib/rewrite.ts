@@ -1,13 +1,16 @@
-declare const __EZ4_REWRITE_RULES: {
-  from: string;
-  to: string;
-  status?: 301 | 302;
-}[];
+import type { CdnRewriteRule } from '@ez4/distribution/library';
+
+declare const __EZ4_REWRITE_RULES: CdnRewriteRule[];
+
+const HTTP_DESCRIPTIONS: Record<number, string> = {
+  [301]: 'Moved Permanently',
+  [302]: 'Found'
+};
 
 function handler(event: any) {
   const request = event.request;
 
-  const match = findRule(request.uri);
+  const match = findMatchingRule(request.uri);
 
   if (!match) {
     return request;
@@ -15,12 +18,13 @@ function handler(event: any) {
 
   const target = applyTarget(match.rule.to, match.capture);
 
-  if (match.rule.status) {
-    const location = buildRedirectLocation(request, target);
+  if (match.rule.status || isRedirectTarget(target)) {
+    const location = buildRedirectUri(request, target);
+    const status = match.rule.status || 302;
 
     return {
-      statusCode: match.rule.status,
-      statusDescription: match.rule.status === 301 ? 'Moved Permanently' : 'Found',
+      statusCode: status,
+      statusDescription: HTTP_DESCRIPTIONS[status],
       headers: {
         location: {
           value: location
@@ -34,7 +38,7 @@ function handler(event: any) {
   return request;
 }
 
-function findRule(uri: string) {
+function findMatchingRule(uri: string) {
   for (let index = 0; index < __EZ4_REWRITE_RULES.length; index++) {
     const rule = __EZ4_REWRITE_RULES[index];
 
@@ -80,17 +84,24 @@ function applyTarget(target: string, capture: string) {
     return target;
   }
 
-  return target.substring(0, wildcardIndex) + capture + target.substring(wildcardIndex + 1);
+  const prefix = target.substring(0, wildcardIndex);
+  const suffix = target.substring(wildcardIndex + 1);
+
+  return `${prefix}${capture}${suffix}`;
 }
 
-function buildRedirectLocation(request: any, target: string) {
-  if (!target.startsWith('http://') && !target.startsWith('https://')) {
+function isRedirectTarget(target: string) {
+  return target.startsWith('http://') || target.startsWith('https://');
+}
+
+function buildRedirectUri(request: any, target: string) {
+  if (!isRedirectTarget(target)) {
     const host = request.headers.host?.value ?? request.headers.host ?? '';
 
-    target = 'https://' + host + target;
+    target = `https://${host}${target}`;
   }
 
-  const query = serializeQueryString(request.querystring);
+  const query = request.querystring ? serializeQuery(request.querystring) : undefined;
 
   if (query) {
     target = target + '?' + query;
@@ -99,15 +110,11 @@ function buildRedirectLocation(request: any, target: string) {
   return target;
 }
 
-function serializeQueryString(querystring: any) {
+function serializeQuery(queryString: any) {
   const pairs: string[] = [];
 
-  if (!querystring) {
-    return '';
-  }
-
-  for (const key in querystring) {
-    const value = querystring[key].value;
+  for (const key in queryString) {
+    const value = queryString[key].value;
 
     if (value !== undefined) {
       pairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
