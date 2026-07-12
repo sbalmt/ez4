@@ -16,21 +16,21 @@ Navigate your application's components with clarity.
 Fill in and adjust parameters effortlessly while testing your application.
 Designed for rapid iteration and smooth development cycles.
 
-![Parameters Tab](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/parameters-tab.png)
+![Interactive Parameters](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/parameters-tab.png)
 
 ### Request Editor
 
 Write JSON payloads with real **IntelliSense**, type‑aware suggestions, and inline documentation.
 No more guessing property names or searching for schemas.
 
-![Parameters Tab](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/request-tab.png)
+![Request Editor](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/request-tab.png)
 
 ### Response Viewer
 
 Inspect JSON responses enhanced with documentation pulled directly from your typings.
 Understand every property at a glance, perfect for debugging and API development.
 
-![Response Tab](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/response-tab.png)
+![Response Viewer](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/response-tab.png)
 
 ## License
 
