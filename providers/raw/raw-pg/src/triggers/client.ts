@@ -6,7 +6,7 @@ import { Client as NativeClient } from '@ez4/pgclient';
 import { getConnectionOptions } from '../local/options';
 import { isRawPgService } from './utils';
 
-export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
+export const prepareEmulatorClient = (event: EmulateClientEvent) => {
   const { service, options } = event;
 
   if (!isRawPgService(service)) {
@@ -15,9 +15,13 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
 
   const connection = getConnectionOptions(service, options);
 
-  return NativeClient.make({
+  const instance = NativeClient.make({
     debug: options.debug,
     repository: getTableRepository(service.tables),
     connection
   });
+
+  return {
+    make: () => instance
+  };
 };

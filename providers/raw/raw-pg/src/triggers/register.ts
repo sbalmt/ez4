@@ -15,7 +15,7 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/raw-pg', {
     'deploy:prepareResources': prepareDatabaseServices,
     'deploy:prepareLinkedService': prepareLinkedServices,
-    'emulator:getClient': prepareEmulatorClient,
+    'emulator:clientFactory': prepareEmulatorClient,
     'emulator:startService': prepareEmulatorStart,
     'emulator:resetService': prepareEmulatorReset
   });
