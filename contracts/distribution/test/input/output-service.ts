@@ -24,10 +24,6 @@ export declare class TestCdn extends Cdn.Service {
   defaultOrigin: Cdn.UseDefaultOrigin<{
     bucket: Environment.Service<TestBucket>;
     location: '/site';
-    rewrite: {
-      path1: 'index.html';
-      '/path2/*': 'index.html';
-    };
   }>;
 
   origins: [
@@ -38,22 +34,6 @@ export declare class TestCdn extends Cdn.Service {
     Cdn.UseOrigin<{
       domain: Environment.Variable<'TEST_ENV_VAR'>;
       path: 'inline/*';
-      rewrite: [
-        {
-          from: '/legacy/*';
-          to: '/modern/*';
-        },
-        {
-          from: '/redirect/*';
-          to: 'https://docs.ez4.dev/*';
-          status: 301;
-        },
-        {
-          from: '/temporary/*';
-          to: '/temp/*';
-          status: 302;
-        }
-      ];
     }>
   ];
 

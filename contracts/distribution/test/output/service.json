@@ -10,17 +10,7 @@
     "defaultOrigin": {
       "type": "bucket",
       "bucket": "TestBucket",
-      "location": "/site",
-      "rewrite": [
-        {
-          "from": "/path1",
-          "to": "/index.html"
-        },
-        {
-          "from": "/path2/*",
-          "to": "/index.html"
-        }
-      ]
+      "location": "/site"
     },
     "aliases": [
       "test-1.ez4.dev",
@@ -99,23 +89,7 @@
       {
         "type": "regular",
         "domain": "test-env-var-value",
-        "path": "inline/*",
-        "rewrite": [
-          {
-            "from": "/inline/legacy/*",
-            "to": "/modern/*"
-          },
-          {
-            "from": "/inline/redirect/*",
-            "to": "https://docs.ez4.dev/*",
-            "status": 301
-          },
-          {
-            "from": "/inline/temporary/*",
-            "to": "/temp/*",
-            "status": 302
-          }
-        ]
+        "path": "inline/*"
       }
     ],
     "fallbacks": [

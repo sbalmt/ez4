@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { deepEqual, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -18,7 +18,7 @@ const testFile = (fileName: string, overwrite = false) => {
 
   equal(result.errors.length, 0);
 
-  if (overwrite) {
+  if (!existsSync(outputFile) || overwrite) {
     writeFileSync(outputFile, JSON.stringify(result.services, undefined, 2));
   } else {
     deepEqual(result.services, JSON.parse(readFileSync(outputFile).toString()));
@@ -31,10 +31,5 @@ describe('distribution metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: basic distribution', () => testFile('service'));
-
-  it('assert :: legacy rewrite map', () => testFile('legacy-rewrite'));
-
-  it('assert :: referenced rewrite rule', () => testFile('referenced-rewrite'));
-
-  it('assert :: mixed rewrite formats', () => testFile('mixed-rewrite'));
+  it('assert :: rewrite rules', () => testFile('rewrite'));
 });

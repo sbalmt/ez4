@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin, CdnRewrite } from './types';
+import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin, CdnRewriteRule } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -21,7 +21,7 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
 import { combineUri, formatUri } from './utils/uri';
-import { getCndRewriteMetadata } from './rewrite';
+import { getCndRewriteRulesMetadata } from './rewrite';
 import { getCdnCacheMetadata } from './cache';
 import { CdnOriginType } from './types';
 
@@ -137,7 +137,7 @@ const getTypeFromMembers = (
       }
 
       case 'rewrite': {
-        origin.rewrite = getCndRewriteMetadata(member.value, parent, reflection, errorList);
+        origin.rewrite = getCndRewriteRulesMetadata(member.value, parent, reflection, errorList);
         break;
       }
 
@@ -187,7 +187,7 @@ const getOriginHeaders = (type: AllType) => {
   return headers;
 };
 
-const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewrite) => {
+const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewriteRule[]) => {
   const [basePath] = pathPattern.split('*');
   const baseUri = formatUri(basePath);
 

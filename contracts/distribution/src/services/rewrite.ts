@@ -1,16 +1,24 @@
+/**
+ * Allowed redirect status codes.
+ */
 export type CdnRewriteStatus = 301 | 302;
 
-export type CdnRewriteRule = {
-  readonly from: string;
-  readonly to: string;
-  readonly status?: CdnRewriteStatus;
-};
-
 /**
- * @deprecated Use `CdnRewriteRule[]` instead.
+ * Rewrite rule.
  */
-export type CdnRewriteMap = {
-  [path: string]: string;
-};
+export type CdnRewriteRule = {
+  /**
+   * Optional HTTP status code for the redirect.
+   */
+  readonly status?: CdnRewriteStatus;
 
-export type CdnRewrite = CdnRewriteRule[] | CdnRewriteMap;
+  /**
+   * Current path to which the rewrite rule is applied.
+   */
+  readonly from: string;
+
+  /**
+   * Result path after applying the rewrite rule.
+   */
+  readonly to: string;
+};

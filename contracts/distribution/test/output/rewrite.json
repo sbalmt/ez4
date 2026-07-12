@@ -1,13 +1,18 @@
 {
-  "MixedCdn": {
+  "TestCdn": {
     "type": "@ez4/cdn",
-    "name": "MixedCdn",
-    "file": "test/input/output-mixed-rewrite.ts",
+    "name": "TestCdn",
+    "file": "test/input/output-rewrite.ts",
     "context": {},
     "defaultOrigin": {
       "domain": "example.com",
       "type": "regular",
       "rewrite": [
+        {
+          "status": 301,
+          "from": "/old/*",
+          "to": "/new/*"
+        },
         {
           "from": "/legacy/*",
           "to": "/internal/*"
@@ -24,6 +29,11 @@
         "type": "regular",
         "path": "app/*",
         "rewrite": [
+          {
+            "status": 301,
+            "from": "/app/old/*",
+            "to": "/new/*"
+          },
           {
             "from": "/app/internal/*",
             "to": "/modern/*"

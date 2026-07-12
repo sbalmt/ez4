@@ -1,5 +1,5 @@
 import type { Bucket } from '@ez4/storage';
-import type { CdnRewrite } from './rewrite';
+import type { CdnRewriteRule } from './rewrite';
 import type { CdnCache } from './cache';
 
 /**
@@ -26,15 +26,8 @@ export interface CdnOrigin {
 
   /**
    * Rewrite rules for the origin.
-   *
-   * New format:
-   * - `{ from, to }` performs an internal rewrite.
-   * - `{ from, to, status: 301 | 302 }` performs an HTTP redirect.
-   *
-   * Deprecated legacy format:
-   * - `{ '/old/*': '/new/*' }`
    */
-  readonly rewrite?: CdnRewrite;
+  readonly rewrite?: CdnRewriteRule[];
 
   /**
    * Origin cache.
