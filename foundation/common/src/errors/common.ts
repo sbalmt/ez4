@@ -74,3 +74,14 @@ export class IncorrectPropertyError extends TypeError {
     }
   }
 }
+
+export class UnexpectedValueError extends TypeError {
+  constructor(
+    message: string,
+    public property: string,
+    public value: string,
+    public fileName?: string
+  ) {
+    super(`${message}, value '${value}' for '${property}' isn't expected.`, fileName);
+  }
+}

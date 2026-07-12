@@ -12,3 +12,4 @@ export * from './errors/certificate';
 export * from './errors/origin';
 export * from './errors/fallback';
 export * from './errors/cache';
+export * from './errors/rewrite';
