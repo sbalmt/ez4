@@ -32,9 +32,9 @@ export namespace Defaults {
   export const Timeout = 150;
 
   /**
-   * Default max retries.
+   * Default max attempts.
    */
-  export const MaxRetries = 3;
+  export const MaxAttempts = 3;
 
   /**
    * Default min delay (in seconds) for backoff.

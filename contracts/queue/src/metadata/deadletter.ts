@@ -37,7 +37,7 @@ export const getQueueDeadLetterMetadata = (type: AllType, parent: TypeModel, ref
 };
 
 const isCompleteDeadLetter = (type: Incomplete<QueueDeadLetter>): type is QueueDeadLetter => {
-  return isObjectWith(type, ['maxRetries']);
+  return isObjectWith(type, ['maxAttempts']);
 };
 
 const getDeadLetterType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -60,7 +60,7 @@ const getDeadLetterType = (type: AllType, parent: TypeModel, errorList: Error[])
 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const deadLetter: Incomplete<QueueDeadLetter> = {};
-  const properties = new Set(['maxRetries']);
+  const properties = new Set(['maxAttempts']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -78,7 +78,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
-      case 'maxRetries': {
+      case 'maxAttempts': {
         if ((deadLetter[member.name] = getPropertyNumber(member))) {
           properties.delete(member.name);
         }

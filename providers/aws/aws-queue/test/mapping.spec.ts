@@ -78,9 +78,9 @@ describe('queue mapping', { timeout: 90000 }, () => {
         dependencies: []
       },
       backoff: {
+        attempts: 3,
         minDelay: 5,
-        maxDelay: 60,
-        retries: 3
+        maxDelay: 60
       }
     });
 

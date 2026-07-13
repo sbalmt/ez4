@@ -18,7 +18,7 @@ import { getSQSClient } from '../utils/deploy';
 
 export type DeadLetter = {
   targetQueueArn: Arn;
-  maxRetries: number;
+  maxAttempts: number;
 };
 
 export type CreateRequest = {
@@ -160,7 +160,7 @@ const upsertQueueAttributes = (request: CreateRequest | UpdateRequest): Partial<
     ...(deadLetter && {
       RedrivePolicy: JSON.stringify({
         deadLetterTargetArn: deadLetter.targetQueueArn,
-        maxReceiveCount: deadLetter.maxRetries
+        maxReceiveCount: deadLetter.maxAttempts
       })
     })
   };
