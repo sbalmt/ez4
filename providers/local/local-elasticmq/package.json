@@ -1,22 +1,17 @@
 {
-  "name": "@ez4/local-common",
-  "description": "EZ4: Local common components to use across local emulator packages.",
+  "name": "@ez4/local-elasticmq",
+  "description": "EZ4: Local ElasticMQ queue emulator",
   "version": "0.49.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
-  "keywords": [
-    "ez4",
-    "local"
-  ],
+  "keywords": ["ez4", "local", "emulator", "elasticmq", "queue"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sbalmt/ez4.git",
-    "directory": "providers/local/local-common"
+    "directory": "providers/local/local-elasticmq"
   },
-  "engines": {
-    "node": ">=22.7"
-  },
+  "engines": { "node": ">=22.7" },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
@@ -24,21 +19,20 @@
       "import": "./dist/main.mjs"
     }
   },
-  "workspaces": [
-    "foundation/*",
-    "providers/local/*"
-  ],
+  "workspaces": ["foundation/*", "providers/local/*"],
   "scripts": {
     "lint": "eslint --cache",
     "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
     "build": "tsc && node tools/bundler.mjs",
     "test": "npm run build && tsc -p tsconfig.test.json && ez4 test",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
-    "clean:registry": "rm -rf ../../../.registry/@ez4/local-common",
+    "clean:registry": "rm -rf ../../../.registry/@ez4/local-elasticmq",
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.996.0",
     "@ez4/common": "^0.49.0",
+    "@ez4/local-common": "^0.49.0",
     "@ez4/logger": "^0.49.0",
     "@ez4/project": "^0.49.0",
     "@ez4/queue": "^0.49.0",

@@ -19,3 +19,8 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
+  elasticmq:
+    image: softwaremill/elasticmq-native
+    restart: always
+    ports:
+      - 9324:9324

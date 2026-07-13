@@ -4,7 +4,7 @@ import { isQueueImport, isQueueService, registerTriggers as registerQueueTrigger
 import { tryCreateTrigger } from '@ez4/project/library';
 
 import { registerRemoteService } from './remote';
-import { registerLocalService } from './local';
+import { registerQueueEmulator } from './emulator';
 
 export const registerTriggers = () => {
   registerQueueTriggers();
@@ -12,7 +12,7 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/local-queue', {
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
       if (isQueueService(service)) {
-        return registerLocalService(service, options, context);
+        return registerQueueEmulator(service, options, context);
       }
 
       if (isQueueImport(service)) {
