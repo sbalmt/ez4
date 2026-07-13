@@ -36,8 +36,8 @@ const createTestOptions = (overrides?: Partial<ServeOptions>): ServeOptions => {
 
 const createTestContext = (): EmulateServiceContext => {
   return {
-    makeClients: () => Promise.resolve({}),
-    makeClient: () => Promise.resolve(null)
+    makeClients: () => ({}),
+    makeClient: () => null
   };
 };
 

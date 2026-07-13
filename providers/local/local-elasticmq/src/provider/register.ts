@@ -12,7 +12,7 @@ export const registerTriggers = () => {
   registerQueueTriggers();
 
   tryCreateTrigger('@ez4/local-elasticmq', {
-    'emulator:getClient': ({ service, options }: EmulateClientEvent) => {
+    'emulator:clientFactory': ({ service, options }: EmulateClientEvent) => {
       if (!isQueueService(service)) {
         return null;
       }
@@ -24,10 +24,14 @@ export const registerTriggers = () => {
       const queueName = getQueueName(identifier, isFifo);
       const queueUrl = `${elasticMqOptions.endpoint}/${queueName}`;
 
-      return createElasticMqQueueClient(queueUrl, service.schema, sqsClient, {
-        fifoMode: service.fifoMode,
-        fairMode: service.fairMode
-      });
+      return {
+        make: () => {
+          return createElasticMqQueueClient(queueUrl, service.schema, sqsClient, {
+            fifoMode: service.fifoMode,
+            fairMode: service.fairMode
+          });
+        }
+      };
     },
     'emulator:getServices': ({ service, options, context }: EmulateServiceEvent) => {
       if (!isQueueService(service)) {
