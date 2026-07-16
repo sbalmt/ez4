@@ -1,0 +1,22 @@
+{
+  "name": "hello-raw-pg",
+  "description": "Example of an EZ4 service using external Postgres (Supabase, Neon, etc.) via @ez4/raw-pg.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.7"
+  },
+  "scripts": {
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env --force",
+    "serve": "ez4 serve -e local.env"
+  },
+  "dependencies": {
+    "@ez4/database": "^0.49.0",
+    "@ez4/project": "^0.49.0",
+    "@ez4/raw-pg": "^0.49.0"
+  }
+}

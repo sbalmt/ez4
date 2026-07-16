@@ -1,12 +1,11 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Pool } from 'pg';
-import type { ClientConnection } from './pool';
 
 import { PgClient } from '@ez4/pgclient';
 
 import { ClientDriver } from './client';
-import { createPool } from './pool';
+import { createPool, type ClientConnection } from './pool';
 
 export type ClientContext = {
   connection: ClientConnection;
