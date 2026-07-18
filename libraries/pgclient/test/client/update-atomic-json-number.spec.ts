@@ -4,7 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client update json atomic', async () => {
+describe('client update json atomic number', async () => {
   const client = await makeSchemaClient();
 
   const id = randomUUID();
@@ -29,7 +29,7 @@ describe('client update json atomic', async () => {
       data: {
         json: {
           number: {
-            increment: 15
+            inc: 15
           }
         }
       },
@@ -61,7 +61,7 @@ describe('client update json atomic', async () => {
       data: {
         json: {
           number: {
-            decrement: 10
+            dec: 10
           }
         }
       },
@@ -93,7 +93,7 @@ describe('client update json atomic', async () => {
       data: {
         json: {
           number: {
-            multiply: 3
+            mul: 3
           }
         }
       },
@@ -125,7 +125,7 @@ describe('client update json atomic', async () => {
       data: {
         json: {
           number: {
-            divide: 2
+            div: 2
           }
         }
       },

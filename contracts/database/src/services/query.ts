@@ -1,3 +1,6 @@
+import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjectEmpty, IsObject, Prettify } from '@ez4/utils';
+import type { AtomicFields } from './query/atomic';
+import type { PreserveNull } from './query/utils';
 import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { DatabaseEngine } from './engine';
 import type { RelationMetadata } from './relations';
@@ -7,19 +10,6 @@ import type { OrderModeUtils } from './order';
 import type { LockModeUtils } from './lock';
 import type { TableMetadata } from './table';
 import type { Database } from './contract';
-
-import type {
-  AnyObject,
-  PartialProperties,
-  PartialObject,
-  OptionalObject,
-  StrictObject,
-  IsNullable,
-  IsUndefined,
-  IsObjectEmpty,
-  IsObject,
-  Prettify
-} from '@ez4/utils';
 
 /**
  * Query builder types.
@@ -34,7 +24,7 @@ export namespace Query {
     lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
+    data: Prettify<UpdateDataInput<T>>;
     where: WhereInput<T, true>;
   };
 
@@ -49,7 +39,7 @@ export namespace Query {
     lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    update: Prettify<OptionalObject<UpdateDataInput<T>>>;
+    update: Prettify<UpdateDataInput<T>>;
     insert: Prettify<InsertDataInput<T>>;
     where: WhereInput<T, true>;
   };
@@ -68,7 +58,7 @@ export namespace Query {
     lock?: LockModeUtils.Input<T>;
     select?: StrictSelectInput<S, T>;
     include?: StrictIncludeInput<S, T>;
-    data: Prettify<OptionalObject<UpdateDataInput<T>>>;
+    data: Prettify<UpdateDataInput<T>>;
     where?: WhereInput<T>;
   };
 
@@ -132,8 +122,8 @@ export namespace Query {
 
   export type UpdateDataInput<T extends TableMetadata> =
     IsObjectEmpty<T['relations']['updates']> extends false
-      ? AtomicDataInput<Omit<T['schema'], T['relations']['indexes']> & T['relations']['updates']>
-      : AtomicDataInput<T['schema']>;
+      ? AtomicFields<Omit<T['schema'], T['relations']['indexes']>> & T['relations']['updates']
+      : AtomicFields<T['schema']>;
 
   export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;
 
@@ -194,11 +184,7 @@ export namespace Query {
     | WhereContains<V, E>;
 
   type WhereField<V, E extends DatabaseEngine> =
-    IsObject<V> extends false
-      ? V | WhereOperations<V, E>
-      : IsNullable<V> extends true
-        ? null | WhereObjectField<NonNullable<V>, E>
-        : WhereObjectField<NonNullable<V>, E>;
+    IsObject<V> extends true ? PreserveNull<V, WhereObjectField<NonNullable<V>, E>> : V | WhereOperations<V, E>;
 
   type WhereObjectField<V extends AnyObject, E extends DatabaseEngine> = {
     [P in keyof V]?: WhereField<V[P], E>;
@@ -348,49 +334,5 @@ export namespace Query {
      * Check whether the entity value contains the given one.
      */
     contains: IsObject<V> extends true ? Partial<V> : V;
-  };
-
-  export type AtomicOperators = keyof (AtomicIncrement & AtomicDecrement & AtomicMultiply & AtomicDivide);
-
-  type AtomicDataInput<T extends AnyObject> = AtomicRequiredFields<T> & AtomicOptionalFields<T>;
-
-  type AtomicDataField<T> = T extends number ? AtomicOperation | T : IsObject<T> extends true ? null | AtomicDataInput<NonNullable<T>> : T;
-
-  type AtomicRequiredFields<T extends AnyObject> = {
-    [P in keyof T as IsUndefined<T[P]> extends true ? never : P]: AtomicDataField<T[P]>;
-  };
-
-  type AtomicOptionalFields<T extends AnyObject> = {
-    [P in keyof T as IsUndefined<T[P]> extends true ? P : never]?: AtomicDataField<T[P]>;
-  };
-
-  type AtomicOperation = AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide;
-
-  type AtomicIncrement = {
-    /**
-     * Increment the entity value by the given amount.
-     */
-    increment: number;
-  };
-
-  type AtomicDecrement = {
-    /**
-     * Decrement the entity value by the given amount.
-     */
-    decrement: number;
-  };
-
-  type AtomicMultiply = {
-    /**
-     * Multiply the entity value by the given amount.
-     */
-    multiply: number;
-  };
-
-  type AtomicDivide = {
-    /**
-     * Divide the entity value by the given amount.
-     */
-    divide: number;
   };
 }

@@ -3,7 +3,7 @@ import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlSource } from '../common/source';
 import type { SqlRecord } from '../common/types';
 
-import { getSchemaProperty, isDynamicObjectSchema, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
@@ -71,32 +71,18 @@ export const getUpdateColumns = (
 
     if (isPlainObject(value)) {
       const nextSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
-      const canReplace = fieldSchema && isObjectSchema(fieldSchema) && isDynamicObjectSchema(fieldSchema);
-
-      if (canReplace) {
-        const fieldIndex = references.counter++;
-
-        if (options.onPrepareVariable) {
-          variables.push(options.onPrepareVariable(value, { schema: nextSchema, index: fieldIndex, json: true }));
-        } else {
-          variables.push(value);
-        }
-
-        pushUpdate(fieldName, `:${fieldIndex}`);
-        continue;
-      }
-
-      const canCombine = nextSchema && isNullishSchema(nextSchema);
       const columnName = mergeSqlPath(fieldName, parent);
+
+      const shouldMerge = nextSchema && isNullishSchema(nextSchema);
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
-        inner: inner || canCombine,
-        coalesce: canCombine,
+        inner: inner || shouldMerge,
+        coalesce: shouldMerge,
         parent: columnName
       });
 
-      if (canCombine) {
+      if (shouldMerge) {
         const columnPath = mergeSqlAlias(columnName, source.alias);
         pushUpdate(fieldName, `COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(', ')})`);
       } else if (inner) {

@@ -55,15 +55,15 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
   // Update tableA and all tableB connections
   await selfClient.tableA.updateOne({
     data: {
-      value_a1: { increment: 10 },
-      value_a2: { decrement: 15 },
-      value_a3: { multiply: 20 },
-      value_a4: { divide: 25 },
+      value_a1: { inc: 10 },
+      value_a2: { dec: 15 },
+      value_a3: { mul: 20 },
+      value_a4: { div: 25 },
       all_relations_b: {
-        value_b1: { increment: 30 },
-        value_b2: { decrement: 35 },
-        value_b3: { multiply: 40 },
-        value_b4: { divide: 45 }
+        value_b1: { inc: 30 },
+        value_b2: { dec: 35 },
+        value_b3: { mul: 40 },
+        value_b4: { div: 45 }
       }
     },
     where: {
@@ -74,15 +74,15 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
   // Update tableB and the connected tableA
   await selfClient.tableB.updateOne({
     data: {
-      value_b1: { increment: 30 },
-      value_b2: { decrement: 35 },
-      value_b3: { multiply: 40 },
-      value_b4: { divide: 45 },
+      value_b1: { inc: 30 },
+      value_b2: { dec: 35 },
+      value_b3: { mul: 40 },
+      value_b4: { div: 45 },
       relation_a: {
-        value_a1: { increment: 10 },
-        value_a2: { decrement: 15 },
-        value_a3: { multiply: 20 },
-        value_a4: { divide: 25 }
+        value_a1: { inc: 10 },
+        value_a2: { dec: 15 },
+        value_a3: { mul: 20 },
+        value_a4: { div: 25 }
       }
     },
     where: {
@@ -111,15 +111,15 @@ export const testUpsert = ({ selfClient }: Service.Context<TestDatabase>) => {
       ]
     },
     update: {
-      value_a1: { increment: 10 },
-      value_a2: { decrement: 15 },
-      value_a3: { multiply: 20 },
-      value_a4: { divide: 25 },
+      value_a1: { inc: 10 },
+      value_a2: { dec: 15 },
+      value_a3: { mul: 20 },
+      value_a4: { div: 25 },
       all_relations_b: {
-        value_b1: { increment: 30 },
-        value_b2: { decrement: 35 },
-        value_b3: { multiply: 40 },
-        value_b4: { divide: 45 }
+        value_b1: { inc: 30 },
+        value_b2: { dec: 35 },
+        value_b3: { mul: 40 },
+        value_b4: { div: 45 }
       }
     },
     where: {

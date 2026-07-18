@@ -1,3 +1,4 @@
+import type { AtomicFields } from './query/atomic';
 import type { TableIndexes, IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { DatabaseTable, DatabaseTables } from './table';
 import type { TableSchema, TableSchemas } from './schemas';
@@ -180,7 +181,7 @@ type FilterableRelationSchemas<S extends Record<string, TableSchema>, R extends 
  * Produce an object containing relation schemas for updates.
  */
 type UpdateRelationSchemas<N, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>, R extends AnyObject> = {
-  [P in keyof R as RelationTargetAlias<P>]?: TryArrayType<ChangeRelationSchema<N, R[P], P, S, I>>;
+  [P in keyof R as RelationTargetAlias<P>]?: AtomicFields<TryArrayType<ChangeRelationSchema<N, R[P], P, S, I>>>;
 };
 
 /**

@@ -57,7 +57,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar increment)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        increment: 123
+        inc: 123
       }
     });
 
@@ -69,7 +69,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar decrement)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        decrement: 123
+        dec: 123
       }
     });
 
@@ -81,7 +81,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar multiplication)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        multiply: 123
+        mul: 123
       }
     });
 
@@ -93,7 +93,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar division)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        divide: 123
+        div: 123
       }
     });
 
@@ -106,7 +106,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          increment: 456
+          inc: 456
         }
       }
     });
@@ -120,7 +120,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          decrement: 456
+          dec: 456
         }
       }
     });
@@ -134,7 +134,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          multiply: 456
+          mul: 456
         }
       }
     });
@@ -148,7 +148,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          divide: 456
+          div: 456
         }
       }
     });
@@ -156,6 +156,24 @@ describe('update operations', () => {
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json"['foo'] = (("json"->>'foo')::dec / (:0)::dec)::text::jsonb`);
 
     assert.deepEqual(variables, [456]);
+  });
+
+  it('assert :: prepare update operations (json replace with)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      json: {
+        replaceWith: {
+          foo: 789
+        }
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json" = :0`);
+
+    assert.deepEqual(variables, [
+      {
+        foo: 789
+      }
+    ]);
   });
 
   it('assert :: prepare update operations (invalid operator)', async ({ assert }) => {
@@ -175,7 +193,7 @@ describe('update operations', () => {
         json: {
           foo: {
             // The given `123` value isn't a number type.
-            decrement: '123' as any
+            dec: '123' as any
           }
         }
       })
