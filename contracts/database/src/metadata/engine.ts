@@ -17,7 +17,7 @@ import {
   hasHeritageType
 } from '@ez4/common/library';
 
-import { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
+import { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode, StreamMode } from '../types/mode';
 import { IncompleteEngineError, IncorrectEngineTypeError, InvalidEngineTypeError } from '../errors/engine';
 
 export const isDatabaseEngineDeclaration = (type: TypeModel) => {
@@ -63,7 +63,7 @@ const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => 
 const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
   const engine: Incomplete<DatabaseEngine> = {};
 
-  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'insensitiveMode', 'paginationMode', 'orderMode']);
+  const properties = new Set(['name', 'parametersMode', 'transactionMode', 'insensitiveMode', 'paginationMode', 'streamMode', 'orderMode']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
@@ -110,6 +110,13 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'paginationMode': {
         if ((engine.paginationMode = getPropertyStringIn(member, [PaginationMode.Cursor, PaginationMode.Offset]))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'streamMode': {
+        if (getPropertyStringIn(member, [StreamMode.Unsupported, StreamMode.Supported])) {
           properties.delete(member.name);
         }
         break;

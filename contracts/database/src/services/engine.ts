@@ -1,5 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
-import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
+import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode, StreamMode } from '../types/mode';
 import type { Database } from './contract';
 
 /**
@@ -10,6 +10,7 @@ export type DatabaseEngine = {
   transactionMode: TransactionMode;
   insensitiveMode: InsensitiveMode;
   paginationMode: PaginationMode;
+  streamMode: StreamMode;
   orderMode: OrderMode;
   lockMode: LockMode;
   options: AnyObject;

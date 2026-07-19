@@ -1,4 +1,4 @@
-import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, StreamMode, TransactionMode } from '@ez4/database';
 
 /**
  * Postgres connection mode.
@@ -23,6 +23,7 @@ export type PostgresEngine = {
   transactionMode: TransactionMode.Interactive;
   insensitiveMode: InsensitiveMode.Enabled;
   paginationMode: PaginationMode.Offset;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Supported;
   options: ClientOptions;

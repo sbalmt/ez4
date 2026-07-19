@@ -68,8 +68,8 @@ export type RelationTables<T extends Database.Service<any>> = MergeRelations<
  * relation tables.
  */
 type MergeRelations<
-  T extends DatabaseTable<TableSchema>[],
-  C extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
+  C extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   A = {}
@@ -79,8 +79,8 @@ type MergeRelations<
  * Given a database table `T`, it produces an object containing all its relations.
  */
 type ExtractRelations<
-  T extends DatabaseTable<TableSchema>[],
-  C extends DatabaseTable<TableSchema>,
+  T extends DatabaseTable<TableSchema, any>[],
+  C extends DatabaseTable<TableSchema, any>,
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>
 > = C extends {
@@ -244,7 +244,7 @@ type RecordsRelationSchemas<
  * Produce an object containing all nested relation schemas for select operations.
  */
 type NestedSelectRelationSchemas<
-  T extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   R extends AnyObject
@@ -260,7 +260,7 @@ type NestedSelectRelationSchemas<
  * Produce an object containing all nested relation schemas for records.
  */
 type NestedRecordsRelationSchemas<
-  T extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   R extends AnyObject

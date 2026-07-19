@@ -1,4 +1,4 @@
-import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, StreamMode, TransactionMode } from '@ez4/database';
 import type { Database } from '@ez4/database';
 
 export declare class TestDatabase extends Database.Service<TestEngine> {
@@ -13,6 +13,7 @@ declare class TestEngine {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;

@@ -27,7 +27,7 @@ export namespace Database {
   export type Handler<T extends Schema> = TableStreamHandler<T>;
 
   export type Stream<T extends Schema = Schema> = TableStream<T>;
-  export type Table<T extends Schema = Schema> = DatabaseTable<T>;
+  export type Table<T extends Schema, E extends DatabaseEngine> = DatabaseTable<T, E>;
 
   export type Scalability = DatabaseScalability;
   export type Engine = DatabaseEngine;
@@ -42,7 +42,7 @@ export namespace Database {
   /**
    * Database Table definition.
    */
-  export type UseTable<T extends DatabaseTable<any>> = T;
+  export type UseTable<T extends DatabaseTable<any, any>> = T;
 
   /**
    * Database Engine definition.
@@ -66,7 +66,7 @@ export namespace Database {
     /**
      * Describe all available tables for the service.
      */
-    abstract readonly tables: Table<any>[];
+    abstract readonly tables: Table<any, T>[];
 
     /**
      * Service options.

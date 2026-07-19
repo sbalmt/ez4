@@ -45,3 +45,11 @@ export const enum LockMode {
   Unsupported = 'unsupported',
   Supported = 'supported'
 }
+
+/**
+ * Stream mode.
+ */
+export const enum StreamMode {
+  Unsupported = 'unsupported',
+  Supported = 'supported'
+}
