@@ -4,7 +4,7 @@
   "description": "Provide a seamless EZ4 development environment.",
   "icon": "media/icon.png",
   "publisher": "sbalmt",
-  "version": "0.49.0",
+  "version": "0.50.0",
   "author": "Silas B.",
   "license": "MIT",
   "private": true,
@@ -111,10 +111,10 @@
     "vscode:package:ls": "vsce ls"
   },
   "devDependencies": {
-    "@ez4/http": "0.49.0",
-    "@ez4/project": "0.49.0",
-    "@ez4/schema": "0.49.0",
-    "@ez4/utils": "0.49.0",
+    "@ez4/http": "0.50.0",
+    "@ez4/project": "0.50.0",
+    "@ez4/schema": "0.50.0",
+    "@ez4/utils": "0.50.0",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
