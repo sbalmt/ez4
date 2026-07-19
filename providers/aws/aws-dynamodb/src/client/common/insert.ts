@@ -3,8 +3,6 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { InternalTableMetadata } from '../types';
 
-import { isSkippableData } from './data';
-
 type PrepareResult = [string, unknown[]];
 
 export const prepareInsert = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
@@ -26,7 +24,7 @@ const prepareInsertFields = (data: AnyObject, schema: ObjectSchema): PrepareResu
   for (const fieldKey in data) {
     const fieldValue = data[fieldKey];
 
-    if (isSkippableData(fieldValue)) {
+    if (fieldValue === undefined) {
       continue;
     }
 

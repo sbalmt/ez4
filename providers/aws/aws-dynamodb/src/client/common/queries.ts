@@ -5,7 +5,6 @@ import type { InternalTableMetadata } from '../types';
 
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 
-import { preparePartialSchema } from './schema';
 import { findBestSecondaryIndex } from './indexes';
 import { executeStatement } from './client';
 import { prepareInsert } from './insert';
@@ -55,9 +54,7 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   query: Query.UpdateOneInput<S, T>
 ): Promise<ExecuteStatementCommandInput> => {
-  await validateSchema(query.data, preparePartialSchema(schema, query.data));
-
-  const [statement, variables] = prepareUpdate(table, schema, query);
+  const [statement, variables] = await prepareUpdate(table, schema, query);
 
   return {
     Statement: statement,
@@ -172,15 +169,11 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
     return [[], [] as unknown as Query.UpdateManyResult<S, T>];
   }
 
-  const partialSchema = preparePartialSchema(schema, query.data);
-
   const transactions = await Promise.all(
     records.map(async (record) => {
       const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-      await validateSchema(query.data, partialSchema);
-
-      const [statement, variables] = prepareUpdate(table, schema, {
+      const [statement, variables] = await prepareUpdate(table, schema, {
         data: query.data,
         where: {
           ...(sortKey && { [sortKey]: sortId }),

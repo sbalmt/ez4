@@ -139,6 +139,7 @@ export const getUpdateRecord = async (
 
     const fieldSchema = getSchemaProperty(schema, fieldKey);
 
+    // Skip values that aren't mapped in the table schema.
     if (!fieldSchema) {
       continue;
     }
@@ -153,14 +154,29 @@ export const getUpdateRecord = async (
       continue;
     }
 
-    const recordValue = await getAtomicObjectOperationUpdate(builder, fieldValue, fieldSchema, fieldPath, relations);
+    const atomicOperation = await getAtomicObjectOperationUpdate(builder, fieldValue, fieldSchema, fieldPath);
 
-    if (recordValue) {
-      record[fieldKey] = recordValue;
+    if (atomicOperation) {
+      const [recordValue] = atomicOperation;
+
+      if (recordValue) {
+        record[fieldKey] = recordValue;
+      }
+
       continue;
     }
 
-    throw new InvalidFieldSchemaError(fieldKey);
+    if (isDynamicFieldSchema(fieldSchema)) {
+      record[fieldKey] = await getWithSchemaValidation(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
+      continue;
+    }
+
+    if (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) {
+      record[fieldKey] = await getUpdateRecord(builder, fieldValue, getOptionalSchema(fieldSchema), relations, fieldPath);
+      continue;
+    }
+
+    throw new InvalidFieldSchemaError(fieldPath);
   }
 
   return record;
@@ -315,33 +331,21 @@ export const getAtomicObjectOperationUpdate = async (
   builder: SqlBuilder,
   fieldValue: AnyObject,
   fieldSchema: AnySchema,
-  fieldPath: string,
-  relations: PgRelationRepositoryWithSchema
+  fieldPath: string
 ) => {
   for (const operation in fieldValue) {
     const value = fieldValue[operation];
 
     switch (operation) {
-      default: {
-        if (isDynamicFieldSchema(fieldSchema)) {
-          return getWithSchemaValidation(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
-        }
-
-        if (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) {
-          return getUpdateRecord(builder, fieldValue, getOptionalSchema(fieldSchema), relations, fieldPath);
-        }
-
-        break;
-      }
+      default:
+        return undefined;
 
       case 'replaceWith': {
-        if (!isNullish(value)) {
-          await validateRecordSchema(value, fieldSchema, fieldPath);
-
-          return builder.rawValue(value);
+        if (value !== undefined) {
+          return [builder.rawValue(await getWithSchemaValidation(value, fieldSchema, fieldPath))];
         }
 
-        break;
+        return [];
       }
     }
   }

@@ -22,6 +22,10 @@ describe('client update json atomic object', async () => {
             foo: 'abc'
           }
         },
+        extensible_json: {
+          foo: 'abc',
+          bar: 123
+        },
         id
       }
     });
@@ -99,6 +103,93 @@ describe('client update json atomic object', async () => {
       json: {
         string: 'abc',
         number: 456
+      }
+    });
+  });
+
+  it('assert :: combine objects (extensible)', async () => {
+    const result = await client.ez4_test_table.updateOne({
+      data: {
+        extensible_json: {
+          bar: 456,
+          baz: true,
+          nestedA: {
+            nestedB: {
+              qux: 'def'
+            }
+          }
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+
+    const changes = await client.ez4_test_table.findOne({
+      select: {
+        extensible_json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(changes, {
+      extensible_json: {
+        foo: 'abc',
+        bar: 456,
+        baz: true,
+        nestedA: {
+          nestedB: {
+            qux: 'def'
+          }
+        }
+      }
+    });
+  });
+
+  it('assert :: replace object (extensible)', async () => {
+    const result = await client.ez4_test_table.updateOne({
+      data: {
+        extensible_json: {
+          replaceWith: {
+            foo: 'abc',
+            bar: 123,
+            nestedA: {
+              nestedB: {
+                baz: 'def'
+              }
+            }
+          }
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+
+    const changes = await client.ez4_test_table.findOne({
+      select: {
+        extensible_json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(changes, {
+      extensible_json: {
+        foo: 'abc',
+        bar: 123,
+        nestedA: {
+          nestedB: {
+            baz: 'def'
+          }
+        }
       }
     });
   });

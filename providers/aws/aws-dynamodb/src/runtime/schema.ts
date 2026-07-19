@@ -10,6 +10,6 @@ export const validateSchema = async <T extends Database.Schema>(data: T, schema:
   const errors = await validate(data, schema);
 
   if (errors.length) {
-    throw new MalformedRequestError(getErrorDetails(errors));
+    throw new MalformedRequestError(undefined, getErrorDetails(errors));
   }
 };

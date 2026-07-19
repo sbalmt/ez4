@@ -1,34 +1,27 @@
-import type { ObjectSchema, PartialSchemaProperties } from '@ez4/schema';
-import type { AnyObject } from '@ez4/utils';
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
-import { getPartialSchema } from '@ez4/schema';
-import { isAnyObject } from '@ez4/utils';
+import { isDynamicObjectSchema, isObjectSchema } from '@ez4/schema';
+import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
+import { createTransformContext, transform } from '@ez4/transform';
+import { MalformedRequestError } from '@ez4/aws-dynamodb/runtime';
 
-import { isSkippableData } from './data';
-
-export const preparePartialSchema = (schema: ObjectSchema, data: AnyObject) => {
-  return getPartialSchema(schema, {
-    include: getDataProperties(data),
-    extensible: true
-  });
+export const isDynamicFieldSchema = (schema: AnySchema): schema is ObjectSchema => {
+  return isObjectSchema(schema) && isDynamicObjectSchema(schema);
 };
 
-const getDataProperties = (data: AnyObject) => {
-  const properties: PartialSchemaProperties = {};
+export const validateRecordSchema = async (data: unknown, schema: AnySchema, path: string) => {
+  const context = createValidatorContext({ property: path });
+  const errors = await validate(data, schema, context);
 
-  for (const propertyName in data) {
-    const value = data[propertyName];
-
-    if (isSkippableData(value)) {
-      continue;
-    }
-
-    if (isAnyObject(value)) {
-      properties[propertyName] = getDataProperties(value);
-    } else {
-      properties[propertyName] = true;
-    }
+  if (errors.length) {
+    throw new MalformedRequestError(path, getErrorDetails(errors));
   }
+};
 
-  return properties;
+export const getWithSchemaValidation = async <T>(data: unknown, schema: AnySchema, path: string) => {
+  const record = transform(data, schema, createTransformContext({ convert: false }));
+
+  await validateRecordSchema(record, schema, path);
+
+  return record as T;
 };
