@@ -47,6 +47,14 @@ export const enum LockMode {
 }
 
 /**
+ * Relation mode.
+ */
+export const enum RelationMode {
+  Unsupported = 'unsupported',
+  Supported = 'supported'
+}
+
+/**
  * Stream mode.
  */
 export const enum StreamMode {

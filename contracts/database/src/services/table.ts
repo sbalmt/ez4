@@ -1,5 +1,5 @@
 import type { AnyObject, PropertyExists } from '@ez4/utils';
-import type { StreamMode } from '../types/mode';
+import type { RelationMode, StreamMode } from '../types/mode';
 import type { TableRelations, RelationMetadata, RelationTables } from './relations';
 import type { TableIndexes, IndexedTables } from './indexes';
 import type { TableSchema, TableSchemas } from './schemas';
@@ -23,14 +23,14 @@ export interface DatabaseTable<T extends TableSchema, E extends DatabaseEngine> 
   readonly schema: T;
 
   /**
-   * Table relations.
-   */
-  readonly relations?: TableRelations;
-
-  /**
    * Table indexes.
    */
   readonly indexes: TableIndexes;
+
+  /**
+   * Table relations.
+   */
+  readonly relations?: E['relationMode'] extends RelationMode.Supported ? TableRelations : never;
 
   /**
    * Table stream configuration.

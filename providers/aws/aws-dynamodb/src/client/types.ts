@@ -2,14 +2,15 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
 import type {
+  TableMetadata,
   ParametersMode,
   TransactionMode,
-  PaginationMode,
-  OrderMode,
   InsensitiveMode,
-  TableMetadata,
-  LockMode,
-  StreamMode
+  PaginationMode,
+  RelationMode,
+  StreamMode,
+  OrderMode,
+  LockMode
 } from '@ez4/database';
 
 export type Repository = Record<string, RepositoryTable>;
@@ -28,6 +29,7 @@ export type DynamoDbEngine = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Cursor;
+  relationMode: RelationMode.Unsupported;
   streamMode: StreamMode.Supported;
   orderMode: OrderMode.IndexColumns;
   lockMode: LockMode.Unsupported;
