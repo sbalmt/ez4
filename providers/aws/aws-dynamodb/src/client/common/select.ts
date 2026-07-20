@@ -1,8 +1,9 @@
+import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
-import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
+import { getSchemaProperty, isArraySchema } from '@ez4/schema';
 import { isAnyObject } from '@ez4/utils';
 
 import { prepareWhereFields } from './where';
@@ -16,7 +17,7 @@ export const prepareSelect = <T extends InternalTableMetadata, S extends Query.S
   index: string | undefined,
   query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ): PrepareResult => {
-  const selectFields = getSelectFields(query.select);
+  const selectFields = getSelectFields(query.select, schema);
 
   const statement = [`SELECT ${selectFields} FROM "${table}"${index ? `."${index}"` : ''}`];
   const variables = [];
@@ -43,6 +44,7 @@ export const prepareSelect = <T extends InternalTableMetadata, S extends Query.S
 
 const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
   fields: Query.StrictSelectInput<S, T>,
+  schema?: AnySchema,
   path?: string
 ): string => {
   const selectFields: string[] = [];
@@ -57,7 +59,14 @@ const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
     const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
 
     if (isAnyObject(fieldValue)) {
-      selectFields.push(getSelectFields(fieldValue, fieldPath));
+      const fieldSchema = schema && getSchemaProperty(schema, fieldKey);
+
+      if (!fieldSchema || !isArraySchema(fieldSchema)) {
+        selectFields.push(getSelectFields(fieldValue, fieldSchema, fieldPath));
+        continue;
+      }
+
+      selectFields.push(fieldPath);
       continue;
     }
 

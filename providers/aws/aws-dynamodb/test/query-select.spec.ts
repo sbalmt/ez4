@@ -24,7 +24,24 @@ describe('dynamodb query (select)', () => {
       }
     });
 
-    equal(statement, `SELECT "id", "foo", "bar" ` + `FROM "ez4-test-select" ` + `WHERE "foo" = ? ` + `ORDER BY "id" DESC`);
+    equal(statement, `SELECT "id", "foo", "bar" FROM "ez4-test-select" WHERE "foo" = ? ORDER BY "id" DESC`);
+
+    deepEqual(variables, [123]);
+  });
+
+  it('assert :: prepare select (from array)', () => {
+    const [statement, variables] = prepareSelect<TestTableMetadata, {}, false>('ez4-test-select', TestSchema, undefined, {
+      select: {
+        array: {
+          nestedA: true
+        }
+      },
+      where: {
+        foo: 123
+      }
+    });
+
+    equal(statement, `SELECT "array" FROM "ez4-test-select" WHERE "foo" = ?`);
 
     deepEqual(variables, [123]);
   });

@@ -23,7 +23,7 @@ describe('dynamodb query (update)', () => {
     deepEqual(variables, [456, 123]);
   });
 
-  it('assert :: prepare update (remove nulls)', async () => {
+  it('assert :: prepare update (to null)', async () => {
     const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       data: {
         foo: null,
@@ -33,9 +33,9 @@ describe('dynamodb query (update)', () => {
       }
     });
 
-    equal(statement, `UPDATE "ez4-test-update" REMOVE "foo" SET "bar"."barFoo" = ?`);
+    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barFoo" = ?`);
 
-    deepEqual(variables, ['abc']);
+    deepEqual(variables, [null, 'abc']);
   });
 
   it('assert :: prepare update (with select)', async () => {
