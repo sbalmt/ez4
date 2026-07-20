@@ -71,9 +71,9 @@ const prepareUpdateFields = async (data: AnyObject, schema: ObjectSchema | Union
 
         operations.push(statement);
         variables.push(variable);
-      }
 
-      continue;
+        continue;
+      }
     }
 
     const atomicOperation = await getAtomicObjectOperationUpdate(fieldValue, fieldSchema, fieldPath);
@@ -125,17 +125,26 @@ const getAtomicNumberOperationUpdate = async (fieldKey: string, fieldValue: AnyO
       continue;
     }
 
-    await validateRecordSchema(value, fieldSchema, fieldPath);
-
     switch (operation) {
-      default:
+      default: {
         throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+      }
 
-      case 'inc':
+      case 'removeFrom': {
+        return undefined;
+      }
+
+      case 'inc': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return [`SET ${fieldPath} = (${fieldPath} + ?)`, value] as const;
+      }
 
-      case 'dec':
+      case 'dec': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return [`SET ${fieldPath} = (${fieldPath} - ?)`, value] as const;
+      }
     }
   }
 
@@ -157,6 +166,14 @@ export const getAtomicObjectOperationUpdate = async (
       case 'replaceWith': {
         if (value !== undefined) {
           return [`SET ${fieldPath} = ?`, [await getWithSchemaValidation(value, fieldSchema, fieldPath)]];
+        }
+
+        return ['', []];
+      }
+
+      case 'removeFrom': {
+        if (value) {
+          return [`REMOVE ${fieldPath}`, []];
         }
 
         return ['', []];

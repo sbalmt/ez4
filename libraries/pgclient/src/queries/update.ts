@@ -150,11 +150,15 @@ export const getUpdateRecord = async (
     }
 
     if (isNumberSchema(fieldSchema)) {
-      record[fieldKey] = await getAtomicNumberOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
-      continue;
+      const atomicResult = await getAtomicNumberOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
+
+      if (atomicResult) {
+        record[fieldKey] = atomicResult;
+        continue;
+      }
     }
 
-    const atomicOperation = await getAtomicObjectOperationUpdate(builder, fieldValue, fieldSchema, fieldPath);
+    const atomicOperation = await getAtomicObjectOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
 
     if (atomicOperation) {
       const [recordValue] = atomicOperation;
@@ -304,23 +308,36 @@ const getAtomicNumberOperationUpdate = async (
       continue;
     }
 
-    await validateRecordSchema(value, fieldSchema, fieldPath);
-
     switch (operation) {
-      default:
+      default: {
         throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+      }
 
-      case 'inc':
+      case 'removeFrom': {
+        return undefined;
+      }
+
+      case 'inc': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return builder.rawOperation('+', value);
+      }
 
-      case 'dec':
+      case 'dec': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return builder.rawOperation('-', value);
+      }
 
-      case 'mul':
+      case 'mul': {
         return builder.rawOperation('*', value);
+      }
 
-      case 'div':
+      case 'div': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return builder.rawOperation('/', value);
+      }
     }
   }
 
@@ -329,6 +346,7 @@ const getAtomicNumberOperationUpdate = async (
 
 export const getAtomicObjectOperationUpdate = async (
   builder: SqlBuilder,
+  fieldKey: string,
   fieldValue: AnyObject,
   fieldSchema: AnySchema,
   fieldPath: string
@@ -343,6 +361,14 @@ export const getAtomicObjectOperationUpdate = async (
       case 'replaceWith': {
         if (value !== undefined) {
           return [builder.rawValue(await getWithSchemaValidation(value, fieldSchema, fieldPath))];
+        }
+
+        return [];
+      }
+
+      case 'removeFrom': {
+        if (value) {
+          return [builder.rawOperation('#-', `{${fieldKey}}`)];
         }
 
         return [];

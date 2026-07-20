@@ -19,7 +19,8 @@ describe('client update json atomic object', async () => {
           boolean: true,
           object: {
             baz: false,
-            foo: 'abc'
+            foo: 'abc',
+            qux: 1.0
           }
         },
         extensible_json: {
@@ -67,7 +68,8 @@ describe('client update json atomic object', async () => {
         object: {
           foo: 'abc',
           bar: 456,
-          baz: true
+          baz: true,
+          qux: 1.0
         }
       }
     });
@@ -103,6 +105,48 @@ describe('client update json atomic object', async () => {
       json: {
         string: 'abc',
         number: 456
+      }
+    });
+  });
+
+  it('assert :: remove object field', async () => {
+    const result = await client.ez4_test_table.updateOne({
+      data: {
+        json: {
+          boolean: false,
+          number: {
+            removeFrom: true
+          },
+          object: {
+            qux: {
+              removeFrom: true
+            }
+          }
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+
+    const changes = await client.ez4_test_table.findOne({
+      select: {
+        json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(changes, {
+      json: {
+        boolean: false,
+        object: {
+          baz: false,
+          foo: 'abc'
+        }
       }
     });
   });

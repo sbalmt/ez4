@@ -15,7 +15,7 @@ declare class TestTableB implements Database.Schema {
   table_a_id: string;
   value_b: {
     baz?: number;
-    qux: {
+    qux?: {
       nestedA: string;
       nestedB?: boolean;
       nestedC: number;
@@ -163,6 +163,27 @@ export const testUpdate = async ({ selfClient }: Service.Context<TestDatabase>) 
     },
     where: {
       id: 'bar'
+    }
+  });
+
+  // Update tableA and all tableB connections (with remove)
+  await selfClient.tableA.updateOne({
+    data: {
+      value_a: {
+        bar: {
+          removeFrom: true
+        }
+      },
+      all_relations_b: {
+        value_b: {
+          qux: {
+            removeFrom: true
+          }
+        }
+      }
+    },
+    where: {
+      id: 'foo'
     }
   });
 };

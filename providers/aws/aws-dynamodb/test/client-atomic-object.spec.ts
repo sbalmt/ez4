@@ -17,8 +17,9 @@ declare class TestSchema implements Database.Schema {
   extensible_json: Object.Any;
   json: {
     foo: string;
-    bar?: number;
+    bar?: number | null;
     baz: boolean;
+    qux?: number;
   };
 }
 
@@ -50,7 +51,8 @@ describe('dynamodb client (atomic object operation)', { timeout: 60000 }, () => 
       data: {
         json: {
           foo: 'abc',
-          baz: false
+          baz: false,
+          qux: 1.0
         },
         extensible_json: {
           foo: 'abc',
@@ -116,11 +118,18 @@ describe('dynamodb client (atomic object operation)', { timeout: 60000 }, () => 
                   },
                   bar: {
                     type: SchemaType.Number,
+                    format: 'integer',
                     optional: true,
                     nullable: true
                   },
                   baz: {
                     type: SchemaType.Boolean
+                  },
+                  qux: {
+                    type: SchemaType.Number,
+                    format: 'decimal',
+                    optional: true,
+                    nullable: true
                   }
                 }
               },
@@ -168,7 +177,8 @@ describe('dynamodb client (atomic object operation)', { timeout: 60000 }, () => 
       json: {
         foo: 'abc',
         bar: 123,
-        baz: true
+        baz: true,
+        qux: 1.0
       }
     });
   });
@@ -203,6 +213,41 @@ describe('dynamodb client (atomic object operation)', { timeout: 60000 }, () => 
       json: {
         foo: 'def',
         baz: true
+      }
+    });
+  });
+
+  it('assert :: remove object field', async () => {
+    ok(dbClient);
+
+    await dbClient.testTable.updateOne({
+      data: {
+        json: {
+          bar: null,
+          qux: {
+            removeFrom: true
+          }
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    const result = await dbClient.testTable.findOne({
+      select: {
+        json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, {
+      json: {
+        foo: 'abc',
+        bar: null,
+        baz: false
       }
     });
   });

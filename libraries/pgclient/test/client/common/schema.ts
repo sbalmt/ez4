@@ -43,6 +43,7 @@ export type TestSchemaType = {
       foo: string;
       bar?: number;
       baz: boolean;
+      qux?: number;
     };
   };
 };
@@ -177,17 +178,23 @@ export const TestSchema: ObjectSchema = {
         object: {
           type: SchemaType.Object,
           optional: true,
-          nullable: true,
+
           properties: {
             foo: {
               type: SchemaType.String
             },
             bar: {
               type: SchemaType.Number,
+              format: 'integer',
               optional: true
             },
             baz: {
               type: SchemaType.Boolean
+            },
+            qux: {
+              type: SchemaType.Number,
+              format: 'decimal',
+              optional: true
             }
           }
         }

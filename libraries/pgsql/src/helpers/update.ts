@@ -77,28 +77,58 @@ export const getUpdateColumns = (
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
-        inner: inner || shouldMerge,
         coalesce: shouldMerge,
-        parent: columnName
+        parent: columnName,
+        inner: true
       });
 
-      if (shouldMerge) {
-        const columnPath = mergeSqlAlias(columnName, source.alias);
-        pushUpdate(fieldName, `COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(', ')})`);
-      } else if (inner) {
-        pushUpdate(fieldName, `jsonb_build_object(${jsonValue.join(', ')})`);
-      } else {
-        columns.push(...jsonValue);
+      if (shouldMerge || inner) {
+        const additions = jsonValue.filter((value) => !value.startsWith('#-'));
+        const removals = jsonValue.filter((value) => value.startsWith('#-'));
+
+        if (shouldMerge) {
+          const columnPath = mergeSqlAlias(columnName, source.alias);
+          const changes = [`COALESCE(${columnPath}, '{}'::jsonb)`];
+
+          if (removals.length) {
+            changes.push(removals.join(' '));
+          }
+
+          if (additions.length) {
+            changes.push(`|| jsonb_build_object(${additions.join(', ')})`);
+          }
+
+          pushUpdate(fieldName, changes.join(' '));
+          continue;
+        }
+
+        if (inner) {
+          const changes = [];
+
+          if (removals.length) {
+            changes.push(removals.join(' '));
+          }
+
+          if (additions.length) {
+            changes.push(`jsonb_build_object(${additions.join(', ')})`);
+          }
+
+          pushUpdate(fieldName, changes.join(' || '));
+          continue;
+        }
       }
 
+      columns.push(...jsonValue);
       continue;
     }
 
-    const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
     const fieldIndex = references.counter++;
 
     if (!(value instanceof SqlRawOperation)) {
       pushUpdate(fieldName, `:${fieldIndex}`);
+    } else if (isJsonRemoveOperator(value.operator)) {
+      columns.push(`${value.operator} '${value.build()}'`);
+      continue;
     } else {
       const columnName = mergeSqlJsonPath(fieldName, parent, true);
       const columnPath = mergeSqlAlias(columnName, source.alias);
@@ -113,6 +143,8 @@ export const getUpdateColumns = (
       }
     }
 
+    const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
+
     if (options.onPrepareVariable) {
       variables.push(options.onPrepareVariable(fieldValue, { schema: fieldSchema, index: fieldIndex, json }));
       continue;
@@ -122,6 +154,10 @@ export const getUpdateColumns = (
   }
 
   return columns;
+};
+
+const isJsonRemoveOperator = (operand: string) => {
+  return operand === '#-';
 };
 
 const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fieldExpression: string) => {
