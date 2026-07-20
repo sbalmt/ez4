@@ -16,6 +16,7 @@ type TestTableMetadata = {
     scalar?: number;
     json: {
       foo?: number;
+      bar?: string;
     };
   };
 };
@@ -37,6 +38,10 @@ describe('update operations', () => {
         properties: {
           foo: {
             type: SchemaType.Number,
+            optional: true
+          },
+          bar: {
+            type: SchemaType.String,
             optional: true
           }
         }
@@ -130,7 +135,7 @@ describe('update operations', () => {
     assert.deepEqual(variables, [456]);
   });
 
-  it('assert :: prepare update operations (json multiplication)', async ({ assert }) => {
+  it('assert :: prepare update operations (json multiply)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
@@ -144,7 +149,7 @@ describe('update operations', () => {
     assert.deepEqual(variables, [456]);
   });
 
-  it('assert :: prepare update operations (json division)', async ({ assert }) => {
+  it('assert :: prepare update operations (json divide)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
@@ -174,6 +179,33 @@ describe('update operations', () => {
         foo: 789
       }
     ]);
+  });
+
+  it('assert :: prepare update operations (json remove from)', async ({ assert }) => {
+    const [statement] = await prepareUpdate({
+      json: {
+        bar: {
+          removeFrom: true
+        }
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json" = "json" #- '{bar}'`);
+  });
+
+  it('assert :: prepare update operations (json update and remove from)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate({
+      json: {
+        foo: 123,
+        bar: {
+          removeFrom: true
+        }
+      }
+    });
+
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-operation" SET "json" = "json" #- '{bar}', "json"['foo'] = :0`);
+
+    assert.deepEqual(variables, [123]);
   });
 
   it('assert :: prepare update operations (invalid operator)', async ({ assert }) => {

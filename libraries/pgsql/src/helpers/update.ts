@@ -18,7 +18,7 @@ export type SqlUpdateContext = {
   variables: unknown[];
   coalesce?: boolean;
   parent?: string;
-  inner?: boolean;
+  depth?: number;
 };
 
 export const getUpdateColumns = (
@@ -27,12 +27,12 @@ export const getUpdateColumns = (
   schema: ObjectSchema | UnionSchema | undefined,
   context: SqlUpdateContext
 ): string[] => {
-  const { variables, references, options, coalesce, parent, inner } = context;
+  const { variables, references, options, coalesce, parent, depth = 0 } = context;
 
   const columns = [];
 
   const pushUpdate = (fieldName: string, fieldValue: string) => {
-    if (!inner) {
+    if (depth <= 1 && !coalesce) {
       columns.push(`${mergeSqlPath(fieldName, parent)} = ${fieldValue}`);
     } else {
       columns.push(`'${fieldName}', ${fieldValue}`);
@@ -71,54 +71,43 @@ export const getUpdateColumns = (
 
     if (isPlainObject(value)) {
       const nextSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
-      const columnName = mergeSqlPath(fieldName, parent);
+      const mustCombine = coalesce || !nextSchema || isNullishSchema(nextSchema);
 
-      const shouldMerge = nextSchema && isNullishSchema(nextSchema);
+      const columnName = mergeSqlPath(fieldName, parent);
+      const columnPath = mergeSqlAlias(columnName, source.alias);
 
       const jsonValue = getUpdateColumns(source, value, nextSchema, {
         ...context,
-        coalesce: shouldMerge,
+        coalesce: mustCombine,
         parent: columnName,
-        inner: true
+        depth: depth + 1
       });
 
-      if (shouldMerge || inner) {
-        const additions = jsonValue.filter((value) => !value.startsWith('#-'));
-        const removals = jsonValue.filter((value) => value.startsWith('#-'));
+      const [removals, additions] = jsonValue.reduce<[string[], string[]]>(
+        (values, value) => (values[isJsonRemoveOperator(value) ? 0 : 1].push(value), values),
+        [[], []]
+      );
 
-        if (shouldMerge) {
-          const columnPath = mergeSqlAlias(columnName, source.alias);
-          const changes = [`COALESCE(${columnPath}, '{}'::jsonb)`];
+      const expression = [];
 
-          if (removals.length) {
-            changes.push(removals.join(' '));
-          }
-
-          if (additions.length) {
-            changes.push(`|| jsonb_build_object(${additions.join(', ')})`);
-          }
-
-          pushUpdate(fieldName, changes.join(' '));
-          continue;
-        }
-
-        if (inner) {
-          const changes = [];
-
-          if (removals.length) {
-            changes.push(removals.join(' '));
-          }
-
-          if (additions.length) {
-            changes.push(`jsonb_build_object(${additions.join(', ')})`);
-          }
-
-          pushUpdate(fieldName, changes.join(' || '));
-          continue;
-        }
+      if (mustCombine) {
+        expression.push(`COALESCE(${columnPath}, '{}'::jsonb)`, ...removals);
+      } else if (removals.length) {
+        expression.push(columnPath, ...removals);
       }
 
-      columns.push(...jsonValue);
+      if (additions.length && (mustCombine || depth > 0)) {
+        expression.push(`|| jsonb_build_object(${additions.join(', ')})`);
+      }
+
+      if (expression.length) {
+        pushUpdate(fieldName, expression.join(' '));
+      }
+
+      if (!mustCombine && depth === 0) {
+        columns.push(...additions);
+      }
+
       continue;
     }
 
@@ -157,7 +146,7 @@ export const getUpdateColumns = (
 };
 
 const isJsonRemoveOperator = (operand: string) => {
-  return operand === '#-';
+  return operand.startsWith('#-');
 };
 
 const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fieldExpression: string) => {
