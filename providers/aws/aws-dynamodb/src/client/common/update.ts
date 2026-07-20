@@ -19,7 +19,7 @@ export const prepareUpdate = async <T extends InternalTableMetadata, S extends Q
 ): Promise<PrepareResult> => {
   const [updateFields, variables] = await prepareUpdateFields(query.data, schema);
 
-  const statement = [`UPDATE "${table}" ${updateFields}`];
+  const statement = [`UPDATE "${table}" ${updateFields || `REMOVE "__EZ4_NOOP"`}`];
 
   if (query.where) {
     const [whereFields, whereVariables] = prepareWhereFields(query.where, schema);

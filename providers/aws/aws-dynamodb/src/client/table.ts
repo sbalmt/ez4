@@ -106,12 +106,19 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         await this.insertOne({ data: query.insert });
 
         if (query.select) {
-          const [firstRecord] = getTransformedRecords([query.insert], this.schema, query.select);
+          const [record] = getTransformedRecords([query.insert], this.schema, query.select);
 
-          return { record: firstRecord, inserted: true } as Query.UpsertOneResult<S, T>;
+          return {
+            record,
+            inserted: true
+          } as Query.UpsertOneResult<S, T>;
         }
 
-        return { inserted: true } as Query.UpsertOneResult<S, T>;
+        return {
+          inserted: true
+        } as Query.UpsertOneResult<S, T>;
+
+        //
       } catch (error) {
         // In case of race condition, fallback to update.
         if (!isDuplicateItemError(error)) {
@@ -120,13 +127,18 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       }
     }
 
-    const firstRecord = await this.updateOne({
+    const record = await this.updateOne({
       where: query.where as Query.WhereInput<T>,
       select: query.select,
       data: query.update
     });
 
-    return { record: firstRecord, inserted: false } as Query.UpsertOneResult<S, T>;
+    return {
+      inserted: false,
+      ...(record && {
+        record
+      })
+    } as Query.UpsertOneResult<S, T>;
   }
 
   async insertMany(query: Query.InsertManyInput<T>) {
