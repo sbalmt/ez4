@@ -317,23 +317,23 @@ const getAtomicNumberOperationUpdate = async (
         return undefined;
       }
 
-      case 'inc': {
+      case 'increment': {
         await validateRecordSchema(value, fieldSchema, fieldPath);
 
         return builder.rawOperation('+', value);
       }
 
-      case 'dec': {
+      case 'decrement': {
         await validateRecordSchema(value, fieldSchema, fieldPath);
 
         return builder.rawOperation('-', value);
       }
 
-      case 'mul': {
+      case 'multiply': {
         return builder.rawOperation('*', value);
       }
 
-      case 'div': {
+      case 'divide': {
         await validateRecordSchema(value, fieldSchema, fieldPath);
 
         return builder.rawOperation('/', value);

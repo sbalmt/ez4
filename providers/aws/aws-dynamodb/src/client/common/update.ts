@@ -134,13 +134,13 @@ const getAtomicNumberOperationUpdate = async (fieldKey: string, fieldValue: AnyO
         return undefined;
       }
 
-      case 'inc': {
+      case 'increment': {
         await validateRecordSchema(value, fieldSchema, fieldPath);
 
         return [`SET ${fieldPath} = (${fieldPath} + ?)`, value] as const;
       }
 
-      case 'dec': {
+      case 'decrement': {
         await validateRecordSchema(value, fieldSchema, fieldPath);
 
         return [`SET ${fieldPath} = (${fieldPath} - ?)`, value] as const;

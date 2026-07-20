@@ -57,7 +57,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar increment)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        inc: 123
+        increment: 123
       }
     });
 
@@ -69,7 +69,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar decrement)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        dec: 123
+        decrement: 123
       }
     });
 
@@ -81,7 +81,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar multiplication)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        mul: 123
+        multiply: 123
       }
     });
 
@@ -93,7 +93,7 @@ describe('update operations', () => {
   it('assert :: prepare update operations (scalar division)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate({
       scalar: {
-        div: 123
+        divide: 123
       }
     });
 
@@ -106,7 +106,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          inc: 456
+          increment: 456
         }
       }
     });
@@ -120,7 +120,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          dec: 456
+          decrement: 456
         }
       }
     });
@@ -134,7 +134,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          mul: 456
+          multiply: 456
         }
       }
     });
@@ -148,7 +148,7 @@ describe('update operations', () => {
     const [statement, variables] = await prepareUpdate({
       json: {
         foo: {
-          div: 456
+          divide: 456
         }
       }
     });
@@ -193,7 +193,7 @@ describe('update operations', () => {
         json: {
           foo: {
             // The given `123` value isn't a number type.
-            dec: '123' as any
+            decrement: '123' as any
           }
         }
       })

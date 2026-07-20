@@ -29,7 +29,7 @@ describe('client update json atomic number', async () => {
       data: {
         json: {
           number: {
-            inc: 15
+            increment: 15
           }
         }
       },
@@ -61,7 +61,7 @@ describe('client update json atomic number', async () => {
       data: {
         json: {
           number: {
-            dec: 10
+            decrement: 10
           }
         }
       },
@@ -93,7 +93,7 @@ describe('client update json atomic number', async () => {
       data: {
         json: {
           number: {
-            mul: 3
+            multiply: 3
           }
         }
       },
@@ -125,7 +125,7 @@ describe('client update json atomic number', async () => {
       data: {
         json: {
           number: {
-            div: 2
+            divide: 2
           }
         }
       },

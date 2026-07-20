@@ -25,10 +25,10 @@ describe('client update atomic', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
         integer: {
-          inc: 15
+          increment: 15
         },
         decimal: {
-          inc: 5
+          increment: 5
         }
       },
       where: {
@@ -58,10 +58,10 @@ describe('client update atomic', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
         integer: {
-          dec: 1
+          decrement: 1
         },
         decimal: {
-          dec: 5.5
+          decrement: 5.5
         }
       },
       where: {
@@ -91,10 +91,10 @@ describe('client update atomic', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
         integer: {
-          mul: 3
+          multiply: 3
         },
         decimal: {
-          mul: 5
+          multiply: 5
         }
       },
       where: {
@@ -124,10 +124,10 @@ describe('client update atomic', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {
         integer: {
-          div: 15
+          divide: 15
         },
         decimal: {
-          div: 10
+          divide: 10
         }
       },
       where: {

@@ -120,10 +120,10 @@ describe('dynamodb client (atomic number operation)', { timeout: 60000 }, () => 
     await dbClient.testTable.updateOne({
       data: {
         integer: {
-          inc: 15
+          increment: 15
         },
         decimal: {
-          inc: 5
+          increment: 5
         }
       },
       where: {
@@ -153,10 +153,10 @@ describe('dynamodb client (atomic number operation)', { timeout: 60000 }, () => 
     await dbClient.testTable.updateOne({
       data: {
         integer: {
-          dec: 1
+          decrement: 1
         },
         decimal: {
-          dec: 5.5
+          decrement: 5.5
         }
       },
       where: {

@@ -35,26 +35,26 @@ type AtomicIncrement = {
   /**
    * Increment the entity value by the given amount.
    */
-  inc: number;
+  increment: number;
 };
 
 type AtomicDecrement = {
   /**
    * Decrement the entity value by the given amount.
    */
-  dec: number;
+  decrement: number;
 };
 
 type AtomicMultiply = {
   /**
    * Multiply the entity value by the given amount.
    */
-  mul: number;
+  multiply: number;
 };
 
 type AtomicDivide = {
   /**
    * Divide the entity value by the given amount.
    */
-  div: number;
+  divide: number;
 };
