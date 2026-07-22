@@ -62,14 +62,38 @@ describe('aurora data detect', { timeout: 180000 }, () => {
     });
   });
 
+  it('assert :: detect time data (with milliseconds)', () => {
+    const data = detectFieldData('field', '23:59:59.123');
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'TIME',
+      value: {
+        stringValue: '23:59:59.123'
+      }
+    });
+  });
+
+  it('assert :: detect time data (with timezone)', () => {
+    const data = detectFieldData('field', '23:59:59.123Z');
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'TIME',
+      value: {
+        stringValue: '23:59:59.123'
+      }
+    });
+  });
+
   it('assert :: detect timestamp data', () => {
-    const data = detectFieldData('field', '1991-04-23T23:59:30.000Z');
+    const data = detectFieldData('field', '1991-04-23T23:59:30.123Z');
 
     deepEqual(data, {
       name: 'field',
       typeHint: 'TIMESTAMP',
       value: {
-        stringValue: '1991-04-23 23:59:30'
+        stringValue: '1991-04-23 23:59:30.123'
       }
     });
   });

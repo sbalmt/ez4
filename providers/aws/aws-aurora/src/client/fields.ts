@@ -7,6 +7,9 @@ import { UnsupportedFieldTypeError, isJsonFieldSchema } from '@ez4/pgclient';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
+// Data API accepts `HH:MM:SS[.FFF]` for time values and rejects any timezone offset.
+const timePattern = /^\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?/;
+
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): SqlParameter => {
   if (isJsonFieldSchema(schema)) {
     return getJsonFieldData(name, value as object);
@@ -149,7 +152,7 @@ const getDateFieldData = (name: string, value: string): SqlParameter => {
 };
 
 const getTimeFieldData = (name: string, value: string): SqlParameter => {
-  const time = value.substring(0, 8);
+  const [time] = timePattern.exec(value) ?? [value.substring(0, 8)];
 
   return {
     typeHint: TypeHint.TIME,
@@ -158,10 +161,10 @@ const getTimeFieldData = (name: string, value: string): SqlParameter => {
 };
 
 const getDateTimeFieldData = (name: string, value: string): SqlParameter => {
-  const timestamp = new Date(value).toISOString().substring(0, 19);
+  const timestamp = new Date(value).toISOString();
 
   const isoDate = timestamp.substring(0, 10);
-  const isoTime = timestamp.substring(11, 19);
+  const isoTime = timestamp.substring(11, 23);
 
   return {
     typeHint: TypeHint.TIMESTAMP,
