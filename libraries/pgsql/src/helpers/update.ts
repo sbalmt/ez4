@@ -70,13 +70,13 @@ export const getUpdateColumns = (
     const fieldSchema = schema && getSchemaProperty(schema, fieldName);
 
     if (isPlainObject(value)) {
-      const nextSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
-      const mustCombine = coalesce || !nextSchema || isNullishSchema(nextSchema);
+      const innerSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
+      const mustCombine = coalesce || !fieldSchema || (innerSchema && isNullishSchema(innerSchema));
 
       const columnName = mergeSqlPath(fieldName, parent);
       const columnPath = mergeSqlAlias(columnName, source.alias);
 
-      const jsonValue = getUpdateColumns(source, value, nextSchema, {
+      const jsonValue = getUpdateColumns(source, value, innerSchema, {
         ...context,
         coalesce: mustCombine,
         parent: columnName,
@@ -92,7 +92,7 @@ export const getUpdateColumns = (
 
       if (mustCombine) {
         expression.push(`COALESCE(${columnPath}, '{}'::jsonb)`, ...removals);
-      } else if (removals.length) {
+      } else if (removals.length || depth > 0) {
         expression.push(columnPath, ...removals);
       }
 
