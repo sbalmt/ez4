@@ -86,7 +86,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     const resultQuery = allQueries[allQueries.length - 1];
     const flagColumn = `1 AS ${escapeSqlName(options.flag)}`;
 
-    resultQuery.results?.rawColumn(flagColumn);
+    resultQuery.results?.rawColumn(flagColumn, options.flag);
   }
 
   return allQueries;

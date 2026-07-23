@@ -9,14 +9,20 @@ export abstract class SqlRaw {
 export class SqlRawValue extends SqlRaw {
   #state: {
     value: unknown | SqlRawGenerator;
+    alias?: string;
   };
 
-  constructor(value: unknown | SqlRawGenerator) {
+  constructor(value: unknown | SqlRawGenerator, alias?: string) {
     super();
 
     this.#state = {
-      value
+      value,
+      alias
     };
+  }
+
+  get alias() {
+    return this.#state.alias;
   }
 
   build(source?: SqlSource) {

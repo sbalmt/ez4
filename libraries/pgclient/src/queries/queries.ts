@@ -1,4 +1,5 @@
 import type { ObjectSchema } from '@ez4/schema';
+import type { SqlResults } from '@ez4/pgsql';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
@@ -14,6 +15,16 @@ import { prepareDeleteQuery } from './delete';
 import { prepareExistsQuery } from './exists';
 import { prepareCountQuery } from './count';
 
+/**
+ * Resolve the output column names for the statement producing the result set.
+ * Must run before `build()` since building may reassign sub-select column
+ * aliases. A statement without a returning clause has no result columns at
+ * all, hence the empty list.
+ */
+const getStatementColumns = (statement: { results?: SqlResults }) => {
+  return statement.results ? statement.results.names() : [];
+};
+
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
@@ -24,12 +35,16 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   const builder = createQueryBuilder(driver);
 
   const allQueries = await prepareInsertQuery(builder, table, schema, relations, query);
+  const lastQuery = allQueries[allQueries.length - 1];
+
+  const columns = getStatementColumns(lastQuery);
 
   const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -49,11 +64,14 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
 
   const selectQuery = prepareSelectQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(selectQuery);
+
   const [statement, variables] = selectQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -73,12 +91,16 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   const builder = createQueryBuilder(driver);
 
   const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query, options);
+  const lastQuery = allQueries[allQueries.length - 1];
+
+  const columns = getStatementColumns(lastQuery);
 
   const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -98,11 +120,14 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
 
   const deleteQuery = prepareDeleteQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(deleteQuery);
+
   const [statement, variables] = deleteQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -126,11 +151,16 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
         data
       });
 
+      const lastQuery = allQueries[allQueries.length - 1];
+
+      const columns = getStatementColumns(lastQuery);
+
       const [statement, variables] = builder.with(allQueries).build();
 
       return {
         query: statement,
         variables,
+        columns,
         metadata: {
           table,
           relations,
@@ -152,11 +182,14 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
 
   const selectQuery = prepareSelectQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(selectQuery);
+
   const [statement, variables] = selectQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -175,12 +208,16 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
   const builder = createQueryBuilder(driver);
 
   const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query);
+  const lastQuery = allQueries[allQueries.length - 1];
+
+  const columns = getStatementColumns(lastQuery);
 
   const [statement, variables] = builder.with(allQueries).build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -200,11 +237,14 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
 
   const deleteQuery = prepareDeleteQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(deleteQuery);
+
   const [statement, variables] = deleteQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -224,11 +264,14 @@ export const prepareExists = <T extends InternalTableMetadata>(
 
   const countQuery = prepareExistsQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(countQuery);
+
   const [statement, variables] = countQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,
@@ -248,11 +291,14 @@ export const prepareCount = <T extends InternalTableMetadata>(
 
   const countQuery = prepareCountQuery(builder, table, schema, relations, query);
 
+  const columns = getStatementColumns(countQuery);
+
   const [statement, variables] = countQuery.build();
 
   return {
     query: statement,
     variables,
+    columns,
     metadata: {
       table,
       relations,

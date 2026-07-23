@@ -19,6 +19,17 @@ export type PgExecuteStatement = {
   metadata?: PgStatementMetadata;
   variables?: any[];
   query: string;
+
+  /**
+   * Ordered list of output column names for this statement's result set, when
+   * fully known ahead of time from the query builder. Lets the driver skip
+   * asking the database for result-set metadata. An empty list means the
+   * statement produces no result columns (e.g. DML without RETURNING).
+   * `undefined` when the shape isn't statically known (e.g. raw SQL, or a
+   * column whose output name can't be derived), in which case the driver must
+   * fall back to requesting metadata from the database.
+   */
+  columns?: string[];
 };
 
 export type PgExecutionResult = {

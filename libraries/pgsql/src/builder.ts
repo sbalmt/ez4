@@ -57,8 +57,8 @@ export class SqlBuilder {
     this.#options = options ?? {};
   }
 
-  rawValue(value: unknown | SqlRawGenerator) {
-    return new SqlRawValue(value);
+  rawValue(value: unknown | SqlRawGenerator, alias?: string) {
+    return new SqlRawValue(value, alias);
   }
 
   rawString(value: string) {
