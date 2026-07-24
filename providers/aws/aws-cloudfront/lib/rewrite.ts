@@ -42,27 +42,30 @@ function findMatchingRule(uri: string) {
   for (let index = 0; index < __EZ4_REWRITE_RULES.length; index++) {
     const rule = __EZ4_REWRITE_RULES[index];
 
-    const capture = matchRule(uri, rule.from);
+    const capture = matchRule(uri, rule.from, rule.negation);
 
     if (capture !== null) {
-      return { rule, capture };
+      return {
+        rule,
+        capture
+      };
     }
   }
 
   return null;
 }
 
-function matchRule(uri: string, pattern: string) {
+function matchRule(uri: string, pattern: string, negation?: boolean) {
   const wildcardIndex = pattern.indexOf('*');
 
   if (wildcardIndex === -1) {
-    return uri === pattern ? '' : null;
+    return (!negation && uri === pattern) || (negation && uri !== pattern) ? '' : null;
   }
 
   const prefix = pattern.substring(0, wildcardIndex);
   const suffix = pattern.substring(wildcardIndex + 1);
 
-  if (!uri.startsWith(prefix)) {
+  if ((!negation && !uri.startsWith(prefix)) || (negation && uri.startsWith(prefix))) {
     return null;
   }
 
@@ -70,7 +73,7 @@ function matchRule(uri: string, pattern: string) {
     return uri.substring(prefix.length);
   }
 
-  if (!uri.endsWith(suffix)) {
+  if ((!negation && !uri.endsWith(suffix)) || (negation && uri.endsWith(prefix))) {
     return null;
   }
 

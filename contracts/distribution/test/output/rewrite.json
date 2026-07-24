@@ -47,6 +47,16 @@
             "from": "/app/temporary/*",
             "to": "/temp/*",
             "status": 302
+          },
+          {
+            "from": "/app/*.css",
+            "to": "/index.html",
+            "negation": true
+          },
+          {
+            "from": "/app/*.{css|ttf|png|jpg}",
+            "to": "/index.html?file=$1",
+            "negation": true
           }
         ]
       }

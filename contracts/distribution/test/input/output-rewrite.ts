@@ -36,6 +36,7 @@ export declare class TestCdn extends Cdn.Service {
           to: '/modern/*';
         }>,
 
+        // Inline rules
         {
           from: '/redirect/*';
           to: 'https://docs.example.com/*';
@@ -45,6 +46,16 @@ export declare class TestCdn extends Cdn.Service {
           from: '/temporary/*';
           to: '/temp/*';
           status: 302;
+        },
+
+        // Negation rules
+        {
+          from: '!*.css';
+          to: 'index.html';
+        },
+        {
+          from: '!*.{css|ttf|png|jpg}';
+          to: 'index.html?file=$1';
         }
       ];
     }>

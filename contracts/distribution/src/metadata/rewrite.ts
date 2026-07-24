@@ -25,6 +25,7 @@ import {
   InvalidRewriteStatusError
 } from '../errors/rewrite';
 
+import { isNegationPattern } from './utils/rewrite';
 import { formatUri } from './utils/uri';
 
 export const isCdnRewriteRuleMetadata = (type: AllType) => {
@@ -136,8 +137,14 @@ const getTypeFromMembers = (
         const value = getPropertyString(member);
 
         if (value) {
-          rule.from = formatUri(value);
           properties.delete(member.name);
+
+          if (isNegationPattern(value)) {
+            rule.from = formatUri(value.substring(1));
+            rule.negation = true;
+          } else {
+            rule.from = formatUri(value);
+          }
         }
 
         break;

@@ -25,58 +25,56 @@ const invokeRewrite = async (rules: object[], request: object): Promise<any> => 
 
 describe('cloudfront :: rewrite function', () => {
   it('assert :: redirect preserving query string (absolute 301)', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/blog/*',
-          to: 'https://blog.example.com/*',
-          status: 301
-        }
-      ],
+    const rules = [
       {
-        uri: '/blog/post-1',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
-        },
-        querystring: {
-          utm: {
-            value: '1'
-          }
+        from: '/path/*',
+        to: 'https://another.example.com/*',
+        status: 301
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/path/directory-1',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      },
+      querystring: {
+        utm: {
+          value: '1'
         }
       }
-    );
+    });
 
     deepEqual(response, {
       statusCode: 301,
       statusDescription: 'Moved Permanently',
       headers: {
         location: {
-          value: 'https://blog.example.com/post-1?utm=1'
+          value: 'https://another.example.com/directory-1?utm=1'
         }
       }
     });
   });
 
   it('assert :: redirect using current host (relative 302)', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/old/path',
-          to: '/new/path',
-          status: 302
-        }
-      ],
+    const rules = [
       {
-        uri: '/old/path',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
+        from: '/old/path',
+        to: '/new/path',
+        status: 302
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/old/path',
+      headers: {
+        host: {
+          value: 'www.example.com'
         }
       }
-    );
+    });
 
     deepEqual(response, {
       statusCode: 302,
@@ -90,25 +88,24 @@ describe('cloudfront :: rewrite function', () => {
   });
 
   it('assert :: redirect without query omits the query marker', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/old/path',
-          to: '/new/path',
-          status: 301
-        }
-      ],
+    const rules = [
       {
-        uri: '/old/path',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
-        },
-        // CloudFront Functions provide an empty object when there is no query.
-        querystring: {}
+        from: '/old/path',
+        to: '/new/path',
+        status: 301
       }
-    );
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/old/path',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      },
+      // CloudFront Functions provide an empty object when there is no query.
+      querystring: {}
+    });
 
     deepEqual(response, {
       statusCode: 301,
@@ -122,51 +119,49 @@ describe('cloudfront :: rewrite function', () => {
   });
 
   it('assert :: redirect without explicit status uses 302', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/old/*',
-          to: 'https://blog.example.com/new/*'
-        }
-      ],
+    const rules = [
       {
-        uri: '/old/path',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
+        from: '/old/*',
+        to: 'https://another.example.com/new/*'
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/old/path',
+      headers: {
+        host: {
+          value: 'www.example.com'
         }
       }
-    );
+    });
 
     deepEqual(response, {
       statusCode: 302,
       statusDescription: 'Found',
       headers: {
         location: {
-          value: 'https://blog.example.com/new/path'
+          value: 'https://another.example.com/new/path'
         }
       }
     });
   });
 
   it('assert :: internal rewrite changes request uri', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/app/*',
-          to: '/index.html'
-        }
-      ],
+    const rules = [
       {
-        uri: '/app/dashboard',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
+        from: '/path/*',
+        to: '/index.html'
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/path/location',
+      headers: {
+        host: {
+          value: 'www.example.com'
         }
       }
-    );
+    });
 
     deepEqual(response, {
       uri: '/index.html',
@@ -178,28 +173,55 @@ describe('cloudfront :: rewrite function', () => {
     });
   });
 
-  it('assert :: rule order is preserved across redirects and rewrites', async () => {
-    const response = await invokeRewrite(
-      [
-        {
-          from: '/same/*',
-          to: '/internal/*'
-        },
-        {
-          from: '/same/*',
-          to: '/external/*',
-          status: 301
-        }
-      ],
+  it('assert :: internal rewrite changes request uri (with negation)', async () => {
+    const rules = [
       {
-        uri: '/same/path',
-        headers: {
-          host: {
-            value: 'www.example.com'
-          }
+        from: '!*.css',
+        to: '/index.html',
+        negation: true
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/path/location',
+      headers: {
+        host: {
+          value: 'www.example.com'
         }
       }
-    );
+    });
+
+    deepEqual(response, {
+      uri: '/index.html',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      }
+    });
+  });
+
+  it('assert :: order is preserved across redirects and rewrites', async () => {
+    const rules = [
+      {
+        from: '/same/*',
+        to: '/internal/*'
+      },
+      {
+        from: '/same/*',
+        to: '/external/*',
+        status: 301
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/same/path',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      }
+    });
 
     // The first matching rule wins, even though a later rule is a redirect.
     equal(response.statusCode, undefined);
@@ -207,6 +229,13 @@ describe('cloudfront :: rewrite function', () => {
   });
 
   it('assert :: unmatched uri returns original request', async () => {
+    const rules = [
+      {
+        from: '/path/*',
+        to: '/index.html'
+      }
+    ];
+
     const request = {
       uri: '/unknown/path',
       headers: {
@@ -216,17 +245,33 @@ describe('cloudfront :: rewrite function', () => {
       }
     };
 
-    const result = await invokeRewrite(
-      [
-        {
-          from: '/app/*',
-          to: '/index.html'
-        }
-      ],
-      request
-    );
+    const result = await invokeRewrite(rules, request);
 
     equal(result.uri, '/unknown/path');
+    equal(result.statusCode, undefined);
+  });
+
+  it('assert :: unmatched uri returns original request (with negation)', async () => {
+    const rules = [
+      {
+        from: '/path/*.css',
+        to: '/index.html',
+        negation: true
+      }
+    ];
+
+    const request = {
+      uri: '/path/file.css',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      }
+    };
+
+    const result = await invokeRewrite(rules, request);
+
+    equal(result.uri, '/path/file.css');
     equal(result.statusCode, undefined);
   });
 });

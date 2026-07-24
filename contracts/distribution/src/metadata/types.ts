@@ -38,6 +38,7 @@ export type CdnRewriteStatus = 301 | 302;
 
 export type CdnRewriteRule = {
   status?: CdnRewriteStatus;
+  negation?: boolean;
   from: string;
   to: string;
 };
