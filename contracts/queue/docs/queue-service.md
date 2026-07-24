@@ -56,7 +56,7 @@ Optional dead‑letter configuration to route failing messages for inspection an
 
 ```ts
 deadLetter: Queue.UseDeadLetter<{
-  maxRetries: 3; // 3 retries before going to DLQ.
+  maxAttempts: 3; // 3 attempts before going to DLQ.
   retention: 60; // 1 hour retention.
 }>;
 ```

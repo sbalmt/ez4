@@ -4,7 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client update json atomic', async () => {
+describe('client update json atomic number', async () => {
   const client = await makeSchemaClient();
 
   const id = randomUUID();

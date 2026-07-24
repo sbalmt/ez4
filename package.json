@@ -84,12 +84,12 @@
     "@types/node": "^22.9.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.28.1",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "verdaccio": "^6.0.5"
   }
 }

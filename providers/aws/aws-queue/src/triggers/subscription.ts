@@ -65,7 +65,7 @@ export const prepareSubscriptions = (
         variables: [options.variables, service.variables, subscription.variables],
         timeout: service.timeout ?? Defaults.Timeout,
         backoff: {
-          retries: deadLetter?.maxRetries ?? Defaults.MaxRetries,
+          attempts: deadLetter?.maxAttempts ?? Defaults.MaxAttempts,
           minDelay: backoff?.minDelay ?? Defaults.MinBackoff,
           maxDelay: backoff?.maxDelay ?? Defaults.MaxBackoff
         },

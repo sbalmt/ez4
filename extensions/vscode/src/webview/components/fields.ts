@@ -12,9 +12,11 @@ export const getFieldsPayload = (form: HTMLFormElement, id: string, schema?: Obj
 };
 
 export const setFieldsSchema = (form: HTMLFormElement, id: string, schema?: ObjectSchema, state?: AnyObject) => {
-  if (schema) {
-    form.replaceChildren(...ObjectField.getInputElement(id, schema));
-
-    ObjectField.setInputState(id, schema, form, state);
+  if (!schema) {
+    return form.replaceChildren();
   }
+
+  form.replaceChildren(...ObjectField.getInputElement(id, schema));
+
+  ObjectField.setInputState(id, schema, form, state);
 };

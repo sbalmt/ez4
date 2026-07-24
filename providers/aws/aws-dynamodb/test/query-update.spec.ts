@@ -8,8 +8,8 @@ import { prepareUpdate } from '@ez4/aws-dynamodb/client';
 import { TestSchema } from './common/schema';
 
 describe('dynamodb query (update)', () => {
-  it('assert :: prepare update', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+  it('assert :: prepare update', async () => {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       data: {
         foo: 456
       },
@@ -23,8 +23,8 @@ describe('dynamodb query (update)', () => {
     deepEqual(variables, [456, 123]);
   });
 
-  it('assert :: prepare update (remove nulls)', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+  it('assert :: prepare update (to null)', async () => {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       data: {
         foo: null,
         bar: {
@@ -33,13 +33,13 @@ describe('dynamodb query (update)', () => {
       }
     });
 
-    equal(statement, `UPDATE "ez4-test-update" REMOVE "foo" SET "bar"."barFoo" = ?`);
+    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barFoo" = ?`);
 
-    deepEqual(variables, ['abc']);
+    deepEqual(variables, [null, 'abc']);
   });
 
-  it('assert :: prepare update (with select)', () => {
-    const [statement, variables] = prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+  it('assert :: prepare update (with select)', async () => {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       select: {
         foo: true,
         bar: {

@@ -118,7 +118,7 @@ const prepareStaticTransaction = async <T extends Database.Service<any>>(
       }
 
       if ('update' in query) {
-        commands.push(await prepareUpdateOne(name, schema, query.update as any));
+        commands.push(await prepareUpdateOne(name, schema, query.update));
         continue;
       }
 

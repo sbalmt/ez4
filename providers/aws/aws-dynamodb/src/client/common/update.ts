@@ -1,24 +1,25 @@
-import type { ObjectSchema } from '@ez4/schema';
+import type { AnySchema, NumberSchema, ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { InternalTableMetadata } from '../types';
 
-import { isAnyObject } from '@ez4/utils';
-import { SchemaType } from '@ez4/schema';
+import { InvalidAtomicOperation, InvalidFieldSchemaError } from '@ez4/aws-dynamodb/runtime';
+import { getOptionalSchema, getSchemaProperty, isNumberSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
+import { isAnyObject, isNullish } from '@ez4/utils';
 
+import { getWithSchemaValidation, isDynamicFieldSchema, validateRecordSchema } from './schema';
 import { prepareWhereFields } from './where';
-import { isSkippableData } from './data';
 
 type PrepareResult = [string, unknown[]];
 
-export const prepareUpdate = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+export const prepareUpdate = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
   query: Query.UpdateOneInput<S, T> | Query.UpdateManyInput<S, T>
-): PrepareResult => {
-  const [updateFields, variables] = prepareUpdateFields(query.data, schema);
+): Promise<PrepareResult> => {
+  const [updateFields, variables] = await prepareUpdateFields(query.data, schema);
 
-  const statement = [`UPDATE "${table}" ${updateFields}`];
+  const statement = [`UPDATE "${table}" ${updateFields || `REMOVE "__EZ4_NOOP"`}`];
 
   if (query.where) {
     const [whereFields, whereVariables] = prepareWhereFields(query.where, schema);
@@ -36,49 +37,149 @@ export const prepareUpdate = <T extends InternalTableMetadata, S extends Query.S
   return [statement.join(' '), variables];
 };
 
-const prepareUpdateFields = (data: AnyObject, schema: ObjectSchema, path?: string): PrepareResult => {
+const prepareUpdateFields = async (data: AnyObject, schema: ObjectSchema | UnionSchema, path?: string): Promise<PrepareResult> => {
   const operations: string[] = [];
   const variables: unknown[] = [];
 
   for (const fieldKey in data) {
     const fieldValue = data[fieldKey];
-    const fieldSchema = schema.properties[fieldKey];
 
-    if (isSkippableData(fieldValue)) {
+    if (fieldValue === undefined) {
       continue;
     }
 
+    const fieldSchema = getSchemaProperty(schema, fieldKey);
+
+    // Skip values that aren't mapped in the table schema.
     if (!fieldSchema) {
-      throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
+      continue;
     }
 
     const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
 
-    const fieldNotNested =
-      !isAnyObject(fieldValue) ||
-      fieldSchema.type !== SchemaType.Object ||
-      fieldSchema.definitions?.extensible ||
-      fieldSchema.additional ||
-      fieldSchema.nullable ||
-      fieldSchema.optional;
-
-    if (fieldNotNested) {
-      if (fieldValue === null && fieldSchema.nullable) {
-        operations.push(`REMOVE ${fieldPath}`);
-        continue;
-      }
-
+    if (!isAnyObject(fieldValue)) {
       operations.push(`SET ${fieldPath} = ?`);
       variables.push(fieldValue);
+      continue;
+    }
+
+    if (isNumberSchema(fieldSchema)) {
+      const atomicResult = await getAtomicNumberOperationUpdate(fieldKey, fieldValue, fieldSchema, fieldPath);
+
+      if (atomicResult) {
+        const [statement, variable] = atomicResult;
+
+        operations.push(statement);
+        variables.push(variable);
+
+        continue;
+      }
+    }
+
+    const atomicOperation = await getAtomicObjectOperationUpdate(fieldValue, fieldSchema, fieldPath);
+
+    if (atomicOperation) {
+      const [nestedOperations, nestedVariables] = atomicOperation;
+
+      operations.push(nestedOperations);
+      variables.push(...nestedVariables);
 
       continue;
     }
 
-    const [nestedOperations, nestedVariables] = prepareUpdateFields(fieldValue, fieldSchema, fieldPath);
+    if (isDynamicFieldSchema(fieldSchema)) {
+      const nestedValues = await getWithSchemaValidation<AnyObject>(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
 
-    operations.push(nestedOperations);
-    variables.push(...nestedVariables);
+      for (const nestedKey in nestedValues) {
+        const value = nestedValues[nestedKey];
+
+        if (value !== undefined) {
+          operations.push(`SET ${fieldPath}."${nestedKey}" = ?`);
+          variables.push(value);
+        }
+      }
+
+      continue;
+    }
+
+    if (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) {
+      const [nestedOperations, nestedVariables] = await prepareUpdateFields(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
+
+      operations.push(nestedOperations);
+      variables.push(...nestedVariables);
+
+      continue;
+    }
+
+    throw new InvalidFieldSchemaError(fieldPath);
   }
 
   return [operations.join(' '), variables];
+};
+
+const getAtomicNumberOperationUpdate = async (fieldKey: string, fieldValue: AnyObject, fieldSchema: NumberSchema, fieldPath: string) => {
+  for (const operation in fieldValue) {
+    const value = fieldValue[operation];
+
+    if (isNullish(value)) {
+      continue;
+    }
+
+    switch (operation) {
+      default: {
+        throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+      }
+
+      case 'removeFrom': {
+        return undefined;
+      }
+
+      case 'increment': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
+        return [`SET ${fieldPath} = (${fieldPath} + ?)`, value] as const;
+      }
+
+      case 'decrement': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
+        return [`SET ${fieldPath} = (${fieldPath} - ?)`, value] as const;
+      }
+    }
+  }
+
+  return undefined;
+};
+
+export const getAtomicObjectOperationUpdate = async (
+  fieldValue: AnyObject,
+  fieldSchema: AnySchema,
+  fieldPath: string
+): Promise<PrepareResult | undefined> => {
+  for (const operation in fieldValue) {
+    const value = fieldValue[operation];
+
+    switch (operation) {
+      default:
+        return undefined;
+
+      case 'replaceWith': {
+        if (value !== undefined) {
+          return [`SET ${fieldPath} = ?`, [await getWithSchemaValidation(value, fieldSchema, fieldPath)]];
+        }
+
+        return ['', []];
+      }
+
+      case 'removeFrom': {
+        if (value) {
+          return [`REMOVE ${fieldPath}`, []];
+        }
+
+        return ['', []];
+      }
+    }
+  }
+
+  return undefined;
 };

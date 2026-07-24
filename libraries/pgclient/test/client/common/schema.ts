@@ -1,6 +1,6 @@
 import type { Database, Client as DbClient } from '@ez4/database';
+import type { Object, ObjectSchema, String } from '@ez4/schema';
 import type { PostgresEngine } from '@ez4/pgclient/library';
-import type { ObjectSchema, String } from '@ez4/schema';
 
 import { getCreateQueries } from '@ez4/pgmigration';
 import { SchemaType } from '@ez4/schema';
@@ -30,7 +30,8 @@ export type TestSchemaType = {
   datetime?: String.DateTime;
   date?: String.Date;
   time?: String.Time;
-  json?: {
+  extensible_json?: Object.Any;
+  json?: null | {
     string?: string;
     boolean?: boolean;
     number?: number | null;
@@ -38,6 +39,12 @@ export type TestSchemaType = {
     date?: String.Date;
     time?: String.Time;
     array?: (number | string)[];
+    object?: {
+      foo: string;
+      bar?: number;
+      baz: boolean;
+      qux?: number;
+    };
   };
 };
 
@@ -167,7 +174,39 @@ export const TestSchema: ObjectSchema = {
               }
             ]
           }
+        },
+        object: {
+          type: SchemaType.Object,
+          optional: true,
+
+          properties: {
+            foo: {
+              type: SchemaType.String
+            },
+            bar: {
+              type: SchemaType.Number,
+              format: 'integer',
+              optional: true
+            },
+            baz: {
+              type: SchemaType.Boolean
+            },
+            qux: {
+              type: SchemaType.Number,
+              format: 'decimal',
+              optional: true
+            }
+          }
         }
+      }
+    },
+    extensible_json: {
+      type: SchemaType.Object,
+      optional: true,
+      nullable: true,
+      properties: {},
+      definitions: {
+        extensible: true
       }
     }
   }

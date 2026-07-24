@@ -11,7 +11,7 @@ import { getRandomUUID, Wait } from '@ez4/utils';
 const client = new SQSClient({});
 
 declare const __EZ4_SCHEMA: MessageSchema | null;
-declare const __EZ4_MAX_RETRIES: number;
+declare const __EZ4_MAX_ATTEMPTS: number;
 declare const __EZ4_MIN_BACKOFF: number;
 declare const __EZ4_MAX_BACKOFF: number;
 declare const __EZ4_CONTEXT: object;
@@ -29,7 +29,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 
   const request = {
     requestId: context.awsRequestId,
-    maxRetries: __EZ4_MAX_RETRIES,
+    maxAttempts: __EZ4_MAX_ATTEMPTS,
     attempt: Number.NaN
   };
 
@@ -139,13 +139,13 @@ const retryMessage = async (record: SQSRecord) => {
   const { messageId, receiptHandle, attributes } = record;
 
   try {
-    const retryCount = Number(attributes.ApproximateReceiveCount);
-    const retryDelay = Wait.delay(retryCount, __EZ4_MAX_RETRIES, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
+    const attemptCount = Number(attributes.ApproximateReceiveCount);
+    const attemptDelay = Wait.delay(attemptCount, __EZ4_MAX_ATTEMPTS, __EZ4_MIN_BACKOFF, __EZ4_MAX_BACKOFF);
 
     await client.send(
       new ChangeMessageVisibilityCommand({
         QueueUrl: getQueueUrl(record.eventSourceARN),
-        VisibilityTimeout: retryDelay,
+        VisibilityTimeout: attemptDelay,
         ReceiptHandle: receiptHandle
       })
     );

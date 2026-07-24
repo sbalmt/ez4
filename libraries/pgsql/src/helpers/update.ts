@@ -3,7 +3,7 @@ import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlSource } from '../common/source';
 import type { SqlRecord } from '../common/types';
 
-import { getSchemaProperty, isDynamicObjectSchema, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
@@ -18,7 +18,7 @@ export type SqlUpdateContext = {
   variables: unknown[];
   coalesce?: boolean;
   parent?: string;
-  inner?: boolean;
+  depth?: number;
 };
 
 export const getUpdateColumns = (
@@ -27,12 +27,12 @@ export const getUpdateColumns = (
   schema: ObjectSchema | UnionSchema | undefined,
   context: SqlUpdateContext
 ): string[] => {
-  const { variables, references, options, coalesce, parent, inner } = context;
+  const { variables, references, options, coalesce, parent, depth = 0 } = context;
 
   const columns = [];
 
   const pushUpdate = (fieldName: string, fieldValue: string) => {
-    if (!inner) {
+    if (depth <= 1 && !coalesce) {
       columns.push(`${mergeSqlPath(fieldName, parent)} = ${fieldValue}`);
     } else {
       columns.push(`'${fieldName}', ${fieldValue}`);
@@ -70,49 +70,54 @@ export const getUpdateColumns = (
     const fieldSchema = schema && getSchemaProperty(schema, fieldName);
 
     if (isPlainObject(value)) {
-      const nextSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
-      const canReplace = fieldSchema && isObjectSchema(fieldSchema) && isDynamicObjectSchema(fieldSchema);
+      const innerSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
+      const mustCombine = coalesce || !fieldSchema || (innerSchema && isNullishSchema(innerSchema));
 
-      if (canReplace) {
-        const fieldIndex = references.counter++;
-
-        if (options.onPrepareVariable) {
-          variables.push(options.onPrepareVariable(value, { schema: nextSchema, index: fieldIndex, json: true }));
-        } else {
-          variables.push(value);
-        }
-
-        pushUpdate(fieldName, `:${fieldIndex}`);
-        continue;
-      }
-
-      const canCombine = nextSchema && isNullishSchema(nextSchema);
       const columnName = mergeSqlPath(fieldName, parent);
+      const columnPath = mergeSqlAlias(columnName, source.alias);
 
-      const jsonValue = getUpdateColumns(source, value, nextSchema, {
+      const jsonValue = getUpdateColumns(source, value, innerSchema, {
         ...context,
-        inner: inner || canCombine,
-        coalesce: canCombine,
-        parent: columnName
+        coalesce: mustCombine,
+        parent: columnName,
+        depth: depth + 1
       });
 
-      if (canCombine) {
-        const columnPath = mergeSqlAlias(columnName, source.alias);
-        pushUpdate(fieldName, `COALESCE(${columnPath}, '{}'::jsonb) || jsonb_build_object(${jsonValue.join(', ')})`);
-      } else if (inner) {
-        pushUpdate(fieldName, `jsonb_build_object(${jsonValue.join(', ')})`);
-      } else {
-        columns.push(...jsonValue);
+      const [removals, additions] = jsonValue.reduce<[string[], string[]]>(
+        (values, value) => (values[isJsonRemoveOperator(value) ? 0 : 1].push(value), values),
+        [[], []]
+      );
+
+      const expression = [];
+
+      if (mustCombine) {
+        expression.push(`COALESCE(${columnPath}, '{}'::jsonb)`, ...removals);
+      } else if (removals.length || depth > 0) {
+        expression.push(columnPath, ...removals);
+      }
+
+      if (additions.length && (mustCombine || depth > 0)) {
+        expression.push(`|| jsonb_build_object(${additions.join(', ')})`);
+      }
+
+      if (expression.length) {
+        pushUpdate(fieldName, expression.join(' '));
+      }
+
+      if (!mustCombine && depth === 0) {
+        columns.push(...additions);
       }
 
       continue;
     }
 
-    const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
     const fieldIndex = references.counter++;
 
     if (!(value instanceof SqlRawOperation)) {
       pushUpdate(fieldName, `:${fieldIndex}`);
+    } else if (isJsonRemoveOperator(value.operator)) {
+      columns.push(`${value.operator} '${value.build()}'`);
+      continue;
     } else {
       const columnName = mergeSqlJsonPath(fieldName, parent, true);
       const columnPath = mergeSqlAlias(columnName, source.alias);
@@ -127,6 +132,8 @@ export const getUpdateColumns = (
       }
     }
 
+    const fieldValue = value instanceof SqlRaw ? value.build(source) : value;
+
     if (options.onPrepareVariable) {
       variables.push(options.onPrepareVariable(fieldValue, { schema: fieldSchema, index: fieldIndex, json }));
       continue;
@@ -136,6 +143,10 @@ export const getUpdateColumns = (
   }
 
   return columns;
+};
+
+const isJsonRemoveOperator = (operand: string) => {
+  return operand.startsWith('#-');
 };
 
 const getOperandColumn = (schema: AnySchema | undefined, fieldName: string, fieldExpression: string) => {

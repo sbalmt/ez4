@@ -63,6 +63,7 @@ describe('client update one', async () => {
       datetime: '1991-04-23T23:59:30.000Z',
       date: '1991-04-23',
       time: '23:59:30.000Z',
+      extensible_json: null,
       json: {
         boolean: true,
         string: 'new',

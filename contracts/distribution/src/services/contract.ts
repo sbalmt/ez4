@@ -1,6 +1,7 @@
 import type { Service as CommonService } from '@ez4/common';
 import type { Exclusive } from '@ez4/utils';
 import type { CdnBucketOrigin, CdnRegularOrigin } from './origin';
+import type { CdnRewriteRule, CdnRewriteStatus } from './rewrite';
 import type { CdnCertificate } from './certificate';
 import type { CdnFallback } from './fallback';
 import type { CdnCache } from './cache';
@@ -14,6 +15,9 @@ export namespace Cdn {
 
   export type RegularOrigin = CdnRegularOrigin;
   export type BucketOrigin = CdnBucketOrigin;
+
+  export type RewriteStatus = CdnRewriteStatus;
+  export type RewriteRule = CdnRewriteRule;
 
   export type Fallback = CdnFallback;
   export type Cache = CdnCache;
@@ -29,6 +33,11 @@ export namespace Cdn {
    * CDN Origin definition.
    */
   export type UseOrigin<T extends Exclusive<RegularOrigin, BucketOrigin>> = T;
+
+  /**
+   * CDN Rewrite rule definition.
+   */
+  export type UseRewriteRule<T extends CdnRewriteRule> = T;
 
   /**
    * CDN Certificate definition.
@@ -81,7 +90,7 @@ export namespace Cdn {
 
     /**
      * Designate all path patterns for the invalidation.
-     * When omitted, the invalidation is `['/*']` and occurs for all paths.
+     * When omitted, the invalidation is `['/*']` and will occur for all paths.
      */
     readonly invalidations?: string[];
 

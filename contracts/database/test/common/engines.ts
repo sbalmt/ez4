@@ -1,10 +1,21 @@
-import type { InsensitiveMode, LockMode, OrderMode, PaginationMode, ParametersMode, TransactionMode } from '@ez4/database';
+import type {
+  ParametersMode,
+  TransactionMode,
+  InsensitiveMode,
+  PaginationMode,
+  RelationMode,
+  StreamMode,
+  OrderMode,
+  LockMode
+} from '@ez4/database';
 
 export type TestEngine = {
   parametersMode: ParametersMode.OnlyIndex;
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Supported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -16,6 +27,8 @@ export type TestEngineParameters<P extends ParametersMode> = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -27,6 +40,8 @@ export type TestEngineTransaction<T extends TransactionMode> = {
   transactionMode: T;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -38,6 +53,8 @@ export type TestEngineInsensitive<I extends InsensitiveMode> = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: I;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -49,6 +66,8 @@ export type TestEnginePagination<P extends PaginationMode> = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: P;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -60,6 +79,8 @@ export type TestEngineOrder<O extends OrderMode> = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: O;
   lockMode: LockMode.Unsupported;
   options: never;
@@ -71,6 +92,8 @@ export type TestEngineLock<L extends LockMode> = {
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
   paginationMode: PaginationMode.Offset;
+  relationMode: RelationMode.Supported;
+  streamMode: StreamMode.Unsupported;
   orderMode: OrderMode.AnyColumns;
   lockMode: L;
   options: never;

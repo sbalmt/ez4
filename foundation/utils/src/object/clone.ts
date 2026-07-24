@@ -1,6 +1,7 @@
 import type { AnyObject, PartialProperties, PartialObject, IsObject, Prettify } from './generics';
 
 import { isAnyObject, isPlainObject } from './check';
+import { isAnyArray } from '../array/check';
 
 export type CloneOptions<T extends AnyObject, U extends PartialProperties<T>> = {
   /**
@@ -66,18 +67,20 @@ export const deepClone = <T extends AnyObject, U extends PartialProperties<T>, O
     const value = source[key];
 
     if (depth > 0) {
-      if (Array.isArray(value)) {
-        clone[key] = [...value];
-
+      if (isPlainObject(value)) {
+        const nestedOptions = isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState });
+        clone[key] = deepClone(value, { ...nestedOptions, depth: depth - 1 });
         continue;
       }
 
-      if (isPlainObject(value)) {
-        clone[key] = deepClone(value, {
-          ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
-          depth: depth - 1
-        });
+      if (isAnyArray(value)) {
+        if (isAnyObject(keyState)) {
+          const nestedOptions = isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState });
+          clone[key] = value.map((current: AnyObject) => deepClone(current, { ...nestedOptions, depth: depth - 1 }));
+          continue;
+        }
 
+        clone[key] = [...value];
         continue;
       }
     }

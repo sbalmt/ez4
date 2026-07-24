@@ -15,7 +15,7 @@ export type TableSchemas<T extends Database.Service<any>> = MergeTables<Database
 /**
  * Given a list of tables with schema `T`, it produces an object containing all schemas.
  */
-type MergeTables<T extends DatabaseTable<TableSchema>[], A = {}> =
+type MergeTables<T extends DatabaseTable<TableSchema, any>[], A = {}> =
   IsArrayEmpty<T> extends false ? MergeTables<ArrayRest<T>, A & ExtractSchema<T[0]>> : A;
 
 /**
