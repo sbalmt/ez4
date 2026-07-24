@@ -25,7 +25,7 @@ import {
   InvalidRewriteStatusError
 } from '../errors/rewrite';
 
-import { isNegationPattern } from './utils/rewrite';
+import { formatRewriteTarget } from './utils/rewrite';
 import { formatUri } from './utils/uri';
 
 export const isCdnRewriteRuleMetadata = (type: AllType) => {
@@ -138,13 +138,7 @@ const getTypeFromMembers = (
 
         if (value) {
           properties.delete(member.name);
-
-          if (isNegationPattern(value)) {
-            rule.from = formatUri(value.substring(1));
-            rule.negation = true;
-          } else {
-            rule.from = formatUri(value);
-          }
+          rule.from = formatUri(value);
         }
 
         break;
@@ -154,8 +148,8 @@ const getTypeFromMembers = (
         const value = getPropertyString(member);
 
         if (value) {
-          rule.to = formatRewriteTarget(value);
           properties.delete(member.name);
+          rule.to = formatRewriteTarget(value);
         }
 
         break;
@@ -165,13 +159,13 @@ const getTypeFromMembers = (
         const value = getPropertyNumber(member);
 
         if (value) {
-          if (value === 301 || value === 302) {
-            rule.status = value;
-          } else {
-            errorList.push(new InvalidRewriteStatusError(value, type.file));
-          }
-
           properties.delete(member.name);
+
+          if (value !== 301 && value !== 302) {
+            errorList.push(new InvalidRewriteStatusError(value, type.file));
+          } else {
+            rule.status = value;
+          }
         }
 
         break;
@@ -185,12 +179,4 @@ const getTypeFromMembers = (
   }
 
   return rule;
-};
-
-const formatRewriteTarget = (target: string) => {
-  if (target.startsWith('http://') || target.startsWith('https://')) {
-    return target;
-  }
-
-  return formatUri(target);
 };

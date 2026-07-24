@@ -1,5 +1,7 @@
 export * from './triggers/register';
 
+export * from './metadata/utils/rewrite';
+
 export * from './metadata/service';
 export * from './metadata/certificate';
 export * from './metadata/fallback';

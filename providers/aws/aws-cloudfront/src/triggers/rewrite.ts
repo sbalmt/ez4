@@ -9,7 +9,9 @@ import { bundleViewerFunction } from '../function/helpers/bundler';
 import { createViewerFunction } from '../function/service';
 
 export const prepareRewrites = (state: EntryStates, service: CdnService, options: DeployOptions) => {
-  const rewriteRules = [service.defaultOrigin, ...(service.origins ?? [])].flatMap((origin) => origin.rewrite ?? []);
+  const rewriteRules = [service.defaultOrigin, ...(service.origins ?? [])].flatMap(({ rewrite }) => {
+    return rewrite?.map(({ pattern: from, to, status }) => ({ status, from, to })) ?? [];
+  });
 
   if (!rewriteRules.length) {
     return undefined;

@@ -13,7 +13,15 @@ export type CdnRewriteRule = {
   readonly status?: CdnRewriteStatus;
 
   /**
-   * Current path to which the rewrite rule is applied.
+   * Current path pattern which the rewrite rule is applied.
+   *
+   * @example
+   * ```ts
+   * from: '/path/*';         // Match starting with `/path/`
+   * from: '/path/*.ext';     // Match starting with /path and ending with `.ext`
+   * from: '/*.{ext1|ext2}';  // Match ending with `.ext1` or `.ext2`
+   * from: '/!*.ext';         // Match not ending with `.ext`
+   * ```
    */
   readonly from: string;
 

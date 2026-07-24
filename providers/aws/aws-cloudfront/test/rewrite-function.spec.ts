@@ -5,6 +5,8 @@ import { describe, it } from 'node:test';
 
 import { transform } from 'esbuild';
 
+import { compileRewritePattern } from '@ez4/distribution/library';
+
 const templatePath = './lib/rewrite.ts';
 
 const invokeRewrite = async (rules: object[], request: object): Promise<any> => {
@@ -24,24 +26,24 @@ const invokeRewrite = async (rules: object[], request: object): Promise<any> => 
 };
 
 describe('cloudfront :: rewrite function', () => {
-  it('assert :: redirect preserving query string (absolute 301)', async () => {
+  it('assert :: redirect preserving query string (status 301)', async () => {
     const rules = [
       {
-        from: '/path/*',
-        to: 'https://another.example.com/*',
+        from: compileRewritePattern('/path/*'),
+        to: 'https://another.example.com/$1',
         status: 301
       }
     ];
 
     const response = await invokeRewrite(rules, {
-      uri: '/path/directory-1',
+      uri: '/path/page',
       headers: {
         host: {
           value: 'www.example.com'
         }
       },
       querystring: {
-        utm: {
+        parameter: {
           value: '1'
         }
       }
@@ -52,18 +54,46 @@ describe('cloudfront :: rewrite function', () => {
       statusDescription: 'Moved Permanently',
       headers: {
         location: {
-          value: 'https://another.example.com/directory-1?utm=1'
+          value: 'https://another.example.com/page?parameter=1'
         }
       }
     });
   });
 
-  it('assert :: redirect using current host (relative 302)', async () => {
+  it('assert :: redirect using current host (status 302)', async () => {
     const rules = [
       {
-        from: '/old/path',
-        to: '/new/path',
+        from: compileRewritePattern('/old/path/*'),
+        to: '/new/path/$1',
         status: 302
+      }
+    ];
+
+    const response = await invokeRewrite(rules, {
+      uri: '/old/path/page',
+      headers: {
+        host: {
+          value: 'www.example.com'
+        }
+      }
+    });
+
+    deepEqual(response, {
+      statusCode: 302,
+      statusDescription: 'Found',
+      headers: {
+        location: {
+          value: 'https://www.example.com/new/path/page'
+        }
+      }
+    });
+  });
+
+  it('assert :: redirect without defined status (fallback to status 302)', async () => {
+    const rules = [
+      {
+        from: compileRewritePattern('/old/*'),
+        to: 'https://another.example.com/new/$1'
       }
     ];
 
@@ -81,16 +111,16 @@ describe('cloudfront :: rewrite function', () => {
       statusDescription: 'Found',
       headers: {
         location: {
-          value: 'https://www.example.com/new/path'
+          value: 'https://another.example.com/new/path'
         }
       }
     });
   });
 
-  it('assert :: redirect without query omits the query marker', async () => {
+  it('assert :: redirect without query string (omit query marker)', async () => {
     const rules = [
       {
-        from: '/old/path',
+        from: compileRewritePattern('/old/path'),
         to: '/new/path',
         status: 301
       }
@@ -118,44 +148,16 @@ describe('cloudfront :: rewrite function', () => {
     });
   });
 
-  it('assert :: redirect without explicit status uses 302', async () => {
-    const rules = [
-      {
-        from: '/old/*',
-        to: 'https://another.example.com/new/*'
-      }
-    ];
-
-    const response = await invokeRewrite(rules, {
-      uri: '/old/path',
-      headers: {
-        host: {
-          value: 'www.example.com'
-        }
-      }
-    });
-
-    deepEqual(response, {
-      statusCode: 302,
-      statusDescription: 'Found',
-      headers: {
-        location: {
-          value: 'https://another.example.com/new/path'
-        }
-      }
-    });
-  });
-
   it('assert :: internal rewrite changes request uri', async () => {
     const rules = [
       {
-        from: '/path/*',
+        from: compileRewritePattern('/path/*'),
         to: '/index.html'
       }
     ];
 
     const response = await invokeRewrite(rules, {
-      uri: '/path/location',
+      uri: '/path/page',
       headers: {
         host: {
           value: 'www.example.com'
@@ -176,14 +178,13 @@ describe('cloudfront :: rewrite function', () => {
   it('assert :: internal rewrite changes request uri (with negation)', async () => {
     const rules = [
       {
-        from: '!*.css',
-        to: '/index.html',
-        negation: true
+        from: compileRewritePattern('/path/!*.{css|html}'),
+        to: '/index.html'
       }
     ];
 
     const response = await invokeRewrite(rules, {
-      uri: '/path/location',
+      uri: '/path/page',
       headers: {
         host: {
           value: 'www.example.com'
@@ -204,23 +205,18 @@ describe('cloudfront :: rewrite function', () => {
   it('assert :: order is preserved across redirects and rewrites', async () => {
     const rules = [
       {
-        from: '/same/*',
-        to: '/internal/*'
+        from: compileRewritePattern('/same/*'),
+        to: '/internal/$1'
       },
       {
-        from: '/same/*',
-        to: '/external/*',
+        from: compileRewritePattern('/same/*'),
+        to: '/external/$1',
         status: 301
       }
     ];
 
     const response = await invokeRewrite(rules, {
-      uri: '/same/path',
-      headers: {
-        host: {
-          value: 'www.example.com'
-        }
-      }
+      uri: '/same/path'
     });
 
     // The first matching rule wins, even though a later rule is a redirect.
@@ -231,21 +227,14 @@ describe('cloudfront :: rewrite function', () => {
   it('assert :: unmatched uri returns original request', async () => {
     const rules = [
       {
-        from: '/path/*',
+        from: compileRewritePattern('/path/*'),
         to: '/index.html'
       }
     ];
 
-    const request = {
-      uri: '/unknown/path',
-      headers: {
-        host: {
-          value: 'www.example.com'
-        }
-      }
-    };
-
-    const result = await invokeRewrite(rules, request);
+    const result = await invokeRewrite(rules, {
+      uri: '/unknown/path'
+    });
 
     equal(result.uri, '/unknown/path');
     equal(result.statusCode, undefined);
@@ -254,24 +243,23 @@ describe('cloudfront :: rewrite function', () => {
   it('assert :: unmatched uri returns original request (with negation)', async () => {
     const rules = [
       {
-        from: '/path/*.css',
-        to: '/index.html',
-        negation: true
+        from: compileRewritePattern('/path/!*.{png|css}'),
+        to: '/index.html'
       }
     ];
 
-    const request = {
-      uri: '/path/file.css',
-      headers: {
-        host: {
-          value: 'www.example.com'
-        }
-      }
-    };
+    const responseA = await invokeRewrite(rules, {
+      uri: '/path/file-1.css'
+    });
 
-    const result = await invokeRewrite(rules, request);
+    equal(responseA.uri, '/path/file-1.css');
+    equal(responseA.statusCode, undefined);
 
-    equal(result.uri, '/path/file.css');
-    equal(result.statusCode, undefined);
+    const responseB = await invokeRewrite(rules, {
+      uri: '/path/file-2.png'
+    });
+
+    equal(responseB.uri, '/path/file-2.png');
+    equal(responseB.statusCode, undefined);
   });
 });

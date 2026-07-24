@@ -20,6 +20,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
+import { compileRewritePattern } from './utils/rewrite';
 import { combineUri, formatUri } from './utils/uri';
 import { getCndRewriteRulesMetadata } from './rewrite';
 import { getCdnCacheMetadata } from './cache';
@@ -158,8 +159,8 @@ const getTypeFromMembers = (
     return undefined;
   }
 
-  if (origin.path && origin.rewrite) {
-    applyRewriteBaseUri(origin.path, origin.rewrite);
+  if (origin.rewrite) {
+    applyRewriteBaseUri(origin.rewrite, origin.path);
   }
 
   return origin;
@@ -187,7 +188,7 @@ const getOriginHeaders = (type: AllType) => {
   return headers;
 };
 
-const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewriteRule[]) => {
+const applyRewriteBaseUri = (rewriteRules: CdnRewriteRule[], pathPattern = '/') => {
   const [basePath] = pathPattern.split('*');
   const baseUri = formatUri(basePath);
 
@@ -195,5 +196,7 @@ const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewriteRule[]
     if (!rule.from.startsWith(baseUri)) {
       rule.from = combineUri(baseUri, rule.from);
     }
+
+    rule.pattern = compileRewritePattern(rule.from);
   }
 };

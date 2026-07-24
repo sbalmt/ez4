@@ -1,4 +1,5 @@
 import type { CdnRewriteRule } from '@ez4/distribution/library';
+import type { AnyObject } from '@ez4/utils';
 
 declare const __EZ4_REWRITE_RULES: CdnRewriteRule[];
 
@@ -10,13 +11,13 @@ const HTTP_DESCRIPTIONS: Record<number, string> = {
 function handler(event: any) {
   const request = event.request;
 
-  const match = findMatchingRule(request.uri);
+  const match = matchRewriteRule(request.uri);
 
   if (!match) {
     return request;
   }
 
-  const target = applyTarget(match.rule.to, match.capture);
+  const target = applyTargetVariables(match.rule.to, match.variables);
 
   if (match.rule.status || isRedirectTarget(target)) {
     const location = buildRedirectUri(request, target);
@@ -38,16 +39,16 @@ function handler(event: any) {
   return request;
 }
 
-function findMatchingRule(uri: string) {
+function matchRewriteRule(uri: string) {
   for (let index = 0; index < __EZ4_REWRITE_RULES.length; index++) {
     const rule = __EZ4_REWRITE_RULES[index];
 
-    const capture = matchRule(uri, rule.from, rule.negation);
+    const variables = new RegExp(rule.from).exec(uri);
 
-    if (capture !== null) {
+    if (variables !== null) {
       return {
         rule,
-        capture
+        variables
       };
     }
   }
@@ -55,65 +56,31 @@ function findMatchingRule(uri: string) {
   return null;
 }
 
-function matchRule(uri: string, pattern: string, negation?: boolean) {
-  const wildcardIndex = pattern.indexOf('*');
-
-  if (wildcardIndex === -1) {
-    return (!negation && uri === pattern) || (negation && uri !== pattern) ? '' : null;
-  }
-
-  const prefix = pattern.substring(0, wildcardIndex);
-  const suffix = pattern.substring(wildcardIndex + 1);
-
-  if ((!negation && !uri.startsWith(prefix)) || (negation && uri.startsWith(prefix))) {
-    return null;
-  }
-
-  if (!suffix) {
-    return uri.substring(prefix.length);
-  }
-
-  if ((!negation && !uri.endsWith(suffix)) || (negation && uri.endsWith(prefix))) {
-    return null;
-  }
-
-  return uri.substring(prefix.length, uri.length - suffix.length);
-}
-
-function applyTarget(target: string, capture: string) {
-  const wildcardIndex = target.indexOf('*');
-
-  if (wildcardIndex === -1) {
-    return target;
-  }
-
-  const prefix = target.substring(0, wildcardIndex);
-  const suffix = target.substring(wildcardIndex + 1);
-
-  return `${prefix}${capture}${suffix}`;
+function applyTargetVariables(target: string, variables: string[]) {
+  return target.replaceAll(/\$([0-1]+)/g, (_, index) => variables[Number(index)]);
 }
 
 function isRedirectTarget(target: string) {
   return target.startsWith('http://') || target.startsWith('https://');
 }
 
-function buildRedirectUri(request: any, target: string) {
+function buildRedirectUri(request: AnyObject, target: string) {
   if (!isRedirectTarget(target)) {
     const host = request.headers.host?.value ?? request.headers.host ?? '';
 
     target = `https://${host}${target}`;
   }
 
-  const query = request.querystring ? serializeQuery(request.querystring) : undefined;
+  const query = request.querystring ? buildQueryString(request.querystring) : undefined;
 
   if (query) {
-    target = target + '?' + query;
+    return `${target}?${query}`;
   }
 
   return target;
 }
 
-function serializeQuery(queryString: any) {
+function buildQueryString(queryString: AnyObject) {
   const pairs: string[] = [];
 
   for (const key in queryString) {

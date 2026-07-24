@@ -34,7 +34,7 @@ export declare class Site extends Cdn.Service {
     // Prefer using rewrite than fallbacks approach when using API origins.
     rewrite: [
       Cdn.UseRewriteRule<{
-        from: '/path/*';
+        from: '/!*.{js|css|png}';
         to: 'index.html';
       }>,
 
@@ -69,7 +69,7 @@ export declare class Site extends Cdn.Service {
   ];
 
   /**
-   * Fallback 404 to default index (Useful for SPAs)
+   * Fallback 404 to default index (for SPAs without an API)
    * Prefer using fallbacks approach than rewrite for static only websites.
    */
   fallbacks: [
