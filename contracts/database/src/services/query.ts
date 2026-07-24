@@ -1,10 +1,8 @@
-import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjectEmpty, IsObject, Prettify } from '@ez4/utils';
+import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjectEmpty, Prettify } from '@ez4/utils';
 import type { AtomicFields } from './query/atomic';
-import type { PreserveNull } from './query/utils';
-import type { DecomposeIndexName, PrimaryIndexes, UniqueIndexes } from './indexes';
+import type { WhereFieldInput, WhereRelationInput } from './query/where';
 import type { DatabaseEngine } from './engine';
 import type { RelationMetadata } from './relations';
-import type { InsensitiveModeUtils } from './insensitive';
 import type { PaginationModeUtils } from './pagination';
 import type { OrderModeUtils } from './order';
 import type { LockModeUtils } from './lock';
@@ -136,203 +134,18 @@ export namespace Query {
             : never;
         };
 
-  export type StrictIncludeOrder<V extends AnyObject> = OrderModeUtils.AnyInput<V>;
+  export type StrictIncludeOrder<T extends AnyObject> = OrderModeUtils.AnyInput<T>;
 
-  export type StrictIncludeRelation<V extends AnyObject, E extends DatabaseEngine> = PaginationModeUtils.Range<E> & {
-    where?: WhereRelationField<V, E>;
-    order?: StrictIncludeOrder<V>;
+  export type StrictIncludeRelation<T extends AnyObject, E extends DatabaseEngine> = PaginationModeUtils.Range<E> & {
+    where?: WhereRelationInput<T, E>;
+    order?: StrictIncludeOrder<T>;
   };
 
-  export type WhereInput<T extends TableMetadata, I extends boolean = false> = Prettify<
-    WhereInputFilters<T, I extends true ? T['indexes'] : {}> & {
-      /**
-       * Check whether the expression is not true.
-       */
-      NOT?: WhereInput<T>;
-
-      /**
-       * Check whether all the expressions are true.
-       */
-      AND?: WhereInput<T>[];
-
-      /**
-       * Check whether any of all the expressions are true.
-       */
-      OR?: WhereInput<T>[];
-    }
-  >;
+  export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereFieldInput<T, I>;
 
   type SelectInputFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['selects']> extends true ? T : T & R['selects'];
 
   type SelectOutputFields<T extends Database.Schema, R extends RelationMetadata> =
     IsObjectEmpty<R['records']> extends true ? T : T & R['records'];
-
-  type WhereOperations<V, E extends DatabaseEngine> =
-    | WhereNegate<V, E>
-    | WhereEqual<V, E>
-    | WhereGreaterThan<V>
-    | WhereGreaterThanOrEqual<V>
-    | WhereLessThan<V>
-    | WhereLessThanOrEqual<V>
-    | WhereIn<V>
-    | WhereBetween<V>
-    | WhereIsMissing
-    | WhereIsNull
-    | WhereIsMissingOrNull
-    | WhereStartsWith<E>
-    | WhereContains<V, E>;
-
-  type WhereField<V, E extends DatabaseEngine> =
-    IsObject<V> extends true ? PreserveNull<V, WhereObjectField<NonNullable<V>, E>> : V | WhereOperations<V, E>;
-
-  type WhereObjectField<V extends AnyObject, E extends DatabaseEngine> = {
-    [P in keyof V]?: WhereField<V[P], E>;
-  };
-
-  type WhereRelationField<V extends AnyObject, E extends DatabaseEngine> = WhereObjectField<V, E> & {
-    /**
-     * Check whether the expression is not true.
-     */
-    NOT?: WhereRelationField<V, E>;
-
-    /**
-     * Check whether all the expressions are true.
-     */
-    AND?: WhereRelationField<V, E>[];
-
-    /**
-     * Check whether any of all the expressions are true.
-     */
-    OR?: WhereRelationField<V, E>[];
-  };
-
-  type WhereRelationFilters<V extends AnyObject, E extends DatabaseEngine> = {
-    [P in keyof V]?: IsObject<V[P]> extends true
-      ? IsObjectEmpty<V[P]> extends false
-        ? null | WhereRelationField<V[P], E>
-        : null | {}
-      : never;
-  };
-
-  type WhereIndexFields<I extends Database.Indexes> = PrimaryIndexes<I> & UniqueIndexes<I>;
-
-  type WhereRequiredFilters<V extends AnyObject, I extends Database.Indexes> = {
-    [P in keyof WhereIndexFields<I>]: { [N in DecomposeIndexName<P>]: V[N] };
-  }[keyof WhereIndexFields<I>];
-
-  type WhereOptionalFilters<V extends AnyObject, T extends TableMetadata, I extends Database.Indexes> = {
-    [P in Exclude<keyof V, keyof WhereIndexFields<I>>]?: WhereField<V[P], T['engine']>;
-  };
-
-  type WhereCommonFilters<V extends AnyObject, T extends TableMetadata, I extends Database.Indexes> =
-    IsObjectEmpty<I> extends true ? WhereObjectField<V, T['engine']> : WhereRequiredFilters<V, I> & WhereOptionalFilters<V, T, I>;
-
-  type WhereInputFilters<T extends TableMetadata, I extends Database.Indexes> = WhereCommonFilters<T['schema'], T, I> &
-    (IsObjectEmpty<T['relations']['filters']> extends false ? WhereRelationFilters<T['relations']['filters'], T['engine']> : {});
-
-  export type WhereOperators = keyof (WhereNegate<any, never> &
-    WhereEqual<any, never> &
-    WhereGreaterThan<any> &
-    WhereGreaterThanOrEqual<any> &
-    WhereLessThan<any> &
-    WhereLessThanOrEqual<any> &
-    WhereIn<any> &
-    WhereBetween<any> &
-    WhereIsMissing &
-    WhereIsNull &
-    WhereIsMissingOrNull &
-    WhereStartsWith<never> &
-    WhereContains<any, never>);
-
-  type WhereNegate<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
-    /**
-     * Check whether the entity value is not equal to the given one.
-     */
-    not: V;
-  };
-
-  type WhereEqual<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
-    /**
-     * Check whether the entity value is equal to the given one.
-     */
-    equal: V;
-  };
-
-  type WhereGreaterThan<V> = {
-    /**
-     * Check whether the entity value is greater than the given one.
-     */
-    gt: V;
-  };
-
-  type WhereGreaterThanOrEqual<V> = {
-    /**
-     * Check whether the entity value is greater than or equal the given one.
-     */
-    gte: V;
-  };
-
-  type WhereLessThan<V> = {
-    /**
-     * Check whether the entity value is less than the given one.
-     */
-    lt: V;
-  };
-
-  type WhereLessThanOrEqual<V> = {
-    /**
-     * Check whether the entity value is less than or equal the given one.
-     */
-    lte: V;
-  };
-
-  type WhereIn<V> = {
-    /**
-     * Check whether the entity value is in the given ones.
-     */
-    isIn: Exclude<V, undefined>[];
-  };
-
-  type WhereBetween<V> = {
-    /**
-     * Check whether the entity value is between the given ones.
-     */
-    isBetween: [Exclude<V, undefined>, Exclude<V, undefined>];
-  };
-
-  type WhereIsMissing = {
-    /**
-     * Check whether the entity value is missing.
-     */
-    isMissing: boolean;
-  };
-
-  type WhereIsNull = {
-    /**
-     * Check whether the entity value is null.
-     */
-    isNull: boolean;
-  };
-
-  type WhereIsMissingOrNull = {
-    /**
-     * Check whether the entity value is missing or null.
-     */
-    isMissingOrNull: boolean;
-  };
-
-  type WhereStartsWith<E extends DatabaseEngine> = InsensitiveModeUtils.Input<E> & {
-    /**
-     * Check whether the entity value starts with the given one.
-     */
-    startsWith: string;
-  };
-
-  type WhereContains<V, E extends DatabaseEngine> = (V extends string ? InsensitiveModeUtils.Input<E> : {}) & {
-    /**
-     * Check whether the entity value contains the given one.
-     */
-    contains: IsObject<V> extends true ? Partial<V> : V;
-  };
 }

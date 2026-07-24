@@ -1,19 +1,17 @@
-import type { AnyObject, IsNullish, IsObject } from '@ez4/utils';
+import type { AnyObject, IsAllTrue, IsNullish, IsObject } from '@ez4/utils';
 import type { PreserveNull } from './utils';
 
 export type AtomicFields<T extends AnyObject, I extends boolean = false> = {
   [P in keyof T]?: AtomicField<T[P], IsNullish<T[P]>, I>;
 };
 
-type AllTrue<T extends readonly boolean[]> = boolean extends T[number] ? false : false extends T[number] ? false : true;
-
 type AtomicField<T, N extends boolean, I extends boolean> = T extends number
   ? AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide | T
   : IsObject<T> extends true
-    ? AllTrue<[N, I]> extends true
+    ? IsAllTrue<[N, I]> extends true
       ? PreserveNull<T, AtomicFields<NonNullable<T>, true> | AtomicReplaceWith<NonNullable<T>>> | AtomicRemoveFrom
       : PreserveNull<T, AtomicFields<NonNullable<T>, true> | AtomicReplaceWith<NonNullable<T>>>
-    : AllTrue<[N, I]> extends true
+    : IsAllTrue<[N, I]> extends true
       ? T | AtomicRemoveFrom
       : T;
 
