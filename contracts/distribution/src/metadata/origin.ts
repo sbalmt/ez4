@@ -20,8 +20,8 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
-import { compileRewritePattern } from './utils/rewrite';
-import { combineUri, formatUri } from './utils/uri';
+import { compileRewritePattern } from '../utils/rewrite';
+import { combineUri, formatUri } from '../utils/uri';
 import { getCndRewriteRulesMetadata } from './rewrite';
 import { getCdnCacheMetadata } from './cache';
 import { CdnOriginType } from './types';

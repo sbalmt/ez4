@@ -18,8 +18,8 @@ import {
 import { isModelProperty } from '@ez4/reflection';
 import { arrayUnique, isObjectWith } from '@ez4/utils';
 
+import { formatUri } from '../utils/uri';
 import { IncompleteServiceError } from '../errors/service';
-import { formatUri } from './utils/uri';
 import { getCdnOriginsMetadata, getCdnOriginMetadata } from './origin';
 import { getCdnCertificateMetadata } from './certificate';
 import { getCndFallbacksMetadata } from './fallback';

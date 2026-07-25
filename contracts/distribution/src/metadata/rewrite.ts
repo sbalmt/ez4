@@ -25,8 +25,8 @@ import {
   InvalidRewriteStatusError
 } from '../errors/rewrite';
 
-import { formatRewriteTarget } from './utils/rewrite';
-import { formatUri } from './utils/uri';
+import { formatRewriteTarget } from '../utils/rewrite';
+import { formatUri } from '../utils/uri';
 
 export const isCdnRewriteRuleMetadata = (type: AllType) => {
   return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.RewriteRule');
