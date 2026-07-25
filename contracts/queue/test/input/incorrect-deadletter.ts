@@ -4,7 +4,7 @@ type TestMessage = {};
 
 // Missing Queue.DeadLetter inheritance.
 declare class TestDeadLetter {
-  maxRetries: 5;
+  maxAttempts: 5;
 }
 
 export declare class TestQueue extends Queue.Unordered<TestMessage> {

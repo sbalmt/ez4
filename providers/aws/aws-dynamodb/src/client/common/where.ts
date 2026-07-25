@@ -6,8 +6,6 @@ import type { InternalTableMetadata } from '../types';
 import { arrayUnique, isAnyArray, isAnyObject, isEmptyArray } from '@ez4/utils';
 import { getSchemaProperty, SchemaType } from '@ez4/schema';
 
-import { isSkippableData } from './data';
-
 type PrepareResult = [string, unknown[]];
 
 export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata>, schema: ObjectSchema): PrepareResult => {
@@ -18,7 +16,7 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
     for (const fieldName in data) {
       const value = data[fieldName];
 
-      if (isSkippableData(value)) {
+      if (value === undefined) {
         continue;
       }
 

@@ -33,9 +33,9 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
    */
   deadLetter: Queue.UseDeadLetter<{
     /**
-     * After 5 retries, the message will be sent to the dead-letter.
+     * After 5 attempts, the message is sent to the dead-letter.
      */
-    maxRetries: 5;
+    maxAttempts: 5;
   }>;
 
   /**
@@ -121,9 +121,9 @@ export declare class FifoSqs extends Queue.Ordered<MessageRequest> {
    */
   deadLetter: Queue.UseDeadLetter<{
     /**
-     * After 10 retries, the message will be sent to the dead-letter.
+     * After 10 attempts, the message is sent to the dead-letter.
      */
-    maxRetries: 10;
+    maxAttempts: 10;
   }>;
 
   /**

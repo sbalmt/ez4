@@ -30,6 +30,7 @@ export * from './object/size';
 export * from './object/sort';
 
 export * from './boolean/check';
+export * from './boolean/generic';
 
 export * from './number/check';
 export * from './number/random';

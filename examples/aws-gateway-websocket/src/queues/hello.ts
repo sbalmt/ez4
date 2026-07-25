@@ -18,9 +18,9 @@ export declare class HelloQueue extends Queue.Unordered<HelloMessage> {
    */
   deadLetter: Queue.UseDeadLetter<{
     /**
-     * After 3 retries, the message will be sent to the dead-letter.
+     * After 3 attempts, the message is sent to the dead-letter.
      */
-    maxRetries: 3;
+    maxAttempts: 3;
   }>;
 
   /**

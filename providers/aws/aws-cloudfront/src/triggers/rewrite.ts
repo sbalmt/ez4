@@ -3,20 +3,17 @@ import type { CdnService } from '@ez4/distribution/library';
 import type { EntryStates } from '@ez4/stateful';
 
 import { getServiceName } from '@ez4/project/library';
-import { hashObject, isEmptyObject } from '@ez4/utils';
+import { hashObject } from '@ez4/utils';
 
 import { bundleViewerFunction } from '../function/helpers/bundler';
 import { createViewerFunction } from '../function/service';
 
 export const prepareRewrites = (state: EntryStates, service: CdnService, options: DeployOptions) => {
-  const rewritePaths = [service.defaultOrigin, ...(service.origins ?? [])].reduce((paths, origin) => {
-    return {
-      ...paths,
-      ...origin.rewrite
-    };
-  }, {});
+  const rewriteRules = [service.defaultOrigin, ...(service.origins ?? [])].flatMap(({ rewrite }) => {
+    return rewrite?.map(({ pattern: from, to, status }) => ({ status, from, to })) ?? [];
+  });
 
-  if (isEmptyObject(rewritePaths)) {
+  if (!rewriteRules.length) {
     return undefined;
   }
 
@@ -31,13 +28,13 @@ export const prepareRewrites = (state: EntryStates, service: CdnService, options
         templateFile: 'rewrite.ts',
         functionName,
         define: {
-          __EZ4_REWRITE_PATHS: JSON.stringify(rewritePaths)
+          __EZ4_REWRITE_RULES: JSON.stringify(rewriteRules)
         }
       });
     },
     getFunctionHash: () => {
       return hashObject({
-        rewritePaths
+        rewriteRules
       });
     }
   });

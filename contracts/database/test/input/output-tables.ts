@@ -32,7 +32,7 @@ declare class TestSchema2 implements Database.Schema {
 /**
  * Test table.
  */
-declare class TestTable implements Database.Table<TestSchema2> {
+declare class TestTable implements Database.Table<TestSchema2, TestEngine> {
   name: 'testTable';
 
   schema: TestSchema2;

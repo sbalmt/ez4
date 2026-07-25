@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
 import type { Incomplete } from '@ez4/utils';
-import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin, CdnRewrite } from './types';
+import type { CdnRegularOrigin, CdnBucketOrigin, CdnOrigin, CdnRewriteRule } from './types';
 
 import {
   InvalidServicePropertyError,
@@ -20,8 +20,9 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteOriginError, IncorrectOriginTypeError, InvalidOriginTypeError } from '../errors/origin';
-import { combineUri, formatUri } from './utils/uri';
-import { getCndRewriteMetadata } from './rewrite';
+import { compileRewritePattern } from '../utils/rewrite';
+import { combineUri, formatUri } from '../utils/uri';
+import { getCndRewriteRulesMetadata } from './rewrite';
 import { getCdnCacheMetadata } from './cache';
 import { CdnOriginType } from './types';
 
@@ -137,7 +138,7 @@ const getTypeFromMembers = (
       }
 
       case 'rewrite': {
-        origin.rewrite = getCndRewriteMetadata(member.value, parent, reflection, errorList);
+        origin.rewrite = getCndRewriteRulesMetadata(member.value, parent, reflection, errorList);
         break;
       }
 
@@ -158,8 +159,8 @@ const getTypeFromMembers = (
     return undefined;
   }
 
-  if (origin.path && origin.rewrite) {
-    applyRewriteBaseUri(origin.path, origin.rewrite);
+  if (origin.rewrite) {
+    applyRewriteBaseUri(origin.rewrite, origin.path);
   }
 
   return origin;
@@ -187,16 +188,15 @@ const getOriginHeaders = (type: AllType) => {
   return headers;
 };
 
-const applyRewriteBaseUri = (pathPattern: string, rewriteRules: CdnRewrite) => {
+const applyRewriteBaseUri = (rewriteRules: CdnRewriteRule[], pathPattern = '/') => {
   const [basePath] = pathPattern.split('*');
   const baseUri = formatUri(basePath);
 
-  for (const path in rewriteRules) {
-    const location = rewriteRules[path];
-
-    if (!path.startsWith(baseUri)) {
-      rewriteRules[combineUri(baseUri, path)] = location;
-      delete rewriteRules[path];
+  for (const rule of rewriteRules) {
+    if (!rule.from.startsWith(baseUri)) {
+      rule.from = combineUri(baseUri, rule.from);
     }
+
+    rule.pattern = compileRewritePattern(rule.from);
   }
 };

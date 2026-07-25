@@ -4,7 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client update optional json', async () => {
+describe('client update json', async () => {
   const client = await makeSchemaClient();
 
   const id = randomUUID();
@@ -19,7 +19,7 @@ describe('client update optional json', async () => {
     });
   });
 
-  it('assert :: update with optional parent', async () => {
+  it('assert :: update with optional column', async () => {
     const previous = await client.ez4_test_table.updateOne({
       select: {
         json: true

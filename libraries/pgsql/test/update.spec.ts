@@ -31,7 +31,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
   });
 
-  it('assert :: update with json record', async () => {
+  it('assert :: update with json record (no schema)', async () => {
     const query = sql
       .update()
       .only('table')
@@ -57,7 +57,60 @@ describe('sql update tests', () => {
 
     deepEqual(variables, [true]);
 
-    equal(statement, `UPDATE ONLY "table" SET "foo"['bar']['baz'] = :0`);
+    equal(
+      statement,
+      `UPDATE ONLY "table" ` +
+        `SET "foo" = COALESCE("foo", '{}'::jsonb) ` +
+        `|| jsonb_build_object('bar', COALESCE("foo"['bar'], '{}'::jsonb) || jsonb_build_object('baz', :0))`
+    );
+  });
+
+  it('assert :: update with json record (with schema)', async () => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        foo: {
+          type: SchemaType.Object,
+          properties: {
+            bar: {
+              type: SchemaType.Object,
+              properties: {
+                baz: {
+                  type: SchemaType.String
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const query = sql
+      .update(schema)
+      .only('table')
+      .record({
+        foo: {
+          bar: {
+            baz: true
+          }
+        }
+      });
+
+    deepEqual(query.fields, ['foo']);
+
+    deepEqual(query.values, [
+      {
+        bar: {
+          baz: true
+        }
+      }
+    ]);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(statement, `UPDATE ONLY "table" SET "foo"['bar'] = "foo"['bar'] || jsonb_build_object('baz', :0)`);
   });
 
   it('assert :: update with json record (nullable in schema)', async () => {
@@ -142,9 +195,10 @@ describe('sql update tests', () => {
     equal(
       statement,
       `UPDATE ONLY "table" ` +
-        `SET "foo" = COALESCE("foo", '{}'::jsonb) || jsonb_build_object(` +
+        `SET "foo" = COALESCE("foo", '{}'::jsonb) ` +
+        `|| jsonb_build_object(` +
         `'bar', :0, ` +
-        `'baz', jsonb_build_object('baz_foo', :1), ` +
+        `'baz', COALESCE("foo"['baz'], '{}'::jsonb) || jsonb_build_object('baz_foo', :1), ` +
         `'qux', COALESCE("foo"['qux'], '{}'::jsonb) || jsonb_build_object('qux_foo', :2)` +
         `)`
     );

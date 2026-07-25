@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-queue",
   "description": "EZ4: Self-managed AWS Simple Queue provider",
-  "version": "0.49.0",
+  "version": "0.50.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -43,8 +43,8 @@
   "scripts": {
     "lint": "eslint --cache",
     "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
-    "build": "tsc && node tools/bundler.mjs",
-    "test": "npm run build && tsc -p tsconfig.test.json && ez4 test -e ../../../local.env",
+    "build": "tsc -p tsconfig.pack.json && node tools/bundler.mjs",
+    "test": "npm run build && tsc -p tsconfig.test.json --noEmit && ez4 test -e ../../../local.env",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-queue",
     "live:publish": "npm run build && npm publish --access public"
@@ -54,17 +54,17 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.996.0",
-    "@ez4/aws-common": "^0.49.0",
-    "@ez4/aws-function": "^0.49.0",
-    "@ez4/aws-identity": "^0.49.0",
-    "@ez4/aws-logs": "^0.49.0",
-    "@ez4/common": "^0.49.0",
-    "@ez4/project": "^0.49.0",
-    "@ez4/queue": "^0.49.0",
-    "@ez4/schema": "^0.49.0",
-    "@ez4/stateful": "^0.49.0",
-    "@ez4/transform": "^0.49.0",
-    "@ez4/utils": "^0.49.0",
-    "@ez4/validator": "^0.49.0"
+    "@ez4/aws-common": "^0.50.0",
+    "@ez4/aws-function": "^0.50.0",
+    "@ez4/aws-identity": "^0.50.0",
+    "@ez4/aws-logs": "^0.50.0",
+    "@ez4/common": "^0.50.0",
+    "@ez4/project": "^0.50.0",
+    "@ez4/queue": "^0.50.0",
+    "@ez4/schema": "^0.50.0",
+    "@ez4/stateful": "^0.50.0",
+    "@ez4/transform": "^0.50.0",
+    "@ez4/utils": "^0.50.0",
+    "@ez4/validator": "^0.50.0"
   }
 }

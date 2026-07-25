@@ -13,9 +13,9 @@ export type QueueEntryPoint = QueueFunction & {
 };
 
 export type QueueBackoff = {
+  attempts: number;
   minDelay: number;
   maxDelay: number;
-  retries: number;
 };
 
 export type QueueFunctionParameters = Omit<

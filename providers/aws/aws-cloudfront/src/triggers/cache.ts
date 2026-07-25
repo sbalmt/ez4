@@ -79,7 +79,7 @@ const getOriginCache = <T extends DistributionDefaultOrigin | DistributionAdditi
 
   const originCache = {
     ...originData,
-    rewrite: !!origin.rewrite,
+    rewrite: !!origin.rewrite?.length,
     location,
     path,
     id,

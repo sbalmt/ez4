@@ -1,11 +1,11 @@
 {
-	"extends": "../../tsconfig.base.json",
-	"compilerOptions": {
-		"rootDir": "./src",
-		"declarationDir": "./dist",
-		"emitDeclarationOnly": true
-	},
-	"include": [
-		"./src"
-	]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.pack.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    }
+  ]
 }

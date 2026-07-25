@@ -77,8 +77,38 @@ describe('aurora data prepare', () => {
     });
   });
 
+  it('assert :: prepare time data (with milliseconds)', () => {
+    const data = prepareFieldData('field', '23:59:59.123', {
+      type: SchemaType.String,
+      format: 'time'
+    });
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'TIME',
+      value: {
+        stringValue: '23:59:59.123'
+      }
+    });
+  });
+
+  it('assert :: prepare time data (beyond milliseconds)', () => {
+    const data = prepareFieldData('field', '23:59:59.123456', {
+      type: SchemaType.String,
+      format: 'time'
+    });
+
+    deepEqual(data, {
+      name: 'field',
+      typeHint: 'TIME',
+      value: {
+        stringValue: '23:59:59.123'
+      }
+    });
+  });
+
   it('assert :: prepare timestamp data', () => {
-    const data = prepareFieldData('field', '1991-04-23T23:59:30.000Z', {
+    const data = prepareFieldData('field', '1991-04-23T23:59:30.123Z', {
       type: SchemaType.String,
       format: 'date-time'
     });
@@ -87,7 +117,7 @@ describe('aurora data prepare', () => {
       name: 'field',
       typeHint: 'TIMESTAMP',
       value: {
-        stringValue: '1991-04-23 23:59:30'
+        stringValue: '1991-04-23 23:59:30.123'
       }
     });
   });

@@ -10,11 +10,7 @@
     "defaultOrigin": {
       "type": "bucket",
       "bucket": "TestBucket",
-      "location": "/site",
-      "rewrite": {
-        "/path1": "/index.html",
-        "/path2/*": "/index.html"
-      }
+      "location": "/site"
     },
     "aliases": [
       "test-1.ez4.dev",
@@ -93,11 +89,7 @@
       {
         "type": "regular",
         "domain": "test-env-var-value",
-        "path": "inline/*",
-        "rewrite": {
-          "/inline/path1/*": "/index.html",
-          "/inline/path2/*": "/index.html"
-        }
+        "path": "inline/*"
       }
     ],
     "fallbacks": [

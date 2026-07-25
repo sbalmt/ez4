@@ -1,0 +1,72 @@
+{
+  "TestCdn": {
+    "type": "@ez4/cdn",
+    "name": "TestCdn",
+    "file": "test/input/output-rewrite.ts",
+    "context": {},
+    "defaultOrigin": {
+      "domain": "example.com",
+      "type": "regular",
+      "rewrite": [
+        {
+          "status": 301,
+          "from": "/old/*",
+          "pattern": "^/old/(.+)$",
+          "to": "/new/*"
+        },
+        {
+          "from": "/legacy/*",
+          "pattern": "^/legacy/(.+)$",
+          "to": "/internal/*"
+        },
+        {
+          "from": "/exact",
+          "pattern": "^/exact$",
+          "to": "/exact-target"
+        }
+      ]
+    },
+    "origins": [
+      {
+        "domain": "mixed.com",
+        "type": "regular",
+        "path": "app/*",
+        "rewrite": [
+          {
+            "status": 301,
+            "from": "/app/old/*",
+            "pattern": "^/app/old/(.+)$",
+            "to": "/new/*"
+          },
+          {
+            "from": "/app/internal/*",
+            "pattern": "^/app/internal/(.+)$",
+            "to": "/modern/*"
+          },
+          {
+            "from": "/app/redirect/*",
+            "pattern": "^/app/redirect/(.+)$",
+            "to": "https://docs.example.com/*",
+            "status": 301
+          },
+          {
+            "from": "/app/temporary/*",
+            "pattern": "^/app/temporary/(.+)$",
+            "to": "/temp/*",
+            "status": 302
+          },
+          {
+            "from": "/app/!*.css",
+            "pattern": "^/app/(?!(.+)\\.css$)(.+)$",
+            "to": "/index.html"
+          },
+          {
+            "from": "/app/!*.{css|ttf|png|jpg}",
+            "pattern": "^/app/(?!(.+)\\.(?:css|ttf|png|jpg)$)(.+)$",
+            "to": "/index.html?file=$1"
+          }
+        ]
+      }
+    ]
+  }
+}

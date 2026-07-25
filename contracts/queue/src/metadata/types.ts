@@ -47,7 +47,7 @@ export type QueueMessageSchema = ObjectSchema | UnionSchema;
 export type QueueSubscriptionHandler = FunctionSignature;
 
 export type QueueDeadLetter = {
-  maxRetries: number;
+  maxAttempts: number;
   retention?: number;
 };
 

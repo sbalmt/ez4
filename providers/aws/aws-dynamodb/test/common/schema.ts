@@ -17,6 +17,10 @@ export type TestTableMetadata = {
     };
     baz: string[];
     qux: number[];
+    array?: {
+      nestedA: string;
+      nestedB: number;
+    };
   };
 };
 
@@ -52,6 +56,21 @@ export const TestSchema: ObjectSchema = {
       type: SchemaType.Array,
       element: {
         type: SchemaType.Number
+      }
+    },
+    array: {
+      type: SchemaType.Array,
+      optional: true,
+      element: {
+        type: SchemaType.Object,
+        properties: {
+          nestedA: {
+            type: SchemaType.String
+          },
+          nestedB: {
+            type: SchemaType.Boolean
+          }
+        }
       }
     }
   }

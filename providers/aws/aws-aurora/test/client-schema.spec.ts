@@ -270,7 +270,7 @@ describe('aurora client schema', { timeout: 180000 }, async () => {
 
   it('assert :: insert and select date-time', async () => {
     const id = randomUUID();
-    const datetime = '1991-04-23T23:59:30.000Z';
+    const datetime = '1991-04-23T23:59:30.123Z';
 
     await dbClient.ez4_test_schema.insertOne({
       data: {

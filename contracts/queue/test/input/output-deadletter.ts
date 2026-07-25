@@ -10,6 +10,6 @@ export declare class TestQueue extends Queue.Unordered<TestMessage> {
 
   deadLetter: Queue.UseDeadLetter<{
     retention: 60;
-    maxRetries: 5;
+    maxAttempts: 5;
   }>;
 }

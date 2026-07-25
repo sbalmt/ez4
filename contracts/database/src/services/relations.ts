@@ -1,3 +1,4 @@
+import type { AtomicFields } from './query/atomic';
 import type { TableIndexes, IndexedTables, PrimaryIndexes, UniqueIndexes } from './indexes';
 import type { DatabaseTable, DatabaseTables } from './table';
 import type { TableSchema, TableSchemas } from './schemas';
@@ -67,8 +68,8 @@ export type RelationTables<T extends Database.Service<any>> = MergeRelations<
  * relation tables.
  */
 type MergeRelations<
-  T extends DatabaseTable<TableSchema>[],
-  C extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
+  C extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   A = {}
@@ -78,8 +79,8 @@ type MergeRelations<
  * Given a database table `T`, it produces an object containing all its relations.
  */
 type ExtractRelations<
-  T extends DatabaseTable<TableSchema>[],
-  C extends DatabaseTable<TableSchema>,
+  T extends DatabaseTable<TableSchema, any>[],
+  C extends DatabaseTable<TableSchema, any>,
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>
 > = C extends {
@@ -180,7 +181,7 @@ type FilterableRelationSchemas<S extends Record<string, TableSchema>, R extends 
  * Produce an object containing relation schemas for updates.
  */
 type UpdateRelationSchemas<N, S extends Record<string, TableSchema>, I extends Record<string, TableIndexes>, R extends AnyObject> = {
-  [P in keyof R as RelationTargetAlias<P>]?: TryArrayType<ChangeRelationSchema<N, R[P], P, S, I>>;
+  [P in keyof R as RelationTargetAlias<P>]?: AtomicFields<TryArrayType<ChangeRelationSchema<N, R[P], P, S, I>>>;
 };
 
 /**
@@ -243,7 +244,7 @@ type RecordsRelationSchemas<
  * Produce an object containing all nested relation schemas for select operations.
  */
 type NestedSelectRelationSchemas<
-  T extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   R extends AnyObject
@@ -259,7 +260,7 @@ type NestedSelectRelationSchemas<
  * Produce an object containing all nested relation schemas for records.
  */
 type NestedRecordsRelationSchemas<
-  T extends DatabaseTable<TableSchema>[],
+  T extends DatabaseTable<TableSchema, any>[],
   S extends Record<string, TableSchema>,
   I extends Record<string, TableIndexes>,
   R extends AnyObject

@@ -34,8 +34,13 @@ export type CdnFallback = {
   ttl?: number;
 };
 
-export type CdnRewrite = {
-  [path: string]: string;
+export type CdnRewriteStatus = 301 | 302;
+
+export type CdnRewriteRule = {
+  status?: CdnRewriteStatus;
+  from: string;
+  pattern: string;
+  to: string;
 };
 
 export type CdnCertificate = {
@@ -63,7 +68,7 @@ export type CdnBucketOrigin = CdnOriginBase & {
 type CdnOriginBase = {
   type: CdnOriginType;
   location?: string;
-  rewrite?: CdnRewrite;
+  rewrite?: CdnRewriteRule[];
   cache?: CdnCache;
   path?: string;
 };

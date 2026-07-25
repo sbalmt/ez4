@@ -1,5 +1,4 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
-import type { ValidationContextOptions } from '@ez4/validator';
 
 import { isDynamicObjectSchema, isObjectSchema } from '@ez4/schema';
 import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
@@ -10,10 +9,13 @@ export const isDynamicFieldSchema = (schema: AnySchema): schema is ObjectSchema 
   return isObjectSchema(schema) && isDynamicObjectSchema(schema);
 };
 
-export const validateRecordSchema = (data: unknown, schema: AnySchema, path: string) => {
-  return validateSchemaWithContext(data, schema, {
-    property: path
-  });
+export const validateRecordSchema = async (data: unknown, schema: AnySchema, path: string) => {
+  const context = createValidatorContext({ property: path });
+  const errors = await validate(data, schema, context);
+
+  if (errors.length) {
+    throw new MalformedRequestError(path, getErrorDetails(errors));
+  }
 };
 
 export const getWithSchemaValidation = async (data: unknown, schema: AnySchema, path: string) => {
@@ -22,19 +24,4 @@ export const getWithSchemaValidation = async (data: unknown, schema: AnySchema, 
   await validateRecordSchema(record, schema, path);
 
   return record;
-};
-
-type ValidateContextOptions = ValidationContextOptions & {
-  property: string;
-};
-
-const validateSchemaWithContext = async (data: unknown, schema: AnySchema, context: ValidateContextOptions) => {
-  const errors = await validate(data, schema, createValidatorContext(context));
-
-  if (errors.length) {
-    const messages = getErrorDetails(errors);
-    const property = context.property;
-
-    throw new MalformedRequestError(property, messages);
-  }
 };

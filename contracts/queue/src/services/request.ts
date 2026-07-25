@@ -13,9 +13,9 @@ export type QueueRequest = {
   readonly attempt: number;
 
   /**
-   * Maximum retries to process the message.
+   * Maximum attempts to process the message.
    */
-  readonly maxRetries: number;
+  readonly maxAttempts: number;
 
   /**
    * Unique identifier across multiple services.

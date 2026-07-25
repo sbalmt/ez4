@@ -9,28 +9,28 @@ The [EZ4](https://github.com/sbalmt/ez4) extension brings dynamic visualization,
 Navigate your application's components with clarity.
 **EZ4** builds a dynamic tree of your structure so you can jump instantly to the parts you need.
 
-![Components Tree](./assets/components.png)
+![Components Tree](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/components.png)
 
 ### Interactive Parameters
 
 Fill in and adjust parameters effortlessly while testing your application.
 Designed for rapid iteration and smooth development cycles.
 
-![Parameters Tab](./assets/parameters-tab.png)
+![Interactive Parameters](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/parameters-tab.png)
 
 ### Request Editor
 
 Write JSON payloads with real **IntelliSense**, type‑aware suggestions, and inline documentation.
 No more guessing property names or searching for schemas.
 
-![Parameters Tab](./assets/request-tab.png)
+![Request Editor](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/request-tab.png)
 
 ### Response Viewer
 
 Inspect JSON responses enhanced with documentation pulled directly from your typings.
 Understand every property at a glance, perfect for debugging and API development.
 
-![Response Tab](./assets/response-tab.png)
+![Response Viewer](https://github.com/sbalmt/ez4/raw/main/extensions/vscode/assets/response-tab.png)
 
 ## License
 

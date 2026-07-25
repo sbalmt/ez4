@@ -7,6 +7,11 @@ import type { ArrayType, IsArray } from '../array/generics';
 export type AnyObject = Record<any, any>;
 
 /**
+ * A type to represent unknown objects.
+ */
+export type UnknownObject = Record<any, unknown>;
+
+/**
  * Given a complex object type `T`, it produces a new object type resolving all its first-level
  * property names.
  */

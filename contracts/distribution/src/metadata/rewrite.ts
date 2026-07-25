@@ -1,72 +1,182 @@
-import type { AllType, ReflectionTypes, TypeModel } from '@ez4/reflection';
+import type { AllType, ReflectionTypes, TypeModel, TypeObject } from '@ez4/reflection';
 import type { MemberType } from '@ez4/common/library';
-import type { CdnRewrite } from './types';
+import type { Incomplete } from '@ez4/utils';
+import type { CdnRewriteRule } from './types';
 
 import {
+  InvalidServicePropertyError,
   isModelDeclaration,
-  getModelMembers,
   getObjectMembers,
+  getModelMembers,
+  getPropertyNumber,
   getPropertyString,
   getReferenceType,
+  getLiteralTuple,
   hasHeritageType
 } from '@ez4/common/library';
 
 import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection';
+import { isObjectWith } from '@ez4/utils';
 
-import { IncorrectRewriteTypeError, InvalidRewriteTypeError } from '../errors/rewrite';
-import { formatUri } from './utils/uri';
+import {
+  IncorrectRewriteRuleTypeError,
+  InvalidRewriteRuleTypeError,
+  IncompleteRewriteRuleError,
+  InvalidRewriteStatusError
+} from '../errors/rewrite';
 
-export const isCdnRewriteMetadata = (type: AllType) => {
-  return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.Rewrite');
+import { formatRewriteTarget } from '../utils/rewrite';
+import { formatUri } from '../utils/uri';
+
+export const isCdnRewriteRuleMetadata = (type: AllType) => {
+  return isModelDeclaration(type) && hasHeritageType(type, 'Cdn.RewriteRule');
 };
 
-export const getCndRewriteMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getCndRewriteRulesMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+): CdnRewriteRule[] | undefined => {
   if (!isTypeReference(type)) {
-    return getRewriteType(type, parent, errorList);
+    return getRewriteRulesType(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getRewriteType(declaration, parent, errorList);
+    return getRewriteRulesType(declaration, parent, reflection, errorList);
   }
 
   return undefined;
 };
 
-const getRewriteType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const isCompleteRewriteRule = (type: Incomplete<CdnRewriteRule>): type is CdnRewriteRule => {
+  return isObjectWith(type, ['from', 'to']);
+};
+
+const getRewriteRulesType = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+): CdnRewriteRule[] | undefined => {
+  const elements = getLiteralTuple(type) ?? [];
+  const rules = [];
+
+  for (const element of elements) {
+    const rule = getTypeFromRewriteRule(element, parent, reflection, errorList);
+
+    if (rule) {
+      rules.push(rule);
+    }
+  }
+
+  return rules;
+};
+
+const getTypeFromRewriteRule = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[]
+): CdnRewriteRule | undefined => {
+  if (!isTypeReference(type)) {
+    return getRewriteRuleType(type, parent, errorList);
+  }
+
+  const declaration = getReferenceType(type, reflection);
+
+  if (declaration) {
+    return getRewriteRuleType(declaration, parent, errorList);
+  }
+
+  return undefined;
+};
+
+const getRewriteRuleType = (type: AllType, parent: TypeModel, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(getObjectMembers(type));
+    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
   }
 
   if (!isModelDeclaration(type)) {
-    errorList.push(new InvalidRewriteTypeError(parent.file));
+    errorList.push(new InvalidRewriteRuleTypeError(parent.file));
     return undefined;
   }
 
-  if (!isCdnRewriteMetadata(type)) {
-    errorList.push(new IncorrectRewriteTypeError(type.name, type.file));
+  if (!isCdnRewriteRuleMetadata(type)) {
+    errorList.push(new IncorrectRewriteRuleTypeError(type.name, type.file));
     return undefined;
   }
 
-  return getTypeFromMembers(getModelMembers(type));
+  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
 };
 
-const getTypeFromMembers = (members: MemberType[]) => {
-  const rewrite: CdnRewrite = {};
+const getTypeFromMembers = (
+  type: TypeObject | TypeModel,
+  parent: TypeModel,
+  members: MemberType[],
+  errorList: Error[]
+): CdnRewriteRule | undefined => {
+  const rule: Incomplete<CdnRewriteRule> = {};
+
+  const properties = new Set(['from', 'to']);
 
   for (const member of members) {
     if (!isModelProperty(member) || member.inherited) {
       continue;
     }
 
-    const location = getPropertyString(member);
-    const path = formatUri(member.name);
+    switch (member.name) {
+      default: {
+        errorList.push(new InvalidServicePropertyError(parent.name, member.name, type.file));
+        break;
+      }
 
-    if (location) {
-      rewrite[path] = formatUri(location);
+      case 'from': {
+        const value = getPropertyString(member);
+
+        if (value) {
+          properties.delete(member.name);
+          rule.from = formatUri(value);
+        }
+
+        break;
+      }
+
+      case 'to': {
+        const value = getPropertyString(member);
+
+        if (value) {
+          properties.delete(member.name);
+          rule.to = formatRewriteTarget(value);
+        }
+
+        break;
+      }
+
+      case 'status': {
+        const value = getPropertyNumber(member);
+
+        if (value) {
+          properties.delete(member.name);
+
+          if (value !== 301 && value !== 302) {
+            errorList.push(new InvalidRewriteStatusError(value, type.file));
+          } else {
+            rule.status = value;
+          }
+        }
+
+        break;
+      }
     }
   }
 
-  return rewrite;
+  if (!isCompleteRewriteRule(rule)) {
+    errorList.push(new IncompleteRewriteRuleError([...properties], type.file));
+    return undefined;
+  }
+
+  return rule;
 };

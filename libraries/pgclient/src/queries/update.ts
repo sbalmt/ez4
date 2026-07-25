@@ -1,5 +1,5 @@
 import type { SqlSourceWithResults, SqlRecord, SqlBuilder, SqlUpdateStatement } from '@ez4/pgsql';
-import type { NumberSchema, ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { AnySchema, NumberSchema, ObjectSchema, UnionSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema, PgRelationWithSchema } from '../types/repository';
@@ -8,7 +8,7 @@ import type { InternalTableMetadata } from '../types/table';
 import { InvalidAtomicOperation, InvalidFieldSchemaError, InvalidRelationFieldError } from '@ez4/pgclient';
 import { getOptionalSchema, getSchemaProperty, isNumberSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { escapeSqlName, SqlSelectStatement } from '@ez4/pgsql';
-import { isAnyObject, isEmptyObject } from '@ez4/utils';
+import { isAnyObject, isEmptyObject, isNullish } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getConnectionSchema, isSingleRelationData } from '../utils/relation';
@@ -139,6 +139,7 @@ export const getUpdateRecord = async (
 
     const fieldSchema = getSchemaProperty(schema, fieldKey);
 
+    // Skip values that aren't mapped in the table schema.
     if (!fieldSchema) {
       continue;
     }
@@ -149,7 +150,23 @@ export const getUpdateRecord = async (
     }
 
     if (isNumberSchema(fieldSchema)) {
-      record[fieldKey] = await getAtomicOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
+      const atomicResult = await getAtomicNumberOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
+
+      if (atomicResult) {
+        record[fieldKey] = atomicResult;
+        continue;
+      }
+    }
+
+    const atomicOperation = await getAtomicObjectOperationUpdate(builder, fieldKey, fieldValue, fieldSchema, fieldPath);
+
+    if (atomicOperation) {
+      const [recordValue] = atomicOperation;
+
+      if (recordValue) {
+        record[fieldKey] = recordValue;
+      }
+
       continue;
     }
 
@@ -163,7 +180,7 @@ export const getUpdateRecord = async (
       continue;
     }
 
-    throw new InvalidFieldSchemaError(fieldKey);
+    throw new InvalidFieldSchemaError(fieldPath);
   }
 
   return record;
@@ -277,7 +294,7 @@ const preparePostUpdateRelations = (
   return allQueries;
 };
 
-const getAtomicOperationUpdate = async (
+const getAtomicNumberOperationUpdate = async (
   builder: SqlBuilder,
   fieldKey: string,
   fieldValue: AnyObject,
@@ -287,27 +304,75 @@ const getAtomicOperationUpdate = async (
   for (const operation in fieldValue) {
     const value = fieldValue[operation];
 
-    if (value === undefined || value === null) {
+    if (isNullish(value)) {
       continue;
     }
 
-    await validateRecordSchema(value, fieldSchema, fieldPath);
+    switch (operation) {
+      default: {
+        throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+      }
+
+      case 'removeFrom': {
+        return undefined;
+      }
+
+      case 'increment': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
+        return builder.rawOperation('+', value);
+      }
+
+      case 'decrement': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
+        return builder.rawOperation('-', value);
+      }
+
+      case 'multiply': {
+        return builder.rawOperation('*', value);
+      }
+
+      case 'divide': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
+        return builder.rawOperation('/', value);
+      }
+    }
+  }
+
+  return undefined;
+};
+
+export const getAtomicObjectOperationUpdate = async (
+  builder: SqlBuilder,
+  fieldKey: string,
+  fieldValue: AnyObject,
+  fieldSchema: AnySchema,
+  fieldPath: string
+) => {
+  for (const operation in fieldValue) {
+    const value = fieldValue[operation];
 
     switch (operation) {
       default:
-        throw new InvalidAtomicOperation(`${fieldPath}.${fieldKey}`);
+        return undefined;
 
-      case 'increment':
-        return builder.rawOperation('+', value);
+      case 'replaceWith': {
+        if (value !== undefined) {
+          return [builder.rawValue(await getWithSchemaValidation(value, fieldSchema, fieldPath))];
+        }
 
-      case 'decrement':
-        return builder.rawOperation('-', value);
+        return [];
+      }
 
-      case 'multiply':
-        return builder.rawOperation('*', value);
+      case 'removeFrom': {
+        if (value) {
+          return [builder.rawOperation('#-', `{${fieldKey}}`)];
+        }
 
-      case 'divide':
-        return builder.rawOperation('/', value);
+        return [];
+      }
     }
   }
 

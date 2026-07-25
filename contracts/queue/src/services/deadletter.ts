@@ -8,7 +8,7 @@ export interface QueueDeadLetter {
   readonly retention?: number;
 
   /**
-   * Maximum retry attempts for the message before it fails.
+   * Maximum attempts for the message before it goes to the dead-letter queue.
    */
-  readonly maxRetries: number;
+  readonly maxAttempts: number;
 }

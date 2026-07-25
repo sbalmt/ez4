@@ -25,7 +25,7 @@
     },
     "deadLetter": {
       "retention": 60,
-      "maxRetries": 5
+      "maxAttempts": 5
     }
   }
 }

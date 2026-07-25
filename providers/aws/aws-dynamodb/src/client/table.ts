@@ -4,8 +4,8 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { InternalTableMetadata } from './types';
 
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
-import { deepClone } from '@ez4/utils';
 
+import { getTransformedRecords } from '../client';
 import { executeStatement, executeTransaction } from './common/client';
 import { isDuplicateItemError } from './utils/errors';
 
@@ -42,8 +42,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     await executeStatement(client, statement, debug);
 
-    if (query.select) {
-      return deepClone<any, any, any>(query.data, { include: query.select }) as Query.InsertOneResult<S, T>;
+    if (query.data) {
+      const [firstResult] = getTransformedRecords([query.data], this.schema, query.select);
+
+      return firstResult as Query.InsertOneResult<S, T>;
     }
 
     return undefined as Query.InsertOneResult<S, T>;
@@ -57,13 +59,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
     try {
       const { records } = await executeStatement(client, statement, debug);
 
-      const [firstRecord] = records;
-
-      if (query.select && firstRecord) {
-        return deepClone<any, any, any>(firstRecord, {
-          include: query.select
-        });
-      }
+      const [firstRecord] = getTransformedRecords(records, this.schema, query.select);
 
       return firstRecord;
     } catch (e) {
@@ -82,13 +78,9 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records } = await executeStatement(client, statement, debug);
 
-    const [firstRecord] = records;
+    const [firstRecord] = getTransformedRecords(records, this.schema, query.select);
 
-    if (firstRecord) {
-      return deepClone<any, any, any>(firstRecord, { include: query.select }) as Query.FindOneResult<S, T>;
-    }
-
-    return undefined as Query.FindOneResult<S, T>;
+    return firstRecord;
   }
 
   async deleteOne<S extends Query.SelectInput<T>>(query: Query.DeleteOneInput<S, T>) {
@@ -98,13 +90,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     const { records } = await executeStatement(client, statement, debug);
 
-    const [firstRecord] = records;
-
-    if (query.select && firstRecord) {
-      return deepClone<any, any, any>(firstRecord, {
-        include: query.select
-      });
-    }
+    const [firstRecord] = getTransformedRecords(records, this.schema, query.select);
 
     return firstRecord;
   }
@@ -120,8 +106,10 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         await this.insertOne({ data: query.insert });
 
         if (query.select) {
+          const [record] = getTransformedRecords([query.insert], this.schema, query.select);
+
           return {
-            record: deepClone<any, any, any>(query.insert, { include: query.select }),
+            record,
             inserted: true
           } as Query.UpsertOneResult<S, T>;
         }
@@ -129,6 +117,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         return {
           inserted: true
         } as Query.UpsertOneResult<S, T>;
+
+        //
       } catch (error) {
         // In case of race condition, fallback to update.
         if (!isDuplicateItemError(error)) {
@@ -137,14 +127,17 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       }
     }
 
-    await this.updateOne({
+    const record = await this.updateOne({
       where: query.where as Query.WhereInput<T>,
+      select: query.select,
       data: query.update
     });
 
     return {
-      record: previous,
-      inserted: false
+      inserted: false,
+      ...(record && {
+        record
+      })
     } as Query.UpsertOneResult<S, T>;
   }
 
@@ -163,7 +156,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     await executeTransaction(client, transactions, debug);
 
-    return records as Query.UpdateManyResult<S, T>;
+    if (records) {
+      return getTransformedRecords(records, this.schema, query.select) as Query.UpdateManyResult<S, T>;
+    }
+
+    return undefined as Query.UpdateManyResult<S, T>;
   }
 
   async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, C, T>) {
@@ -189,7 +186,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     return {
       ...(shouldCount && { total: countResult?.records.length }),
-      records,
+      records: getTransformedRecords(records, this.schema, query.select),
       cursor
     } as unknown as Query.FindManyResult<S, C, T>;
   }
@@ -201,7 +198,11 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
     await executeTransaction(client, transactions, debug);
 
-    return records as Query.DeleteManyResult<S, T>;
+    if (records) {
+      return getTransformedRecords(records, this.schema, query.select) as Query.DeleteManyResult<S, T>;
+    }
+
+    return undefined as Query.DeleteManyResult<S, T>;
   }
 
   async exists(query: Query.ExistsInput<T>) {

@@ -12,7 +12,19 @@ describe('object clone utils', () => {
       second: {
         level: 3,
         third: true
-      }
+      },
+      third: [
+        {
+          foo: true,
+          bar: 'abc',
+          baz: 123
+        },
+        {
+          foo: false,
+          bar: 'def',
+          baz: 456
+        }
+      ]
     }
   };
 
@@ -38,8 +50,9 @@ describe('object clone utils', () => {
     const result = deepClone(object, {
       exclude: {
         first: {
+          level: false, // do not exclude.
           second: true,
-          level: false // do not exclude.
+          third: true
         }
       }
     });
@@ -71,6 +84,64 @@ describe('object clone utils', () => {
           level: 3,
           third: true
         }
+      }
+    });
+  });
+
+  it('assert :: deep clone (with nested array includes)', () => {
+    const result = deepClone(object, {
+      include: {
+        level: true,
+        first: {
+          third: {
+            baz: true
+          }
+        }
+      }
+    });
+
+    deepEqual(result, {
+      level: 1,
+      first: {
+        third: [
+          {
+            baz: 123
+          },
+          {
+            baz: 456
+          }
+        ]
+      }
+    });
+  });
+
+  it('assert :: deep clone (with nested array excludes)', () => {
+    const result = deepClone(object, {
+      exclude: {
+        first: {
+          array: true,
+          level: true,
+          second: true,
+          third: {
+            baz: true
+          }
+        }
+      }
+    });
+
+    deepEqual(result, {
+      level: 1,
+      first: {
+        third: [
+          {
+            foo: true,
+            bar: 'abc'
+          },
+          {
+            foo: false,
+            bar: 'def'
+          }
+        ]
       }
     });
   });
