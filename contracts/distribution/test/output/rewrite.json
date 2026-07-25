@@ -57,12 +57,12 @@
           },
           {
             "from": "/app/!*.css",
-            "pattern": "^/app/(?!(.+)\\.css$)([^/]+)$",
+            "pattern": "^/app/(?!(.+)\\.css$)(.+)$",
             "to": "/index.html"
           },
           {
             "from": "/app/!*.{css|ttf|png|jpg}",
-            "pattern": "^/app/(?!(.+)\\.(?:css|ttf|png|jpg)$)([^/]+)$",
+            "pattern": "^/app/(?!(.+)\\.(?:css|ttf|png|jpg)$)(.+)$",
             "to": "/index.html?file=$1"
           }
         ]

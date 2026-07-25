@@ -13,7 +13,7 @@ describe('compile rewrite pattern', () => {
   });
 
   it('assert :: exact pattern (with final negation)', () => {
-    equal(compileRewritePattern('/path/!page'), '^/path/(?!page$)([^/]+)$');
+    equal(compileRewritePattern('/path/!page'), '^/path/(?!page$)(.+)$');
   });
 
   it('assert :: wildcard pattern', () => {
@@ -37,11 +37,11 @@ describe('compile rewrite pattern', () => {
   });
 
   it('assert :: wildcard pattern (with final prefix negation)', () => {
-    equal(compileRewritePattern('/path/!file.*'), '^/path/(?!file\\.(.+)$)([^/]+)$');
+    equal(compileRewritePattern('/path/!file.*'), '^/path/(?!file\\.(.+)$)(.+)$');
   });
 
   it('assert :: wildcard pattern (with final suffix negation)', () => {
-    equal(compileRewritePattern('/path/!*.ext'), '^/path/(?!(.+)\\.ext$)([^/]+)$');
+    equal(compileRewritePattern('/path/!*.ext'), '^/path/(?!(.+)\\.ext$)(.+)$');
   });
 
   it('assert :: options pattern', () => {
@@ -53,6 +53,6 @@ describe('compile rewrite pattern', () => {
   });
 
   it('assert :: options pattern (with final negation)', () => {
-    equal(compileRewritePattern('/path/!{a|b|c}'), '^/path/(?!(?:a|b|c)$)([^/]+)$');
+    equal(compileRewritePattern('/path/!{a|b|c}'), '^/path/(?!(?:a|b|c)$)(.+)$');
   });
 });

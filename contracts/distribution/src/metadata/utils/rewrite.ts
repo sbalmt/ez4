@@ -9,10 +9,10 @@ export const formatRewriteTarget = (target: string) => {
 };
 
 export const compileRewritePattern = (pattern: string) => {
-  const pathParts = pattern.split('/');
+  const parts = pattern.split('/');
 
-  const regex = pathParts.map((pathPattern, pathIndex) => {
-    const finalize = pathParts.length === pathIndex + 1;
+  const regex = parts.map((pathPattern, pathIndex) => {
+    const finalize = parts.length === pathIndex + 1;
     const negation = pathPattern.startsWith('!');
 
     const pathRegex = pathPattern
@@ -26,7 +26,10 @@ export const compileRewritePattern = (pattern: string) => {
       });
 
     if (negation) {
-      return `(?!${pathRegex}${finalize ? '$' : '/'})([^/]+)`;
+      const extraction = finalize ? '.' : '[^/]';
+      const completion = finalize ? '$' : '/';
+
+      return `(?!${pathRegex}${completion})(${extraction}+)`;
     }
 
     return pathRegex;
