@@ -2,6 +2,8 @@ import type { AllType } from '@ez4/reflection';
 
 import { isTypeBoolean, isTypeNumber, isTypeString, isTypeTuple } from '@ez4/reflection';
 
+import { getTupleElements } from './tuple';
+
 export const getLiteralBoolean = (type: AllType) => {
   return isTypeBoolean(type) ? type.literal : undefined;
 };
@@ -15,5 +17,5 @@ export const getLiteralString = (type: AllType) => {
 };
 
 export const getLiteralTuple = (type: AllType) => {
-  return isTypeTuple(type) ? type.elements : undefined;
+  return isTypeTuple(type) ? getTupleElements(type) : undefined;
 };
