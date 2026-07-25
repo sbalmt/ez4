@@ -23,6 +23,7 @@ import {
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
+  getTupleElements,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -56,7 +57,7 @@ const getHttpRoutes = (parent: TypeModel, member: ModelProperty, reflection: Ref
   const declaration = getReferenceType(member.value, reflection);
 
   if (declaration && isTypeTuple(declaration)) {
-    return getRouteFromTuple(declaration.elements, parent, reflection, errorList, external);
+    return getRouteFromTuple(getTupleElements(declaration), parent, reflection, errorList, external);
   }
 
   return undefined;
@@ -74,9 +75,7 @@ const getRouteFromTuple = (
   for (const route of routeItems) {
     const result = getTypeFromRoute(route, parent, reflection, errorList, external);
 
-    if (Array.isArray(result)) {
-      routeList.push(...result);
-    } else if (result) {
+    if (result) {
       routeList.push(result);
     }
   }
@@ -109,10 +108,6 @@ const getRouteType = (type: AllType, parent: TypeModel, reflection: ReflectionTy
 
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, external);
-  }
-
-  if (isTypeTuple(type) && type.spread) {
-    return getRouteFromTuple(type.elements, parent, reflection, errorList, external);
   }
 
   return undefined;

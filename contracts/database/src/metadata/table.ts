@@ -12,6 +12,7 @@ import {
   getPropertyString,
   getReferenceType,
   getPropertyTuple,
+  getTupleElements,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -37,7 +38,7 @@ export const getDatabaseTablesMetadata = (member: ModelProperty, parent: TypeMod
   const declaration = getReferenceType(member.value, reflection);
 
   if (declaration && isTypeTuple(declaration)) {
-    return getTableFromTuple(declaration.elements, parent, reflection, errorList);
+    return getTableFromTuple(getTupleElements(declaration), parent, reflection, errorList);
   }
 
   return undefined;
@@ -49,9 +50,7 @@ const getTableFromTuple = (tableItems: EveryType[], parent: TypeModel, reflectio
   for (const table of tableItems) {
     const result = getTypeFromTable(table, parent, reflection, errorList);
 
-    if (Array.isArray(result)) {
-      tableList.push(...result);
-    } else if (result) {
+    if (result) {
       tableList.push(result);
     }
   }
@@ -80,10 +79,6 @@ const isCompleteTable = (type: Incomplete<DatabaseTable>): type is DatabaseTable
 const getTableType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
     return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
-  }
-
-  if (isTypeTuple(type) && type.spread) {
-    return getTableFromTuple(type.elements, parent, reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
