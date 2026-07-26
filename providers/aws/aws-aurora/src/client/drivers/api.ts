@@ -45,10 +45,7 @@ export class ApiClientDriver implements PgClientDriver {
         const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            // Result-set metadata is only needed when the query builder couldn't work
-            // out the output column names ahead of time (see `statement.columns`).
-            // Asking for it forces the Data API to introspect the catalog server-side.
-            includeResultMetadata: !columns,
+            includeResultMetadata: !columns?.length,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,

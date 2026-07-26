@@ -111,15 +111,15 @@ describe('select relations', () => {
     }
   ]);
 
-  const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.FindOneInput<S, TestTableMetadata>) => {
+  const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.FindOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
     const relations = getRelationsWithSchema(testTableName, repository);
     const table = repository[testTableName];
 
-    const selectQuery = prepareSelectQuery(builder, testTableName, table.schema, relations, query);
+    const { query } = prepareSelectQuery(builder, testTableName, table.schema, relations, input);
 
-    return selectQuery.build();
+    return query.build();
   };
 
   it('assert :: prepare select relations', ({ assert }) => {

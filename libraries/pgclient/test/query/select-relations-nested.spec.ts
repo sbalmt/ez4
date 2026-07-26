@@ -212,7 +212,7 @@ describe('select nested relations', () => {
     }
   ]);
 
-  const prepareBSelect = <S extends Query.SelectInput<TestTableBMetadata>>(query: Query.FindOneInput<S, TestTableBMetadata>) => {
+  const prepareBSelect = <S extends Query.SelectInput<TestTableBMetadata>>(input: Query.FindOneInput<S, TestTableBMetadata>) => {
     const builder = new SqlBuilder();
 
     const name = 'ez4-test-b';
@@ -220,12 +220,12 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
+    const { query } = prepareSelectQuery(builder, name, table.schema, relations, input);
 
-    return selectQuery.build();
+    return query.build();
   };
 
-  const prepareCSelect = <S extends Query.SelectInput<TestTableCMetadata>>(query: Query.FindOneInput<S, TestTableCMetadata>) => {
+  const prepareCSelect = <S extends Query.SelectInput<TestTableCMetadata>>(input: Query.FindOneInput<S, TestTableCMetadata>) => {
     const builder = new SqlBuilder();
 
     const name = 'ez4-test-c';
@@ -233,12 +233,12 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
+    const { query } = prepareSelectQuery(builder, name, table.schema, relations, input);
 
-    return selectQuery.build();
+    return query.build();
   };
 
-  const prepareDSelect = <S extends Query.SelectInput<TestTableDMetadata>>(query: Query.FindOneInput<S, TestTableDMetadata>) => {
+  const prepareDSelect = <S extends Query.SelectInput<TestTableDMetadata>>(input: Query.FindOneInput<S, TestTableDMetadata>) => {
     const builder = new SqlBuilder();
 
     const name = 'ez4-test-d';
@@ -246,9 +246,9 @@ describe('select nested relations', () => {
 
     const relations = getRelationsWithSchema(name, repository);
 
-    const selectQuery = prepareSelectQuery(builder, name, table.schema, relations, query);
+    const { query } = prepareSelectQuery(builder, name, table.schema, relations, input);
 
-    return selectQuery.build();
+    return query.build();
   };
 
   it('assert :: prepare select nested relations (one nested level)', ({ assert }) => {

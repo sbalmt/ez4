@@ -41,12 +41,12 @@ describe('delete query', () => {
     }
   };
 
-  const prepareDelete = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.DeleteOneInput<S, TestTableMetadata>) => {
+  const prepareDelete = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.DeleteOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const deleteQuery = prepareDeleteQuery(builder, 'ez4-test-delete', testSchema, {}, query);
+    const { query } = prepareDeleteQuery(builder, 'ez4-test-delete', testSchema, {}, input);
 
-    return deleteQuery.build();
+    return query.build();
   };
 
   it('assert :: prepare delete', () => {

@@ -11,21 +11,28 @@ export const prepareDeleteQuery = <T extends InternalTableMetadata, S extends Qu
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
+  input: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ) => {
-  const deleteQuery = builder.reset().delete(schema).from(table);
+  const query = builder.reset().delete(schema).from(table);
 
-  if (query.where) {
-    const selectFilter = getSelectFilters(builder, query.where, relations, deleteQuery, table);
+  if (input.where) {
+    const selectFilter = getSelectFilters(builder, input.where, relations, query, table);
 
-    deleteQuery.where(selectFilter);
+    query.where(selectFilter);
   }
 
-  if (query.select) {
-    const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, deleteQuery, table);
+  if (input.select) {
+    const selectRecord = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
 
-    deleteQuery.returning(selectRecord);
+    query.returning(selectRecord);
+
+    return {
+      columns: Object.keys(selectRecord),
+      query
+    };
   }
 
-  return deleteQuery;
+  return {
+    query
+  };
 };

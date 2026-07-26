@@ -10,7 +10,7 @@ const ColumnFormats: Record<string, string> = {
   ['date']: `'YYYY-MM-DD'`
 };
 
-export const getFormattedColumn = (column: string, schema: AnySchema, alias?: boolean) => {
+export const getFormattedColumn = (column: string, schema: AnySchema) => {
   if (isStringSchema(schema)) {
     const columnMask = schema.format ? ColumnFormats[schema.format] : undefined;
 
@@ -18,7 +18,7 @@ export const getFormattedColumn = (column: string, schema: AnySchema, alias?: bo
       const columnName = escapeSqlName(column);
 
       return (source?: SqlSource) => {
-        return formatColumn(columnName, columnMask, alias, source);
+        return formatColumn(columnName, columnMask, source);
       };
     }
   }
@@ -26,13 +26,9 @@ export const getFormattedColumn = (column: string, schema: AnySchema, alias?: bo
   return column;
 };
 
-const formatColumn = (columnName: string, columnMask: string, columnAlias?: boolean, source?: SqlSource) => {
+const formatColumn = (columnName: string, columnMask: string, source?: SqlSource) => {
   const columnPath = mergeSqlAlias(columnName, source?.alias);
   const expression = `to_char(${columnPath}, ${columnMask})`;
-
-  if (columnAlias) {
-    return `${expression} AS ${columnName}`;
-  }
 
   return expression;
 };

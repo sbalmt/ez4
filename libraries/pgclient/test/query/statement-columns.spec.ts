@@ -1,10 +1,10 @@
-import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { IndexedTables, RelationTables } from '@ez4/database/library';
-import type { PgClientDriver } from '@ez4/pgclient';
+import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { Database, Query } from '@ez4/database';
+import type { PgClientDriver } from '@ez4/pgclient';
 
+import { deepEqual, ok } from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { deepEqual, equal, ok } from 'node:assert';
 
 import { getRelationsWithSchema, getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
@@ -122,16 +122,16 @@ describe('statement columns', () => {
   const relations = getRelationsWithSchema(testTableName, repository);
   const schema = repository[testTableName].schema;
 
-  const findOne = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.FindOneInput<S, TestTableMetadata>) => {
-    return prepareFindOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, query);
+  const findOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.FindOneInput<S, TestTableMetadata>) => {
+    return prepareFindOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
   };
 
-  const insertOne = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.InsertOneInput<S, TestTableMetadata>) => {
-    return prepareInsertOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, query);
+  const insertOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.InsertOneInput<S, TestTableMetadata>) => {
+    return prepareInsertOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
   };
 
-  const deleteOne = <S extends Query.SelectInput<TestTableMetadata>>(query: Query.DeleteOneInput<S, TestTableMetadata>) => {
-    return prepareDeleteOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, query);
+  const deleteOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.DeleteOneInput<S, TestTableMetadata>) => {
+    return prepareDeleteOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
   };
 
   it('assert :: select columns', () => {
@@ -240,7 +240,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, []);
+    deepEqual(statement.columns, undefined);
   });
 
   it('assert :: unknown columns on insert with select', async () => {
@@ -253,7 +253,7 @@ describe('statement columns', () => {
       }
     });
 
-    equal(statement.columns, undefined);
+    deepEqual(statement.columns, ['id']);
   });
 
   it('assert :: delete columns (with select)', () => {

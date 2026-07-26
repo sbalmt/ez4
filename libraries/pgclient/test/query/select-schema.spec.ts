@@ -29,13 +29,13 @@ type TestTableMetadata = {
 describe('select schema', () => {
   const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    query: Query.FindManyInput<S, false, TestTableMetadata>
+    input: Query.FindManyInput<S, false, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    const selectQuery = prepareSelectQuery(builder, 'ez4-test-select-schema', schema, {}, query);
+    const { query } = prepareSelectQuery(builder, 'ez4-test-select-schema', schema, {}, input);
 
-    return selectQuery.build();
+    return query.build();
   };
 
   it('assert :: prepare select schema (all fields)', ({ assert }) => {
