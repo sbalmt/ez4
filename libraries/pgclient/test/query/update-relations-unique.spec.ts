@@ -23,15 +23,15 @@ describe('update unique relations', () => {
   const targetId = '00000000-0000-1000-9000-000000000001';
 
   const prepareRelationUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
-    query: Query.UpdateManyInput<S, TestTableMetadata>
+    input: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const repository = TestRelationRepository[tableName];
     const relations = getRelationsWithSchema(tableName, TestRelationRepository);
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery(builder, tableName, repository.schema, relations, query);
+    const { queries } = await prepareUpdateQuery(builder, tableName, repository.schema, relations, input);
 
-    return builder.with(allQueries).build();
+    return builder.with(queries).build();
   };
 
   it('assert :: prepare empty relation (unique to primary)', async ({ assert }) => {

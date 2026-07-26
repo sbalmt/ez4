@@ -1,8 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
-import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
+import type { PgClientDriver } from '../types/driver';
 import type { UpdateQueryOptions } from './update';
 
 import { createQueryBuilder } from '../utils/builder';
@@ -19,21 +19,22 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.InsertOneInput<S, T>
-): Promise<PgExecuteStatement> => {
+  input: Query.InsertOneInput<S, T>
+) => {
   const builder = createQueryBuilder(driver);
 
-  const allQueries = await prepareInsertQuery(builder, table, schema, relations, query);
+  const { queries, columns } = await prepareInsertQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = builder.with(allQueries).build();
+  const [statement, variables] = builder.with(queries).build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -43,21 +44,22 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.FindOneInput<S, T>
+  input: Query.FindOneInput<S, T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const selectQuery = prepareSelectQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareSelectQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = selectQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -67,22 +69,23 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.UpdateOneInput<S, T>,
+  input: Query.UpdateOneInput<S, T>,
   options?: UpdateQueryOptions
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query, options);
+  const { queries, columns } = await prepareUpdateQuery(builder, table, schema, relations, input, options);
 
-  const [statement, variables] = builder.with(allQueries).build();
+  const [statement, variables] = builder.with(queries).build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -92,21 +95,22 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.DeleteOneInput<S, T>
+  input: Query.DeleteOneInput<S, T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const deleteQuery = prepareDeleteQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareDeleteQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = deleteQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -116,25 +120,26 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.InsertManyInput<T>
+  input: Query.InsertManyInput<T>
 ) => {
   const builder = createQueryBuilder(driver);
 
   return Promise.all(
-    query.data.map(async (data) => {
-      const allQueries = await prepareInsertQuery(builder, table, schema, relations, {
+    input.data.map(async (data) => {
+      const { queries, columns } = await prepareInsertQuery(builder, table, schema, relations, {
         data
       });
 
-      const [statement, variables] = builder.with(allQueries).build();
+      const [statement, variables] = builder.with(queries).build();
 
       return {
         query: statement,
         variables,
         metadata: {
-          table,
+          schema,
           relations,
-          schema
+          columns,
+          table
         }
       };
     })
@@ -146,21 +151,22 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.FindManyInput<S, C, T>
+  input: Query.FindManyInput<S, C, T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const selectQuery = prepareSelectQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareSelectQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = selectQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -170,21 +176,22 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.UpdateManyInput<S, T>
+  input: Query.UpdateManyInput<S, T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const allQueries = await prepareUpdateQuery(builder, table, schema, relations, query);
+  const { queries, columns } = await prepareUpdateQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = builder.with(allQueries).build();
+  const [statement, variables] = builder.with(queries).build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -194,21 +201,22 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.DeleteManyInput<S, T>
+  input: Query.DeleteManyInput<S, T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const deleteQuery = prepareDeleteQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareDeleteQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = deleteQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -218,21 +226,22 @@ export const prepareExists = <T extends InternalTableMetadata>(
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.ExistsInput<T>
+  input: Query.ExistsInput<T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const countQuery = prepareExistsQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareExistsQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = countQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -242,21 +251,22 @@ export const prepareCount = <T extends InternalTableMetadata>(
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
-  query: Query.CountInput<T>
+  input: Query.CountInput<T>
 ) => {
   const builder = createQueryBuilder(driver);
 
-  const countQuery = prepareCountQuery(builder, table, schema, relations, query);
+  const { query, columns } = prepareCountQuery(builder, table, schema, relations, input);
 
-  const [statement, variables] = countQuery.build();
+  const [statement, variables] = query.build();
 
   return {
     query: statement,
     variables,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };

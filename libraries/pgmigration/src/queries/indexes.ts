@@ -218,7 +218,7 @@ export namespace IndexQueries {
   export const getValidationQuery = (builder: SqlBuilder, name: string) => {
     const [query] = builder
       .select()
-      .rawColumn('1')
+      .rawColumn(1)
       .from('pg_index')
       .where({
         indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),

@@ -4,22 +4,22 @@ import type { SqlRawGenerator } from './raw';
 import type { SqlSource } from './source';
 import type { SqlColumn } from './types';
 
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isAnyString } from '@ez4/utils';
 
 import { mergeSqlAlias } from '../utils/merge';
 import { escapeSqlName } from '../utils/escape';
 import { getUniqueAlias } from '../helpers/alias';
 import { SqlSelectStatement } from '../statements/select';
 import { MissingColumnAliasError } from './errors';
+import { SqlRawColumn, SqlRawValue } from './raw';
 import { SqlColumnReference } from './reference';
 import { SqlJsonColumn } from './json';
-import { SqlRawValue } from './raw';
 
 export type SqlObjectColumn = Omit<SqlJsonColumnOptions, 'aggregate' | 'order'>;
 
 export type SqlArrayColumn = Omit<SqlJsonColumnOptions, 'aggregate'>;
 
-export type SqlResultColumn = SqlColumn | SqlRawValue | SqlColumnReference | SqlSelectStatement;
+export type SqlResultColumn = SqlColumn | SqlRawValue | SqlRawColumn | SqlColumnReference | SqlSelectStatement;
 
 export type SqlResultRecord = {
   [column: string]: undefined | string | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnRecord;
@@ -80,8 +80,8 @@ export class SqlResults {
     return this;
   }
 
-  rawColumn(column: number | string | SqlRawGenerator) {
-    this.#state.columns.push(new SqlRawValue(column));
+  rawColumn(column: number | string | SqlRawGenerator, alias?: string) {
+    this.#state.columns.push(new SqlRawColumn(column, alias));
     return this;
   }
 
@@ -125,7 +125,7 @@ const getRecordColumns = (record: SqlResultRecord, source: SqlSource, references
 
     if (value === true) {
       columns.push(column);
-    } else if (typeof value === 'string') {
+    } else if (isAnyString(value)) {
       columns.push([column, value]);
     } else if (value instanceof SqlRawValue || value instanceof SqlColumnReference) {
       columns.push(value);
@@ -143,12 +143,12 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
   const { source, references, variables } = context;
 
   const columnsList = columns.map((column) => {
-    if (column instanceof SqlRawValue) {
-      return column.build(source);
-    }
-
     if (column instanceof SqlColumnReference) {
       return column.build();
+    }
+
+    if (column instanceof SqlRawValue || column instanceof SqlRawColumn) {
+      return column.build(source);
     }
 
     if (column instanceof SqlJsonColumn) {

@@ -23,9 +23,9 @@ export abstract class SqlSource {
 
   abstract build(): [string, unknown[]];
 
-  reference<T extends string | SqlReferenceGenerator | undefined>(column?: T): ReferenceReturnType<T> {
+  reference<T extends string | SqlReferenceGenerator | undefined>(column?: T, alias?: string): ReferenceReturnType<T> {
     if (column) {
-      return new SqlColumnReference(this, column) as ReferenceReturnType<T>;
+      return new SqlColumnReference(this, column, alias) as ReferenceReturnType<T>;
     }
 
     return new SqlTableReference(this) as ReferenceReturnType<T>;

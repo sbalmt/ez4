@@ -10,12 +10,12 @@ import { SqlRawValue } from '../common/raw';
 export const getOperandValue = (schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext, encode?: boolean) => {
   const { source, variables, references, options, path } = context;
 
-  if (operand instanceof SqlColumnReference) {
-    return operand.build();
-  }
-
   if (operand instanceof SqlRawValue) {
     return operand.build(source);
+  }
+
+  if (operand instanceof SqlColumnReference) {
+    return operand.build();
   }
 
   if (!references) {

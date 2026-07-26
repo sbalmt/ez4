@@ -41,44 +41,51 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.InsertOneInput<S, T>
+  input: Query.InsertOneInput<S, T>
 ) => {
-  const preInsertQueriesMap = preparePreInsertRelations(builder, query.data, relations, table);
+  const preInsertQueriesMap = preparePreInsertRelations(builder, input.data, relations, table);
 
   const preInsertQueries = Object.values(preInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const insertRecord = await getInsertRecord(query.data, schema, relations, preInsertQueriesMap, table);
+  const insertRecord = await getInsertRecord(input.data, schema, relations, preInsertQueriesMap, table);
   const insertQuery = builder.insert(schema).record(insertRecord).into(table).returning();
 
   if (preInsertQueries.length) {
-    insertQuery.select(...preInsertQueries.map((query) => query.reference()));
+    insertQuery.select(...preInsertQueries.map((input) => input.reference()));
   }
 
-  const postInsertQueriesMap = preparePostInsertRelations(builder, query.data, relations, insertQuery, table);
+  const postInsertQueriesMap = preparePostInsertRelations(builder, input.data, relations, insertQuery, table);
 
   const postInsertQueries = Object.values(postInsertQueriesMap)
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
-  const allQueries: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement)[] = [
+  const columns = [];
+
+  const queries: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement)[] = [
     ...preInsertQueries,
     insertQuery,
     ...postInsertQueries
   ];
 
-  if (query.select) {
+  if (input.select) {
     const allRelations = { ...relations, ...preInsertQueriesMap, ...postInsertQueriesMap };
     const selectQuery = builder.select().from(insertQuery.reference());
 
-    const selectRecord = getInsertSelectFields(builder, query.select, schema, allRelations, insertQuery, selectQuery, table);
+    const record = getInsertSelectFields(builder, input.select, schema, allRelations, insertQuery, selectQuery, table);
 
-    selectQuery.record(selectRecord);
-    allQueries.push(selectQuery);
+    columns.push(...Object.keys(record));
+
+    selectQuery.record(record);
+    queries.push(selectQuery);
   }
 
-  return allQueries;
+  return {
+    columns,
+    queries
+  };
 };
 
 export const getInsertRecord = async (
@@ -192,7 +199,7 @@ const preparePreInsertRelations = (
   relations: PgRelationRepositoryWithSchema,
   table: string
 ) => {
-  const allQueries: InsertRelationRepository = {};
+  const queries: InsertRelationRepository = {};
 
   for (const relationPath in relations) {
     const fieldRelation = relations[relationPath];
@@ -216,7 +223,7 @@ const preparePreInsertRelations = (
 
     const relationQueries: (SqlInsertStatement | SqlUpdateStatement)[] = [];
 
-    allQueries[relationPath] = {
+    queries[relationPath] = {
       ...fieldRelation,
       relationQueries
     };
@@ -238,7 +245,7 @@ const preparePreInsertRelations = (
     }
   }
 
-  return allQueries;
+  return queries;
 };
 
 const preparePostInsertRelations = (
@@ -248,7 +255,7 @@ const preparePostInsertRelations = (
   source: SqlSourceWithResults,
   table: string
 ) => {
-  const allQueries: InsertRelationRepository = {};
+  const queries: InsertRelationRepository = {};
 
   const { results } = source;
 
@@ -322,14 +329,14 @@ const preparePostInsertRelations = (
     }
 
     if (relationQueries.length > 0) {
-      allQueries[relationPath] = {
+      queries[relationPath] = {
         ...fieldRelation,
         relationQueries
       };
     }
   }
 
-  return allQueries;
+  return queries;
 };
 
 const getInsertSelectFields = (
@@ -386,9 +393,9 @@ const getInsertSelectFields = (
 
       // Inserted relations
       if (relationQueries.length > 1) {
-        relationQuery.from(builder.union(relationQueries.map((query) => builder.select().from(query.reference()))));
+        relationQuery.from(builder.union(relationQueries.map((input) => builder.select().from(input.reference()))));
       } else {
-        relationQuery.from(...relationQueries.map((query) => query.reference()));
+        relationQuery.from(...relationQueries.map((input) => input.reference()));
       }
 
       for (const relationFieldKey in relationFields) {
@@ -428,12 +435,12 @@ const getInsertSelectFields = (
       continue;
     }
 
-    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
+    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema);
 
     if (fieldColumn instanceof Function) {
-      output[fieldKey] = source.reference(fieldColumn);
+      output[fieldKey] = source.reference(fieldColumn, !json ? fieldKey : undefined);
     } else {
-      output[fieldKey] = source.reference(fieldKey);
+      output[fieldKey] = true;
     }
   }
 

@@ -17,34 +17,37 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
+  input: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ) => {
-  const selectQuery = builder.select(schema).from(table);
-  const selectRecord = getSelectFields(builder, query.select, query.include, schema, relations, selectQuery, table);
+  const query = builder.select(schema).from(table);
+  const record = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
 
-  selectQuery.record(selectRecord);
+  query.record(record);
 
-  if (query.where) {
-    selectQuery.where(getSelectFilters(builder, query.where, relations, selectQuery, table));
+  if (input.where) {
+    query.where(getSelectFilters(builder, input.where, relations, query, table));
   }
 
-  if (query.lock) {
-    selectQuery.lock();
+  if (input.lock) {
+    query.lock();
   }
 
-  if ('order' in query) {
-    selectQuery.order(query.order);
+  if ('order' in input) {
+    query.order(input.order);
   }
 
-  if ('skip' in query && isAnyNumber(query.skip)) {
-    selectQuery.skip(query.skip);
+  if ('skip' in input && isAnyNumber(input.skip)) {
+    query.skip(input.skip);
   }
 
-  if ('take' in query && isAnyNumber(query.take)) {
-    selectQuery.take(query.take);
+  if ('take' in input && isAnyNumber(input.take)) {
+    query.take(input.take);
   }
 
-  return selectQuery;
+  return {
+    columns: Object.keys(record),
+    query
+  };
 };
 
 export const getSelectFields = <T extends InternalTableMetadata, S extends AnyObject>(
@@ -159,10 +162,10 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       continue;
     }
 
-    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema, !json);
+    const fieldColumn = getFormattedColumn(fieldKey, fieldSchema);
 
     if (fieldColumn instanceof Function) {
-      output[fieldKey] = source.reference(fieldColumn);
+      output[fieldKey] = source.reference(fieldColumn, !json ? fieldKey : undefined);
     } else {
       output[fieldKey] = true;
     }

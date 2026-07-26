@@ -27,15 +27,15 @@ describe('insert unique relations', () => {
   const targetBId = '00000000-0000-1000-9000-000000000003';
 
   const prepareRelationInsert = async <S extends Query.SelectInput<TestTableMetadata>>(
-    query: Query.InsertOneInput<S, TestTableMetadata>
+    input: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
     const repository = TestRelationRepository[tableName];
     const relations = getRelationsWithSchema(tableName, TestRelationRepository);
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareInsertQuery(builder, tableName, repository.schema, relations, query);
+    const { queries } = await prepareInsertQuery(builder, tableName, repository.schema, relations, input);
 
-    return builder.with(allQueries).build();
+    return builder.with(queries).build();
   };
 
   it('assert :: prepare empty relation (unique to primary)', async ({ assert }) => {

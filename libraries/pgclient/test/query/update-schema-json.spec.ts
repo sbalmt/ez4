@@ -19,13 +19,13 @@ type TestTableMetadata = {
 describe('update json schema', () => {
   const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    query: Query.UpdateManyInput<S, TestTableMetadata>
+    input: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery(builder, 'ez4-test-update-schema', schema, {}, query);
+    const { queries } = await prepareUpdateQuery(builder, 'ez4-test-update-schema', schema, {}, input);
 
-    return builder.with(allQueries).build();
+    return builder.with(queries).build();
   };
 
   it('assert :: prepare update schema (json boolean)', async ({ assert }) => {

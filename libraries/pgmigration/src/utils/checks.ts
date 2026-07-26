@@ -3,7 +3,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => {
   const [query] = builder
     .select()
-    .rawColumn('1')
+    .rawColumn(1)
     .from('pg_database')
     .where({
       datname: builder.rawString(database)
@@ -16,7 +16,7 @@ export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => 
 export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
-    .rawColumn('1')
+    .rawColumn(1)
     .from('pg_constraint')
     .where({
       conname: builder.rawString(name)
@@ -29,13 +29,13 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
 export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: string) => {
   const [query] = builder
     .select()
-    .rawColumn('1')
+    .rawColumn(1)
     .where({
       NOT: {
         exists: builder
           .select()
           .from(builder.rawValue('information_schema.columns'))
-          .rawColumn('1')
+          .rawColumn(1)
           .where({
             column_name: builder.rawString(column),
             table_name: builder.rawString(table)
@@ -50,7 +50,7 @@ export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: 
 export const getCheckConstraintValidatedQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
-    .rawColumn('1')
+    .rawColumn(1)
     .from('pg_constraint')
     .where({
       convalidated: builder.rawValue('true'),

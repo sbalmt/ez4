@@ -32,26 +32,31 @@ export class SqlColumnReference {
   #state: {
     source: SqlSource;
     column: string | SqlReferenceGenerator;
+    alias?: string;
   };
 
-  constructor(source: SqlSource, column: string | SqlReferenceGenerator) {
+  constructor(source: SqlSource, column: string | SqlReferenceGenerator, alias?: string) {
     this.#state = {
       source,
-      column
+      column,
+      alias
     };
   }
 
   build() {
-    const { source, column } = this.#state;
+    const { source, column, alias } = this.#state;
 
-    if (column instanceof Function) {
-      return column(source);
+    const result =
+      column instanceof Function
+        ? column(source)
+        : source.alias
+          ? mergeSqlAlias(escapeSqlName(column), source.alias)
+          : escapeSqlName(column);
+
+    if (alias) {
+      return `${result} AS ${escapeSqlName(alias)}`;
     }
 
-    if (source.alias) {
-      return mergeSqlAlias(escapeSqlName(column), source.alias);
-    }
-
-    return escapeSqlName(column);
+    return result;
   }
 }

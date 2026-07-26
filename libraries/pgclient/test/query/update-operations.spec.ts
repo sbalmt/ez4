@@ -54,9 +54,9 @@ describe('update operations', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const allQueries = await prepareUpdateQuery(builder, 'ez4-test-update-operation', testSchema, {}, { data });
+    const { queries } = await prepareUpdateQuery(builder, 'ez4-test-update-operation', testSchema, {}, { data });
 
-    return builder.with(allQueries).build();
+    return builder.with(queries).build();
   };
 
   it('assert :: prepare update operations (scalar increment)', async ({ assert }) => {

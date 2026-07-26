@@ -17,7 +17,7 @@ import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 
-import { detectFieldData, prepareFieldData, parseFieldRecords } from '../fields';
+import { detectFieldData, prepareFieldData, parseRecordsWithMetadata, parseRecordsWithColumns } from '../fields';
 import { isAuthenticationException, isDuplicateUniqueKeyException } from '../errors';
 import { logQueryError, logQuerySuccess } from '../logger';
 
@@ -40,10 +40,12 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
+        const { metadata } = statement;
+
         const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            includeResultMetadata: true,
+            includeResultMetadata: !metadata?.columns.length,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,
@@ -61,15 +63,25 @@ export class ApiClientDriver implements PgClientDriver {
           logQuerySuccess(statement, transactionId);
         }
 
-        if (!rawRecords || !columnMetadata) {
+        if (!rawRecords) {
           return {
             rows: numberOfRecordsUpdated,
             records: []
           };
         }
 
-        const records = parseFieldRecords(rawRecords, columnMetadata);
-        const metadata = statement.metadata;
+        const records = metadata?.columns
+          ? parseRecordsWithColumns(rawRecords, metadata.columns)
+          : columnMetadata
+            ? parseRecordsWithMetadata(rawRecords, columnMetadata)
+            : undefined;
+
+        if (!records) {
+          return {
+            rows: numberOfRecordsUpdated,
+            records: []
+          };
+        }
 
         if (metadata) {
           return {

@@ -1,5 +1,7 @@
 import type { SqlSource } from './source';
 
+import { escapeSqlName } from '../utils/escape';
+
 export type SqlRawGenerator = (statement?: SqlSource) => string;
 
 export abstract class SqlRaw {
@@ -27,6 +29,38 @@ export class SqlRawValue extends SqlRaw {
     }
 
     return value;
+  }
+}
+
+export class SqlRawColumn extends SqlRaw {
+  #state: {
+    value: unknown | SqlRawGenerator;
+    alias?: string;
+  };
+
+  constructor(value: unknown | SqlRawGenerator, alias?: string) {
+    super();
+
+    this.#state = {
+      value,
+      alias
+    };
+  }
+
+  get alias() {
+    return this.#state.alias;
+  }
+
+  build(source?: SqlSource) {
+    const { value, alias } = this.#state;
+
+    const result = value instanceof Function ? value(source) : value;
+
+    if (alias) {
+      return `${result} AS ${escapeSqlName(alias)}`;
+    }
+
+    return result;
   }
 }
 

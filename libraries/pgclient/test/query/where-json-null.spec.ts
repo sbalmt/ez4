@@ -23,7 +23,7 @@ describe('where json null', () => {
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const query = prepareSelectQuery(
+    const { query } = prepareSelectQuery(
       builder,
       'ez4-test-where-operation',
       TestSchema,

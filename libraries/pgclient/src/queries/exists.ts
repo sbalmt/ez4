@@ -6,22 +6,27 @@ import type { InternalTableMetadata } from '../types/table';
 
 import { getSelectFilters } from './select';
 
+const RAW_COLUMN_NAME = '__EZ4_EXISTS';
+
 export const prepareExistsQuery = <T extends InternalTableMetadata>(
   builder: SqlBuilder,
   table: string,
   schema: ObjectSchema,
   relations: PgRelationRepositoryWithSchema,
-  query: Query.CountInput<T>
+  input: Query.CountInput<T>
 ) => {
-  const existsQuery = builder.select(schema).from(table);
+  const query = builder.select(schema).from(table);
 
-  existsQuery.rawColumn('1 AS "__EZ4_EXISTS"');
+  query.rawColumn(1, RAW_COLUMN_NAME);
 
-  if (query.where) {
-    existsQuery.where(getSelectFilters(builder, query.where, relations, existsQuery, table));
+  if (input.where) {
+    query.where(getSelectFilters(builder, input.where, relations, query, table));
   }
 
-  existsQuery.take(1);
+  query.take(1);
 
-  return existsQuery;
+  return {
+    columns: [RAW_COLUMN_NAME],
+    query
+  };
 };
