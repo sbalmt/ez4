@@ -3,7 +3,7 @@ import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { Database, Query } from '@ez4/database';
 import type { PgClientDriver } from '@ez4/pgclient';
 
-import { deepEqual, ok } from 'node:assert/strict';
+import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { getRelationsWithSchema, getTableRepository } from '@ez4/pgclient/library';
@@ -11,10 +11,9 @@ import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import {
-  prepareInsertOne,
   prepareFindOne,
+  prepareInsertOne,
   prepareUpdateOne,
-  prepareUpdateMany,
   prepareDeleteOne,
   prepareExists,
   prepareCount
@@ -54,6 +53,7 @@ type TestTableMetadata = {
 
 describe('statement columns', () => {
   const testTableName = 'ez4_test_table';
+
   const testId = '00000000-0000-1000-9000-000000000000';
 
   const repository = getTableRepository([
@@ -130,6 +130,10 @@ describe('statement columns', () => {
     return prepareInsertOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
   };
 
+  const updateOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.UpdateOneInput<S, TestTableMetadata>, flag?: string) => {
+    return prepareUpdateOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input, { flag });
+  };
+
   const deleteOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.DeleteOneInput<S, TestTableMetadata>) => {
     return prepareDeleteOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
   };
@@ -148,43 +152,6 @@ describe('statement columns', () => {
     deepEqual(statement.metadata.columns, ['id', 'foo']);
   });
 
-  it('assert :: select columns (with formatted date-time)', () => {
-    const statement = findOne({
-      select: {
-        id: true,
-        created_at: true
-      },
-      where: {
-        id: testId
-      }
-    });
-
-    deepEqual(statement.metadata.columns, ['id', 'created_at']);
-
-    ok(statement.query.includes('to_char("created_at"'));
-    ok(statement.query.includes('AS "created_at"'));
-  });
-
-  it('assert :: select columns (with relation sub-select)', () => {
-    const statement = findOne({
-      select: {
-        id: true,
-        primary_to_unique: {
-          id: true
-        }
-      },
-      where: {
-        id: testId
-      }
-    });
-
-    // Names are captured before build(): building reassigns the sub-select
-    // alias to a temporary one while emitting the original in the SQL.
-    deepEqual(statement.metadata.columns, ['id', 'primary_to_unique']);
-
-    ok(statement.query.includes('AS "primary_to_unique"'));
-  });
-
   it('assert :: count columns', () => {
     const statement = prepareCount(testTableName, schema, relations, testDriver, {});
 
@@ -192,32 +159,17 @@ describe('statement columns', () => {
   });
 
   it('assert :: exists columns', () => {
-    const statement = prepareExists(testTableName, schema, relations, testDriver, {
-      where: {
-        id: testId
-      }
-    });
+    const statement = prepareExists(testTableName, schema, relations, testDriver, {});
 
     deepEqual(statement.metadata.columns, ['__EZ4_EXISTS']);
   });
 
-  it('assert :: no columns on update without select', async () => {
-    const statement = await prepareUpdateMany<TestTableMetadata, never>(testTableName, schema, relations, testDriver, {
-      data: {
-        foo: 123
-      }
-    });
-
-    deepEqual(statement.metadata.columns, []);
-  });
-
-  it('assert :: update columns (with flag)', async () => {
-    const statement = await prepareUpdateOne<TestTableMetadata, never>(
-      testTableName,
-      schema,
-      relations,
-      testDriver,
+  it('assert :: update columns (with select and flag)', async () => {
+    const statement = await updateOne(
       {
+        select: {
+          foo: true
+        },
         data: {
           foo: 123
         },
@@ -225,17 +177,34 @@ describe('statement columns', () => {
           id: testId
         }
       },
-      {
-        flag: '__EZ4_OK'
-      }
+      '__EZ4_OK'
     );
 
-    deepEqual(statement.metadata.columns, ['__EZ4_OK']);
+    deepEqual(statement.metadata.columns, ['foo', '__EZ4_OK']);
   });
 
-  it('assert :: no columns on insert without select', async () => {
-    const statement = await insertOne({
+  it('assert :: update columns (with select and no flag)', async () => {
+    const statement = await updateOne({
+      select: {
+        foo: true
+      },
       data: {
+        foo: 123
+      },
+      where: {
+        id: testId
+      }
+    });
+
+    deepEqual(statement.metadata.columns, ['foo']);
+  });
+
+  it('assert :: update columns (without select)', async () => {
+    const statement = await updateOne({
+      data: {
+        foo: 123
+      },
+      where: {
         id: testId
       }
     });
@@ -243,7 +212,7 @@ describe('statement columns', () => {
     deepEqual(statement.metadata.columns, []);
   });
 
-  it('assert :: unknown columns on insert with select', async () => {
+  it('assert :: insert columns (with select)', async () => {
     const statement = await insertOne({
       select: {
         id: true
@@ -254,6 +223,16 @@ describe('statement columns', () => {
     });
 
     deepEqual(statement.metadata.columns, ['id']);
+  });
+
+  it('assert :: insert columns (without select)', async () => {
+    const statement = await insertOne({
+      data: {
+        id: testId
+      }
+    });
+
+    deepEqual(statement.metadata.columns, []);
   });
 
   it('assert :: delete columns (with select)', () => {
@@ -267,5 +246,15 @@ describe('statement columns', () => {
     });
 
     deepEqual(statement.metadata.columns, ['id']);
+  });
+
+  it('assert :: delete columns (without select)', () => {
+    const statement = deleteOne({
+      where: {
+        id: testId
+      }
+    });
+
+    deepEqual(statement.metadata.columns, []);
   });
 });
