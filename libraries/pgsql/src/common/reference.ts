@@ -46,20 +46,17 @@ export class SqlColumnReference {
   build() {
     const { source, column, alias } = this.#state;
 
-    if (column instanceof Function) {
-      const result = column(source);
+    const result =
+      column instanceof Function
+        ? column(source)
+        : source.alias
+          ? mergeSqlAlias(escapeSqlName(column), source.alias)
+          : escapeSqlName(column);
 
-      if (alias) {
-        return `${result} AS ${escapeSqlName(alias)}`;
-      }
-
-      return result;
+    if (alias) {
+      return `${result} AS ${escapeSqlName(alias)}`;
     }
 
-    if (source.alias) {
-      return mergeSqlAlias(escapeSqlName(column), source.alias);
-    }
-
-    return escapeSqlName(column);
+    return result;
   }
 }

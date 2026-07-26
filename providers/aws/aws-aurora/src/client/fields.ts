@@ -84,23 +84,18 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
   }
 };
 
-export const parseFieldRecords = (records: Field[][], columns: ColumnMetadata[]): AnyObject[] => {
-  const names = columns.map(({ label, name }) => label ?? name ?? '');
+export const parseRecordsWithMetadata = (records: Field[][], metadata: ColumnMetadata[]): AnyObject[] => {
+  const columns = metadata.map(({ label, name }, index) => label ?? name ?? `${++index}`);
 
-  return parseFieldRecordsByNames(records, names);
+  return parseRecordsWithColumns(records, columns);
 };
 
-/**
- * Same as `parseFieldRecords`, but takes the output column names directly
- * (already known from the query builder) instead of the Data API's
- * `columnMetadata`, so the caller can skip requesting `includeResultMetadata`.
- */
-export const parseFieldRecordsByNames = (records: Field[][], names: string[]): AnyObject[] => {
+export const parseRecordsWithColumns = (records: Field[][], columns: string[]): AnyObject[] => {
   return records.map((record) => {
     const result: AnyObject = {};
 
-    for (let index = 0; index < names.length; index++) {
-      result[names[index]] = readFieldValue(record[index]);
+    for (let index = 0; index < columns.length; index++) {
+      result[columns[index]] = readFieldValue(record[index]);
     }
 
     return result;
