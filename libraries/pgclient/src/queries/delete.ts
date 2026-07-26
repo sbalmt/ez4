@@ -14,25 +14,24 @@ export const prepareDeleteQuery = <T extends InternalTableMetadata, S extends Qu
   input: Query.DeleteOneInput<S, T> | Query.DeleteManyInput<S, T>
 ) => {
   const query = builder.reset().delete(schema).from(table);
+  const columns = [];
 
   if (input.where) {
-    const selectFilter = getSelectFilters(builder, input.where, relations, query, table);
+    const filters = getSelectFilters(builder, input.where, relations, query, table);
 
-    query.where(selectFilter);
+    query.where(filters);
   }
 
   if (input.select) {
-    const selectRecord = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
+    const record = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
 
-    query.returning(selectRecord);
+    columns.push(...Object.keys(input.select));
 
-    return {
-      columns: Object.keys(selectRecord),
-      query
-    };
+    query.returning(record);
   }
 
   return {
+    columns,
     query
   };
 };

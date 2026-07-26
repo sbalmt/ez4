@@ -40,12 +40,12 @@ export class ApiClientDriver implements PgClientDriver {
 
     try {
       return await withRetryOnFailures(async () => {
-        const { columns } = statement;
+        const { metadata } = statement;
 
         const result = await client.send(
           new ExecuteStatementCommand({
             ...this.connection,
-            includeResultMetadata: !columns?.length,
+            includeResultMetadata: !metadata?.columns.length,
             continueAfterTimeout: options?.noTimeout,
             parameters: statement.variables,
             sql: statement.query,
@@ -70,8 +70,8 @@ export class ApiClientDriver implements PgClientDriver {
           };
         }
 
-        const records = columns
-          ? parseFieldRecordsByNames(rawRecords, columns)
+        const records = metadata?.columns
+          ? parseFieldRecordsByNames(rawRecords, metadata.columns)
           : columnMetadata
             ? parseFieldRecords(rawRecords, columnMetadata)
             : undefined;
@@ -82,8 +82,6 @@ export class ApiClientDriver implements PgClientDriver {
             records: []
           };
         }
-
-        const metadata = statement.metadata;
 
         if (metadata) {
           return {

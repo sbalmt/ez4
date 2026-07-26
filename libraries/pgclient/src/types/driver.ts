@@ -10,15 +10,15 @@ export type PgExecuteOptions = {
 };
 
 export type PgStatementMetadata = {
-  table: string;
-  relations: PgRelationRepositoryWithSchema;
   schema: ObjectSchema;
+  relations: PgRelationRepositoryWithSchema;
+  columns: string[];
+  table: string;
 };
 
 export type PgExecuteStatement = {
   metadata?: PgStatementMetadata;
   variables?: any[];
-  columns?: string[];
   query: string;
 };
 

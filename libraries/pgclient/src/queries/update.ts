@@ -78,8 +78,8 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     queries.push(
       builder
         .select()
-        .columns(...columns)
         .from(firstQuery.reference())
+        .columns(...columns)
     );
   }
 

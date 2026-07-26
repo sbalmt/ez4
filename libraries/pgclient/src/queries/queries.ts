@@ -1,8 +1,8 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { Query } from '@ez4/database';
 import type { PgRelationRepositoryWithSchema } from '../types/repository';
-import type { PgClientDriver, PgExecuteStatement } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
+import type { PgClientDriver } from '../types/driver';
 import type { UpdateQueryOptions } from './update';
 
 import { createQueryBuilder } from '../utils/builder';
@@ -20,7 +20,7 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   relations: PgRelationRepositoryWithSchema,
   driver: PgClientDriver,
   input: Query.InsertOneInput<S, T>
-): Promise<PgExecuteStatement> => {
+) => {
   const builder = createQueryBuilder(driver);
 
   const { queries, columns } = await prepareInsertQuery(builder, table, schema, relations, input);
@@ -30,11 +30,11 @@ export const prepareInsertOne = async <T extends InternalTableMetadata, S extend
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -55,11 +55,11 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -81,11 +81,11 @@ export const prepareUpdateOne = async <T extends InternalTableMetadata, S extend
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -106,11 +106,11 @@ export const prepareDeleteOne = <T extends InternalTableMetadata, S extends Quer
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -135,11 +135,11 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
       return {
         query: statement,
         variables,
-        columns,
         metadata: {
-          table,
+          schema,
           relations,
-          schema
+          columns,
+          table
         }
       };
     })
@@ -162,11 +162,11 @@ export const prepareFindMany = <T extends InternalTableMetadata, S extends Query
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -187,11 +187,11 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -212,11 +212,11 @@ export const prepareDeleteMany = <T extends InternalTableMetadata, S extends Que
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -237,11 +237,11 @@ export const prepareExists = <T extends InternalTableMetadata>(
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };
@@ -262,11 +262,11 @@ export const prepareCount = <T extends InternalTableMetadata>(
   return {
     query: statement,
     variables,
-    columns,
     metadata: {
-      table,
+      schema,
       relations,
-      schema
+      columns,
+      table
     }
   };
 };

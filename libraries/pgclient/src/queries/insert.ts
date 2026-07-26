@@ -62,6 +62,8 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     .map(({ relationQueries }) => relationQueries)
     .flat();
 
+  const columns = [];
+
   const queries: (SqlSelectStatement | SqlInsertStatement | SqlUpdateStatement)[] = [
     ...preInsertQueries,
     insertQuery,
@@ -74,16 +76,14 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
 
     const selectRecord = getInsertSelectFields(builder, input.select, schema, allRelations, insertQuery, selectQuery, table);
 
+    columns.push(...Object.keys(selectRecord));
+
     selectQuery.record(selectRecord);
     queries.push(selectQuery);
-
-    return {
-      columns: Object.keys(selectRecord),
-      queries
-    };
   }
 
   return {
+    columns,
     queries
   };
 };

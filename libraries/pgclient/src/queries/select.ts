@@ -20,9 +20,9 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   input: Query.FindOneInput<S, T> | Query.FindManyInput<S, C, T>
 ) => {
   const query = builder.select(schema).from(table);
-  const selectRecord = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
+  const record = getSelectFields(builder, input.select, input.include, schema, relations, query, table);
 
-  query.record(selectRecord);
+  query.record(record);
 
   if (input.where) {
     query.where(getSelectFilters(builder, input.where, relations, query, table));
@@ -45,7 +45,7 @@ export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Qu
   }
 
   return {
-    columns: Object.keys(selectRecord),
+    columns: Object.keys(record),
     query
   };
 };

@@ -145,7 +145,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, ['id', 'foo']);
+    deepEqual(statement.metadata.columns, ['id', 'foo']);
   });
 
   it('assert :: select columns (with formatted date-time)', () => {
@@ -159,7 +159,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, ['id', 'created_at']);
+    deepEqual(statement.metadata.columns, ['id', 'created_at']);
 
     ok(statement.query.includes('to_char("created_at"'));
     ok(statement.query.includes('AS "created_at"'));
@@ -180,7 +180,7 @@ describe('statement columns', () => {
 
     // Names are captured before build(): building reassigns the sub-select
     // alias to a temporary one while emitting the original in the SQL.
-    deepEqual(statement.columns, ['id', 'primary_to_unique']);
+    deepEqual(statement.metadata.columns, ['id', 'primary_to_unique']);
 
     ok(statement.query.includes('AS "primary_to_unique"'));
   });
@@ -188,7 +188,7 @@ describe('statement columns', () => {
   it('assert :: count columns', () => {
     const statement = prepareCount(testTableName, schema, relations, testDriver, {});
 
-    deepEqual(statement.columns, ['__EZ4_COUNT']);
+    deepEqual(statement.metadata.columns, ['__EZ4_COUNT']);
   });
 
   it('assert :: exists columns', () => {
@@ -198,7 +198,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, ['__EZ4_EXISTS']);
+    deepEqual(statement.metadata.columns, ['__EZ4_EXISTS']);
   });
 
   it('assert :: no columns on update without select', async () => {
@@ -208,7 +208,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, []);
+    deepEqual(statement.metadata.columns, []);
   });
 
   it('assert :: update columns (with flag)', async () => {
@@ -230,7 +230,7 @@ describe('statement columns', () => {
       }
     );
 
-    deepEqual(statement.columns, ['__EZ4_OK']);
+    deepEqual(statement.metadata.columns, ['__EZ4_OK']);
   });
 
   it('assert :: no columns on insert without select', async () => {
@@ -240,7 +240,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, undefined);
+    deepEqual(statement.metadata.columns, []);
   });
 
   it('assert :: unknown columns on insert with select', async () => {
@@ -253,7 +253,7 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, ['id']);
+    deepEqual(statement.metadata.columns, ['id']);
   });
 
   it('assert :: delete columns (with select)', () => {
@@ -266,6 +266,6 @@ describe('statement columns', () => {
       }
     });
 
-    deepEqual(statement.columns, ['id']);
+    deepEqual(statement.metadata.columns, ['id']);
   });
 });
