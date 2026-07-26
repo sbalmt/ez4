@@ -167,7 +167,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn, !json ? fieldKey : undefined);
     } else {
-      output[fieldKey] = source.reference(fieldKey);
+      output[fieldKey] = true;
     }
   }
 

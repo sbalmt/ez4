@@ -59,11 +59,6 @@ export class SqlJsonColumn {
     };
   }
 
-  get label() {
-    const { alias, column } = this.#state;
-    return alias ?? column;
-  }
-
   build() {
     const { record, source, references, aggregate, order, column, alias, raw } = this.#state;
 

@@ -74,11 +74,11 @@ export const prepareInsertQuery = async <T extends InternalTableMetadata, S exte
     const allRelations = { ...relations, ...preInsertQueriesMap, ...postInsertQueriesMap };
     const selectQuery = builder.select().from(insertQuery.reference());
 
-    const selectRecord = getInsertSelectFields(builder, input.select, schema, allRelations, insertQuery, selectQuery, table);
+    const record = getInsertSelectFields(builder, input.select, schema, allRelations, insertQuery, selectQuery, table);
 
-    columns.push(...Object.keys(selectRecord));
+    columns.push(...Object.keys(record));
 
-    selectQuery.record(selectRecord);
+    selectQuery.record(record);
     queries.push(selectQuery);
   }
 
@@ -440,7 +440,7 @@ const getInsertSelectFields = (
     if (fieldColumn instanceof Function) {
       output[fieldKey] = source.reference(fieldColumn, !json ? fieldKey : undefined);
     } else {
-      output[fieldKey] = source.reference(fieldKey);
+      output[fieldKey] = true;
     }
   }
 
