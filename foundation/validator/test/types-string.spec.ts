@@ -4,7 +4,7 @@ import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { SchemaType } from '@ez4/schema';
-import { ExpectedStringTypeError } from '@ez4/validator';
+import { createValidatorContext, ExpectedStringTypeError } from '@ez4/validator';
 import { validate } from '@ez4/validator';
 
 import { assertError } from './common';
@@ -31,6 +31,19 @@ describe('string type validation', () => {
     };
 
     equal((await validate(undefined, schema)).length, 0);
+  });
+
+  it('assert :: string (cast)', async () => {
+    const context = createValidatorContext({ cast: true });
+
+    const schema: AnySchema = {
+      type: SchemaType.String
+    };
+
+    equal((await validate(123, schema, context)).length, 0);
+    equal((await validate(1.23, schema, context)).length, 0);
+    equal((await validate(false, schema, context)).length, 0);
+    equal((await validate(true, schema, context)).length, 0);
   });
 
   it('assert :: string errors', async () => {

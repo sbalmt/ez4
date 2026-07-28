@@ -2,7 +2,7 @@ import type { StringSchema } from '@ez4/schema';
 import type { StringFormatHandler } from '../types/string';
 import type { ValidationContext } from '../types/context';
 
-import { isAnyNumber, isNotNullish } from '@ez4/utils';
+import { isAnyBoolean, isAnyNumber, isAnyString, isNotNullish } from '@ez4/utils';
 
 import { DuplicateStringFormatError } from '../errors/format';
 import { ExpectedStringTypeError, UnexpectedMaxLengthError, UnexpectedMinLengthError, UnexpectedStringError } from '../errors/string';
@@ -15,37 +15,48 @@ const isDefaultAllowed = (value: unknown, schema: StringSchema) => {
   return value === undefined && isNotNullish(schema.definitions?.default);
 };
 
+const getValidationInput = (value: unknown, trim?: boolean, context?: ValidationContext) => {
+  if (context?.cast && (isAnyNumber(value) || isAnyBoolean(value))) {
+    return value.toString();
+  }
+
+  if (trim && isAnyString(value)) {
+    return value.trim();
+  }
+
+  return value;
+};
+
 export const validateString = async (value: unknown, schema: StringSchema, context?: ValidationContext) => {
   if (isNullishAllowed(value, schema) || isDefaultAllowed(value, schema)) {
     return [];
   }
 
+  const definitions = schema.definitions;
+
+  const string = getValidationInput(value, definitions?.trim, context);
   const property = context?.property;
 
-  if (typeof value !== 'string') {
+  if (!isAnyString(string)) {
     return [new ExpectedStringTypeError(value, property)];
   }
 
-  const definitions = schema.definitions;
-
-  const input = definitions?.trim ? value.trim() : value;
-
-  if (definitions?.value && input !== definitions.value) {
+  if (definitions?.value && string !== definitions.value) {
     return [new UnexpectedStringError(value, definitions.value, property)];
   }
 
-  if (isAnyNumber(definitions?.minLength) && input.length < definitions.minLength) {
+  if (isAnyNumber(definitions?.minLength) && string.length < definitions.minLength) {
     return [new UnexpectedMinLengthError(value, definitions.minLength, property)];
   }
 
-  if (isAnyNumber(definitions?.maxLength) && input.length > definitions.maxLength) {
+  if (isAnyNumber(definitions?.maxLength) && string.length > definitions.maxLength) {
     return [new UnexpectedMaxLengthError(value, definitions.maxLength, property)];
   }
 
-  const allErrors = await validateStringFormat(input, schema, property);
+  const allErrors = await validateStringFormat(string, schema, property);
 
   if (!allErrors.length && definitions?.types && context) {
-    return useCustomValidation(value, schema, definitions.types, context);
+    return useCustomValidation(string, schema, definitions.types, context);
   }
 
   return allErrors;

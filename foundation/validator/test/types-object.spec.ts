@@ -115,6 +115,7 @@ describe('object type validation', () => {
       }
     };
 
+    equal((await validate({ '1': 'foo', '2': 'bar' }, schema)).length, 0);
     equal((await validate({ 1: 'foo', 2: 'bar' }, schema)).length, 0);
   });
 
