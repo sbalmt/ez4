@@ -14,6 +14,7 @@ export type ValidationContext = {
   pathStyle?: NamingStyle;
   inputStyle?: NamingStyle;
   property?: string;
+  cast?: boolean;
   depth: number;
 };
 
@@ -22,6 +23,7 @@ export type ValidationContextOptions = {
   pathStyle?: NamingStyle;
   inputStyle?: NamingStyle;
   property?: string;
+  cast?: boolean;
   depth?: number;
 };
 
@@ -32,6 +34,7 @@ export const createValidatorContext = (options?: ValidationContextOptions): Vali
     pathStyle: options?.pathStyle,
     inputStyle: options?.inputStyle,
     property: options?.property,
+    cast: options?.cast,
     references: {}
   };
 };

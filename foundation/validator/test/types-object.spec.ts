@@ -100,6 +100,24 @@ describe('object type validation', () => {
     equal((await validate(value, schema)).length, 0);
   });
 
+  it('assert :: object (additional fields)', async () => {
+    const schema: AnySchema = {
+      type: SchemaType.Object,
+      identity: 1,
+      properties: {},
+      additional: {
+        property: {
+          type: SchemaType.Number
+        },
+        value: {
+          type: SchemaType.String
+        }
+      }
+    };
+
+    equal((await validate({ 1: 'foo', 2: 'bar' }, schema)).length, 0);
+  });
+
   it('assert :: object errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Object,

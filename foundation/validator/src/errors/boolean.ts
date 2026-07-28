@@ -7,7 +7,7 @@ export class ExpectedBooleanTypeError extends UnexpectedTypeError {
 }
 
 export class UnexpectedBooleanError extends UnexpectedValueError {
-  constructor(inputValue: boolean, expectedValue: boolean, propertyName?: string) {
+  constructor(inputValue: unknown, expectedValue: boolean, propertyName?: string) {
     super(`${expectedValue}`, propertyName, expectedValue, inputValue);
   }
 }

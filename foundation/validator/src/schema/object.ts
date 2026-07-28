@@ -71,7 +71,11 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     const { property: propertyNameSchema, value: propertyValueSchema } = schema.additional;
 
     for (const propertyKey of allProperties) {
-      const propertyErrors = await validateAny(propertyKey, propertyNameSchema);
+      const propertyErrors = await validateAny(propertyKey, propertyNameSchema, {
+        references,
+        cast: true,
+        depth: 1
+      });
 
       if (!propertyErrors.length) {
         allProperties.delete(propertyKey);

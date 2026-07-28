@@ -4,7 +4,7 @@ import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { SchemaType } from '@ez4/schema';
-import { ExpectedBooleanTypeError } from '@ez4/validator';
+import { createValidatorContext, ExpectedBooleanTypeError } from '@ez4/validator';
 import { validate } from '@ez4/validator';
 
 import { assertError } from './common';
@@ -33,6 +33,17 @@ describe('boolean type validation', () => {
     equal((await validate(undefined, schema)).length, 0);
   });
 
+  it('assert :: boolean (cast)', async () => {
+    const context = createValidatorContext({ cast: true });
+
+    const schema: AnySchema = {
+      type: SchemaType.Boolean
+    };
+
+    equal((await validate('true', schema, context)).length, 0);
+    equal((await validate('false', schema, context)).length, 0);
+  });
+
   it('assert :: boolean errors', async () => {
     const schema: AnySchema = {
       type: SchemaType.Boolean
@@ -40,6 +51,8 @@ describe('boolean type validation', () => {
 
     await assertError(null, schema, [ExpectedBooleanTypeError]);
     await assertError(undefined, schema, [ExpectedBooleanTypeError]);
+    await assertError('true', schema, [ExpectedBooleanTypeError]);
+    await assertError('false', schema, [ExpectedBooleanTypeError]);
     await assertError(1, schema, [ExpectedBooleanTypeError]);
     await assertError(0, schema, [ExpectedBooleanTypeError]);
   });
