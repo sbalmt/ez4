@@ -9,7 +9,7 @@ import { TestSchema } from './common/schema';
 
 describe('dynamodb query (update)', () => {
   it('assert :: prepare update', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
       data: {
         foo: 456
       },
@@ -24,7 +24,7 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (to null)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
       data: {
         foo: null,
         bar: {
@@ -33,13 +33,25 @@ describe('dynamodb query (update)', () => {
       }
     });
 
-    equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barFoo" = ?`);
+    equal(statement, `UPDATE "ez4-test-update" SET "foo" = null SET "bar"."barFoo" = ?`);
 
-    deepEqual(variables, [null, 'abc']);
+    deepEqual(variables, ['abc']);
+  });
+
+  it('assert :: prepare update (to null on index)', async () => {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [['id', 'foo']], {
+      data: {
+        foo: null
+      }
+    });
+
+    equal(statement, `UPDATE "ez4-test-update" REMOVE "foo"`);
+
+    deepEqual(variables, []);
   });
 
   it('assert :: prepare update (json additional field)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
       data: {
         additional: {
           1: 'foo',
@@ -54,7 +66,7 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (with select)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
       select: {
         foo: true,
         bar: {

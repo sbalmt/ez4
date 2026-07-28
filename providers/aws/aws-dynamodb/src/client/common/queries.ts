@@ -52,9 +52,10 @@ export const prepareFindOne = <T extends InternalTableMetadata, S extends Query.
 export const prepareUpdateOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
+  indexes: string[][],
   query: Query.UpdateOneInput<S, T>
 ): Promise<ExecuteStatementCommandInput> => {
-  const [statement, variables] = await prepareUpdate(table, schema, query);
+  const [statement, variables] = await prepareUpdate(table, schema, indexes, query);
 
   return {
     Statement: statement,
@@ -173,7 +174,7 @@ export const prepareUpdateMany = async <T extends InternalTableMetadata, S exten
     records.map(async (record) => {
       const { [partitionKey]: partitionId, [sortKey]: sortId } = record;
 
-      const [statement, variables] = await prepareUpdate(table, schema, {
+      const [statement, variables] = await prepareUpdate(table, schema, indexes, {
         data: query.data,
         where: {
           ...(sortKey && { [sortKey]: sortId }),

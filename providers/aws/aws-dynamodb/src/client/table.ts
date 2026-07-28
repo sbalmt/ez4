@@ -54,7 +54,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async updateOne<S extends Query.SelectInput<T>>(query: Query.UpdateOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const statement = await prepareUpdateOne(this.name, this.schema, query);
+    const statement = await prepareUpdateOne(this.name, this.schema, this.indexes, query);
 
     try {
       const { records } = await executeStatement(client, statement, debug);
@@ -62,12 +62,12 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
       const [firstRecord] = getTransformedRecords(records, this.schema, query.select);
 
       return firstRecord;
-    } catch (e) {
-      if (!(e instanceof ConditionalCheckFailedException)) {
-        throw e;
+    } catch (error) {
+      if (error instanceof ConditionalCheckFailedException) {
+        return undefined;
       }
 
-      return undefined;
+      throw error;
     }
   }
 
