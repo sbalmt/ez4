@@ -38,6 +38,21 @@ describe('dynamodb query (update)', () => {
     deepEqual(variables, [null, 'abc']);
   });
 
+  it('assert :: prepare update (json additional field)', async () => {
+    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
+      data: {
+        additional: {
+          1: 'foo',
+          2: 'bar'
+        }
+      }
+    });
+
+    equal(statement, `UPDATE "ez4-test-update" SET "additional"."1" = ? SET "additional"."2" = ?`);
+
+    deepEqual(variables, ['foo', 'bar']);
+  });
+
   it('assert :: prepare update (with select)', async () => {
     const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, {
       select: {

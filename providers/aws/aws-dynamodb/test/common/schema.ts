@@ -21,6 +21,9 @@ export type TestTableMetadata = {
       nestedA: string;
       nestedB: number;
     };
+    additional?: {
+      [key: number]: string;
+    };
   };
 };
 
@@ -70,6 +73,18 @@ export const TestSchema: ObjectSchema = {
           nestedB: {
             type: SchemaType.Boolean
           }
+        }
+      }
+    },
+    additional: {
+      type: SchemaType.Object,
+      properties: {},
+      additional: {
+        property: {
+          type: SchemaType.Number
+        },
+        value: {
+          type: SchemaType.String
         }
       }
     }
