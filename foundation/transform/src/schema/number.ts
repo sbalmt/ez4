@@ -10,7 +10,7 @@ export const transformNumber = (value: unknown, schema: NumberSchema, context = 
     return definitions?.default;
   }
 
-  const result = getBooleanValue(value, context);
+  const result = getNumberValue(value, context);
 
   if (definitions?.value !== undefined && definitions.value !== result && !context.return) {
     return undefined;
@@ -19,7 +19,7 @@ export const transformNumber = (value: unknown, schema: NumberSchema, context = 
   return result;
 };
 
-const getBooleanValue = (value: unknown, context: TransformContext) => {
+const getNumberValue = (value: unknown, context: TransformContext) => {
   if (typeof value === 'number') {
     return value;
   }
