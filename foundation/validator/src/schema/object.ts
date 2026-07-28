@@ -31,13 +31,13 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
     references[schema.identity] = schema;
   }
 
-  const objectValue = definitions?.encoded ? tryDecodeBase64Json(value) : value;
+  const input = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
-  if (!isAnyObject(objectValue)) {
-    return [new ExpectedObjectTypeError(objectValue, parentProperty)];
+  if (!isAnyObject(input)) {
+    return [new ExpectedObjectTypeError(input, parentProperty)];
   }
 
-  const allProperties = new Set(Object.keys(objectValue));
+  const allProperties = new Set(Object.keys(input));
   const allErrors: Error[] = [];
 
   for (const propertyKey in schema.properties) {
@@ -47,7 +47,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       const propertyPath = getPropertyName(propertyKey, pathStyle);
 
       const propertySchema = schema.properties[propertyKey];
-      const propertyValue = objectValue[propertyName];
+      const propertyValue = input[propertyName];
 
       const errorList = await validateAny(propertyValue, propertySchema, {
         ...currentContext,
@@ -83,7 +83,7 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
 
       if (depth > 0) {
         const propertyName = preservePropertyName ? propertyKey : getPropertyName(propertyKey, pathStyle);
-        const propertyValue = objectValue[propertyKey];
+        const propertyValue = input[propertyKey];
 
         const valueErrors = await validateAny(propertyValue, propertyValueSchema, {
           ...currentContext,
@@ -104,11 +104,11 @@ export const validateObject = async (value: unknown, schema: ObjectSchema, conte
       return preservePropertyName ? propertyKey : getPropertyPath(propertyKey, parentProperty);
     });
 
-    allErrors.push(new UnexpectedPropertiesError(extraProperties, parentProperty, objectValue));
+    allErrors.push(new UnexpectedPropertiesError(extraProperties, parentProperty, input));
   }
 
   if (!allErrors.length && definitions?.types && context) {
-    return useCustomValidation(value, schema, definitions.types, context);
+    return useCustomValidation(input, schema, definitions.types, context);
   }
 
   return allErrors;

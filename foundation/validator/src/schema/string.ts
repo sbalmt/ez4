@@ -34,29 +34,29 @@ export const validateString = async (value: unknown, schema: StringSchema, conte
 
   const definitions = schema.definitions;
 
-  const string = getValidationInput(value, definitions?.trim, context);
+  const input = getValidationInput(value, definitions?.trim, context);
   const property = context?.property;
 
-  if (!isAnyString(string)) {
+  if (!isAnyString(input)) {
     return [new ExpectedStringTypeError(value, property)];
   }
 
-  if (definitions?.value && string !== definitions.value) {
+  if (definitions?.value && input !== definitions.value) {
     return [new UnexpectedStringError(value, definitions.value, property)];
   }
 
-  if (isAnyNumber(definitions?.minLength) && string.length < definitions.minLength) {
+  if (isAnyNumber(definitions?.minLength) && input.length < definitions.minLength) {
     return [new UnexpectedMinLengthError(value, definitions.minLength, property)];
   }
 
-  if (isAnyNumber(definitions?.maxLength) && string.length > definitions.maxLength) {
+  if (isAnyNumber(definitions?.maxLength) && input.length > definitions.maxLength) {
     return [new UnexpectedMaxLengthError(value, definitions.maxLength, property)];
   }
 
-  const allErrors = await validateStringFormat(string, schema, property);
+  const allErrors = await validateStringFormat(input, schema, property);
 
   if (!allErrors.length && definitions?.types && context) {
-    return useCustomValidation(string, schema, definitions.types, context);
+    return useCustomValidation(input, schema, definitions.types, context);
   }
 
   return allErrors;

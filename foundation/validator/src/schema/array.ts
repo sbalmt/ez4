@@ -21,26 +21,26 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
   const { property, depth, ...currentContext } = context;
   const { definitions } = schema;
 
-  const arrayValues = definitions?.encoded ? tryDecodeBase64Json(value) : value;
+  const input = definitions?.encoded ? tryDecodeBase64Json(value) : value;
 
-  if (!(arrayValues instanceof Array)) {
-    return [new ExpectedArrayTypeError(arrayValues, property)];
+  if (!(input instanceof Array)) {
+    return [new ExpectedArrayTypeError(input, property)];
   }
 
   const allErrors: Error[] = [];
 
-  if (isAnyNumber(definitions?.minLength) && arrayValues.length < definitions.minLength) {
-    allErrors.push(new UnexpectedMinItemsError(arrayValues, definitions.minLength, property));
+  if (isAnyNumber(definitions?.minLength) && input.length < definitions.minLength) {
+    allErrors.push(new UnexpectedMinItemsError(input, definitions.minLength, property));
   }
 
-  if (isAnyNumber(definitions?.maxLength) && arrayValues.length > definitions.maxLength) {
-    allErrors.push(new UnexpectedMaxItemsError(arrayValues, definitions.maxLength, property));
+  if (isAnyNumber(definitions?.maxLength) && input.length > definitions.maxLength) {
+    allErrors.push(new UnexpectedMaxItemsError(input, definitions.maxLength, property));
   }
 
   if (depth > 0) {
     let index = 0;
 
-    for (const elementValue of arrayValues) {
+    for (const elementValue of input) {
       const elementProperty = `${property}.${index++}`;
       const elementSchema = schema.element;
 
@@ -55,7 +55,7 @@ export const validateArray = async (value: unknown, schema: ArraySchema, context
   }
 
   if (!allErrors.length && definitions?.types && context) {
-    return useCustomValidation(value, schema, definitions?.types, context);
+    return useCustomValidation(input, schema, definitions?.types, context);
   }
 
   return allErrors;
