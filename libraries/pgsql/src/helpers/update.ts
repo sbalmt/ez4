@@ -3,7 +3,7 @@ import type { SqlBuilderOptions, SqlBuilderReferences } from '../builder';
 import type { SqlSource } from '../common/source';
 import type { SqlRecord } from '../common/types';
 
-import { getSchemaProperty, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
+import { getSchemaProperty, isDynamicObjectSchema, isNullishSchema, isObjectSchema, isUnionSchema, SchemaType } from '@ez4/schema';
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
@@ -71,7 +71,7 @@ export const getUpdateColumns = (
 
     if (isPlainObject(value)) {
       const innerSchema = fieldSchema && (isObjectSchema(fieldSchema) || isUnionSchema(fieldSchema)) ? fieldSchema : undefined;
-      const mustCombine = coalesce || !fieldSchema || (innerSchema && isNullishSchema(innerSchema));
+      const mustCombine = coalesce || !fieldSchema || (innerSchema && isDynamicObjectColumn(innerSchema));
 
       const columnName = mergeSqlPath(fieldName, parent);
       const columnPath = mergeSqlAlias(columnName, source.alias);
@@ -143,6 +143,10 @@ export const getUpdateColumns = (
   }
 
   return columns;
+};
+
+const isDynamicObjectColumn = (schema: ObjectSchema | UnionSchema): boolean => {
+  return isNullishSchema(schema) || (isObjectSchema(schema) && isDynamicObjectSchema(schema));
 };
 
 const isJsonRemoveOperator = (operand: string) => {

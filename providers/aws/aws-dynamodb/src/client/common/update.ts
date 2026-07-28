@@ -7,7 +7,7 @@ import { InvalidAtomicOperation, InvalidFieldSchemaError } from '@ez4/aws-dynamo
 import { getOptionalSchema, getSchemaProperty, isNumberSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { isAnyObject, isNullish } from '@ez4/utils';
 
-import { getWithSchemaValidation, isDynamicFieldSchema, validateRecordSchema } from './schema';
+import { getWithSchemaValidation, isDynamicObjectField, isDynamicUnionField, validateRecordSchema } from './schema';
 import { prepareWhereFields } from './where';
 
 type PrepareResult = [string, unknown[]];
@@ -50,12 +50,17 @@ const prepareUpdateFields = async (data: AnyObject, schema: ObjectSchema | Union
 
     const fieldSchema = getSchemaProperty(schema, fieldKey);
 
-    // Skip values that aren't mapped in the table schema.
+    const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
+
+    // Skip values that aren't mapped and isn't part of any dynamic table schema.
     if (!fieldSchema) {
+      if (isDynamicUnionField(schema)) {
+        operations.push(`SET ${fieldPath}" = ?`);
+        variables.push(fieldValue);
+      }
+
       continue;
     }
-
-    const fieldPath = path ? `${path}."${fieldKey}"` : `"${fieldKey}"`;
 
     if (!isAnyObject(fieldValue)) {
       operations.push(`SET ${fieldPath} = ?`);
@@ -87,14 +92,14 @@ const prepareUpdateFields = async (data: AnyObject, schema: ObjectSchema | Union
       continue;
     }
 
-    if (isDynamicFieldSchema(fieldSchema)) {
-      const nestedValues = await getWithSchemaValidation<AnyObject>(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
+    if (isDynamicObjectField(fieldSchema)) {
+      const dynamicValues = await getWithSchemaValidation<AnyObject>(fieldValue, getOptionalSchema(fieldSchema), fieldPath);
 
-      for (const nestedKey in nestedValues) {
-        const value = nestedValues[nestedKey];
+      for (const dynamicField in dynamicValues) {
+        const value = dynamicValues[dynamicField];
 
         if (value !== undefined) {
-          operations.push(`SET ${fieldPath}."${nestedKey}" = ?`);
+          operations.push(`SET ${fieldPath}."${dynamicField}" = ?`);
           variables.push(value);
         }
       }

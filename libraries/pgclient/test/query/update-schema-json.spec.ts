@@ -274,7 +274,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [123]);
   });
 
-  it('assert :: prepare update schema (json additional field)', async ({ assert }) => {
+  it('assert :: prepare update schema (json additional string properties)', async ({ assert }) => {
     const [statement, variables] = await prepareUpdate(
       {
         type: SchemaType.Object,
@@ -303,9 +303,49 @@ describe('update json schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['foo'] = :0, "json"['bar'] = :1`);
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "json" = COALESCE("json", '{}'::jsonb) || jsonb_build_object('foo', :0, 'bar', :1)`
+    );
 
     assert.deepEqual(variables, [123, 456]);
+  });
+
+  it('assert :: prepare update schema (json additional numeric properties)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {},
+            additional: {
+              property: {
+                type: SchemaType.Number
+              },
+              value: {
+                type: SchemaType.String
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            123: 'foo',
+            456: 'bar'
+          }
+        }
+      }
+    );
+
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "json" = COALESCE("json", '{}'::jsonb) || jsonb_build_object('123', :0, '456', :1)`
+    );
+
+    assert.deepEqual(variables, ['foo', 'bar']);
   });
 
   it('assert :: prepare update schema (json additional nullish field)', async ({ assert }) => {
@@ -372,7 +412,10 @@ describe('update json schema', () => {
       }
     );
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['foo'] = :0, "json"['bar'] = :1, "json"['baz'] = :2`);
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "json" = COALESCE("json", '{}'::jsonb) || jsonb_build_object('foo', :0, 'bar', :1, 'baz', :2)`
+    );
 
     assert.deepEqual(variables, [123, 'bar', true]);
   });
@@ -469,6 +512,59 @@ describe('update json schema', () => {
                 qux: {
                   type: SchemaType.Number
                 }
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const [statementA, variablesA] = await prepareUpdate(schema, {
+      data: {
+        json: {
+          foo: 123
+        }
+      }
+    });
+
+    const [statementB, variablesB] = await prepareUpdate(schema, {
+      data: {
+        json: {
+          baz: 'abc'
+        }
+      }
+    });
+
+    assert.equal(statementA, `UPDATE ONLY "ez4-test-update-schema" SET "json"['foo'] = :0`);
+    assert.equal(statementB, `UPDATE ONLY "ez4-test-update-schema" SET "json"['baz'] = :0`);
+
+    assert.deepEqual(variablesA, [123]);
+    assert.deepEqual(variablesB, ['abc']);
+  });
+
+  it('assert :: prepare update schema (json union with dynamic fields)', async ({ assert }) => {
+    const schema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        json: {
+          type: SchemaType.Union,
+          elements: [
+            {
+              type: SchemaType.Object,
+              properties: {
+                foo: {
+                  type: SchemaType.Number
+                },
+                bar: {
+                  type: SchemaType.String
+                }
+              }
+            },
+            {
+              type: SchemaType.Object,
+              properties: {},
+              definitions: {
+                extensible: true
               }
             }
           ]

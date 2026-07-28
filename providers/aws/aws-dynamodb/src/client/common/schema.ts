@@ -1,14 +1,18 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 
-import { isDynamicObjectSchema, isObjectSchema } from '@ez4/schema';
+import { isDynamicObjectSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
 import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
 import { MalformedRequestError } from '@ez4/aws-dynamodb/runtime';
 import { isAnyObject, deepClone } from '@ez4/utils';
 
-export const isDynamicFieldSchema = (schema: AnySchema): schema is ObjectSchema => {
+export const isDynamicObjectField = (schema: AnySchema): schema is ObjectSchema => {
   return isObjectSchema(schema) && isDynamicObjectSchema(schema);
+};
+
+export const isDynamicUnionField = (schema: AnySchema): boolean => {
+  return isUnionSchema(schema) && schema.elements.some((element) => isDynamicObjectField(element) || isDynamicUnionField(element));
 };
 
 export const validateRecordSchema = async (data: unknown, schema: AnySchema, path: string) => {
