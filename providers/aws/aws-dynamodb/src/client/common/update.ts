@@ -63,7 +63,7 @@ const prepareUpdateFields = async (
     // Skip values that aren't mapped and isn't part of any dynamic table schema.
     if (!fieldSchema) {
       if (isDynamicUnionField(schema)) {
-        operations.push(`SET ${fieldPath}" = ?`);
+        operations.push(`SET ${fieldPath} = ?`);
         variables.push(fieldValue);
       }
 
@@ -83,7 +83,7 @@ const prepareUpdateFields = async (
 
     if (!isAnyObject(fieldValue)) {
       operations.push(`SET ${fieldPath} = ?`);
-      variables.push(fieldValue);
+      variables.push(await getWithSchemaValidation(fieldValue, fieldSchema, fieldPath));
       continue;
     }
 

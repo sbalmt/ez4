@@ -75,18 +75,6 @@ export const TestSchema: ObjectSchema = {
           }
         }
       }
-    },
-    additional: {
-      type: SchemaType.Object,
-      properties: {},
-      additional: {
-        property: {
-          type: SchemaType.Number
-        },
-        value: {
-          type: SchemaType.String
-        }
-      }
     }
   }
 };

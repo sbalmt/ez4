@@ -63,7 +63,8 @@
     "providers/aws/aws-certificate",
     "providers/aws/aws-cloudfront",
     "providers/aws/aws-email",
-    "examples/*"
+    "examples/*",
+    "tests/*"
   ],
   "scripts": {
     "prepare": "husky",

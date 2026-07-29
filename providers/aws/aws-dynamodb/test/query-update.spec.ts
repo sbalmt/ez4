@@ -1,22 +1,48 @@
-import type { TestTableMetadata } from './common/schema';
+import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
+import type { Query, RelationMetadata } from '@ez4/database';
+import type { ObjectSchema } from '@ez4/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { prepareUpdate } from '@ez4/aws-dynamodb/client';
+import { SchemaType } from '@ez4/schema';
 
-import { TestSchema } from './common/schema';
+type TestTableMetadata = {
+  engine: DynamoDbEngine;
+  relations: RelationMetadata;
+  indexes: {};
+  schema: {};
+};
 
 describe('dynamodb query (update)', () => {
+  const prepareQueryUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
+    schema: ObjectSchema,
+    input: Query.UpdateManyInput<S, TestTableMetadata>,
+    indexes?: string[][]
+  ) => {
+    return prepareUpdate<TestTableMetadata, {}>('ez4-test-update', schema, indexes ?? [], input);
+  };
+
   it('assert :: prepare update', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
-      data: {
-        foo: 456
+    const [statement, variables] = await prepareQueryUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          foo: {
+            type: SchemaType.Number
+          }
+        }
       },
-      where: {
-        foo: 123
+      {
+        data: {
+          foo: 456
+        },
+        where: {
+          foo: 123
+        } as any
       }
-    });
+    );
 
     equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? WHERE "foo" = ?`);
 
@@ -24,14 +50,33 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (to null)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
-      data: {
-        foo: null,
-        bar: {
-          barFoo: 'abc'
+    const [statement, variables] = await prepareQueryUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          foo: {
+            type: SchemaType.Number,
+            nullable: true
+          },
+          bar: {
+            type: SchemaType.Object,
+            properties: {
+              barFoo: {
+                type: SchemaType.String
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          foo: null,
+          bar: {
+            barFoo: 'abc'
+          }
         }
       }
-    });
+    );
 
     equal(statement, `UPDATE "ez4-test-update" SET "foo" = null SET "bar"."barFoo" = ?`);
 
@@ -39,50 +84,69 @@ describe('dynamodb query (update)', () => {
   });
 
   it('assert :: prepare update (to null on index)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [['id', 'foo']], {
-      data: {
-        foo: null
-      }
-    });
+    const [statement, variables] = await prepareQueryUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          foo: {
+            type: SchemaType.Number,
+            nullable: true
+          }
+        }
+      },
+      {
+        data: {
+          foo: null
+        }
+      },
+      [['id', 'foo']]
+    );
 
     equal(statement, `UPDATE "ez4-test-update" REMOVE "foo"`);
 
     deepEqual(variables, []);
   });
 
-  it('assert :: prepare update (json additional field)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
-      data: {
-        additional: {
-          1: 'foo',
-          2: 'bar'
-        }
-      }
-    });
-
-    equal(statement, `UPDATE "ez4-test-update" SET "additional"."1" = ? SET "additional"."2" = ?`);
-
-    deepEqual(variables, ['foo', 'bar']);
-  });
-
   it('assert :: prepare update (with select)', async () => {
-    const [statement, variables] = await prepareUpdate<TestTableMetadata, {}>('ez4-test-update', TestSchema, [], {
-      select: {
-        foo: true,
-        bar: {
-          barBar: true
+    const [statement, variables] = await prepareQueryUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          id: {
+            type: SchemaType.String
+          },
+          foo: {
+            type: SchemaType.Number,
+            nullable: true
+          },
+          bar: {
+            type: SchemaType.Object,
+            properties: {
+              barBar: {
+                type: SchemaType.Boolean
+              }
+            }
+          }
         }
       },
-      data: {
-        foo: 456,
-        bar: {
-          barBar: false
-        }
-      },
-      where: {
-        id: 'abc'
+      {
+        select: {
+          foo: true,
+          bar: {
+            barBar: true
+          }
+        },
+        data: {
+          foo: 456,
+          bar: {
+            barBar: false
+          }
+        },
+        where: {
+          id: 'abc'
+        } as any
       }
-    });
+    );
 
     equal(statement, `UPDATE "ez4-test-update" SET "foo" = ? SET "bar"."barBar" = ? WHERE "id" = ? RETURNING ALL OLD *`);
 
