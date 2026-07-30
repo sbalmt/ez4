@@ -504,7 +504,7 @@ export namespace UpdateSchemaJsonTests {
           json: {
             type: SchemaType.Object,
             properties: {
-              column: {
+              field: {
                 type: SchemaType.String
               }
             }
@@ -514,8 +514,8 @@ export namespace UpdateSchemaJsonTests {
       {
         data: {
           json: {
-            // The `column` can't be numeric as per schema definition.
-            column: 123
+            // The `field` can't be numeric as per schema definition.
+            field: 123
           }
         } as any
       }

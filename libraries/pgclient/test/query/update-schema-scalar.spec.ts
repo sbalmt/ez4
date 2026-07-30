@@ -6,8 +6,9 @@ import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
 import { prepareUpdateQuery } from '@ez4/pgclient/library';
-import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
+
+import { UpdateSchemaScalarTests } from '@ez4/tests-database';
 
 type TestTableMetadata = {
   engine: PostgresEngine;
@@ -28,192 +29,63 @@ describe('update scalar schema', () => {
     return builder.with(queries).build();
   };
 
-  it('assert :: prepare update schema (scalar boolean)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          foo: {
-            type: SchemaType.Boolean
-          },
-          bar: {
-            type: SchemaType.Boolean
-          }
-        }
-      },
-      {
-        data: {
-          foo: true,
-          bar: false
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar boolean column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareBooleanColumn(prepareUpdate);
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "foo" = :0, "bar" = :1`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "true" = :0, "false" = :1`);
 
     assert.deepEqual(variables, [true, false]);
   });
 
-  it('assert :: prepare update schema (scalar number)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          number: {
-            type: SchemaType.Number
-          }
-        }
-      },
-      {
-        data: {
-          number: 123
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar number column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareNumberColumn(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "number" = :0`);
 
     assert.deepEqual(variables, [123]);
   });
 
-  it('assert :: prepare update schema (scalar string)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          text: {
-            type: SchemaType.String
-          }
-        }
-      },
-      {
-        data: {
-          text: 'foo'
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar string column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareStringColumn(prepareUpdate);
 
-    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "text" = :0`);
+    assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "string" = :0`);
 
     assert.deepEqual(variables, ['foo']);
   });
 
-  it('assert :: prepare update schema (scalar nullable)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          nullable: {
-            type: SchemaType.String,
-            nullable: true
-          }
-        }
-      },
-      {
-        data: {
-          nullable: null
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar nullable column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareNullableColumn(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "nullable" = null`);
 
     assert.deepEqual(variables, []);
   });
 
-  it('assert :: prepare update schema (scalar optional)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          optional: {
-            type: SchemaType.String,
-            optional: true
-          }
-        }
-      },
-      {
-        data: {
-          optional: undefined
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar optional column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareOptionalColumn(prepareUpdate);
 
     assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });
 
-  it('assert :: prepare update schema (scalar optional and required)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          required: {
-            type: SchemaType.Number
-          },
-          optional: {
-            type: SchemaType.String,
-            optional: true
-          }
-        }
-      },
-      {
-        data: {
-          required: undefined,
-          optional: undefined
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar undefined column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareUndefinedColumn(prepareUpdate);
 
     assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });
 
-  it('assert :: prepare update schema (scalar unexpected field)', async ({ assert }) => {
-    const [statement, variables] = await prepareUpdate(
-      {
-        type: SchemaType.Object,
-        properties: {
-          foo: {
-            type: SchemaType.Number
-          }
-        }
-      },
-      {
-        data: {
-          foo: 123,
-          bar: 'extra'
-        }
-      }
-    );
+  it('assert :: prepare update schema (scalar unexpected column)', async ({ assert }) => {
+    const [statement, variables] = await UpdateSchemaScalarTests.prepareUnexpectedColumn(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "foo" = :0`);
 
     assert.deepEqual(variables, [123]);
   });
 
-  it('assert :: prepare update schema (invalid scalar field type)', async ({ assert }) => {
-    await assert.rejects(
-      () =>
-        prepareUpdate(
-          {
-            type: SchemaType.Object,
-            properties: {
-              column: {
-                type: SchemaType.Number
-              }
-            }
-          },
-          {
-            data: {
-              // The `column` can't be string as per schema definition.
-              column: 'foo'
-            }
-          }
-        ),
-      MalformedRequestError
-    );
+  it('assert :: prepare update schema (scalar invalid column type)', async ({ assert }) => {
+    await assert.rejects(() => UpdateSchemaScalarTests.prepareInvalidColumn(prepareUpdate), MalformedRequestError);
   });
 });
