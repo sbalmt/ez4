@@ -19,7 +19,7 @@ type AtomicReplaceWith<T extends AnyObject> = {
   /**
    * Replace the entry value with the given object.
    */
-  replaceWith: T;
+  replaceWith?: T;
 };
 
 type AtomicRemoveFrom = {

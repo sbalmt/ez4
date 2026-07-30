@@ -109,6 +109,42 @@ describe('client update json atomic object', async () => {
     });
   });
 
+  it('assert :: replace object (undefined)', async () => {
+    const result = await client.ez4_test_table.updateOne({
+      data: {
+        json: {
+          replaceWith: undefined
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, undefined);
+
+    const changes = await client.ez4_test_table.findOne({
+      select: {
+        json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(changes, {
+      json: {
+        number: 123,
+        boolean: true,
+        object: {
+          baz: false,
+          foo: 'abc',
+          qux: 1.0
+        }
+      }
+    });
+  });
+
   it('assert :: remove object field', async () => {
     const result = await client.ez4_test_table.updateOne({
       data: {

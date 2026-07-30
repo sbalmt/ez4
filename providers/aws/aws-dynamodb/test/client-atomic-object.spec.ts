@@ -217,6 +217,38 @@ describe('dynamodb client (atomic object operation)', { timeout: 60000 }, () => 
     });
   });
 
+  it('assert :: replace object (undefined)', async () => {
+    ok(dbClient);
+
+    await dbClient.testTable.updateOne({
+      data: {
+        json: {
+          replaceWith: undefined
+        }
+      },
+      where: {
+        id
+      }
+    });
+
+    const result = await dbClient.testTable.findOne({
+      select: {
+        json: true
+      },
+      where: {
+        id
+      }
+    });
+
+    deepEqual(result, {
+      json: {
+        foo: 'abc',
+        baz: false,
+        qux: 1.0
+      }
+    });
+  });
+
   it('assert :: remove object field', async () => {
     ok(dbClient);
 

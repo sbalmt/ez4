@@ -28,8 +28,9 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
   options?: UpdateQueryOptions
 ) => {
   const updateRecord = await getUpdateRecord(builder, input.data, schema, relations, table);
+  const hasNoRecords = !isEmptyObject(updateRecord);
 
-  const updateQuery = !isEmptyObject(updateRecord)
+  const updateQuery = hasNoRecords
     ? builder.update(schema).only(table).record(updateRecord).returning()
     : builder.select(schema).from(table);
 
