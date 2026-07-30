@@ -139,7 +139,7 @@ describe('update scalar schema', () => {
       }
     );
 
-    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+    assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });
@@ -166,7 +166,7 @@ describe('update scalar schema', () => {
       }
     );
 
-    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+    assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });

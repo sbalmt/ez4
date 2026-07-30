@@ -64,7 +64,7 @@ describe('update json schema', () => {
   it('assert :: prepare update schema (json optional field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareOptionalField(prepareUpdate);
 
-    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+    assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });
@@ -72,7 +72,7 @@ describe('update json schema', () => {
   it('assert :: prepare update schema (json undefined fields)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareUndefinedField(prepareUpdate);
 
-    assert.equal(statement, `SELECT * FROM "ez4-test-update-schema"`);
+    assert.equal(statement, `SELECT FROM "ez4-test-update-schema"`);
 
     assert.deepEqual(variables, []);
   });
