@@ -11,7 +11,7 @@ describe('sql union tests', () => {
   });
 
   it('assert :: union single select', async () => {
-    const query = sql.select().from('table');
+    const query = sql.select().from('table').rawColumn('*');
 
     const [statement, variables] = sql.union([query]).build();
 
@@ -21,8 +21,8 @@ describe('sql union tests', () => {
   });
 
   it('assert :: union multiple selects', async () => {
-    const query1 = sql.select().from('table1');
-    const query2 = sql.select().from('table2');
+    const query1 = sql.select().from('table1').rawColumn('*');
+    const query2 = sql.select().from('table2').rawColumn('*');
 
     const [statement, variables] = sql.union([query1, query2]).build();
 

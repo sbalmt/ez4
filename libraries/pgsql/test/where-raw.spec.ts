@@ -16,7 +16,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test"`);
+    assert.equal(statement, `SELECT FROM "test"`);
   });
 
   it('assert :: where equal (implicit)', ({ assert }) => {
@@ -28,7 +28,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" = :0');
   });
 
   it('assert :: where equal (explicit)', ({ assert }) => {
@@ -45,7 +45,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" = :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" = :0');
   });
 
   it('assert :: where equal (with insensitive)', ({ assert }) => {
@@ -63,7 +63,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE LOWER("foo") = LOWER(:0)`);
+    assert.equal(statement, `SELECT FROM "test" WHERE LOWER("foo") = LOWER(:0)`);
   });
 
   it('assert :: where not equal', ({ assert }) => {
@@ -80,7 +80,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [123]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" != :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" != :0');
   });
 
   it('assert :: where not equal (with insensitive)', ({ assert }) => {
@@ -98,7 +98,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE LOWER("foo") != LOWER(:0)`);
+    assert.equal(statement, `SELECT FROM "test" WHERE LOWER("foo") != LOWER(:0)`);
   });
 
   it('assert :: where greater than', ({ assert }) => {
@@ -115,7 +115,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [0]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" > :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" > :0');
   });
 
   it('assert :: where greater than or equal', ({ assert }) => {
@@ -132,7 +132,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [0]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" >= :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" >= :0');
   });
 
   it('assert :: where less than', ({ assert }) => {
@@ -149,7 +149,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [0]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" < :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" < :0');
   });
 
   it('assert :: where less than or equal', ({ assert }) => {
@@ -166,7 +166,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [0]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" <= :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" <= :0');
   });
 
   it('assert :: where is in', ({ assert }) => {
@@ -183,7 +183,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [1, 2, 3]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IN (:0, :1, :2)');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IN (:0, :1, :2)');
   });
 
   it('assert :: where is between', ({ assert }) => {
@@ -200,7 +200,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [1, 2]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" BETWEEN :0 AND :1');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" BETWEEN :0 AND :1');
   });
 
   it('assert :: where is null (implicit)', ({ assert }) => {
@@ -210,7 +210,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where starts with', ({ assert }) => {
@@ -227,7 +227,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE :0 || '%'`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" LIKE :0 || '%'`);
   });
 
   it('assert :: where starts with (with insensitive)', ({ assert }) => {
@@ -245,7 +245,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" ILIKE :0 || '%'`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" ILIKE :0 || '%'`);
   });
 
   it('assert :: where contains', ({ assert }) => {
@@ -262,7 +262,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where contains (with insensitive)', ({ assert }) => {
@@ -280,7 +280,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, ['abc']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" ILIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" ILIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where multiple operators', ({ assert }) => {
@@ -298,7 +298,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [123, 456]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE ("foo" >= :0 AND "foo" < :1)');
+    assert.equal(statement, 'SELECT FROM "test" WHERE ("foo" >= :0 AND "foo" < :1)');
   });
 
   it('assert :: where not', ({ assert }) => {
@@ -316,7 +316,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [123, 'abc']);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE NOT ("foo" = :0 AND "bar" = :1)');
+    assert.equal(statement, 'SELECT FROM "test" WHERE NOT ("foo" = :0 AND "bar" = :1)');
   });
 
   it('assert :: where and', ({ assert }) => {
@@ -346,7 +346,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [123, 'abc', 456, 789]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))');
+    assert.equal(statement, 'SELECT FROM "test" WHERE ("foo" = :0 AND "bar" = :1 AND ("baz" = :2 OR "qux" = :3))');
   });
 
   it('assert :: where or', ({ assert }) => {
@@ -376,7 +376,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [123, 'abc', 456, 789]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))');
+    assert.equal(statement, 'SELECT FROM "test" WHERE (("foo" = :0 AND "bar" = :1) OR ("baz" = :2 AND "qux" = :3))');
   });
 
   it('assert :: where with alias', ({ assert }) => {
@@ -388,7 +388,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, [true]);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
+    assert.equal(statement, `SELECT FROM "test" AS "alias" WHERE "alias"."foo" = :0`);
   });
 
   it('assert :: where with raw value', ({ assert }) => {
@@ -403,7 +403,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" = plain_foo AND "bar" = plain_bar`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" = plain_foo AND "bar" = plain_bar`);
   });
 
   it('assert :: where with reference', ({ assert }) => {
@@ -421,7 +421,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo"['bar']['baz'] = "column"`);
   });
 
   it('assert :: where with exists', ({ assert }) => {
@@ -443,7 +443,7 @@ describe('sql where raw tests', () => {
 
     assert.equal(
       statement,
-      `SELECT * FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "another_table" WHERE "foo" = "alias_test"."bar")`
+      `SELECT FROM "test" AS "alias_test" ` + `WHERE EXISTS (SELECT 1 FROM "another_table" WHERE "foo" = "alias_test"."bar")`
     );
   });
 
@@ -460,7 +460,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" AS "alias_test" WHERE NOT EXISTS (SELECT 1 FROM "another_table")`);
+    assert.equal(statement, `SELECT FROM "test" AS "alias_test" WHERE NOT EXISTS (SELECT 1 FROM "another_table")`);
   });
 
   it('assert :: where empty', ({ assert }) => {
@@ -481,7 +481,7 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE false`);
+    assert.equal(statement, `SELECT FROM "test" WHERE false`);
   });
 
   it('assert :: where undefined', ({ assert }) => {
@@ -517,6 +517,6 @@ describe('sql where raw tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, `SELECT * FROM "test"`);
+    assert.equal(statement, `SELECT FROM "test"`);
   });
 });

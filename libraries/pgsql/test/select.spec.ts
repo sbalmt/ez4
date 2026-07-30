@@ -12,9 +12,9 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select all', async () => {
-    const query = sql.select().from('table');
+    const query = sql.select().from('table').rawColumn('*');
 
-    deepEqual(query.fields, []);
+    equal(query.fields.length, 1);
 
     const [statement, variables] = query.build();
 
@@ -193,7 +193,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with offset', async () => {
-    const query = sql.select().from('table').skip(100);
+    const query = sql.select().from('table').rawColumn('*').skip(100);
 
     const [statement, variables] = query.build();
 
@@ -203,7 +203,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with limit', async () => {
-    const query = sql.select().from('table').take(100);
+    const query = sql.select().from('table').rawColumn('*').take(100);
 
     const [statement, variables] = query.build();
 
@@ -213,7 +213,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with order', async () => {
-    const query = sql.select().from('table').order({
+    const query = sql.select().from('table').rawColumn('*').order({
       foo: Order.Asc,
       bar: Order.Desc
     });
@@ -226,7 +226,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with where', async () => {
-    const query = sql.select().from('table').where({
+    const query = sql.select().from('table').rawColumn('*').where({
       foo: 'abc'
     });
 
@@ -238,7 +238,7 @@ describe('sql select tests', () => {
   });
 
   it('assert :: select with lock', async () => {
-    const query = sql.select().from('table').lock();
+    const query = sql.select().from('table').rawColumn('*').lock();
 
     const [statement, variables] = query.build();
 

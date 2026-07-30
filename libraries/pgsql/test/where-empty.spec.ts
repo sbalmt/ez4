@@ -41,7 +41,7 @@ describe('sql where empty tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE false');
+    assert.equal(statement, 'SELECT FROM "test" WHERE false');
   });
 
   it('assert :: where empty string (contains)', ({ assert }) => {
@@ -58,7 +58,7 @@ describe('sql where empty tests', () => {
 
     assert.deepEqual(variables, ['']);
 
-    assert.equal(statement, `SELECT * FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where empty array (is in)', ({ assert }) => {
@@ -75,7 +75,7 @@ describe('sql where empty tests', () => {
 
     assert.deepEqual(variables, [[]]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE ("bar" <@ :0)');
+    assert.equal(statement, 'SELECT FROM "test" WHERE ("bar" <@ :0)');
   });
 
   it('assert :: where empty array (contains)', ({ assert }) => {
@@ -92,6 +92,6 @@ describe('sql where empty tests', () => {
 
     assert.deepEqual(variables, [[]]);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "bar" @> :0');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "bar" @> :0');
   });
 });

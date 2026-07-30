@@ -18,7 +18,7 @@ describe('sql where null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is null (explicit)', ({ assert }) => {
@@ -35,7 +35,7 @@ describe('sql where null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is null (operator)', ({ assert }) => {
@@ -52,7 +52,7 @@ describe('sql where null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS null');
   });
 
   it('assert :: where is not null (explicit)', ({ assert }) => {
@@ -69,7 +69,7 @@ describe('sql where null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS NOT null');
   });
 
   it('assert :: where is not null (operator)', ({ assert }) => {
@@ -86,6 +86,6 @@ describe('sql where null tests', () => {
 
     assert.deepEqual(variables, []);
 
-    assert.equal(statement, 'SELECT * FROM "test" WHERE "foo" IS NOT null');
+    assert.equal(statement, 'SELECT FROM "test" WHERE "foo" IS NOT null');
   });
 });

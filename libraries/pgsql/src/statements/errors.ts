@@ -15,9 +15,3 @@ export class EmptyRecordError extends Error {
     super(`Record for the statement is empty.`);
   }
 }
-
-export class NoColumnsError extends Error {
-  constructor() {
-    super(`At least one column for the statement is required.`);
-  }
-}

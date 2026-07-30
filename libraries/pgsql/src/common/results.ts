@@ -191,5 +191,5 @@ const getResultColumns = (columns: (SqlResultColumn | SqlJsonColumn)[], context:
     return mergeSqlAlias(columnName, source?.alias);
   });
 
-  return columnsList.join(', ') || '*';
+  return columnsList.join(', ') || '';
 };

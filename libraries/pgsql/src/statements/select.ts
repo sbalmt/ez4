@@ -17,7 +17,6 @@ import { getSelectExpressions } from '../helpers/select';
 import { SqlWhereClause } from '../clauses/query/where';
 import { SqlOrderClause } from '../clauses/query/order';
 import { SqlJoin } from '../clauses/query/join';
-import { NoColumnsError } from './errors';
 
 export class SqlSelectStatement extends SqlSource implements SqlSourceWithResults {
   #state: {
@@ -177,14 +176,14 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
     const [columns, variables] = results.build();
 
-    if (!columns.length) {
-      throw new NoColumnsError();
-    }
-
     try {
       this.#state.building = true;
 
-      const statement = ['SELECT', columns];
+      const statement = ['SELECT'];
+
+      if (columns.length) {
+        statement.push(columns);
+      }
 
       if (tables?.length) {
         const [tableExpressions, tableVariables] = getSelectExpressions(this, references, tables);

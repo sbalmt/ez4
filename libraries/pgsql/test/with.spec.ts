@@ -10,8 +10,18 @@ describe('sql with tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: with single select', async () => {
+  it('assert :: with no select', async () => {
     const query = sql.select().from('table');
+
+    const [statement, variables] = sql.with([query]).build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT FROM "table"`);
+  });
+
+  it('assert :: with single select', async () => {
+    const query = sql.select().from('table').rawColumn('*');
 
     const [statement, variables] = sql.with([query]).build();
 
@@ -21,7 +31,7 @@ describe('sql with tests', () => {
   });
 
   it('assert :: with multiple selects', async () => {
-    const query1 = sql.select().from('table1');
+    const query1 = sql.select().from('table1').rawColumn('*');
 
     const query2 = sql.select().from('table2').column(query1.reference('foo'));
 
