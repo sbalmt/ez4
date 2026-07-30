@@ -113,7 +113,7 @@ const prepareStaticTransaction = async <T extends Database.Service<any>>(
       }
 
       if ('insert' in query) {
-        commands.push(await prepareInsertOne(name, schema, query.insert));
+        commands.push(await prepareInsertOne(name, schema, indexes, query.insert));
         continue;
       }
 

@@ -15,11 +15,10 @@ import { prepareDelete } from './delete';
 export const prepareInsertOne = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
+  indexes: string[][],
   query: Query.InsertOneInput<S, T>
 ): Promise<ExecuteStatementCommandInput> => {
-  await validateSchema(query.data, schema);
-
-  const [statement, variables] = prepareInsert(table, schema, query);
+  const [statement, variables] = await prepareInsert(table, schema, indexes, query);
 
   return {
     Statement: statement,
@@ -105,7 +104,7 @@ export const prepareInsertMany = async <T extends InternalTableMetadata>(
 
     await validateSchema(data, schema);
 
-    const [statement, variables] = prepareInsert(table, schema, {
+    const [statement, variables] = await prepareInsert(table, schema, indexes, {
       data
     });
 

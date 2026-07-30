@@ -17,12 +17,11 @@ type TestTableMetadata = {
 };
 
 describe('update scalar schema', () => {
-  const prepareUpdateQuery = async <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdateQuery = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    input: Query.UpdateManyInput<S, TestTableMetadata>,
-    indexes?: string[][]
+    input: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
-    return prepareUpdate<TestTableMetadata, {}>('ez4-test-update', schema, indexes ?? [], input);
+    return prepareUpdate<TestTableMetadata, {}>('ez4-test-update', schema, [], input);
   };
 
   it('assert :: prepare update schema (scalar boolean column)', async ({ assert }) => {

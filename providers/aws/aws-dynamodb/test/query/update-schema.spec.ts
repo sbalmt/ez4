@@ -16,7 +16,7 @@ type TestTableMetadata = {
 };
 
 describe('update schema', () => {
-  const prepareQueryUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdateQuery = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     input: Query.UpdateManyInput<S, TestTableMetadata>,
     indexes?: string[][]
@@ -25,7 +25,7 @@ describe('update schema', () => {
   };
 
   it('assert :: prepare update (null on index)', async () => {
-    const [statement, variables] = await prepareQueryUpdate(
+    const [statement, variables] = await prepareUpdateQuery(
       {
         type: SchemaType.Object,
         properties: {
@@ -49,7 +49,7 @@ describe('update schema', () => {
   });
 
   it('assert :: prepare update (with select)', async () => {
-    const [statement, variables] = await prepareQueryUpdate(
+    const [statement, variables] = await prepareUpdateQuery(
       {
         type: SchemaType.Object,
         properties: {

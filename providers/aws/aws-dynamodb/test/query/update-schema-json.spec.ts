@@ -17,15 +17,14 @@ type TestTableMetadata = {
 };
 
 describe('update json schema', () => {
-  const prepareUpdateQuery = async <S extends Query.SelectInput<TestTableMetadata>>(
+  const prepareUpdateQuery = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
-    input: Query.UpdateManyInput<S, TestTableMetadata>,
-    indexes?: string[][]
+    input: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
-    return prepareUpdate<TestTableMetadata, {}>('ez4-test-update', schema, indexes ?? [], input);
+    return prepareUpdate<TestTableMetadata, {}>('ez4-test-update', schema, [], input);
   };
 
-  it('assert :: prepare update schema (json boolean)', async ({ assert }) => {
+  it('assert :: prepare update schema (json boolean field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareBooleanField(prepareUpdateQuery);
 
     assert.equal(statement, `UPDATE "ez4-test-update" SET "json"."true" = ? SET "json"."false" = ?`);
@@ -33,7 +32,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [true, false]);
   });
 
-  it('assert :: prepare update schema (json number)', async ({ assert }) => {
+  it('assert :: prepare update schema (json number field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareNumberField(prepareUpdateQuery);
 
     assert.equal(statement, `UPDATE "ez4-test-update" SET "json"."number" = ?`);
@@ -41,7 +40,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [123]);
   });
 
-  it('assert :: prepare update schema (json string)', async ({ assert }) => {
+  it('assert :: prepare update schema (json string field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareStringField(prepareUpdateQuery);
 
     assert.equal(statement, `UPDATE "ez4-test-update" SET "json"."string" = ?`);

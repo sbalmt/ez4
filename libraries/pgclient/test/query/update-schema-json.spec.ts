@@ -29,7 +29,7 @@ describe('update json schema', () => {
     return builder.with(queries).build();
   };
 
-  it('assert :: prepare update schema (json boolean)', async ({ assert }) => {
+  it('assert :: prepare update schema (json boolean field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareBooleanField(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['true'] = :0, "json"['false'] = :1`);
@@ -37,7 +37,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [true, false]);
   });
 
-  it('assert :: prepare update schema (json number)', async ({ assert }) => {
+  it('assert :: prepare update schema (json number field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareNumberField(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['number'] = :0`);
@@ -45,7 +45,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [123]);
   });
 
-  it('assert :: prepare update schema (json string)', async ({ assert }) => {
+  it('assert :: prepare update schema (json string field)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareStringField(prepareUpdate);
 
     assert.equal(statement, `UPDATE ONLY "ez4-test-update-schema" SET "json"['string'] = :0`);
@@ -107,7 +107,7 @@ describe('update json schema', () => {
     assert.deepEqual(variables, [123, 456]);
   });
 
-  it('assert :: prepare update schema (json additional numeric property)', async ({ assert }) => {
+  it('assert :: prepare update schema (json additional number property)', async ({ assert }) => {
     const [statement, variables] = await UpdateSchemaJsonTests.prepareAdditionalNumberProperty(prepareUpdate);
 
     assert.equal(

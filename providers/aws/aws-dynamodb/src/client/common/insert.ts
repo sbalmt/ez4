@@ -3,21 +3,28 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { AnyObject } from '@ez4/utils';
 import type { InternalTableMetadata } from '../types';
 
+import { isNullishSchema } from '@ez4/schema';
+import { arrayUnique } from '@ez4/utils';
+import { getWithSchemaValidation } from './schema';
+
 type PrepareResult = [string, unknown[]];
 
-export const prepareInsert = <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
+export const prepareInsert = async <T extends InternalTableMetadata, S extends Query.SelectInput<T>>(
   table: string,
   schema: ObjectSchema,
+  indexes: string[][],
   query: Query.InsertOneInput<S, T>
-): PrepareResult => {
-  const [insertFields, variables] = prepareInsertFields(query.data, schema);
+): Promise<PrepareResult> => {
+  const uniqueIndexes = arrayUnique(...indexes);
+
+  const [insertFields, variables] = await prepareInsertFields(query.data, schema, uniqueIndexes);
 
   const statement = `INSERT INTO "${table}" value ${insertFields}`;
 
   return [statement, variables];
 };
 
-const prepareInsertFields = (data: AnyObject, schema: ObjectSchema): PrepareResult => {
+const prepareInsertFields = async (data: AnyObject, schema: ObjectSchema, indexes: string[]): Promise<PrepareResult> => {
   const properties: string[] = [];
   const variables: unknown[] = [];
 
@@ -30,16 +37,24 @@ const prepareInsertFields = (data: AnyObject, schema: ObjectSchema): PrepareResu
 
     const fieldSchema = schema.properties[fieldKey];
 
+    // Skip values that aren't mapped in the table schema.
     if (!fieldSchema) {
-      throw new Error(`Field schema for ${fieldKey} doesn't exists.`);
-    }
-
-    if (fieldValue === null && fieldSchema.nullable) {
       continue;
     }
 
+    if (fieldValue === null && isNullishSchema(fieldSchema)) {
+      if (!indexes.includes(fieldKey)) {
+        properties.push(`'${fieldKey}': null`);
+      }
+
+      // Avoid null indexes since DynamoDB doesn't allow it.
+      continue;
+    }
+
+    const variable = await getWithSchemaValidation(fieldValue, fieldSchema, fieldKey);
+
     properties.push(`'${fieldKey}': ?`);
-    variables.push(fieldValue);
+    variables.push(variable);
   }
 
   return [`{ ${properties.join(', ')} }`, variables];

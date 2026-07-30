@@ -38,7 +38,7 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
   async insertOne<S extends Query.SelectInput<T>>(query: Query.InsertOneInput<S, T>) {
     const { client, debug } = this.settings;
 
-    const statement = await prepareInsertOne(this.name, this.schema, query);
+    const statement = await prepareInsertOne(this.name, this.schema, this.indexes, query);
 
     await executeStatement(client, statement, debug);
 
