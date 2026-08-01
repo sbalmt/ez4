@@ -23,25 +23,25 @@ export declare class TestOrderedTopic extends Topic.Ordered<TestMessage> {
 }
 
 describe('local topic tests', () => {
-  it('assert :: send message (unordered topic)', async () => {
+  it('assert :: publish event (unordered topic)', async () => {
     const client = TopicTester.getClientMock<TestUnorderedTopic>('topic');
 
-    await client.sendMessage({
+    await client.publishEvent({
       foo: 'foo',
       bar: 123
     });
 
-    equal(client.sendMessage.mock.callCount(), 1);
+    equal(client.publishEvent.mock.callCount(), 1);
   });
 
-  it('assert :: send message (ordered topic)', async () => {
+  it('assert :: publish event (ordered topic)', async () => {
     const client = TopicTester.getClientMock<TestOrderedTopic>('topic');
 
-    await client.sendMessage({
+    await client.publishEvent({
       foo: 'foo',
       bar: 123
     });
 
-    equal(client.sendMessage.mock.callCount(), 1);
+    equal(client.publishEvent.mock.callCount(), 1);
   });
 });

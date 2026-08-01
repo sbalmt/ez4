@@ -2,11 +2,11 @@ import type { Service, Environment } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 import type { Queue } from '@ez4/queue';
 
-interface TestMessage extends Topic.Message, Queue.Message {
+interface TestEvent extends Topic.Event, Queue.Message {
   foo: string;
 }
 
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [
     Topic.UseSubscription<{
       handler: typeof testHandler;
@@ -23,7 +23,7 @@ export declare class TestTopic extends Topic.Unordered<TestMessage> {
   };
 }
 
-function testHandler(_request: Topic.Incoming<TestMessage>, context: Service.Context<TestTopic>) {
+function testHandler(_request: Topic.Incoming<TestEvent>, context: Service.Context<TestTopic>) {
   const { selfSettings } = context;
 
   // Ensure variables are property referenced.

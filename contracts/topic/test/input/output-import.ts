@@ -1,15 +1,15 @@
 import type { Environment, Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {
+interface TestEvent extends Topic.Event {
   foo: string;
 }
 
-export declare class TestUnorderedTopic extends Topic.Unordered<TestMessage> {
+export declare class TestUnorderedTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [];
 }
 
-export declare class TestOrderedTopic extends Topic.Ordered<TestMessage> {
+export declare class TestOrderedTopic extends Topic.Ordered<TestEvent> {
   subscriptions: [];
 
   fifoMode: {
@@ -17,17 +17,17 @@ export declare class TestOrderedTopic extends Topic.Ordered<TestMessage> {
   };
 }
 
-function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Context<TestImport1Topic>) {
+function testHandler(request: Topic.Incoming<TestEvent>, context: Service.Context<TestImport1Topic>) {
   const { selfClient } = context;
 
   // Ensure request types.
   const requestId: string = request.requestId;
-  const message: TestMessage = request.message;
+  const event: TestEvent = request.event;
 
-  console.log(requestId, message);
+  console.log(requestId, event);
 
   // Ensure context types.
-  selfClient.sendMessage({
+  selfClient.publishEvent({
     foo: 'test'
   });
 }

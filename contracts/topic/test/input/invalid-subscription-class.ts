@@ -1,16 +1,16 @@
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {}
+interface TestEvent extends Topic.Event {}
 
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [TestSubscription];
 }
 
 // Concrete class is not allowed.
-class TestSubscription implements Topic.LambdaSubscription<TestMessage> {
+class TestSubscription implements Topic.LambdaSubscription<TestEvent> {
   handler!: typeof testHandler;
 }
 
-function testHandler(request: Topic.Incoming<Topic.Message>) {
-  request.message;
+function testHandler(request: Topic.Incoming<Topic.Event>) {
+  request.event;
 }

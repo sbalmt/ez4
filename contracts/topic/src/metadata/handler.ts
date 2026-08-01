@@ -4,7 +4,7 @@ import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
 import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
-import { getTopicMessageMetadata } from './message';
+import { getTopicEventMetadata } from './event';
 
 export const isSubscriptionHandlerDeclaration = (type: AllType): type is TypeCallback | TypeFunction => {
   return isTypeCallback(type) || isTypeFunction(type);
@@ -19,9 +19,9 @@ export const getSubscriptionHandlerMetadata = (type: AllType, reflection: Reflec
 
   const properties = new Set(['request']);
 
-  const message = type.parameters?.[0].value;
+  const event = type.parameters?.[0].value;
 
-  if (message && getTopicMessageMetadata(message, type, reflection, errorList)) {
+  if (event && getTopicEventMetadata(event, type, reflection, errorList)) {
     properties.delete('request');
   }
 

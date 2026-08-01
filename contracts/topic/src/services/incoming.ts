@@ -1,12 +1,12 @@
-import type { TopicMessage } from './message';
 import type { TopicRequest } from './request';
+import type { TopicEvent } from './event';
 
 /**
- * Incoming message.
+ * Incoming event.
  */
-export type TopicIncoming<T extends TopicMessage> = TopicRequest & {
+export type TopicIncoming<T extends TopicEvent> = TopicRequest & {
   /**
-   * Message payload.
+   * Event payload.
    */
-  readonly message: T;
+  readonly event: T;
 };

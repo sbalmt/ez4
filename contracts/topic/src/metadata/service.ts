@@ -22,8 +22,8 @@ import { createTopicService } from './types';
 import { IncompleteServiceError } from '../errors/service';
 import { IncorrectFifoModePropertyError } from '../errors/fifo';
 import { getTopicSubscriptionsMetadata } from './subscription';
-import { getTopicMessageMetadata } from './message';
 import { getTopicFifoModeMetadata } from './fifo';
+import { getTopicEventMetadata } from './event';
 
 export const isTopicServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Service', 'Topic.Ordered', 'Topic.Unordered');
@@ -63,7 +63,7 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
           break;
 
         case 'schema': {
-          if ((service.schema = getTopicMessageMetadata(member.value, declaration, reflection, errorList))) {
+          if ((service.schema = getTopicEventMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

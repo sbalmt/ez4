@@ -1,12 +1,12 @@
 # EZ4: Topic Handler
 
-Topic handlers define the **business logic** executed when a lambda subscription receives a message. A handler receives a fully typed request object, a runtime context, and returns void. Handlers run inside an isolated cloud resource and represent the core execution unit of a topic lambda subscription.
+Topic handlers define the **business logic** executed when a lambda subscription receives an event. A handler receives a fully typed request object, a runtime context, and returns void. Handlers run inside an isolated cloud resource and represent the core execution unit of a topic lambda subscription.
 
-## Message handler
+## Event handler
 
 ```ts
-export function myHandler(request: Topic.Incoming<MyTopicMessage>, context: Service.Context<MyTopic>): void {
-  const { message } = request;
+export function myHandler(request: Topic.Incoming<MyTopicEvent>, context: Service.Context<MyTopic>): void {
+  const { event } = request;
 
   // Business logic here.
 }
@@ -16,9 +16,9 @@ export function myHandler(request: Topic.Incoming<MyTopicMessage>, context: Serv
 
 #### Request fields
 
-Handlers receive a typed request object generated from the declared topic message type.
+Handlers receive a typed request object generated from the declared topic event type.
 
-- **Message** - Typed object containing the message payload.
+- **Event** - Typed object containing the event payload.
 - **Trace Id** - A unique identifier across multiple services.
 - **Request Id** - A unique identifier for the request.
 
@@ -31,9 +31,9 @@ All fields are validated and transformed according to the declared topic service
 
 #### Acknowledgement
 
-- Handlers should be written assuming at‑least‑once delivery, the same message may be delivered more than once.
-- Successful enqueueing of the queue subscription results in message acknowledgement.
-- Successful completion of the lambda handler results in message acknowledgement.
+- Handlers should be written assuming at‑least‑once delivery, the same event may be delivered more than once.
+- Successful enqueueing of the queue subscription results in event acknowledgement.
+- Successful completion of the lambda handler results in event acknowledgement.
 
 ## What's next
 

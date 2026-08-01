@@ -1,6 +1,6 @@
 import type { Topic } from '@ez4/topic';
 
-type TestMessage = {
+type TestEvent = {
   id: string;
   user: string;
 };
@@ -11,16 +11,16 @@ declare class TestFifoMode {
   uniqueId: 'id';
 }
 
-export declare class TestTopic1 extends Topic.Ordered<TestMessage> {
+export declare class TestTopic1 extends Topic.Ordered<TestEvent> {
   fifoMode: TestFifoMode;
 
   subscriptions: [];
 }
 
-export declare class TestTopic2 extends Topic.Ordered<TestMessage> {
-  schema: TestMessage;
+export declare class TestTopic2 extends Topic.Ordered<TestEvent> {
+  schema: TestEvent;
 
-  // @ts-expect-error Group Id doesn't exist in TestMessage.
+  // @ts-expect-error Group Id doesn't exist in TestEvent.
   fifoMode: {
     groupId: 'wrong';
   };

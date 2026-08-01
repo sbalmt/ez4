@@ -2,11 +2,11 @@ import type { Topic } from '@ez4/topic';
 import type { Queue } from '@ez4/queue';
 
 /**
- * Message request example.
+ * Event request example.
  */
-export declare class MessageRequest implements Topic.Message, Queue.Message {
+export declare class EventRequest implements Topic.Event, Queue.Message {
   /**
-   * Example of validated `string` property coming from the message request.
+   * Example of validated `string` property coming from the event request.
    */
   foo: string;
 }

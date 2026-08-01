@@ -1,25 +1,25 @@
 import type { Client, Topic } from '@ez4/topic';
-import type { MessageSchema } from '@ez4/topic/utils';
+import type { EventSchema } from '@ez4/topic/utils';
 import type { ServeOptions } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { getJsonMessage } from '@ez4/topic/utils';
+import { getJsonEvent } from '@ez4/topic/utils';
 import { Logger } from '@ez4/logger';
 
 export type LocalClientOptions = ServeOptions & {
-  handler: (message: AnyObject) => Promise<void>;
+  handler: (event: AnyObject) => Promise<void>;
 };
 
-export const createLocalClient = <T extends Topic.Message = any>(
+export const createLocalClient = <T extends Topic.Event = any>(
   resourceName: string,
-  messageSchema: MessageSchema,
+  eventSchema: EventSchema,
   clientOptions: LocalClientOptions
 ): Client<T> => {
   return new (class {
-    async sendMessage(message: T) {
-      Logger.log(`✉️  Sending message to topic [${resourceName}]`);
+    async publishEvent(event: T) {
+      Logger.log(`✉️  Publishing event to topic [${resourceName}]`);
 
-      const payload = await getJsonMessage(message, messageSchema);
+      const payload = await getJsonEvent(event, eventSchema);
 
       setImmediate(async () => {
         try {

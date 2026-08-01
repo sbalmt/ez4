@@ -11,17 +11,17 @@ import { getFunctionBundle } from '@ez4/aws-common';
 declare const __MODULE_PATH: string;
 
 export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, messageSchema, context, debug } = parameters;
+  const { handler, listener, functionName, eventSchema, context, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
-    templateFile: join(__MODULE_PATH, '../lib/message.ts'),
+    templateFile: join(__MODULE_PATH, '../lib/event.ts'),
     resourceName: functionName,
     filePrefix: 'sns',
     define: {
       ...definitions,
-      __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined'
+      __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'
     },
     handler,
     listener,

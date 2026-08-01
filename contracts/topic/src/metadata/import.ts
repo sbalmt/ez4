@@ -22,8 +22,8 @@ import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
 import { getTopicSubscriptionsMetadata } from './subscription';
-import { getTopicMessageMetadata } from './message';
 import { getTopicFifoModeMetadata } from './fifo';
+import { getTopicEventMetadata } from './event';
 import { createTopicImport } from './types';
 
 export const isTopicImportDeclaration = (type: AllType): type is TypeClass => {
@@ -75,7 +75,7 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'schema': {
-          if (member.inherited && (service.schema = getTopicMessageMetadata(member.value, declaration, reflection, errorList))) {
+          if (member.inherited && (service.schema = getTopicEventMetadata(member.value, declaration, reflection, errorList))) {
             properties.delete(member.name);
           }
           break;

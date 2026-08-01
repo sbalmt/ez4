@@ -1,16 +1,16 @@
-import type { TopicMessage } from './message';
+import type { TopicEvent } from './event';
 
 /**
  * Topic FIFO mode options.
  */
-export interface TopicFifoMode<T extends TopicMessage> {
+export interface TopicFifoMode<T extends TopicEvent> {
   /**
-   * Name of the message deduplication field.
+   * Name of the event deduplication field.
    */
   readonly uniqueId?: keyof T;
 
   /**
-   * Name of the message group id field.
+   * Name of the event group Id field.
    */
   readonly groupId: keyof T;
 }

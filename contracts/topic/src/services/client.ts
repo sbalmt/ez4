@@ -3,11 +3,11 @@ import type { Topic } from './contract';
 /**
  * Topic client.
  */
-export interface Client<T extends Topic.Message> {
+export interface Client<T extends Topic.Event> {
   /**
-   * Send a new JSON message to the topic.
+   * Publish a new JSON event to all topic subscriptions.
    *
-   * @param message Message object.
+   * @param event Event object.
    */
-  sendMessage(message: T): Promise<void>;
+  publishEvent(event: T): Promise<void>;
 }

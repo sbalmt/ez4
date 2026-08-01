@@ -1,37 +1,37 @@
 # EZ4: Topic Requests
 
-Topic requests define the **typed shape** of incoming messages processed by subscription handlers. The message type specified in the topic service is used to validate incoming requests before invoking handlers.
+Topic requests define the **typed shape** of incoming events processed by subscription handlers. The event type specified in the topic service is used to validate incoming requests before invoking handlers.
 
 ## Request declaration
 
-The `Topic.Message` interface represents the full structure of an incoming topic message, ensuring that handlers operate on strongly typed, validated, and [reflection‑driven](../../../foundation/reflection/) request data.
+The `Topic.Event` interface represents the full structure of an incoming topic event, ensuring that handlers operate on strongly typed, validated, and [reflection‑driven](../../../foundation/reflection/) request data.
 
 #### Using class (preferred)
 
 ```ts
-declare class MyMessage implements Topic.Message {
+declare class MyEvent implements Topic.Event {
   foo: string;
   bar: number;
 }
 ```
 
-> The request class is always an implementation of the base `Topic.Message` interface.
+> The request class is always an implementation of the base `Topic.Event` interface.
 
 #### Using interface
 
 ```ts
-interface MyMessage extends Topic.Message {
+interface MyEvent extends Topic.Event {
   foo: string;
   bar: number;
 }
 ```
 
-> The request interface is always an extension of the base `Topic.Message` interface.
+> The request interface is always an extension of the base `Topic.Event` interface.
 
 #### Using type
 
 ```ts
-type MyMessage = {
+type MyEvent = {
   foo: string;
   bar: number;
 };

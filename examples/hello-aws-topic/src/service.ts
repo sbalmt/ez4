@@ -1,24 +1,24 @@
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { Sqs, FifoSqs } from './queue/service';
-import type { messageHandlerA, messageHandlerB } from './lambda/handlers';
+import type { eventHandlerA, eventHandlerB } from './lambda/handlers';
 import type { topicListener } from './listener';
-import type { MessageRequest } from './types';
+import type { EventRequest } from './types';
 
 /**
  * Example of AWS SNS topic deployed with EZ4.
  */
-export declare class Sns extends Topic.Unordered<MessageRequest> {
+export declare class Sns extends Topic.Unordered<EventRequest> {
   /**
    * All handlers for the service.
    */
   subscriptions: [
     Topic.UseSubscription<{
       listener: typeof topicListener;
-      handler: typeof messageHandlerA;
+      handler: typeof eventHandlerA;
     }>,
     Topic.UseSubscription<{
-      handler: typeof messageHandlerB;
+      handler: typeof eventHandlerB;
     }>,
     Topic.UseSubscription<{
       service: Environment.Service<Sqs>;
@@ -43,9 +43,9 @@ export declare class Sns extends Topic.Unordered<MessageRequest> {
 /**
  * Example of AWS SNS FIFO topic deployed with EZ4.
  */
-export declare class FifoSns extends Topic.Ordered<MessageRequest> {
+export declare class FifoSns extends Topic.Ordered<EventRequest> {
   /**
-   * Define the message group Id field from MessageRequest for FIFO mode.
+   * Define the event group Id field from EventRequest for FIFO mode.
    */
   fifoMode: Topic.UseFifoMode<{
     groupId: 'foo';

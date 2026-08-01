@@ -3,12 +3,12 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 import type { TopicSubscriptionListener } from './listener';
 import type { TopicSubscriptionHandler } from './handler';
-import type { TopicMessage } from './message';
+import type { TopicEvent } from './event';
 
 /**
  * Queue subscription for the topic.
  */
-export interface TopicQueueSubscription<T extends TopicMessage> {
+export interface TopicQueueSubscription<T extends TopicEvent> {
   /**
    * Reference to the queue service.
    */
@@ -20,7 +20,7 @@ export interface TopicQueueSubscription<T extends TopicMessage> {
 /**
  * Lambda subscription for the topic.
  */
-export interface TopicLambdaSubscription<T extends TopicMessage> {
+export interface TopicLambdaSubscription<T extends TopicEvent> {
   /**
    * Life-cycle listener function for the subscription.
    */

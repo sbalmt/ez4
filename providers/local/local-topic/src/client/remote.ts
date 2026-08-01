@@ -1,8 +1,8 @@
 import type { CommonOptions } from '@ez4/project/library';
-import type { MessageSchema } from '@ez4/topic/utils';
+import type { EventSchema } from '@ez4/topic/utils';
 import type { Client, Topic } from '@ez4/topic';
 
-import { getJsonStringMessage } from '@ez4/topic/utils';
+import { getJsonStringEvent } from '@ez4/topic/utils';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
@@ -12,19 +12,19 @@ export type RemoteClientOptions = CommonOptions & {
   serviceHost: string;
 };
 
-export const createRemoteClient = <T extends Topic.Message = any>(
+export const createRemoteClient = <T extends Topic.Event = any>(
   resourceName: string,
-  messageSchema: MessageSchema,
+  eventSchema: EventSchema,
   clientOptions: RemoteClientOptions
 ): Client<T> => {
   const topicIdentifier = getServiceName(resourceName, clientOptions);
   const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
 
   return new (class {
-    async sendMessage(message: T) {
-      Logger.log(`✉️  Sending message to topic [${resourceName}] at ${topicHost}.`);
+    async publishEvent(event: T) {
+      Logger.log(`✉️  Publishing event to topic [${resourceName}] at ${topicHost}.`);
 
-      const payload = await getJsonStringMessage(message, messageSchema);
+      const payload = await getJsonStringEvent(event, eventSchema);
 
       setImmediate(async () => {
         try {

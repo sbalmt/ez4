@@ -12,7 +12,7 @@
   "TestTopic1": {
     "type": "@ez4/topic",
     "name": "TestTopic1",
-    "file": "test/input/output-message.ts",
+    "file": "test/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -44,7 +44,7 @@
         "type": "lambda",
         "handler": {
           "name": "testHandler1",
-          "file": "test/input/output-message.ts",
+          "file": "test/input/output-event.ts",
           "position": [
             13,
             1
@@ -56,7 +56,7 @@
   "TestTopic2": {
     "type": "@ez4/topic",
     "name": "TestTopic2",
-    "file": "test/input/output-message.ts",
+    "file": "test/input/output-event.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -77,7 +77,7 @@
         "type": "lambda",
         "handler": {
           "name": "testHandler2",
-          "file": "test/input/output-message.ts",
+          "file": "test/input/output-event.ts",
           "position": [
             25,
             1

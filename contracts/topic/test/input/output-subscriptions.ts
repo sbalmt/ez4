@@ -3,14 +3,14 @@ import type { Service, Environment } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 import type { Queue } from '@ez4/queue';
 
-interface TestMessage extends Topic.Message, Queue.Message {
+interface TestEvent extends Topic.Event, Queue.Message {
   foo: string;
 }
 
 /**
  * @description Topic to test subscriptions.
  */
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [
     // Inline lambda subscription.
     Topic.UseSubscription<{
@@ -39,7 +39,7 @@ export declare class TestTopic extends Topic.Unordered<TestMessage> {
   };
 }
 
-declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMessage> {
+declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestEvent> {
   handler: typeof testHandler;
 
   runtime: RuntimeType.Node24;
@@ -56,7 +56,7 @@ declare class TestLambdaSubscription implements Topic.LambdaSubscription<TestMes
   };
 }
 
-declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
+declare class TestOrderedQueue extends Queue.Ordered<TestEvent> {
   subscriptions: [];
 
   fifoMode: {
@@ -64,25 +64,25 @@ declare class TestOrderedQueue extends Queue.Ordered<TestMessage> {
   };
 }
 
-declare class TestUnorderedQueueSubscription implements Topic.QueueSubscription<TestMessage> {
+declare class TestUnorderedQueueSubscription implements Topic.QueueSubscription<TestEvent> {
   service: Environment.Service<TestUnorderedQueue>;
 }
 
-declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
+declare class TestUnorderedQueue extends Queue.Unordered<TestEvent> {
   subscriptions: [];
 }
 
-function testHandler(request: Topic.Incoming<TestMessage>, context: Service.Context<TestTopic>) {
+function testHandler(request: Topic.Incoming<TestEvent>, context: Service.Context<TestTopic>) {
   const { selfClient } = context;
 
   // Ensure request types.
   const requestId: string = request.requestId;
-  const message: TestMessage = request.message;
+  const event: TestEvent = request.event;
 
-  console.log(requestId, message);
+  console.log(requestId, event);
 
   // Ensure context types.
-  selfClient.sendMessage({
+  selfClient.publishEvent({
     foo: 'test'
   });
 }

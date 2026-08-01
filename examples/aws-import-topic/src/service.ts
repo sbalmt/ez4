@@ -2,7 +2,7 @@ import type { Sns, FifoSns } from 'hello-aws-topic';
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { FifoSqs, Sqs } from './queue/service';
-import type { messageHandlerA } from './lambda/handlers';
+import type { eventHandlerA } from './lambda/handlers';
 import type { serviceListener } from './listener';
 
 /**
@@ -20,7 +20,7 @@ export declare class ImportedSns extends Topic.Import<Sns> {
   subscriptions: [
     Topic.UseSubscription<{
       listener: typeof serviceListener;
-      handler: typeof messageHandlerA;
+      handler: typeof eventHandlerA;
     }>,
     Topic.UseSubscription<{
       service: Environment.Service<Sqs>;

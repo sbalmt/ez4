@@ -1,11 +1,11 @@
-import type { MessageRequest } from 'hello-aws-topic';
+import type { EventRequest } from 'hello-aws-topic';
 import type { Topic } from '@ez4/topic';
 
-export function messageHandlerA(request: Topic.Incoming<MessageRequest>): void {
-  const { message } = request;
+export function eventHandlerA(request: Topic.Incoming<EventRequest>): void {
+  const { event } = request;
 
-  console.log('Handler A', message);
+  console.log('Handler A', event);
 
   // Do some stuff...
-  message.foo;
+  event.foo;
 }

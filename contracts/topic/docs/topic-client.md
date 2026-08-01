@@ -6,20 +6,20 @@ The topic client exposes a simple, type-safe publish API for the topic service. 
 
 The client API provides a unified, provider-agnostic way to access the topic service no matter which cloud provider is being used.
 
-#### Publish a message
+#### Publish an event
 
 ```ts
 export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
   const { myTopic } = context;
 
-  await myTopic.sendMessage({
+  await myTopic.publishEvent({
     foo: 'foo',
     bar: 123
   });
 }
 ```
 
-> The client validates the message against the declared topic message type before publishing.
+> The client validates the event against the declared topic event type before publishing.
 
 ## What's next
 

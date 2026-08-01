@@ -1,23 +1,23 @@
 import type { Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
-import type { MessageRequest } from '../types';
+import type { EventRequest } from '../types';
 import type { Sns } from '../service';
 
-export function messageHandlerA(request: Topic.Incoming<MessageRequest>, context: Service.Context<Sns>): void {
+export function eventHandlerA(request: Topic.Incoming<EventRequest>, context: Service.Context<Sns>): void {
   const { selfVariables } = context;
-  const { message } = request;
+  const { event } = request;
 
-  console.log('Handler A (direct subscription)', selfVariables.TEST_VAR1, message);
+  console.log('Handler A (direct subscription)', selfVariables.TEST_VAR1, event);
 
   // Do another stuff...
-  message.foo;
+  event.foo;
 }
 
-export function messageHandlerB(request: Topic.Incoming<MessageRequest>): void {
-  const { message } = request;
+export function eventHandlerB(request: Topic.Incoming<EventRequest>): void {
+  const { event } = request;
 
-  console.log('Handler B (direct subscription)', message);
+  console.log('Handler B (direct subscription)', event);
 
   // Do another stuff...
-  message.foo;
+  event.foo;
 }

@@ -1,6 +1,6 @@
 # EZ4: Topic Subscriptions
 
-Subscriptions represent how a topic delivers messages to processing targets. Each subscription is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the subscription declaration to generate the necessary infrastructure, invocation bindings, and optional lifecycle listeners.
+Subscriptions represent how a topic delivers events to processing targets. Each subscription is fully typed, [reflection‑driven](../../../foundation/reflection/), and declarative. EZ4 uses the subscription declaration to generate the necessary infrastructure, invocation bindings, and optional lifecycle listeners.
 
 ## Subscription declaration
 
@@ -8,18 +8,18 @@ Declare subscriptions using the `Topic.UseSubscription` helper on the service. T
 
 #### Lambda subscription
 
-A direct lambda subscription invokes a handler whenever the topic receives a matching message.
+A direct lambda subscription invokes a handler whenever the topic receives a matching event.
 
 ```ts
 Topic.UseSubscription<{
-  handler: typeof processMessage;
+  handler: typeof processEvent;
   listener: typeof topicListener;
 }>;
 ```
 
 #### Queue subscription
 
-A queue subscription forwards topic messages to an existing queue service.
+A queue subscription forwards topic events to an existing queue service.
 
 ```ts
 Topic.UseSubscription<{
@@ -35,10 +35,10 @@ The following fields define the behavior, infrastructure, and runtime configurat
 
 #### Service
 
-References an existing queue service that receives topic messages.
+References an existing queue service that receives topic events.
 
 - Useful for integrating topic delivery with durable queue processing.
-- The referenced queue service must accept the same message type.
+- The referenced queue service must accept the same event type.
 
 ```ts
 service: Environment.Service<MyQueueService>;
@@ -50,13 +50,13 @@ service: Environment.Service<MyQueueService>;
 
 #### Handler
 
-Entry-point handler for processing topic messages.
+Entry-point handler for processing topic events.
 
-- Invoked for each incoming message.
+- Invoked for each incoming event.
 - Runs in its own cloud resource.
 
 ```ts
-handler: typeof processMessage;
+handler: typeof processEvent;
 ```
 
 > See the topic [handler](./topic-handler.md) for more details.

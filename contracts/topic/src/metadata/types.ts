@@ -14,7 +14,7 @@ export type TopicService = Omit<ServiceMetadata, 'variables' | 'services'> &
     name: string;
     file?: string;
     description?: string;
-    schema: TopicMessageSchema;
+    schema: TopicEventSchema;
     subscriptions: TopicSubscription[];
     fifoMode?: TopicFifoMode;
   };
@@ -27,12 +27,12 @@ export type TopicImport = Omit<ServiceMetadata, 'variables' | 'services'> &
     reference: string;
     project: string;
     description?: string;
-    schema: TopicMessageSchema;
+    schema: TopicEventSchema;
     subscriptions: TopicSubscription[];
     fifoMode?: TopicFifoMode;
   };
 
-export type TopicMessageSchema = ObjectSchema | UnionSchema;
+export type TopicEventSchema = ObjectSchema | UnionSchema;
 
 export type TopicSubscriptionHandler = FunctionSignature;
 

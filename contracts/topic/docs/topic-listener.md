@@ -4,29 +4,29 @@ Topic listeners let you observe the **lifecycle events** of subscription executi
 
 ## Listener implementation
 
-Listeners receive typed service event `Topic.ServiceEvent<T>` where `T` is the topic message type.
+Listeners receive typed service event `Topic.ServiceEvent<T>` where `T` is the topic event type.
 
 ```ts
-export function topicListener(event: Topic.ServiceEvent<MyTopicMessage>, context: Service.Context<MyTopic>) {
+export function topicListener(event: Topic.ServiceEvent<MyTopicEvent>, context: Service.Context<MyTopic>) {
   switch (event.type) {
     case ServiceEventType.Begin:
-      // Message processing started.
+      // Event processing started.
       break;
 
     case ServiceEventType.Ready:
-      // Message validation and transformation completed.
+      // Event validation and transformation completed.
       break;
 
     case ServiceEventType.Done:
-      // Message processing completed successfully.
+      // Event processing completed successfully.
       break;
 
     case ServiceEventType.Error:
-      // Message validation or handler execution error.
+      // Event validation or handler execution error.
       break;
 
     case ServiceEventType.End:
-      // Message processing finished.
+      // Event processing finished.
       break;
   }
 }
@@ -38,8 +38,8 @@ See [topic subscriptions](./topic-subscriptions.md) for how to attach listeners 
 
 Listeners receive one or more of the following event types during the lifecycle of a request. All events include a `request` field containing a **partial** version of the incoming request with only the fields available at that stage.
 
-- **Begin** - emitted when the topic receives a message and begins processing.
-- **Ready** - emitted when validation and transformation are complete for the incoming message.
+- **Begin** - emitted when the topic receives an event and begins processing.
+- **Ready** - emitted when validation and transformation are complete for the incoming event.
 - **Done** - emitted when the handler completes successfully.
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.

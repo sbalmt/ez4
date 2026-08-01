@@ -3,13 +3,13 @@ import type { TopicRemoteSubscription } from '../types/subscription';
 
 import { Logger } from '@ez4/logger';
 
-export const processRemoteMessage = async (subscription: TopicRemoteSubscription, message: AnyObject) => {
+export const processRemoteEvent = async (subscription: TopicRemoteSubscription, event: AnyObject) => {
   const { resourceName, serviceHost } = subscription;
 
   try {
     const response = await fetch(serviceHost, {
       method: 'POST',
-      body: JSON.stringify(message),
+      body: JSON.stringify(event),
       headers: {
         ['content-type']: 'application/json'
       }

@@ -5,11 +5,11 @@ import type { AnyObject } from '@ez4/utils';
 
 import { Logger } from '@ez4/logger';
 
-export const processQueueMessage = async (context: EmulateServiceContext, subscription: TopicQueueSubscription, message: AnyObject) => {
+export const processQueueEvent = async (context: EmulateServiceContext, subscription: TopicQueueSubscription, event: AnyObject) => {
   try {
     const queueClient = context.makeClient(subscription.service) as QueueClient<any, any>;
 
-    await queueClient.sendMessage(message);
+    await queueClient.sendMessage(event);
     //
   } catch (error) {
     Logger.error(`${error}`);

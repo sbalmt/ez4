@@ -9,7 +9,7 @@ import { createClientMock } from '../client/mock';
 
 export namespace TopicTester {
   export type ClientMock<T extends Topic.Service<any, any>> = Client<T['schema']> & {
-    sendMessage: Mock<Client<T['schema']>['sendMessage']>;
+    publishEvent: Mock<Client<T['schema']>['publishEvent']>;
   };
 
   export const getClient = <T extends Topic.Service<any, any>>(resourceName: string) => {
@@ -19,7 +19,7 @@ export namespace TopicTester {
   export const getClientMock = <T extends Topic.Service<any, any> = any>(resourceName: string) => {
     const client = createClientMock(resourceName) as ClientMock<T>;
 
-    mock.method(client, 'sendMessage');
+    mock.method(client, 'publishEvent');
 
     return client;
   };

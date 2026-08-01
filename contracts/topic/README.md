@@ -1,6 +1,6 @@
 # EZ4: Topic
 
-The Topic contract defines a publish/subscribe event stream for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your message type, subscriptions, variables, and connected services, then generates the infrastructure and runtime bindings required to deliver and process events.
+The Topic contract defines a publish/subscribe event stream for your application. It uses EZ4's [reflection](../../foundation/reflection/) system to analyze your event type, subscriptions, variables, and connected services, then generates the infrastructure and runtime bindings required to deliver and process events.
 
 ## Getting started
 
@@ -18,17 +18,17 @@ Topics are ideal for fan‑out messaging, event‑driven workflows, and loosely 
 import type { Environment, Service } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
-// My message declaration
-declare class MyMessage implements Topic.Message {
+// My event declaration
+declare class MyEvent implements Topic.Event {
   foo: string;
   bar: number;
 }
 
 // My topic declaration
-export declare class MyTopic extends Topic.Unordered<MyMessage> {
+export declare class MyTopic extends Topic.Unordered<MyEvent> {
   subscriptions: [
     Topic.UseSubscription<{
-      handler: typeof processMessage;
+      handler: typeof processEvent;
     }>
   ];
 
@@ -48,13 +48,13 @@ export declare class MyTopic extends Topic.Unordered<MyMessage> {
 EZ4 validates the incoming event, injects all variables and services, and then invokes your subscription handler.
 
 ```ts
-// My message handler
-export function processMessage(request: Topic.Incoming<MyMessage>, context: Service.Context<MyTopic>): void {
+// My event handler
+export function processEvent(request: Topic.Incoming<MyEvent>, context: Service.Context<MyTopic>): void {
   const { otherService, variables } = context;
-  const { message } = request;
+  const { event } = request;
 
-  // Access message contents
-  message.foo;
+  // Access event contents
+  event.foo;
 
   // Access injected services
   otherService.call();
@@ -76,7 +76,7 @@ import type { MyTopic } from './topic';
 export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
   const { myTopic } = context;
 
-  await myTopic.sendMessage({
+  await myTopic.publishEvent({
     foo: 'foo',
     bar: 123
   });

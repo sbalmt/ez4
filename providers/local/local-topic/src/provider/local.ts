@@ -3,25 +3,25 @@ import type { TopicImport, TopicService } from '@ez4/topic/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
-import { getJsonMessage, MalformedMessageError } from '@ez4/topic/utils';
+import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
 
 import { TopicEmulatorSubscriptionType } from '../types/subscription';
-import { processRemoteMessage } from '../handlers/remote';
-import { processLambdaMessage } from '../handlers/lambda';
-import { processQueueMessage } from '../handlers/queue';
+import { processRemoteEvent } from '../handlers/remote';
+import { processLambdaEvent } from '../handlers/lambda';
+import { processQueueEvent } from '../handlers/queue';
 import { createLocalClient } from '../client/local';
 import { TopicManifest } from '../service/manifest';
 import { InMemoryTopic } from '../service/topic';
 
 export const registerLocalService = (service: TopicService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: resourceName, schema: messageSchema } = service;
+  const { name: resourceName, schema: eventSchema } = service;
 
   const clientOptions = {
     ...options,
-    handler: (message: AnyObject) => {
-      return handleTopicMessage(service, options, context, message);
+    handler: (event: AnyObject) => {
+      return handleTopicEvent(service, options, context, event);
     }
   };
 
@@ -30,7 +30,7 @@ export const registerLocalService = (service: TopicService, options: ServeOption
     name: resourceName,
     identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createLocalClient(resourceName, messageSchema, clientOptions);
+      return createLocalClient(resourceName, eventSchema, clientOptions);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
@@ -55,7 +55,7 @@ const handleTopicRequest = async (
 
   switch (path) {
     case '/':
-      return handleMessageRequest(service, options, context, body.toString());
+      return handleEventRequest(service, options, context, body.toString());
 
     case '/unsubscribe':
       return handleUnsubscribeRequest(service, body.toString());
@@ -68,17 +68,17 @@ const handleTopicRequest = async (
   }
 };
 
-const handleMessageRequest = async (service: TopicService, options: ServeOptions, context: EmulateServiceContext, body: string) => {
+const handleEventRequest = async (service: TopicService, options: ServeOptions, context: EmulateServiceContext, body: string) => {
   try {
-    const jsonMessage = JSON.parse(body.toString());
-    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
+    const jsonEvent = JSON.parse(body.toString());
+    const safeEvent = await getJsonEvent(jsonEvent, service.schema);
 
-    await handleTopicMessage(service, options, context, safeMessage);
+    await handleTopicEvent(service, options, context, safeEvent);
 
     return getSuccessResponse(201);
     //
   } catch (error) {
-    if (!(error instanceof MalformedMessageError)) {
+    if (!(error instanceof MalformedEventError)) {
       throw error;
     }
 
@@ -108,22 +108,22 @@ const handleUnsubscribeRequest = (service: TopicService, body: string) => {
   return getSuccessResponse(204);
 };
 
-const handleTopicMessage = async (
+const handleTopicEvent = async (
   service: TopicService | TopicImport,
   options: ServeOptions,
   context: EmulateServiceContext,
-  message: AnyObject
+  event: AnyObject
 ) => {
   const allSubscriptions = [...InMemoryTopic.getSubscriptions(service.name), ...service.subscriptions].map((subscription) => {
     switch (subscription.type) {
       case TopicSubscriptionType.Lambda:
-        return processLambdaMessage(service, options, context, subscription, message);
+        return processLambdaEvent(service, options, context, subscription, event);
 
       case TopicSubscriptionType.Queue:
-        return processQueueMessage(context, subscription, message);
+        return processQueueEvent(context, subscription, event);
 
       case TopicEmulatorSubscriptionType.Remote:
-        return processRemoteMessage(subscription, message);
+        return processRemoteEvent(subscription, event);
     }
   });
 

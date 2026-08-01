@@ -25,8 +25,8 @@ export namespace TopicManifest {
       actions: [
         {
           type: ManifestActionType.Post,
-          description: 'Send a message to all topic subscriptions.',
-          name: 'sendMessage',
+          description: 'Publish an event to all topic subscriptions.',
+          name: 'publishEvent',
           path: '/',
           sources,
           request: {

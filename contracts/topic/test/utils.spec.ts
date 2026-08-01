@@ -3,12 +3,12 @@ import type { ObjectSchema } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'node:assert';
 
-import { getJsonMessage, getJsonStringMessage } from '@ez4/topic/utils';
+import { getJsonEvent, getJsonStringEvent } from '@ez4/topic/utils';
 import { SchemaType } from '@ez4/schema';
 
 describe('topic utils', () => {
-  it('assert :: get json message', async () => {
-    const messageSchema: ObjectSchema = {
+  it('assert :: get json event', async () => {
+    const eventSchema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
         fooKey: {
@@ -24,15 +24,15 @@ describe('topic utils', () => {
       barKey: 'bar'
     };
 
-    const outputOutput = await getJsonMessage(messageInput, messageSchema);
+    const outputOutput = await getJsonEvent(messageInput, eventSchema);
 
     deepEqual(outputOutput, {
       fooKey: 'foo'
     });
   });
 
-  it('assert :: get json message (string)', async () => {
-    const messageSchema: ObjectSchema = {
+  it('assert :: get json event (string)', async () => {
+    const eventSchema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
         fooKey: {
@@ -45,7 +45,7 @@ describe('topic utils', () => {
       fooKey: 'foo'
     };
 
-    const outputOutput = await getJsonStringMessage(messageInput, messageSchema);
+    const outputOutput = await getJsonStringEvent(messageInput, eventSchema);
 
     deepEqual(outputOutput, JSON.stringify(messageInput));
   });

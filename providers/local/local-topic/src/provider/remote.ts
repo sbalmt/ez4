@@ -3,17 +3,17 @@ import type { TopicImport } from '@ez4/topic/library';
 
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
-import { getJsonMessage, MalformedMessageError } from '@ez4/topic/utils';
+import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { Logger } from '@ez4/logger';
 
 import { createRemoteClient, subscribeRemoteClient, unsubscribeRemoteClient } from '../client/remote';
-import { processLambdaMessage } from '../handlers/lambda';
-import { processQueueMessage } from '../handlers/queue';
+import { processLambdaEvent } from '../handlers/lambda';
+import { processQueueEvent } from '../handlers/queue';
 import { getTopicServiceHost } from '../utils/topic';
 
 export const registerRemoteService = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: resourceName, reference: referenceName, schema: messageSchema, project } = service;
+  const { name: resourceName, reference: referenceName, schema: eventSchema, project } = service;
   const { imports } = options;
 
   if (!imports || !imports[project]) {
@@ -31,7 +31,7 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
     name: resourceName,
     identifier: getServiceName(resourceName, options),
     exportHandler: () => {
-      return createRemoteClient(referenceName, messageSchema, clientOptions);
+      return createRemoteClient(referenceName, eventSchema, clientOptions);
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
@@ -67,16 +67,16 @@ const handleTopicRequest = async (
   }
 
   try {
-    const jsonMessage = JSON.parse(body.toString());
-    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
+    const jsonEvent = JSON.parse(body.toString());
+    const safeEvent = await getJsonEvent(jsonEvent, service.schema);
 
     const allSubscriptions = service.subscriptions.map((subscription) => {
       switch (subscription.type) {
         case TopicSubscriptionType.Lambda:
-          return processLambdaMessage(service, options, context, subscription, safeMessage);
+          return processLambdaEvent(service, options, context, subscription, safeEvent);
 
         case TopicSubscriptionType.Queue:
-          return processQueueMessage(context, subscription, safeMessage);
+          return processQueueEvent(context, subscription, safeEvent);
       }
     });
 
@@ -85,7 +85,7 @@ const handleTopicRequest = async (
     return getSuccessResponse(201);
     //
   } catch (error) {
-    if (!(error instanceof MalformedMessageError)) {
+    if (!(error instanceof MalformedEventError)) {
       throw error;
     }
 

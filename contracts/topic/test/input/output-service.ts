@@ -1,7 +1,7 @@
 import type { Environment } from '@ez4/common';
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {
+interface TestEvent extends Topic.Event {
   id: string;
   user: string;
 }
@@ -11,7 +11,7 @@ interface TestMessage extends Topic.Message {
  *
  * @description First test topic description.
  */
-export declare class TestTopic1 extends Topic.Service<TestMessage, Topic.FifoMode<TestMessage>> {
+export declare class TestTopic1 extends Topic.Service<TestEvent, Topic.FifoMode<TestEvent>> {
   subscriptions: [];
 
   fifoMode: Topic.UseFifoMode<{
@@ -28,7 +28,7 @@ export declare class TestTopic1 extends Topic.Service<TestMessage, Topic.FifoMod
 /**
  * @description Description of the second test topic.
  */
-export declare class TestTopic2 extends Topic.Service<TestMessage> {
+export declare class TestTopic2 extends Topic.Service<TestEvent> {
   subscriptions: [];
 
   // Variables to all subscriptions.

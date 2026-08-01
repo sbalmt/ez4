@@ -1,13 +1,13 @@
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {
+interface TestEvent extends Topic.Event {
   foo: string;
 }
 
 /**
  * @description Topic to test subscription listener.
  */
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [
     Topic.UseSubscription<{
       listener: typeof testListener;
@@ -18,4 +18,4 @@ export declare class TestTopic extends Topic.Unordered<TestMessage> {
 
 export function testListener(): void {}
 
-export function testHandler(_request: Topic.Incoming<TestMessage>) {}
+export function testHandler(_request: Topic.Incoming<TestEvent>) {}

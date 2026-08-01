@@ -1,8 +1,8 @@
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {}
+interface TestEvent extends Topic.Event {}
 
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [
     Topic.UseSubscription<{
       handler: typeof testHandler;
@@ -13,4 +13,4 @@ export declare class TestTopic extends Topic.Unordered<TestMessage> {
   ];
 }
 
-export function testHandler(_request: Topic.Incoming<TestMessage>) {}
+export function testHandler(_request: Topic.Incoming<TestEvent>) {}

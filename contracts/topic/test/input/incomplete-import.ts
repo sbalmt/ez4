@@ -1,10 +1,10 @@
 import type { Topic } from '@ez4/topic';
 
-interface TestMessage extends Topic.Message {
+interface TestEvent extends Topic.Event {
   foo: string;
 }
 
-export declare class TestTopic extends Topic.Unordered<TestMessage> {
+export declare class TestTopic extends Topic.Unordered<TestEvent> {
   subscriptions: [];
 }
 

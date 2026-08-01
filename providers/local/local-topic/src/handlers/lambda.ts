@@ -7,12 +7,12 @@ import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/loc
 import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
-export const processLambdaMessage = async (
+export const processLambdaEvent = async (
   service: TopicService | TopicImport,
   options: ServeOptions,
   context: EmulateServiceContext,
   subscription: TopicLambdaSubscription,
-  message: AnyObject
+  event: AnyObject
 ) => {
   const { services } = service;
 
@@ -30,7 +30,7 @@ export const processLambdaMessage = async (
     }
   });
 
-  let currentRequest: Topic.Incoming<Topic.Message> | undefined;
+  let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
   const request = {
     requestId: getRandomUUID()
@@ -41,7 +41,7 @@ export const processLambdaMessage = async (
 
     currentRequest = {
       ...request,
-      message,
+      event,
       traceId
     };
 

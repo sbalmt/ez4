@@ -2,14 +2,14 @@ import type { ErrorDetails } from '@ez4/validator';
 
 import { ServiceError } from '@ez4/common';
 
-export class MalformedMessageError extends ServiceError {
+export class MalformedEventError extends ServiceError {
   constructor(details: ErrorDetails[]) {
-    super('Malformed topic message payload.', { details });
+    super('Malformed topic event payload.', { details });
   }
 }
 
-export class MissingMessageGroupError extends Error {
+export class MissingEventGroupError extends Error {
   constructor(public fieldName: string) {
-    super(`Message group field [${fieldName}] for the topic is missing.`);
+    super(`Event group field [${fieldName}] for the topic is missing.`);
   }
 }

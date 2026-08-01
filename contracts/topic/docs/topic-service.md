@@ -1,21 +1,21 @@
 # EZ4: Topic Service
 
-A topic service defines the **publish/subscribe event stream** interface of an application. It bundles together message schema definitions, subscriptions, shared configuration, environment variables, and the generated topic client. A `Topic.Service` is the top‑level contract that EZ4 uses to generate infrastructure, type‑safe clients, and runtime bindings for event delivery and processing.
+A topic service defines the **publish/subscribe event stream** interface of an application. It bundles together event schema definitions, subscriptions, shared configuration, environment variables, and the generated topic client. A `Topic.Service` is the top‑level contract that EZ4 uses to generate infrastructure, type‑safe clients, and runtime bindings for event delivery and processing.
 
 ## Service declaration
 
 A topic service is declared by extending `Topic.Unordered<T>` or `Topic.Ordered<T>` (FIFO) and providing the subscriptions that compose the topic.
 
 ```ts
-declare class MyMessage implements Topic.Message {
+declare class MyEvent implements Topic.Event {
   bar: boolean;
   foo: number;
 }
 
-export declare class MyTopic extends Topic.Unordered<MyMessage> {
+export declare class MyTopic extends Topic.Unordered<MyEvent> {
   subscriptions: [
     Topic.UseSubscription<{
-      handler: typeof processMessage;
+      handler: typeof processEvent;
     }>
   ];
 }
@@ -31,8 +31,8 @@ The following fields define the behavior, configuration, and runtime environment
 
 Defines all subscriptions attached to the topic.
 
-- When multiple subscriptions exist, messages are delivered to all of them according to the cloud provider policy.
-- Topic subscriptions are the primary mechanism for processing published messages.
+- When multiple subscriptions exist, events are delivered to all of them according to the cloud provider policy.
+- Topic subscriptions are the primary mechanism for processing published events.
 - Each subscription can be either a lambda subscription or a queue subscription.
 
 ```ts
@@ -42,7 +42,7 @@ subscriptions: [
   }>,
 
   Topic.UseSubscription<{
-    handler: typeof processMessageA;
+    handler: typeof processEventA;
   }>
 ];
 ```
@@ -60,7 +60,7 @@ fifoMode: Topic.UseFifoMode<{
 }>;
 ```
 
-> The given field names must exist in the topic message.
+> The given field names must exist in the topic event.
 
 #### Variables (optional)
 
@@ -95,7 +95,7 @@ services: {
 ### Best practices
 
 - Prefer lambda subscriptions for lightweight event handlers and queue subscriptions when you need durable queue processing.
-- Use ordered topics only when message ordering is required.
+- Use ordered topics only when event ordering is required.
 
 ## What's next
 

@@ -1,22 +1,22 @@
 import type { SNSEvent, Context } from 'aws-lambda';
-import type { MessageSchema } from '@ez4/topic/utils';
+import type { EventSchema } from '@ez4/topic/utils';
 import type { Topic } from '@ez4/topic';
 
-import { getJsonMessage } from '@ez4/topic/utils';
+import { getJsonEvent } from '@ez4/topic/utils';
 import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID } from '@ez4/utils';
 
-declare const __EZ4_SCHEMA: MessageSchema | null;
+declare const __EZ4_SCHEMA: EventSchema | null;
 declare const __EZ4_CONTEXT: object;
 
-declare function dispatch(event: Topic.ServiceEvent<Topic.Message>, context: object): Promise<void>;
-declare function handle(message: Topic.Incoming<Topic.Message>, context: object): Promise<any>;
+declare function dispatch(event: Topic.ServiceEvent<Topic.Event>, context: object): Promise<void>;
+declare function handle(event: Topic.Incoming<Topic.Event>, context: object): Promise<any>;
 
 /**
  * Entrypoint to handle SNS events.
  */
 export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<void> {
-  let currentRequest: Topic.Incoming<Topic.Message> | undefined;
+  let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
   const request = {
     requestId: context.awsRequestId
@@ -26,19 +26,19 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     await onBegin(request);
 
     if (!__EZ4_SCHEMA) {
-      throw new Error(`Validation schema for SNS message wasn't found.`);
+      throw new Error(`Validation schema for SNS event wasn't found.`);
     }
 
     for (const { Sns } of event.Records) {
       const payload = JSON.parse(Sns.Message);
-      const message = await getJsonMessage(payload, __EZ4_SCHEMA);
+      const event = await getJsonEvent(payload, __EZ4_SCHEMA);
 
       const traceId = Sns.MessageAttributes['EZ4.TRACE_ID']?.Value ?? getRandomUUID();
 
       currentRequest = {
         ...request,
         traceId,
-        message
+        event
       };
 
       Runtime.setScope({
@@ -66,7 +66,7 @@ const onBegin = (request: Partial<Topic.Request>) => {
   );
 };
 
-const onReady = (request: Partial<Topic.Incoming<Topic.Message>>) => {
+const onReady = (request: Partial<Topic.Incoming<Topic.Event>>) => {
   return dispatch(
     {
       type: ServiceEventType.Ready,
@@ -76,7 +76,7 @@ const onReady = (request: Partial<Topic.Incoming<Topic.Message>>) => {
   );
 };
 
-const onDone = (request: Partial<Topic.Incoming<Topic.Message>>) => {
+const onDone = (request: Partial<Topic.Incoming<Topic.Event>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
@@ -86,7 +86,7 @@ const onDone = (request: Partial<Topic.Incoming<Topic.Message>>) => {
   );
 };
 
-const onError = (error: unknown, request: Partial<Topic.Request | Topic.Incoming<Topic.Message>>) => {
+const onError = (error: unknown, request: Partial<Topic.Request | Topic.Incoming<Topic.Event>>) => {
   console.error({ ...Runtime.getScope(), error });
 
   return dispatch(

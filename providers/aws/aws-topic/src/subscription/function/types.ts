@@ -1,5 +1,5 @@
 import type { ContextSource, LinkedVariables } from '@ez4/project/library';
-import type { TopicMessageSchema } from '@ez4/topic/library';
+import type { TopicEventSchema } from '@ez4/topic/library';
 import type { FunctionParameters } from '@ez4/aws-function';
 
 export type SubscriptionFunction = {
@@ -18,7 +18,7 @@ export type SubscriptionFunctionParameters = Omit<
 > & {
   handler: SubscriptionEntryPoint;
   listener?: SubscriptionFunction;
-  messageSchema?: TopicMessageSchema;
+  eventSchema?: TopicEventSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
   debug?: boolean;

@@ -1,7 +1,7 @@
 import type { Queue } from '@ez4/queue';
-import type { MessageRequest } from '../types';
+import type { EventRequest } from '../types';
 
-export function messageHandlerC(request: Queue.Incoming<MessageRequest>): void {
+export function messageHandlerC(request: Queue.Incoming<EventRequest>): void {
   const { message } = request;
 
   console.log('Handler C (SQS subscription)', message);

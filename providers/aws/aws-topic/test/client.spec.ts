@@ -46,11 +46,11 @@ describe('topic client', { timeout: 90000 }, () => {
     lastState = result;
   });
 
-  it('assert :: send message', async () => {
+  it('assert :: publish event', async () => {
     ok(topicClient);
 
-    await topicClient.sendMessage({
-      test: 'EZ4 Test Message'
+    await topicClient.publishEvent({
+      test: 'EZ4 Test Event'
     });
   });
 

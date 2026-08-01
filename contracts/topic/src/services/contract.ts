@@ -6,30 +6,30 @@ import type { TopicSubscriptionListener } from './listener';
 import type { TopicSubscriptionHandler } from './handler';
 import type { TopicIncoming } from './incoming';
 import type { TopicRequest } from './request';
-import type { TopicMessage } from './message';
 import type { TopicFifoMode } from './mode';
+import type { TopicEvent } from './event';
 import type { Client } from './client';
 
 /**
  * Provide all contracts for a self-managed topic service.
  */
 export namespace Topic {
-  export type Message = TopicMessage;
+  export type Event = TopicEvent;
   export type Request = TopicRequest;
 
-  export type FifoMode<T extends Message> = TopicFifoMode<T>;
+  export type FifoMode<T extends Event> = TopicFifoMode<T>;
 
-  export type Incoming<T extends Message> = TopicIncoming<T>;
+  export type Incoming<T extends Event> = TopicIncoming<T>;
 
-  export type Listener<T extends Message> = TopicSubscriptionListener<T>;
-  export type Handler<T extends Message> = TopicSubscriptionHandler<T>;
+  export type Listener<T extends Event> = TopicSubscriptionListener<T>;
+  export type Handler<T extends Event> = TopicSubscriptionHandler<T>;
 
-  export type LambdaSubscription<T extends Message> = TopicLambdaSubscription<T>;
-  export type QueueSubscription<T extends Message> = TopicQueueSubscription<T>;
+  export type LambdaSubscription<T extends Event> = TopicLambdaSubscription<T>;
+  export type QueueSubscription<T extends Event> = TopicQueueSubscription<T>;
 
-  export type Subscription<T extends Message> = LambdaSubscription<T> | QueueSubscription<T>;
+  export type Subscription<T extends Event> = LambdaSubscription<T> | QueueSubscription<T>;
 
-  export type ServiceEvent<T extends Message = Message> =
+  export type ServiceEvent<T extends Event = Event> =
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
     | CommonService.DoneEvent<Incoming<T>>
@@ -42,23 +42,21 @@ export namespace Topic {
   export type UseSubscription<T extends Exclusive<LambdaSubscription<any>, QueueSubscription<any>>> = T;
 
   /**
-   * Queue Fifo Mode definition.
+   * Topic Fifo Mode definition.
    */
   export type UseFifoMode<T extends FifoMode<any>> = T;
 
   /**
    * Topic service.
    */
-  export declare abstract class Service<T extends Message, U extends FifoMode<T> | undefined = undefined>
-    implements CommonService.Provider
-  {
+  export declare abstract class Service<T extends Event, U extends FifoMode<T> | undefined = undefined> implements CommonService.Provider {
     /**
      * All subscriptions associated to the topic.
      */
     abstract readonly subscriptions: Subscription<T>[];
 
     /**
-     * Message schema.
+     * Event schema.
      */
     readonly schema: T;
 
@@ -86,14 +84,14 @@ export namespace Topic {
   /**
    * Ordered queue service.
    */
-  export declare abstract class Ordered<T extends Message> extends Service<T, FifoMode<T>> {
+  export declare abstract class Ordered<T extends Event> extends Service<T, FifoMode<T>> {
     /**
      * Configure the FIFO mode options.
      */
     abstract readonly fifoMode: FifoMode<T>;
 
     /**
-     * Message schema.
+     * Event schema.
      */
     readonly schema: T;
   }
@@ -101,9 +99,9 @@ export namespace Topic {
   /**
    * Unordered queue service.
    */
-  export declare abstract class Unordered<T extends Message> extends Service<T, undefined> {
+  export declare abstract class Unordered<T extends Event> extends Service<T, undefined> {
     /**
-     * Message schema.
+     * Event schema.
      */
     readonly schema: T;
   }
@@ -128,7 +126,7 @@ export namespace Topic {
     readonly reference: T;
 
     /**
-     * Imported message schema (do not replace).
+     * Imported event schema (do not replace).
      */
     readonly schema: T['schema'];
 
