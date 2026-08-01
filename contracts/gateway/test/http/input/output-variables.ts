@@ -18,18 +18,18 @@ export declare class TestService extends Http.Service {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 declare class TestRequest implements Http.Request {}
 
 function testRoute(_request: Http.Incoming<TestRequest>, context: Service.Context<TestService>): Http.SuccessEmptyResponse {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 
   // Variables in route scope
   process.env.TEST_VAR3;

@@ -15,14 +15,14 @@ export declare class TestStorage extends Bucket.Service {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 function eventHandler(_event: Bucket.ObjectEvent, context: Service.Context<TestStorage>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }

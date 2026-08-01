@@ -1,0 +1,50 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestValidation": {
+    "type": "@ez4/validation",
+    "name": "TestValidation",
+    "file": "test/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      },
+      "selfValidation": {
+        "reference": "TestValidation"
+      }
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "number"
+        }
+      },
+      "identity": 1
+    },
+    "handler": {
+      "name": "performValidation",
+      "file": "test/input/output-dependencies.ts",
+      "position": [
+        19,
+        1
+      ]
+    }
+  }
+}

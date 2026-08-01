@@ -29,32 +29,32 @@ export declare class TestService extends Ws.Service<{}> {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 function connectHandler(_event: Ws.Incoming<Ws.EmptyEvent>, context: Service.Context<TestService>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }
 
 function disconnectHandler(_event: Ws.Incoming<Ws.EmptyEvent>, context: Service.Context<TestService>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }
 
 function messageHandler(_request: Ws.Incoming<Ws.EmptyRequest>, context: Service.Context<TestService>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 
   // Variables in route scope
   process.env.TEST_VAR3;

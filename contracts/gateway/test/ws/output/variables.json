@@ -19,7 +19,7 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": {
+      "selfVariables": {
         "reference": "@variables"
       }
     },

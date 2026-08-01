@@ -1,45 +1,48 @@
 {
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
   "@options": {
     "type": "@ez4/common",
     "name": "@options",
     "context": {}
   },
-  "@variables": {
-    "name": "@variables",
-    "type": "@ez4/common",
-    "context": {}
-  },
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
-    "file": "test/input/output-variables.ts",
+    "file": "test/input/output-dependencies.ts",
     "context": {},
-    "variables": {
-      "TEST_VAR1": "test-literal-value",
-      "TEST_VAR2": "test-env-var-value"
-    },
+    "variables": {},
     "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
       "selfVariables": {
         "reference": "@variables"
+      },
+      "selfClient": {
+        "reference": "TestQueue"
       }
     },
     "schema": {
       "type": "object",
-      "properties": {
-        "foo": {
-          "type": "string"
-        }
-      },
+      "properties": {},
       "identity": 1
     },
     "subscriptions": [
       {
         "handler": {
           "name": "testHandler",
-          "file": "test/input/output-variables.ts",
+          "file": "test/input/output-dependencies.ts",
           "position": [
-            25,
+            20,
             1
+          ],
+          "references": [
+            "selfOptions",
+            "selfVariables"
           ]
         }
       }

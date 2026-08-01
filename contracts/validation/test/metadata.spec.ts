@@ -24,4 +24,5 @@ describe('validation metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: validation service', () => testFile('service'));
+  it('assert :: validation dependencies', () => testFile('dependencies'));
 });

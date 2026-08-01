@@ -27,10 +27,11 @@ describe('queue metadata', () => {
   it('assert :: queue subscriptions', () => testFile('subscriptions'));
   it('assert :: queue dead-letter', () => testFile('deadletter'));
   it('assert :: queue backoff', () => testFile('backoff'));
+  it('assert :: subscription variables', () => testFile('variables'));
+  it('assert :: subscription dependencies', () => testFile('dependencies'));
+  it('assert :: subscription validation', () => testFile('validation'));
   it('assert :: subscription listener', () => testFile('listener'));
   it('assert :: subscription vpc', () => testFile('vpc'));
-  it('assert :: service variables', () => testFile('variables'));
-  it('assert :: service validation', () => testFile('validation'));
   it('assert :: queue message', () => testFile('message'));
   it('assert :: import queue', () => testFile('import'));
 });

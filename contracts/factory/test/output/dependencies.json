@@ -1,0 +1,42 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestServiceFactory": {
+    "type": "@ez4/factory",
+    "name": "TestServiceFactory",
+    "file": "test/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      },
+      "selfFactory": {
+        "reference": "TestServiceFactory"
+      }
+    },
+    "handler": {
+      "name": "testServiceInitializer",
+      "file": "test/input/output-dependencies.ts",
+      "position": [
+        17,
+        1
+      ],
+      "references": [
+        "selfOptions",
+        "selfVariables"
+      ]
+    }
+  }
+}

@@ -19,7 +19,7 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": {
+      "selfVariables": {
         "reference": "@variables"
       }
     },
@@ -42,7 +42,7 @@
             "name": "TestService",
             "file": "test/http/input/output-variables.ts",
             "services": {
-              "selfSettings": {
+              "selfVariables": {
                 "reference": "@variables"
               }
             },

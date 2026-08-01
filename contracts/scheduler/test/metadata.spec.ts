@@ -1,27 +1,20 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { deepEqual, equal } from 'node:assert/strict';
+import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { registerTriggers, getCronServicesMetadata } from '@ez4/scheduler/library';
-import { buildReflection } from '@ez4/project/library';
+import { registerTriggers } from '@ez4/scheduler/library';
+import { buildMetadata } from '@ez4/project/library';
 
 const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
-  const reflection = buildReflection([sourceFile]);
-  const result = getCronServicesMetadata(reflection);
-
-  result.errors.forEach((error) => {
-    console.error(error.message);
-  });
-
-  equal(result.errors.length, 0);
+  const { metadata } = buildMetadata([sourceFile]);
 
   if (!existsSync(outputFile) || overwrite) {
-    writeFileSync(outputFile, JSON.stringify(result.services, undefined, 2));
+    writeFileSync(outputFile, JSON.stringify(metadata, undefined, 2));
   } else {
-    deepEqual(result.services, JSON.parse(readFileSync(outputFile).toString()));
+    deepEqual(metadata, JSON.parse(readFileSync(outputFile).toString()));
   }
 };
 
@@ -32,6 +25,7 @@ describe('scheduler metadata', () => {
 
   it('assert :: static scheduler', () => testFile('static'));
   it('assert :: dynamic scheduler', () => testFile('dynamic'));
+  it('assert :: target dependencies', () => testFile('dependencies'));
   it('assert :: target listener', () => testFile('listener'));
   it('assert :: target vpc', () => testFile('vpc'));
   it('assert :: scheduler event', () => testFile('event'));

@@ -1,11 +1,13 @@
-import type { StreamAnyChange, Database } from '@ez4/database';
+import type { StreamAnyChange, Database, Client } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
 export declare class TestDatabase extends Database.Service<TestEngine> {
+  client: Client<TestDatabase>;
+
   tables: [
     Database.UseTable<{
-      name: 'testTable';
+      name: 'inlineTestTable';
       schema: TestSchema;
       indexes: {};
       stream: {
@@ -14,13 +16,10 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
     }>
   ];
 
-  variables: {
-    TEST_VAR1: 'test-literal-value';
-    TEST_VAR2: Environment.Variable<'TEST_ENV_VAR'>;
-  };
-
   services: {
+    selfOptions: Environment.ServiceOptions;
     selfVariables: Environment.ServiceVariables;
+    selfClient: Environment.Service<TestDatabase>;
   };
 }
 
@@ -28,10 +27,7 @@ declare class TestSchema implements Database.Schema {
   foo: string;
 }
 
-function streamHandler(_change: StreamAnyChange<TestSchema>, context: Service.Context<TestDatabase>) {
-  const { selfVariables } = context;
-
-  // Ensure variables are property referenced.
-  selfVariables.TEST_VAR1;
-  selfVariables.TEST_VAR2;
+async function streamHandler(_change: StreamAnyChange<TestSchema>, { selfOptions, selfVariables }: Service.Context<TestDatabase>) {
+  selfVariables;
+  selfOptions;
 }

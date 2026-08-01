@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeCallback, TypeFunction } from '@ez4/reflection';
 
+import { getFunctionReferences, getFunctionSignature } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { getQueueMessageMetadata } from './message';
@@ -19,10 +19,20 @@ export const getSubscriptionHandlerMetadata = (type: AllType, reflection: Reflec
 
   const properties = new Set(['request']);
 
-  const message = type.parameters?.[0].value;
+  if (type.parameters) {
+    const [messageType, contextType] = type.parameters;
 
-  if (message && getQueueMessageMetadata(message, type, reflection, errorList)) {
-    properties.delete('request');
+    if (messageType && getQueueMessageMetadata(messageType.value, type, reflection, errorList)) {
+      properties.delete('request');
+    }
+
+    if (handler && contextType) {
+      const references = getFunctionReferences(contextType);
+
+      if (references?.length) {
+        handler.references = references;
+      }
+    }
   }
 
   if (!handler || properties.size) {

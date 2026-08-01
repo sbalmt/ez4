@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeCallback, TypeFunction } from '@ez4/reflection';
 
+import { getFunctionReferences, getFunctionSignature } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 import { getCronEventMetadata } from './event';
@@ -18,10 +18,20 @@ export const getTargetHandlerMetadata = (type: AllType, reflection: ReflectionTy
   const handler = getFunctionSignature(type);
   const properties = new Set<string>();
 
-  const request = type.parameters?.[0].value;
+  if (type.parameters) {
+    const [requestType, contextType] = type.parameters;
 
-  if (request && !getCronEventMetadata(request, type, reflection, errorList)) {
-    properties.add('request');
+    if (requestType && !getCronEventMetadata(requestType.value, type, reflection, errorList)) {
+      properties.add('request');
+    }
+
+    if (handler && contextType) {
+      const references = getFunctionReferences(contextType);
+
+      if (references?.length) {
+        handler.references = references;
+      }
+    }
   }
 
   if (!handler || properties.size) {

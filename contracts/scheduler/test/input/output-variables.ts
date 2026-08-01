@@ -14,14 +14,14 @@ export declare class TestScheduler extends Cron.Service {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 function targetHandler(_request: Cron.Incoming<null>, context: Service.Context<TestScheduler>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }

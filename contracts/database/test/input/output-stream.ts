@@ -30,6 +30,8 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
 
   // Services to all streams.
   services: {
+    selfOptions: Environment.ServiceOptions;
+    selfVariables: Environment.ServiceVariables;
     selfClient: Environment.Service<TestDatabase>;
   };
 }

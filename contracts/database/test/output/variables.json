@@ -1,4 +1,14 @@
 {
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "TestDatabase": {
     "type": "@ez4/database",
     "name": "TestDatabase",
@@ -9,7 +19,7 @@
       "TEST_VAR2": "test-env-var-value"
     },
     "services": {
-      "selfSettings": {
+      "selfVariables": {
         "reference": "@variables"
       }
     },

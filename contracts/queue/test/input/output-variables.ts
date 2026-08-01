@@ -18,14 +18,14 @@ export declare class TestQueue extends Queue.Unordered<TestMessage> {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 function testHandler(_request: Queue.Incoming<TestMessage>, context: Service.Context<TestQueue>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }

@@ -1,0 +1,117 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "name": "TestService",
+    "file": "test/ws/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      },
+      "selfClient": {
+        "reference": "TestService"
+      }
+    },
+    "displayName": "Test Service",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-dependencies.ts",
+        "position": [
+          42,
+          1
+        ],
+        "request": {},
+        "references": [
+          "selfOptions",
+          "selfVariables"
+        ]
+      },
+      "authorizer": {
+        "name": "authorizerHandler",
+        "file": "test/ws/input/output-dependencies.ts",
+        "position": [
+          33,
+          1
+        ],
+        "request": {},
+        "references": [
+          "selfOptions",
+          "selfVariables"
+        ],
+        "provider": {
+          "name": "TestService",
+          "file": "test/ws/input/output-dependencies.ts",
+          "services": {
+            "selfOptions": {
+              "reference": "@options"
+            },
+            "selfVariables": {
+              "reference": "@variables"
+            },
+            "selfClient": {
+              "reference": "TestService"
+            }
+          }
+        },
+        "isolated": true,
+        "response": {
+          "identity": {
+            "type": "object",
+            "properties": {},
+            "identity": 1
+          }
+        }
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-dependencies.ts",
+        "position": [
+          47,
+          1
+        ],
+        "request": {},
+        "references": [
+          "selfOptions",
+          "selfVariables"
+        ]
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler1",
+        "file": "test/ws/input/output-dependencies.ts",
+        "position": [
+          52,
+          1
+        ],
+        "request": {},
+        "references": [
+          "selfOptions",
+          "selfVariables"
+        ]
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import type { AllType, ReflectionTypes, TypeCallback, TypeFunction } from '@ez4/reflection';
 
+import { getFunctionReferences, getFunctionSignature } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { getFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../errors/handler';
 
@@ -20,6 +20,18 @@ export const getStreamHandlerMetadata = (type: AllType, _reflection: ReflectionT
 
   if (type.parameters) {
     properties.delete('change');
+
+    if (handler) {
+      const [, contextType] = type.parameters;
+
+      if (contextType) {
+        const references = getFunctionReferences(contextType);
+
+        if (references?.length) {
+          handler.references = references;
+        }
+      }
+    }
   }
 
   if (!handler || properties.size) {

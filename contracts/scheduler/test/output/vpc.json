@@ -1,4 +1,14 @@
 {
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
   "TestScheduler1": {
     "type": "@ez4/cron",
     "name": "TestScheduler1",

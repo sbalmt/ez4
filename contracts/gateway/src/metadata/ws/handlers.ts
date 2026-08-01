@@ -2,8 +2,8 @@ import type { AllType, TypeCallback, TypeFunction, TypeModel, ReflectionTypes, E
 import type { Incomplete } from '@ez4/utils';
 import type { WsEvent, WsHandler, WsRequest } from './types';
 
+import { getFunctionReferences, getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 
 import { IncompleteHandlerError } from '../../errors/handler';
 import { getWsResponseMetadata } from './response';
@@ -44,10 +44,18 @@ const getWsHandler = (
   const properties = new Set<string>();
 
   if (type.parameters) {
-    const [{ value: requestType }] = type.parameters;
+    const [requestType, contextType] = type.parameters;
 
-    if (!(handler.request = resolver(requestType))) {
+    if (requestType && !(handler.request = resolver(requestType.value))) {
       properties.add('request');
+    }
+
+    if (contextType) {
+      const references = getFunctionReferences(contextType);
+
+      if (references?.length) {
+        handler.references = references;
+      }
     }
   }
 

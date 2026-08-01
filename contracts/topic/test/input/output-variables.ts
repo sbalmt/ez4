@@ -19,14 +19,14 @@ export declare class TestTopic extends Topic.Unordered<TestEvent> {
   };
 
   services: {
-    selfSettings: Environment.ServiceVariables;
+    selfVariables: Environment.ServiceVariables;
   };
 }
 
 function testHandler(_request: Topic.Incoming<TestEvent>, context: Service.Context<TestTopic>) {
-  const { selfSettings } = context;
+  const { selfVariables } = context;
 
   // Ensure variables are property referenced.
-  selfSettings.TEST_VAR1;
-  selfSettings.TEST_VAR2;
+  selfVariables.TEST_VAR1;
+  selfVariables.TEST_VAR2;
 }

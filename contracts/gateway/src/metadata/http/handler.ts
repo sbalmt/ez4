@@ -2,8 +2,8 @@ import type { AllType, ReflectionTypes, TypeCallback, TypeFunction, TypeModel } 
 import type { Incomplete } from '@ez4/utils';
 import type { HttpHandler } from './types';
 
+import { getFunctionReferences, getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isTypeCallback, isTypeFunction } from '@ez4/reflection';
-import { getFunctionSignature, isFunctionSignature } from '@ez4/common/library';
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteHandlerError } from '../../errors/handler';
@@ -34,13 +34,23 @@ export const getHttpHandlerMetadata = (
   const properties = new Set(['response']);
 
   if (type.parameters) {
-    const [{ value: requestType }, contextType] = type.parameters;
+    const [requestType, contextType] = type.parameters;
 
-    handler.request = getHttpRequestMetadata(requestType, parent, reflection, errorList);
+    if (requestType) {
+      handler.request = getHttpRequestMetadata(requestType.value, parent, reflection, errorList);
+    }
 
-    if (contextType && !external) {
-      handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
-      handler.isolated = true;
+    if (contextType) {
+      const references = getFunctionReferences(contextType);
+
+      if (references?.length) {
+        handler.references = references;
+      }
+
+      if (!external) {
+        handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
+        handler.isolated = true;
+      }
     }
   }
 

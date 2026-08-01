@@ -12,7 +12,7 @@
   "TestDatabase": {
     "type": "@ez4/database",
     "name": "TestDatabase",
-    "file": "test/input/output-stream.ts",
+    "file": "test/input/output-dependencies.ts",
     "context": {},
     "variables": {},
     "services": {
@@ -49,54 +49,17 @@
         },
         "indexes": [],
         "stream": {
-          "logLevel": "debug",
-          "architecture": "arm",
-          "logRetention": 14,
-          "timeout": 10,
-          "memory": 256,
           "handler": {
             "name": "streamHandler",
-            "description": "Example of database stream.",
-            "summary": "Database stream example.",
-            "file": "test/input/output-stream.ts",
+            "file": "test/input/output-dependencies.ts",
             "position": [
-              63,
+              30,
               1
+            ],
+            "references": [
+              "selfOptions",
+              "selfVariables"
             ]
-          }
-        }
-      },
-      {
-        "name": "testTable",
-        "schema": {
-          "type": "object",
-          "identity": 1,
-          "properties": {
-            "foo": {
-              "type": "string"
-            }
-          }
-        },
-        "indexes": [],
-        "stream": {
-          "runtime": "node24",
-          "debug": true,
-          "handler": {
-            "name": "streamHandler",
-            "description": "Example of database stream.",
-            "summary": "Database stream example.",
-            "file": "test/input/output-stream.ts",
-            "position": [
-              63,
-              1
-            ]
-          },
-          "files": [
-            "path/to/file-a.txt",
-            "path/to/file-b.json"
-          ],
-          "variables": {
-            "TEST_VAR": "test-literal-value"
           }
         }
       }

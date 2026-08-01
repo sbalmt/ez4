@@ -49,7 +49,7 @@ declare class TestAuthResponse implements Ws.AuthResponse {
   };
 }
 
-export function authorizerHandler(_request: TestAuthRequest): TestAuthResponse {
+function authorizerHandler(_request: TestAuthRequest): TestAuthResponse {
   return {
     identity: {
       foo: 'foo'
@@ -80,9 +80,9 @@ declare class TestEvent implements Ws.Event {
   };
 }
 
-export function connectHandler(_event: Ws.Incoming<TestEvent>) {}
+function connectHandler(_event: Ws.Incoming<TestEvent>) {}
 
-export function disconnectHandler(_event: Ws.Incoming<TestEvent>) {}
+function disconnectHandler(_event: Ws.Incoming<TestEvent>) {}
 
 declare class TestRequest implements Ws.Request {
   /**
@@ -100,4 +100,4 @@ declare class TestRequest implements Ws.Request {
   };
 }
 
-export function messageHandler(_request: Ws.Incoming<TestRequest>) {}
+function messageHandler(_request: Ws.Incoming<TestRequest>) {}

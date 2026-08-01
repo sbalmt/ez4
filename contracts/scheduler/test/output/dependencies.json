@@ -1,0 +1,68 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "file": "test/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      },
+      "selfClient": {
+        "reference": "TestScheduler"
+      }
+    },
+    "schema": {
+      "type": "union",
+      "elements": [
+        {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bar": {
+              "type": "number"
+            }
+          },
+          "identity": 1
+        }
+      ]
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-dependencies.ts",
+        "position": [
+          20,
+          1
+        ],
+        "references": [
+          "selfOptions",
+          "selfVariables"
+        ]
+      }
+    }
+  }
+}

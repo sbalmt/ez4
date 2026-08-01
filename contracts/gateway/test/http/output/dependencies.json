@@ -1,0 +1,67 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "file": "test/http/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {
+      "selfOptions": {
+        "reference": "@options"
+      },
+      "selfVariables": {
+        "reference": "@variables"
+      },
+      "selfClient": {
+        "reference": "TestService"
+      }
+    },
+    "routes": [
+      {
+        "path": "GET /test-route",
+        "handler": {
+          "name": "testRoute",
+          "file": "test/http/input/output-dependencies.ts",
+          "position": [
+            21,
+            1
+          ],
+          "request": {},
+          "references": [
+            "selfOptions",
+            "selfVariables"
+          ],
+          "provider": {
+            "name": "TestService",
+            "file": "test/http/input/output-dependencies.ts",
+            "services": {
+              "selfOptions": {
+                "reference": "@options"
+              },
+              "selfVariables": {
+                "reference": "@variables"
+              },
+              "selfClient": {
+                "reference": "TestService"
+              }
+            }
+          },
+          "isolated": true,
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}
