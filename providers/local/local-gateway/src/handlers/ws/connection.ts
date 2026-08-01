@@ -4,8 +4,8 @@ import type { WsService } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { resolveValidation } from '@ez4/gateway/utils';
-import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 import { getIncomingRequestIdentity, getIncomingRequestHeaders, getIncomingRequestQuery } from '../../utils/request';
@@ -23,7 +23,9 @@ export const processWsConnection = async (
   const target = connection.live ? connect : disconnect;
   const handler = target.handler;
 
-  const clients = context.makeClients(services);
+  const servicesInUse = handler.references ? pickObject(services, handler.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   Runtime.setScope({
@@ -41,42 +43,42 @@ export const processWsConnection = async (
     }
   });
 
-  const request: Ws.Incoming<Ws.Event> = {
+  const currentRequest: Ws.Incoming<Ws.Event> = {
     connectionId: connection.id,
     requestId: getRandomUUID(),
     timestamp: new Date()
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
-    return resolveValidation(value, clients, context.type);
+    return resolveValidation(value, serviceClients, context.type);
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, currentRequest);
 
     if (handler.request) {
       const { preferences = defaults?.preferences } = target;
 
       const incoming = { ...event, preferences };
 
-      Object.assign(request, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
-      Object.assign(request, await getIncomingRequestHeaders(handler.request, event, onCustomValidation));
-      Object.assign(request, await getIncomingRequestQuery(handler.request, incoming, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestIdentity(handler.request, identity, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestHeaders(handler.request, event, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestQuery(handler.request, incoming, onCustomValidation));
     }
 
-    await onReady(module, clients, request);
+    await onReady(module, serviceClients, currentRequest);
 
-    await module.handler(request, clients);
+    await module.handler(currentRequest, serviceClients);
 
-    await onDone(module, clients, request);
+    await onDone(module, serviceClients, currentRequest);
 
     //
   } catch (error) {
-    await onError(module, clients, request, error);
+    await onError(module, serviceClients, currentRequest, error);
 
     throw error;
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, currentRequest);
   }
 };

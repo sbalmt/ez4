@@ -4,8 +4,8 @@ import type { WsService } from '@ez4/gateway/library';
 import type { Ws } from '@ez4/gateway';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { resolveValidation } from '@ez4/gateway/utils';
-import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 import { getIncomingRequestHeaders, getIncomingRequestQuery } from '../../utils/request';
@@ -25,7 +25,9 @@ export const processWsAuthorization = async (
   const provider = connect.authorizer.provider;
   const services = provider?.services ?? {};
 
-  const clients = context.makeClients(services);
+  const servicesInUse = connect.authorizer.references ? pickObject(services, connect.authorizer.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   Runtime.setScope({
@@ -43,7 +45,7 @@ export const processWsAuthorization = async (
     }
   });
 
-  const request: Ws.Incoming<Ws.AuthRequest> = {
+  const currentRequest: Ws.Incoming<Ws.AuthRequest> = {
     connectionId: event.connection.id,
     requestId: getRandomUUID(),
     timestamp: new Date(),
@@ -51,35 +53,35 @@ export const processWsAuthorization = async (
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
-    return resolveValidation(value, clients, context.type);
+    return resolveValidation(value, serviceClients, context.type);
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, currentRequest);
 
     if (connect.authorizer?.request) {
       const { preferences = defaults?.preferences } = connect;
 
       const incoming = { ...event, preferences };
 
-      Object.assign(request, await getIncomingRequestHeaders(connect.authorizer.request, event, onCustomValidation));
-      Object.assign(request, await getIncomingRequestQuery(connect.authorizer.request, incoming, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestHeaders(connect.authorizer.request, event, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestQuery(connect.authorizer.request, incoming, onCustomValidation));
     }
 
-    await onReady(module, clients, request);
+    await onReady(module, serviceClients, currentRequest);
 
-    const { identity } = await module.handler<Ws.AuthResponse>(request, clients);
+    const { identity } = await module.handler<Ws.AuthResponse>(currentRequest, serviceClients);
 
-    await onDone(module, clients, request);
+    await onDone(module, serviceClients, currentRequest);
 
     return identity;
     //
   } catch (error) {
-    await onError(module, clients, request, error);
+    await onError(module, serviceClients, currentRequest, error);
 
     throw error;
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, currentRequest);
   }
 };

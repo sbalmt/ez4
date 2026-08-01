@@ -6,7 +6,7 @@ import type { MatchingRoute } from '../../utils/route';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { resolveValidation } from '@ez4/gateway/utils';
-import { getRandomUUID } from '@ez4/utils';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 import { getIncomingRequestHeaders, getIncomingRequestParameters, getIncomingRequestQuery } from '../../utils/request';
@@ -24,7 +24,9 @@ export const processHttpAuthorization = async (
   const provider = route.authorizer.provider;
   const services = provider?.services ?? {};
 
-  const clients = context.makeClients(services);
+  const servicesInUse = route.authorizer.references ? pickObject(services, route.authorizer.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   Runtime.setScope({
@@ -43,7 +45,7 @@ export const processHttpAuthorization = async (
     }
   });
 
-  const request: Http.Incoming<Http.AuthRequest> = {
+  const currentRequest: Http.Incoming<Http.AuthRequest> = {
     requestId: getRandomUUID(),
     timestamp: new Date(),
     method: route.method,
@@ -52,32 +54,32 @@ export const processHttpAuthorization = async (
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
-    return resolveValidation(value, clients, context.type);
+    return resolveValidation(value, serviceClients, context.type);
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, currentRequest);
 
     if (route.authorizer?.request) {
-      Object.assign(request, await getIncomingRequestHeaders(route.authorizer.request, route, onCustomValidation));
-      Object.assign(request, await getIncomingRequestParameters(route.authorizer.request, route, onCustomValidation));
-      Object.assign(request, await getIncomingRequestQuery(route.authorizer.request, route, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestHeaders(route.authorizer.request, route, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestParameters(route.authorizer.request, route, onCustomValidation));
+      Object.assign(currentRequest, await getIncomingRequestQuery(route.authorizer.request, route, onCustomValidation));
     }
 
-    await onReady(module, clients, request);
+    await onReady(module, serviceClients, currentRequest);
 
-    const { identity } = await module.handler<Http.AuthResponse>(request, clients);
+    const { identity } = await module.handler<Http.AuthResponse>(currentRequest, serviceClients);
 
-    await onDone(module, clients, request);
+    await onDone(module, serviceClients, currentRequest);
 
     return identity;
     //
   } catch (error) {
-    await onError(module, clients, request, error);
+    await onError(module, serviceClients, currentRequest, error);
 
     throw error;
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, currentRequest);
   }
 };

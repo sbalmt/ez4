@@ -6,7 +6,7 @@ import type { Queue } from '@ez4/queue';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { getRandomUUID } from '@ez4/utils';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 export const processLambdaMessage = async (
@@ -18,7 +18,9 @@ export const processLambdaMessage = async (
 ) => {
   const { services } = service;
 
-  const clients = context.makeClients(services);
+  const servicesInUse = subscription.handler.references ? pickObject(services, subscription.handler.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   const module = await createModule({
@@ -39,11 +41,11 @@ export const processLambdaMessage = async (
   };
 
   const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
-    return resolveValidation(value, clients, context.type);
+    return resolveValidation(value, serviceClients, context.type);
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, request);
 
     currentRequest = {
       ...request,
@@ -57,16 +59,16 @@ export const processLambdaMessage = async (
       traceId
     });
 
-    await onReady(module, clients, currentRequest);
-    await module.handler(currentRequest, clients);
-    await onDone(module, clients, currentRequest);
+    await onReady(module, serviceClients, currentRequest);
+    await module.handler(currentRequest, serviceClients);
+    await onDone(module, serviceClients, currentRequest);
     //
   } catch (error) {
-    await onError(module, clients, currentRequest ?? request, error);
+    await onError(module, serviceClients, currentRequest ?? request, error);
 
     throw error;
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, request);
   }
 };

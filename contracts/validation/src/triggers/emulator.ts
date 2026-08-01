@@ -2,6 +2,7 @@ import type { EmulateServiceEvent, EmulatorServiceClients, EntrypointModule, Ser
 import type { AnySchema } from '@ez4/schema';
 
 import { getServiceName, createEmulatorModule } from '@ez4/project/library';
+import { pickObject } from '@ez4/utils';
 
 import { isValidationService } from '../metadata/types';
 
@@ -22,7 +23,10 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
     identifier: getServiceName(resourceName, options),
     options: service.options,
     exportHandler: (serviceOptions) => () => {
-      return createClient(schema, validationModule, context.makeClients(services, serviceOptions));
+      const servicesInUse = handler.references ? pickObject(services, handler.references) : services;
+      const serviceClients = context.makeClients(servicesInUse, serviceOptions);
+
+      return createClient(schema, validationModule, serviceClients);
     },
     bootstrapHandler: async () => {
       validationModule = await createEmulatorModule({

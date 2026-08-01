@@ -3,7 +3,7 @@ import type { CronService } from '@ez4/scheduler/library';
 import type { Cron } from '@ez4/scheduler';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getRandomUUID } from '@ez4/utils';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 export const processSchedulerEvent = async (
@@ -14,7 +14,9 @@ export const processSchedulerEvent = async (
 ) => {
   const { services, target } = service;
 
-  const clients = context.makeClients(services);
+  const servicesInUse = target.handler.references ? pickObject(services, target.handler.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   Runtime.setScope({
@@ -32,27 +34,27 @@ export const processSchedulerEvent = async (
     }
   });
 
-  const request: Cron.Incoming<Cron.Event | null> = {
+  const currentRequest: Cron.Incoming<Cron.Event | null> = {
     requestId: getRandomUUID(),
     event: null,
     traceId
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, currentRequest);
 
     if (service.schema) {
-      Object.assign(request, { event });
+      Object.assign(currentRequest, { event });
     }
 
-    await onReady(module, clients, request);
-    await module.handler(request, clients);
-    await onDone(module, clients, request);
+    await onReady(module, serviceClients, currentRequest);
+    await module.handler(currentRequest, serviceClients);
+    await onDone(module, serviceClients, currentRequest);
     //
   } catch (error) {
-    await onError(module, clients, request, error);
+    await onError(module, serviceClients, currentRequest, error);
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, currentRequest);
   }
 };

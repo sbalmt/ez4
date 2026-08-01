@@ -3,7 +3,7 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { Bucket } from '@ez4/storage';
 
 import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getRandomUUID } from '@ez4/utils';
+import { getRandomUUID, pickObject } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 export const processLambdaEvent = async (
@@ -15,7 +15,9 @@ export const processLambdaEvent = async (
 ) => {
   const { services } = service;
 
-  const clients = context.makeClients(services);
+  const servicesInUse = event.handler.references ? pickObject(services, event.handler.references) : services;
+  const serviceClients = context.makeClients(servicesInUse);
+
   const traceId = getRandomUUID();
 
   const module = await createModule({
@@ -36,7 +38,7 @@ export const processLambdaEvent = async (
   };
 
   try {
-    await onBegin(module, clients, request);
+    await onBegin(module, serviceClients, request);
 
     currentRequest = {
       ...request,
@@ -48,16 +50,16 @@ export const processLambdaEvent = async (
       traceId
     });
 
-    await onReady(module, clients, currentRequest);
-    await module.handler(currentRequest, clients);
-    await onDone(module, clients, currentRequest);
+    await onReady(module, serviceClients, currentRequest);
+    await module.handler(currentRequest, serviceClients);
+    await onDone(module, serviceClients, currentRequest);
     //
   } catch (error) {
-    await onError(module, clients, currentRequest ?? request, error);
+    await onError(module, serviceClients, currentRequest ?? request, error);
 
     throw error;
     //
   } finally {
-    await onEnd(module, clients, request);
+    await onEnd(module, serviceClients, request);
   }
 };
