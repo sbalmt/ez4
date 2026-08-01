@@ -265,6 +265,99 @@
       }
     ]
   },
+  "432b7cf5a23289932dc9b8dadae79de1:ClassWithDestructingParameters": {
+    "file": "test/types/class.ts",
+    "type": "class",
+    "name": "ClassWithDestructingParameters",
+    "position": {
+      "character": 1,
+      "line": 77
+    },
+    "modifiers": {
+      "declare": true,
+      "export": true
+    },
+    "members": [
+      {
+        "type": "method",
+        "name": "destructing1",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, param2 }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "param2"
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "destructing2",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, ...params }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "params",
+                "spread": true
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "destructing3",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, param2: _alias, ...params }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "param2",
+                "alias": "_alias"
+              },
+              {
+                "name": "params",
+                "spread": true
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
   "432b7cf5a23289932dc9b8dadae79de1:EmptyClass": {
     "file": "test/types/class.ts",
     "type": "class",

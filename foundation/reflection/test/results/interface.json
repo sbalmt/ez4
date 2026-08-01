@@ -190,6 +190,98 @@
       }
     ]
   },
+  "1fde277bbe30d908b1d5721b183bbe7a:InterfaceWithDestructingParameters": {
+    "file": "test/types/interface.ts",
+    "type": "interface",
+    "name": "InterfaceWithDestructingParameters",
+    "position": {
+      "character": 1,
+      "line": 57
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "method",
+        "name": "destructing1",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, param2 }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "param2"
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "destructing2",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, ...params }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "params",
+                "spread": true
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      },
+      {
+        "type": "method",
+        "name": "destructing3",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "{ param1, param2: _alias, ...params }",
+            "bindings": [
+              {
+                "name": "param1"
+              },
+              {
+                "name": "param2",
+                "alias": "_alias"
+              },
+              {
+                "name": "params",
+                "spread": true
+              }
+            ],
+            "value": {
+              "type": "any"
+            }
+          }
+        ],
+        "return": {
+          "type": "void"
+        }
+      }
+    ]
+  },
   "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface": {
     "file": "test/types/interface.ts",
     "type": "interface",

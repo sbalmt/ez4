@@ -158,5 +158,110 @@
     "return": {
       "type": "void"
     }
+  },
+  "988d986b8b2854d11263a148a23e201b:destructing1": {
+    "file": "test/types/function.ts",
+    "type": "function",
+    "name": "destructing1",
+    "position": {
+      "line": 17,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "{ param1, param2 }",
+        "bindings": [
+          {
+            "name": "param1"
+          },
+          {
+            "name": "param2"
+          }
+        ],
+        "value": {
+          "type": "any"
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:destructing2": {
+    "file": "test/types/function.ts",
+    "type": "function",
+    "name": "destructing2",
+    "position": {
+      "line": 19,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "{ param1, ...params }",
+        "bindings": [
+          {
+            "name": "param1"
+          },
+          {
+            "name": "params",
+            "spread": true
+          }
+        ],
+        "value": {
+          "type": "any"
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:destructing3": {
+    "file": "test/types/function.ts",
+    "type": "function",
+    "name": "destructing3",
+    "position": {
+      "line": 22,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "{ param1, param2: _alias, ...params }",
+        "bindings": [
+          {
+            "name": "param1"
+          },
+          {
+            "name": "param2",
+            "alias": "_alias"
+          },
+          {
+            "name": "params",
+            "spread": true
+          }
+        ],
+        "value": {
+          "type": "any"
+        }
+      }
+    ],
+    "return": {
+      "type": "void"
+    }
   }
 }

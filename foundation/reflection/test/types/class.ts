@@ -73,3 +73,14 @@ export declare class ClassWithModifiers {
   protected method2(): void;
   public method3(): void;
 }
+
+export declare class ClassWithDestructingParameters {
+  // @ts-expect-error: Ignore non used `param1 and `param2`.
+  destructing1({ param1, param2 }: any): void {}
+
+  // @ts-expect-error: Ignore non used `params`.
+  destructing2({ param1, ...params }: any): void {}
+
+  // @ts-expect-error: Ignore non used `_alias`.
+  destructing3({ param1, param2: _alias, ...params }: any): void {}
+}

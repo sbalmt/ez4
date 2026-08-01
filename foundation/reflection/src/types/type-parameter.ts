@@ -6,9 +6,16 @@ import { TypeName } from './common';
 export type TypeParameter = {
   type: TypeName.Parameter;
   name: string;
+  bindings?: TypeParameterBinding[];
   description?: string;
   tags?: TypeTag[];
   value: EveryType;
+};
+
+export type TypeParameterBinding = {
+  name: string;
+  spread?: boolean;
+  alias?: string;
 };
 
 /**

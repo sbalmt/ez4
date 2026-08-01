@@ -53,3 +53,11 @@ export interface Interface {
   ['computed1']: any;
   [`computed2`]: void;
 }
+
+export interface InterfaceWithDestructingParameters {
+  destructing1({ param1, param2 }: any): void;
+  destructing2({ param1, ...params }: any): void;
+
+  // @ts-expect-error: Ignore non used `_alias`.
+  destructing3({ param1, param2: _alias, ...params }: any): void;
+}

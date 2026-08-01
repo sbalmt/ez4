@@ -1,11 +1,12 @@
-import type { Node, ParameterDeclaration } from 'typescript';
-import type { TypeParameter, EveryType, TypeTag } from '../types';
+import type { BindingName, Node, ParameterDeclaration } from 'typescript';
+import type { TypeParameter, EveryType, TypeTag, TypeParameterBinding } from '../types';
 import type { CallbackNodes } from './type-callback';
 import type { FunctionNodes } from './type-function';
 import type { MethodNodes } from './model-method';
 import type { Context, State } from './common';
 
-import { isParameter } from 'typescript';
+import { isObjectBindingPattern, isParameter } from 'typescript';
+
 import { getNodeDocumentation } from '../helpers/documentation';
 import { isOptional } from '../utils';
 import { isTypeUnion, TypeName } from '../types';
@@ -16,10 +17,17 @@ import { tryTypes } from './types';
 
 export type NodeWithParameters = MethodNodes | CallbackNodes | FunctionNodes;
 
-export const createParameter = (name: string, value: EveryType, description?: string, tags?: TypeTag[]): TypeParameter => {
+export const createParameter = (
+  name: string,
+  value: EveryType,
+  bindings?: TypeParameterBinding[],
+  description?: string,
+  tags?: TypeTag[]
+): TypeParameter => {
   return {
     type: TypeName.Parameter,
     name,
+    ...(bindings && { bindings }),
     ...(description && { description }),
     ...(tags?.length && { tags }),
     value
@@ -58,16 +66,17 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
 
   const name = node.name.getText();
   const documentation = getNodeDocumentation(node.name, context.checker);
+  const bindings = getParameterBindingNames(node.name);
 
   if (!node.questionToken || isOptional(valueType)) {
-    return createParameter(name, valueType, documentation?.description, documentation?.tags);
+    return createParameter(name, valueType, bindings, documentation?.description, documentation?.tags);
   }
 
   const unionType = isTypeUnion(valueType) ? valueType : createUnion([valueType]);
 
   unionType.elements.push(createUndefined());
 
-  return createParameter(name, unionType, documentation?.description, documentation?.tags);
+  return createParameter(name, unionType, bindings, documentation?.description, documentation?.tags);
 };
 
 export const tryCallableParameters = (nodes: NodeWithParameters, context: Context, state: State) => {
@@ -87,4 +96,25 @@ export const tryCallableParameters = (nodes: NodeWithParameters, context: Contex
   });
 
   return parameterList;
+};
+
+const getParameterBindingNames = (name: BindingName) => {
+  if (!isObjectBindingPattern(name)) {
+    return undefined;
+  }
+
+  return name.elements.map((element) => {
+    const spread = !!element.dotDotDotToken;
+    const propertyName = element.propertyName?.getText();
+    const name = element.name.getText();
+    return {
+      name: propertyName ?? name,
+      ...(spread && {
+        spread
+      }),
+      ...(propertyName && {
+        alias: name
+      })
+    };
+  });
 };
