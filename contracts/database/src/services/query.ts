@@ -1,4 +1,4 @@
-import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjectEmpty, Prettify } from '@ez4/utils';
+import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjectEmpty, Prettify, IsTrue } from '@ez4/utils';
 import type { AtomicFields } from './query/atomic';
 import type { WhereFieldInput, WhereRelationInput } from './query/where';
 import type { DatabaseEngine } from './engine';
@@ -98,9 +98,17 @@ export namespace Query {
 
   export type InsertManyResult = void;
 
-  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> = PaginationModeUtils.Result<T['engine']> & {
+  export type FindManyResult<S extends AnyObject, C extends boolean, T extends TableMetadata> =
+    IsTrue<C> extends true ? FindManyResultTotal<S, T> : FindManyResultOnly<S, T>;
+
+  export type FindManyResultOnly<S extends AnyObject, T extends TableMetadata> = PaginationModeUtils.Result<T['engine']> & {
     records: SelectInput<T> extends S ? void : Record<S, T>[];
-  } & (false extends C ? {} : { total: number });
+  };
+
+  export type FindManyResultTotal<S extends AnyObject, T extends TableMetadata> = PaginationModeUtils.Result<T['engine']> & {
+    records: SelectInput<T> extends S ? void : Record<S, T>[];
+    total: number;
+  };
 
   export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>[];
 

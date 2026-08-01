@@ -175,23 +175,24 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
 
   async findMany<S extends Query.SelectInput<T>, C extends boolean = false>(query: Query.FindManyInput<S, C, T>) {
     const findStatement = prepareFindMany(this.name, this.schema, this.relations, this.context.driver, query);
-    const allStatements = [findStatement];
 
     if (query.count) {
       const countStatement = prepareCount(this.name, this.schema, this.relations, this.context.driver, {
         where: query.where
       });
 
-      allStatements.push(countStatement);
+      const [{ records }, { records: count }] = await Promise.all([this.sendStatement(findStatement), this.sendStatement(countStatement)]);
+
+      return {
+        records,
+        total: Number(count?.[0]?.__EZ4_COUNT) || 0
+      } as Query.FindManyResult<S, C, T>;
     }
 
-    const [{ records }, total] = await this.sendStatement(allStatements);
+    const { records } = await this.sendStatement(findStatement);
 
     return {
-      records,
-      ...(query.count && {
-        total: Number(total.records[0]?.__EZ4_COUNT)
-      })
+      records
     } as Query.FindManyResult<S, C, T>;
   }
 
