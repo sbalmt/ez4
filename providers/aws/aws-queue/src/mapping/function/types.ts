@@ -27,6 +27,7 @@ export type QueueFunctionParameters = Omit<
   messageSchema?: QueueMessageSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  references?: string[];
   backoff: QueueBackoff;
   debug?: boolean;
 };

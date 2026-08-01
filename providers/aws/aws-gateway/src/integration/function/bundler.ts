@@ -3,8 +3,9 @@ import type { IntegrationFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
-import { buildServiceContext, getDefinitionsObject } from '@ez4/project/library';
+import { getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
+import { pickObject } from '@ez4/utils';
 
 import { IntegrationServiceName } from '../types';
 
@@ -15,7 +16,6 @@ export type BundleFunction = (parameters: IntegrationFunctionParameters, connect
 
 export const bundleRequestFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
-    services,
     handler,
     listener,
     preferences,
@@ -28,13 +28,14 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     responseSchema,
     errorsMap,
     context,
+    references,
     debug
   } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
-    context: context && services ? buildServiceContext(context, services) : context,
+    context: context && references ? pickObject(context, references) : context,
     templateFile: join(__MODULE_PATH, '../lib/request.ts'),
     resourceName: functionName,
     filePrefix: 'api',
@@ -56,12 +57,13 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 };
 
 export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { services, handler, listener, preferences, functionName, headersSchema, querySchema, identitySchema, context, debug } = parameters;
+  const { handler, listener, preferences, functionName, headersSchema, querySchema, identitySchema, context, references, debug } =
+    parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
-    context: context && services ? buildServiceContext(context, services) : context,
+    context: context && references ? pickObject(context, references) : context,
     templateFile: join(__MODULE_PATH, '../lib/connection.ts'),
     resourceName: functionName,
     filePrefix: 'api',
@@ -79,12 +81,13 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
 };
 
 export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { services, handler, listener, preferences, functionName, bodySchema, identitySchema, responseSchema, context, debug } = parameters;
+  const { handler, listener, preferences, functionName, bodySchema, identitySchema, responseSchema, context, references, debug } =
+    parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(IntegrationServiceName, {
-    context: context && services ? buildServiceContext(context, services) : context,
+    context: context && references ? pickObject(context, references) : context,
     templateFile: join(__MODULE_PATH, '../lib/message.ts'),
     resourceName: functionName,
     filePrefix: 'api',

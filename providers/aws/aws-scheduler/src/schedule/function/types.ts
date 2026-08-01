@@ -21,5 +21,6 @@ export type TargetFunctionParameters = Omit<
   eventSchema?: CronEventSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  references?: string[];
   debug?: boolean;
 };

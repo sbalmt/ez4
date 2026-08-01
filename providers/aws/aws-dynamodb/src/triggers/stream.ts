@@ -64,8 +64,9 @@ export const prepareTableStream = (
       functionName: streamName,
       tableSchema: table.schema,
       description: handler.summary ?? handler.description,
-      context: service.context,
       variables: [options.variables, service.variables, variables],
+      references: handler.references,
+      context: service.context,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

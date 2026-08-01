@@ -1,5 +1,5 @@
 import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { ContextSource, LinkedServices, LinkedVariables } from '@ez4/project/library';
+import type { ContextSource, LinkedVariables } from '@ez4/project/library';
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { HttpPreferences } from '@ez4/gateway/library';
 
@@ -30,7 +30,7 @@ export type IntegrationFunctionParameters = Omit<
   errorsMap?: Record<string, number>;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
-  services?: LinkedServices;
+  references?: string[];
   debug?: boolean;
 };
 

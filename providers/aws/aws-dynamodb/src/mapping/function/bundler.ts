@@ -3,19 +3,21 @@ import type { StreamFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
-import { getDefinitionsObject } from '@ez4/project/library';
 import { MappingServiceName } from '@ez4/aws-function';
+import { getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
+import { pickObject } from '@ez4/utils';
 
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, tableSchema, context, debug } = parameters;
+  const { handler, listener, functionName, tableSchema, context, references, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(MappingServiceName, {
+    context: context && references ? pickObject(context, references) : context,
     templateFile: join(__MODULE_PATH, '../lib/stream.ts'),
     resourceName: functionName,
     filePrefix: 'db',
@@ -25,7 +27,6 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     },
     handler,
     listener,
-    context,
     debug
   });
 };

@@ -66,8 +66,9 @@ export const prepareBucketEvents = (
       handlerState = createBucketEventFunction(state, context.role, logGroupState, {
         functionName: eventName,
         description: handler.summary ?? handler.description,
-        context: service.context,
         variables: [options.variables, service.variables, variables],
+        references: handler.references,
+        context: service.context,
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,

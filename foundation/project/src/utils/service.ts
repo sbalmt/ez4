@@ -75,16 +75,6 @@ export const linkServiceContext = (state: EntryStates, entryId: string, context:
   }
 };
 
-export const buildServiceContext = (context: Record<string, ContextSource>, services: LinkedServices) => {
-  const serviceContext: Record<string, ContextSource> = {};
-
-  for (const serviceName in services) {
-    serviceContext[serviceName] = context[serviceName];
-  }
-
-  return serviceContext;
-};
-
 export const isLinkedContextVpcRequired = (context: Record<string, LinkedContext>, services?: LinkedServices) => {
   const resolutionCache: Record<string, boolean> = {};
 

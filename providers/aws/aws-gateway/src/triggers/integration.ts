@@ -109,9 +109,9 @@ const getIntegrationFunction = (
       }),
       responseSchema: response?.body,
       timeout: Math.max(5, timeout - 1),
-      services: provider?.services,
-      context: service.context,
       variables: [options.variables, service.variables],
+      references: handler.references ?? (provider?.services && Object.keys(provider.services)),
+      context: service.context,
       errorsMap: {
         ...('httpErrors' in defaults && isAnyObject(defaults.httpErrors) && defaults.httpErrors),
         ...('httpErrors' in target && isAnyObject(target.httpErrors) && target.httpErrors)

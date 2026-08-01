@@ -3,8 +3,9 @@ import type { AuthorizerFunctionParameters } from './types';
 
 import { join } from 'node:path';
 
-import { buildServiceContext, getDefinitionsObject } from '@ez4/project/library';
+import { getDefinitionsObject } from '@ez4/project/library';
 import { getFunctionBundle } from '@ez4/aws-common';
+import { pickObject } from '@ez4/utils';
 
 import { AuthorizerServiceName } from '../types';
 
@@ -12,13 +13,13 @@ import { AuthorizerServiceName } from '../types';
 declare const __MODULE_PATH: string;
 
 export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
-  const { services, context, debug, authorizer, listener, functionName, headersSchema, parametersSchema, querySchema, preferences } =
+  const { authorizer, listener, functionName, headersSchema, parametersSchema, querySchema, preferences, context, references, debug } =
     parameters;
 
   const definitions = getDefinitionsObject(connections);
 
   return getFunctionBundle(AuthorizerServiceName, {
-    context: context && services ? buildServiceContext(context, services) : context,
+    context: context && references ? pickObject(context, references) : context,
     templateFile: join(__MODULE_PATH, '../lib/authorizer.ts'),
     resourceName: functionName,
     filePrefix: 'auth',

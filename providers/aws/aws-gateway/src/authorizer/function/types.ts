@@ -1,4 +1,4 @@
-import type { ContextSource, LinkedServices, LinkedVariables } from '@ez4/project/library';
+import type { ContextSource, LinkedVariables } from '@ez4/project/library';
 import type { FunctionParameters } from '@ez4/aws-function';
 import type { HttpPreferences } from '@ez4/gateway/library';
 import type { ObjectSchema } from '@ez4/schema';
@@ -25,6 +25,6 @@ export type AuthorizerFunctionParameters = Omit<
   querySchema?: ObjectSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
-  services?: LinkedServices;
+  references?: string[];
   debug?: boolean;
 };

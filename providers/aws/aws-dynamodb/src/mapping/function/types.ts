@@ -21,5 +21,6 @@ export type StreamFunctionParameters = Omit<
   tableSchema?: ObjectSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  references?: string[];
   debug?: boolean;
 };

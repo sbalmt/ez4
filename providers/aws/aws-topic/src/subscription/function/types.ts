@@ -21,5 +21,6 @@ export type SubscriptionFunctionParameters = Omit<
   eventSchema?: TopicEventSchema;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  references?: string[];
   debug?: boolean;
 };

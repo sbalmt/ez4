@@ -19,5 +19,6 @@ export type BucketEventFunctionParameters = Omit<
   listener?: BucketEventFunction;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];
+  references?: string[];
   debug?: boolean;
 };
