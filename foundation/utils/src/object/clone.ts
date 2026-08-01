@@ -40,7 +40,7 @@ export type CloneResult<T extends AnyObject, O> = Prettify<
  *
  * @param source Object to clone.
  * @param options Clone options.
- * @returns Returns the clone object.
+ * @returns Returns the object clone.
  */
 export const deepClone = <T extends AnyObject, U extends PartialProperties<T>, O extends CloneOptions<T, U>>(source: T, options?: O) => {
   const clone: AnyObject = {};
