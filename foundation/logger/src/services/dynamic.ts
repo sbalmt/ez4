@@ -21,6 +21,11 @@ export namespace DynamicLogger {
       update(message: string) {
         if (!process.stdout.isTTY) {
           process.stdout.write((lastMessage = message));
+
+          if (!lastMessage.endsWith('\n')) {
+            process.stdout.write('\n');
+          }
+
           return;
         }
 

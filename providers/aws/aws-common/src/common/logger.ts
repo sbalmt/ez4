@@ -84,6 +84,10 @@ export namespace OperationLogger {
   };
 
   const updateLogStats = () => {
+    if (!process.stdout.isTTY) {
+      return;
+    }
+
     const { loggers, buffers, stats } = STATE;
 
     const other = buffers.length;
