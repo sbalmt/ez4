@@ -11,3 +11,7 @@ bundlePackage('src/library.ts', 'dist/library.cjs', 'cjs');
 // Driver package.
 bundlePackage('src/driver.ts', 'dist/driver.mjs', 'esm');
 bundlePackage('src/driver.ts', 'dist/driver.cjs', 'cjs');
+
+// Utils package.
+bundlePackage('src/utils.ts', 'dist/utils.mjs', 'esm');
+bundlePackage('src/utils.ts', 'dist/utils.cjs', 'cjs');

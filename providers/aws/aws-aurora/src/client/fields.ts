@@ -5,7 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 import { TypeHint } from '@aws-sdk/client-rds-data';
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
 import { UnsupportedFieldTypeError } from '@ez4/pgclient';
-import { isJsonLikeField } from '@ez4/pgclient/library';
+import { isJsonLikeField } from '@ez4/pgclient/utils';
 import { SchemaType } from '@ez4/schema';
 
 const TIME_PATTERN = /^\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?/;

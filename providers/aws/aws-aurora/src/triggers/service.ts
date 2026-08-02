@@ -1,6 +1,7 @@
 import type { PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
-import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
+import { getDatabaseName } from '@ez4/pgclient/utils';
+import { getTableRepository } from '@ez4/pgclient/library';
 import { PaginationMode } from '@ez4/database';
 
 import { createCluster } from '../cluster/service';

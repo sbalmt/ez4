@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
-import { getTableName } from '@ez4/pgclient/library';
+import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 

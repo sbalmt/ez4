@@ -1,11 +1,11 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { Pool } from 'pg';
 import type { ClientConnection } from '../types/connection';
+
+import { Pool } from 'pg';
 
 import { PgClient } from '@ez4/pgclient';
 
-import { createPool } from './utils/pool';
 import { ClientDriver } from './client';
 
 export type ClientContext = {
@@ -32,3 +32,22 @@ export namespace Client {
     });
   };
 }
+
+export const createPool = (connection: ClientConnection) => {
+  const { database, password, user, host, port } = connection;
+
+  return new Pool({
+    allowExitOnIdle: true,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 15000,
+    ssl: false,
+    maxUses: 500,
+    min: 0,
+    max: 2,
+    database,
+    password,
+    user,
+    host,
+    port
+  });
+};

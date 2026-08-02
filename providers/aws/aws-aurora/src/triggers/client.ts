@@ -4,7 +4,8 @@ import type { AnyObject } from '@ez4/utils';
 import type { ClusterState } from '../cluster/types';
 import type { ClientOptions } from '../client';
 
-import { getDatabaseName, getTableRepository } from '@ez4/pgclient/library';
+import { getDatabaseName } from '@ez4/pgclient/utils';
+import { getTableRepository } from '@ez4/pgclient/library';
 import { Client as LocalClient } from '@ez4/pgclient/driver';
 import { getDefinitionName } from '@ez4/project/library';
 
