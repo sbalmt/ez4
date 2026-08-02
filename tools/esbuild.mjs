@@ -19,7 +19,6 @@ export const bundlePackage = async (entryFile, outFile, format, options) => {
     keepNames: true,
     minify: true,
     bundle: true,
-    lineLimit: 80,
     entryPoints: [entryFile],
     outfile: outFile,
     target: options?.target ?? 'node22',
