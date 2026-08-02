@@ -20,7 +20,7 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "browser": "./dist/browser.mjs",
+      "browser": "./dist/browser.js",
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
     }

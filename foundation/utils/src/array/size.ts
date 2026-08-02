@@ -1,5 +1,5 @@
-import { objectSize } from '../browser';
 import { isAnyObject } from '../object/check';
+import { objectSize } from '../object/size';
 import { isAnyArray } from './check';
 
 /**

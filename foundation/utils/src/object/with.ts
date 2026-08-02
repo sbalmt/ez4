@@ -1,6 +1,6 @@
 import type { AnyObject, Complete } from './generics';
 
-import { isNullish } from '../browser';
+import { isNullish } from '../common/check';
 
 /**
  * Check whether the given object has defined and non-nullish the given properties.

@@ -5,4 +5,4 @@ bundlePackage('src/main.ts', 'dist/main.mjs', 'esm');
 bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
 
 // Browser package.
-bundlePackage('src/browser.ts', 'dist/browser.mjs', 'esm');
+bundlePackage('src/browser.ts', 'dist/browser.js', 'esm');
