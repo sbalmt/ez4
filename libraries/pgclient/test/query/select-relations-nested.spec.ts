@@ -1,13 +1,16 @@
 import type { IndexedTables, RelationTables } from '@ez4/database/library';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 import type { Database, Query } from '@ez4/database';
 
 import { describe, it } from 'node:test';
 
-import { getRelationsWithSchema, getTableRepository, prepareSelectQuery } from '@ez4/pgclient/library';
 import { Index, Order } from '@ez4/database';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
+
+import { getRelationsWithSchema } from '../../src/service/relations';
+import { getTableRepository } from '../../src/utils/repository';
+import { prepareSelectQuery } from '../../src/queries/select';
 
 declare class Test extends Database.Service<PostgresEngine> {
   tables: [

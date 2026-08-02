@@ -1,7 +1,7 @@
 import type { Arn } from '@ez4/aws-common';
 
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
-import { ClientDriver, createPool } from '@ez4/pgclient';
+import { ClientDriver, createPool } from '@ez4/pgclient/driver';
 
 export type NativeClientConnection = {
   secretArn: Arn;

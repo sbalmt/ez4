@@ -3,7 +3,7 @@ import type { PgStatementMetadata } from '../types/driver';
 import { isAnyString, isEmptyObject } from '@ez4/utils';
 import { isNumberSchema } from '@ez4/schema';
 
-import { isJsonFieldSchema } from './schema';
+import { isJsonLikeField } from './schema';
 
 export const parseRecords = <T extends Record<string, unknown>>(records: T[], metadata: PgStatementMetadata) => {
   return records.map((record) => {
@@ -27,7 +27,7 @@ export const parseRecord = <T extends Record<string, unknown>>(record: T, metada
       const fieldSchema = schema.properties[fieldKey];
 
       if (fieldSchema) {
-        if (isJsonFieldSchema(fieldSchema)) {
+        if (isJsonLikeField(fieldSchema)) {
           result[fieldKey] = JSON.parse(value);
           continue;
         }

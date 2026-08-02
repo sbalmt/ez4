@@ -2,16 +2,16 @@ import type { PgClientDriver, PgExecuteOptions, PgExecuteStatement } from '@ez4/
 import type { AnySchema } from '@ez4/schema';
 import type { Pool, PoolClient } from 'pg';
 
+import { DuplicateUniqueKeyError } from '@ez4/pgclient';
 import { Runtime } from '@ez4/common';
 
 import { randomUUID } from 'crypto';
 import { DatabaseError } from 'pg';
 
-import { logQueryError, logQuerySuccess } from './logger';
-import { detectFieldData, prepareFieldData } from './fields';
-import { DuplicateUniqueKeyError } from './errors';
-import { prepareStatement } from './prepare';
-import { parseRecords } from './records';
+import { logQueryError, logQuerySuccess } from './utils/logger';
+import { detectFieldData, prepareFieldData } from './utils/fields';
+import { prepareStatement } from './utils/prepare';
+import { parseRecords } from '../utils/records';
 
 const ALL_TRANSACTIONS: Record<string, PoolClient> = {};
 

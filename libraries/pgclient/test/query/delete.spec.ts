@@ -1,13 +1,14 @@
-import type { PostgresEngine } from '@ez4/pgclient/library';
 import type { RelationMetadata, Index, Query } from '@ez4/database';
+import type { PostgresEngine } from '@ez4/pgclient';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareDeleteQuery } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
+
+import { prepareDeleteQuery } from '../../src/queries/delete';
 
 type TestTableMetadata = {
   engine: PostgresEngine;

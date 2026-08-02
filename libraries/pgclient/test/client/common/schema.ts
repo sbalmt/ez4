@@ -1,10 +1,10 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { Object, ObjectSchema, String } from '@ez4/schema';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 
 import { getCreateQueries } from '@ez4/pgmigration';
+import { Client } from '@ez4/pgclient/driver';
 import { SchemaType } from '@ez4/schema';
-import { Client } from '@ez4/pgclient';
 import { Index } from '@ez4/database';
 
 import { runMigration } from './migration';

@@ -1,12 +1,13 @@
 import type { Query, RelationMetadata } from '@ez4/database';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
 
-import { prepareInsertQuery } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
+
+import { prepareInsertQuery } from '../../src/queries/insert';
 
 type TestTableMetadata = {
   engine: PostgresEngine;

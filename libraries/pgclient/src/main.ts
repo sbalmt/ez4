@@ -1,13 +1,8 @@
-export * from './driver/client';
-export * from './driver/service';
-export * from './driver/errors';
-export * from './driver/records';
-export * from './driver/schema';
-export * from './driver/pool';
-
-export * from './queries/errors';
+export * from './errors/query';
+export * from './errors/driver';
 
 export * from './types/driver';
+export * from './types/connection';
 export * from './types/engine';
 
 export * from './service/errors';

@@ -11,7 +11,7 @@ import { isAnyObject, isEmptyObject, isNullish } from '@ez4/utils';
 import { SqlSelectStatement } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
-import { getConnectionSchema, isSingleRelationData } from '../utils/relation';
+import { getConnectionSchema, isSingleRelationData } from './utils/relation';
 import { getWithSchemaValidation, isDynamicObjectField, isDynamicUnionField, validateRecordSchema } from '../utils/schema';
 import { getSelectFields, getSelectFilters } from './select';
 

@@ -1,10 +1,10 @@
 import type { AnySchema } from '@ez4/schema';
 
 import { isDate, isDateTime, isTime, isUUID } from '@ez4/utils';
+import { UnsupportedFieldTypeError } from '@ez4/pgclient';
 import { SchemaType } from '@ez4/schema';
 
-import { UnsupportedFieldTypeError } from './errors';
-import { isJsonFieldSchema } from './schema';
+import { isJsonLikeField } from '../../utils/schema';
 
 export type FieldParameter = {
   name: string;
@@ -13,7 +13,7 @@ export type FieldParameter = {
 };
 
 export const prepareFieldData = (name: string, value: unknown, schema: AnySchema): FieldParameter => {
-  if (isJsonFieldSchema(schema)) {
+  if (isJsonLikeField(schema)) {
     return getJsonFieldData(name, value as object);
   }
 

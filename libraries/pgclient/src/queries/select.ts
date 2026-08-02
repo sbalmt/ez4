@@ -10,7 +10,7 @@ import { InvalidRelationFieldError, MissingFieldSchemaError } from '@ez4/pgclien
 import { isObjectSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getFormattedColumn } from '../utils/formats';
+import { getFormattedColumn } from './utils/formats';
 
 export const prepareSelectQuery = <T extends InternalTableMetadata, S extends Query.SelectInput<T>, C extends boolean>(
   builder: SqlBuilder,

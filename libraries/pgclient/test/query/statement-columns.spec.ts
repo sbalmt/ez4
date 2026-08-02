@@ -1,12 +1,10 @@
 import type { IndexedTables, RelationTables } from '@ez4/database/library';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine, PgClientDriver } from '@ez4/pgclient';
 import type { Database, Query } from '@ez4/database';
-import type { PgClientDriver } from '@ez4/pgclient';
 
 import { deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getRelationsWithSchema, getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -18,6 +16,9 @@ import {
   prepareExists,
   prepareCount
 } from '../../src/queries/queries';
+
+import { getRelationsWithSchema } from '../../src/service/relations';
+import { getTableRepository } from '../../src/utils/repository';
 
 declare class Test extends Database.Service<PostgresEngine> {
   tables: [

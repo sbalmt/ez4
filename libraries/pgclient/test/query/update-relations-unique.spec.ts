@@ -1,12 +1,13 @@
 import type { Query, RelationMetadata } from '@ez4/database';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 
 import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
-import { getRelationsWithSchema, prepareUpdateQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
 
+import { getRelationsWithSchema } from '../../src/service/relations';
+import { prepareUpdateQuery } from '../../src/queries/update';
 import { TestRelationRepository } from '../client/common/relation';
 
 type TestTableMetadata = {

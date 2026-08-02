@@ -30,6 +30,16 @@
       "types": "./dist/client.d.ts",
       "require": "./dist/client.cjs",
       "import": "./dist/client.mjs"
+    },
+    "./client/api": {
+      "types": "./dist/client-api.d.ts",
+      "require": "./dist/client-api.cjs",
+      "import": "./dist/client-api.mjs"
+    },
+    "./client/native": {
+      "types": "./dist/client-native.d.ts",
+      "require": "./dist/client-native.cjs",
+      "import": "./dist/client-native.mjs"
     }
   },
   "sideEffects": [

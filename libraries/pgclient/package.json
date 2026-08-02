@@ -25,6 +25,11 @@
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
     },
+    "./driver": {
+      "types": "./dist/driver.d.ts",
+      "require": "./dist/driver.cjs",
+      "import": "./dist/driver.mjs"
+    },
     "./library": {
       "types": "./dist/library.d.ts",
       "require": "./dist/library.cjs",

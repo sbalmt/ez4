@@ -1,13 +1,13 @@
 import type { Index, Query, RelationMetadata } from '@ez4/database';
-import type { PostgresEngine } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 import type { TestSchemaType } from '../client/common/schema';
 
 import { equal, deepEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareSelectQuery } from '@ez4/pgclient/library';
 import { SqlBuilder } from '@ez4/pgsql';
 
+import { prepareSelectQuery } from '../../src/queries/select';
 import { TestSchema } from '../client/common/schema';
 
 type TestTableMetadata = {

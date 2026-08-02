@@ -1,12 +1,6 @@
-import { Pool } from 'pg';
+import type { ClientConnection } from '../../types/connection';
 
-export type ClientConnection = {
-  password: string;
-  database: string;
-  user: string;
-  host: string;
-  port?: number;
-};
+import { Pool } from 'pg';
 
 export const createPool = (connection: ClientConnection) => {
   const { database, password, user, host, port } = connection;

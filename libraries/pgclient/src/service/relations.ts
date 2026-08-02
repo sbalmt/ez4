@@ -2,7 +2,7 @@ import type { PgTableRepository, PgRelationRepository, PgRelationRepositoryWithS
 
 import { MissingRepositoryTableError } from '@ez4/pgclient';
 
-import { getPrimaryIndex } from '../utils/indexes';
+import { getPrimaryIndex } from './utils/indexes';
 
 export const getRelationsWithSchema = (tableName: string, repository: PgTableRepository) => {
   const relationsWithSchema: PgRelationRepositoryWithSchema = {};

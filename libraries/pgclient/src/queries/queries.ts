@@ -5,7 +5,7 @@ import type { InternalTableMetadata } from '../types/table';
 import type { PgClientDriver } from '../types/driver';
 import type { UpdateQueryOptions } from './update';
 
-import { createQueryBuilder } from '../utils/builder';
+import { createQueryBuilder } from './utils/builder';
 
 import { prepareInsertQuery } from './insert';
 import { prepareUpdateQuery } from './update';

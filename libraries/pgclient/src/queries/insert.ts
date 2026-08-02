@@ -26,9 +26,9 @@ import {
   isMultipleRelationData,
   isSingleRelationData,
   isRelationalData
-} from '../utils/relation';
+} from './utils/relation';
 
-import { getFormattedColumn } from '../utils/formats';
+import { getFormattedColumn } from './utils/formats';
 import { getWithSchemaValidation, validateRecordSchema } from '../utils/schema';
 import { getDefaultSelectFields, getSelectFields } from './select';
 

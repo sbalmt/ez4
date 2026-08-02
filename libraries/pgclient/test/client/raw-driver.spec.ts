@@ -4,7 +4,7 @@ import type { PostgresEngine } from '@ez4/pgclient';
 import { deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { Client } from '@ez4/pgclient';
+import { Client } from '@ez4/pgclient/driver';
 
 declare class TestDb extends Database.Service<PostgresEngine> {
   tables: [];

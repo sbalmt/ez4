@@ -13,7 +13,8 @@ import {
 } from '@aws-sdk/client-rds-data';
 
 import { DatabaseResumingException } from '@aws-sdk/client-rds-data';
-import { DuplicateUniqueKeyError, parseRecords } from '@ez4/pgclient';
+import { DuplicateUniqueKeyError } from '@ez4/pgclient';
+import { parseRecords } from '@ez4/pgclient/library';
 import { Runtime } from '@ez4/common';
 import { Wait } from '@ez4/utils';
 

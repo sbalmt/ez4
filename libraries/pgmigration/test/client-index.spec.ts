@@ -3,8 +3,8 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
+import { Client } from '@ez4/pgclient/driver';
 import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
-import { Client } from '@ez4/pgclient';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 

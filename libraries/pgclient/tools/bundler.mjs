@@ -7,3 +7,7 @@ bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
 // Library package.
 bundlePackage('src/library.ts', 'dist/library.mjs', 'esm');
 bundlePackage('src/library.ts', 'dist/library.cjs', 'cjs');
+
+// Driver package.
+bundlePackage('src/driver.ts', 'dist/driver.mjs', 'esm');
+bundlePackage('src/driver.ts', 'dist/driver.cjs', 'cjs');

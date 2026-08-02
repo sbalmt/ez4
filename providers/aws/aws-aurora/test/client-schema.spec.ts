@@ -1,5 +1,6 @@
-import type { PgTableRepository, PostgresEngine } from '@ez4/pgclient/library';
 import type { Database, Client as DbClient } from '@ez4/database';
+import type { PgTableRepository } from '@ez4/pgclient/library';
+import type { PostgresEngine } from '@ez4/pgclient';
 import type { EntryStates } from '@ez4/stateful';
 import type { String } from '@ez4/schema';
 
@@ -7,7 +8,7 @@ import { before, after, describe, it } from 'node:test';
 import { deepEqual, ok } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-import { Client, ConnectionMode } from '@ez4/aws-aurora/client';
+import { Client } from '@ez4/aws-aurora/client/api';
 import { SchemaType } from '@ez4/schema';
 import { deploy } from '@ez4/aws-common';
 import { Index } from '@ez4/database';
@@ -156,7 +157,6 @@ describe('aurora client schema', { timeout: 180000 }, async () => {
     ok(resultResource.result);
 
     dbClient = Client.make({
-      mode: ConnectionMode.Api,
       repository,
       connection: {
         database: migrationState.parameters.database,

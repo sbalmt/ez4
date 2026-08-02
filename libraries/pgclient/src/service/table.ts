@@ -6,9 +6,9 @@ import type { PgRelationRepositoryWithSchema } from '../types/repository';
 import type { PgClientDriver, PgExecuteStatement, PgExecutionResult } from '../types/driver';
 import type { InternalTableMetadata } from '../types/table';
 
-import { DuplicateUniqueKeyError } from '../driver/errors';
-import { MissingUniqueIndexError } from '../queries/errors';
-import { tryExtractUniqueIndex } from '../utils/indexes';
+import { DuplicateUniqueKeyError, MissingUniqueIndexError } from '@ez4/pgclient';
+
+import { tryExtractUniqueIndex } from './utils/indexes';
 
 import {
   prepareInsertOne,

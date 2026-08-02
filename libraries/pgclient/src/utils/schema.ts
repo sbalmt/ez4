@@ -1,9 +1,13 @@
 import type { AnySchema, ObjectSchema } from '@ez4/schema';
 
-import { isDynamicObjectSchema, isObjectSchema, isUnionSchema } from '@ez4/schema';
+import { isDynamicObjectSchema, isArraySchema, isObjectSchema, isTupleSchema, isUnionSchema } from '@ez4/schema';
 import { validate, createValidatorContext, getErrorDetails } from '@ez4/validator';
 import { createTransformContext, transform } from '@ez4/transform';
 import { MalformedRequestError } from '@ez4/pgclient';
+
+export const isJsonLikeField = (schema: AnySchema) => {
+  return isObjectSchema(schema) || isUnionSchema(schema) || isArraySchema(schema) || isTupleSchema(schema);
+};
 
 export const isDynamicObjectField = (schema: AnySchema): schema is ObjectSchema => {
   return isObjectSchema(schema) && isDynamicObjectSchema(schema);

@@ -1,6 +1,6 @@
 import type { TableIndex } from '@ez4/database/library';
 import type { AnyObject } from '@ez4/utils';
-import type { PgIndexRepository } from '../types/repository';
+import type { PgIndexRepository } from '../../types/repository';
 
 import { Index } from '@ez4/database';
 
