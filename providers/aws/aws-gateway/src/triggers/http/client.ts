@@ -22,7 +22,7 @@ export const prepareLinkedClient = (context: EventContext, service: HttpService 
 
   return {
     module: 'HttpClient',
-    from: '@ez4/aws-gateway/client',
+    from: '@ez4/aws-gateway/client/http',
     constructor: `@{EZ4_MODULE_IMPORT}.make(${gatewayUrl}, ${clientOptions})`,
     dependencyIds: [gatewayId],
     connectionIds: [gatewayId]

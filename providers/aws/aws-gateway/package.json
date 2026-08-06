@@ -25,10 +25,15 @@
       "require": "./dist/main.cjs",
       "import": "./dist/main.mjs"
     },
-    "./client": {
-      "types": "./dist/client.d.ts",
-      "require": "./dist/client.cjs",
-      "import": "./dist/client.mjs"
+    "./client/http": {
+      "types": "./dist/client-http.d.ts",
+      "require": "./dist/client-http.cjs",
+      "import": "./dist/client-http.mjs"
+    },
+    "./client/ws": {
+      "types": "./dist/client-ws.d.ts",
+      "require": "./dist/client-ws.cjs",
+      "import": "./dist/client-ws.mjs"
     }
   },
   "sideEffects": [
