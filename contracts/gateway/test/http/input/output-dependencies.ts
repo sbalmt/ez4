@@ -1,7 +1,16 @@
 import type { Environment, Service } from '@ez4/common';
+import type { Validation } from '@ez4/validation';
 import type { Http } from '@ez4/gateway';
 
-type TestRequest = {};
+declare class TestValidation extends Validation.Service<string> {
+  handler: typeof performValidation;
+}
+
+function performValidation(_input: Validation.Input<unknown>) {}
+
+type TestRequest = {
+  body: Validation.Use<TestValidation>;
+};
 
 export declare class TestService extends Http.Service {
   routes: [

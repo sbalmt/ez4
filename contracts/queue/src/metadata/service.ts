@@ -152,7 +152,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachValidatorLinkedServices(service.schema, service.services);
+    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions);
 
     allServices[declaration.name] = service;
   }

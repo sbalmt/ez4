@@ -9,6 +9,25 @@
     "name": "@options",
     "context": {}
   },
+  "TestValidation": {
+    "type": "@ez4/validation",
+    "name": "TestValidation",
+    "file": "test/input/output-dependencies.ts",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "string"
+    },
+    "handler": {
+      "file": "test/input/output-dependencies.ts",
+      "name": "performValidation",
+      "position": [
+        9,
+        1
+      ]
+    }
+  },
   "TestQueue": {
     "type": "@ez4/queue",
     "name": "TestQueue",
@@ -16,6 +35,9 @@
     "context": {},
     "variables": {},
     "services": {
+      "@TestValidation": {
+        "reference": "TestValidation"
+      },
       "selfOptions": {
         "reference": "@options"
       },
@@ -28,8 +50,18 @@
     },
     "schema": {
       "type": "object",
-      "properties": {},
-      "identity": 1
+      "identity": 1,
+      "properties": {
+        "property": {
+          "type": "string",
+          "definitions": {
+            "custom": true,
+            "types": [
+              "TestValidation"
+            ]
+          }
+        }
+      }
     },
     "subscriptions": [
       {
@@ -37,12 +69,13 @@
           "name": "testHandler",
           "file": "test/input/output-dependencies.ts",
           "position": [
-            20,
+            29,
             1
           ],
           "references": [
             "selfOptions",
-            "selfVariables"
+            "selfVariables",
+            "@TestValidation"
           ]
         }
       }
