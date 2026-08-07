@@ -39,10 +39,9 @@ declare class StartDownloadResponse implements Http.Response {
  */
 export async function startDownloadHandler(
   request: StartDownloadRequest,
-  context: Service.Context<ApiProvider>
+  { fileStorage }: Service.Context<ApiProvider>
 ): Promise<StartDownloadResponse> {
   const { fileId } = request.parameters;
-  const { fileStorage } = context;
 
   const exists = await fileStorage.exists(fileId);
 

@@ -11,10 +11,9 @@ declare class SendEmailRequest implements Http.Request {
 
 export async function sendEmailHandler(
   request: SendEmailRequest,
-  context: Service.Context<ApiProvider>
+  { emailService }: Service.Context<ApiProvider>
 ): Promise<Http.SuccessEmptyResponse> {
   const { content } = request.body;
-  const { emailService } = context;
 
   await emailService.send({
     from: 'sender@test.easyfor.dev',

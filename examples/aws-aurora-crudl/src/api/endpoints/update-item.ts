@@ -84,9 +84,8 @@ declare class UpdateItemResponse implements Http.Response {
  */
 export async function updateItemHandler(
   request: Http.Incoming<UpdateItemRequest>,
-  context: Service.Context<Api>
+  { auroraDb }: Service.Context<Api>
 ): Promise<UpdateItemResponse> {
-  const { auroraDb } = context;
   const { name, description, order, category, tags } = request.body;
   const { id } = request.parameters;
 

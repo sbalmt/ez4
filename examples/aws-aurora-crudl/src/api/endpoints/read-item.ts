@@ -69,9 +69,11 @@ declare class ReadItemResponse implements Http.Response {
  * @description Read the details of an item corresponding to the given `id`.
  * @summary Read item details.
  */
-export async function readItemHandler(request: Http.Incoming<ReadItemRequest>, context: Service.Context<Api>): Promise<ReadItemResponse> {
+export async function readItemHandler(
+  request: Http.Incoming<ReadItemRequest>,
+  { auroraDb }: Service.Context<Api>
+): Promise<ReadItemResponse> {
   const { id } = request.parameters;
-  const { auroraDb } = context;
 
   const item = await readItem(auroraDb, id);
 

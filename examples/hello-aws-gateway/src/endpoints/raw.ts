@@ -26,9 +26,8 @@ declare class RawResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function rawHandler(request: Http.Incoming<RawRequest>, context: Service.Context<ApiProvider>): RawResponse {
+export function rawHandler(request: Http.Incoming<RawRequest>, { selfVariables }: Service.Context<ApiProvider>): RawResponse {
   const { body, encoded } = request;
-  const { selfVariables } = context;
 
   console.log(selfVariables.TEST_VAR1, body);
 

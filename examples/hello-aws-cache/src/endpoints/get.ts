@@ -19,9 +19,8 @@ declare class GetDataResponse implements Http.Response {
   };
 }
 
-export async function getDataHandler(request: GetDataRequest, context: Service.Context<ApiProvider>): Promise<GetDataResponse> {
+export async function getDataHandler(request: GetDataRequest, { cacheService }: Service.Context<ApiProvider>): Promise<GetDataResponse> {
   const { key } = request.parameters;
-  const { cacheService } = context;
 
   const value = await cacheService.get(key);
 

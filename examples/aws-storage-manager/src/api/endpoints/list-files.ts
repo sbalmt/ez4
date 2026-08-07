@@ -68,9 +68,8 @@ declare class ListFilesResponse implements Http.Response {
  * @description List all files corresponding to the given `cursor` and `limit`.
  * @summary List files.
  */
-export async function listFilesHandler(request: ListFilesRequest, context: Service.Context<ApiProvider>): Promise<ListFilesResponse> {
+export async function listFilesHandler(request: ListFilesRequest, { fileDb }: Service.Context<ApiProvider>): Promise<ListFilesResponse> {
   const { cursor, limit } = request.parameters;
-  const { fileDb } = context;
 
   const results = await listFiles(fileDb, {
     cursor,

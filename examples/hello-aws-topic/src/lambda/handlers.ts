@@ -3,8 +3,7 @@ import type { Topic } from '@ez4/topic';
 import type { EventRequest } from '../types';
 import type { Sns } from '../service';
 
-export function eventHandlerA(request: Topic.Incoming<EventRequest>, context: Service.Context<Sns>): void {
-  const { selfVariables } = context;
+export function eventHandlerA(request: Topic.Incoming<EventRequest>, { selfVariables }: Service.Context<Sns>): void {
   const { event } = request;
 
   console.log('Handler A (direct subscription)', selfVariables.TEST_VAR1, event);

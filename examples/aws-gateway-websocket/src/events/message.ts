@@ -30,9 +30,11 @@ declare class MessageResponse implements Ws.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export async function messageHandler(request: Ws.Incoming<MessageRequest>, context: Service.Context<WsApi>): Promise<MessageResponse> {
+export async function messageHandler(
+  request: Ws.Incoming<MessageRequest>,
+  { selfClient }: Service.Context<WsApi>
+): Promise<MessageResponse> {
   const { connectionId, body } = request;
-  const { selfClient } = context;
 
   switch (body.type) {
     case RequestType.Close: {

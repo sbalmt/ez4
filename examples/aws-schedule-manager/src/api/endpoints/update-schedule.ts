@@ -46,9 +46,8 @@ declare class UpdateScheduleResponse implements Http.Response {
  */
 export async function updateScheduleHandler(
   request: UpdateScheduleRequest,
-  context: Service.Context<Api>
+  { eventDb, eventScheduler, dateValidation }: Service.Context<Api>
 ): Promise<UpdateScheduleResponse> {
-  const { eventDb, eventScheduler, dateValidation } = context;
   const { scheduleId } = request.parameters;
   const { date, message } = request.body;
 

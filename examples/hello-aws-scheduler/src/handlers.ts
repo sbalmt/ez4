@@ -15,9 +15,9 @@ export function staticTargetHandler(request: Cron.Incoming<null>): void {
 /**
  * Cron target handler.
  */
-export function dynamicTargetHandler(request: Cron.Incoming<DynamicEvent>, context: Service.Context<DynamicCron>): void {
+export function dynamicTargetHandler(request: Cron.Incoming<DynamicEvent>, { selfClient }: Service.Context<DynamicCron>): void {
   console.log('Dynamic schedule executed.', request);
 
   // Do some stuff...
-  context.selfClient.createEvent;
+  selfClient.createEvent;
 }

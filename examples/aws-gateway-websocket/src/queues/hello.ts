@@ -58,9 +58,8 @@ export declare class HelloQueue extends Queue.Unordered<HelloMessage> {
 /**
  * Handle all `hello` messages from the queue.
  */
-export async function messageHandler(request: Queue.Incoming<HelloMessage>, context: Service.Context<HelloQueue>) {
+export async function messageHandler(request: Queue.Incoming<HelloMessage>, { wsApiClient }: Service.Context<HelloQueue>) {
   const { connectionId, userId } = request.message;
-  const { wsApiClient } = context;
 
   await wsApiClient.sendMessage(connectionId, {
     message: `Hello ${userId}, welcome to the WebSocket example`,

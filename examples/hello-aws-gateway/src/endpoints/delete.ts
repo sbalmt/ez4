@@ -31,9 +31,8 @@ declare class DeleteResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function deleteHandler(request: DeleteRequest, context: Service.Context<ApiProvider>): DeleteResponse {
+export function deleteHandler(request: DeleteRequest, { selfVariables }: Service.Context<ApiProvider>): DeleteResponse {
   const { id } = request.parameters;
-  const { selfVariables } = context;
 
   // Do some stuff...
   console.log(selfVariables.TEST_VAR1, id);

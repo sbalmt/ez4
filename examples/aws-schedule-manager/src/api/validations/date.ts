@@ -12,9 +12,7 @@ export declare class DateValidation extends Validation.Service<string> {
   };
 }
 
-export async function validateDate(input: Validation.Input<string>, context: Service.Context<DateValidation>) {
-  const { eventDb } = context;
-
+export async function validateDate(input: Validation.Input<string>, { eventDb }: Service.Context<DateValidation>) {
   const total = await eventDb.events.count({
     where: {
       date: input.value

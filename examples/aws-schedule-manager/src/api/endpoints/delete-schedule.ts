@@ -31,9 +31,8 @@ declare class DeleteScheduleResponse implements Http.Response {
  */
 export async function deleteScheduleHandler(
   request: DeleteScheduleRequest,
-  context: Service.Context<Api>
+  { eventDb, eventScheduler, statsService }: Service.Context<Api>
 ): Promise<DeleteScheduleResponse> {
-  const { eventDb, eventScheduler, statsService } = context;
   const { scheduleId } = request.parameters;
 
   const exists = await eventScheduler.getEvent(scheduleId);

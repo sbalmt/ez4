@@ -39,9 +39,11 @@ declare class ReadScheduleResponse implements Http.Response {
  * @description Read all the details of a schedule for the given `scheduleId`.
  * @summary Read schedule details.
  */
-export async function readScheduleHandler(request: ReadScheduleRequest, context: Service.Context<Api>): Promise<ReadScheduleResponse> {
+export async function readScheduleHandler(
+  request: ReadScheduleRequest,
+  { eventScheduler }: Service.Context<Api>
+): Promise<ReadScheduleResponse> {
   const { scheduleId } = request.parameters;
-  const { eventScheduler } = context;
 
   const result = await eventScheduler.getEvent(scheduleId);
 

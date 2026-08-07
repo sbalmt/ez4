@@ -8,9 +8,7 @@ import { StreamChangeType } from '@ez4/database';
 /**
  * Handler for table changes.
  */
-export async function streamHandler(request: Database.Incoming<ExampleSchema>, context: Service.Context<Db>): Promise<void> {
-  const { selfClient } = context;
-
+export async function streamHandler(request: Database.Incoming<ExampleSchema>, { selfClient }: Service.Context<Db>): Promise<void> {
   switch (request.type) {
     case StreamChangeType.Insert:
       console.log('Record inserted.');

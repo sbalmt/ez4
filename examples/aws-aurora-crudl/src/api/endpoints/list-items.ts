@@ -64,10 +64,9 @@ declare class ListItemsResponse implements Http.Response {
  */
 export async function listItemsHandler(
   request: Http.Incoming<ListItemsRequest>,
-  context: Service.Context<Api>
+  { auroraDb }: Service.Context<Api>
 ): Promise<ListItemsResponse> {
   const { page = 1, limit = 10 } = request.query;
-  const { auroraDb } = context;
 
   const { total, items: rawItems } = await listItems(auroraDb, page, limit);
 

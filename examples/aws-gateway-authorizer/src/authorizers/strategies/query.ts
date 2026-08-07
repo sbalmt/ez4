@@ -17,8 +17,10 @@ declare class QueryAuthorizer implements Http.AuthRequest {
 /**
  * Check the `apiKey` parameter from query strings and authorize or not the request.
  */
-export function queryAuthorizer(request: Http.AuthIncoming<QueryAuthorizer>, context: Service.Context<AuthProvider>): AuthorizerResponse {
-  const { variables } = context;
+export function queryAuthorizer(
+  request: Http.AuthIncoming<QueryAuthorizer>,
+  { variables }: Service.Context<AuthProvider>
+): AuthorizerResponse {
   const { query } = request;
 
   if (query.apiKey !== variables.SUPER_SECRET_API_KEY) {

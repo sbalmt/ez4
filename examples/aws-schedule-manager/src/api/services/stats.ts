@@ -24,9 +24,7 @@ export declare class StatsServiceFactory extends Factory.Service<StatsService> {
   };
 }
 
-export function createService(context: Service.Context<StatsServiceFactory>) {
-  const { eventDb, variables, options } = context;
-
+export function createService({ eventDb, variables, options }: Service.Context<StatsServiceFactory>) {
   return {
     countEvents: async () => {
       const count = await eventDb.events.count({});

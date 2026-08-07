@@ -10,9 +10,11 @@ declare class SetDataRequest implements Http.Request {
   };
 }
 
-export async function setDataHandler(request: SetDataRequest, context: Service.Context<ApiProvider>): Promise<Http.SuccessEmptyResponse> {
+export async function setDataHandler(
+  request: SetDataRequest,
+  { cacheService }: Service.Context<ApiProvider>
+): Promise<Http.SuccessEmptyResponse> {
   const { key, value } = request.body;
-  const { cacheService } = context;
 
   await cacheService.set(key, value);
 

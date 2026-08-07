@@ -14,9 +14,8 @@ declare class ConnectEvent implements Ws.Event {
  * Handler for `connection` events.
  * @param event Incoming event.
  */
-export async function connectHandler(event: Ws.Incoming<ConnectEvent>, context: Service.Context<WsApi>) {
+export async function connectHandler(event: Ws.Incoming<ConnectEvent>, { helloQueue }: Service.Context<WsApi>) {
   const { connectionId, identity } = event;
-  const { helloQueue } = context;
 
   await helloQueue.sendMessage({
     userId: identity.userId,

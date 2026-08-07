@@ -47,9 +47,8 @@ declare class FileStatResponse implements Http.Response {
  * @description Read details of a file for the given `fileId`.
  * @summary Read file details.
  */
-export async function fileStatHandler(request: FileStatRequest, context: Service.Context<ApiProvider>): Promise<FileStatResponse> {
+export async function fileStatHandler(request: FileStatRequest, { fileStorage }: Service.Context<ApiProvider>): Promise<FileStatResponse> {
   const { fileId } = request.parameters;
-  const { fileStorage } = context;
 
   const stat = await fileStorage.stat(fileId);
 

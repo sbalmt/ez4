@@ -12,9 +12,7 @@ export declare class CategoryExists extends Validation.Service<string> {
   };
 }
 
-export async function checkCategoryExists(input: Validation.Input<string>, context: Service.Context<CategoryExists>) {
-  const { db } = context;
-
+export async function checkCategoryExists(input: Validation.Input<string>, { db }: Service.Context<CategoryExists>) {
   const total = await db.categories.count({
     where: {
       id: input.value

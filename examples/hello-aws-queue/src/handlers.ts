@@ -3,8 +3,7 @@ import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from './types';
 import type { Sqs } from './service';
 
-export function messageHandlerA(request: Queue.Incoming<MessageRequest>, context: Service.Context<Sqs>): void {
-  const { selfVariables } = context;
+export function messageHandlerA(request: Queue.Incoming<MessageRequest>, { selfVariables }: Service.Context<Sqs>): void {
   const { message } = request;
 
   console.log('Handler A', selfVariables.TEST_VAR1, message);
@@ -23,8 +22,7 @@ export function messageHandlerB(request: Queue.Incoming<MessageRequest>): void {
   message.foo;
 }
 
-export function messageHandlerC(request: Queue.Incoming<MessageRequest>, context: Service.Context<Sqs>): void {
-  const { selfVariables } = context;
+export function messageHandlerC(request: Queue.Incoming<MessageRequest>, { selfVariables }: Service.Context<Sqs>): void {
   const { message } = request;
 
   console.log('Handler C', selfVariables.TEST_VAR1, message);

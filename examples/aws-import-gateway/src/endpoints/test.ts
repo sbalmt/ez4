@@ -19,9 +19,8 @@ declare class TestRequest implements Http.Request {
  * Handler for `test` requests.
  * @returns Outgoing response.
  */
-export async function testHandler(request: TestRequest, context: Service.Context<ApiProvider>): Promise<Http.SuccessEmptyResponse> {
+export async function testHandler(request: TestRequest, { importedApi }: Service.Context<ApiProvider>): Promise<Http.SuccessEmptyResponse> {
   const { id } = request.query;
-  const { importedApi } = context;
 
   // Invoke GET route from imported API.
   const getResponse = await importedApi.getRoute({

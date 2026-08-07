@@ -47,8 +47,7 @@ declare class PatchResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function patchHandler(request: PatchRequest, context: Service.Context<ApiProvider>): PatchResponse {
-  const { selfVariables } = context;
+export function patchHandler(request: PatchRequest, { selfVariables }: Service.Context<ApiProvider>): PatchResponse {
   const { foo } = request.body;
 
   console.log(selfVariables.TEST_VAR1, foo);

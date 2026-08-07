@@ -57,10 +57,9 @@ declare class GetResponse implements Http.Response {
  *
  * @returns Outgoing response.
  */
-export function getHandler(request: GetRequest, context: Service.Context<ApiProvider>): GetResponse {
+export function getHandler(request: GetRequest, { selfVariables }: Service.Context<ApiProvider>): GetResponse {
   const { foo, bar } = request.query;
   const { id } = request.parameters;
-  const { selfVariables } = context;
 
   // Do some stuff...
   console.log(selfVariables.TEST_VAR1, id, foo, bar);

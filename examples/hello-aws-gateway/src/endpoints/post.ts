@@ -41,9 +41,8 @@ declare class PostResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function postHandler(request: PostRequest, context: Service.Context<ApiProvider>): PostResponse {
+export function postHandler(request: PostRequest, { selfVariables }: Service.Context<ApiProvider>): PostResponse {
   const { foo } = request.body;
-  const { selfVariables } = context;
 
   console.log(selfVariables.TEST_VAR1, foo);
 

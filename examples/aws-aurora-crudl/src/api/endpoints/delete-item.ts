@@ -40,9 +40,8 @@ declare class DeleteItemResponse implements Http.Response {
  */
 export async function deleteItemHandler(
   request: Http.Incoming<DeleteItemRequest>,
-  context: Service.Context<Api>
+  { auroraDb }: Service.Context<Api>
 ): Promise<DeleteItemResponse> {
-  const { auroraDb } = context;
   const { id } = request.parameters;
 
   const item = await deleteItem(auroraDb, id);

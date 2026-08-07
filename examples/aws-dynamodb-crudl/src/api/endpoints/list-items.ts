@@ -57,9 +57,8 @@ declare class ListItemsResponse implements Http.Response {
  * @description List all items corresponding to the given filters.
  * @summary List items.
  */
-export async function listItemsHandler(request: ListItemsRequest, context: Service.Context<Api>): Promise<ListItemsResponse> {
+export async function listItemsHandler(request: ListItemsRequest, { dynamoDb }: Service.Context<Api>): Promise<ListItemsResponse> {
   const { cursor, limit, type } = request.query;
-  const { dynamoDb } = context;
 
   const { items, total, next } = await listItems(dynamoDb, {
     cursor,

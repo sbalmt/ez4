@@ -17,8 +17,10 @@ declare class HeaderAuthorizer implements Http.AuthRequest {
 /**
  * Check the `authorization` header and authorize or not the request.
  */
-export function headerAuthorizer(request: Http.AuthIncoming<HeaderAuthorizer>, context: Service.Context<AuthProvider>): AuthorizerResponse {
-  const { variables } = context;
+export function headerAuthorizer(
+  request: Http.AuthIncoming<HeaderAuthorizer>,
+  { variables }: Service.Context<AuthProvider>
+): AuthorizerResponse {
   const { headers } = request;
 
   if (headers.authorization !== `Bearer ${variables.SUPER_SECRET_API_KEY}`) {

@@ -45,9 +45,8 @@ declare class CreateScheduleResponse implements Http.Response {
  */
 export async function createScheduleHandler(
   request: CreateScheduleRequest,
-  context: Service.Context<Api>
+  { eventDb, eventScheduler, statsService }: Service.Context<Api>
 ): Promise<CreateScheduleResponse> {
-  const { eventDb, eventScheduler, statsService } = context;
   const { date, message } = request.body;
 
   const identifier = await createEvent(eventDb, {

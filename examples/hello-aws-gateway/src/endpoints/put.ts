@@ -47,8 +47,7 @@ declare class PutResponse implements Http.Response {
  * @param request Incoming request.
  * @returns Outgoing response.
  */
-export function putHandler(request: PutRequest, context: Service.Context<ApiProvider>): PutResponse {
-  const { selfVariables } = context;
+export function putHandler(request: PutRequest, { selfVariables }: Service.Context<ApiProvider>): PutResponse {
   const { foo } = request.body;
 
   console.log(selfVariables.TEST_VAR1, foo);

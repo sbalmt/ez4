@@ -73,9 +73,11 @@ declare class ListSchedulesResponse implements Http.Response {
  * @description List all schedules for the given `cursor` and `limit`.
  * @summary List schedules.
  */
-export async function listSchedulesHandler(request: ListSchedulesRequest, context: Service.Context<Api>): Promise<ListSchedulesResponse> {
+export async function listSchedulesHandler(
+  request: ListSchedulesRequest,
+  { eventDb }: Service.Context<Api>
+): Promise<ListSchedulesResponse> {
   const { cursor, limit } = request.query;
-  const { eventDb } = context;
 
   const results = await listEvents(eventDb, {
     cursor,
