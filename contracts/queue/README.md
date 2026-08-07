@@ -51,8 +51,7 @@ EZ4 validates the incoming message, injects all variables and services, and then
 
 ```ts
 // My message handler
-export function processMessage(request: Queue.Incoming<MyMessage>, context: Service.Context<MyQueue>): void {
-  const { otherService, variables } = context;
+export function processMessage(request: Queue.Incoming<MyMessage>, { otherService, variables }: Service.Context<MyQueue>): void {
   const { message } = request;
 
   // Access message contents
@@ -75,9 +74,7 @@ import type { Service } from '@ez4/common';
 import type { MyQueue } from './queue';
 
 // Any other handler that has injected MyQueue service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myQueue } = context;
-
+export async function anotherHandler(_request: any, { myQueue }: Service.Context<AnotherService>) {
   await myQueue.sendMessage({
     foo: 'foo',
     bar: 123

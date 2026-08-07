@@ -51,9 +51,7 @@ import type { Service } from '@ez4/common';
 import type { MyDb } from './db';
 
 // Any other handler that has injected MyDb service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myDb } = context;
-
+export async function anotherHandler(_request: any, { myDb }: Service.Context<AnotherService>) {
   // Insert one record
   await myDb.test_table.insertOne({
     data: {

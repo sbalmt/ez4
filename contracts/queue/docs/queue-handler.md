@@ -5,9 +5,7 @@ Queue handlers define the **business logic** executed when a subscription receiv
 ## Message handler
 
 ```ts
-export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.Context<MyQueue>): void {
-  const { message } = request;
-
+export function myHandler(request: Queue.Incoming<MyMessage>, { message }: Service.Context<MyQueue>): void {
   // Business logic here.
 }
 ```

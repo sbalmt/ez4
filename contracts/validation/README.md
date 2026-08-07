@@ -39,9 +39,7 @@ EZ4 injects all variables and services, then invokes your validation handler wit
 
 ```ts
 // MyValidation handler
-export function validateInput(input: Validation.Input, context: Service.Context<MyValidation>) {
-  const { otherService, variables } = context;
-
+export function validateInput(input: Validation.Input, { otherService, variables }: Service.Context<MyValidation>) {
   // Access injected services
   otherService.call();
 
@@ -65,9 +63,7 @@ import type { Service } from '@ez4/common';
 import type { MyValidation } from './validation';
 
 // Any other handler that has injected MyValidation service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myValidation } = context;
-
+export async function anotherHandler(_request: any, { myValidation }: Service.Context<AnotherService>) {
   // Perform validation
   myValidation.validate({
     foo: 'foo',

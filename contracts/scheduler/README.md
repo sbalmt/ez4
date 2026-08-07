@@ -49,8 +49,7 @@ EZ4 validates the incoming event, injects all variables and services, and then i
 
 ```ts
 // My event handler
-export function eventHandler(request: Cron.Incoming<MyEvent>, context: Service.Context<MyScheduler>): void {
-  const { otherService, variables } = context;
+export function eventHandler(request: Cron.Incoming<MyEvent>, { otherService, variables }: Service.Context<MyScheduler>): void {
   const { event } = request;
 
   // Access event contents
@@ -73,9 +72,7 @@ import type { Service } from '@ez4/common';
 import type { MyScheduler } from './cron';
 
 // Any other handler that has injected MyScheduler service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<AnotherService>) {
   // Schedule a future execution
   await myScheduler.createEvent('scheduler-id', {
     date: new Date(Date.now() + 60 * 1000),

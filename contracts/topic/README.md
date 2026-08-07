@@ -49,8 +49,7 @@ EZ4 validates the incoming event, injects all variables and services, and then i
 
 ```ts
 // My event handler
-export function processEvent(request: Topic.Incoming<MyEvent>, context: Service.Context<MyTopic>): void {
-  const { otherService, variables } = context;
+export function processEvent(request: Topic.Incoming<MyEvent>, { otherService, variables }: Service.Context<MyTopic>): void {
   const { event } = request;
 
   // Access event contents
@@ -73,9 +72,7 @@ import type { Service } from '@ez4/common';
 import type { MyTopic } from './topic';
 
 // Any other handler that has injected MyTopic service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myTopic } = context;
-
+export async function anotherHandler(_request: any, { myTopic }: Service.Context<AnotherService>) {
   await myTopic.publishEvent({
     foo: 'foo',
     bar: 123

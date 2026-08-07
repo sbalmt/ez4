@@ -98,9 +98,7 @@ The `client` field represents the constructed service instance returned by the f
 - The returned object is strongly typed as the factory service payload type.
 
 ```ts
-export function createMyService(context: Service.Context<MyFactory>): MyService {
-  const { otherService, variables, options } = context;
-
+export function createMyService({ otherService, variables, options }: Service.Context<MyFactory>): MyService {
   if (options.myOption === 'special') {
     // runtime behavior based on service options
   }

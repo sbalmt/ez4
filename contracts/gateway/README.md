@@ -81,8 +81,7 @@ EZ4 wires together the request, response, and provider context automatically bef
 
 ```ts
 // MyServer route handler
-export function postHandler(request: Http.Incoming<MyRequest>, context: Service.Context<MyProvider>): MyResponse {
-  const { otherService, variables } = context;
+export function postHandler(request: Http.Incoming<MyRequest>, { otherService, variables }: Service.Context<MyProvider>): MyResponse {
   const { body } = request;
 
   // Access body contents

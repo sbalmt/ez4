@@ -43,9 +43,7 @@ EZ4 injects all variables and services, and then invokes your event handler.
 
 ```ts
 // MyStorage event handler
-export function eventHandler(request: Bucket.Event, context: Service.Context<MyStorage>): void {
-  const { otherService, variables } = context;
-
+export function eventHandler(request: Bucket.Event, { otherService, variables }: Service.Context<MyStorage>): void {
   // Access event contents
   request.eventType;
 
@@ -68,9 +66,7 @@ import type { Service } from '@ez4/common';
 import type { MyStorage } from './storage';
 
 // Any other handler that has injected MyStorage service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myStorage } = context;
-
+export async function anotherHandler(_request: any, { myStorage }: Service.Context<AnotherService>) {
   // Write a file
   await myStorage.write('dummy.txt', 'Hello storage');
 

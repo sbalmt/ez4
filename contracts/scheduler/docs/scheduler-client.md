@@ -9,9 +9,7 @@ The client API provides a unified, provider-agnostic way to interact with schedu
 #### Create a scheduled event
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<MyService>) {
   await myScheduler.createEvent('scheduler-id', {
     date: new Date(Date.now() + 60 * 1000),
     event: {
@@ -27,9 +25,7 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 #### Get a scheduled event
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<MyService>) {
   const event = await myScheduler.getEvent('scheduler-id');
 }
 ```
@@ -39,9 +35,7 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 #### Update a scheduled event
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<MyService>) {
   await myScheduler.updateEvent('scheduler-id', {
     date: new Date(Date.now() + 120 * 1000)
   });
@@ -51,9 +45,7 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 #### Delete a scheduled event
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<MyService>) {
   await myScheduler.deleteEvent('scheduler-id');
 }
 ```
@@ -61,9 +53,7 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 #### Create or replace a scheduled event
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myScheduler } = context;
-
+export async function anotherHandler(_request: any, { myScheduler }: Service.Context<MyService>) {
   await myScheduler.setEvent('scheduler-id', {
     date: new Date(Date.now() + 180 * 1000),
     event: {

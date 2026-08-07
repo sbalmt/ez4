@@ -9,9 +9,7 @@ The client API provides a unified, provider-agnostic way to access the queue ser
 #### Send a message
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myQueue } = context;
-
+export async function anotherHandler(_request: any, { myQueue }: Service.Context<MyService>) {
   await myQueue.sendMessage({
     foo: 'foo',
     bar: 123
@@ -24,9 +22,7 @@ export async function anotherHandler(_request: any, context: Service.Context<MyS
 #### Receive messages
 
 ```ts
-export async function anotherHandler(_request: any, context: Service.Context<MyService>) {
-  const { myQueue } = context;
-
+export async function anotherHandler(_request: any, { myQueue }: Service.Context<MyService>) {
   const messages = await myQueue.receiveMessage({
     messages: 10,
     polling: 20

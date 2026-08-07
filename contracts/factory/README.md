@@ -44,9 +44,7 @@ EZ4 injects all variables and services, then invokes your factory handler to con
 
 ```ts
 // MyFactory handler
-export function createMyService(context: Service.Context<MyFactory>): MyService {
-  const { otherService, variables } = context;
-
+export function createMyService({ otherService, variables }: Service.Context<MyFactory>): MyService {
   // Access injected services
   otherService.call();
 
@@ -67,9 +65,7 @@ import type { Service } from '@ez4/common';
 import type { MyFactory } from './factory';
 
 // Any other handler that has injected MyFactory service
-export async function anotherHandler(_request: any, context: Service.Context<AnotherService>) {
-  const { myFactory } = context;
-
+export async function anotherHandler(_request: any, { myFactory }: Service.Context<AnotherService>) {
   // Call my service
   myFactory.helloWorld();
 }
