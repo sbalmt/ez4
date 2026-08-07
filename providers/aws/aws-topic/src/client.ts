@@ -1,25 +1,30 @@
+import type { PublishInput, PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import type { Topic, Client as SnsClient } from '@ez4/topic';
 import type { EventSchema } from '@ez4/topic/utils';
-import type { PublishInput } from '@aws-sdk/client-sns';
 import type { AnyObject } from '@ez4/utils';
 
 import { getJsonStringEvent, MissingEventGroupError } from '@ez4/topic/utils';
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
 type FifoParameters = Pick<PublishInput, 'MessageGroupId' | 'MessageDeduplicationId'>;
 
-export namespace Client {
-  const client = new SNSClient();
+type SnsCache = {
+  snsClient: SNSClient;
+  PublishCommand: typeof PublishCommand;
+};
 
+let SNS_CACHE: Promise<SnsCache> | undefined;
+
+export namespace Client {
   export const make = <T extends Topic.Event>(topicArn: string, eventSchema: EventSchema, fifoMode?: Topic.FifoMode<T>): SnsClient<T> => {
     return new (class {
       async publishEvent(event: T) {
-        const payload = await getJsonStringEvent(event, eventSchema);
+        const [payload, { snsClient, PublishCommand }] = await Promise.all([getJsonStringEvent(event, eventSchema), getSnsClient()]);
+
         const scope = Runtime.getScope();
 
-        await client.send(
+        await snsClient.send(
           new PublishCommand({
             TargetArn: topicArn,
             Message: payload,
@@ -57,4 +62,22 @@ const getFifoParameters = <T extends Topic.Event>(event: AnyObject, fifoMode: To
   }
 
   return parameters;
+};
+
+const getSnsClient = async () => {
+  if (!SNS_CACHE) {
+    SNS_CACHE = import('@aws-sdk/client-sns')
+      .then(({ SNSClient, PublishCommand }) => {
+        return {
+          snsClient: new SNSClient(),
+          PublishCommand
+        };
+      })
+      .catch((error) => {
+        SNS_CACHE = undefined;
+        throw error;
+      });
+  }
+
+  return SNS_CACHE;
 };

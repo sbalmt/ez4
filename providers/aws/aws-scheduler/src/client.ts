@@ -2,7 +2,7 @@ import type { Cron, ScheduleEvent, Client as CronClient } from '@ez4/scheduler';
 import type { EventSchema } from '@ez4/scheduler/utils';
 import type { Arn } from '@ez4/aws-common';
 
-import {
+import type {
   SchedulerClient,
   ActionAfterCompletion,
   FlexibleTimeWindowMode,
@@ -17,7 +17,18 @@ import { getRandomUUID, isAnyNumber } from '@ez4/utils';
 import { getJsonEvent } from '@ez4/scheduler/utils';
 import { Runtime } from '@ez4/common';
 
-const client = new SchedulerClient({});
+type SchedulerCache = {
+  schedulerClient: SchedulerClient;
+  ActionAfterCompletion: typeof ActionAfterCompletion;
+  FlexibleTimeWindowMode: typeof FlexibleTimeWindowMode;
+  ResourceNotFoundException: typeof ResourceNotFoundException;
+  CreateScheduleCommand: typeof CreateScheduleCommand;
+  DeleteScheduleCommand: typeof DeleteScheduleCommand;
+  UpdateScheduleCommand: typeof UpdateScheduleCommand;
+  GetScheduleCommand: typeof GetScheduleCommand;
+};
+
+let SCHEDULER_CACHE: Promise<SchedulerCache> | undefined;
 
 export namespace Client {
   type EventInput<T extends Cron.Event> = {
@@ -43,7 +54,9 @@ export namespace Client {
       return `${parameters.prefix}-${identifier}`;
     };
 
-    const getEventInput = (identifier: string, functionArn: Arn, roleArn: Arn, input: EventInput<T>) => {
+    const getEventInput = (identifier: string, functionArn: Arn, roleArn: Arn, cache: SchedulerCache, input: EventInput<T>) => {
+      const { ActionAfterCompletion, FlexibleTimeWindowMode } = cache;
+
       const date = input.date instanceof Date ? prepareEventDate(input.date) : input.date;
       const event = input.event instanceof Object ? prepareEventData(input.event) : input.event;
 
@@ -79,8 +92,10 @@ export namespace Client {
 
     return new (class {
       async getEvent(identifier: string) {
+        const { schedulerClient, GetScheduleCommand, ResourceNotFoundException } = await getSchedulerClient();
+
         try {
-          const { ScheduleExpression, Target } = await client.send(
+          const { ScheduleExpression, Target } = await schedulerClient.send(
             new GetScheduleCommand({
               Name: getEventName(identifier),
               GroupName: groupName
@@ -108,18 +123,21 @@ export namespace Client {
       }
 
       async setEvent(identifier: string, input: ScheduleEvent<T>) {
+        const cache = await getSchedulerClient();
+
+        const { schedulerClient, UpdateScheduleCommand, CreateScheduleCommand, ResourceNotFoundException } = cache;
         const { event, ...eventInput } = input;
 
-        const command = getEventInput(identifier, functionArn, roleArn, {
+        const command = getEventInput(identifier, functionArn, roleArn, cache, {
           event: await getJsonEvent(event, parameters.schema),
           ...eventInput
         });
 
         try {
-          await client.send(new UpdateScheduleCommand(command));
+          await schedulerClient.send(new UpdateScheduleCommand(command));
         } catch (error) {
           if (error instanceof ResourceNotFoundException) {
-            await client.send(new CreateScheduleCommand(command));
+            await schedulerClient.send(new CreateScheduleCommand(command));
           } else {
             throw error;
           }
@@ -127,11 +145,14 @@ export namespace Client {
       }
 
       async createEvent(identifier: string, input: ScheduleEvent<T>) {
+        const cache = await getSchedulerClient();
+
+        const { schedulerClient, CreateScheduleCommand } = cache;
         const { event, ...eventInput } = input;
 
-        await client.send(
+        await schedulerClient.send(
           new CreateScheduleCommand(
-            getEventInput(identifier, functionArn, roleArn, {
+            getEventInput(identifier, functionArn, roleArn, cache, {
               event: await getJsonEvent(event, parameters.schema),
               ...eventInput
             })
@@ -140,7 +161,11 @@ export namespace Client {
       }
 
       async updateEvent(identifier: string, input: Partial<ScheduleEvent<T>>) {
-        const eventResponse = await client.send(
+        const cache = await getSchedulerClient();
+
+        const { schedulerClient, GetScheduleCommand, UpdateScheduleCommand } = cache;
+
+        const eventResponse = await schedulerClient.send(
           new GetScheduleCommand({
             Name: getEventName(identifier),
             GroupName: groupName
@@ -150,9 +175,9 @@ export namespace Client {
         const eventTarget = eventResponse.Target;
         const eventPolicy = eventTarget?.RetryPolicy;
 
-        await client.send(
+        await schedulerClient.send(
           new UpdateScheduleCommand(
-            getEventInput(identifier, functionArn, roleArn, {
+            getEventInput(identifier, functionArn, roleArn, cache, {
               event: input.event ? await getJsonEvent(input.event, parameters.schema) : eventTarget?.Input!,
               maxRetries: input.maxRetries ?? eventPolicy?.MaximumRetryAttempts,
               maxAge: input.maxAge ?? eventPolicy?.MaximumEventAgeInSeconds,
@@ -163,8 +188,10 @@ export namespace Client {
       }
 
       async deleteEvent(identifier: string) {
+        const { schedulerClient, DeleteScheduleCommand, ResourceNotFoundException } = await getSchedulerClient();
+
         try {
-          await client.send(
+          await schedulerClient.send(
             new DeleteScheduleCommand({
               Name: getEventName(identifier),
               GroupName: groupName
@@ -196,3 +223,38 @@ export namespace Client {
     });
   };
 }
+
+const getSchedulerClient = async () => {
+  if (!SCHEDULER_CACHE) {
+    SCHEDULER_CACHE = import('@aws-sdk/client-scheduler')
+      .then(
+        ({
+          SchedulerClient,
+          ActionAfterCompletion,
+          FlexibleTimeWindowMode,
+          ResourceNotFoundException,
+          CreateScheduleCommand,
+          DeleteScheduleCommand,
+          UpdateScheduleCommand,
+          GetScheduleCommand
+        }) => {
+          return {
+            schedulerClient: new SchedulerClient(),
+            ActionAfterCompletion,
+            FlexibleTimeWindowMode,
+            ResourceNotFoundException,
+            CreateScheduleCommand,
+            DeleteScheduleCommand,
+            UpdateScheduleCommand,
+            GetScheduleCommand
+          };
+        }
+      )
+      .catch((error) => {
+        SCHEDULER_CACHE = undefined;
+        throw error;
+      });
+  }
+
+  return SCHEDULER_CACHE;
+};

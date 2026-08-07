@@ -1,9 +1,7 @@
 import type { Content, WriteOptions, SignReadOptions, SignWriteOptions, ObjectEntry } from '@ez4/storage';
 import type { Client as BucketClient } from '@ez4/storage';
 
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
-import {
+import type {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
@@ -15,16 +13,32 @@ import {
   NotFound
 } from '@aws-sdk/client-s3';
 
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
 import mime from 'mime';
 
-const client = new S3Client({});
+type S3Cache = {
+  s3Client: S3Client;
+  GetObjectCommand: typeof GetObjectCommand;
+  PutObjectCommand: typeof PutObjectCommand;
+  HeadObjectCommand: typeof HeadObjectCommand;
+  ListObjectsV2Command: typeof ListObjectsV2Command;
+  DeleteObjectCommand: typeof DeleteObjectCommand;
+  CopyObjectCommand: typeof CopyObjectCommand;
+  NoSuchKey: typeof NoSuchKey;
+  NotFound: typeof NotFound;
+};
+
+let S3_CACHE: Promise<S3Cache> | undefined;
 
 export namespace Client {
   export const make = (bucketName: string): BucketClient => {
     return new (class {
       async stat(key: string) {
+        const { s3Client, HeadObjectCommand, NotFound, NoSuchKey } = await getS3Client();
+
         try {
-          const response = await client.send(
+          const response = await s3Client.send(
             new HeadObjectCommand({
               Bucket: bucketName,
               Key: key
@@ -52,9 +66,11 @@ export namespace Client {
       }
 
       async write(key: string, contents: Content, options: WriteOptions = {}) {
+        const { s3Client, PutObjectCommand } = await getS3Client();
+
         const { contentType = mime.getType(key), headers = {}, metadata } = options;
 
-        await client.send(
+        await s3Client.send(
           new PutObjectCommand({
             Bucket: bucketName,
             Key: key,
@@ -70,7 +86,9 @@ export namespace Client {
       }
 
       async read(key: string): Promise<Buffer> {
-        const response = await client.send(
+        const { s3Client, GetObjectCommand } = await getS3Client();
+
+        const response = await s3Client.send(
           new GetObjectCommand({
             Bucket: bucketName,
             Key: key
@@ -83,7 +101,9 @@ export namespace Client {
       }
 
       async delete(key: string) {
-        await client.send(
+        const { s3Client, DeleteObjectCommand } = await getS3Client();
+
+        await s3Client.send(
           new DeleteObjectCommand({
             Bucket: bucketName,
             Key: key
@@ -92,8 +112,10 @@ export namespace Client {
       }
 
       async copy(sourceKey: string, targetKey: string) {
+        const { s3Client, CopyObjectCommand } = await getS3Client();
+
         if (sourceKey !== targetKey) {
-          await client.send(
+          await s3Client.send(
             new CopyObjectCommand({
               Bucket: bucketName,
               CopySource: `${bucketName}/${sourceKey}`,
@@ -104,10 +126,12 @@ export namespace Client {
       }
 
       async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
+        const { s3Client, ListObjectsV2Command } = await getS3Client();
+
         let nextPage: string | undefined;
 
         do {
-          const response = await client.send(
+          const response = await s3Client.send(
             new ListObjectsV2Command({
               ContinuationToken: nextPage,
               Bucket: bucketName,
@@ -128,6 +152,8 @@ export namespace Client {
       }
 
       async getStatUrl(key: string, options: SignReadOptions) {
+        const { s3Client, HeadObjectCommand } = await getS3Client();
+
         const { expiresIn } = options;
 
         const command = new HeadObjectCommand({
@@ -135,12 +161,14 @@ export namespace Client {
           Key: key
         });
 
-        return getSignedUrl(client, command, {
+        return getSignedUrl(s3Client, command, {
           expiresIn
         });
       }
 
       async getWriteUrl(key: string, options: SignWriteOptions) {
+        const { s3Client, PutObjectCommand } = await getS3Client();
+
         const { expiresIn, contentType, metadata, headers = {} } = options;
 
         const command = new PutObjectCommand({
@@ -162,13 +190,15 @@ export namespace Client {
           signedHeaders.push('expires');
         }
 
-        return getSignedUrl(client, command, {
+        return getSignedUrl(s3Client, command, {
           signableHeaders: new Set(signedHeaders),
           expiresIn
         });
       }
 
       async getReadUrl(key: string, options: SignReadOptions) {
+        const { s3Client, GetObjectCommand } = await getS3Client();
+
         const { expiresIn } = options;
 
         const command = new GetObjectCommand({
@@ -176,10 +206,47 @@ export namespace Client {
           Key: key
         });
 
-        return getSignedUrl(client, command, {
+        return getSignedUrl(s3Client, command, {
           expiresIn
         });
       }
     })();
   };
 }
+
+const getS3Client = async () => {
+  if (!S3_CACHE) {
+    S3_CACHE = import('@aws-sdk/client-s3')
+      .then(
+        ({
+          S3Client,
+          GetObjectCommand,
+          PutObjectCommand,
+          HeadObjectCommand,
+          ListObjectsV2Command,
+          DeleteObjectCommand,
+          CopyObjectCommand,
+          NoSuchKey,
+          NotFound
+        }) => {
+          return {
+            s3Client: new S3Client(),
+            GetObjectCommand,
+            PutObjectCommand,
+            HeadObjectCommand,
+            ListObjectsV2Command,
+            DeleteObjectCommand,
+            CopyObjectCommand,
+            NoSuchKey,
+            NotFound
+          };
+        }
+      )
+      .catch((error) => {
+        S3_CACHE = undefined;
+        throw error;
+      });
+  }
+
+  return S3_CACHE;
+};

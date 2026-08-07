@@ -1,16 +1,21 @@
+import type { SQSClient, ReceiveMessageCommand, SendMessageCommand, SendMessageRequest } from '@aws-sdk/client-sqs';
 import type { Queue, ReceiveOptions, SendOptions, Client as SqsClient } from '@ez4/queue';
-import type { SendMessageRequest } from '@aws-sdk/client-sqs';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { AnyObject } from '@ez4/utils';
 
 import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
-import { ReceiveMessageCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/common';
 
-export namespace Client {
-  const client = new SQSClient();
+type SqsCache = {
+  sqsClient: SQSClient;
+  ReceiveMessageCommand: typeof ReceiveMessageCommand;
+  SendMessageCommand: typeof SendMessageCommand;
+};
 
+let SQS_CACHE: Promise<SqsCache> | undefined;
+
+export namespace Client {
   export type Parameters<T extends Queue.Message> = {
     fifoMode?: Queue.FifoMode<T>;
     fairMode?: Queue.FairMode<T>;
@@ -23,10 +28,14 @@ export namespace Client {
   ): SqsClient<T, U> => {
     return new (class {
       async sendMessage(message: T, options?: SendOptions<U>) {
-        const messageBody = await getJsonStringMessage(message, messageSchema);
+        const [messageBody, { sqsClient, SendMessageCommand }] = await Promise.all([
+          getJsonStringMessage(message, messageSchema),
+          getSqsClient()
+        ]);
+
         const scope = Runtime.getScope();
 
-        await client.send(
+        await sqsClient.send(
           new SendMessageCommand({
             QueueUrl: queueUrl,
             DelaySeconds: options?.delay,
@@ -44,7 +53,9 @@ export namespace Client {
       }
 
       async receiveMessage(options?: ReceiveOptions): Promise<T[]> {
-        const response = await client.send(
+        const { sqsClient, ReceiveMessageCommand } = await getSqsClient();
+
+        const response = await sqsClient.send(
           new ReceiveMessageCommand({
             MaxNumberOfMessages: options?.messages,
             WaitTimeSeconds: options?.polling,
@@ -93,4 +104,23 @@ const getFifoParameters = <T extends Queue.Message>(
       MessageDeduplicationId: `${uniqueIdValue}`
     })
   };
+};
+
+const getSqsClient = async () => {
+  if (!SQS_CACHE) {
+    SQS_CACHE = import('@aws-sdk/client-sqs')
+      .then(({ SQSClient, ReceiveMessageCommand, SendMessageCommand }) => {
+        return {
+          sqsClient: new SQSClient(),
+          ReceiveMessageCommand,
+          SendMessageCommand
+        };
+      })
+      .catch((error) => {
+        SQS_CACHE = undefined;
+        throw error;
+      });
+  }
+
+  return SQS_CACHE;
 };
