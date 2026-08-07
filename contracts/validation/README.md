@@ -22,6 +22,10 @@ import type { Validation } from '@ez4/validation';
 export declare class MyValidation extends Validation.Service<MyService> {
   handler: typeof validateInput;
 
+  options: {
+    strictMode: true;
+  };
+
   variables: {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
   };
@@ -29,6 +33,7 @@ export declare class MyValidation extends Validation.Service<MyService> {
   services: {
     otherService: Environment.Service<OtherService>;
     variables: Environment.ServiceVariables;
+    options: Environment.ServiceOptions;
   };
 }
 ```
@@ -39,9 +44,12 @@ EZ4 injects all variables and services, then invokes your validation handler wit
 
 ```ts
 // MyValidation handler
-export function validateInput(input: Validation.Input, { otherService, variables }: Service.Context<MyValidation>) {
+export function validateInput(input: Validation.Input<MyService>, { otherService, options, variables }: Service.Context<MyValidation>) {
   // Access injected services
   otherService.call();
+
+  // Access self options
+  options.strictMode;
 
   // Access injected variables
   variables.myVariable;
@@ -73,6 +81,8 @@ export async function anotherHandler(_request: any, { myValidation }: Service.Co
 ```
 
 > This makes it easy to centralize and reuse validation logic across your application.
+
+Validation clients can also be linked and reused across other handlers through `Environment.Service<MyValidation>`.
 
 With your validation service defined, EZ4 handles injection, execution, and schema wiring automatically according to your contract.
 

@@ -137,6 +137,8 @@ disabled: true;
 Declares environment variables available to the scheduler target.
 
 - Supports both mapped variables and literal values.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
 - Scheduler service variables should **not** be accessed via `process.env`.
 - Accessible through `Environment.ServiceVariables` in the handler context.
 

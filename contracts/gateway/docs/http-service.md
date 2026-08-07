@@ -140,7 +140,9 @@ services: {
 Declares environment variables that apply to every handler using the HTTP service as its context provider.
 
 - Supports both mapped variables and literal values.
-- Provider‑level variables should **not** be accessed via `process.env`.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
+- Service‑level variables should **not** be accessed via `process.env`.
 - Accessible through `Environment.ServiceVariables`.
 
 ```ts

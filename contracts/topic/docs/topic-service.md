@@ -67,6 +67,8 @@ fifoMode: Topic.UseFifoMode<{
 Declares environment variables that apply to every lambda subscription attached to the topic.
 
 - Supports both mapped variables and literal values.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
 - Topic service variables should **not** be accessed via `process.env`.
 - Accessible through `Environment.ServiceVariables`.
 

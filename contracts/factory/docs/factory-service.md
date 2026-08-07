@@ -36,7 +36,8 @@ The following fields define how the factory constructs the service instance and 
 
 Defines the factory function that creates the service object.
 
-- EZ4 invokes the handler once and exposes the result as a service `client`.
+- EZ4 invokes the handler lazily when the service is first accessed and exposes the result as a service `client`.
+- The resulting client instance is reused for that injected service context.
 - The handler receives only its context, without requests.
 - It returns the constructed client instance.
 
@@ -49,6 +50,8 @@ handler: typeof createMyService;
 Declares environment variables available to the factory handler.
 
 - Supports both mapped variables and literal values.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
 - Factory variables should **not** be accessed via `process.env`.
 - Accessible through `Environment.ServiceVariables` inside the handler.
 
@@ -72,7 +75,7 @@ options: {
 }
 ```
 
-> Specify the factory `options` when injecting it in the dependent handler context. e.g. `Environment.Service<MyFactory, { myOptions: 'special' }>`.
+> Specify the factory `options` when injecting it in the dependent handler context. e.g. `Environment.Service<MyFactory, { myOption: 'special' }>`.
 
 #### Services (optional)
 

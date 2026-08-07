@@ -30,6 +30,10 @@ export function resourceHandler({ anotherService }: Service.Context<MainResource
 
 When bundling `resourceHandler`, EZ4 reflects over the contract's type declarations to resolve all connected resources and generate the corresponding service clients. These clients are embedded into the bundle and later injected at runtime through the handler context (Prefer destructuring contexts to inject only the necessary dependencies). Since the implementations are produced from the contract metadata, no concrete classes exist for the contract types.
 
+### Context resolution at runtime
+
+Service context is resolved lazily at runtime. Accessing a context key that was not declared in `services` throws an error. Keep handlers explicit by destructuring only the dependencies they actually need, as this can reduce bundle size and cold starts.
+
 ## Environment variables
 
 Contracts that define a handler can also declare **environment variables** using the `variables` property, making configuration explicit and type‑safe at the TypeScript level. During metadata build (including deploy and serve flows), EZ4 resolves each declared variable: `Environment.Variable<'NAME'>` must resolve to a non-empty value, while `Environment.VariableOrValue<'NAME', Default>` falls back to its default when the environment variable is missing. At runtime, variables exposed through `Environment.ServiceVariables` are injected as strings.
@@ -59,6 +63,14 @@ export function resourceHandler({ variables }: Service.Context<MainResource>) {
 ```
 
 This keeps configuration explicit and discoverable while avoiding unnecessary runtime overhead. TypeScript ensures correctness during development, and EZ4 resolves and validates variables during metadata build.
+
+### Linked service variable collisions
+
+When linked services expose variables into the same target context, variable aliases must be consistent. If two linked services provide the same alias with different values, metadata build fails. Use unique aliases across linked service graphs to avoid collisions.
+
+## Circular linked services
+
+Circular linked services are supported. EZ4 resolves linked contexts lazily and caches intermediate linked contexts while preparing metadata. Prefer small constructors and avoid heavy side effects during service initialization when using circular dependencies.
 
 ## All contracts
 

@@ -80,7 +80,9 @@ listener: typeof topicListener;
 Declares environment variables associated with the subscription.
 
 - Supports both mapped variables and literal values.
-- Variables are accessible through the subscription execution context.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
+- Variables here are only accessible through `process.env`.
 
 ```ts
 variables: {

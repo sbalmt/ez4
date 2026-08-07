@@ -138,6 +138,7 @@ timeout: 90;
 Declares service bindings available to all subscription handlers attached to the queue.
 
 - Each entry represents a service that will be injected into the execution context.
+- Handlers should only use the services they actually depend on.
 - Useful for exposing shared infrastructure or internal services.
 - Strongly typed and validated at compile time.
 
@@ -153,6 +154,8 @@ services: {
 Declares environment variables that apply to every handler attached to the queue.
 
 - Supports both mapped variables and literal values.
+- During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
+- Use `Environment.VariableOrValue<'NAME', Default>` to fallback to `Default` when the environment variable is missing.
 - Queue service variables should **not** be accessed via `process.env`.
 - Accessible through `Environment.ServiceVariables`.
 
