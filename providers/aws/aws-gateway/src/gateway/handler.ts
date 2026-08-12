@@ -69,7 +69,7 @@ const createResource = (candidate: GatewayState): Promise<GatewayResult> => {
   });
 };
 
-const updateResource = (candidate: GatewayState, current: GatewayState): Promise<GatewayResult> => {
+const updateResource = async (candidate: GatewayState, current: GatewayState): Promise<GatewayResult> => {
   const { result, parameters } = candidate;
   const { gatewayName } = parameters;
 
@@ -77,15 +77,21 @@ const updateResource = (candidate: GatewayState, current: GatewayState): Promise
     throw new CorruptedResourceError(GatewayServiceName, gatewayName);
   }
 
-  if (parameters.import) {
-    return Promise.resolve(result);
-  }
-
   return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'updates', async (logger) => {
-    const { apiId, apiArn } = result;
+    if (!parameters.import) {
+      const { apiId, apiArn } = result;
 
-    await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
-    await checkTagUpdates(logger, apiArn, parameters, current.parameters);
+      await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
+      await checkTagUpdates(logger, apiArn, parameters, current.parameters);
+
+      return result;
+    }
+
+    if (parameters.gatewayName !== current.parameters.gatewayName) {
+      const { apiId, apiArn, endpoint } = await fetchGateway(logger, parameters.gatewayName);
+
+      return { apiId, apiArn, endpoint };
+    }
 
     return result;
   });
