@@ -46,8 +46,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
   const request: Http.Incoming<Http.Request> = {
-    timestamp: new Date(requestContext.timeEpoch),
     requestId: context.awsRequestId,
+    timestamp: new Date(requestContext.timeEpoch),
     method: requestContext.http.method,
     path: requestContext.http.path,
     encoded: event.isBase64Encoded,
