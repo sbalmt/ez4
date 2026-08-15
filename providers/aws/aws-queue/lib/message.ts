@@ -31,8 +31,8 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 
   currentRequest = undefined;
 
-  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request), warningMilliseconds);
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 
   const request = {
     requestId: context.awsRequestId,
@@ -51,7 +51,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   } catch (error) {
     await onError(error, request);
   } finally {
-    clearTimeout(warningTimeoutEvent);
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -198,7 +198,9 @@ const onDone = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   );
 };
 
-const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
   return dispatch(
     {
       type: ServiceEventType.Timeout,

@@ -37,8 +37,8 @@ declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
 
   const resourceArn = event.methodArn ?? event.routeArn;
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
@@ -82,7 +82,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     throw error;
   } finally {
-    clearTimeout(warningTimeoutEvent);
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -172,7 +172,9 @@ const onDone = (request: Partial<IncomingRequest>) => {
   );
 };
 
-const onTimeout = (request: Partial<IncomingRequest>) => {
+const onTimeout = (request: Partial<IncomingRequest>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
   return dispatch(
     {
       type: ServiceEventType.Timeout,

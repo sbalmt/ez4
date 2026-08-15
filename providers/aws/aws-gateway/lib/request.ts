@@ -43,8 +43,8 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
 
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
@@ -87,7 +87,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
 
     return getDefaultErrorResponse();
   } finally {
-    clearTimeout(warningTimeoutEvent);
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -279,7 +279,9 @@ const onDone = (request: Partial<Http.Incoming<Http.Request>>) => {
   );
 };
 
-const onTimeout = (request: Partial<Http.Incoming<Http.Request>>) => {
+const onTimeout = (request: Partial<Http.Incoming<Http.Request>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
   return dispatch(
     {
       type: ServiceEventType.Timeout,

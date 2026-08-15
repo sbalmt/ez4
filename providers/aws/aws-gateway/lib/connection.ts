@@ -35,8 +35,8 @@ declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promis
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
 
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
@@ -78,7 +78,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
       }
     };
   } finally {
-    clearTimeout(warningTimeoutEvent);
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -151,7 +151,9 @@ const onDone = (request: Partial<Ws.Incoming<Ws.Event>>) => {
   );
 };
 
-const onTimeout = (request: Partial<Ws.Incoming<Ws.Event>>) => {
+const onTimeout = (request: Partial<Ws.Incoming<Ws.Event>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
   return dispatch(
     {
       type: ServiceEventType.Timeout,
