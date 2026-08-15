@@ -33,6 +33,7 @@ export namespace Topic {
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
     | CommonService.DoneEvent<Incoming<T>>
+    | CommonService.TimeoutEvent<Incoming<T>>
     | CommonService.ErrorEvent<Request | Incoming<T>>
     | CommonService.EndEvent<Request>;
 

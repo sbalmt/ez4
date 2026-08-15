@@ -46,6 +46,18 @@ export const onDone = (module: VirtualModule, context: EmulatorServiceClients | 
   );
 };
 
+export const onTimeout = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown) => {
+  Logger.debug(`${getHeadline(module.source)} Timeout`);
+
+  return module.listener?.(
+    {
+      type: ServiceEventType.Timeout,
+      request
+    },
+    context
+  );
+};
+
 export const onError = (module: VirtualModule, context: EmulatorServiceClients | null | undefined, request: unknown, error: unknown) => {
   Logger.debug(`${getHeadline(module.source)} Error`);
 

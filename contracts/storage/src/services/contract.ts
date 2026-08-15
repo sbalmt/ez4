@@ -29,6 +29,7 @@ export namespace Bucket {
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming>
     | CommonService.DoneEvent<Incoming>
+    | CommonService.TimeoutEvent<Incoming>
     | CommonService.ErrorEvent<Request | Incoming>
     | CommonService.EndEvent<Request>;
 

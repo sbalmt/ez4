@@ -43,6 +43,9 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
   const request: Http.Incoming<Http.Request> = {
@@ -71,8 +74,6 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onDone(request);
 
     return getSuccessResponse(status, body, headers);
-
-    //
   } catch (error) {
     await onError(error, request);
 
@@ -85,8 +86,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     return getDefaultErrorResponse();
-    //
   } finally {
+    clearTimeout(warningTimeoutEvent);
     await onEnd(request);
   }
 }
@@ -272,6 +273,16 @@ const onDone = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Http.Incoming<Http.Request>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

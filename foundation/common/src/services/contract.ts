@@ -1,12 +1,22 @@
 import type { Service as RichService } from '../richtypes/service';
-import type { ServiceAnyEvent, ServiceBeginEvent, ServiceDoneEvent, ServiceEndEvent, ServiceErrorEvent, ServiceReadyEvent } from './event';
 import type { ServiceRequest } from './request';
+
+import type {
+  ServiceAnyEvent,
+  ServiceBeginEvent,
+  ServiceDoneEvent,
+  ServiceEndEvent,
+  ServiceErrorEvent,
+  ServiceReadyEvent,
+  ServiceTimeoutEvent
+} from './event';
 
 export namespace Service {
   export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;
   export type BeginEvent<T extends ServiceRequest> = ServiceBeginEvent<T>;
   export type ReadyEvent<T extends ServiceRequest> = ServiceReadyEvent<T>;
   export type DoneEvent<T extends ServiceRequest> = ServiceDoneEvent<T>;
+  export type TimeoutEvent<T extends ServiceRequest> = ServiceTimeoutEvent<T>;
   export type ErrorEvent<T extends ServiceRequest> = ServiceErrorEvent<T>;
   export type EndEvent<T extends ServiceRequest> = ServiceEndEvent<T>;
 

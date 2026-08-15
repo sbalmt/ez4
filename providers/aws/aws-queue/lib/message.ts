@@ -27,6 +27,9 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
     throw new Error('Validation schema for SQS message not found.');
   }
 
+  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+
   const request = {
     requestId: context.awsRequestId,
     maxAttempts: __EZ4_MAX_ATTEMPTS,
@@ -44,6 +47,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   } catch (error) {
     await onError(error, request);
   } finally {
+    clearTimeout(warningTimeoutEvent);
     await onEnd(request);
   }
 }
@@ -187,6 +191,16 @@ const onDone = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

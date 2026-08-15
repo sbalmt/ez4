@@ -18,6 +18,9 @@ declare function handle(event: Topic.Incoming<Topic.Event>, context: object): Pr
 export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<void> {
   let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
+  const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+
   const request = {
     requestId: context.awsRequestId
   };
@@ -52,6 +55,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
   } catch (error) {
     await onError(error, currentRequest ?? request);
   } finally {
+    clearTimeout(warningTimeoutEvent);
     await onEnd(request);
   }
 }
@@ -80,6 +84,16 @@ const onDone = (request: Partial<Topic.Incoming<Topic.Event>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Topic.Incoming<Topic.Event>>) => {
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

@@ -18,7 +18,11 @@ export function myListener(event: Service.AnyEvent<Cron.Incoming<MySchedulerEven
       break;
 
     case ServiceEventType.Done:
-      // Handler completed successfully.
+      // Handler execution completed successfully.
+      break;
+
+    case ServiceEventType.Timeout:
+      // Handler execution is timing out and is gonna be aborted.
       break;
 
     case ServiceEventType.Error:
@@ -41,6 +45,7 @@ Listeners receive one or more of the following event types during execution.
 - **Begin** - emitted when the scheduler begins processing an event.
 - **Ready** - emitted when validation and transformation are complete.
 - **Done** - emitted when the handler completes successfully.
+- **Timeout** - emitted when the handler has 1 second left before its termination.
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.
 

@@ -18,7 +18,11 @@ export function myListener(event: Http.ServiceEvent | Ws.ServiceEvent, context: 
       break;
 
     case ServiceEventType.Done:
-      // Handler execution completed without error.
+      // Handler execution completed without errors.
+      break;
+
+    case ServiceEventType.Timeout:
+      // Handler execution is timing out and is gonna be aborted.
       break;
 
     case ServiceEventType.Error:
@@ -40,8 +44,9 @@ Listeners receive one or more of the following event types during the lifecycle 
 
 - **Begin** - emitted when the gateway receives a request and begins execution.
 - **Ready** - emitted when the gateway has validated the request and is ready to execute the handler.
-- **Error** - emitted when an exception occurs during execution (includes the `error` thrown).
 - **Done** - emitted when the handler has completed execution successfully.
+- **Timeout** - emitted when the handler has 1 second left before its termination.
+- **Error** - emitted when an exception occurs during execution (includes the `error` thrown).
 - **End** - emitted at the end of execution, regardless of success or failure.
 
 ## What's next
