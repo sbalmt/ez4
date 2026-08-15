@@ -6,7 +6,7 @@ export declare class AuthProvider implements Http.AuthProvider {
    * Variables exposed to authorizers using the provider.
    */
   variables: {
-    SUPER_SECRET_API_KEY: Environment.Variable<'SUPER_SECRET_API_KEY'>;
+    API_KEY: Environment.VariableOrValue<'SUPER_SECRET_API_KEY', 'api-key'>;
   };
 
   /**

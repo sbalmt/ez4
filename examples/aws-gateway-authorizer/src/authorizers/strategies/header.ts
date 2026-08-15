@@ -23,7 +23,7 @@ export function headerAuthorizer(
 ): AuthorizerResponse {
   const { headers } = request;
 
-  if (headers.authorization !== `Bearer ${variables.SUPER_SECRET_API_KEY}`) {
+  if (headers.authorization !== `Bearer ${variables.API_KEY}`) {
     throw new HttpForbiddenError();
   }
 
