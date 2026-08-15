@@ -41,7 +41,8 @@ export const processWsAuthorization = async (
     variables: {
       ...options.variables,
       ...service.variables,
-      ...connect.variables
+      ...connect.variables,
+      ...provider?.variables
     }
   });
 
