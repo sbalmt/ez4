@@ -17,7 +17,7 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
   let currentRequest: Bucket.Incoming | undefined;
 
   const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+  const warningTimeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request), warningMilliseconds);
 
   const request = {
     requestId: context.awsRequestId

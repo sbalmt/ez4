@@ -19,7 +19,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
   let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
   const warningMilliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
-  const warningTimeoutEvent = setTimeout(() => onTimeout(request), warningMilliseconds);
+  const warningTimeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request), warningMilliseconds);
 
   const request = {
     requestId: context.awsRequestId
