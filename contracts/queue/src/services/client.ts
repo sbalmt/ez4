@@ -46,7 +46,7 @@ export type SendOptions<T extends Queue.Mode> = T extends { fifoMode: true } ? n
  */
 export type StandardSendOptions = {
   /**
-   * Maximum delay time (in seconds) for making the message available.
+   * Delay time (in seconds) for making the message available.
    */
   readonly delay?: number;
 };

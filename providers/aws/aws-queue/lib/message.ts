@@ -74,6 +74,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       currentRequest = {
         ...request,
         attempt: Number(record.attributes.ApproximateReceiveCount),
+        retry: (options?: Queue.RetryOptions) => retryMessage(record, options?.delay),
         traceId,
         message
       };
@@ -135,7 +136,7 @@ const ackMessage = async (record: SQSRecord) => {
   }
 };
 
-const retryMessage = async (record: SQSRecord) => {
+const retryMessage = async (record: SQSRecord, userDelay?: number) => {
   const { messageId, receiptHandle, attributes } = record;
 
   try {
@@ -145,7 +146,7 @@ const retryMessage = async (record: SQSRecord) => {
     await client.send(
       new ChangeMessageVisibilityCommand({
         QueueUrl: getQueueUrl(record.eventSourceARN),
-        VisibilityTimeout: attemptDelay,
+        VisibilityTimeout: userDelay ?? attemptDelay,
         ReceiptHandle: receiptHandle
       })
     );

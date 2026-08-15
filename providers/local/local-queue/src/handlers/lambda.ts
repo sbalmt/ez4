@@ -14,7 +14,8 @@ export const processLambdaMessage = async (
   options: ServeOptions,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
-  message: AnyObject
+  message: AnyObject,
+  retry: (delay: number) => void
 ) => {
   const { services } = service;
 
@@ -52,7 +53,11 @@ export const processLambdaMessage = async (
       message: await getJsonMessage(message, service.schema, onCustomValidation),
       maxAttempts: 1,
       attempt: 1,
-      traceId
+      traceId,
+      retry: (options?: Queue.RetryOptions) => {
+        retry(options?.delay ?? service.backoff?.minDelay ?? 0);
+        return Promise.resolve();
+      }
     };
 
     Runtime.setScope({

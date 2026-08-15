@@ -6,7 +6,7 @@ import type { QueueSubscription } from './subscription';
 import type { QueueDeadLetter } from './deadletter';
 import type { QueueFifoMode } from './fifomode';
 import type { QueueFairMode } from './fairmode';
-import type { QueueIncoming } from './incoming';
+import type { QueueIncoming, QueueRetryOptions } from './incoming';
 import type { QueueBackoff } from './backoff';
 import type { QueueRequest } from './request';
 import type { QueueMessage } from './message';
@@ -18,6 +18,8 @@ import type { Client } from './client';
 export namespace Queue {
   export type Message = QueueMessage;
   export type Request = QueueRequest;
+
+  export type RetryOptions = QueueRetryOptions;
 
   export type DeadLetter = QueueDeadLetter;
   export type Backoff = QueueBackoff;
