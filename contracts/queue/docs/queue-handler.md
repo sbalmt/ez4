@@ -5,7 +5,7 @@ Queue handlers define the **business logic** executed when a subscription receiv
 ## Message handler
 
 ```ts
-export function myHandler(request: Queue.Incoming<MyMessage>, { message }: Service.Context<MyQueue>): void {
+export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.Context<MyQueue>): void {
   // Business logic here.
 }
 ```
@@ -17,14 +17,18 @@ export function myHandler(request: Queue.Incoming<MyMessage>, { message }: Servi
 Handlers receive a typed request object generated from the declared queue message type.
 
 - **Message** - Typed object containing the message payload.
+- **Attempt** - Current delivery attempt.
+- **Max Attempts** - Maximum attempts configured by the queue dead-letter settings.
 - **Trace Id** - A unique identifier across multiple services.
 - **Request Id** - A unique identifier for the request.
+- **Retry** - Method for requesting redelivery, optionally with a custom delay.
 
 All fields are validated and transformed according to the declared queue service schema, as mentioned in the [requests](./queue-requests.md) documentation.
 
 #### Error handling
 
-- Unhandled exceptions thrown by the handler follow retry semantics defined by the queue service.
+- Throwing an exception from the handler also causes the message to be retried according to the queue service retry semantics.
+- Call `request.retry()` to request redelivery without throwing an exception. Pass `{ delay }` to override the calculated backoff for that retry.
 - Use the `deadLetter` configuration to route permanently failing messages to a dead‑letter queue for inspection.
 
 #### Acknowledgement and Visibility

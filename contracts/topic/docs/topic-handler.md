@@ -5,7 +5,7 @@ Topic handlers define the **business logic** executed when a lambda subscription
 ## Event handler
 
 ```ts
-export function myHandler(request: Topic.Incoming<MyTopicEvent>, { event }: Service.Context<MyTopic>): void {
+export function myHandler(request: Topic.Incoming<MyTopicEvent>, context: Service.Context<MyTopic>): void {
   // Business logic here.
 }
 ```

@@ -132,6 +132,21 @@ Determines whether the scheduler is disabled.
 disabled: true;
 ```
 
+#### Custom tags (optional)
+
+Declares custom tags for the scheduler's schedule group.
+
+- Tags are defined as a string-to-string object through `Cron.UseTags`.
+- Tags are applied to the schedule group during deployment. A group is created only when `group` is configured.
+- Project deployment tags are merged with service tags; when the same key is defined in both places, the project deployment tag takes precedence.
+
+```ts
+tags: Cron.UseTags<{
+  Environment: 'production';
+  Team: 'platform';
+}>;
+```
+
 #### Variables (optional)
 
 Declares environment variables available to the scheduler target.

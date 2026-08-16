@@ -79,6 +79,21 @@ variables: {
 }
 ```
 
+#### Custom tags (optional)
+
+Declares custom tags for the topic resource.
+
+- Tags are defined as a string-to-string object through `Topic.UseTags`.
+- Tags are attached to the topic during deployment and can be updated or removed on later deployments.
+- Project deployment tags are merged with service tags; when the same key is defined in both places, the project deployment tag takes precedence.
+
+```ts
+tags: Topic.UseTags<{
+  Environment: 'production';
+  Team: 'platform';
+}>;
+```
+
 #### Services (optional)
 
 Declares service bindings available to all lambda subscriptions attached to the topic.
