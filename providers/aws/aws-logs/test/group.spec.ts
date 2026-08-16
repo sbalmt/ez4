@@ -88,7 +88,7 @@ describe('group', { timeout: 60000 }, () => {
 
     ok(lastState[groupId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, undefined, true);
 
     equal(result[groupId], undefined);
   });

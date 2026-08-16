@@ -1,11 +1,12 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client';
+import { createGroup, deleteGroup, tagGroup, untagGroup, canDeleteGroup, putLogRetention, deleteLogRetention } from './client';
+import { LogGroupNotEmptyError } from './errors';
 import { LogGroupServiceName } from './types';
 
 export const getLogGroupHandler = (): StepHandler<LogGroupState> => ({
@@ -75,16 +76,24 @@ const updateResource = (candidate: LogGroupState, current: LogGroupState): Promi
   });
 };
 
-const deleteResource = async (current: LogGroupState) => {
+const deleteResource = async (current: LogGroupState, context: StepContext) => {
   const { parameters, result } = current;
 
-  if (!result) {
-    return;
-  }
+  if (result) {
+    const { groupName } = parameters;
 
-  await OperationLogger.logExecution(LogGroupServiceName, parameters.groupName, 'deletion', async (logger) => {
-    await deleteGroup(logger, parameters.groupName);
-  });
+    await OperationLogger.logExecution(LogGroupServiceName, groupName, 'deletion', async (logger) => {
+      if (!context.force) {
+        const canDelete = await canDeleteGroup(logger, groupName);
+
+        if (!canDelete) {
+          throw new LogGroupNotEmptyError(groupName);
+        }
+      }
+
+      await deleteGroup(logger, groupName);
+    });
+  }
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, policyArn: Arn, candidate: LogGroupParameters, current: LogGroupParameters) => {
@@ -107,8 +116,8 @@ const checkGeneralUpdates = async (
   }
 
   if (candidate.retention) {
-    return createRetention(logger, groupName, candidate.retention);
+    return putLogRetention(logger, groupName, candidate.retention);
   }
 
-  return deleteRetention(logger, groupName);
+  return deleteLogRetention(logger, groupName);
 };
