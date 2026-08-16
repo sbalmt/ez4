@@ -5,7 +5,11 @@ export declare class TestScheduler extends Cron.Service<{}> {
 
   target: Cron.UseTarget<{
     handler: typeof targetHandler;
-    vpc: true;
+  }>;
+
+  tags: Cron.UseTags<{
+    FOO: 'foo';
+    BAR: 'bar';
   }>;
 }
 

@@ -68,6 +68,11 @@ export namespace Queue {
   export type UseBackoff<T extends Backoff> = T;
 
   /**
+   * Queue Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
+
+  /**
    * Queue service mode.
    */
   export type Mode = { fifoMode: true } | { fairMode: true };
@@ -130,6 +135,11 @@ export namespace Queue {
      * Variables associated to all subscriptions.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Custom tags associated to the queue.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

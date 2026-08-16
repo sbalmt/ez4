@@ -10,6 +10,13 @@ import type { EventRequest } from './types';
  */
 export declare class Sns extends Topic.Unordered<EventRequest> {
   /**
+   * Custom tags for the topic.
+   */
+  tags: Topic.UseTags<{
+    TestTag: 'test-tag';
+  }>;
+
+  /**
    * All handlers for the service.
    */
   subscriptions: [
@@ -49,6 +56,13 @@ export declare class FifoSns extends Topic.Ordered<EventRequest> {
    */
   fifoMode: Topic.UseFifoMode<{
     groupId: 'foo';
+  }>;
+
+  /**
+   * Custom tags for the topic.
+   */
+  tags: Topic.UseTags<{
+    TestTag: 'test-tag';
   }>;
 
   /**

@@ -72,7 +72,10 @@ const prepareScheduleGroup = (state: EntryStates, service: CronService, options:
   const groupName = getServiceName(service.group, options);
 
   return createGroup(state, {
-    tags: options.tags,
-    groupName
+    groupName,
+    tags: {
+      ...service.tags,
+      ...options.tags
+    }
   });
 };

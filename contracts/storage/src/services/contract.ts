@@ -44,6 +44,11 @@ export namespace Bucket {
   export type UseCors<T extends Cors> = T;
 
   /**
+   * Bucket Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
+
+  /**
    * Bucket service.
    */
   export declare abstract class Service implements CommonService.Provider {
@@ -76,6 +81,11 @@ export namespace Bucket {
      * Variables associated to all events.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Custom tags associated to the bucket.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

@@ -14,6 +14,13 @@ export declare class RateEvent extends Cron.Service {
   group: 'ez4-rate-group';
 
   /**
+   * Custom tags for the scheduler group.
+   */
+  tags: Cron.UseTags<{
+    TestTag: 'test-tag';
+  }>;
+
+  /**
    * Execute every 5 minutes.
    */
   expression: 'rate(5 minutes)';
@@ -45,6 +52,13 @@ export declare class CronEvent extends Cron.Service {
    * Group for the scheduler.
    */
   group: 'ez4-cron-group';
+
+  /**
+   * Custom tags for the scheduler group.
+   */
+  tags: Cron.UseTags<{
+    TestTag: 'test-tag';
+  }>;
 
   /**
    * Execute every 15 minutes.

@@ -12,7 +12,7 @@
   "TestScheduler": {
     "type": "@ez4/cron",
     "name": "TestScheduler",
-    "file": "test/input/output-vpc.ts",
+    "file": "test/input/output-tags.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -25,13 +25,16 @@
     "target": {
       "handler": {
         "name": "targetHandler",
-        "file": "test/input/output-vpc.ts",
+        "file": "test/input/output-tags.ts",
         "position": [
-          12,
+          16,
           1
         ]
-      },
-      "vpc": true
+      }
+    },
+    "tags": {
+      "FOO": "foo",
+      "BAR": "bar"
     }
   }
 }

@@ -9,10 +9,10 @@
     "name": "@options",
     "context": {}
   },
-  "TestScheduler": {
-    "type": "@ez4/cron",
-    "name": "TestScheduler",
-    "file": "test/input/output-vpc.ts",
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "file": "test/input/output-tags.ts",
     "context": {},
     "variables": {},
     "services": {},
@@ -21,17 +21,10 @@
       "properties": {},
       "identity": 1
     },
-    "expression": "dynamic",
-    "target": {
-      "handler": {
-        "name": "targetHandler",
-        "file": "test/input/output-vpc.ts",
-        "position": [
-          12,
-          1
-        ]
-      },
-      "vpc": true
+    "subscriptions": [],
+    "tags": {
+      "FOO": "foo",
+      "BAR": "bar"
     }
   }
 }

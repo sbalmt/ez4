@@ -1,6 +1,7 @@
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
+import type { Service } from '@ez4/common';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -15,6 +16,7 @@ export type BucketService = Omit<ServiceMetadata, 'variables' | 'services'> &
     globalName?: string;
     autoExpireDays?: number;
     events?: BucketEvent[];
+    tags?: Service.Tags;
     cors?: BucketCors;
   };
 

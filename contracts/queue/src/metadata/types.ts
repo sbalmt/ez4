@@ -2,6 +2,7 @@ import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -13,9 +14,10 @@ export type QueueService = Omit<ServiceMetadata, 'variables' | 'services'> &
     type: typeof ServiceType;
     name: string;
     file?: string;
+    description?: string;
     schema: QueueMessageSchema;
     subscriptions: QueueSubscription[];
-    description?: string;
+    tags?: Service.Tags;
     fifoMode?: QueueFifoMode;
     fairMode?: QueueFairMode;
     deadLetter?: QueueDeadLetter;

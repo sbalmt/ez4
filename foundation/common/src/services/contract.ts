@@ -31,6 +31,11 @@ export namespace Service {
   export type Context<T> = RichService.Context<T>;
 
   /**
+   * Common service tags.
+   */
+  export type Tags = Record<string, string>;
+
+  /**
    * Common interface for service providers.
    */
   export interface Provider {

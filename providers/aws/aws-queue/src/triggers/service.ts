@@ -35,11 +35,14 @@ export const prepareServices = (event: PrepareResourceEvent) => {
     queueName: getQueueName(service, options),
     deadLetter: service.deadLetter,
     fifoMode: !!fifoMode,
-    tags: options.tags,
     retention,
     polling,
     timeout,
-    delay
+    delay,
+    tags: {
+      ...service.tags,
+      ...options.tags
+    }
   });
 
   context.setServiceState(service, options, queueState);

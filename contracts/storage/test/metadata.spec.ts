@@ -26,6 +26,7 @@ describe('storage metadata', () => {
   it('assert :: basic storage', () => testFile('service'));
   it('assert :: storage events', () => testFile('events'));
   it('assert :: storage cors', () => testFile('cors'));
+  it('assert :: storage tags', () => testFile('tags'));
   it('assert :: events variables', () => testFile('variables'));
   it('assert :: events dependencies', () => testFile('dependencies'));
   it('assert :: events listener', () => testFile('listener'));

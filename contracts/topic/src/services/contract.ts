@@ -48,6 +48,11 @@ export namespace Topic {
   export type UseFifoMode<T extends FifoMode<any>> = T;
 
   /**
+   * Topic Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
+
+  /**
    * Topic service.
    */
   export declare abstract class Service<T extends Event, U extends FifoMode<T> | undefined = undefined> implements CommonService.Provider {
@@ -70,6 +75,11 @@ export namespace Topic {
      * Variables associated to all subscriptions.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Custom tags associated to the topic.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

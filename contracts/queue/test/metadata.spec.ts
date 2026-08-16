@@ -27,6 +27,7 @@ describe('queue metadata', () => {
   it('assert :: queue subscriptions', () => testFile('subscriptions'));
   it('assert :: queue dead-letter', () => testFile('deadletter'));
   it('assert :: queue backoff', () => testFile('backoff'));
+  it('assert :: queue tags', () => testFile('tags'));
   it('assert :: subscription variables', () => testFile('variables'));
   it('assert :: subscription dependencies', () => testFile('dependencies'));
   it('assert :: subscription validation', () => testFile('validation'));

@@ -25,8 +25,9 @@ describe('scheduler metadata', () => {
 
   it('assert :: static scheduler', () => testFile('static'));
   it('assert :: dynamic scheduler', () => testFile('dynamic'));
+  it('assert :: scheduler event', () => testFile('event'));
+  it('assert :: scheduler tags', () => testFile('tags'));
   it('assert :: target dependencies', () => testFile('dependencies'));
   it('assert :: target listener', () => testFile('listener'));
   it('assert :: target vpc', () => testFile('vpc'));
-  it('assert :: scheduler event', () => testFile('event'));
 });

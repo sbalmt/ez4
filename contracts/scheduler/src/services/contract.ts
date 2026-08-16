@@ -30,6 +30,11 @@ export namespace Cron {
   export type UseTarget<T extends Target<any>> = T;
 
   /**
+   * Cron Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
+
+  /**
    * Cron service.
    */
   export declare abstract class Service<T extends Event | null = null> implements CommonService.Provider {
@@ -88,6 +93,11 @@ export namespace Cron {
      * Variables associated to the target.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Queue Tags definition.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

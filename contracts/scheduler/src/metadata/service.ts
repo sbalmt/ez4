@@ -14,6 +14,7 @@ import {
   getPropertyBoolean,
   getPropertyNumber,
   getPropertyString,
+  getServiceTags,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -113,6 +114,13 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
         case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariablesObject(member, errorList);
+          }
+          break;
+        }
+
+        case 'tags': {
+          if (!member.inherited) {
+            service.tags = getServiceTags(member);
           }
           break;
         }

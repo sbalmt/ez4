@@ -30,11 +30,14 @@ export const prepareBucketServices = async (event: PrepareResourceEvent) => {
   const bucketName = await getBucketName(service, options);
 
   const bucketState = createBucket(state, {
-    tags: options.tags,
     bucketName,
     autoExpireDays,
     localPath,
-    cors
+    cors,
+    tags: {
+      ...service.tags,
+      ...options.tags
+    }
   });
 
   context.setServiceState(service, options, bucketState);
