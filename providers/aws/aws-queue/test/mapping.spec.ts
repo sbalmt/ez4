@@ -122,7 +122,9 @@ describe('queue mapping', { timeout: 90000 }, () => {
 
     ok(lastState[mappingId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[mappingId], undefined);
   });

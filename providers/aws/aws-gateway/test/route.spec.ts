@@ -145,7 +145,9 @@ describe('gateway route', { timeout: 60000 }, () => {
 
     ok(lastState[routeId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[routeId], undefined);
   });

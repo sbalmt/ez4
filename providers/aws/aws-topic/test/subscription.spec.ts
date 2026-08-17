@@ -92,7 +92,9 @@ describe('topic subscription', { timeout: 90000 }, () => {
 
     ok(lastState[subscriptionId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[subscriptionId], undefined);
   });

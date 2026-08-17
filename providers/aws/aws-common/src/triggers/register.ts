@@ -22,7 +22,10 @@ const planDeploy = async (event: DeployEvent) => {
 };
 
 const applyDeploy = async (event: DeployEvent) => {
-  return deploy(event.newState, event.oldState, event.concurrency, event.force);
+  return deploy(event.newState, event.oldState, {
+    concurrency: event.concurrency,
+    force: event.force
+  });
 };
 
 const deployLock = async (event: DeployLockEvent) => {

@@ -114,7 +114,9 @@ describe('gateway authorizer', { timeout: 60000 }, () => {
 
     ok(lastState[authorizerId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[authorizerId], undefined);
   });

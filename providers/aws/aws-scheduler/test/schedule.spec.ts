@@ -107,7 +107,9 @@ describe('scheduler', { timeout: 60000 }, () => {
 
     ok(lastState[scheduleId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[scheduleId], undefined);
   });

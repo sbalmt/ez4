@@ -33,11 +33,15 @@ export const report = <E extends EntryState>(
   });
 };
 
+export type DeployOptions = {
+  concurrency?: number;
+  force?: boolean;
+};
+
 export const deploy = async <E extends EntryState>(
   newState: EntryStates<E> | undefined,
   oldState: EntryStates<E> | undefined,
-  concurrency?: number,
-  force?: boolean
+  options?: DeployOptions
 ): Promise<ApplyResult<E>> => {
   Logger.log(`🚀 Deploy started`);
 
@@ -45,13 +49,13 @@ export const deploy = async <E extends EntryState>(
 
   const plannedSteps = await planSteps(newState, oldState, {
     handlers: allProviderHandlers,
-    force
+    force: options?.force
   });
 
   const resultState = await applySteps(plannedSteps, newState, oldState, {
     handlers: allProviderHandlers,
-    concurrency,
-    force,
+    concurrency: options?.concurrency,
+    force: options?.force,
     onProgress: (applied, total) => {
       OperationLogger.setStats(`  ${((100 / total) * applied).toFixed(2)}%`);
     }

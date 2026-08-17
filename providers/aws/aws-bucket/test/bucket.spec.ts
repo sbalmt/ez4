@@ -162,7 +162,9 @@ describe('bucket resources', { timeout: 60000 }, () => {
 
     ok(lastState[bucketId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[bucketId], undefined);
   });

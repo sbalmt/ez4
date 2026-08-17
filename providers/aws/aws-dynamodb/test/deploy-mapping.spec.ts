@@ -121,7 +121,9 @@ describe('dynamodb mapping', { timeout: 60000 }, () => {
 
     ok(lastState[mappingId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[mappingId], undefined);
   });

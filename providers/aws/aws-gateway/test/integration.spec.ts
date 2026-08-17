@@ -116,7 +116,9 @@ describe('gateway integration', { timeout: 60000 }, () => {
 
     ok(lastState[integrationId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[integrationId], undefined);
   });
