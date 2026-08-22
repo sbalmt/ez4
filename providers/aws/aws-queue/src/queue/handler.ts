@@ -97,6 +97,12 @@ const updateResource = (candidate: QueueState, current: QueueState, context: Ste
     return Promise.resolve(result);
   }
 
+  context.postAction(() =>
+    OperationLogger.logExecution(QueueServiceName, queueName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.queueUrl, parameters, current.parameters);
+    })
+  );
+
   return OperationLogger.logExecution(QueueServiceName, queueName, 'updates', async (logger) => {
     const { deadLetter: newDeadLetter, ...newParameters } = candidate.parameters;
     const { deadLetter: oldDeadLetter, ...oldParameters } = current.parameters;
@@ -125,7 +131,6 @@ const updateResource = (candidate: QueueState, current: QueueState, context: Ste
     };
 
     await checkGeneralUpdates(logger, result.queueUrl, newRequest, oldRequest);
-    await checkTagUpdates(logger, result.queueUrl, parameters, current.parameters);
 
     return {
       ...result,

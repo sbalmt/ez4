@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { GroupState, GroupResult, GroupParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -57,7 +57,7 @@ const createResource = (candidate: GroupState): Promise<GroupResult> => {
   });
 };
 
-const updateResource = (candidate: GroupState, current: GroupState): Promise<GroupResult> => {
+const updateResource = (candidate: GroupState, current: GroupState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
@@ -65,11 +65,13 @@ const updateResource = (candidate: GroupState, current: GroupState): Promise<Gro
     throw new CorruptedResourceError(GroupServiceName, groupName);
   }
 
-  return OperationLogger.logExecution(GroupServiceName, groupName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(GroupServiceName, groupName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: GroupState) => {

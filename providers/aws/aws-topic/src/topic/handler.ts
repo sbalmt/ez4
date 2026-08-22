@@ -1,4 +1,4 @@
-import type { StepHandler } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 
@@ -67,7 +67,7 @@ const createResource = (candidate: TopicState): Promise<TopicResult> => {
   });
 };
 
-const updateResource = (candidate: TopicState, current: TopicState): Promise<TopicResult> => {
+const updateResource = (candidate: TopicState, current: TopicState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { topicName } = parameters;
 
@@ -79,11 +79,13 @@ const updateResource = (candidate: TopicState, current: TopicState): Promise<Top
     return Promise.resolve(result);
   }
 
-  return OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(TopicServiceName, topicName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: TopicState) => {

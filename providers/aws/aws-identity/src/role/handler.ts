@@ -75,16 +75,19 @@ const updateResource = (candidate: RoleState, current: RoleState, context: StepC
     return;
   }
 
+  context.postAction(() =>
+    OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'post updates', async (logger) => {
+      await checkGeneralUpdates(logger, result.roleName, candidate.parameters, current.parameters);
+      await checkTagUpdates(logger, result.roleName, candidate.parameters, current.parameters);
+    })
+  );
+
   return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'updates', async (logger) => {
     const policies = context.getDependencies<PolicyState>(PolicyServiceType);
     const policyArns = getPolicyArns(result.roleName, policies);
 
-    await Promise.all([
-      checkGeneralUpdates(logger, result.roleName, candidate.parameters, current.parameters),
-      checkDocumentUpdates(logger, result.roleName, candidate.parameters, current.parameters),
-      checkPolicyUpdates(logger, result.roleName, policyArns, result.policyArns),
-      checkTagUpdates(logger, result.roleName, candidate.parameters, current.parameters)
-    ]);
+    await checkDocumentUpdates(logger, result.roleName, candidate.parameters, current.parameters);
+    await checkPolicyUpdates(logger, result.roleName, policyArns, result.policyArns);
 
     return {
       ...result,

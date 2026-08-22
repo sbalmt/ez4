@@ -124,12 +124,16 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
         }
       });
 
-      await tagFunction(logger, importedFunction.functionArn, {
-        ...parameters.tags,
-        ...(release?.tagName && {
-          [release.tagName]: release.version
+      context.postAction(() =>
+        OperationLogger.logExecution(FunctionServiceName, functionName, 'post creation', async (logger) => {
+          await tagFunction(logger, importedFunction.functionArn, {
+            ...parameters.tags,
+            ...(release?.tagName && {
+              [release.tagName]: release.version
+            })
+          });
         })
-      });
+      );
 
       return {
         functionArn: importedFunction.functionArn,
@@ -203,7 +207,12 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
     const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
     await checkConfigurationUpdates(logger, functionName, newConfig, oldConfig, isUpdated, context);
-    await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
+
+    context.postAction(() =>
+      OperationLogger.logExecution(FunctionServiceName, functionName, 'post updates', async (logger) => {
+        await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
+      })
+    );
 
     return {
       ...result,

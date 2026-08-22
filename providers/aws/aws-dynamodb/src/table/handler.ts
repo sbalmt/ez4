@@ -53,15 +53,15 @@ const previewResource = (candidate: TableState, current: TableState) => {
   };
 };
 
-const replaceResource = async (candidate: TableState, current: TableState) => {
+const replaceResource = async (candidate: TableState, current: TableState, context: StepContext) => {
   if (current.result) {
     throw new ReplaceResourceError(TableServiceName, candidate.entryId, current.entryId);
   }
 
-  return createResource(candidate);
+  return createResource(candidate, context);
 };
 
-const createResource = (candidate: TableState): Promise<TableResult> => {
+const createResource = (candidate: TableState, context: StepContext): Promise<TableResult> => {
   const parameters = candidate.parameters;
 
   const { tableName, ttlAttribute } = parameters;
@@ -70,10 +70,14 @@ const createResource = (candidate: TableState): Promise<TableResult> => {
     const response = await createTable(logger, parameters);
 
     if (ttlAttribute) {
-      await updateTimeToLive(logger, response.tableName, {
-        attributeName: ttlAttribute,
-        enabled: true
-      });
+      context.postAction(() =>
+        OperationLogger.logExecution(TableServiceName, tableName, 'post creation', async (logger) => {
+          await updateTimeToLive(logger, response.tableName, {
+            attributeName: ttlAttribute,
+            enabled: true
+          });
+        })
+      );
     }
 
     return {
@@ -84,7 +88,7 @@ const createResource = (candidate: TableState): Promise<TableResult> => {
   });
 };
 
-const updateResource = (candidate: TableState, current: TableState): Promise<TableResult> => {
+const updateResource = (candidate: TableState, current: TableState, context: StepContext): Promise<TableResult> => {
   const { result, parameters } = candidate;
   const { tableName } = parameters;
 
@@ -92,14 +96,19 @@ const updateResource = (candidate: TableState, current: TableState): Promise<Tab
     throw new CorruptedResourceError(TableServiceName, tableName);
   }
 
+  context.postAction(() =>
+    OperationLogger.logExecution(TableServiceName, tableName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
+      await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
+      await checkCapacityUpdates(logger, tableName, parameters, current.parameters);
+      await checkDeletionUpdates(logger, tableName, parameters, current.parameters);
+    })
+  );
+
   return OperationLogger.logExecution(TableServiceName, tableName, 'updates', async (logger) => {
     const newResult = await checkStreamsUpdates(logger, tableName, parameters, current.parameters);
 
-    await checkCapacityUpdates(logger, tableName, parameters, current.parameters);
-    await checkDeletionUpdates(logger, tableName, parameters, current.parameters);
-    await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
     await checkIndexUpdates(logger, tableName, parameters, current.parameters);
-    await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
 
     return {
       ...result,

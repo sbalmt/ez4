@@ -63,7 +63,7 @@ const createResource = (candidate: ClusterState): Promise<ClusterResult> => {
   });
 };
 
-const updateResource = (candidate: ClusterState, current: ClusterState): Promise<ClusterResult> => {
+const updateResource = (candidate: ClusterState, current: ClusterState, context: StepContext): Promise<ClusterResult> => {
   const { result, parameters } = candidate;
   const { clusterName } = parameters;
 
@@ -71,13 +71,15 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
     throw new CorruptedResourceError(ClusterServiceName, clusterName);
   }
 
+  context.postAction(() =>
+    OperationLogger.logExecution(ClusterServiceName, clusterName, 'post updates', async (logger) => {
+      await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
+      await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
+    })
+  );
+
   return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
-    const newResult = await checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
-
-    await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
-    await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
-
-    return newResult;
+    return checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
   });
 };
 

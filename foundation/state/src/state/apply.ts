@@ -1,5 +1,5 @@
 import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
-import type { StepHandlers, StepState } from '../types/step';
+import type { StepHandlers, StepPostAction, StepState } from '../types/step';
 
 import { Tasks } from '@ez4/utils';
 
@@ -35,6 +35,11 @@ export type ApplyResult<E extends EntryState = EntryState> = {
   errors: Error[];
 };
 
+type ApplyPostAction<E extends EntryState> = {
+  callback: StepPostAction;
+  entry: E;
+};
+
 export const applySteps = async <E extends EntryState>(
   stepList: StepState[],
   newEntries: EntryStates<E> | undefined,
@@ -50,6 +55,8 @@ export const applySteps = async <E extends EntryState>(
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
 
+  const postActions: ApplyPostAction<E>[] = [];
+
   const successfulEntries: EntryStates<E> = {};
   const failedEntries: EntryStates<E> = {};
 
@@ -57,7 +64,7 @@ export const applySteps = async <E extends EntryState>(
 
   const totalSteps = stepList.length;
 
-  let appliedSteps = 0;
+  let progressCounter = 0;
 
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
@@ -67,11 +74,11 @@ export const applySteps = async <E extends EntryState>(
     }
 
     const stepTasks = nextSteps.map((entry) => () => {
-      return applyPendingStep(entry, allNewEntries, allOldEntries, successfulEntries, handlers, force);
+      return applyPendingStep(entry, allNewEntries, allOldEntries, successfulEntries, postActions, handlers, force);
     });
 
     const stepResults = await Tasks.run(stepTasks, {
-      onProgress: () => onProgress?.(++appliedSteps, totalSteps),
+      onProgress: () => onProgress?.(++progressCounter, totalSteps + postActions.length),
       concurrency
     });
 
@@ -92,6 +99,24 @@ export const applySteps = async <E extends EntryState>(
     }
   }
 
+  const actionTasks = postActions.map(({ entry, callback }) => async () => {
+    if (!successfulEntries[entry.entryId]) {
+      return;
+    }
+
+    try {
+      await callback();
+    } catch (error) {
+      errorList.push(error instanceof Error ? error : new Error(`${error}`));
+      entry.partial = true;
+    }
+  });
+
+  await Tasks.run(actionTasks, {
+    onProgress: () => onProgress?.(++progressCounter, totalSteps + postActions.length),
+    concurrency
+  });
+
   return {
     errors: errorList,
     result: {
@@ -110,6 +135,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
   successfulEntries: EntryStates<E>,
+  postActions: ApplyPostAction<E>[],
   handlers: StepHandlers<E>,
   force: boolean
 ): Promise<[E | undefined] | [E | undefined, Error]> => {
@@ -130,6 +156,9 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       },
       getDependents: <T extends EntryState>(type?: EntryTypes<T>) => {
         return getEntryDependents<T>(completedEntryMap, entry, type);
+      },
+      postAction: (callback: StepPostAction) => {
+        postActions.push({ callback, entry });
       }
     };
   };

@@ -14,6 +14,16 @@ export type StepState = {
 };
 
 /**
+ * A step result after performing an action.
+ */
+export type StepResult = Record<string, any> | undefined;
+
+/**
+ * A step post-action callback.
+ */
+export type StepPostAction = () => void | Promise<void>;
+
+/**
  * Options containing flags for the step.
  */
 export type StepOptions = {
@@ -58,6 +68,14 @@ export type StepContext = {
    * @returns Returns a list containing all matching entry connections.
    */
   getConnections: <E extends EntryState>(type?: E['type']) => E[];
+
+  /**
+   * Register a post action callback to be invoked after finishing all steps.
+   *
+   * @param callback Post action callback.
+   * @returns Must return the resulting state of the post action.
+   */
+  postAction: (callback: StepPostAction) => void;
 };
 
 /**
@@ -78,7 +96,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param context Action context.
    * @returns Must returns the resulting state of the create action.
    */
-  create: (candidate: Readonly<E>, context: StepContext) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
+  create: (candidate: Readonly<E>, context: StepContext) => StepResult | Promise<StepResult>;
 
   /**
    * Handle entry replacement.
@@ -87,11 +105,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param context Action context.
    * @returns Must returns the resulting state of the replace action.
    */
-  replace: (
-    candidate: Readonly<E>,
-    current: Readonly<E>,
-    context: StepContext
-  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
+  replace: (candidate: Readonly<E>, current: Readonly<E>, context: StepContext) => StepResult | Promise<StepResult>;
 
   /**
    * Handle entry preview.
@@ -113,11 +127,7 @@ export type StepHandler<E extends EntryState = EntryState> = {
    * @param context Action context.
    * @returns Must returns the resulting state of the update action.
    */
-  update: (
-    candidate: Readonly<E>,
-    current: Readonly<E>,
-    context: StepContext
-  ) => Record<string, any> | undefined | Promise<Record<string, any> | undefined>;
+  update: (candidate: Readonly<E>, current: Readonly<E>, context: StepContext) => StepResult | Promise<StepResult>;
 
   /**
    * Handle entry deletion.

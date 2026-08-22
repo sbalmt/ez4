@@ -72,7 +72,6 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
 
       return {
         functionArn: importedFunction.functionArn,
-
         valuesHash
       };
     }
@@ -85,7 +84,6 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
 
     return {
       functionArn,
-
       valuesHash
     };
   });

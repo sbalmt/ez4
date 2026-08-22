@@ -59,7 +59,7 @@ const createResource = (candidate: CertificateState): Promise<CertificateResult>
   });
 };
 
-const updateResource = (candidate: CertificateState, current: CertificateState): Promise<CertificateResult> => {
+const updateResource = (candidate: CertificateState, current: CertificateState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { domainName } = parameters;
 
@@ -67,11 +67,13 @@ const updateResource = (candidate: CertificateState, current: CertificateState):
     throw new CorruptedResourceError(CertificateServiceName, domainName);
   }
 
-  return OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(CertificateServiceName, domainName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: CertificateState, context: StepContext) => {

@@ -60,7 +60,7 @@ const createResource = (candidate: LogGroupState): Promise<LogGroupResult> => {
   });
 };
 
-const updateResource = (candidate: LogGroupState, current: LogGroupState): Promise<LogGroupResult> => {
+const updateResource = (candidate: LogGroupState, current: LogGroupState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
@@ -68,12 +68,14 @@ const updateResource = (candidate: LogGroupState, current: LogGroupState): Promi
     throw new CorruptedResourceError(LogGroupServiceName, groupName);
   }
 
-  return OperationLogger.logExecution(LogGroupServiceName, groupName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
-    await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(LogGroupServiceName, groupName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+      await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: LogGroupState, context: StepContext) => {

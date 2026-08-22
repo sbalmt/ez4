@@ -1,8 +1,8 @@
-import type { StepHandler } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { OriginState, OriginResult, OriginParameters } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy, importOriginPolicy } from './client';
@@ -60,6 +60,7 @@ const createResource = (candidate: OriginState): Promise<OriginResult> => {
         policyId
       };
     }
+
     const { policyId } = await createOriginPolicy(logger, candidate.parameters);
 
     return {
@@ -68,20 +69,21 @@ const createResource = (candidate: OriginState): Promise<OriginResult> => {
   });
 };
 
-const updateResource = (candidate: OriginState, current: OriginState): Promise<OriginResult | undefined> => {
+const updateResource = (candidate: OriginState, current: OriginState, context: StepContext) => {
   const { result, parameters } = candidate;
+  const { policyName } = parameters;
 
   if (!result) {
-    return Promise.resolve(undefined);
+    throw new CorruptedResourceError(OriginServiceName, policyName);
   }
 
-  const policyName = parameters.policyName;
+  context.postAction(() =>
+    OperationLogger.logExecution(OriginServiceName, policyName, 'post updates', async (logger) => {
+      await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
+    })
+  );
 
-  return OperationLogger.logExecution(OriginServiceName, policyName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
-
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: OriginState) => {

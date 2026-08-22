@@ -70,7 +70,7 @@ const createResource = (candidate: InstanceState, context: StepContext): Promise
   });
 };
 
-const updateResource = (candidate: InstanceState, current: InstanceState): Promise<InstanceResult> => {
+const updateResource = (candidate: InstanceState, current: InstanceState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { instanceName } = parameters;
 
@@ -78,11 +78,13 @@ const updateResource = (candidate: InstanceState, current: InstanceState): Promi
     throw new CorruptedResourceError(InstanceServiceName, instanceName);
   }
 
-  return OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(InstanceServiceName, instanceName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: InstanceState, context: StepContext) => {

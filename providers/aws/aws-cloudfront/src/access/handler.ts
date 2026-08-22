@@ -1,5 +1,5 @@
 import type { OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { AccessState, AccessResult, AccessParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -69,7 +69,7 @@ const createResource = (candidate: AccessState): Promise<AccessResult> => {
   });
 };
 
-const updateResource = (candidate: AccessState, current: AccessState): Promise<AccessResult> => {
+const updateResource = (candidate: AccessState, current: AccessState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { accessName } = parameters;
 
@@ -77,11 +77,13 @@ const updateResource = (candidate: AccessState, current: AccessState): Promise<A
     throw new CorruptedResourceError(AccessServiceName, accessName);
   }
 
-  return OperationLogger.logExecution(AccessServiceName, accessName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(AccessServiceName, accessName, 'post updates', async (logger) => {
+      await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: AccessState) => {

@@ -2,11 +2,39 @@
  * Regular entry state.
  */
 export type EntryState<T extends string = string> = {
+  /**
+   * Entry type.
+   */
   type: T;
+
+  /**
+   * Entry identifier.
+   */
   entryId: string;
+
+  /**
+   * List of identifiers for all dependent entries.
+   */
   dependencies: string[];
+
+  /**
+   * List of identifiers for all connected entries.
+   */
   connections?: string[];
+
+  /**
+   * Determines whether or not the last apply was partial.
+   */
+  partial?: boolean;
+
+  /**
+   * All entry parameters.
+   */
   parameters: unknown;
+
+  /**
+   * Entry result.
+   */
   result?: unknown;
 };
 

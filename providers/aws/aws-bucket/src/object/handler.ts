@@ -71,7 +71,11 @@ const createResource = (candidate: ObjectState, context: StepContext): Promise<O
 
     const { objectKey } = await putObject(logger, bucketName, parameters);
 
-    await checkTagUpdates(logger, bucketName, objectKey, parameters.tags, candidate.parameters.tags);
+    context.postAction(() =>
+      OperationLogger.logExecution(ObjectServiceName, objectName, 'post creation', async (logger) => {
+        await checkTagUpdates(logger, bucketName, objectKey, parameters.tags, candidate.parameters.tags);
+      })
+    );
 
     return {
       lastModified,
@@ -80,7 +84,7 @@ const createResource = (candidate: ObjectState, context: StepContext): Promise<O
   });
 };
 
-const updateResource = (candidate: ObjectState, current: ObjectState): Promise<ObjectResult> => {
+const updateResource = (candidate: ObjectState, current: ObjectState, context: StepContext): Promise<ObjectResult> => {
   const { result, parameters } = candidate;
   const { objectKey, tags } = parameters;
 
@@ -90,12 +94,14 @@ const updateResource = (candidate: ObjectState, current: ObjectState): Promise<O
 
   const objectName = getBucketObjectPath(result.bucketName, objectKey);
 
+  context.postAction(() =>
+    OperationLogger.logExecution(ObjectServiceName, objectName, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.bucketName, objectKey, tags, current.parameters.tags);
+    })
+  );
+
   return OperationLogger.logExecution(ObjectServiceName, objectName, 'updates', async (logger) => {
-    const newResult = checkObjectUpdates(logger, result, parameters, current.parameters);
-
-    await checkTagUpdates(logger, result.bucketName, objectKey, tags, current.parameters.tags);
-
-    return newResult;
+    return checkObjectUpdates(logger, result, parameters, current.parameters);
   });
 };
 

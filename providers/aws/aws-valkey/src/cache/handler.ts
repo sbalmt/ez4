@@ -61,7 +61,7 @@ const createResource = (candidate: CacheState): Promise<CacheResult> => {
   });
 };
 
-const updateResource = (candidate: CacheState, current: CacheState): Promise<CacheResult> => {
+const updateResource = (candidate: CacheState, current: CacheState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { name } = parameters;
 
@@ -69,11 +69,13 @@ const updateResource = (candidate: CacheState, current: CacheState): Promise<Cac
     throw new CorruptedResourceError(CacheServiceName, name);
   }
 
-  return OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
+  context.postAction(() =>
+    OperationLogger.logExecution(CacheServiceName, name, 'post updates', async (logger) => {
+      await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
+    })
+  );
 
-    return result;
-  });
+  return result;
 };
 
 const deleteResource = async (current: CacheState, context: StepContext) => {
