@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/state';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
@@ -14,8 +14,10 @@ import {
   deleteFunction,
   updateConfiguration,
   updateSourceCode,
+  updateAlias,
   untagFunction,
-  tagFunction
+  tagFunction,
+  unpublishFunction
 } from './client';
 
 import { protectVariables } from './helpers/variables';
@@ -105,10 +107,9 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
     const bundleHash = await hashFile(sourceFile);
 
     if (importedFunction) {
-      await updateSourceCode(logger, functionName, {
+      const { functionVersion } = await updateSourceCode(logger, functionName, {
         architecture: parameters.architecture,
         files: parameters.files,
-        publish: false,
         sourceFile
       });
 
@@ -124,21 +125,19 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
         }
       });
 
-      context.postAction(() =>
-        OperationLogger.logExecution(FunctionServiceName, functionName, 'post creation', async (logger) => {
-          await tagFunction(logger, importedFunction.functionArn, {
-            ...parameters.tags,
-            ...(release?.tagName && {
-              [release.tagName]: release.version
-            })
-          });
+      await tagFunction(logger, importedFunction.functionArn, {
+        ...parameters.tags,
+        ...(release?.tagName && {
+          [release.tagName]: release.version
         })
-      );
+      });
+
+      await updateAlias(logger, functionName, functionVersion);
 
       return {
-        functionArn: importedFunction.functionArn,
-        functionVersion: importedFunction.functionVersion,
         variables: protectVariables(variables),
+        functionArn: importedFunction.functionArn,
+        functionVersion,
         sourceHash,
         valuesHash,
         bundleHash,
@@ -148,9 +147,8 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
       };
     }
 
-    const createdFunction = await createFunction(logger, {
+    const { functionArn, functionVersion } = await createFunction(logger, {
       ...parameters,
-      publish: true,
       functionName,
       sourceFile,
       logGroup,
@@ -169,10 +167,12 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
       }
     });
 
+    await updateAlias(logger, functionName, functionVersion);
+
     return {
-      functionArn: createdFunction.functionArn,
-      functionVersion: createdFunction.functionVersion,
       variables: protectVariables(variables),
+      functionVersion,
+      functionArn,
       sourceHash,
       valuesHash,
       bundleHash,
@@ -207,12 +207,19 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
     const oldConfig = { ...current.parameters, variables: oldVariables, roleArn: oldRoleArn, logGroup: oldLogGroup };
 
     await checkConfigurationUpdates(logger, functionName, newConfig, oldConfig, isUpdated, context);
+    await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
 
-    context.postAction(() =>
-      OperationLogger.logExecution(FunctionServiceName, functionName, 'post updates', async (logger) => {
-        await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
-      })
-    );
+    if (newResult.functionVersion || context.force) {
+      context.postAction(() =>
+        OperationLogger.logExecution(FunctionServiceName, functionName, 'rollout', async (logger) => {
+          await updateAlias(logger, functionName, newResult.functionVersion ?? result.functionVersion);
+
+          if (newResult.functionVersion) {
+            await unpublishFunction(logger, functionName, result.functionVersion);
+          }
+        })
+      );
+    }
 
     return {
       ...result,
@@ -336,7 +343,6 @@ const checkSourceCodeUpdates = async (
 
     const { functionVersion } = await updateSourceCode(logger, functionName, {
       architecture: candidate.architecture,
-      publish: !current?.functionVersion,
       sourceFile: newSourceFile,
       files: candidate.files
     });
@@ -347,9 +353,7 @@ const checkSourceCodeUpdates = async (
       sourceHash: newSourceHash,
       bundleHash: newBundleHash,
       filesHash: newFilesHash,
-      ...(functionVersion && {
-        functionVersion
-      })
+      functionVersion
     };
   }
 

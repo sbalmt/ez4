@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
+import type { StepHandler } from '@ez4/state';
 import type { OriginState, OriginResult, OriginParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -69,7 +69,7 @@ const createResource = (candidate: OriginState): Promise<OriginResult> => {
   });
 };
 
-const updateResource = (candidate: OriginState, current: OriginState, context: StepContext) => {
+const updateResource = async (candidate: OriginState, current: OriginState) => {
   const { result, parameters } = candidate;
   const { policyName } = parameters;
 
@@ -77,13 +77,9 @@ const updateResource = (candidate: OriginState, current: OriginState, context: S
     throw new CorruptedResourceError(OriginServiceName, policyName);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(OriginServiceName, policyName, 'post updates', async (logger) => {
-      await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
-    })
-  );
-
-  return result;
+  await OperationLogger.logExecution(OriginServiceName, policyName, 'updates', async (logger) => {
+    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
+  });
 };
 
 const deleteResource = async (current: OriginState) => {

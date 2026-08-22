@@ -9,6 +9,8 @@ import {
   UpdateFunctionCodeCommand,
   UpdateFunctionConfigurationCommand,
   PublishVersionCommand,
+  CreateAliasCommand,
+  UpdateAliasCommand,
   TagResourceCommand,
   UntagResourceCommand,
   waitUntilFunctionActive,
@@ -45,13 +47,16 @@ export type CreateRequest = {
   runtime: RuntimeType;
   timeout: number;
   memory: number;
-  publish?: boolean;
   vpc?: boolean;
   tags?: ResourceTags;
 };
 
-export type ImportOrCreateResponse = {
-  functionVersion?: string;
+export type CreateResponse = {
+  functionVersion: string;
+  functionArn: Arn;
+};
+
+export type ImportResponse = {
   functionArn: Arn;
 };
 
@@ -69,32 +74,24 @@ export type UpdateConfigurationRequest = {
 };
 
 export type UpdateSourceCodeRequest = {
-  files?: string[];
   sourceFile: string;
   architecture?: ArchitectureType;
-  publish?: boolean;
+  files?: string[];
 };
 
-export const importFunction = async (
-  logger: OperationLogLine,
-  functionName: string,
-  version?: string
-): Promise<ImportOrCreateResponse | undefined> => {
+export const importFunction = async (logger: OperationLogLine, functionName: string): Promise<ImportResponse | undefined> => {
   logger.update(`Importing function`);
 
   try {
     const response = await getLambdaClient().send(
       new GetFunctionCommand({
-        FunctionName: functionName,
-        Qualifier: version
+        FunctionName: functionName
       })
     );
 
-    const functionVersion = response.Configuration!.Version;
     const functionArn = response.Configuration!.FunctionArn as Arn;
 
     return {
-      functionVersion,
       functionArn
     };
   } catch (error) {
@@ -106,7 +103,7 @@ export const importFunction = async (
   }
 };
 
-export const createFunction = async (logger: OperationLogLine, request: CreateRequest): Promise<ImportOrCreateResponse> => {
+export const createFunction = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating function`);
 
   const { functionName, variables } = request;
@@ -120,7 +117,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
   const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
   const handlerName = getSourceHandlerName(request.handlerName);
 
-  const { description, memory, timeout, publish, architecture, runtime, roleArn, logGroup, logLevel } = request;
+  const { description, memory, timeout, architecture, runtime, roleArn, logGroup, logLevel } = request;
 
   const client = getLambdaClient();
 
@@ -133,7 +130,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
         MemorySize: memory,
         Timeout: timeout,
         Role: roleArn,
-        Publish: publish,
+        Publish: true,
         Handler: handlerName,
         Architectures: [getFunctionArchitecture(architecture)],
         Description: description && getSafeDescription(description),
@@ -164,7 +161,7 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
   });
 
   const functionArn = response.FunctionArn as Arn;
-  const functionVersion = response.Version;
+  const functionVersion = response.Version!;
 
   const waiter = getLambdaWaiter(client);
 
@@ -172,19 +169,43 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
     FunctionName: functionName
   });
 
-  if (publish) {
-    await waitUntilPublishedVersionActive(waiter, {
-      FunctionName: functionName,
-      Qualifier: functionVersion
-    });
-  }
+  await waitUntilPublishedVersionActive(waiter, {
+    FunctionName: functionName,
+    Qualifier: functionVersion
+  });
 
   return {
-    functionArn,
-    ...(publish && {
-      functionVersion
-    })
+    functionVersion,
+    functionArn
   };
+};
+
+export const updateAlias = async (logger: OperationLogLine, functionName: string, functionVersion: string) => {
+  logger.update(`Updating alias`);
+
+  const client = getLambdaClient();
+
+  try {
+    await client.send(
+      new UpdateAliasCommand({
+        Name: FunctionDefaults.AliasName,
+        FunctionVersion: functionVersion,
+        FunctionName: functionName
+      })
+    );
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    await client.send(
+      new CreateAliasCommand({
+        Name: FunctionDefaults.AliasName,
+        FunctionVersion: functionVersion,
+        FunctionName: functionName
+      })
+    );
+  }
 };
 
 export const updateSourceCode = async (logger: OperationLogLine, functionName: string, request: UpdateSourceCodeRequest) => {
@@ -192,7 +213,7 @@ export const updateSourceCode = async (logger: OperationLogLine, functionName: s
 
   const sourceFile = await getSourceZipFile(request.sourceFile, request.files);
 
-  const { publish, architecture } = request;
+  const { architecture } = request;
 
   const client = getLambdaClient();
 
@@ -201,12 +222,12 @@ export const updateSourceCode = async (logger: OperationLogLine, functionName: s
       Architectures: architecture && [getFunctionArchitecture(architecture)],
       FunctionName: functionName,
       ZipFile: sourceFile,
-      Publish: publish
+      Publish: true
     })
   );
 
   const functionArn = response.FunctionArn as Arn;
-  const functionVersion = response.Version;
+  const functionVersion = response.Version!;
 
   const waiter = getLambdaWaiter(client);
 
@@ -214,18 +235,14 @@ export const updateSourceCode = async (logger: OperationLogLine, functionName: s
     FunctionName: functionName
   });
 
-  if (publish) {
-    await waitUntilPublishedVersionActive(waiter, {
-      FunctionName: functionName,
-      Qualifier: functionVersion
-    });
-  }
+  await waitUntilPublishedVersionActive(waiter, {
+    FunctionName: functionName,
+    Qualifier: functionVersion
+  });
 
   return {
     functionArn,
-    ...(publish && {
-      functionVersion
-    })
+    functionVersion
   };
 };
 
@@ -309,14 +326,37 @@ export const publishFunction = async (logger: OperationLogLine, functionName: st
     })
   );
 
-  const version = response.Version;
+  const functionVersion = response.Version;
 
   await waitUntilPublishedVersionActive(getLambdaWaiter(client), {
     FunctionName: functionName,
-    Qualifier: version
+    Qualifier: functionVersion
   });
 
-  return version;
+  return functionVersion;
+};
+
+export const unpublishFunction = async (logger: OperationLogLine, functionName: string, functionVersion: string) => {
+  logger.update(`Unpublishing version`);
+
+  const client = getLambdaClient();
+
+  // If the function is still in use due to a prior change that's not
+  // done yet, keep retrying until max attempts.
+  await waitDeletion(async () => {
+    try {
+      await client.send(
+        new DeleteFunctionCommand({
+          FunctionName: functionName,
+          Qualifier: functionVersion
+        })
+      );
+    } catch (error) {
+      if (!(error instanceof ResourceNotFoundException)) {
+        throw error;
+      }
+    }
+  });
 };
 
 export const tagFunction = async (logger: OperationLogLine, functionArn: Arn, tags: ResourceTags) => {

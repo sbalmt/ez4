@@ -9,7 +9,6 @@ export type CreateRequest = {
   statementId?: string;
   sourceArn?: Arn;
   principal: string;
-  action: string;
 };
 
 export type CreateResponse = {
@@ -24,10 +23,10 @@ export const createPermission = async (logger: OperationLogLine, request: Create
   await getLambdaClient().send(
     new AddPermissionCommand({
       StatementId: statementId,
+      Action: 'lambda:InvokeFunction',
       FunctionName: request.functionName,
       SourceArn: request.sourceArn,
-      Principal: request.principal,
-      Action: request.action
+      Principal: request.principal
     })
   );
 

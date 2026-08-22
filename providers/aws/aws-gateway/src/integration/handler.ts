@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types';
 
-import { getFunctionArn } from '@ez4/aws-function';
+import { getFunctionAliasArn } from '@ez4/aws-function';
 import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
@@ -46,7 +46,7 @@ const createResource = (candidate: IntegrationState, context: StepContext): Prom
 
   return OperationLogger.logExecution(IntegrationServiceName, parameters.fromService, 'creation', async (logger) => {
     const apiId = getGatewayId(IntegrationServiceName, 'integration', context);
-    const functionArn = getFunctionArn(IntegrationServiceName, 'integration', context);
+    const functionArn = getFunctionAliasArn(IntegrationServiceName, 'integration', context);
     const protocol = getGatewayProtocol(IntegrationServiceName, 'integration', context);
 
     const http = protocol === GatewayProtocol.Http;
@@ -75,7 +75,7 @@ const updateResource = (candidate: IntegrationState, current: IntegrationState, 
   return OperationLogger.logExecution(IntegrationServiceName, parameters.fromService, 'updates', async (logger) => {
     const integrationId = result.integrationId;
 
-    const newFunctionArn = getFunctionArn(IntegrationServiceName, integrationId, context);
+    const newFunctionArn = getFunctionAliasArn(IntegrationServiceName, integrationId, context);
     const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
 
     const newRequest = { ...candidate.parameters, functionArn: newFunctionArn };

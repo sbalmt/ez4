@@ -4,7 +4,7 @@ import type { QueueState } from '@ez4/aws-queue';
 import type { TopicState } from '../topic/types';
 import type { SubscriptionParameters, SubscriptionState } from './types';
 
-import { createPermission, getFunctionArn, getPermission, isFunctionState } from '@ez4/aws-function';
+import { createPermission, getFunctionAliasArn, getPermission, isFunctionState } from '@ez4/aws-function';
 import { attachQueuePolicy, getQueueArn, isQueueState } from '@ez4/aws-queue';
 import { getAccountId, getRegion } from '@ez4/aws-identity';
 import { attachEntry } from '@ez4/state';
@@ -75,7 +75,7 @@ export const createSubscription = <E extends EntryState>(
       },
       getEndpoint: (context: StepContext) => {
         if (isFunctionState(endpointState)) {
-          return getFunctionArn(SubscriptionServiceName, subscriptionId, context);
+          return getFunctionAliasArn(SubscriptionServiceName, subscriptionId, context);
         }
 
         return getQueueArn(SubscriptionServiceName, subscriptionId, context);

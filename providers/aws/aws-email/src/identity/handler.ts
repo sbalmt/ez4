@@ -57,7 +57,7 @@ const createResource = (candidate: IdentityState): Promise<IdentityResult> => {
   });
 };
 
-const updateResource = (candidate: IdentityState, current: IdentityState, context: StepContext) => {
+const updateResource = async (candidate: IdentityState, current: IdentityState) => {
   const { result, parameters } = candidate;
   const { identity } = parameters;
 
@@ -65,13 +65,9 @@ const updateResource = (candidate: IdentityState, current: IdentityState, contex
     throw new CorruptedResourceError(IdentityServiceName, identity);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(IdentityServiceName, identity, 'post updates', async (logger) => {
-      await checkTagUpdates(logger, result.identityArn, parameters, current.parameters);
-    })
-  );
-
-  return result;
+  await OperationLogger.logExecution(IdentityServiceName, identity, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.identityArn, parameters, current.parameters);
+  });
 };
 
 const deleteResource = (current: IdentityState, context: StepContext) => {

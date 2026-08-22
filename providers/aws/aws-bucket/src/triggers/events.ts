@@ -9,7 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { attachBucketEvent } from '../event/service';
-import { getBucketEventFunctionArn } from '../event/utils';
+import { getBucketEventFunctionAliasArn } from '../event/utils';
 import { createBucketEventFunction } from '../event/function/service';
 import { getFunctionName, getInternalName } from './utils';
 import { RoleMissingError } from './errors';
@@ -101,7 +101,7 @@ export const prepareBucketEvents = (
       eventGetters: [
         (context) => {
           return {
-            functionArn: getBucketEventFunctionArn(service.name, handlerState.entryId, context),
+            functionArn: getBucketEventFunctionAliasArn(service.name, handlerState.entryId, context),
             events: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
             path
           };

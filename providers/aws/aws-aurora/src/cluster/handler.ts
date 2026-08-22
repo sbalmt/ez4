@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/state';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -63,7 +63,7 @@ const createResource = (candidate: ClusterState): Promise<ClusterResult> => {
   });
 };
 
-const updateResource = (candidate: ClusterState, current: ClusterState, context: StepContext): Promise<ClusterResult> => {
+const updateResource = (candidate: ClusterState, current: ClusterState): Promise<ClusterResult> => {
   const { result, parameters } = candidate;
   const { clusterName } = parameters;
 
@@ -71,14 +71,10 @@ const updateResource = (candidate: ClusterState, current: ClusterState, context:
     throw new CorruptedResourceError(ClusterServiceName, clusterName);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(ClusterServiceName, clusterName, 'post updates', async (logger) => {
-      await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
-      await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
-    })
-  );
-
   return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
+    await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
+    await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
+
     return checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
   });
 };

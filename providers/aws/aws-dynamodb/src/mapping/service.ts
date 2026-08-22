@@ -3,7 +3,7 @@ import type { FunctionState } from '@ez4/aws-function';
 import type { MappingParameters } from './types';
 import type { TableState } from '../table/types';
 
-import { createMapping as baseCreateMapping, MappingServiceName } from '@ez4/aws-function';
+import { createMapping as createFunctionMapping, MappingServiceName } from '@ez4/aws-function';
 
 import { getTableStreamArn } from '../table/utils';
 
@@ -13,7 +13,7 @@ export const createMapping = <E extends EntryState>(
   functionState: FunctionState,
   parameters: MappingParameters
 ) => {
-  return baseCreateMapping(state, tableState, functionState, {
+  return createFunctionMapping(state, tableState, functionState, {
     ...parameters,
     getSourceArn: (context: StepContext) => {
       return getTableStreamArn(MappingServiceName, 'stream', context);

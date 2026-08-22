@@ -6,7 +6,7 @@ import type { UpdateRequest } from './client';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getFunctionName } from '../function/utils';
+import { getFunctionAliasName } from '../function/utils';
 import { importMapping, createMapping, deleteMapping, updateMapping } from './client';
 import { MappingServiceName } from './types';
 
@@ -56,7 +56,7 @@ const replaceResource = async (candidate: MappingState, current: MappingState, c
 const createResource = (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
   const parameters = candidate.parameters;
 
-  const functionName = getFunctionName(MappingServiceName, 'mapping', context);
+  const functionName = getFunctionAliasName(MappingServiceName, 'mapping', context);
 
   return OperationLogger.logExecution(MappingServiceName, functionName, 'creation', async (logger) => {
     const sourceArn = await parameters.getSourceArn(context);
@@ -86,7 +86,7 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
   }
 
   return OperationLogger.logExecution(MappingServiceName, fromService, 'updates', async (logger) => {
-    const newFunctionName = getFunctionName(MappingServiceName, 'mapping', context);
+    const newFunctionName = getFunctionAliasName(MappingServiceName, 'mapping', context);
     const oldFunctionName = current.result?.functionName ?? result.functionName;
 
     const sourceArn = result.sourceArn;

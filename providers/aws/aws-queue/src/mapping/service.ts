@@ -3,7 +3,7 @@ import type { FunctionState } from '@ez4/aws-function';
 import type { QueueState } from '../queue/types';
 import type { MappingParameters } from './types';
 
-import { createMapping as baseCreateMapping, MappingServiceName } from '@ez4/aws-function';
+import { createMapping as createFunctionMapping, MappingServiceName } from '@ez4/aws-function';
 
 import { getQueueArn } from '../queue/utils';
 
@@ -13,7 +13,7 @@ export const createMapping = <E extends EntryState>(
   functionState: FunctionState,
   parameters: MappingParameters
 ) => {
-  return baseCreateMapping(state, queueState, functionState, {
+  return createFunctionMapping(state, queueState, functionState, {
     ...parameters,
     getSourceArn: (context: StepContext) => {
       return getQueueArn(MappingServiceName, 'queue', context);

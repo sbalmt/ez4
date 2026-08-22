@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/state';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { CertificateState, CertificateResult, CertificateParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -59,7 +59,7 @@ const createResource = (candidate: CertificateState): Promise<CertificateResult>
   });
 };
 
-const updateResource = (candidate: CertificateState, current: CertificateState, context: StepContext) => {
+const updateResource = async (candidate: CertificateState, current: CertificateState) => {
   const { result, parameters } = candidate;
   const { domainName } = parameters;
 
@@ -67,13 +67,9 @@ const updateResource = (candidate: CertificateState, current: CertificateState, 
     throw new CorruptedResourceError(CertificateServiceName, domainName);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(CertificateServiceName, domainName, 'post updates', async (logger) => {
-      await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
-    })
-  );
-
-  return result;
+  await OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
+  });
 };
 
 const deleteResource = async (current: CertificateState, context: StepContext) => {

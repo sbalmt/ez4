@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { CacheState, CacheResult, CacheParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -61,7 +61,7 @@ const createResource = (candidate: CacheState): Promise<CacheResult> => {
   });
 };
 
-const updateResource = (candidate: CacheState, current: CacheState, context: StepContext) => {
+const updateResource = async (candidate: CacheState, current: CacheState) => {
   const { result, parameters } = candidate;
   const { name } = parameters;
 
@@ -69,13 +69,9 @@ const updateResource = (candidate: CacheState, current: CacheState, context: Ste
     throw new CorruptedResourceError(CacheServiceName, name);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(CacheServiceName, name, 'post updates', async (logger) => {
-      await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
-    })
-  );
-
-  return result;
+  await OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
+    await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
+  });
 };
 
 const deleteResource = async (current: CacheState, context: StepContext) => {

@@ -1,5 +1,5 @@
 import type { OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { StepContext, StepHandler } from '@ez4/state';
+import type { StepHandler } from '@ez4/state';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -47,27 +47,23 @@ const previewResource = (candidate: BucketState, current: BucketState) => {
   };
 };
 
-const replaceResource = async (candidate: BucketState, current: BucketState, context: StepContext) => {
+const replaceResource = async (candidate: BucketState, current: BucketState) => {
   if (current.result) {
     throw new ReplaceResourceError(BucketServiceName, candidate.entryId, current.entryId);
   }
 
-  return createResource(candidate, context);
+  return createResource(candidate);
 };
 
-const createResource = (candidate: BucketState, context: StepContext): Promise<BucketResult> => {
+const createResource = (candidate: BucketState): Promise<BucketResult> => {
   const parameters = candidate.parameters;
 
   return OperationLogger.logExecution(BucketServiceName, parameters.bucketName, 'creation', async (logger) => {
     const { bucketName } = await createBucket(logger, parameters);
 
-    context.postAction(() =>
-      OperationLogger.logExecution(BucketServiceName, parameters.bucketName, 'post creation', async (logger) => {
-        await checkCorsUpdates(logger, bucketName, parameters, undefined);
-        await checkLifecycleUpdates(logger, bucketName, parameters, undefined);
-        await checkTagUpdates(logger, bucketName, parameters.tags, undefined);
-      })
-    );
+    await checkCorsUpdates(logger, bucketName, parameters, undefined);
+    await checkLifecycleUpdates(logger, bucketName, parameters, undefined);
+    await checkTagUpdates(logger, bucketName, parameters.tags, undefined);
 
     return {
       bucketName
@@ -75,7 +71,7 @@ const createResource = (candidate: BucketState, context: StepContext): Promise<B
   });
 };
 
-const updateResource = (candidate: BucketState, current: BucketState, context: StepContext) => {
+const updateResource = async (candidate: BucketState, current: BucketState) => {
   const { result, parameters } = candidate;
   const { bucketName } = parameters;
 
@@ -83,15 +79,11 @@ const updateResource = (candidate: BucketState, current: BucketState, context: S
     throw new CorruptedResourceError(BucketServiceName, bucketName);
   }
 
-  context.postAction(() =>
-    OperationLogger.logExecution(BucketServiceName, bucketName, 'post updates', async (logger) => {
-      await checkCorsUpdates(logger, bucketName, parameters, current.parameters);
-      await checkLifecycleUpdates(logger, bucketName, parameters, current.parameters);
-      await checkTagUpdates(logger, bucketName, parameters.tags, current.parameters.tags);
-    })
-  );
-
-  return result;
+  await OperationLogger.logExecution(BucketServiceName, bucketName, 'updates', async (logger) => {
+    await checkCorsUpdates(logger, bucketName, parameters, current.parameters);
+    await checkLifecycleUpdates(logger, bucketName, parameters, current.parameters);
+    await checkTagUpdates(logger, bucketName, parameters.tags, current.parameters.tags);
+  });
 };
 
 const deleteResource = async (current: BucketState) => {

@@ -52,11 +52,7 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
     const importedStage = await importStage(logger, apiId, stageName);
 
     if (logGroupArn) {
-      context.postAction(() =>
-        OperationLogger.logExecution(StageServiceName, getStageName(parameters), 'post creation', async (logger) => {
-          await enableAccessLogs(logger, apiId, stageName, logGroupArn);
-        })
-      );
+      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
     }
 
     if (importedStage) {

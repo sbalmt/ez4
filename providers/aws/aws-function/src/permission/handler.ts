@@ -1,9 +1,9 @@
 import type { StepContext, StepHandler } from '@ez4/state';
 import type { PermissionResult, PermissionState } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 
-import { getFunctionName } from '../function/utils';
+import { getFunctionAliasName } from '../function/utils';
 import { createPermission, deletePermission } from './client';
 import { PermissionServiceName } from './types';
 
@@ -36,13 +36,11 @@ const replaceResource = async (candidate: PermissionState, current: PermissionSt
 const createResource = (candidate: PermissionState, context: StepContext): Promise<PermissionResult> => {
   const parameters = candidate.parameters;
 
-  const functionName = getFunctionName(PermissionServiceName, 'permission', context);
-
-  return OperationLogger.logExecution(PermissionServiceName, functionName, 'creation', async (logger) => {
+  return OperationLogger.logExecution(PermissionServiceName, parameters.fromService, 'creation', async (logger) => {
+    const functionName = getFunctionAliasName(PermissionServiceName, 'permission', context);
     const permission = await parameters.getPermission(context);
 
     const response = await createPermission(logger, {
-      action: 'lambda:InvokeFunction',
       sourceArn: permission.sourceArn,
       principal: permission.principal,
       functionName
@@ -55,7 +53,39 @@ const createResource = (candidate: PermissionState, context: StepContext): Promi
   });
 };
 
-const updateResource = async () => {};
+const updateResource = async (candidate: PermissionState, current: PermissionState, context: StepContext) => {
+  const { result, parameters } = candidate;
+
+  if (!result) {
+    throw new CorruptedResourceError(PermissionServiceName, 'permission');
+  }
+
+  return OperationLogger.logExecution(PermissionServiceName, parameters.fromService, 'updates', async (logger) => {
+    const newFunctionName = getFunctionAliasName(PermissionServiceName, 'permission', context);
+    const oldFunctionName = current.result?.functionName;
+
+    if (newFunctionName === oldFunctionName) {
+      return result;
+    }
+
+    if (oldFunctionName && current.result?.statementId) {
+      await deletePermission(logger, oldFunctionName, current.result.statementId);
+    }
+
+    const permission = await parameters.getPermission(context);
+
+    const response = await createPermission(logger, {
+      sourceArn: permission.sourceArn,
+      principal: permission.principal,
+      functionName: newFunctionName
+    });
+
+    return {
+      statementId: response.statementId,
+      functionName: newFunctionName
+    };
+  });
+};
 
 const deleteResource = async (current: PermissionState) => {
   const result = current.result;
