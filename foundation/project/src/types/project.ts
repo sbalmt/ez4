@@ -148,15 +148,15 @@ export type ProjectCustomProviders = {
 
 export type ProjectDeployOptions = {
   /**
-   * Specify the deployment release.
-   */
-  release?: ProjectDeployReleaseOptions;
-
-  /**
    * Determines the maximum amount of resources changes at the same time.
    * Default is: `25`
    */
-  maxConcurrency: number;
+  maxConcurrency?: number;
+
+  /**
+   * Specify the deployment release.
+   */
+  release?: ProjectDeployReleaseOptions;
 };
 
 export type ProjectDeployReleaseOptions = {
