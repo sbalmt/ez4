@@ -1,10 +1,10 @@
 import type { FunctionState } from '@ez4/aws-function';
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { BucketEventParameters, BucketEventState } from './types';
 import type { BucketState } from '../bucket/types';
 
 import { createPermission, getPermission } from '@ez4/aws-function';
-import { attachEntry, tryLinkEntryDependency } from '@ez4/stateful';
+import { attachEntry, tryLinkEntryDependency } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { buildBucketArn } from '../utils/policy';

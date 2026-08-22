@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { ClusterParameters, ClusterState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { ClusterServiceType } from './types';
 

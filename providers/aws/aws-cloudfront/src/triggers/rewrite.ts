@@ -1,6 +1,6 @@
 import type { DeployOptions } from '@ez4/project/library';
 import type { CdnService } from '@ez4/distribution/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { getServiceName } from '@ez4/project/library';
 import { hashObject } from '@ez4/utils';

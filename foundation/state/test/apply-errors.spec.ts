@@ -1,7 +1,7 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TestEntryState } from './common/entry';
 
-import { HandlerNotFoundError, EntriesNotFoundError, applySteps, planSteps } from '@ez4/stateful';
+import { HandlerNotFoundError, EntriesNotFoundError, applySteps, planSteps } from '@ez4/state';
 
 import { describe, it } from 'node:test';
 import { rejects } from 'node:assert/strict';

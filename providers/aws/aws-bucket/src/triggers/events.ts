@@ -1,6 +1,6 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { BucketService } from '@ez4/storage/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { BucketState } from '../bucket/types';
 
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';

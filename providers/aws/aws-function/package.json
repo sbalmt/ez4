@@ -51,7 +51,7 @@
     "@ez4/aws-vpc": "^0.52.0",
     "@ez4/project": "^0.52.0",
     "@ez4/common": "^0.52.0",
-    "@ez4/stateful": "^0.52.0",
+    "@ez4/state": "^0.52.0",
     "@ez4/utils": "^0.52.0",
     "@types/adm-zip": "^0.5.5",
     "adm-zip": "^0.5.14"

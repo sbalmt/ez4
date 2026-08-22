@@ -1,6 +1,6 @@
-import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/stateful';
+import type { ApplyResult, EntryState, EntryStates, StepHandler, StepHandlers } from '@ez4/state';
 
-import { applySteps, planSteps } from '@ez4/stateful';
+import { applySteps, planSteps } from '@ez4/state';
 import { Logger } from '@ez4/logger';
 
 import { DuplicateProviderError } from '../errors/providers';

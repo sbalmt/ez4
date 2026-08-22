@@ -1,5 +1,5 @@
 import type { LinkedServices } from '@ez4/project/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 
 import { ServiceType } from '../metadata/types';
 

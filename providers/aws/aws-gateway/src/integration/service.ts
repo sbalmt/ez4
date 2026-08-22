@@ -1,11 +1,11 @@
-import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
+import type { EntryState, EntryStates, StepContext } from '@ez4/state';
 import type { FunctionState } from '@ez4/aws-function';
 import type { GatewayState } from '../gateway/types';
 import type { IntegrationParameters, IntegrationState } from './types';
 
 import { getRegion, getAccountId } from '@ez4/aws-identity';
 import { getPermission, createPermission } from '@ez4/aws-function';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils';

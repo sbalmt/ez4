@@ -1,10 +1,10 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { RoleState } from '@ez4/aws-identity';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { FunctionParameters, FunctionState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { FunctionServiceType } from './types';
 

@@ -1,7 +1,7 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { CertificateParameters, CertificateState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { CertificateServiceType } from './types';
 import { createCertificateStateId } from './utils';

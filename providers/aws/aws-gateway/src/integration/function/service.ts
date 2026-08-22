@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { RoleState } from '@ez4/aws-identity';
 import type { LogGroupState } from '@ez4/aws-logs';

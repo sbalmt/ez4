@@ -1,5 +1,5 @@
 import type { OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';

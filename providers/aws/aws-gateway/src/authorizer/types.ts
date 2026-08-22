@@ -1,5 +1,5 @@
 import type { Arn } from '@ez4/aws-common';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { CreateRequest, CreateResponse } from './client';
 
 export const AuthorizerServiceName = 'AWS:API/Authorizer';

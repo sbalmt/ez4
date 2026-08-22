@@ -48,7 +48,7 @@
     "@aws-sdk/client-sts": "^3.996.0",
     "@ez4/aws-common": "^0.52.0",
     "@ez4/project": "^0.52.0",
-    "@ez4/stateful": "^0.52.0",
+    "@ez4/state": "^0.52.0",
     "@ez4/utils": "^0.52.0"
   }
 }

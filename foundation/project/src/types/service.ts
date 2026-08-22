@@ -1,5 +1,5 @@
 import type { AnyObject, Incomplete } from '@ez4/utils';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 
 import { isAnyObject, isObjectWith } from '@ez4/utils';
 

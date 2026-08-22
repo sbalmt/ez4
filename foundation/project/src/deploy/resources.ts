@@ -1,5 +1,5 @@
 import type { EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { MetadataReflection } from '../types/metadata';
 import type { DeployOptions } from '../types/options';
 

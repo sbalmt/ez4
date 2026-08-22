@@ -11,7 +11,7 @@
   },
   "workspaces": [
     "foundation/utils",
-    "foundation/stateful",
+    "foundation/state",
     "foundation/reflection",
     "foundation/logger",
     "foundation/project",

@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { ContextSource, LinkedContext, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
-import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/stateful';
+import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/state';
 import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service';

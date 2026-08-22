@@ -1,5 +1,5 @@
 import type { RoleResourceEvent } from '@ez4/project/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { PolicyState } from '../policy/types';
 
 import { getServiceName } from '@ez4/project/library';

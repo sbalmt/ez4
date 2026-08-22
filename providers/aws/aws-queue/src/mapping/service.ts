@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
+import type { EntryState, EntryStates, StepContext } from '@ez4/state';
 import type { FunctionState } from '@ez4/aws-function';
 import type { QueueState } from '../queue/types';
 import type { MappingParameters } from './types';

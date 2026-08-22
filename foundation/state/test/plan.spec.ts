@@ -1,7 +1,7 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TestEntryState } from './common/entry';
 
-import { planSteps, StepAction } from '@ez4/stateful';
+import { planSteps, StepAction } from '@ez4/state';
 import { describe, it } from 'node:test';
 import { equal } from 'node:assert/strict';
 

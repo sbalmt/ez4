@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { describe, it } from 'node:test';
 import { ok, deepEqual, equal } from 'node:assert/strict';

@@ -1,6 +1,6 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TableState } from '../table/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';

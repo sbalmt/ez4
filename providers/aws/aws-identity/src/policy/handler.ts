@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { PolicyDocument } from '../types/policy';
 import type { PolicyState, PolicyResult, PolicyParameters } from './types';
 

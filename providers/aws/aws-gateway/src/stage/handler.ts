@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { StageState, StageResult, StageParameters } from './types';
 
 import { deepCompare, deepEqual } from '@ez4/utils';

@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { QueueState } from '../queue/types';
 import type { QueuePolicyParameters, QueuePolicyState } from './types';
 
-import { attachEntry, tryLinkEntryDependency } from '@ez4/stateful';
+import { attachEntry, tryLinkEntryDependency } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { QueuePolicyServiceType } from './types';

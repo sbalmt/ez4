@@ -1,5 +1,5 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 
 export const IntegrityServiceName = 'AWS:Aurora/Integrity';
 

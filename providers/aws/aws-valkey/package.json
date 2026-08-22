@@ -57,7 +57,7 @@
     "@ez4/cache": "^0.52.0",
     "@ez4/logger": "^0.52.0",
     "@ez4/project": "^0.52.0",
-    "@ez4/stateful": "^0.52.0",
+    "@ez4/state": "^0.52.0",
     "@ez4/utils": "^0.52.0",
     "iovalkey": "^0.3.3"
   }

@@ -73,7 +73,7 @@ jobs:
         run: |
           npm test \
           -w @ez4/utils \
-          -w @ez4/stateful \
+          -w @ez4/state \
           -w @ez4/reflection \
           -w @ez4/logger \
           -w @ez4/project \

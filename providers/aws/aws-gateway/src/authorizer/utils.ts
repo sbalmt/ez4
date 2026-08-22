@@ -1,5 +1,5 @@
 import type { Arn } from '@ez4/aws-common';
-import type { EntryState, StepContext } from '@ez4/stateful';
+import type { EntryState, StepContext } from '@ez4/state';
 import type { AuthorizerState } from './types';
 
 import { getRegion } from '@ez4/aws-identity';

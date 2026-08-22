@@ -3,7 +3,7 @@
  */
 export default {
   prefix: 'ez4',
-  projectName: 'stateful',
+  projectName: 'state',
   sourceFiles: [],
   stateFile: {
     path: 'ez4-state'

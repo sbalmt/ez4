@@ -1,6 +1,6 @@
 import type { TopicService, TopicImport } from '@ez4/topic/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TopicState } from '../topic/types';
 
 import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';

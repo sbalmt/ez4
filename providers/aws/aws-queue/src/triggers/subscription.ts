@@ -1,6 +1,6 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { QueueService, QueueImport } from '@ez4/queue/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { QueueState } from '../queue/types';
 
 import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';

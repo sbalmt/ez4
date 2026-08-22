@@ -1,4 +1,4 @@
-# EZ4: Stateful
+# EZ4: State
 
 It provides an API for state management.
 
@@ -7,7 +7,7 @@ It provides an API for state management.
 #### Install
 
 ```sh
-npm install @ez4/stateful -D
+npm install @ez4/state -D
 ```
 
 ## License

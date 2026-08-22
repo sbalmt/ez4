@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { PolicyState, PolicyResult } from './types';
 
 import { ReplaceResourceError, OperationLogger } from '@ez4/aws-common';

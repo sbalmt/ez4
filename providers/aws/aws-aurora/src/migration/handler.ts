@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
+import type { StepContext, StepHandler, StepOptions } from '@ez4/state';
 import type { MigrationState, MigrationResult } from './types';
 
 import { getTableRepositoryChanges } from '@ez4/pgmigration/library';

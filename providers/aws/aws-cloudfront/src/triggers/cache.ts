@@ -1,6 +1,6 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { CdnService, CdnOrigin } from '@ez4/distribution/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { DistributionAdditionalOrigin, DistributionDefaultOrigin } from '../distribution/types';
 
 import { isCdnBucketOrigin } from '@ez4/distribution/library';

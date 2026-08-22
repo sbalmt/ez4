@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
+import type { StepContext, StepHandler, StepOptions } from '@ez4/state';
 import type { IntegrityState, IntegrityResult } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';

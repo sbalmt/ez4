@@ -1,6 +1,6 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';

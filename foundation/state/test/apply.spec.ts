@@ -1,7 +1,7 @@
-import type { EntryStates, StepContext, StepHandlers } from '@ez4/stateful';
+import type { EntryStates, StepContext, StepHandlers } from '@ez4/state';
 import type { TestEntryState } from './common/entry';
 
-import { planSteps, applySteps, DependencyNotFoundError } from '@ez4/stateful';
+import { planSteps, applySteps, DependencyNotFoundError } from '@ez4/state';
 import { ok, equal, deepEqual, notEqual } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 

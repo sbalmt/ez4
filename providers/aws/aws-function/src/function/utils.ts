@@ -1,5 +1,5 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryState, StepContext } from '@ez4/stateful';
+import type { EntryState, StepContext } from '@ez4/state';
 import type { FunctionState } from './types';
 
 import { getDefaultSecurityGroupId, getDefaultSubnetIds, getDefaultVpcId } from '@ez4/aws-vpc';

@@ -1,6 +1,6 @@
 import type { HttpRoute, HttpService, WsService, WsConnection, WsMessage } from '@ez4/gateway/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { GatewayState } from '../gateway/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';

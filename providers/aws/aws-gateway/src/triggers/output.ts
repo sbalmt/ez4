@@ -1,7 +1,7 @@
 import type { ResourceOutputEvent } from '@ez4/project/library';
 import type { StageState } from '../stage/types';
 
-import { getEntryDependents } from '@ez4/stateful';
+import { getEntryDependents } from '@ez4/state';
 
 import { isGatewayState } from '../gateway/utils';
 import { GatewayProtocol } from '../gateway/types';

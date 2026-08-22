@@ -1,4 +1,4 @@
-import type { EntryStates, EntryState } from '@ez4/stateful';
+import type { EntryStates, EntryState } from '@ez4/state';
 
 import { triggerAllSync } from '@ez4/project/library';
 import { isEmptyObject, isNullish } from '@ez4/utils';

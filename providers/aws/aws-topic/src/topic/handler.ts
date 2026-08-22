@@ -1,4 +1,4 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 

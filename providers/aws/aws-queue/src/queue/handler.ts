@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { QueueState, QueueResult, QueueParameters } from './types';
 import type { CreateRequest, DeadLetter, UpdateRequest } from './client';

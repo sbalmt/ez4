@@ -1,4 +1,4 @@
-import type { StepHandler, StepHandlers } from '@ez4/stateful';
+import type { StepHandler, StepHandlers } from '@ez4/state';
 import type { TestEntryState } from './entry';
 
 import { TestEntryType } from './entry';

@@ -1,4 +1,4 @@
-import type { EntryState, StepContext } from '@ez4/stateful';
+import type { EntryState, StepContext } from '@ez4/state';
 import type { FunctionState } from '@ez4/aws-function';
 import type { BucketEventState } from './types';
 

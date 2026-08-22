@@ -1,11 +1,11 @@
 import type { RoleState } from '@ez4/aws-identity';
 import type { FunctionState } from '@ez4/aws-function';
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { GroupState } from '../group/types';
 import type { ScheduleParameters, ScheduleState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { ScheduleServiceType } from './types';
 

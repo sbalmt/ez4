@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TestEntryState } from './common/entry';
 
 import {
@@ -14,7 +14,7 @@ import {
   linkEntryConnection,
   validateEntries,
   attachEntry
-} from '@ez4/stateful';
+} from '@ez4/state';
 
 import { describe, it } from 'node:test';
 import { throws } from 'node:assert/strict';

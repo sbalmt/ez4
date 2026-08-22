@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';

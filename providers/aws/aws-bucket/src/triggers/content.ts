@@ -1,5 +1,5 @@
 import type { BucketState } from '@ez4/aws-bucket';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
