@@ -1,7 +1,7 @@
 import type { StepContext, StepHandler } from '@ez4/state';
 import type { QueuePolicyResult, QueuePolicyState } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { getQueueUrl } from '../queue/utils';
@@ -67,9 +67,14 @@ const createResource = (candidate: QueuePolicyState, context: StepContext): Prom
 };
 
 const updateResource = (candidate: QueuePolicyState, _current: QueuePolicyState, context: StepContext): Promise<QueuePolicyResult> => {
-  const { parameters } = candidate;
+  const { result, parameters } = candidate;
+  const { fromService } = parameters;
 
-  return OperationLogger.logExecution(QueuePolicyServiceName, parameters.fromService, 'updates', async (logger) => {
+  return OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(QueuePolicyServiceName, fromService);
+    }
+
     const queueUrl = getQueueUrl(QueuePolicyServiceName, 'subscription', context);
 
     const permissions = await Promise.all(parameters.policyGetters.map((getPolicy) => getPolicy(context)));
@@ -85,12 +90,12 @@ const updateResource = (candidate: QueuePolicyState, _current: QueuePolicyState,
 
 const deleteResource = async (current: QueuePolicyState) => {
   const { result, parameters } = current;
+  const { fromService } = parameters;
 
   if (result) {
-    const { fromService } = parameters;
     const { queueUrl } = result;
 
-    await OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(QueuePolicyServiceName, fromService, 'deletion', async (logger) => {
       await detachPolicy(logger, queueUrl);
     });
   }

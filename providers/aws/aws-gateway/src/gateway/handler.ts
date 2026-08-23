@@ -73,11 +73,11 @@ const updateResource = async (candidate: GatewayState, current: GatewayState): P
   const { result, parameters } = candidate;
   const { gatewayName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(GatewayServiceName, gatewayName);
-  }
-
   return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(GatewayServiceName, gatewayName);
+    }
+
     if (!parameters.import) {
       const { apiId, apiArn } = result;
 
@@ -99,14 +99,13 @@ const updateResource = async (candidate: GatewayState, current: GatewayState): P
 
 const deleteResource = async (current: GatewayState) => {
   const { result, parameters } = current;
+  const { gatewayName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'deletion', async (logger) => {
+      await deleteGateway(logger, result.apiId);
+    });
   }
-
-  await OperationLogger.logExecution(GatewayServiceName, parameters.gatewayName, 'deletion', async (logger) => {
-    await deleteGateway(logger, result.apiId);
-  });
 };
 
 const checkGeneralUpdates = async (logger: OperationLogLine, apiId: string, candidate: GatewayParameters, current: GatewayParameters) => {

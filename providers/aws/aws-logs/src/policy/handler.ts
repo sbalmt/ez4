@@ -53,12 +53,11 @@ const updateResource = async () => {};
 
 const deleteResource = async (current: LogPolicyState) => {
   const { result, parameters } = current;
+  const { fromService } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(LogPolicyServiceName, fromService, 'deletion', async (logger) => {
+      await detachPolicy(logger, result.groupArn, result.revisionId);
+    });
   }
-
-  await OperationLogger.logExecution(LogPolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
-    await detachPolicy(logger, result.groupArn, result.revisionId);
-  });
 };

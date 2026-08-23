@@ -100,15 +100,13 @@ const updateResource = (candidate: ObjectState, current: ObjectState): Promise<O
 const deleteResource = async (current: ObjectState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    const objectName = getBucketObjectPath(result.bucketName, parameters.objectKey);
+
+    return OperationLogger.logExecution(ObjectServiceName, objectName, 'deletion', async (logger) => {
+      await deleteObject(logger, result.bucketName, parameters.objectKey);
+    });
   }
-
-  const objectName = getBucketObjectPath(result.bucketName, parameters.objectKey);
-
-  await OperationLogger.logExecution(ObjectServiceName, objectName, 'deletion', async (logger) => {
-    await deleteObject(logger, result.bucketName, parameters.objectKey);
-  });
 };
 
 const getLastModifiedTime = async (filePath: string) => {

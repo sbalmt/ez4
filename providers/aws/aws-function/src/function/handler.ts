@@ -187,11 +187,11 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
   const { parameters, result } = candidate;
   const { functionName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(FunctionServiceName, functionName);
-  }
-
   return OperationLogger.logExecution(FunctionServiceName, functionName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(FunctionServiceName, functionName);
+    }
+
     const newVariables = await parameters.getFunctionVariables();
     const oldVariables = current.result?.variables ?? newVariables;
 
@@ -233,11 +233,10 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
 
 const deleteResource = async (current: FunctionState) => {
   const { result, parameters } = current;
+  const { functionName } = parameters;
 
   if (result) {
-    const { functionName } = parameters;
-
-    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
       await deleteFunction(logger, functionName);
     });
   }

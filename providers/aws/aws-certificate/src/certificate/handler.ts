@@ -63,22 +63,21 @@ const updateResource = async (candidate: CertificateState, current: CertificateS
   const { result, parameters } = candidate;
   const { domainName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(CertificateServiceName, domainName);
-  }
+  return OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(CertificateServiceName, domainName);
+    }
 
-  await OperationLogger.logExecution(CertificateServiceName, domainName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.certificateArn, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: CertificateState, context: StepContext) => {
   const { result, parameters } = current;
+  const { domainName, allowDeletion } = parameters;
 
   if (result) {
-    const { domainName, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(CertificateServiceName, domainName, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
         throw new CertificateDeletionDeniedError(domainName);
       }

@@ -85,19 +85,15 @@ const createResource = (candidate: QueueState, context: StepContext): Promise<Qu
   });
 };
 
-const updateResource = (candidate: QueueState, current: QueueState, context: StepContext): Promise<QueueResult> => {
+const updateResource = (candidate: QueueState, current: QueueState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { queueName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(QueueServiceName, queueName);
-  }
-
-  if (parameters.import) {
-    return Promise.resolve(result);
-  }
-
   return OperationLogger.logExecution(QueueServiceName, queueName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(QueueServiceName, queueName);
+    }
+
     const { deadLetter: newDeadLetter, ...newParameters } = candidate.parameters;
     const { deadLetter: oldDeadLetter, ...oldParameters } = current.parameters;
 
@@ -134,16 +130,15 @@ const updateResource = (candidate: QueueState, current: QueueState, context: Ste
   });
 };
 
-const deleteResource = (current: QueueState) => {
+const deleteResource = async (current: QueueState) => {
   const { result, parameters } = current;
+  const { queueName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    return OperationLogger.logExecution(QueueServiceName, queueName, 'deletion', async (logger) => {
+      await deleteQueue(logger, result.queueUrl);
+    });
   }
-
-  return OperationLogger.logExecution(QueueServiceName, parameters.queueName, 'deletion', async (logger) => {
-    await deleteQueue(logger, result.queueUrl);
-  });
 };
 
 const checkGeneralUpdates = async (

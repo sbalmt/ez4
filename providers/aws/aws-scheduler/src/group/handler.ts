@@ -61,11 +61,11 @@ const updateResource = async (candidate: GroupState, current: GroupState) => {
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(GroupServiceName, groupName);
-  }
+  return OperationLogger.logExecution(GroupServiceName, groupName, 'post updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(GroupServiceName, groupName);
+    }
 
-  await OperationLogger.logExecution(GroupServiceName, groupName, 'post updates', async (logger) => {
     await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
   });
 };
@@ -73,13 +73,11 @@ const updateResource = async (candidate: GroupState, current: GroupState) => {
 const deleteResource = async (current: GroupState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
+      await deleteGroup(logger, parameters.groupName);
+    });
   }
-
-  await OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
-    await deleteGroup(logger, parameters.groupName);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, groupArn: Arn, candidate: GroupParameters, current: GroupParameters) => {

@@ -81,7 +81,7 @@ const createResource = (candidate: MigrationState, context: StepContext): Promis
   });
 };
 
-const updateResource = (candidate: MigrationState, current: MigrationState, context: StepContext): Promise<MigrationResult> => {
+const updateResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   const { result, parameters } = candidate;
   const { database } = parameters;
 
@@ -96,7 +96,7 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
     const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
     if (!databaseChanges.counts) {
-      return Promise.resolve(result);
+      return;
     }
 
     await updateTables(logger, {
@@ -108,18 +108,15 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
         source: sourceRepository
       }
     });
-
-    return result;
   });
 };
 
 const deleteResource = async (current: MigrationState, context: StepContext) => {
   const { result, parameters } = current;
+  const { database, allowDeletion } = parameters;
 
   if (result) {
-    const { database, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
         throw new MigrationDeletionDeniedError(database);
       }

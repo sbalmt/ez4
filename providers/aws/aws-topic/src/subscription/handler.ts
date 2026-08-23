@@ -75,11 +75,9 @@ const updateResource = async () => {};
 const deleteResource = async (current: SubscriptionState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
+      await deleteSubscription(logger, result.subscriptionArn);
+    });
   }
-
-  await OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
-    await deleteSubscription(logger, result.subscriptionArn);
-  });
 };

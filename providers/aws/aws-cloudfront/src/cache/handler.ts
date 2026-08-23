@@ -73,22 +73,21 @@ const updateResource = async (candidate: CacheState, current: CacheState) => {
   const { result, parameters } = candidate;
   const { policyName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(CacheServiceName, policyName);
-  }
+  return OperationLogger.logExecution(CacheServiceName, policyName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(CacheServiceName, policyName);
+    }
 
-  await OperationLogger.logExecution(CacheServiceName, policyName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: CacheState) => {
   const { parameters, result } = current;
+  const { policyName } = parameters;
 
   if (result) {
-    const policyName = parameters.policyName;
-
-    await OperationLogger.logExecution(CacheServiceName, policyName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(CacheServiceName, policyName, 'deletion', async (logger) => {
       await deleteCachePolicy(logger, result.policyId);
     });
   }

@@ -73,13 +73,11 @@ const updateResource = async () => {};
 const deleteResource = async (current: PolicyState) => {
   const result = current.result;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { bucketName } = result;
+
+    return OperationLogger.logExecution(PolicyServiceName, bucketName, 'deletion', async (logger) => {
+      await deletePolicy(logger, bucketName);
+    });
   }
-
-  const { bucketName } = result;
-
-  await OperationLogger.logExecution(PolicyServiceName, bucketName, 'deletion', (logger) => {
-    return deletePolicy(logger, bucketName);
-  });
 };

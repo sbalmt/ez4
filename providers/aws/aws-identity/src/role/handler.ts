@@ -3,7 +3,7 @@ import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { PolicyState } from '../policy/types';
 import type { RoleState, RoleResult, RoleParameters } from './types';
 
-import { applyTagUpdates, OperationLogger, IncompleteResourceError, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, OperationLogger, IncompleteResourceError, ReplaceResourceError, CorruptedResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { attachPolicy, createRole, deleteRole, detachPolicy, importRole, tagRole, untagRole, updateAssumeRole, updateRole } from './client';
@@ -70,12 +70,13 @@ const createResource = (candidate: RoleState, context: StepContext): Promise<Rol
 
 const updateResource = (candidate: RoleState, current: RoleState, context: StepContext) => {
   const { result, parameters } = candidate;
+  const { roleName } = parameters;
 
-  if (!result) {
-    return;
-  }
+  return OperationLogger.logExecution(RoleServiceName, roleName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(RoleServiceName, roleName);
+    }
 
-  return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'updates', async (logger) => {
     const policies = context.getDependencies<PolicyState>(PolicyServiceType);
     const policyArns = getPolicyArns(result.roleName, policies);
 
@@ -91,21 +92,19 @@ const updateResource = (candidate: RoleState, current: RoleState, context: StepC
   });
 };
 
-const deleteResource = (current: RoleState) => {
+const deleteResource = async (current: RoleState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'deletion', async (logger) => {
+      // Can only remove role after detaching all its policies.
+      if (result.policyArns.length) {
+        await detachPolicies(logger, result.roleName, result.policyArns);
+      }
+
+      await deleteRole(logger, result.roleName);
+    });
   }
-
-  return OperationLogger.logExecution(RoleServiceName, parameters.roleName, 'deletion', async (logger) => {
-    // Can only remove role after detaching all its policies.
-    if (result.policyArns.length) {
-      await detachPolicies(logger, result.roleName, result.policyArns);
-    }
-
-    await deleteRole(logger, result.roleName);
-  });
 };
 
 const getPolicyArns = (roleName: string, policyStates: PolicyState[]) => {

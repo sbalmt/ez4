@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { RouteState, RouteResult, RouteParameters } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getGatewayId } from '../gateway/utils';
@@ -76,12 +76,13 @@ const createResource = (candidate: RouteState, context: StepContext): Promise<Ro
 
 const updateResource = (candidate: RouteState, current: RouteState, context: StepContext) => {
   const { result, parameters } = candidate;
+  const { routePath } = parameters;
 
-  if (!result) {
-    return;
-  }
+  return OperationLogger.logExecution(RouteServiceName, routePath, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(RouteServiceName, routePath);
+    }
 
-  return OperationLogger.logExecution(RouteServiceName, parameters.routePath, 'updates', async (logger) => {
     const newAuthorizerId = tryGetAuthorizerId(context);
     const oldAuthorizerId = current.result?.authorizerId;
 
@@ -110,16 +111,15 @@ const updateResource = (candidate: RouteState, current: RouteState, context: Ste
   });
 };
 
-const deleteResource = (current: RouteState) => {
+const deleteResource = async (current: RouteState) => {
   const { result, parameters } = current;
+  const { routePath } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(RouteServiceName, routePath, 'deletion', async (logger) => {
+      await deleteRoute(logger, result.apiId, result.routeId);
+    });
   }
-
-  return OperationLogger.logExecution(RouteServiceName, parameters.routePath, 'deletion', async (logger) => {
-    await deleteRoute(logger, result.apiId, result.routeId);
-  });
 };
 
 const checkGeneralUpdates = async <T extends RouteParameters>(

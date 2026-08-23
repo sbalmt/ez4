@@ -73,27 +73,24 @@ const updateResource = async (candidate: OriginState, current: OriginState) => {
   const { result, parameters } = candidate;
   const { policyName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(OriginServiceName, policyName);
-  }
+  return OperationLogger.logExecution(OriginServiceName, policyName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(OriginServiceName, policyName);
+    }
 
-  await OperationLogger.logExecution(OriginServiceName, policyName, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: OriginState) => {
   const { parameters, result } = current;
+  const { policyName } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(OriginServiceName, policyName, 'deletion', async (logger) => {
+      await deleteOriginPolicy(logger, result.policyId);
+    });
   }
-
-  const policyName = parameters.policyName;
-
-  await OperationLogger.logExecution(OriginServiceName, policyName, 'deletion', async (logger) => {
-    await deleteOriginPolicy(logger, result.policyId);
-  });
 };
 
 const checkGeneralUpdates = async (logger: OperationLogLine, policyId: string, candidate: OriginParameters, current: OriginParameters) => {

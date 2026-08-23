@@ -11,7 +11,7 @@ import type {
   DistributionAdditionalOrigin
 } from './types';
 
-import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getOriginAccessId } from '../access/utils';
@@ -119,14 +119,13 @@ const updateResource = (
   context: StepContext
 ): Promise<DistributionResult | void> => {
   const { result, parameters } = candidate;
-
-  if (!result) {
-    return Promise.resolve(undefined);
-  }
-
-  const distributionName = parameters.distributionName;
+  const { distributionName } = parameters;
 
   return OperationLogger.logExecution(DistributionServiceName, distributionName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(DistributionServiceName, distributionName);
+    }
+
     const newOriginAccessId = getOriginAccessId(DistributionServiceName, distributionName, context);
     const oldOriginAccessId = current.result?.originAccessId ?? newOriginAccessId;
 
@@ -177,31 +176,28 @@ const updateResource = (
 
 const deleteResource = async (current: DistributionState) => {
   const { result, parameters } = current;
-
-  if (!result) {
-    return;
-  }
-
   const { distributionName } = parameters;
 
-  await OperationLogger.logExecution(DistributionServiceName, distributionName, 'deletion', async (logger) => {
-    const { distributionId, originAccessId } = result;
+  if (result) {
+    return OperationLogger.logExecution(DistributionServiceName, distributionName, 'deletion', async (logger) => {
+      const { distributionId, originAccessId } = result;
 
-    // Only disabled distributions can be deleted.
-    if (parameters.enabled) {
-      const originsData = [result.defaultOrigin, ...result.origins];
-      const allOrigins = bindOriginsData(parameters, originsData);
+      // Only disabled distributions can be deleted.
+      if (parameters.enabled) {
+        const originsData = [result.defaultOrigin, ...result.origins];
+        const allOrigins = bindOriginsData(parameters, originsData);
 
-      await updateDistribution(logger, distributionId, {
-        ...parameters,
-        ...allOrigins,
-        originAccessId,
-        enabled: false
-      });
-    }
+        await updateDistribution(logger, distributionId, {
+          ...parameters,
+          ...allOrigins,
+          originAccessId,
+          enabled: false
+        });
+      }
 
-    await deleteDistribution(logger, distributionId);
-  });
+      await deleteDistribution(logger, distributionId);
+    });
+  }
 };
 
 const protectOriginHeaders = <T extends (DistributionDefaultOrigin | DistributionAdditionalOrigin)[]>(origins: T) => {

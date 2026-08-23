@@ -61,25 +61,23 @@ const updateResource = async (candidate: IdentityState, current: IdentityState) 
   const { result, parameters } = candidate;
   const { identity } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(IdentityServiceName, identity);
-  }
+  return OperationLogger.logExecution(IdentityServiceName, identity, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(IdentityServiceName, identity);
+    }
 
-  await OperationLogger.logExecution(IdentityServiceName, identity, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.identityArn, parameters, current.parameters);
   });
 };
 
-const deleteResource = (current: IdentityState, context: StepContext) => {
+const deleteResource = async (current: IdentityState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result || !context.force) {
-    return;
+  if (result && context.force) {
+    return OperationLogger.logExecution(IdentityServiceName, parameters.identity, 'deletion', async (logger) => {
+      await deleteIdentity(logger, parameters.identity);
+    });
   }
-
-  return OperationLogger.logExecution(IdentityServiceName, parameters.identity, 'deletion', async (logger) => {
-    await deleteIdentity(logger, parameters.identity);
-  });
 };
 
 const checkTagUpdates = async (

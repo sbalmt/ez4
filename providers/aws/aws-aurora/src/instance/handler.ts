@@ -74,23 +74,23 @@ const updateResource = async (candidate: InstanceState, current: InstanceState) 
   const { result, parameters } = candidate;
   const { instanceName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(InstanceServiceName, instanceName);
-  }
+  return OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(InstanceServiceName, instanceName);
+    }
 
-  await OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: InstanceState, context: StepContext) => {
   const { result, parameters } = current;
+  const { branchMode, allowDeletion } = parameters;
 
   if (result) {
-    const { branchMode, allowDeletion } = parameters;
     const { instanceName } = result;
 
-    await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
       if (branchMode) {
         return;
       }

@@ -88,11 +88,11 @@ const updateResource = (candidate: TableState, current: TableState): Promise<Tab
   const { result, parameters } = candidate;
   const { tableName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(TableServiceName, tableName);
-  }
-
   return OperationLogger.logExecution(TableServiceName, tableName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(TableServiceName, tableName);
+    }
+
     const newResult = await checkStreamsUpdates(logger, tableName, parameters, current.parameters);
 
     await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
@@ -114,7 +114,7 @@ const deleteResource = async (current: TableState, context: StepContext) => {
   if (result) {
     const { tableName } = result;
 
-    await OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
       const { allowDeletion } = parameters;
 
       if (!allowDeletion && !context.force) {

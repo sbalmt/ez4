@@ -34,9 +34,10 @@ const replaceResource = async (candidate: PermissionState, current: PermissionSt
 };
 
 const createResource = (candidate: PermissionState, context: StepContext): Promise<PermissionResult> => {
-  const parameters = candidate.parameters;
+  const { parameters } = candidate;
+  const { fromService } = parameters;
 
-  return OperationLogger.logExecution(PermissionServiceName, parameters.fromService, 'creation', async (logger) => {
+  return OperationLogger.logExecution(PermissionServiceName, fromService, 'creation', async (logger) => {
     const functionName = getFunctionAliasName(PermissionServiceName, 'permission', context);
     const permission = await parameters.getPermission(context);
 
@@ -55,17 +56,18 @@ const createResource = (candidate: PermissionState, context: StepContext): Promi
 
 const updateResource = async (candidate: PermissionState, current: PermissionState, context: StepContext) => {
   const { result, parameters } = candidate;
+  const { fromService } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(PermissionServiceName, 'permission');
-  }
+  return OperationLogger.logExecution(PermissionServiceName, fromService, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(PermissionServiceName, 'permission');
+    }
 
-  return OperationLogger.logExecution(PermissionServiceName, parameters.fromService, 'updates', async (logger) => {
     const newFunctionName = getFunctionAliasName(PermissionServiceName, 'permission', context);
     const oldFunctionName = current.result?.functionName;
 
     if (newFunctionName === oldFunctionName) {
-      return result;
+      return;
     }
 
     if (oldFunctionName && current.result?.statementId) {
@@ -90,13 +92,11 @@ const updateResource = async (candidate: PermissionState, current: PermissionSta
 const deleteResource = async (current: PermissionState) => {
   const result = current.result;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { functionName, statementId } = result;
+
+    return OperationLogger.logExecution(PermissionServiceName, functionName, 'deletion', async (logger) => {
+      await deletePermission(logger, functionName, statementId);
+    });
   }
-
-  const { functionName, statementId } = result;
-
-  await OperationLogger.logExecution(PermissionServiceName, functionName, 'deletion', async (logger) => {
-    await deletePermission(logger, functionName, statementId);
-  });
 };

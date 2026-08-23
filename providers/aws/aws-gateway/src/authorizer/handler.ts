@@ -69,11 +69,11 @@ const updateResource = (candidate: AuthorizerState, current: AuthorizerState, co
   const { result, parameters } = candidate;
   const { name } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(AuthorizerServiceName, name);
-  }
-
   return OperationLogger.logExecution(AuthorizerServiceName, name, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(AuthorizerServiceName, name);
+    }
+
     const authorizerId = result.authorizerId;
 
     const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);
@@ -96,13 +96,11 @@ const updateResource = (candidate: AuthorizerState, current: AuthorizerState, co
 const deleteResource = async (current: AuthorizerState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(AuthorizerServiceName, parameters.name, 'deletion', async (logger) => {
+      await deleteAuthorizer(logger, result.apiId, result.authorizerId);
+    });
   }
-
-  await OperationLogger.logExecution(AuthorizerServiceName, parameters.name, 'deletion', async (logger) => {
-    await deleteAuthorizer(logger, result.apiId, result.authorizerId);
-  });
 };
 
 const checkGeneralUpdates = async (

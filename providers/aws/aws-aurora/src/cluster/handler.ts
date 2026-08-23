@@ -67,11 +67,11 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
   const { result, parameters } = candidate;
   const { clusterName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(ClusterServiceName, clusterName);
-  }
-
   return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(ClusterServiceName, clusterName);
+    }
+
     await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
     await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
 
@@ -81,12 +81,12 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
 
 const deleteResource = async (current: ClusterState, context: StepContext) => {
   const { result, parameters } = current;
+  const { clusterName, branchMode, allowDeletion } = parameters;
 
   if (result) {
-    const { clusterName, branchMode, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
-      if (branchMode) {
+    return OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+      if (!branchMode) {
+        // Removal in branch mode shouldn't remove the cluster.
         return;
       }
 

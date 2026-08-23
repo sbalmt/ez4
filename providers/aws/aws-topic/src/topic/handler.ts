@@ -71,12 +71,12 @@ const updateResource = async (candidate: TopicState, current: TopicState) => {
   const { result, parameters } = candidate;
   const { topicName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(TopicServiceName, topicName);
-  }
-
   if (!parameters.import) {
-    await OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
+    return OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
+      if (!result) {
+        throw new CorruptedResourceError(TopicServiceName, topicName);
+      }
+
       await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
     });
   }
@@ -85,13 +85,11 @@ const updateResource = async (candidate: TopicState, current: TopicState) => {
 const deleteResource = async (current: TopicState) => {
   const { result, parameters } = current;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    return OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
+      await deleteTopic(logger, result.topicArn);
+    });
   }
-
-  await OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
-    await deleteTopic(logger, result.topicArn);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, topicArn: string, candidate: TopicParameters, current: TopicParameters) => {

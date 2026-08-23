@@ -81,11 +81,11 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
   const { result, parameters } = candidate;
   const { fromService } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(MappingServiceName, 'mapping');
-  }
-
   return OperationLogger.logExecution(MappingServiceName, fromService, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(MappingServiceName, 'mapping');
+    }
+
     const newFunctionName = getFunctionAliasName(MappingServiceName, 'mapping', context);
     const oldFunctionName = current.result?.functionName ?? result.functionName;
 
@@ -115,15 +115,13 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
 const deleteResource = async (current: MappingState) => {
   const result = current.result;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { functionName } = result;
+
+    return OperationLogger.logExecution(MappingServiceName, functionName, 'deletion', async (logger) => {
+      await deleteMapping(logger, result.eventId);
+    });
   }
-
-  const { functionName } = result;
-
-  await OperationLogger.logExecution(MappingServiceName, functionName, 'deletion', async (logger) => {
-    await deleteMapping(logger, result.eventId);
-  });
 };
 
 const checkGeneralUpdates = async (

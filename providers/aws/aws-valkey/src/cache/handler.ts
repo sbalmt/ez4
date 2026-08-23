@@ -65,22 +65,21 @@ const updateResource = async (candidate: CacheState, current: CacheState) => {
   const { result, parameters } = candidate;
   const { name } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(CacheServiceName, name);
-  }
+  return OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(CacheServiceName, name);
+    }
 
-  await OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: CacheState, context: StepContext) => {
   const { result, parameters } = current;
+  const { name, allowDeletion } = parameters;
 
   if (result) {
-    const { name, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
         throw new CacheDeletionDeniedError(name);
       }

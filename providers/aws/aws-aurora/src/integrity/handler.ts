@@ -84,11 +84,11 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
   const database = parameters.getDatabase();
 
-  if (!result) {
-    throw new CorruptedResourceError(IntegrityServiceName, database);
-  }
-
   return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(IntegrityServiceName, database);
+    }
+
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
     const targetRepository = parameters.getRepository();

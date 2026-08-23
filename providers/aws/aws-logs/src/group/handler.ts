@@ -64,11 +64,11 @@ const updateResource = async (candidate: LogGroupState, current: LogGroupState) 
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(LogGroupServiceName, groupName);
-  }
+  return OperationLogger.logExecution(LogGroupServiceName, groupName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(LogGroupServiceName, groupName);
+    }
 
-  await OperationLogger.logExecution(LogGroupServiceName, groupName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
     await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
   });
@@ -76,11 +76,10 @@ const updateResource = async (candidate: LogGroupState, current: LogGroupState) 
 
 const deleteResource = async (current: LogGroupState, context: StepContext) => {
   const { parameters, result } = current;
+  const { groupName } = parameters;
 
   if (result) {
-    const { groupName } = parameters;
-
-    await OperationLogger.logExecution(LogGroupServiceName, groupName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(LogGroupServiceName, groupName, 'deletion', async (logger) => {
       if (!context.force) {
         const canDelete = await canDeleteGroup(logger, groupName);
 

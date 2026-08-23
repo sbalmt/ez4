@@ -75,11 +75,11 @@ const updateResource = async (candidate: BucketState, current: BucketState) => {
   const { result, parameters } = candidate;
   const { bucketName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(BucketServiceName, bucketName);
-  }
+  return OperationLogger.logExecution(BucketServiceName, bucketName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(BucketServiceName, bucketName);
+    }
 
-  await OperationLogger.logExecution(BucketServiceName, bucketName, 'updates', async (logger) => {
     await checkCorsUpdates(logger, bucketName, parameters, current.parameters);
     await checkLifecycleUpdates(logger, bucketName, parameters, current.parameters);
     await checkTagUpdates(logger, bucketName, parameters.tags, current.parameters.tags);
@@ -92,7 +92,7 @@ const deleteResource = async (current: BucketState) => {
   if (result) {
     const { bucketName } = result;
 
-    await OperationLogger.logExecution(BucketServiceName, bucketName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(BucketServiceName, bucketName, 'deletion', async (logger) => {
       const isEmpty = await isBucketEmpty(logger, result.bucketName);
 
       if (isEmpty) {

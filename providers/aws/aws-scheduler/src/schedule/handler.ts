@@ -3,7 +3,7 @@ import type { OperationLogLine } from '@ez4/aws-common';
 import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types';
 
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { getFunctionAliasArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
@@ -80,14 +80,13 @@ const createResource = (candidate: ScheduleState, context: StepContext): Promise
 
 const updateResource = (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
   const { result, parameters } = candidate;
-
-  if (!result) {
-    return;
-  }
-
   const { scheduleName } = parameters;
 
   return OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(ScheduleServiceName, scheduleName);
+    }
+
     const newRoleArn = getRoleArn(ScheduleServiceName, scheduleName, context);
     const newFunctionArn = getFunctionAliasArn(ScheduleServiceName, scheduleName, context);
     const newGroupName = tryGetGroupName(context);
@@ -125,16 +124,13 @@ const updateResource = (candidate: ScheduleState, current: ScheduleState, contex
 
 const deleteResource = async (current: ScheduleState) => {
   const { result, parameters } = current;
-
-  if (!result || parameters.dynamic) {
-    return;
-  }
-
   const { scheduleName } = parameters;
 
-  await OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
-    await deleteSchedule(logger, scheduleName);
-  });
+  if (result && !parameters.dynamic) {
+    return OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
+      await deleteSchedule(logger, scheduleName);
+    });
+  }
 };
 
 const checkGeneralUpdates = async (
