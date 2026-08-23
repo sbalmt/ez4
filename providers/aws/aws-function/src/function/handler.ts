@@ -14,10 +14,10 @@ import {
   deleteFunction,
   updateConfiguration,
   updateSourceCode,
+  unpublishFunctions,
   updateAlias,
   untagFunction,
-  tagFunction,
-  unpublishFunction
+  tagFunction
 } from './client';
 
 import { protectVariables } from './helpers/variables';
@@ -52,7 +52,8 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       variables: protectVariables(await target.getFunctionVariables()),
       filesHash: target.files && (await getBundleHash(target.functionName, target.files)),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
-      valuesHash: target.getFunctionHash()
+      valuesHash: target.getFunctionHash(),
+      rollout: true
     },
     {
       ...source,
@@ -61,7 +62,8 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       variables: current.result?.variables,
       sourceHash: current.result?.sourceHash,
       valuesHash: current.result?.valuesHash,
-      filesHash: current.result?.filesHash
+      filesHash: current.result?.filesHash,
+      rollout: !current.partial
     },
     {
       exclude: {
@@ -209,14 +211,18 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
     await checkConfigurationUpdates(logger, functionName, newConfig, oldConfig, isUpdated, context);
     await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
 
-    if (newResult.functionVersion || context.force) {
+    if (newResult.functionVersion || current.partial || context.force) {
+      const activeVersion = newResult.functionVersion ?? result.functionVersion;
+
       context.postAction(() =>
         OperationLogger.logExecution(FunctionServiceName, functionName, 'rollout', async (logger) => {
-          await updateAlias(logger, functionName, newResult.functionVersion ?? result.functionVersion);
+          await updateAlias(logger, functionName, activeVersion);
+        })
+      );
 
-          if (newResult.functionVersion) {
-            await unpublishFunction(logger, functionName, result.functionVersion);
-          }
+      context.postAction(() =>
+        OperationLogger.logExecution(FunctionServiceName, functionName, 'cleanup', async (logger) => {
+          await unpublishFunctions(logger, functionName, activeVersion);
         })
       );
     }

@@ -18,7 +18,8 @@ import {
   waitUntilPublishedVersionActive,
   ResourceNotFoundException,
   SystemLogLevel,
-  LogFormat
+  LogFormat,
+  ListVersionsByFunctionCommand
 } from '@aws-sdk/client-lambda';
 
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
@@ -32,6 +33,7 @@ import { getLogLevel } from './helpers/logging';
 import { getZipBuffer } from './helpers/zip';
 import { getDefaultVpcConfig } from './utils';
 import { getSafeDescription } from '../utils/description';
+import { Tasks } from '@ez4/utils';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -336,27 +338,31 @@ export const publishFunction = async (logger: OperationLogLine, functionName: st
   return functionVersion;
 };
 
-export const unpublishFunction = async (logger: OperationLogLine, functionName: string, functionVersion: string) => {
+export const unpublishFunctions = async (logger: OperationLogLine, functionName: string, activeVersion: string) => {
   logger.update(`Unpublishing version`);
 
   const client = getLambdaClient();
 
-  // If the function is still in use due to a prior change that's not
-  // done yet, keep retrying until max attempts.
-  await waitDeletion(async () => {
-    try {
+  const response = await client.send(
+    new ListVersionsByFunctionCommand({
+      FunctionName: functionName
+    })
+  );
+
+  const unpublishTasks = response.Versions?.map(({ Version }) => async () => {
+    if (Version && Version !== activeVersion) {
       await client.send(
         new DeleteFunctionCommand({
           FunctionName: functionName,
-          Qualifier: functionVersion
+          Qualifier: Version
         })
       );
-    } catch (error) {
-      if (!(error instanceof ResourceNotFoundException)) {
-        throw error;
-      }
     }
   });
+
+  if (unpublishTasks) {
+    await Tasks.safeRun(unpublishTasks);
+  }
 };
 
 export const tagFunction = async (logger: OperationLogLine, functionArn: Arn, tags: ResourceTags) => {
