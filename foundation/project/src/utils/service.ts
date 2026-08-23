@@ -40,7 +40,7 @@ export const getServiceState = (services: ServiceStates, service: ServiceMetadat
   const serviceState = services[serviceName];
 
   if (!serviceState) {
-    throw new Error(`Service ${serviceName} wasn't found.`);
+    throw new Error(`Service '${serviceName}' wasn't found.`);
   }
 
   return serviceState;
@@ -55,7 +55,7 @@ export const setServiceState = (
   const serviceName = getServiceName(service, options);
 
   if (services[serviceName]) {
-    throw new Error(`Service ${serviceName} can't be set twice.`);
+    throw new Error(`Service '${serviceName}' can't be set twice.`);
   }
 
   services[serviceName] = state;
