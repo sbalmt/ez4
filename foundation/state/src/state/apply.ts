@@ -100,15 +100,14 @@ export const applySteps = async <E extends EntryState>(
   }
 
   const actionTasks = postActions.map(({ entry, callback }) => async () => {
-    if (!successfulEntries[entry.entryId]) {
-      return;
-    }
-
-    try {
-      await callback();
-    } catch (error) {
-      errorList.push(error instanceof Error ? error : new Error(`${error}`));
-      entry.partial = true;
+    if (!failedEntries[entry.entryId]) {
+      try {
+        await callback();
+      } catch (error) {
+        errorList.push(error instanceof Error ? error : new Error(`${error}`));
+        failedEntries[entry.entryId] = entry;
+        entry.partial = true;
+      }
     }
   });
 
@@ -166,17 +165,25 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   try {
     switch (action) {
       case StepAction.Create: {
-        const context = buildContext(successfulEntries, newEntries, candidate);
-        const result = await handler.create(candidate, context);
+        const entry = { ...candidate };
+        const context = buildContext(successfulEntries, newEntries, entry);
 
-        return [{ ...candidate, result }];
+        entry.result = await handler.create(entry, context);
+
+        return [entry];
       }
 
       case StepAction.Replace: {
-        const context = buildContext(successfulEntries, newEntries, candidate);
-        const result = await handler.replace(candidate, getEntry(oldEntries, entryId), context);
+        const entry = { ...candidate };
 
-        return [!result ? candidate : { ...candidate, result }];
+        const context = buildContext(successfulEntries, newEntries, entry);
+        const result = await handler.replace(entry, getEntry(oldEntries, entryId), context);
+
+        if (result) {
+          entry.result = result;
+        }
+
+        return [entry];
       }
 
       case StepAction.Update: {
@@ -184,10 +191,15 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
           return [getEntry(oldEntries, entryId)];
         }
 
-        const context = buildContext(successfulEntries, newEntries, candidate);
-        const result = await handler.update(candidate, getEntry(oldEntries, entryId), context);
+        const entry = { ...candidate };
+        const context = buildContext(successfulEntries, newEntries, entry);
+        const result = await handler.update(entry, getEntry(oldEntries, entryId), context);
 
-        return [!result ? candidate : { ...candidate, result }];
+        if (result) {
+          entry.result = result;
+        }
+
+        return [entry];
       }
 
       case StepAction.Delete: {

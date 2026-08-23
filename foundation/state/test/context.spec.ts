@@ -66,7 +66,10 @@ const checkDependents = (context: StepContext) => {
 
 describe('context tests', () => {
   it('assert :: creation context', async () => {
+    let postActionSuccess = false;
+
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
+      context.postAction(() => ((postActionSuccess = true), undefined));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
@@ -91,11 +94,15 @@ describe('context tests', () => {
     });
 
     equal(createHandler.mock.callCount(), 1);
+    equal(postActionSuccess, true);
     equal(errors.length, 0);
   });
 
-  it('assert :: deleting context', async () => {
+  it('assert :: deletion context', async () => {
+    let postActionSuccess = false;
+
     const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
+      context.postAction(() => ((postActionSuccess = true), undefined));
       equal(context.force, false);
       checkDependencies(context);
       checkConnections(context);
@@ -119,11 +126,15 @@ describe('context tests', () => {
     });
 
     equal(deleteHandler.mock.callCount(), 1);
+    equal(postActionSuccess, true);
     equal(errors.length, 0);
   });
 
-  it('assert :: updating context', async () => {
+  it('assert :: update context', async () => {
+    let postActionSuccess = false;
+
     const updateHandler = mock.fn((_ca: TestEntryState, _cu: TestEntryState, context: StepContext) => {
+      context.postAction(() => ((postActionSuccess = true), undefined));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
@@ -150,6 +161,7 @@ describe('context tests', () => {
     });
 
     equal(updateHandler.mock.callCount(), 1);
+    equal(postActionSuccess, true);
     equal(errors.length, 0);
   });
 });

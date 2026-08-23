@@ -42,6 +42,35 @@ describe('apply tests', () => {
     deepEqual(result.entryA?.result, { type: 'created' });
   });
 
+  it('assert :: create action (partial)', async () => {
+    const createHandler = mock.fn((candidate: TestEntryState, context: StepContext) => {
+      context.postAction(() => {
+        throw new TestError();
+      });
+
+      return commonStepHandler.create(candidate, context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        create: createHandler
+      }
+    };
+
+    const steps = await planSteps(baseState, undefined, { handlers });
+
+    const { result, errors } = await applySteps(steps, baseState, undefined, { handlers });
+
+    equal(createHandler.mock.callCount(), 1);
+    deepEqual(result.entryA?.result, { type: 'created' });
+
+    ok(result.entryA.partial);
+
+    equal(errors.length, 1);
+    ok(errors[0] instanceof TestError);
+  });
+
   it('assert :: replace action', async () => {
     ok(baseState.entryA);
 
@@ -79,9 +108,7 @@ describe('apply tests', () => {
       }
     };
 
-    const newState = {
-      ...baseState
-    };
+    const newState = { ...baseState };
 
     const steps = await planSteps(newState, baseState, { handlers });
 
@@ -101,9 +128,7 @@ describe('apply tests', () => {
       }
     };
 
-    const newState = {
-      ...baseState
-    };
+    const newState = { ...baseState };
 
     const steps = await planSteps(newState, baseState, { handlers });
 
@@ -125,9 +150,7 @@ describe('apply tests', () => {
       }
     };
 
-    const newState = {
-      ...baseState
-    };
+    const newState = { ...baseState };
 
     const steps = await planSteps(newState, baseState, { handlers });
 
@@ -186,6 +209,37 @@ describe('apply tests', () => {
     ok(errors[1] instanceof DependencyNotFoundError);
   });
 
+  it('assert :: update (partial)', async () => {
+    const updateHandler = mock.fn((candidate: TestEntryState, current: TestEntryState, context: StepContext) => {
+      context.postAction(() => {
+        throw new TestError();
+      });
+
+      return commonStepHandler.update(candidate, current, context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        update: updateHandler
+      }
+    };
+
+    const newState = { ...baseState };
+
+    const steps = await planSteps(newState, baseState, { handlers });
+
+    const { result, errors } = await applySteps(steps, newState, baseState, { handlers });
+
+    equal(updateHandler.mock.callCount(), 1);
+
+    deepEqual(result.entryA?.result, { type: 'updated' });
+    ok(result.entryA.partial);
+
+    equal(errors.length, 1);
+    ok(errors[0] instanceof TestError);
+  });
+
   it('assert :: delete action', async () => {
     const deleteHandler = mock.fn(commonStepHandler.delete);
 
@@ -222,6 +276,33 @@ describe('apply tests', () => {
 
     equal(deleteHandler.mock.callCount(), 1);
     ok(result.entryA);
+
+    equal(errors.length, 1);
+    ok(errors[0] instanceof TestError);
+  });
+
+  it('assert :: delete (partial)', async () => {
+    const deleteHandler = mock.fn((_cu: TestEntryState, context: StepContext) => {
+      context.postAction(() => {
+        throw new TestError();
+      });
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        delete: deleteHandler
+      }
+    };
+
+    const steps = await planSteps(undefined, baseState, { handlers });
+
+    const { result, errors } = await applySteps(steps, undefined, baseState, { handlers });
+
+    equal(deleteHandler.mock.callCount(), 1);
+
+    ok(result.entryA);
+    ok(result.entryA.partial);
 
     equal(errors.length, 1);
     ok(errors[0] instanceof TestError);
