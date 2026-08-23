@@ -2,6 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { PermissionResult, PermissionState } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { deepCompare } from '@ez4/utils';
 
 import { getFunctionAliasName } from '../function/utils';
 import { createPermission, deletePermission } from './client';
@@ -20,9 +21,24 @@ const equalsResource = (candidate: PermissionState, current: PermissionState) =>
   return !!candidate.result && candidate.result.functionName === current.result?.functionName;
 };
 
-const previewResource = (_candidate: PermissionState, _current: PermissionState) => {
-  // Permission is generated dynamically, no changes to compare.
-  return undefined;
+const previewResource = (candidate: PermissionState, current: PermissionState) => {
+  const target = { ...candidate.parameters, dependencies: candidate.dependencies };
+  const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const changes = deepCompare(target, source, {
+    exclude: {
+      getPermission: true
+    }
+  });
+
+  if (!changes.counts) {
+    return undefined;
+  }
+
+  return {
+    ...changes,
+    name: target.fromService
+  };
 };
 
 const replaceResource = async (candidate: PermissionState, current: PermissionState, context: StepContext) => {
