@@ -25,7 +25,7 @@ const previewResource = (candidate: IntegrityState, current: IntegrityState, opt
   const target = candidate.parameters;
   const source = current.parameters;
 
-  const resourceChanges = deepCompare(
+  const changes = deepCompare(
     {
       ...target,
       dependencies: candidate.dependencies,
@@ -41,8 +41,7 @@ const previewResource = (candidate: IntegrityState, current: IntegrityState, opt
   );
 
   return {
-    ...resourceChanges,
-    counts: resourceChanges.counts,
+    ...changes,
     name: target.getDatabase()
   };
 };
