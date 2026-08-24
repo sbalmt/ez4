@@ -62,8 +62,7 @@ export const applySteps = async <E extends EntryState>(
 
   const errorList: Error[] = [];
 
-  const totalSteps = stepList.length;
-
+  let totalSteps = stepList.length;
   let progressCounter = 0;
 
   for (let order = 0; ; order++) {
@@ -99,22 +98,26 @@ export const applySteps = async <E extends EntryState>(
     }
   }
 
-  const actionTasks = postActions.map(({ entry, callback }) => async () => {
-    if (!failedEntries[entry.entryId]) {
-      try {
-        await callback();
-      } catch (error) {
-        errorList.push(error instanceof Error ? error : new Error(`${error}`));
-        failedEntries[entry.entryId] = entry;
-        entry.partial = true;
-      }
-    }
-  });
+  while (postActions.length > 0) {
+    totalSteps += postActions.length;
 
-  await Tasks.run(actionTasks, {
-    onProgress: () => onProgress?.(++progressCounter, totalSteps + postActions.length),
-    concurrency
-  });
+    const actionTasks = postActions.splice(0).map(({ entry, callback }) => async () => {
+      if (!failedEntries[entry.entryId]) {
+        try {
+          await callback();
+        } catch (error) {
+          errorList.push(error instanceof Error ? error : new Error(`${error}`));
+          failedEntries[entry.entryId] = entry;
+          entry.partial = true;
+        }
+      }
+    });
+
+    await Tasks.run(actionTasks, {
+      onProgress: () => onProgress?.(++progressCounter, totalSteps),
+      concurrency
+    });
+  }
 
   return {
     errors: errorList,

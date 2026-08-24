@@ -217,12 +217,12 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
       context.postAction(() =>
         OperationLogger.logExecution(FunctionServiceName, functionName, 'rollout', async (logger) => {
           await updateAlias(logger, functionName, activeVersion);
-        })
-      );
 
-      context.postAction(() =>
-        OperationLogger.logExecution(FunctionServiceName, functionName, 'cleanup', async (logger) => {
-          await unpublishFunctions(logger, functionName, activeVersion);
+          context.postAction(() =>
+            OperationLogger.logExecution(FunctionServiceName, functionName, 'cleanup', async (logger) => {
+              await unpublishFunctions(logger, functionName, activeVersion);
+            })
+          );
         })
       );
     }

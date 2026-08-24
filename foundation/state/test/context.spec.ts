@@ -69,7 +69,7 @@ describe('context tests', () => {
     let postActionSuccess = false;
 
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      context.postAction(() => ((postActionSuccess = true), undefined));
+      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
@@ -102,7 +102,7 @@ describe('context tests', () => {
     let postActionSuccess = false;
 
     const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      context.postAction(() => ((postActionSuccess = true), undefined));
+      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
       equal(context.force, false);
       checkDependencies(context);
       checkConnections(context);
@@ -134,7 +134,7 @@ describe('context tests', () => {
     let postActionSuccess = false;
 
     const updateHandler = mock.fn((_ca: TestEntryState, _cu: TestEntryState, context: StepContext) => {
-      context.postAction(() => ((postActionSuccess = true), undefined));
+      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
