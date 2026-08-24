@@ -6,9 +6,9 @@ Subscriptions represent how a topic delivers events to processing targets. Each 
 
 Declare subscriptions using the `Topic.UseSubscription` helper on the service. Topic subscriptions can be one of two forms.
 
-#### Lambda subscription
+#### Function subscription
 
-A direct lambda subscription invokes a handler whenever the topic receives a matching event.
+A direct function subscription invokes a handler whenever the topic receives a matching event.
 
 ```ts
 Topic.UseSubscription<{
@@ -27,7 +27,7 @@ Topic.UseSubscription<{
 }>;
 ```
 
-> A subscription must be either a lambda subscription or a queue subscription (not both).
+> A subscription must be either a function subscription or a queue subscription (not both).
 
 ## Queue subscription fields
 
@@ -65,7 +65,7 @@ handler: typeof processEvent;
 
 Lifecycle listener for the subscription.
 
-- Runs inside the same cloud resource as the lambda handler.
+- Runs inside the same cloud resource as the function handler.
 - Receives events such as request begin, request end, and internal transitions.
 - Useful for logging, tracing, metrics, and instrumentation.
 

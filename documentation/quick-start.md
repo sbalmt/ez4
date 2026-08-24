@@ -162,8 +162,9 @@ All done.
 ## What's next
 
 - [Configuration](./configuration.md)
-- [Architecture overview](./architecture.md)
+- [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
+- [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 
 ## License

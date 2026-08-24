@@ -105,6 +105,13 @@ With the configuration file in place, EZ4 knows how to build, deploy, and serve 
 - [Importing queue](../examples/aws-import-queue)
 - [Importing topic](../examples/aws-import-topic)
 
+## What's next
+
+- [Deployment overview](./deployment.md)
+- [Contracts overview](./contracts.md)
+- [Architecture overview](./architecture.md)
+- [Philosophy](./philosophy.md)
+
 ## License
 
 MIT License
