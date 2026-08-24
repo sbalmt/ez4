@@ -9,7 +9,7 @@ import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-describe('migration :: primary column tests', () => {
+describe('migration :: secondary column tests', () => {
   const getDatabaseTables = (properties: ObjectSchemaProperties, indexes: TableIndex[] = []) => {
     return getTableRepository([
       {
@@ -29,12 +29,20 @@ describe('migration :: primary column tests', () => {
         name: 'id',
         type: Index.Primary,
         columns: ['id']
+      },
+      {
+        name: 'secondary',
+        type: Index.Secondary,
+        columns: ['secondary']
       }
     ];
 
     const sourceTable = getDatabaseTables(
       {
         id: {
+          type: SchemaType.String
+        },
+        secondary: {
           type: SchemaType.String
         }
       },
@@ -44,6 +52,9 @@ describe('migration :: primary column tests', () => {
     const targetTable = getDatabaseTables(
       {
         id: {
+          type: SchemaType.String
+        },
+        secondary: {
           type: SchemaType.String,
           optional: true,
           nullable: true
@@ -63,7 +74,12 @@ describe('migration :: primary column tests', () => {
         indexes: []
       },
       update: {
-        tables: [],
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" ALTER COLUMN "secondary" DROP NOT null'
+          }
+        ],
         constraints: [],
         validations: [],
         relations: [],
@@ -84,6 +100,9 @@ describe('migration :: primary column tests', () => {
       {
         id: {
           type: SchemaType.String
+        },
+        secondary: {
+          type: SchemaType.String
         }
       },
       [
@@ -91,21 +110,34 @@ describe('migration :: primary column tests', () => {
           name: 'id',
           type: Index.Primary,
           columns: ['id']
+        },
+        {
+          name: 'secondary',
+          type: Index.Secondary,
+          columns: ['secondary']
         }
       ]
     );
 
     const targetTable = getDatabaseTables(
       {
-        renamed_id: {
+        id: {
+          type: SchemaType.String
+        },
+        renamed_secondary: {
           type: SchemaType.String
         }
       },
       [
         {
-          name: 'renamed_id',
+          name: 'id',
           type: Index.Primary,
-          columns: ['renamed_id']
+          columns: ['id']
+        },
+        {
+          name: 'renamed_secondary',
+          type: Index.Secondary,
+          columns: ['renamed_secondary']
         }
       ]
     );
@@ -123,19 +155,18 @@ describe('migration :: primary column tests', () => {
       update: {
         tables: [
           {
-            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'id' AND "table_name" = 'table')`,
-            query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "id" TO "renamed_id"'
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "secondary" TO "renamed_secondary"'
           }
         ],
-        constraints: [
-          {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_id_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_id_pk" TO "table_renamed_id_pk"'
-          }
-        ],
+        constraints: [],
         validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'ALTER INDEX IF EXISTS "table_secondary_sk" RENAME TO "table_renamed_secondary_sk"'
+          }
+        ]
       },
       delete: {
         tables: [],
@@ -152,6 +183,9 @@ describe('migration :: primary column tests', () => {
       {
         id: {
           type: SchemaType.String
+        },
+        secondary: {
+          type: SchemaType.String
         }
       },
       [
@@ -159,20 +193,33 @@ describe('migration :: primary column tests', () => {
           name: 'id',
           type: Index.Primary,
           columns: ['id']
+        },
+        {
+          name: 'secondary',
+          type: Index.Secondary,
+          columns: ['secondary']
         }
       ]
     );
 
     const targetTable = getDatabaseTables(
       {
+        id: {
+          type: SchemaType.String
+        },
         replacement: {
           type: SchemaType.String
         }
       },
       [
         {
-          name: 'replacement',
+          name: 'id',
           type: Index.Primary,
+          columns: ['id']
+        },
+        {
+          name: 'replacement',
+          type: Index.Secondary,
           columns: ['replacement']
         }
       ]
@@ -187,15 +234,19 @@ describe('migration :: primary column tests', () => {
             query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
           }
         ],
-        constraints: [
+        constraints: [],
+        validations: [
           {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_replacement_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_replacement_pk" PRIMARY KEY ("replacement")'
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_replacement_sk'
           }
         ],
-        validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_replacement_sk" ON "table" USING BTREE ("replacement")'
+          }
+        ]
       },
       update: {
         tables: [],
@@ -207,17 +258,17 @@ describe('migration :: primary column tests', () => {
       delete: {
         tables: [
           {
-            query: 'ALTER TABLE IF EXISTS "table" DROP COLUMN IF EXISTS "id"'
+            query: 'ALTER TABLE IF EXISTS "table" DROP COLUMN IF EXISTS "secondary"'
           }
         ],
-        constraints: [
-          {
-            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
-          }
-        ],
+        constraints: [],
         validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_secondary_sk"'
+          }
+        ]
       }
     });
   });

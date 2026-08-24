@@ -3,7 +3,7 @@ import type { TableIndex } from '@ez4/database/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -37,18 +37,34 @@ describe('migration :: delete index tests', () => {
 
     const targetTable = getDatabaseTables([]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [
-        {
-          query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"`
-        }
-      ],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [
+          {
+            query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"`
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -63,18 +79,34 @@ describe('migration :: delete index tests', () => {
 
     const targetTable = getDatabaseTables([]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: [
-        {
-          query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
+          }
+        ]
+      }
     });
   });
 
@@ -89,18 +121,34 @@ describe('migration :: delete index tests', () => {
 
     const targetTable = getDatabaseTables([]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: [
-        {
-          query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: [
+          {
+            query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
+          }
+        ]
+      }
     });
   });
 });

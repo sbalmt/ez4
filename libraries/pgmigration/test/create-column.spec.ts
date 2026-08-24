@@ -3,7 +3,7 @@ import type { ObjectSchemaProperties } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -55,22 +55,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" boolean NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" boolean DEFAULT false NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" boolean DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" boolean NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" boolean DEFAULT false NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" boolean DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -98,22 +114,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" bigint NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" bigint DEFAULT 123 NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" bigint DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" bigint NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" bigint DEFAULT 123 NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" bigint DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -141,22 +173,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 1.23 NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 1.23 NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -181,22 +229,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 12.34 NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" decimal NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" decimal DEFAULT 12.34 NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" decimal DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -227,23 +291,39 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" text DEFAULT 'foo' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null, ` +
-            `ADD COLUMN IF NOT EXISTS "limited" varchar(32) NOT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" text DEFAULT 'foo' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null, ` +
+              `ADD COLUMN IF NOT EXISTS "limited" varchar(32) NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -271,22 +351,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" timestamptz NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" timestamptz DEFAULT '2025-01-01T00:00:00Z' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" timestamptz DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" timestamptz NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" timestamptz DEFAULT '2025-01-01T00:00:00Z' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" timestamptz DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -314,22 +410,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" date NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" date DEFAULT '2025-01-01' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" date DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" date NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" date DEFAULT '2025-01-01' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" date DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -357,22 +469,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" time NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" time DEFAULT '00:00:00' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" time DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" time NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" time DEFAULT '00:00:00' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" time DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -400,22 +528,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" uuid NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" uuid DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" uuid NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" uuid DEFAULT '00000000-0000-1000-9000-000000000000' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" uuid DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -458,61 +602,77 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default_a" text DEFAULT 'foo' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default_b" text DEFAULT '123' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_a_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_a_ck" CHECK ("default_a" IN ('foo')) NOT VALID`
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_b_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_b_ck" CHECK ("default_b" IN ('123')) NOT VALID`
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_nullable_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false) NOT VALID`
-        }
-      ],
-      validations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
-          name: 'table_column_ck'
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_a_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"',
-          name: 'table_default_a_ck'
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_b_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"',
-          name: 'table_default_b_ck'
-        },
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_nullable_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"',
-          name: 'table_nullable_ck'
-        }
-      ],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" text NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default_a" text DEFAULT 'foo' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default_b" text DEFAULT '123' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" text DEFAULT null`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_a_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_a_ck" CHECK ("default_a" IN ('foo')) NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_b_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_b_ck" CHECK ("default_b" IN ('123')) NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_nullable_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false) NOT VALID`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+            name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_a_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"',
+            name: 'table_default_a_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_b_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"',
+            name: 'table_default_b_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_nullable_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"',
+            name: 'table_nullable_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -544,22 +704,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '{"foo":true,"bar":"bar","baz":123}' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -593,22 +769,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo","bar"]' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -643,22 +835,38 @@ describe('migration :: create column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo",123]' NOT null, ` +
-            `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `ADD COLUMN IF NOT EXISTS "column" jsonb NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "default" jsonb DEFAULT '["foo",123]' NOT null, ` +
+              `ADD COLUMN IF NOT EXISTS "nullable" jsonb DEFAULT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

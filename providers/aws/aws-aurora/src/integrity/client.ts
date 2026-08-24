@@ -3,8 +3,8 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
-import { getUpdateQueries } from '@ez4/pgmigration';
 
 import { ApiClientDriver } from '../client/drivers/api';
 import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
@@ -30,9 +30,11 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
     database
   });
 
-  const queries = getUpdateQueries(repository, {});
+  const steps = getUpdateStepQueries(repository, {});
 
-  const results = await executeIntegrityChecks(logger, driver, queries.validations);
+  const validations = [...steps.create.validations, ...steps.update.validations, ...steps.delete.validations];
+
+  const results = await executeIntegrityChecks(logger, driver, validations);
 
   assertNoFailureErrors(results);
 };

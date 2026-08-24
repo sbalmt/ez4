@@ -110,7 +110,7 @@ export namespace IndexQueries {
     return statements;
   };
 
-  export const prepareRename = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
+  export const prepareRenameTable = (builder: SqlBuilder, fromTable: string, toTable: string, indexes: PgIndexRepository) => {
     const statements: IndexMigrationQueries = {
       validations: [],
       constraints: [],
@@ -153,6 +153,61 @@ export namespace IndexQueries {
 
           statements.indexes.push({
             query: builder.index(fromName).rename(toName).existing().build()
+          });
+
+          break;
+        }
+      }
+    }
+
+    return statements;
+  };
+
+  export const prepareRenameColumns = (builder: SqlBuilder, table: string, indexes: PgIndexRepository, changes: Record<string, string>) => {
+    const statements: IndexMigrationQueries = {
+      validations: [],
+      constraints: [],
+      indexes: []
+    };
+
+    for (const fromIndex in changes) {
+      const toIndex = changes[fromIndex];
+
+      const { type } = indexes[toIndex];
+
+      switch (type) {
+        default:
+          throw new Error(`Unsupported index type.`);
+
+        case Index.Primary: {
+          const oldName = getPrimaryKeyName(table, fromIndex);
+          const newName = getPrimaryKeyName(table, toIndex);
+
+          statements.constraints.push({
+            check: getCheckConstraintQuery(builder, newName),
+            query: builder.table(table).alter().existing().constraint(oldName).rename(newName).build()
+          });
+
+          break;
+        }
+
+        case Index.Unique: {
+          const newName = getUniqueKeyName(table, fromIndex);
+          const oldName = getUniqueKeyName(table, toIndex);
+
+          statements.indexes.push({
+            query: builder.index(oldName).rename(newName).existing().build()
+          });
+
+          break;
+        }
+
+        case Index.Secondary: {
+          const oldName = getSecondaryKeyName(table, fromIndex);
+          const newName = getSecondaryKeyName(table, toIndex);
+
+          statements.indexes.push({
+            query: builder.index(oldName).rename(newName).existing().build()
           });
 
           break;

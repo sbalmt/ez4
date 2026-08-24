@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -52,31 +52,47 @@ describe('migration :: update relation tests', () => {
     const sourceTable = getDatabaseTables(true);
     const targetTable = getDatabaseTables(false);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
-          query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [
-        {
-          query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
-        },
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-            `ON DELETE CASCADE ` +
-            `ON UPDATE CASCADE ` +
-            `NOT VALID`
-        }
-      ],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
+            query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" SET NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
+          },
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE CASCADE ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          }
+        ],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -84,31 +100,47 @@ describe('migration :: update relation tests', () => {
     const sourceTable = getDatabaseTables(false);
     const targetTable = getDatabaseTables(true);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
-          query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [
-        {
-          query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
-        },
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-            `ON DELETE SET null ` +
-            `ON UPDATE CASCADE ` +
-            `NOT VALID`
-        }
-      ],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
+            query: `ALTER TABLE IF EXISTS "table_a" ALTER COLUMN "column_a" DROP NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
+          },
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE SET null ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          }
+        ],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

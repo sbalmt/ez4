@@ -2,7 +2,7 @@ import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
-import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
+import { getCreateQueries, getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 
 import { ApiClientDriver } from '../client/drivers/api';
@@ -70,9 +70,13 @@ export const updateTables = async (logger: OperationLogLine, request: UpdateTabl
     database
   });
 
-  const queries = getUpdateQueries(repository.target, repository.source);
+  const steps = getUpdateStepQueries(repository.target, repository.source);
 
-  await executeMigrationStatements(driver, [...queries.tables, ...queries.constraints, ...queries.indexes, ...queries.relations]);
+  const createQueries = [...steps.create.tables, ...steps.create.constraints, ...steps.create.indexes, ...steps.create.relations];
+  const updateQueries = [...steps.update.tables, ...steps.update.constraints, ...steps.update.indexes, ...steps.update.relations];
+  const deleteQueries = [...steps.delete.tables, ...steps.delete.constraints, ...steps.delete.indexes, ...steps.delete.relations];
+
+  await executeMigrationStatements(driver, [...createQueries, ...updateQueries, ...deleteQueries]);
 };
 
 export const deleteTables = async (logger: OperationLogLine, request: DeleteTableRequest): Promise<void> => {

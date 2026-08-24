@@ -4,7 +4,7 @@ import type { TableIndex } from '@ez4/database/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -45,21 +45,37 @@ describe('migration :: update index tests', () => {
     const sourceTable = getDatabaseTables(singleColumn, [uniqueIndex]);
     const targetTable = getDatabaseTables(singleColumn, [secondaryIndex]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: [
-        {
-          query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
-        },
-        {
-          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_index_uk"'
+          },
+          {
+            query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
+          }
+        ]
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -67,21 +83,37 @@ describe('migration :: update index tests', () => {
     const sourceTable = getDatabaseTables(singleColumn, [secondaryIndex]);
     const targetTable = getDatabaseTables(singleColumn, [uniqueIndex]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: [
-        {
-          query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
-        },
-        {
-          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: [
+          {
+            query: `DROP INDEX CONCURRENTLY IF EXISTS "table_index_sk"`
+          },
+          {
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+          }
+        ]
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });
