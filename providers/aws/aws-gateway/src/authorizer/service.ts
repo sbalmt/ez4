@@ -19,11 +19,12 @@ export const createAuthorizer = <E extends EntryState>(
   parameters: AuthorizerParameters
 ) => {
   const authorizerId = hashData(AuthorizerServiceType, gatewayState.entryId, functionState.entryId);
+  const authorizerName = toKebabCase(parameters.name);
 
   const permissionState =
     getPermission(state, gatewayState, functionState) ??
     createPermission(state, gatewayState, functionState, {
-      fromService: parameters.name,
+      fromService: authorizerName,
       getPermission: async (context: StepContext) => {
         const [region, account, apiId] = await Promise.all([
           getRegion(),
@@ -44,7 +45,7 @@ export const createAuthorizer = <E extends EntryState>(
     dependencies: [gatewayState.entryId, functionState.entryId, permissionState.entryId],
     parameters: {
       ...parameters,
-      name: toKebabCase(parameters.name)
+      name: authorizerName
     }
   });
 };

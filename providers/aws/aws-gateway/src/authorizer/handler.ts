@@ -2,9 +2,9 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { AuthorizerState, AuthorizerResult, AuthorizerParameters } from './types';
 
+import { getFunctionAliasArn } from '@ez4/aws-function';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { getFunctionArn } from '@ez4/aws-function';
 
 import { GatewayProtocol } from '../gateway/types';
 import { getGatewayId, getGatewayProtocol } from '../gateway/utils';
@@ -46,7 +46,7 @@ const createResource = (candidate: AuthorizerState, context: StepContext): Promi
 
   return OperationLogger.logExecution(AuthorizerServiceName, parameters.name, 'creation', async (logger) => {
     const apiId = getGatewayId(AuthorizerServiceName, 'authorizer', context);
-    const functionArn = getFunctionArn(AuthorizerServiceName, 'authorizer', context);
+    const functionArn = getFunctionAliasArn(AuthorizerServiceName, 'authorizer', context);
     const protocol = getGatewayProtocol(AuthorizerServiceName, 'authorizer', context);
 
     const http = protocol === GatewayProtocol.Http;
@@ -76,7 +76,7 @@ const updateResource = (candidate: AuthorizerState, current: AuthorizerState, co
 
     const authorizerId = result.authorizerId;
 
-    const newFunctionArn = getFunctionArn(AuthorizerServiceName, authorizerId, context);
+    const newFunctionArn = getFunctionAliasArn(AuthorizerServiceName, authorizerId, context);
     const oldFunctionArn = current.result?.functionArn ?? newFunctionArn;
 
     const newRequest = { ...parameters, functionArn: newFunctionArn };
