@@ -1,9 +1,7 @@
-import type { PgValidationStatement } from '@ez4/pgmigration/library';
-import type { PgTableRepository } from '@ez4/pgclient/library';
+import type { PgMigrationQueries, PgValidationStatement } from '@ez4/pgmigration/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
-import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
 import { ApiClientDriver } from '../client/drivers/api';
@@ -16,13 +14,13 @@ export type ConnectionRequest = {
 };
 
 export type ValidateChangesRequest = ConnectionRequest & {
-  repository: PgTableRepository;
+  queries: PgMigrationQueries;
 };
 
 export const validateChanges = async (logger: OperationLogLine, request: ValidateChangesRequest): Promise<void> => {
   logger.update(`Validating integrity`);
 
-  const { clusterArn, secretArn, database, repository } = request;
+  const { clusterArn, secretArn, database, queries } = request;
 
   const driver = new ApiClientDriver({
     resourceArn: clusterArn,
@@ -30,11 +28,7 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
     database
   });
 
-  const steps = getUpdateStepQueries(repository, {});
-
-  const validations = [...steps.create.validations, ...steps.update.validations, ...steps.delete.validations];
-
-  const results = await executeIntegrityChecks(logger, driver, validations);
+  const results = await executeIntegrityChecks(logger, driver, queries.validations);
 
   assertNoFailureErrors(results);
 };

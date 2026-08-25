@@ -1,13 +1,14 @@
 import type { StepContext, StepHandler, StepOptions } from '@ez4/state';
 import type { MigrationState, MigrationResult } from './types';
 
-import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { getCreateQueries, getUpdateStepQueries } from '@ez4/pgmigration';
+import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
 import { getRepositoryStub } from '../utils/database';
-import { createDatabase, deleteDatabase, createTables, updateTables } from './client';
+import { createDatabase, deleteDatabase, modifyDatabase } from './client';
 import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
 
@@ -60,19 +61,25 @@ const replaceResource = async (candidate: MigrationState, current: MigrationStat
 
 const createResource = (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
   const { parameters } = candidate;
-  const { database } = parameters;
+  const { database, repository } = parameters;
 
   return OperationLogger.logExecution(MigrationServiceName, database, 'creation', async (logger) => {
     const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
 
-    const request = {
-      ...parameters,
+    const queries = getCreateQueries(repository);
+
+    await createDatabase(logger, {
+      database,
       clusterArn,
       secretArn
-    };
+    });
 
-    await createDatabase(logger, request);
-    await createTables(logger, request);
+    await modifyDatabase(logger, {
+      database,
+      clusterArn,
+      secretArn,
+      queries
+    });
 
     return {
       clusterArn,
@@ -95,19 +102,38 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
 
     const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
-    if (!databaseChanges.counts) {
-      return;
-    }
+    if (databaseChanges.counts) {
+      const steps = getUpdateStepQueries(targetRepository, sourceRepository);
 
-    await updateTables(logger, {
-      database: parameters.database,
-      clusterArn: result.clusterArn,
-      secretArn: result.secretArn,
-      repository: {
-        target: targetRepository,
-        source: sourceRepository
-      }
-    });
+      await modifyDatabase(logger, {
+        queries: steps.create,
+        clusterArn: result.clusterArn,
+        secretArn: result.secretArn,
+        database
+      });
+
+      context.postAction(() =>
+        OperationLogger.logExecution(MigrationServiceName, database, 'rollout', async (logger) => {
+          await modifyDatabase(logger, {
+            queries: steps.update,
+            clusterArn: result.clusterArn,
+            secretArn: result.secretArn,
+            database
+          });
+
+          context.postAction(() =>
+            OperationLogger.logExecution(MigrationServiceName, database, 'cleanup', async (logger) => {
+              await modifyDatabase(logger, {
+                queries: steps.delete,
+                clusterArn: result.clusterArn,
+                secretArn: result.secretArn,
+                database
+              });
+            })
+          );
+        })
+      );
+    }
   });
 };
 
@@ -124,9 +150,9 @@ const deleteResource = async (current: MigrationState, context: StepContext) => 
       const { clusterArn, secretArn } = result;
 
       await deleteDatabase(logger, {
-        database: parameters.database,
         clusterArn,
-        secretArn
+        secretArn,
+        database
       });
     });
   }
