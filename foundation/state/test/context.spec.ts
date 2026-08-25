@@ -66,10 +66,10 @@ const checkDependents = (context: StepContext) => {
 
 describe('context tests', () => {
   it('assert :: creation context', async () => {
-    let postActionSuccess = false;
+    const postActionHandler = mock.fn(() => {});
 
     const createHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
+      context.postAction(() => context.postAction(postActionHandler));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
@@ -94,15 +94,15 @@ describe('context tests', () => {
     });
 
     equal(createHandler.mock.callCount(), 1);
-    equal(postActionSuccess, true);
+    equal(postActionHandler.mock.callCount(), 1);
     equal(errors.length, 0);
   });
 
   it('assert :: deletion context', async () => {
-    let postActionSuccess = false;
+    const postActionHandler = mock.fn(() => {});
 
     const deleteHandler = mock.fn((_ca: TestEntryState, context: StepContext) => {
-      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
+      context.postAction(() => context.postAction(postActionHandler));
       equal(context.force, false);
       checkDependencies(context);
       checkConnections(context);
@@ -126,15 +126,15 @@ describe('context tests', () => {
     });
 
     equal(deleteHandler.mock.callCount(), 1);
-    equal(postActionSuccess, true);
+    equal(postActionHandler.mock.callCount(), 1);
     equal(errors.length, 0);
   });
 
   it('assert :: update context', async () => {
-    let postActionSuccess = false;
+    const postActionHandler = mock.fn(() => {});
 
     const updateHandler = mock.fn((_ca: TestEntryState, _cu: TestEntryState, context: StepContext) => {
-      context.postAction(() => context.postAction(() => ((postActionSuccess = true), undefined)));
+      context.postAction(() => context.postAction(postActionHandler));
       equal(context.force, true);
       checkDependencies(context);
       checkConnections(context);
@@ -161,7 +161,7 @@ describe('context tests', () => {
     });
 
     equal(updateHandler.mock.callCount(), 1);
-    equal(postActionSuccess, true);
+    equal(postActionHandler.mock.callCount(), 1);
     equal(errors.length, 0);
   });
 });

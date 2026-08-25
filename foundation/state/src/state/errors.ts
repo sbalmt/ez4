@@ -57,7 +57,7 @@ export class CorruptedEntryMapError extends Error {
     public entryId: string,
     public mapKey: string
   ) {
-    super(`Entry key '${mapKey}' doesn't match the expected entry id ${entryId}.`);
+    super(`Entry key '${mapKey}' doesn't match the expected entry (${entryId}) id.`);
   }
 }
 
@@ -67,5 +67,17 @@ export class CorruptedStateReferences extends Error {
     public consumedLength: number
   ) {
     super(`Only ${consumedLength} of ${expectedLength} references were found.`);
+  }
+}
+
+export class SkipFailedEntryError extends Error {
+  constructor(public entryId: string) {
+    super(`Skipping failed entry (${entryId}) post action.`);
+  }
+}
+
+export class SkipFailedEntryDependencyError extends Error {
+  constructor(public entryId: string) {
+    super(`Skipping entry (${entryId}) post action due to a dependency failure.`);
   }
 }

@@ -7,6 +7,7 @@ import { describe, it, mock } from 'node:test';
 
 import { commonStepHandler } from './common/handler';
 import { TestEntryType } from './common/entry';
+import { TestError } from './common/errors';
 
 const baseState: EntryStates<TestEntryState> = {
   entryA: {
@@ -18,12 +19,6 @@ const baseState: EntryStates<TestEntryState> = {
 };
 
 describe('apply tests', () => {
-  class TestError extends Error {
-    constructor() {
-      super('Apply error!');
-    }
-  }
-
   it('assert :: create action', async () => {
     const createHandler = mock.fn(commonStepHandler.create);
 
@@ -68,7 +63,10 @@ describe('apply tests', () => {
     ok(result.entryA.partial);
 
     equal(errors.length, 1);
-    ok(errors[0] instanceof TestError);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof TestError);
   });
 
   it('assert :: replace action', async () => {
@@ -160,7 +158,10 @@ describe('apply tests', () => {
     notEqual(result.entryA?.result, { type: 'updated' });
 
     equal(errors.length, 1);
-    ok(errors[0] instanceof TestError);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof TestError);
   });
 
   it('assert :: update (rollback with dependency)', async () => {
@@ -205,8 +206,10 @@ describe('apply tests', () => {
 
     equal(errors.length, 2);
 
-    ok(errors[0] instanceof TestError);
-    ok(errors[1] instanceof DependencyNotFoundError);
+    const [error1, error2] = errors;
+
+    ok(error1 instanceof TestError);
+    ok(error2 instanceof DependencyNotFoundError);
   });
 
   it('assert :: update (partial)', async () => {
@@ -237,7 +240,10 @@ describe('apply tests', () => {
     ok(result.entryA.partial);
 
     equal(errors.length, 1);
-    ok(errors[0] instanceof TestError);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof TestError);
   });
 
   it('assert :: delete action', async () => {
@@ -278,7 +284,10 @@ describe('apply tests', () => {
     ok(result.entryA);
 
     equal(errors.length, 1);
-    ok(errors[0] instanceof TestError);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof TestError);
   });
 
   it('assert :: delete (partial)', async () => {
@@ -305,6 +314,9 @@ describe('apply tests', () => {
     ok(result.entryA.partial);
 
     equal(errors.length, 1);
-    ok(errors[0] instanceof TestError);
+
+    const [error1] = errors;
+
+    ok(error1 instanceof TestError);
   });
 });

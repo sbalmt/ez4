@@ -1,10 +1,10 @@
-import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
 import type { StepHandlers, StepPostAction, StepState } from '../types/step';
+import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
 
 import { Tasks } from '@ez4/utils';
 
 import { getEntry, getEntryDependencies, getEntryConnections, getEntryDependents } from './entry';
-import { HandlerNotFoundError, EntriesNotFoundError } from './errors';
+import { HandlerNotFoundError, EntriesNotFoundError, SkipFailedEntryError, SkipFailedEntryDependencyError } from './errors';
 import { StepAction } from './step';
 
 export type ApplyOptions<E extends EntryState> = {
@@ -35,8 +35,9 @@ export type ApplyResult<E extends EntryState = EntryState> = {
   errors: Error[];
 };
 
-type ApplyPostAction<E extends EntryState> = {
+type PostActionEntry<E extends EntryState> = {
   callback: StepPostAction;
+  action: StepAction;
   entry: E;
 };
 
@@ -55,7 +56,7 @@ export const applySteps = async <E extends EntryState>(
   const allNewEntries = { ...newEntries };
   const allOldEntries = { ...oldEntries };
 
-  const postActions: ApplyPostAction<E>[] = [];
+  const allPostActions: PostActionEntry<E>[][] = [];
 
   const successfulEntries: EntryStates<E> = {};
   const failedEntries: EntryStates<E> = {};
@@ -72,14 +73,20 @@ export const applySteps = async <E extends EntryState>(
       break;
     }
 
+    const postActions: PostActionEntry<E>[] = [];
+
     const stepTasks = nextSteps.map((entry) => () => {
       return applyPendingStep(entry, allNewEntries, allOldEntries, successfulEntries, postActions, handlers, force);
     });
 
     const stepResults = await Tasks.run(stepTasks, {
-      onProgress: () => onProgress?.(++progressCounter, totalSteps + postActions.length),
+      onProgress: () => onProgress?.(++progressCounter, totalSteps),
       concurrency
     });
+
+    if (postActions.length) {
+      allPostActions.push(postActions);
+    }
 
     for (const [entry, error] of stepResults) {
       if (entry) {
@@ -98,18 +105,31 @@ export const applySteps = async <E extends EntryState>(
     }
   }
 
-  while (postActions.length > 0) {
-    totalSteps += postActions.length;
+  for (let index = 0; index < allPostActions.length; index++) {
+    const stepActions = allPostActions[index];
 
-    const actionTasks = postActions.splice(0).map(({ entry, callback }) => async () => {
-      if (!failedEntries[entry.entryId]) {
-        try {
-          await callback();
-        } catch (error) {
-          errorList.push(error instanceof Error ? error : new Error(`${error}`));
-          failedEntries[entry.entryId] = entry;
-          entry.partial = true;
-        }
+    totalSteps += stepActions.length;
+
+    const actionTasks = stepActions.splice(0).map(({ callback, action, entry }) => async () => {
+      const { entryId, dependencies } = entry;
+
+      if (failedEntries[entryId] || (!successfulEntries[entryId] && action !== StepAction.Delete)) {
+        errorList.push(new SkipFailedEntryError(entryId));
+        return;
+      }
+
+      if (successfulEntries[entryId] && !dependencies.every((dependencyId) => !!successfulEntries[dependencyId])) {
+        errorList.push(new SkipFailedEntryDependencyError(entryId));
+        return;
+      }
+
+      try {
+        await callback();
+      } catch (error) {
+        errorList.push(error instanceof Error ? error : new Error(`${error}`));
+        delete successfulEntries[entryId];
+        failedEntries[entryId] = entry;
+        entry.partial = true;
       }
     });
 
@@ -117,6 +137,10 @@ export const applySteps = async <E extends EntryState>(
       onProgress: () => onProgress?.(++progressCounter, totalSteps),
       concurrency
     });
+
+    if (stepActions.length) {
+      allPostActions.push(stepActions);
+    }
   }
 
   return {
@@ -137,7 +161,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
   successfulEntries: EntryStates<E>,
-  postActions: ApplyPostAction<E>[],
+  postActions: PostActionEntry<E>[],
   handlers: StepHandlers<E>,
   force: boolean
 ): Promise<[E | undefined] | [E | undefined, Error]> => {
@@ -160,7 +184,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
         return getEntryDependents<T>(completedEntryMap, entry, type);
       },
       postAction: (callback: StepPostAction) => {
-        postActions.push({ callback, entry });
+        postActions.push({ callback, action, entry });
       }
     };
   };
