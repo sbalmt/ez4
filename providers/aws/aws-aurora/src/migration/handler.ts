@@ -29,7 +29,9 @@ const previewResource = (candidate: MigrationState, current: MigrationState, opt
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const sourceRepository = options.force ? getRepositoryStub(source.repository) : source.repository;
+  const forceApply = current.partial || options.force;
+
+  const sourceRepository = forceApply ? (current.result?.oldRepository ?? getRepositoryStub(source.repository)) : source.repository;
   const targetRepository = target.repository;
 
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
@@ -100,20 +102,23 @@ const createResource = (candidate: MigrationState, context: StepContext): Promis
 
 const updateResource = async (candidate: MigrationState, current: MigrationState, context: StepContext) => {
   const { result, parameters } = candidate;
-  const { database } = parameters;
+  const { database, repository: targetRepository } = parameters;
 
   return OperationLogger.logExecution(MigrationServiceName, database, 'updates', async (logger) => {
     if (!result) {
       throw new CorruptedResourceError(MigrationServiceName, database);
     }
 
-    const sourceRepository = current.parameters.repository;
-    const targetRepository = parameters.repository;
-
     const forceApply = current.partial || context.force;
 
-    if (forceApply || getTableRepositoryChanges(targetRepository, sourceRepository).counts) {
-      const steps = getUpdateStepQueries(targetRepository, forceApply ? {} : sourceRepository);
+    const sourceRepository = forceApply
+      ? (current.result?.oldRepository ?? getRepositoryStub(current.parameters.repository))
+      : current.parameters.repository;
+
+    const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
+
+    if (databaseChanges.counts) {
+      const steps = getUpdateStepQueries(targetRepository, sourceRepository);
 
       await modifyDatabase(logger, {
         queries: steps.create,
@@ -139,11 +144,18 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
                 secretArn: result.secretArn,
                 database
               });
+
+              delete result.oldRepository;
             })
           );
         })
       );
     }
+
+    return {
+      ...result,
+      oldRepository: sourceRepository
+    };
   });
 };
 

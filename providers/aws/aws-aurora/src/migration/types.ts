@@ -13,6 +13,7 @@ export type MigrationParameters = {
 };
 
 export type MigrationResult = {
+  oldRepository?: PgTableRepository;
   clusterArn: Arn;
   secretArn: Arn;
 };

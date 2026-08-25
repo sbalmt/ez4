@@ -105,8 +105,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
       return result;
     }
 
-    const repository = parameters.getRepository();
-    const steps = getUpdateStepQueries(repository, {});
+    const steps = getUpdateStepQueries(targetRepository, {});
 
     await validateChanges(logger, {
       queries: steps.create,
