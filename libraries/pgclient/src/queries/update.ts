@@ -65,7 +65,7 @@ export const prepareUpdateQuery = async <T extends InternalTableMetadata, S exte
     }
   }
 
-  const postUpdateQueries = preparePostUpdateRelations(builder, input.data, relations, updateQuery, table);
+  const postUpdateQueries = await preparePostUpdateRelations(builder, input.data, relations, updateQuery, table);
 
   queries.push(updateQuery, ...postUpdateQueries);
 
@@ -132,14 +132,9 @@ export const getUpdateRecord = async (
         if (isRelationHolder(sourceIndex, targetIndex)) {
           record[targetColumn] = relationValue;
         }
-
-        continue;
       }
 
-      // Will update an existing relation.
-      if (relationSchema) {
-        await validateRecordSchema(fieldValue, relationSchema, fieldPath);
-      }
+      continue;
     }
 
     const fieldSchema = getSchemaProperty(schema, fieldKey);
@@ -195,7 +190,7 @@ export const getUpdateRecord = async (
   return record;
 };
 
-const preparePostUpdateRelations = (
+const preparePostUpdateRelations = async (
   builder: SqlBuilder,
   data: SqlRecord,
   relations: PgRelationRepositoryWithSchema,
@@ -228,7 +223,7 @@ const preparePostUpdateRelations = (
 
     const { sourceTable, sourceIndex, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-    const [relationValue, relationColumn, relationUpdate] = getPostRelationValue(fieldValue, fieldRelation);
+    const [relationValue, relationColumn, relationInput] = getPostRelationValue(fieldValue, fieldRelation);
 
     // Connect an existing relation.
     if (relationValue !== undefined) {
@@ -283,16 +278,18 @@ const preparePostUpdateRelations = (
     }
 
     // Update an existing relation.
-    if (relationUpdate !== undefined) {
+    if (relationInput !== undefined) {
       if (!results.has(targetColumn)) {
         results.column(targetColumn);
       }
+
+      const updateRecord = await getUpdateRecord(builder, relationInput, fieldRelation.sourceSchema, relations, table);
 
       const relationQuery = builder
         .update(sourceSchema)
         .from(source.reference())
         .where({ [sourceColumn]: source.reference(targetColumn) })
-        .record(relationUpdate)
+        .record(updateRecord)
         .only(sourceTable)
         .as('T');
 
@@ -397,17 +394,13 @@ const getRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSc
 
   const relationColumn = sourceIndex === Index.Primary || sourceIndex === Index.Unique ? sourceColumn : primaryColumn;
 
-  const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
+  const { [relationColumn]: relationValue } = fieldValue;
 
   // Will connect an existing relation.
-  if (isEmptyObject(otherFields)) {
-    if (relationValue !== undefined) {
-      const relationSchema = getConnectionSchema(sourceSchema, relationColumn);
+  if (relationValue !== undefined) {
+    const relationSchema = getConnectionSchema(sourceSchema, relationColumn);
 
-      return [relationValue, relationSchema];
-    }
-
-    return [];
+    return [relationValue, relationSchema];
   }
 
   // Will update an existing relation.

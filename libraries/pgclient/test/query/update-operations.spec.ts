@@ -1,61 +1,90 @@
-import type { Query, RelationMetadata } from '@ez4/database';
+import type { IndexedTables, RelationTables } from '@ez4/database/library';
+import type { Database, Query } from '@ez4/database';
 import type { PostgresEngine } from '@ez4/pgclient';
-import type { ObjectSchema } from '@ez4/schema';
 
 import { describe, it } from 'node:test';
 
 import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
+import { Index } from '@ez4/database';
 
 import { prepareUpdateQuery } from '../../src/queries/update';
+import { getRelationsWithSchema } from '../../src/service/relations';
+import { getTableRepository } from '../../src/utils/repository';
+
+declare class Test extends Database.Service<PostgresEngine> {
+  tables: [
+    {
+      name: 'ez4-test-update-operation';
+      relations: {};
+      indexes: {
+        id: Index.Primary;
+      };
+      schema: {
+        id: string;
+        scalar?: number;
+        json: {
+          foo?: number;
+          bar?: string;
+        };
+      };
+    }
+  ];
+}
 
 type TestTableMetadata = {
-  engine: PostgresEngine;
-  relations: RelationMetadata;
-  indexes: {};
-  schema: {
-    scalar?: number;
-    json: {
-      foo?: number;
-      bar?: string;
-    };
-  };
+  schema: Test['tables'][0]['schema'];
+  indexes: IndexedTables<Test>['ez4-test-update-operation'];
+  relations: RelationTables<Test>['ez4-test-update-operation'];
+  engine: Test['engine'];
 };
 
 describe('update operations', () => {
-  const testSchema: ObjectSchema = {
-    type: SchemaType.Object,
-    properties: {
-      id: {
-        type: SchemaType.String,
-        format: 'uuid'
-      },
-      scalar: {
-        type: SchemaType.Number,
-        optional: true
-      },
-      json: {
+  const repository = getTableRepository([
+    {
+      name: 'ez4-test-update-operation',
+      indexes: [],
+      relations: [],
+      schema: {
         type: SchemaType.Object,
         properties: {
-          foo: {
+          id: {
+            type: SchemaType.String,
+            format: 'uuid'
+          },
+          scalar: {
             type: SchemaType.Number,
             optional: true
           },
-          bar: {
-            type: SchemaType.String,
-            optional: true
+          json: {
+            type: SchemaType.Object,
+            properties: {
+              foo: {
+                type: SchemaType.Number,
+                optional: true
+              },
+              bar: {
+                type: SchemaType.String,
+                optional: true
+              }
+            }
           }
         }
       }
     }
-  };
+  ]);
 
   const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     data: Query.UpdateManyInput<S, TestTableMetadata>['data']
   ) => {
     const builder = new SqlBuilder();
 
-    const { queries } = await prepareUpdateQuery(builder, 'ez4-test-update-operation', testSchema, {}, { data });
+    const name = 'ez4-test-update-operation';
+    const table = repository[name];
+
+    const relations = getRelationsWithSchema(name, repository);
+
+    const { queries } = await prepareUpdateQuery(builder, name, table.schema, relations, { data });
 
     return builder.with(queries).build();
   };
