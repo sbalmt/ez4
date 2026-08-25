@@ -8,7 +8,7 @@ import {
   createBucket,
   createBucketEvent,
   createBucketEventFunction,
-  getBucketEventFunctionArn,
+  getBucketEventFunctionAliasArn,
   isBucketState,
   registerTriggers
 } from '@ez4/aws-bucket';
@@ -93,8 +93,7 @@ describe('bucket resources', { timeout: 60000 }, () => {
       eventGetters: [
         (context) => {
           return {
-            functionArn: getBucketEventFunctionArn('ez4-test-bucket', lambdaResource.entryId, context),
-
+            functionArn: getBucketEventFunctionAliasArn('ez4-test-bucket', lambdaResource.entryId, context),
             events: ['s3:ObjectCreated:*'],
             path: '*'
           };
