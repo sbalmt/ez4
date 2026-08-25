@@ -133,7 +133,7 @@ describe('object comparison utils', () => {
     };
 
     const changes = deepCompare(target, source, {
-      onSimilarName: (target, source) => {
+      onCompareName: (target, source) => {
         const lcTarget = target.toLowerCase();
         const lcSource = source.toLowerCase();
 
