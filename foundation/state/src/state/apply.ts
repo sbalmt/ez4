@@ -235,17 +235,15 @@ const applyPostAction = async <E extends EntryState<T>, T extends string>(
   const { callback, action, entry } = postAction;
   const { entryId, dependencies } = entry;
 
-  if (failedEntries[entryId] || (!succeededEntries[entryId] && action !== StepAction.Delete)) {
-    errorList.push(new SkipFailedEntryError(entryId));
-    return;
-  }
-
-  if (succeededEntries[entryId] && !checkAllSucceeded(dependencies, succeededEntries)) {
-    errorList.push(new SkipFailedEntryDependencyError(entryId));
-    return;
-  }
-
   try {
+    if (failedEntries[entryId] || (!succeededEntries[entryId] && action !== StepAction.Delete)) {
+      throw new SkipFailedEntryError(entryId);
+    }
+
+    if (succeededEntries[entryId] && !checkAllSucceeded(dependencies, succeededEntries)) {
+      throw new SkipFailedEntryDependencyError(entryId);
+    }
+
     await callback();
   } catch (error) {
     errorList.push(error instanceof Error ? error : new Error(`${error}`));
