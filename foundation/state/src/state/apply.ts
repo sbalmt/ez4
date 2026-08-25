@@ -58,7 +58,7 @@ export const applySteps = async <E extends EntryState>(
 
   const allPostActions: PostActionEntry<E>[][] = [];
 
-  const successfulEntries: EntryStates<E> = {};
+  const succeededEntries: EntryStates<E> = {};
   const failedEntries: EntryStates<E> = {};
 
   const errorList: Error[] = [];
@@ -76,7 +76,7 @@ export const applySteps = async <E extends EntryState>(
     const postActions: PostActionEntry<E>[] = [];
 
     const stepTasks = nextSteps.map((entry) => () => {
-      return applyPendingStep(entry, allNewEntries, allOldEntries, successfulEntries, postActions, handlers, force);
+      return applyPendingStep(entry, allNewEntries, allOldEntries, succeededEntries, postActions, handlers, force);
     });
 
     const stepResults = await Tasks.run(stepTasks, {
@@ -93,7 +93,7 @@ export const applySteps = async <E extends EntryState>(
         allNewEntries[entry.entryId] = entry;
 
         if (!error) {
-          successfulEntries[entry.entryId] = entry;
+          succeededEntries[entry.entryId] = entry;
         } else {
           failedEntries[entry.entryId] = entry;
         }
@@ -111,7 +111,7 @@ export const applySteps = async <E extends EntryState>(
     totalSteps += stepActions.length;
 
     const actionTasks = stepActions.splice(0).map((postAction) => async () => {
-      return applyPostAction(postAction, successfulEntries, failedEntries, errorList);
+      return applyPostAction(postAction, succeededEntries, failedEntries, errorList);
     });
 
     await Tasks.run(actionTasks, {
@@ -127,7 +127,7 @@ export const applySteps = async <E extends EntryState>(
   return {
     errors: errorList,
     result: {
-      ...successfulEntries,
+      ...succeededEntries,
       ...failedEntries
     }
   };
@@ -141,7 +141,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   step: StepState,
   newEntries: EntryStates<E>,
   oldEntries: EntryStates<E>,
-  successfulEntries: EntryStates<E>,
+  succeededEntries: EntryStates<E>,
   postActions: PostActionEntry<E>[],
   handlers: StepHandlers<E>,
   force: boolean
@@ -174,7 +174,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
     switch (action) {
       case StepAction.Create: {
         const entry = { ...candidate };
-        const context = buildContext(successfulEntries, newEntries, entry);
+        const context = buildContext(succeededEntries, newEntries, entry);
 
         entry.result = await handler.create(entry, context);
 
@@ -184,7 +184,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       case StepAction.Replace: {
         const entry = { ...candidate };
 
-        const context = buildContext(successfulEntries, newEntries, entry);
+        const context = buildContext(succeededEntries, newEntries, entry);
         const result = await handler.replace(entry, getEntry(oldEntries, entryId), context);
 
         if (result) {
@@ -200,7 +200,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
         }
 
         const entry = { ...candidate };
-        const context = buildContext(successfulEntries, newEntries, entry);
+        const context = buildContext(succeededEntries, newEntries, entry);
         const result = await handler.update(entry, getEntry(oldEntries, entryId), context);
 
         if (result) {
@@ -228,19 +228,19 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
 
 const applyPostAction = async <E extends EntryState<T>, T extends string>(
   postAction: PostActionEntry<E>,
-  successfulEntries: EntryStates<E>,
+  succeededEntries: EntryStates<E>,
   failedEntries: EntryStates<E>,
   errorList: Error[]
 ) => {
   const { callback, action, entry } = postAction;
   const { entryId, dependencies } = entry;
 
-  if (failedEntries[entryId] || (!successfulEntries[entryId] && action !== StepAction.Delete)) {
+  if (failedEntries[entryId] || (!succeededEntries[entryId] && action !== StepAction.Delete)) {
     errorList.push(new SkipFailedEntryError(entryId));
     return;
   }
 
-  if (successfulEntries[entryId] && !dependencies.every((dependencyId) => !!successfulEntries[dependencyId])) {
+  if (succeededEntries[entryId] && !checkAllSucceeded(dependencies, succeededEntries)) {
     errorList.push(new SkipFailedEntryDependencyError(entryId));
     return;
   }
@@ -250,11 +250,23 @@ const applyPostAction = async <E extends EntryState<T>, T extends string>(
   } catch (error) {
     errorList.push(error instanceof Error ? error : new Error(`${error}`));
 
-    delete successfulEntries[entryId];
+    delete succeededEntries[entryId];
 
     failedEntries[entryId] = entry;
     entry.partial = true;
   }
+};
+
+const checkAllSucceeded = <E extends EntryState<T>, T extends string>(dependencies: string[], succeededEntries: EntryStates<E>) => {
+  return dependencies.every((dependencyId): boolean => {
+    const entry = succeededEntries[dependencyId];
+
+    if (entry) {
+      return checkAllSucceeded(entry.dependencies, succeededEntries);
+    }
+
+    return false;
+  });
 };
 
 const getEntryHandler = <E extends EntryState<T>, T extends string>(handlers: StepHandlers<E>, entry: E) => {

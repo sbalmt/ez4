@@ -20,6 +20,13 @@ const baseState: EntryStates<TestEntryState> = {
   entryB: {
     type: TestEntryType.B,
     entryId: 'entryB',
+    dependencies: ['entryC'],
+    parameters: {}
+  },
+  entryC: {
+    type: TestEntryType.C,
+    entryId: 'entryC',
+    connections: [],
     dependencies: [],
     parameters: {}
   }
@@ -124,18 +131,19 @@ describe('post actions tests', () => {
       context.postAction(postActionHandler);
     });
 
-    const createHandlerB = mock.fn(() => {
+    const createHandlerC = mock.fn(() => {
       throw new TestError();
     });
 
     const handlers: StepHandlers<TestEntryState> = {
+      ...commonStepHandlers,
       [TestEntryType.A]: {
         ...commonStepHandler,
         create: createHandlerA
       },
-      [TestEntryType.B]: {
+      [TestEntryType.C]: {
         ...commonStepHandler,
-        create: createHandlerB
+        create: createHandlerC
       }
     };
 
@@ -148,7 +156,7 @@ describe('post actions tests', () => {
     });
 
     equal(createHandlerA.mock.callCount(), 1);
-    equal(createHandlerB.mock.callCount(), 1);
+    equal(createHandlerC.mock.callCount(), 1);
     equal(postActionHandler.mock.callCount(), 0);
     equal(errors.length, 2);
 
