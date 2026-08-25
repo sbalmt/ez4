@@ -99,7 +99,9 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     const newIntegrityHash = hashObject(targetRepository);
     const oldIntegrityHash = current.result?.integrityHash;
 
-    if (newIntegrityHash === oldIntegrityHash && !context.force) {
+    const forceApply = current.partial || context.force;
+
+    if (newIntegrityHash === oldIntegrityHash && !forceApply) {
       return result;
     }
 
