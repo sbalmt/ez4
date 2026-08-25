@@ -47,11 +47,11 @@ type TestTableMetadata = {
 };
 
 describe('select relations', () => {
-  const testTableName = 'ez4_test_table';
+  const tableName = 'ez4_test_table';
 
   const repository = getTableRepository([
     {
-      name: testTableName,
+      name: tableName,
       indexes: [],
       relations: [
         {
@@ -59,7 +59,7 @@ describe('select relations', () => {
           targetColumn: 'relation1_id',
           targetIndex: Index.Secondary,
           sourceIndex: Index.Primary,
-          sourceTable: testTableName,
+          sourceTable: tableName,
           sourceColumn: 'id'
         },
         {
@@ -67,7 +67,7 @@ describe('select relations', () => {
           targetColumn: 'id',
           targetIndex: Index.Primary,
           sourceIndex: Index.Unique,
-          sourceTable: testTableName,
+          sourceTable: tableName,
           sourceColumn: 'relation2_id'
         },
         {
@@ -75,7 +75,7 @@ describe('select relations', () => {
           targetColumn: 'id',
           targetIndex: Index.Primary,
           sourceIndex: Index.Secondary,
-          sourceTable: testTableName,
+          sourceTable: tableName,
           sourceColumn: 'relation1_id'
         }
       ],
@@ -117,10 +117,10 @@ describe('select relations', () => {
   const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.FindOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const relations = getRelationsWithSchema(testTableName, repository);
-    const table = repository[testTableName];
+    const relations = getRelationsWithSchema(tableName, repository);
+    const table = repository[tableName];
 
-    const { query } = prepareSelectQuery(builder, testTableName, table.schema, relations, input);
+    const { query } = prepareSelectQuery(builder, tableName, table.schema, relations, input);
 
     return query.build();
   };

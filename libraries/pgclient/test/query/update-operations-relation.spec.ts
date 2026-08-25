@@ -54,6 +54,8 @@ type TestTableMetadata = {
 };
 
 describe('update operations relation', () => {
+  const tableName = 'ez4-test-update-relation';
+
   const repository = getTableRepository([
     {
       name: 'ez4-test-update-operation',
@@ -120,12 +122,11 @@ describe('update operations relation', () => {
   ) => {
     const builder = new SqlBuilder();
 
-    const name = 'ez4-test-update-relation';
-    const table = repository[name];
+    const table = repository[tableName];
 
-    const relations = getRelationsWithSchema(name, repository);
+    const relations = getRelationsWithSchema(tableName, repository);
 
-    const { queries } = await prepareUpdateQuery(builder, name, table.schema, relations, { data });
+    const { queries } = await prepareUpdateQuery(builder, tableName, table.schema, relations, { data });
 
     return builder.with(queries).build();
   };

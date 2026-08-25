@@ -20,12 +20,14 @@ type TestTableMetadata = {
 };
 
 describe('where missing', () => {
+  const tableName = 'ez4-test-where-operation';
+
   const getWhereOperation = (where: Query.WhereInput<TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
     const { query } = prepareSelectQuery(
       builder,
-      'ez4-test-where-operation',
+      tableName,
       TestSchema,
       {},
       {

@@ -95,6 +95,8 @@ type TestTableDMetadata = {
 };
 
 describe('select nested relations', () => {
+  const tableName = 'ez4-test-b';
+
   const repository = getTableRepository([
     {
       name: 'ez4-test-a',
@@ -218,12 +220,11 @@ describe('select nested relations', () => {
   const prepareBSelect = <S extends Query.SelectInput<TestTableBMetadata>>(input: Query.FindOneInput<S, TestTableBMetadata>) => {
     const builder = new SqlBuilder();
 
-    const name = 'ez4-test-b';
-    const table = repository[name];
+    const table = repository[tableName];
 
-    const relations = getRelationsWithSchema(name, repository);
+    const relations = getRelationsWithSchema(tableName, repository);
 
-    const { query } = prepareSelectQuery(builder, name, table.schema, relations, input);
+    const { query } = prepareSelectQuery(builder, tableName, table.schema, relations, input);
 
     return query.build();
   };

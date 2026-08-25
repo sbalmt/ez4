@@ -28,6 +28,8 @@ type TestTableMetadata = {
 };
 
 describe('where', () => {
+  const tableName = 'ez4-test-where-operation';
+
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -64,7 +66,7 @@ describe('where', () => {
 
     const { query } = prepareSelectQuery(
       builder,
-      'ez4-test-where-operation',
+      tableName,
       testSchema,
       {},
       {

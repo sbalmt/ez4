@@ -19,13 +19,15 @@ type TestTableMetadata = {
 };
 
 describe('insert scalar schema', () => {
+  const tableName = 'ez4-test-insert-schema';
+
   const prepareInsert = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     input: Query.InsertOneInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    const { queries } = await prepareInsertQuery(builder, 'ez4-test-insert-schema', schema, {}, input);
+    const { queries } = await prepareInsertQuery(builder, tableName, schema, {}, input);
 
     return builder.with(queries).build();
   };

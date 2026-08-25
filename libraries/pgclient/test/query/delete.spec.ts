@@ -24,6 +24,8 @@ type TestTableMetadata = {
 };
 
 describe('delete query', () => {
+  const tableName = 'ez4-test-delete';
+
   const testSchema: ObjectSchema = {
     type: SchemaType.Object,
     properties: {
@@ -45,7 +47,7 @@ describe('delete query', () => {
   const prepareDelete = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.DeleteOneInput<S, TestTableMetadata>) => {
     const builder = new SqlBuilder();
 
-    const { query } = prepareDeleteQuery(builder, 'ez4-test-delete', testSchema, {}, input);
+    const { query } = prepareDeleteQuery(builder, tableName, testSchema, {}, input);
 
     return query.build();
   };
