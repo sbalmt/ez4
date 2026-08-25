@@ -110,27 +110,8 @@ export const applySteps = async <E extends EntryState>(
 
     totalSteps += stepActions.length;
 
-    const actionTasks = stepActions.splice(0).map(({ callback, action, entry }) => async () => {
-      const { entryId, dependencies } = entry;
-
-      if (failedEntries[entryId] || (!successfulEntries[entryId] && action !== StepAction.Delete)) {
-        errorList.push(new SkipFailedEntryError(entryId));
-        return;
-      }
-
-      if (successfulEntries[entryId] && !dependencies.every((dependencyId) => !!successfulEntries[dependencyId])) {
-        errorList.push(new SkipFailedEntryDependencyError(entryId));
-        return;
-      }
-
-      try {
-        await callback();
-      } catch (error) {
-        errorList.push(error instanceof Error ? error : new Error(`${error}`));
-        delete successfulEntries[entryId];
-        failedEntries[entryId] = entry;
-        entry.partial = true;
-      }
+    const actionTasks = stepActions.splice(0).map((postAction) => async () => {
+      return applyPostAction(postAction, successfulEntries, failedEntries, errorList);
     });
 
     await Tasks.run(actionTasks, {
@@ -243,6 +224,37 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   }
 
   return [undefined];
+};
+
+const applyPostAction = async <E extends EntryState<T>, T extends string>(
+  postAction: PostActionEntry<E>,
+  successfulEntries: EntryStates<E>,
+  failedEntries: EntryStates<E>,
+  errorList: Error[]
+) => {
+  const { callback, action, entry } = postAction;
+  const { entryId, dependencies } = entry;
+
+  if (failedEntries[entryId] || (!successfulEntries[entryId] && action !== StepAction.Delete)) {
+    errorList.push(new SkipFailedEntryError(entryId));
+    return;
+  }
+
+  if (successfulEntries[entryId] && !dependencies.every((dependencyId) => !!successfulEntries[dependencyId])) {
+    errorList.push(new SkipFailedEntryDependencyError(entryId));
+    return;
+  }
+
+  try {
+    await callback();
+  } catch (error) {
+    errorList.push(error instanceof Error ? error : new Error(`${error}`));
+
+    delete successfulEntries[entryId];
+
+    failedEntries[entryId] = entry;
+    entry.partial = true;
+  }
 };
 
 const getEntryHandler = <E extends EntryState<T>, T extends string>(handlers: StepHandlers<E>, entry: E) => {
