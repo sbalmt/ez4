@@ -320,7 +320,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (make required column)', async () => {
+  it('assert :: alter table (make required column, explicit)', async () => {
     const sourceTable = getDatabaseTables({
       nullable: {
         type: SchemaType.Boolean,
@@ -334,6 +334,53 @@ describe('migration :: update column tests', () => {
         type: SchemaType.Boolean,
         optional: false,
         nullable: false
+      }
+    });
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: alter table (make required column, implicit)', async () => {
+    const sourceTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean,
+        optional: true,
+        nullable: true
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean
       }
     });
 
