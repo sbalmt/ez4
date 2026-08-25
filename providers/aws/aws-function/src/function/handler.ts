@@ -47,23 +47,23 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
   const changes = deepCompare(
     {
       ...target,
+      rollout: true,
       connections: candidate.connections,
       dependencies: candidate.dependencies,
       variables: protectVariables(await target.getFunctionVariables()),
       filesHash: target.files && (await getBundleHash(target.functionName, target.files)),
       sourceHash: await getBundleHash(...target.getFunctionFiles()),
-      valuesHash: target.getFunctionHash(),
-      rollout: true
+      valuesHash: target.getFunctionHash()
     },
     {
       ...source,
+      rollout: !current.partial,
       connections: current.connections,
       dependencies: current.dependencies,
       variables: current.result?.variables,
       sourceHash: current.result?.sourceHash,
       valuesHash: current.result?.valuesHash,
-      filesHash: current.result?.filesHash,
-      rollout: !current.partial
+      filesHash: current.result?.filesHash
     },
     {
       exclude: {

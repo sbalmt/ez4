@@ -29,11 +29,13 @@ const previewResource = (candidate: IntegrityState, current: IntegrityState, opt
   const changes = deepCompare(
     {
       ...target,
+      rollout: true,
       dependencies: candidate.dependencies,
       integrityHash: hashObject(target.getRepository())
     },
     {
       ...source,
+      rollout: !current.partial,
       dependencies: current.dependencies,
       ...(!options.force && {
         integrityHash: current.result?.integrityHash

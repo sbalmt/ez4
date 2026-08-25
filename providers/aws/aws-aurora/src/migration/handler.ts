@@ -34,11 +34,21 @@ const previewResource = (candidate: MigrationState, current: MigrationState, opt
 
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
-  const resourceChanges = deepCompare(target, source, {
-    exclude: {
-      repository: true
+  const resourceChanges = deepCompare(
+    {
+      ...target,
+      rollout: true
+    },
+    {
+      ...source,
+      rollout: !current.partial
+    },
+    {
+      exclude: {
+        repository: true
+      }
     }
-  });
+  );
 
   return {
     ...resourceChanges,
@@ -97,13 +107,13 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
       throw new CorruptedResourceError(MigrationServiceName, database);
     }
 
-    const sourceRepository = context.force ? getRepositoryStub(current.parameters.repository) : current.parameters.repository;
+    const sourceRepository = current.parameters.repository;
     const targetRepository = parameters.repository;
 
-    const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
+    const forceApply = current.partial || context.force;
 
-    if (databaseChanges.counts) {
-      const steps = getUpdateStepQueries(targetRepository, sourceRepository);
+    if (forceApply || getTableRepositoryChanges(targetRepository, sourceRepository).counts) {
+      const steps = getUpdateStepQueries(targetRepository, forceApply ? {} : sourceRepository);
 
       await modifyDatabase(logger, {
         queries: steps.create,
