@@ -63,8 +63,8 @@ export const applySteps = async <E extends EntryState>(
 
   const errorList: Error[] = [];
 
-  let totalSteps = stepList.length;
-  let progressCounter = 0;
+  let stepsCounter = stepList.length;
+  let stepsFinished = 0;
 
   for (let order = 0; ; order++) {
     const nextSteps = findPendingByOrder(stepList, order);
@@ -80,12 +80,13 @@ export const applySteps = async <E extends EntryState>(
     });
 
     const stepResults = await Tasks.run(stepTasks, {
-      onProgress: () => onProgress?.(++progressCounter, totalSteps),
+      onProgress: () => onProgress?.(++stepsFinished, stepsCounter),
       concurrency
     });
 
     if (postActions.length) {
       allPostActions.push(postActions);
+      stepsCounter += postActions.length;
     }
 
     for (const [entry, error] of stepResults) {
@@ -108,19 +109,18 @@ export const applySteps = async <E extends EntryState>(
   for (let index = 0; index < allPostActions.length; index++) {
     const stepActions = allPostActions[index];
 
-    totalSteps += stepActions.length;
-
     const actionTasks = stepActions.splice(0).map((postAction) => async () => {
       return applyPostAction(postAction, succeededEntries, failedEntries, errorList);
     });
 
     await Tasks.run(actionTasks, {
-      onProgress: () => onProgress?.(++progressCounter, totalSteps),
+      onProgress: () => onProgress?.(++stepsFinished, stepsCounter),
       concurrency
     });
 
     if (stepActions.length) {
       allPostActions.push(stepActions);
+      stepsCounter += stepActions.length;
     }
   }
 
