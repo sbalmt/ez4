@@ -195,7 +195,7 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       }
 
       case StepAction.Update: {
-        if (!force && (!step.preview || step.preview.counts === 0)) {
+        if (!force && (!step.preview || step.preview.counts <= 0)) {
           return [getEntry(oldEntries, entryId)];
         }
 

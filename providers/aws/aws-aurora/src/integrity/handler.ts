@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler, StepOptions } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { IntegrityState, IntegrityResult } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -22,7 +22,7 @@ const equalsResource = (candidate: IntegrityState, current: IntegrityState) => {
   return !!candidate.result && candidate.parameters.getDatabase() === current.result?.database;
 };
 
-const previewResource = (candidate: IntegrityState, current: IntegrityState, options: StepOptions) => {
+const previewResource = (candidate: IntegrityState, current: IntegrityState) => {
   const target = candidate.parameters;
   const source = current.parameters;
 
@@ -37,9 +37,7 @@ const previewResource = (candidate: IntegrityState, current: IntegrityState, opt
       ...source,
       rollout: !current.partial,
       dependencies: current.dependencies,
-      ...(!options.force && {
-        integrityHash: current.result?.integrityHash
-      })
+      integrityHash: current.result?.integrityHash
     }
   );
 

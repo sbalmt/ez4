@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler, StepOptions } from '@ez4/state';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { MigrationState, MigrationResult } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -7,7 +7,6 @@ import { getTableRepositoryChanges } from '@ez4/pgmigration/library';
 import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
-import { getRepositoryStub } from '../utils/database';
 import { createDatabase, deleteDatabase, modifyDatabase } from './client';
 import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
@@ -25,13 +24,11 @@ const equalsResource = (candidate: MigrationState, current: MigrationState) => {
   return !!candidate.result && candidate.result.clusterArn === current.result?.clusterArn;
 };
 
-const previewResource = (candidate: MigrationState, current: MigrationState, options: StepOptions) => {
+const previewResource = (candidate: MigrationState, current: MigrationState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
 
-  const forceApply = current.partial || options.force;
-
-  const sourceRepository = forceApply ? (current.result?.oldRepository ?? getRepositoryStub(source.repository)) : source.repository;
+  const sourceRepository = (current.partial ? current.result?.oldRepository : undefined) ?? source.repository;
   const targetRepository = target.repository;
 
   const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
@@ -54,7 +51,7 @@ const previewResource = (candidate: MigrationState, current: MigrationState, opt
 
   return {
     ...resourceChanges,
-    counts: resourceChanges.counts + Math.max(databaseChanges.counts, 1),
+    counts: resourceChanges.counts + (databaseChanges.counts && 1),
     name: target.database,
     nested: {
       ...resourceChanges.nested,
@@ -109,53 +106,53 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
       throw new CorruptedResourceError(MigrationServiceName, database);
     }
 
-    const forceApply = current.partial || context.force;
-
-    const sourceRepository = forceApply
-      ? (current.result?.oldRepository ?? getRepositoryStub(current.parameters.repository))
-      : current.parameters.repository;
-
+    const sourceRepository = (current.partial ? current.result?.oldRepository : undefined) ?? current.parameters.repository;
     const databaseChanges = getTableRepositoryChanges(targetRepository, sourceRepository);
 
+    const connectionData = {
+      clusterArn: result.clusterArn,
+      secretArn: result.secretArn
+    };
+
+    const newResult: MigrationResult = {
+      ...connectionData
+    };
+
     if (databaseChanges.counts) {
+      newResult.oldRepository = sourceRepository;
+
       const steps = getUpdateStepQueries(targetRepository, sourceRepository);
 
       await modifyDatabase(logger, {
+        ...connectionData,
         queries: steps.create,
-        clusterArn: result.clusterArn,
-        secretArn: result.secretArn,
         database
       });
 
       context.postAction(() =>
         OperationLogger.logExecution(MigrationServiceName, database, 'rollout', async (logger) => {
           await modifyDatabase(logger, {
+            ...connectionData,
             queries: steps.update,
-            clusterArn: result.clusterArn,
-            secretArn: result.secretArn,
             database
           });
 
           context.postAction(() =>
             OperationLogger.logExecution(MigrationServiceName, database, 'cleanup', async (logger) => {
               await modifyDatabase(logger, {
+                ...connectionData,
                 queries: steps.delete,
-                clusterArn: result.clusterArn,
-                secretArn: result.secretArn,
                 database
               });
 
-              delete result.oldRepository;
+              delete newResult.oldRepository;
             })
           );
         })
       );
     }
 
-    return {
-      ...result,
-      oldRepository: sourceRepository
-    };
+    return newResult;
   });
 };
 
