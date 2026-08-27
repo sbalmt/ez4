@@ -52,7 +52,7 @@ export const createPool = (connection: ClientConnection) => {
 
   return new Pool({
     ...baseOptions,
-    ssl: false,
+    ssl: connection.ssl ?? false,
     database,
     password,
     user,

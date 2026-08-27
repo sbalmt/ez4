@@ -83,7 +83,7 @@ export default {
 `local.env`:
 
 ```
-EZ4_RAW_PG_DB_URL=postgres://user:pass@host:5432/db?sslmode=require
+EZ4_RAW_PG_DB_URL=postgres://user:pass@host:5432/db?sslmode=verify-full
 ```
 
 Then:
@@ -108,7 +108,7 @@ ez4 serve --reset
 Same env var. Set it in your CI / deploy environment:
 
 ```sh
-export EZ4_RAW_PG_DB_URL=postgres://user:pass@host:5432/db?sslmode=require
+export EZ4_RAW_PG_DB_URL=postgres://user:pass@host:5432/db?sslmode=verify-full
 ez4 deploy -e local.env
 ```
 
