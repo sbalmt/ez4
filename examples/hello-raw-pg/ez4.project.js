@@ -21,7 +21,9 @@ export default {
       // Point at any Postgres TCP endpoint: Supabase, Neon, local docker, etc.
       connectionString: process.env.EZ4_RAW_PG_DB_URL,
       // SSL required by most managed providers (Supabase/Neon).
-      ssl: { rejectUnauthorized: false }
+      // Certificate verification stays on; pass `{ ca: '<pem>' }` when the
+      // provider uses a private CA instead of a publicly trusted one.
+      ssl: true
     }
   },
   tags: {

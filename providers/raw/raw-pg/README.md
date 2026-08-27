@@ -74,7 +74,7 @@ export default {
   localOptions: {
     db: {
       connectionString: process.env.EZ4_RAW_PG_DB_URL,
-      ssl: { rejectUnauthorized: false }   // most managed providers
+      ssl: true                            // most managed providers
     }
   }
 };
