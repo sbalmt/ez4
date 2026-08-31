@@ -58,6 +58,7 @@ export const prepareBucketEvents = (
       const dependencies = context.getDependencyFiles(handler.file);
 
       const logGroupState = createLogGroup(state, {
+        dependencies: [bucketState.entryId],
         retention: logRetention,
         groupName: eventName,
         tags
@@ -69,6 +70,7 @@ export const prepareBucketEvents = (
         variables: [options.variables, service.variables, variables],
         references: handler.references,
         context: service.context,
+        dependencies: [bucketState.entryId],
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,

@@ -30,6 +30,7 @@ export const createIntegrationFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
     sourceFile: handler.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

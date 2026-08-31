@@ -92,6 +92,7 @@ const getIntegrationFunction = (
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
+      dependencies: [gatewayState.entryId],
       groupName: integrationName,
       retention: logRetention,
       tags
@@ -112,6 +113,7 @@ const getIntegrationFunction = (
       variables: [options.variables, service.variables],
       references: handler.references ?? (provider?.services && Object.keys(provider.services)),
       context: service.context,
+      dependencies: [gatewayState.entryId],
       errorsMap: {
         ...('httpErrors' in defaults && isAnyObject(defaults.httpErrors) && defaults.httpErrors),
         ...('httpErrors' in target && isAnyObject(target.httpErrors) && target.httpErrors)

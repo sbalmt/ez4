@@ -21,6 +21,7 @@ export const createQueueFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
     sourceFile: handler.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

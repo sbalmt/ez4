@@ -52,6 +52,7 @@ export const prepareSubscriptions = (
       } = subscription;
 
       const logGroupState = createLogGroup(state, {
+        dependencies: [queueState.entryId],
         groupName: subscriptionName,
         retention: logRetention,
         tags
@@ -64,6 +65,7 @@ export const prepareSubscriptions = (
         variables: [options.variables, service.variables, subscription.variables],
         references: subscription.handler.references,
         context: service.context,
+        dependencies: [queueState.entryId],
         timeout: service.timeout ?? Defaults.Timeout,
         backoff: {
           attempts: deadLetter?.maxAttempts ?? Defaults.MaxAttempts,

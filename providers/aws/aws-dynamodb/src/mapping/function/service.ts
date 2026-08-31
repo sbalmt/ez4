@@ -21,6 +21,7 @@ export const createStreamFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'dbStreamEntryPoint',
     sourceFile: handler.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

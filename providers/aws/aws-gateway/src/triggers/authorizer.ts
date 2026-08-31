@@ -59,6 +59,7 @@ export const getAuthorizerFunction = (
     const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
+      dependencies: [gatewayState.entryId],
       groupName: authorizerName,
       retention: logRetention,
       tags: options.tags

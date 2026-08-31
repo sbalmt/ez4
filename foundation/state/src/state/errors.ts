@@ -72,12 +72,12 @@ export class CorruptedStateReferences extends Error {
 
 export class SkipFailedEntryError extends Error {
   constructor(public entryId: string) {
-    super(`Skipping failed entry (${entryId}) post action.`);
+    super(`Skipping failed entry (${entryId}).`);
   }
 }
 
 export class SkipFailedEntryDependencyError extends Error {
   constructor(public entryId: string) {
-    super(`Skipping entry (${entryId}) post action due to a dependency failure.`);
+    super(`Skipping entry (${entryId}) due to dependency failures.`);
   }
 }

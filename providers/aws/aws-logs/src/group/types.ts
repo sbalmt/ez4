@@ -6,6 +6,7 @@ export const LogGroupServiceName = 'AWS:Log/Group';
 export const LogGroupServiceType = 'aws:log.group';
 
 export type LogGroupParameters = CreateRequest & {
+  dependencies?: string[];
   retention?: number;
 };
 

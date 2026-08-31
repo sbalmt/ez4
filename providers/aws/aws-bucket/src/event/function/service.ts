@@ -21,6 +21,7 @@ export const createBucketEventFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
     sourceFile: handler.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

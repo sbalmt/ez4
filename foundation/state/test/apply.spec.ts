@@ -1,7 +1,7 @@
 import type { EntryStates, StepContext, StepHandlers } from '@ez4/state';
 import type { TestEntryState } from './common/entry';
 
-import { planSteps, applySteps, DependencyNotFoundError } from '@ez4/state';
+import { planSteps, applySteps, SkipFailedEntryDependencyError } from '@ez4/state';
 import { ok, equal, deepEqual, notEqual } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
@@ -201,7 +201,7 @@ describe('apply tests', () => {
     equal(updateHandler.mock.callCount(), 1);
     notEqual(result.entryA?.result, { type: 'updated' });
 
-    equal(createHandler.mock.callCount(), 1);
+    equal(createHandler.mock.callCount(), 0);
     notEqual(result.entryB?.result, { type: 'created' });
 
     equal(errors.length, 2);
@@ -209,7 +209,7 @@ describe('apply tests', () => {
     const [error1, error2] = errors;
 
     ok(error1 instanceof TestError);
-    ok(error2 instanceof DependencyNotFoundError);
+    ok(error2 instanceof SkipFailedEntryDependencyError);
   });
 
   it('assert :: update (partial)', async () => {

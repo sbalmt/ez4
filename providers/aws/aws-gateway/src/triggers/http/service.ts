@@ -107,6 +107,7 @@ const createAccessLog = (state: EntryStates, service: HttpService, gatewayState:
   }
 
   const logGroupState = createLogGroup(state, {
+    dependencies: [gatewayState.entryId],
     groupName: getServiceName(service, options),
     retention: access.logRetention,
     tags

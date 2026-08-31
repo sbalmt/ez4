@@ -55,6 +55,7 @@ export const prepareTableStream = (
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
+      dependencies: [tableState.entryId],
       retention: logRetention,
       groupName: streamName,
       tags
@@ -67,6 +68,7 @@ export const prepareTableStream = (
       variables: [options.variables, service.variables, variables],
       references: handler.references,
       context: service.context,
+      dependencies: [tableState.entryId],
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

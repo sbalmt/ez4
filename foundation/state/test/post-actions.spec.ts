@@ -155,15 +155,16 @@ describe('post actions tests', () => {
       handlers
     });
 
-    equal(createHandlerA.mock.callCount(), 1);
+    equal(createHandlerA.mock.callCount(), 0);
     equal(createHandlerC.mock.callCount(), 1);
     equal(postActionHandler.mock.callCount(), 0);
-    equal(errors.length, 2);
+    equal(errors.length, 3);
 
-    const [error1, error2] = errors;
+    const [error1, error2, error3] = errors;
 
     ok(error1 instanceof TestError);
     ok(error2 instanceof SkipFailedEntryDependencyError);
+    ok(error3 instanceof SkipFailedEntryDependencyError);
   });
 
   it('assert :: prevent post action chain (post action error)', async () => {

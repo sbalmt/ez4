@@ -22,6 +22,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
     sourceFile: authorizer.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

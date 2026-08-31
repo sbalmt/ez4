@@ -64,6 +64,7 @@ export const prepareSubscriptions = (
           } = subscription;
 
           const logGroupState = createLogGroup(state, {
+            dependencies: [topicState.entryId],
             groupName: subscriptionName,
             retention: logRetention,
             tags
@@ -75,6 +76,7 @@ export const prepareSubscriptions = (
             description: handler.summary ?? handler.description,
             variables: [options.variables, service.variables, subscription.variables],
             references: subscription.handler.references,
+            dependencies: [topicState.entryId],
             context: service.context,
             handler: {
               sourceFile: handler.file,
