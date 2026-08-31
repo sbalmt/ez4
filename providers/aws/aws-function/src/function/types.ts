@@ -18,7 +18,7 @@ export type FunctionRelease = {
   version: string;
 };
 
-export type FunctionParameters = Omit<CreateRequest, 'roleArn' | 'publish' | 'variables'> & {
+export type FunctionParameters = Omit<CreateRequest, 'logGroup' | 'roleArn' | 'publish' | 'variables'> & {
   getFunctionFiles: GetFunctionFiles;
   getFunctionVariables: GetFunctionVariables;
   getFunctionBundle: GetFunctionBundle;
