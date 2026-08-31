@@ -34,16 +34,25 @@ export namespace Client {
 }
 
 export const createPool = (connection: ClientConnection) => {
-  const { database, password, user, host, port } = connection;
-
-  return new Pool({
+  const baseOptions = {
     allowExitOnIdle: true,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 15000,
-    ssl: false,
     maxUses: 500,
     min: 0,
     max: 2,
+    ssl: connection.ssl
+  };
+
+  if ('connectionString' in connection && connection.connectionString) {
+    return new Pool({ ...baseOptions, connectionString: connection.connectionString });
+  }
+
+  const { database, password, user, host, port } = connection as Extract<ClientConnection, { host: string }>;
+
+  return new Pool({
+    ...baseOptions,
+    ssl: connection.ssl ?? false,
     database,
     password,
     user,
