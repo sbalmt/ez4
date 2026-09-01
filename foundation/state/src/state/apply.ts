@@ -195,21 +195,8 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
 
         entry.result = await handler.create(entry, context);
 
-        return [entry];
-      }
-
-      case StepAction.Replace: {
-        const entry = { ...candidate };
-
-        if (!checkAllSucceeded(entry.dependencies, succeededEntries)) {
-          throw new SkipFailedEntryDependencyError(entryId);
-        }
-
-        const context = buildContext(succeededEntries, newEntries, entry);
-        const result = await handler.replace(entry, getEntry(oldEntries, entryId), context);
-
-        if (result) {
-          entry.result = result;
+        if (warnings.length) {
+          return [entry, warnings];
         }
 
         return [entry];
@@ -231,6 +218,31 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
 
         if (result) {
           entry.result = result;
+        }
+
+        if (warnings.length) {
+          return [entry, warnings];
+        }
+
+        return [entry];
+      }
+
+      case StepAction.Replace: {
+        const entry = { ...candidate };
+
+        if (!checkAllSucceeded(entry.dependencies, succeededEntries)) {
+          throw new SkipFailedEntryDependencyError(entryId);
+        }
+
+        const context = buildContext(succeededEntries, newEntries, entry);
+        const result = await handler.replace(entry, getEntry(oldEntries, entryId), context);
+
+        if (result) {
+          entry.result = result;
+        }
+
+        if (warnings.length) {
+          return [entry, warnings];
         }
 
         return [entry];

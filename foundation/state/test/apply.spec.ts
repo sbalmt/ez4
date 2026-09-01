@@ -291,7 +291,7 @@ describe('apply tests', () => {
   });
 
   it('assert :: delete (partial)', async () => {
-    const deleteHandler = mock.fn((_cu: TestEntryState, context: StepContext) => {
+    const deleteHandler = mock.fn((_current: TestEntryState, context: StepContext) => {
       context.postAction(() => {
         throw new TestError();
       });

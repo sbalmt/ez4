@@ -24,7 +24,7 @@ const checkDependencies = (options: StepOptions, expectedForceOption: boolean) =
 
 describe('options tests', () => {
   it('assert :: preview options', async () => {
-    const previewHandler = mock.fn((_ca: TestEntryState, _cu: TestEntryState, options: StepOptions) => {
+    const previewHandler = mock.fn((_candidate: TestEntryState, _current: TestEntryState, options: StepOptions) => {
       checkDependencies(options, true);
     });
 
