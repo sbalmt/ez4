@@ -6,7 +6,6 @@ import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResour
 import { deepCompare } from '@ez4/utils';
 
 import { createGroup, deleteGroup, tagGroup, untagGroup, canDeleteGroup, putLogRetention, deleteLogRetention } from './client';
-import { LogGroupNotEmptyError } from './errors';
 import { LogGroupServiceName } from './types';
 
 export const getLogGroupHandler = (): StepHandler<LogGroupState> => ({
@@ -84,7 +83,8 @@ const deleteResource = async (current: LogGroupState, context: StepContext) => {
         const canDelete = await canDeleteGroup(logger, groupName);
 
         if (!canDelete) {
-          throw new LogGroupNotEmptyError(groupName);
+          context.addWarning(`Log group '${groupName}' isn't yet empty; deletion may occur next time.`);
+          return;
         }
       }
 

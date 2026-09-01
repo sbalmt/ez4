@@ -9,12 +9,3 @@ export class MissingConnectionStringAtApplyError extends Error {
     );
   }
 }
-
-export class MigrationDeletionDeniedError extends Error {
-  constructor(public database: string) {
-    super(
-      `Refusing to drop tables for database '${database}'. ` +
-        `Set 'allowDeletion: true' on the migration parameters to enable destructive operations.`
-    );
-  }
-}

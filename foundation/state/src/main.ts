@@ -1,5 +1,6 @@
 export type * from './types/entry';
 export type * from './types/hydrate';
+export type * from './types/warning';
 export type * from './types/step';
 
 export * from './state/errors';

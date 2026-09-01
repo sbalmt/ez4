@@ -11,9 +11,10 @@ import { reportResourceChanges } from '../../deploy/changes';
 import { getDeployOptions } from '../../deploy/options';
 import { loadEnvironment } from '../../config/environment';
 import { loadProviders } from '../../config/providers';
-import { waitConfirmation } from '../../utils/prompt';
-import { assertNoErrors } from '../../utils/errors';
 import { loadProject } from '../../config/project';
+import { waitConfirmation } from '../../utils/prompt';
+import { exposeAllWarnings } from '../../utils/warnings';
+import { assertNoErrors } from '../../utils/errors';
 
 export const destroyCommand = async (input: InputOptions) => {
   const project = await loadProject(input.project);
@@ -58,7 +59,7 @@ export const destroyCommand = async (input: InputOptions) => {
   }
 
   const deployState = await performDeploy(options, async () => {
-    const { result, errors } = await applyDeploy(newState, oldState, options);
+    const { result, errors, warnings } = await applyDeploy(newState, oldState, options);
 
     await DynamicLogger.logExecution('✅ Saving state', () => {
       return saveState(project.stateFile, options, result);
@@ -66,9 +67,11 @@ export const destroyCommand = async (input: InputOptions) => {
 
     return {
       result,
+      warnings,
       errors
     };
   });
 
+  exposeAllWarnings(deployState.warnings);
   assertNoErrors(deployState.errors);
 };

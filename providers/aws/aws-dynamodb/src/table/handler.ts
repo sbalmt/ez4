@@ -22,7 +22,6 @@ import {
 
 import { getSecondaryIndexName } from './helpers/indexes';
 import { TableServiceName } from './types';
-import { TableDeletionDeniedError } from './errors';
 
 export const getTableHandler = (): StepHandler<TableState> => ({
   equals: equalsResource,
@@ -118,7 +117,8 @@ const deleteResource = async (current: TableState, context: StepContext) => {
       const { allowDeletion } = parameters;
 
       if (!allowDeletion && !context.force) {
-        throw new TableDeletionDeniedError(tableName);
+        context.addWarning(`Deletion of table '${tableName}' is denied.`);
+        return;
       }
 
       if (!allowDeletion) {

@@ -6,7 +6,6 @@ import { CorruptedResourceError, OperationLogger } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { createTables, deleteTables, updateTables } from './client';
-import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
@@ -88,17 +87,16 @@ const updateResource = (candidate: MigrationState, current: MigrationState, cont
 const deleteResource = async (current: MigrationState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { database, envName, repository, allowDeletion } = parameters;
+
+    return OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async () => {
+      if (!allowDeletion && !context.force) {
+        context.addWarning(`Deletion of database '${database}' is denied.`);
+        return;
+      }
+
+      await deleteTables({ database, envName, repository });
+    });
   }
-
-  const { database, envName, repository, allowDeletion } = parameters;
-
-  await OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async () => {
-    if (!allowDeletion && !context.force) {
-      throw new MigrationDeletionDeniedError(database);
-    }
-
-    await deleteTables({ database, envName, repository });
-  });
 };

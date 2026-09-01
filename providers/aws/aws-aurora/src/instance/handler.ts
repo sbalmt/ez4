@@ -10,7 +10,6 @@ import { createInstance, deleteInstance, importInstance, tagInstance, untagInsta
 
 import { getClusterName } from '../cluster/utils';
 import { InstanceServiceName } from './types';
-import { InstanceDeletionDeniedError } from './errors';
 
 export const getInstanceHandler = (): StepHandler<InstanceState> => ({
   equals: equalsResource,
@@ -96,7 +95,8 @@ const deleteResource = async (current: InstanceState, context: StepContext) => {
       }
 
       if (!allowDeletion && !context.force) {
-        throw new InstanceDeletionDeniedError(instanceName);
+        context.addWarning(`Deletion of instance '${instanceName}' is denied.`);
+        return;
       }
 
       await deleteInstance(logger, instanceName);

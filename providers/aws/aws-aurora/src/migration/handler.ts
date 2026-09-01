@@ -8,7 +8,6 @@ import { deepCompare } from '@ez4/utils';
 
 import { getClusterResult } from '../cluster/utils';
 import { createDatabase, deleteDatabase, modifyDatabase } from './client';
-import { MigrationDeletionDeniedError } from './errors';
 import { MigrationServiceName } from './types';
 
 export const getMigrationHandler = (): StepHandler<MigrationState> => ({
@@ -163,7 +162,8 @@ const deleteResource = async (current: MigrationState, context: StepContext) => 
   if (result) {
     return OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
-        throw new MigrationDeletionDeniedError(database);
+        context.addWarning(`Deletion of database '${database}' is denied.`);
+        return;
       }
 
       const { clusterArn, secretArn } = result;

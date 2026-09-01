@@ -7,7 +7,6 @@ import { deepCompare } from '@ez4/utils';
 
 import { importCache, createCache, deleteCache, tagCache, untagCache } from './client';
 import { CacheServiceName } from './types';
-import { CacheDeletionDeniedError } from './errors';
 
 export const getCacheHandler = (): StepHandler<CacheState> => ({
   equals: equalsResource,
@@ -81,7 +80,8 @@ const deleteResource = async (current: CacheState, context: StepContext) => {
   if (result) {
     return OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
-        throw new CacheDeletionDeniedError(name);
+        context.addWarning(`Deletion of cache '${name}' is denied.`);
+        return;
       }
 
       await deleteCache(logger, name);

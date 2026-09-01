@@ -1,5 +1,6 @@
 import type { StepHandlers, StepPostAction, StepState } from '../types/step';
 import type { EntryState, EntryStates, EntryTypes } from '../types/entry';
+import type { Warning } from '../types/warning';
 
 import { Tasks } from '@ez4/utils';
 
@@ -32,6 +33,7 @@ export type ApplyOptions<E extends EntryState> = {
 
 export type ApplyResult<E extends EntryState = EntryState> = {
   result: EntryStates<E>;
+  warnings: Warning[];
   errors: Error[];
 };
 
@@ -61,6 +63,7 @@ export const applySteps = async <E extends EntryState>(
   const succeededEntries: EntryStates<E> = {};
   const failedEntries: EntryStates<E> = {};
 
+  const warningList: Warning[] = [];
   const errorList: Error[] = [];
 
   let stepsCounter = stepList.length;
@@ -89,19 +92,23 @@ export const applySteps = async <E extends EntryState>(
       stepsCounter += postActions.length;
     }
 
-    for (const [entry, error] of stepResults) {
+    for (const [entry, issues] of stepResults) {
       if (entry) {
         allNewEntries[entry.entryId] = entry;
 
-        if (!error) {
+        if (!issues) {
           succeededEntries[entry.entryId] = entry;
         } else {
           failedEntries[entry.entryId] = entry;
         }
       }
 
-      if (error) {
-        errorList.push(error);
+      if (issues) {
+        if (issues instanceof Array) {
+          warningList.push(...issues);
+        } else {
+          errorList.push(issues);
+        }
       }
     }
   }
@@ -126,6 +133,7 @@ export const applySteps = async <E extends EntryState>(
 
   return {
     errors: errorList,
+    warnings: warningList,
     result: {
       ...succeededEntries,
       ...failedEntries
@@ -145,11 +153,12 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
   postActions: PostActionEntry<E>[],
   handlers: StepHandlers<E>,
   force: boolean
-): Promise<[E | undefined] | [E | undefined, Error]> => {
+): Promise<[E | undefined] | [E | undefined, Error] | [E | undefined, Warning[]]> => {
   const { action, entryId } = step;
 
-  const entries = action !== StepAction.Delete ? newEntries : oldEntries;
-  const candidate = getEntry(entries, entryId);
+  const warnings: Warning[] = [];
+
+  const candidate = getEntry(action !== StepAction.Delete ? newEntries : oldEntries, entryId);
   const handler = getEntryHandler(handlers, candidate);
 
   const buildContext = (processedEntryMap: EntryStates<E>, completedEntryMap: EntryStates<E>, entry: E) => {
@@ -166,6 +175,9 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
       },
       postAction: (callback: StepPostAction) => {
         postActions.push({ callback, action, entry });
+      },
+      addWarning: (message: string) => {
+        warnings.push({ message });
       }
     };
   };
@@ -230,6 +242,13 @@ const applyPendingStep = async <E extends EntryState<T>, T extends string>(
         const context = buildContext(oldEntries, oldEntries, entry);
 
         await handler.delete(entry, context);
+
+        if (warnings.length > 0) {
+          entry.dependencies = entry.dependencies.filter((dependencyId) => newEntries[dependencyId]);
+          entry.connections = undefined;
+
+          return [entry, warnings];
+        }
       }
     }
   } catch (error) {

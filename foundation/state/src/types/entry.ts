@@ -1,5 +1,5 @@
 /**
- * Regular entry state.
+ * An entry state structure.
  */
 export type EntryState<T extends string = string> = {
   /**
@@ -39,7 +39,7 @@ export type EntryState<T extends string = string> = {
 };
 
 /**
- * Map of regular entry states.
+ * Map of entry states.
  */
 export type EntryStates<E extends EntryState = EntryState> = {
   [entityId: string]: E | undefined;

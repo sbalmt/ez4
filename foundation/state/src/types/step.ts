@@ -76,6 +76,13 @@ export type StepContext = {
    * @returns Must return the resulting state of the post action.
    */
   postAction: (callback: StepPostAction) => void;
+
+  /**
+   * Add a warning message to the current step.
+   *
+   * @param message Warning message.
+   */
+  addWarning: (message: string) => void;
 };
 
 /**

@@ -6,7 +6,6 @@ import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResour
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
-import { ClusterDeletionDeniedError } from './errors';
 import { ClusterServiceName } from './types';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
@@ -91,7 +90,8 @@ const deleteResource = async (current: ClusterState, context: StepContext) => {
       }
 
       if (!allowDeletion && !context.force) {
-        throw new ClusterDeletionDeniedError(clusterName);
+        context.addWarning(`Deletion of cluster '${clusterName}' is denied.`);
+        return;
       }
 
       if (!allowDeletion) {
