@@ -1,6 +1,6 @@
 import type { Database, Index, Client as DbClient } from '@ez4/database';
 import type { DynamoDbEngine } from '@ez4/aws-dynamodb/client';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';

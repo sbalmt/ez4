@@ -53,13 +53,13 @@ type TestTableMetadata = {
 };
 
 describe('statement columns', () => {
-  const testTableName = 'ez4_test_table';
+  const tableName = 'ez4_test_table';
 
   const testId = '00000000-0000-1000-9000-000000000000';
 
   const repository = getTableRepository([
     {
-      name: testTableName,
+      name: tableName,
       indexes: [],
       relations: [
         {
@@ -67,7 +67,7 @@ describe('statement columns', () => {
           targetColumn: 'relation1_id',
           targetIndex: Index.Secondary,
           sourceIndex: Index.Primary,
-          sourceTable: testTableName,
+          sourceTable: tableName,
           sourceColumn: 'id'
         },
         {
@@ -75,7 +75,7 @@ describe('statement columns', () => {
           targetColumn: 'id',
           targetIndex: Index.Primary,
           sourceIndex: Index.Unique,
-          sourceTable: testTableName,
+          sourceTable: tableName,
           sourceColumn: 'relation2_id'
         }
       ],
@@ -120,23 +120,23 @@ describe('statement columns', () => {
     rollbackTransaction: () => Promise.reject(new Error('Not supported.'))
   };
 
-  const relations = getRelationsWithSchema(testTableName, repository);
-  const schema = repository[testTableName].schema;
+  const relations = getRelationsWithSchema(tableName, repository);
+  const schema = repository[tableName].schema;
 
   const findOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.FindOneInput<S, TestTableMetadata>) => {
-    return prepareFindOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
+    return prepareFindOne<TestTableMetadata, S>(tableName, schema, relations, testDriver, input);
   };
 
   const insertOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.InsertOneInput<S, TestTableMetadata>) => {
-    return prepareInsertOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
+    return prepareInsertOne<TestTableMetadata, S>(tableName, schema, relations, testDriver, input);
   };
 
   const updateOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.UpdateOneInput<S, TestTableMetadata>, flag?: string) => {
-    return prepareUpdateOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input, { flag });
+    return prepareUpdateOne<TestTableMetadata, S>(tableName, schema, relations, testDriver, input, { flag });
   };
 
   const deleteOne = <S extends Query.SelectInput<TestTableMetadata>>(input: Query.DeleteOneInput<S, TestTableMetadata>) => {
-    return prepareDeleteOne<TestTableMetadata, S>(testTableName, schema, relations, testDriver, input);
+    return prepareDeleteOne<TestTableMetadata, S>(tableName, schema, relations, testDriver, input);
   };
 
   it('assert :: select columns', () => {
@@ -154,13 +154,13 @@ describe('statement columns', () => {
   });
 
   it('assert :: count columns', () => {
-    const statement = prepareCount(testTableName, schema, relations, testDriver, {});
+    const statement = prepareCount(tableName, schema, relations, testDriver, {});
 
     deepEqual(statement.metadata.columns, ['__EZ4_COUNT']);
   });
 
   it('assert :: exists columns', () => {
-    const statement = prepareExists(testTableName, schema, relations, testDriver, {});
+    const statement = prepareExists(tableName, schema, relations, testDriver, {});
 
     deepEqual(statement.metadata.columns, ['__EZ4_EXISTS']);
   });

@@ -3,8 +3,8 @@ import type { ValidationCustomContext } from '@ez4/validator';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
 import { SQSClient, DeleteMessageCommand, ChangeMessageVisibilityCommand } from '@aws-sdk/client-sqs';
+import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
 import { ServiceEventType, Runtime } from '@ez4/common';
 import { getRandomUUID, Wait } from '@ez4/utils';
 
@@ -19,6 +19,8 @@ declare const __EZ4_CONTEXT: object;
 declare function dispatch(event: Queue.ServiceEvent<Queue.Message>, context: object): Promise<void>;
 declare function handle(request: Queue.Incoming<Queue.Message>, context: object): Promise<any>;
 
+let currentRequest: Queue.Incoming<Queue.Message> | undefined;
+
 /**
  * Entrypoint to handle SQS events.
  */
@@ -26,6 +28,11 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   if (!__EZ4_SCHEMA) {
     throw new Error('Validation schema for SQS message not found.');
   }
+
+  currentRequest = undefined;
+
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 
   const request = {
     requestId: context.awsRequestId,
@@ -44,6 +51,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   } catch (error) {
     await onError(error, request);
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -51,8 +59,6 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 const processAllRecords = async (request: Queue.Request, schema: MessageSchema, records: SQSRecord[]) => {
   const failedMessages: SQSBatchItemFailure[] = [];
   const failedGroupIds = new Set<string>();
-
-  let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 
   for (const record of records) {
     const messageGroupId = record.attributes.MessageGroupId;
@@ -74,6 +80,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       currentRequest = {
         ...request,
         attempt: Number(record.attributes.ApproximateReceiveCount),
+        retry: (options?: Queue.RetryOptions) => retryMessage(record, options?.delay),
         traceId,
         message
       };
@@ -88,7 +95,6 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       await ackMessage(record);
 
       await onDone(currentRequest);
-      //
     } catch (error) {
       await onError(error, currentRequest ?? request);
       await retryMessage(record);
@@ -135,7 +141,7 @@ const ackMessage = async (record: SQSRecord) => {
   }
 };
 
-const retryMessage = async (record: SQSRecord) => {
+const retryMessage = async (record: SQSRecord, userDelay?: number) => {
   const { messageId, receiptHandle, attributes } = record;
 
   try {
@@ -145,7 +151,7 @@ const retryMessage = async (record: SQSRecord) => {
     await client.send(
       new ChangeMessageVisibilityCommand({
         QueueUrl: getQueueUrl(record.eventSourceARN),
-        VisibilityTimeout: attemptDelay,
+        VisibilityTimeout: userDelay ?? attemptDelay,
         ReceiptHandle: receiptHandle
       })
     );
@@ -186,6 +192,18 @@ const onDone = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

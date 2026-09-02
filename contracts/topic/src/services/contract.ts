@@ -33,6 +33,7 @@ export namespace Topic {
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
     | CommonService.DoneEvent<Incoming<T>>
+    | CommonService.TimeoutEvent<Incoming<T>>
     | CommonService.ErrorEvent<Request | Incoming<T>>
     | CommonService.EndEvent<Request>;
 
@@ -45,6 +46,11 @@ export namespace Topic {
    * Topic Fifo Mode definition.
    */
   export type UseFifoMode<T extends FifoMode<any>> = T;
+
+  /**
+   * Topic Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
 
   /**
    * Topic service.
@@ -69,6 +75,11 @@ export namespace Topic {
      * Variables associated to all subscriptions.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Custom tags associated to the topic.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

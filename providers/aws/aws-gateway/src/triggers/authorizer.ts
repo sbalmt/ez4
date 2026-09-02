@@ -1,6 +1,6 @@
 import type { HttpRoute, HttpService, WsConnection, WsService } from '@ez4/gateway/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
@@ -59,6 +59,7 @@ export const getAuthorizerFunction = (
     const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
+      dependencies: [gatewayState.entryId],
       groupName: authorizerName,
       retention: logRetention,
       tags: options.tags

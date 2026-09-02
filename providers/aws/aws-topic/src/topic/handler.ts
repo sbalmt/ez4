@@ -1,5 +1,5 @@
-import type { StepHandler } from '@ez4/stateful';
 import type { OperationLogLine } from '@ez4/aws-common';
+import type { StepHandler } from '@ez4/state';
 import type { TopicState, TopicResult, TopicParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -67,35 +67,29 @@ const createResource = (candidate: TopicState): Promise<TopicResult> => {
   });
 };
 
-const updateResource = (candidate: TopicState, current: TopicState): Promise<TopicResult> => {
+const updateResource = async (candidate: TopicState, current: TopicState) => {
   const { result, parameters } = candidate;
   const { topicName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(TopicServiceName, topicName);
+  if (!parameters.import) {
+    return OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
+      if (!result) {
+        throw new CorruptedResourceError(TopicServiceName, topicName);
+      }
+
+      await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
+    });
   }
-
-  if (parameters.import) {
-    return Promise.resolve(result);
-  }
-
-  return OperationLogger.logExecution(TopicServiceName, topicName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.topicArn, parameters, current.parameters);
-
-    return result;
-  });
 };
 
 const deleteResource = async (current: TopicState) => {
   const { result, parameters } = current;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    return OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
+      await deleteTopic(logger, result.topicArn);
+    });
   }
-
-  await OperationLogger.logExecution(TopicServiceName, parameters.topicName, 'deletion', async (logger) => {
-    await deleteTopic(logger, result.topicArn);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, topicArn: string, candidate: TopicParameters, current: TopicParameters) => {

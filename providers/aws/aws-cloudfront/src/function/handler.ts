@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { FunctionState, FunctionResult } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -72,7 +72,6 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
 
       return {
         functionArn: importedFunction.functionArn,
-
         valuesHash
       };
     }
@@ -85,7 +84,6 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
 
     return {
       functionArn,
-
       valuesHash
     };
   });
@@ -95,11 +93,11 @@ const updateResource = (candidate: FunctionState, _current: FunctionState, conte
   const { parameters, result } = candidate;
   const { functionName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(FunctionServiceName, functionName);
-  }
-
   return OperationLogger.logExecution(FunctionServiceName, functionName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(FunctionServiceName, functionName);
+    }
+
     const [sourceFile, valuesHash] = await Promise.all([parameters.getFunctionBundle(context), parameters.getFunctionHash()]);
 
     const functionCode = await readFile(sourceFile);
@@ -122,8 +120,8 @@ const deleteResource = async (current: FunctionState) => {
   if (result) {
     const { functionName } = parameters;
 
-    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', (logger) => {
-      return deleteFunction(logger, functionName);
+    return OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
+      await deleteFunction(logger, functionName);
     });
   }
 };

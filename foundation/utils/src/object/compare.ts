@@ -27,7 +27,7 @@ export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
    * @param source Source key name.
    * @returns Returns `true` when the given keys are the same, `false` otherwise.
    */
-  onSimilarName?: (target: string, source: string) => boolean;
+  onCompareName?: (target: string, source: string) => boolean;
 
   /**
    * Determines whether or not an object property can be renamed.
@@ -73,7 +73,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
   const depth = options?.depth ?? +Infinity;
 
-  const onSimilarName = options?.onSimilarName;
+  const onCompareName = options?.onCompareName;
   const onRename = options?.onRename;
 
   const toCreateKeys = [];
@@ -113,7 +113,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue !== undefined && sourceValue === undefined) {
       toCreateKeys.push(key);
 
-      const removeKey = getSimilarName(key, toRemoveKeys, onSimilarName);
+      const removeKey = getSimilarName(key, toRemoveKeys, onCompareName);
 
       if (removeKey && (!onRename || onRename(targetValue, toRemove[removeKey]))) {
         delete toRemove[removeKey];
@@ -134,7 +134,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue === undefined && sourceValue !== undefined) {
       toRemoveKeys.push(key);
 
-      const createKey = getSimilarName(key, toCreateKeys, onSimilarName);
+      const createKey = getSimilarName(key, toCreateKeys, onCompareName);
 
       if (createKey && (!onRename || onRename(toCreate[createKey], sourceValue))) {
         delete toCreate[createKey];
@@ -168,7 +168,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
         const changes = deepCompareObject(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1,
-          onSimilarName,
+          onCompareName,
           onRename
         });
 

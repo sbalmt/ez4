@@ -1,5 +1,5 @@
 import type { Client as EmailClient } from '@ez4/email';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';

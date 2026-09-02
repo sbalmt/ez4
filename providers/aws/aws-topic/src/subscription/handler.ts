@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { SubscriptionState, SubscriptionResult } from './types';
 
 import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -75,11 +75,9 @@ const updateResource = async () => {};
 const deleteResource = async (current: SubscriptionState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
+      await deleteSubscription(logger, result.subscriptionArn);
+    });
   }
-
-  await OperationLogger.logExecution(SubscriptionServiceName, parameters.fromService, 'deletion', async (logger) => {
-    await deleteSubscription(logger, result.subscriptionArn);
-  });
 };

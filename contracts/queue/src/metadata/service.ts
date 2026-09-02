@@ -12,6 +12,7 @@ import {
   getDeclarationDescription,
   getModelMembers,
   getPropertyNumber,
+  getServiceTags,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -122,6 +123,13 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
         case 'variables': {
           if (!member.inherited) {
             service.variables = getLinkedVariablesObject(member, errorList);
+          }
+          break;
+        }
+
+        case 'tags': {
+          if (!member.inherited) {
+            service.tags = getServiceTags(member);
           }
           break;
         }

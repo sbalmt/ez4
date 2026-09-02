@@ -1,7 +1,7 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { BucketEventState, BucketEventResult } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
 import { attachEventNotifications, detachEventNotifications } from './client';
@@ -68,11 +68,15 @@ const createResource = (candidate: BucketEventState, context: StepContext): Prom
 };
 
 const updateResource = (candidate: BucketEventState, _current: BucketEventState, context: StepContext): Promise<BucketEventResult> => {
-  const { parameters } = candidate;
+  const { result, parameters } = candidate;
 
   const bucketName = getBucketName(BucketEventServiceName, 'bucket', context);
 
   return OperationLogger.logExecution(BucketEventServiceName, bucketName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(BucketEventServiceName, bucketName);
+    }
+
     const events = await Promise.all(parameters.eventGetters.map((getEvent) => getEvent(context)));
 
     const { functionArns } = await attachEventNotifications(logger, bucketName, events);
@@ -90,7 +94,7 @@ const deleteResource = async (current: BucketEventState) => {
   if (result) {
     const { bucketName } = result;
 
-    await OperationLogger.logExecution(BucketEventServiceName, bucketName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(BucketEventServiceName, bucketName, 'deletion', async (logger) => {
       await detachEventNotifications(logger, bucketName);
     });
   }

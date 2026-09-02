@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { GroupState, GroupResult, GroupParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -57,31 +57,27 @@ const createResource = (candidate: GroupState): Promise<GroupResult> => {
   });
 };
 
-const updateResource = (candidate: GroupState, current: GroupState): Promise<GroupResult> => {
+const updateResource = async (candidate: GroupState, current: GroupState) => {
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(GroupServiceName, groupName);
-  }
+  return OperationLogger.logExecution(GroupServiceName, groupName, 'post updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(GroupServiceName, groupName);
+    }
 
-  return OperationLogger.logExecution(GroupServiceName, groupName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
-
-    return result;
   });
 };
 
 const deleteResource = async (current: GroupState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
+      await deleteGroup(logger, parameters.groupName);
+    });
   }
-
-  await OperationLogger.logExecution(GroupServiceName, parameters.groupName, 'deletion', async (logger) => {
-    await deleteGroup(logger, parameters.groupName);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, groupArn: Arn, candidate: GroupParameters, current: GroupParameters) => {

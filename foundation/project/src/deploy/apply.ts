@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';

@@ -6,7 +6,7 @@ import type { QueueSubscription } from './subscription';
 import type { QueueDeadLetter } from './deadletter';
 import type { QueueFifoMode } from './fifomode';
 import type { QueueFairMode } from './fairmode';
-import type { QueueIncoming } from './incoming';
+import type { QueueIncoming, QueueRetryOptions } from './incoming';
 import type { QueueBackoff } from './backoff';
 import type { QueueRequest } from './request';
 import type { QueueMessage } from './message';
@@ -18,6 +18,8 @@ import type { Client } from './client';
 export namespace Queue {
   export type Message = QueueMessage;
   export type Request = QueueRequest;
+
+  export type RetryOptions = QueueRetryOptions;
 
   export type DeadLetter = QueueDeadLetter;
   export type Backoff = QueueBackoff;
@@ -36,6 +38,7 @@ export namespace Queue {
     | CommonService.BeginEvent<Request>
     | CommonService.ReadyEvent<Incoming<T>>
     | CommonService.DoneEvent<Incoming<T>>
+    | CommonService.TimeoutEvent<Incoming<T>>
     | CommonService.ErrorEvent<Request | Incoming<T>>
     | CommonService.EndEvent<Request>;
 
@@ -63,6 +66,11 @@ export namespace Queue {
    * Queue Backoff definition.
    */
   export type UseBackoff<T extends Backoff> = T;
+
+  /**
+   * Queue Tags definition.
+   */
+  export type UseTags<T extends CommonService.Tags> = T;
 
   /**
    * Queue service mode.
@@ -127,6 +135,11 @@ export namespace Queue {
      * Variables associated to all subscriptions.
      */
     readonly variables?: LinkedVariables;
+
+    /**
+     * Custom tags associated to the queue.
+     */
+    readonly tags?: CommonService.Tags;
 
     /**
      * Service client.

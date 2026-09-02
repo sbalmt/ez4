@@ -5,7 +5,7 @@ import type { ServeOptions } from '@ez4/project/library';
 import type { ClientConnection } from '@ez4/pgclient';
 
 import { DatabaseQueries } from '@ez4/pgmigration/library';
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { Client } from '@ez4/pgclient/driver';
 
 import { loadRepositoryState, saveRepositoryState } from './state';
@@ -18,15 +18,18 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   const freshCreation = options.force || options.reset;
   const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
 
-  const queries = getUpdateQueries(repository, oldRepository);
+  const steps = getUpdateStepQueries(repository, oldRepository);
   const client = getClient(connection);
 
-  await client.transaction((transaction: DbClient<Database.Service<any>>) => {
-    return runAllStatements(transaction, [...queries.tables, ...queries.constraints]);
-  });
+  const createQueries = [...steps.create.tables, ...steps.create.constraints, ...steps.create.indexes, ...steps.create.relations];
+  const updateQueries = [...steps.update.tables, ...steps.update.constraints, ...steps.update.indexes, ...steps.update.relations];
+  const deleteQueries = [...steps.delete.tables, ...steps.delete.constraints, ...steps.delete.indexes, ...steps.delete.relations];
 
-  await runAllStatements(client, [...queries.indexes, ...queries.relations]);
-  await runAllStatements(client, queries.validations);
+  await runAllStatements(client, [...updateQueries, ...createQueries, ...deleteQueries]);
+
+  const validations = [...steps.create.validations, ...steps.update.validations, ...steps.delete.validations];
+
+  await runAllStatements(client, validations);
 
   await saveRepositoryState(database, repository);
 };

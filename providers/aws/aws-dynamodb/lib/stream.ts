@@ -22,6 +22,9 @@ declare function handle(changes: Database.Incoming<Database.Schema>, context: ob
 export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
   let currentRequest: Database.Incoming<Database.Schema> | undefined;
 
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
+
   const request = {
     requestId: context.awsRequestId
   };
@@ -59,6 +62,7 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
   } catch (error) {
     await onError(error, currentRequest ?? request);
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -160,6 +164,18 @@ const onDone = (request: Partial<Database.Incoming<Database.Schema>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Database.Incoming<Database.Schema>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

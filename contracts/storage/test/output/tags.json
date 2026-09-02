@@ -1,0 +1,24 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "context": {},
+    "file": "test/input/output-tags.ts",
+    "variables": {},
+    "services": {},
+    "tags": {
+      "FOO": "foo",
+      "BAR": "bar"
+    }
+  }
+}

@@ -1,9 +1,9 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { GatewayState } from '../gateway/types';
 import type { StageParameters, StageState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { getStageName } from './helpers/stage';

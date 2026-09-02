@@ -166,6 +166,21 @@ variables: {
 }
 ```
 
+#### Custom tags (optional)
+
+Declares custom tags for the queue resource.
+
+- Tags are defined as a string-to-string object through `Queue.UseTags`.
+- Tags are attached to the queue during deployment and can be updated or removed on later deployments.
+- Project deployment tags are merged with service tags; when the same key is defined in both places, the project deployment tag takes precedence.
+
+```ts
+tags: Queue.UseTags<{
+  Environment: 'production';
+  Team: 'platform';
+}>;
+```
+
 ### Best practices
 
 - Use dead-letter queues to investigate poison messages rather than adding broad try/catch logic to handlers.

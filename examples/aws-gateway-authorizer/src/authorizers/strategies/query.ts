@@ -23,7 +23,7 @@ export function queryAuthorizer(
 ): AuthorizerResponse {
   const { query } = request;
 
-  if (query.apiKey !== variables.SUPER_SECRET_API_KEY) {
+  if (query.apiKey !== variables.API_KEY) {
     throw new HttpUnauthorizedError();
   }
 

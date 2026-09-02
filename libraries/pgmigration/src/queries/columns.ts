@@ -89,7 +89,7 @@ export namespace ColumnQuery {
         }
 
         if (!columnIsPrimary && columnOptional !== undefined) {
-          query.optional(columnOptional);
+          query.required(columnOptional);
         }
       }
 

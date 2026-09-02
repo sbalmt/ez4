@@ -1,6 +1,6 @@
 import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TableState } from '../table/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';
@@ -55,6 +55,7 @@ export const prepareTableStream = (
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
+      dependencies: [tableState.entryId],
       retention: logRetention,
       groupName: streamName,
       tags
@@ -67,6 +68,7 @@ export const prepareTableStream = (
       variables: [options.variables, service.variables, variables],
       references: handler.references,
       context: service.context,
+      dependencies: [tableState.entryId],
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

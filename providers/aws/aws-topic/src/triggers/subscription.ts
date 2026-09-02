@@ -1,6 +1,6 @@
 import type { TopicService, TopicImport } from '@ez4/topic/library';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { TopicState } from '../topic/types';
 
 import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
@@ -64,6 +64,7 @@ export const prepareSubscriptions = (
           } = subscription;
 
           const logGroupState = createLogGroup(state, {
+            dependencies: [topicState.entryId],
             groupName: subscriptionName,
             retention: logRetention,
             tags
@@ -75,6 +76,7 @@ export const prepareSubscriptions = (
             description: handler.summary ?? handler.description,
             variables: [options.variables, service.variables, subscription.variables],
             references: subscription.handler.references,
+            dependencies: [topicState.entryId],
             context: service.context,
             handler: {
               sourceFile: handler.file,

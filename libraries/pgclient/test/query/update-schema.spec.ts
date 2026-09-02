@@ -17,13 +17,15 @@ type TestTableMetadata = {
 };
 
 describe('update schema', () => {
+  const tableName = 'ez4-test-update-schema';
+
   const prepareUpdate = async <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     input: Query.UpdateManyInput<S, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    const { queries } = await prepareUpdateQuery(builder, 'ez4-test-update-schema', schema, {}, input);
+    const { queries } = await prepareUpdateQuery(builder, tableName, schema, {}, input);
 
     return builder.with(queries).build();
   };

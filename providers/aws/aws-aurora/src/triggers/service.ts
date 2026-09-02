@@ -55,8 +55,10 @@ export const prepareDatabaseServices = (event: PrepareResourceEvent) => {
     database: getDatabaseName(service, options)
   });
 
-  createIntegrity(state, migrationState);
+  const integrityState = createIntegrity(state, migrationState);
+  const integrityName = getDatabaseName(service, options);
 
+  context.setServiceState(integrityName, options, integrityState);
   context.setServiceState(service, options, clusterState);
 
   return true;

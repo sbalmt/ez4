@@ -28,13 +28,15 @@ type TestTableMetadata = {
 };
 
 describe('select schema', () => {
+  const tableName = 'ez4-test-select-schema';
+
   const prepareSelect = <S extends Query.SelectInput<TestTableMetadata>>(
     schema: ObjectSchema,
     input: Query.FindManyInput<S, false, TestTableMetadata>
   ) => {
     const builder = new SqlBuilder();
 
-    const { query } = prepareSelectQuery(builder, 'ez4-test-select-schema', schema, {}, input);
+    const { query } = prepareSelectQuery(builder, tableName, schema, {}, input);
 
     return query.build();
   };

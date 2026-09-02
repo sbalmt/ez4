@@ -39,4 +39,11 @@ export declare class FileStorage extends Bucket.Service {
   services: {
     fileDb: Environment.Service<FileDb>;
   };
+
+  /**
+   * Custom tags for the storage
+   */
+  tags: Bucket.UseTags<{
+    TestTag: 'test-tag';
+  }>;
 }

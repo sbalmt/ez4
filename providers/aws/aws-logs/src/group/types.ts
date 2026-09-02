@@ -1,4 +1,4 @@
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { CreateRequest, CreateResponse } from './client';
 
 export const LogGroupServiceName = 'AWS:Log/Group';
@@ -6,6 +6,7 @@ export const LogGroupServiceName = 'AWS:Log/Group';
 export const LogGroupServiceType = 'aws:log.group';
 
 export type LogGroupParameters = CreateRequest & {
+  dependencies?: string[];
   retention?: number;
 };
 

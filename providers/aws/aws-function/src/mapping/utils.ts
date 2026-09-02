@@ -1,4 +1,4 @@
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { MappingState } from './types';
 
 import { MappingServiceType } from './types';

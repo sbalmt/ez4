@@ -43,11 +43,14 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
   const request: Http.Incoming<Http.Request> = {
-    timestamp: new Date(requestContext.timeEpoch),
     requestId: context.awsRequestId,
+    timestamp: new Date(requestContext.timeEpoch),
     method: requestContext.http.method,
     path: requestContext.http.path,
     encoded: event.isBase64Encoded,
@@ -71,8 +74,6 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     await onDone(request);
 
     return getSuccessResponse(status, body, headers);
-
-    //
   } catch (error) {
     await onError(error, request);
 
@@ -85,8 +86,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     return getDefaultErrorResponse();
-    //
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -272,6 +273,18 @@ const onDone = (request: Partial<Http.Incoming<Http.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Http.Incoming<Http.Request>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

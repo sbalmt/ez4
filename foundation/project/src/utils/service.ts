@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { ContextSource, LinkedContext, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
-import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/stateful';
+import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/state';
 import { toKebabCase } from '@ez4/utils';
 
 import { isServiceMetadata } from '../types/service';
@@ -40,7 +40,7 @@ export const getServiceState = (services: ServiceStates, service: ServiceMetadat
   const serviceState = services[serviceName];
 
   if (!serviceState) {
-    throw new Error(`Service ${serviceName} wasn't found.`);
+    throw new Error(`Service '${serviceName}' wasn't found.`);
   }
 
   return serviceState;
@@ -55,7 +55,7 @@ export const setServiceState = (
   const serviceName = getServiceName(service, options);
 
   if (services[serviceName]) {
-    throw new Error(`Service ${serviceName} can't be set twice.`);
+    throw new Error(`Service '${serviceName}' can't be set twice.`);
   }
 
   services[serviceName] = state;

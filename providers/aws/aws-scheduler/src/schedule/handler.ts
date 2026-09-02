@@ -1,10 +1,10 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { ScheduleState, ScheduleResult, ScheduleParameters } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
-import { getFunctionArn } from '@ez4/aws-function';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { getFunctionAliasArn } from '@ez4/aws-function';
 import { getRoleArn } from '@ez4/aws-identity';
 
 import { tryGetGroupName } from '../group/utils';
@@ -53,7 +53,7 @@ const createResource = (candidate: ScheduleState, context: StepContext): Promise
 
   return OperationLogger.logExecution(ScheduleServiceName, parameters.scheduleName, 'creation', async (logger) => {
     const roleArn = getRoleArn(ScheduleServiceName, 'schedule', context);
-    const functionArn = getFunctionArn(ScheduleServiceName, 'schedule', context);
+    const functionArn = getFunctionAliasArn(ScheduleServiceName, 'schedule', context);
     const groupName = tryGetGroupName(context);
 
     let scheduleArn;
@@ -80,16 +80,15 @@ const createResource = (candidate: ScheduleState, context: StepContext): Promise
 
 const updateResource = (candidate: ScheduleState, current: ScheduleState, context: StepContext) => {
   const { result, parameters } = candidate;
-
-  if (!result) {
-    return;
-  }
-
   const { scheduleName } = parameters;
 
   return OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(ScheduleServiceName, scheduleName);
+    }
+
     const newRoleArn = getRoleArn(ScheduleServiceName, scheduleName, context);
-    const newFunctionArn = getFunctionArn(ScheduleServiceName, scheduleName, context);
+    const newFunctionArn = getFunctionAliasArn(ScheduleServiceName, scheduleName, context);
     const newGroupName = tryGetGroupName(context);
 
     if (!parameters.dynamic) {
@@ -125,16 +124,13 @@ const updateResource = (candidate: ScheduleState, current: ScheduleState, contex
 
 const deleteResource = async (current: ScheduleState) => {
   const { result, parameters } = current;
-
-  if (!result || parameters.dynamic) {
-    return;
-  }
-
   const { scheduleName } = parameters;
 
-  await OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
-    await deleteSchedule(logger, scheduleName);
-  });
+  if (result && !parameters.dynamic) {
+    return OperationLogger.logExecution(ScheduleServiceName, scheduleName, 'deletion', async (logger) => {
+      await deleteSchedule(logger, scheduleName);
+    });
+  }
 };
 
 const checkGeneralUpdates = async (

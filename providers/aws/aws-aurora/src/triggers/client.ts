@@ -12,6 +12,7 @@ import { getDefinitionName } from '@ez4/project/library';
 import { importCluster } from '../cluster/client';
 import { getClusterState } from '../cluster/utils';
 import { ClusterDatabaseNotFoundError } from '../cluster/errors';
+import { getIntegrityState } from '../integrity/utils';
 import { Client as NativeClient } from '../client/providers/native';
 import { Client as ApiClient } from '../client/providers/api';
 import { ConnectionMode } from '../client/types';
@@ -19,6 +20,10 @@ import { getConnectionOptions } from '../local/options';
 import { getClusterName, isAuroraService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
+  const integrityName = getDatabaseName(service, options);
+  const integrityState = getIntegrityState(context, integrityName, options);
+  const integrityId = integrityState.entryId;
+
   const clusterState = getClusterState(context, service.name, options);
   const clusterId = clusterState.entryId;
 
@@ -43,7 +48,7 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
       `debug: ${options.debug ?? false}` +
       `})`,
     connectionIds: [clusterId],
-    dependencyIds: [clusterId],
+    dependencyIds: [clusterId, integrityId],
     requireVpc: !isApiMode
   };
 };

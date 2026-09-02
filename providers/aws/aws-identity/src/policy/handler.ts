@@ -1,9 +1,9 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { PolicyDocument } from '../types/policy';
 import type { PolicyState, PolicyResult, PolicyParameters } from './types';
 
-import { applyTagUpdates, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createPolicyVersion, createPolicy, deletePolicy, deletePolicyVersion, tagPolicy, untagPolicy, importPolicy } from './client';
@@ -74,12 +74,13 @@ const createResource = (candidate: PolicyState): Promise<PolicyResult> => {
 
 const updateResource = (candidate: PolicyState, current: PolicyState) => {
   const { result, parameters } = candidate;
+  const { policyName } = parameters;
 
-  if (!result) {
-    return;
-  }
+  return OperationLogger.logExecution(PolicyServiceName, policyName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(PolicyServiceName, policyName);
+    }
 
-  return OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'updates', async (logger) => {
     await checkTagUpdates(logger, result.policyArn, candidate.parameters, current.parameters);
 
     const newResult = await checkDocumentUpdates(logger, result, candidate.parameters, current.parameters);
@@ -94,18 +95,16 @@ const updateResource = (candidate: PolicyState, current: PolicyState) => {
 const deleteResource = async (current: PolicyState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'deletion', async (logger) => {
+      // Can only remove the policy after deleting all its versions.
+      if (result.versionHistory.length) {
+        await deleteVersions(logger, result.policyArn, result.versionHistory);
+      }
+
+      await deletePolicy(logger, result.policyArn);
+    });
   }
-
-  await OperationLogger.logExecution(PolicyServiceName, parameters.policyName, 'deletion', async (logger) => {
-    // Can only remove the policy after deleting all its versions.
-    if (result.versionHistory.length) {
-      await deleteVersions(logger, result.policyArn, result.versionHistory);
-    }
-
-    await deletePolicy(logger, result.policyArn);
-  });
 };
 
 const checkDocumentUpdates = async (

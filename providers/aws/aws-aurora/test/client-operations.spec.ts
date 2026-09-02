@@ -1,7 +1,7 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { PostgresEngine } from '@ez4/aws-aurora/client';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { before, describe, it } from 'node:test';

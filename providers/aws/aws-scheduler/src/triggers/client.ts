@@ -4,7 +4,7 @@ import type { RoleState } from '@ez4/aws-identity';
 
 import { getDefinitionName, getServiceName } from '@ez4/project/library';
 import { getAccountId, getRegion, isRoleState } from '@ez4/aws-identity';
-import { buildFunctionArn } from '@ez4/aws-function';
+import { buildFunctionVersionArn } from '@ez4/aws-function';
 
 import { getScheduleState, getScheduleTargetState } from '../schedule/utils';
 import { RoleMissingError } from './errors';
@@ -24,9 +24,9 @@ export const prepareLinkedClient = async (context: EventContext, service: CronSe
 
   const [region, accountId] = await Promise.all([getRegion(), getAccountId()]);
 
-  const functionArn = JSON.stringify(buildFunctionArn(region, accountId, targetFunctionState.parameters.functionName));
-  const groupName = group ? JSON.stringify(getServiceName(group, options)) : 'undefined';
   const roleArn = getDefinitionName<RoleState>(context.role.entryId, 'roleArn');
+  const functionArn = JSON.stringify(buildFunctionVersionArn(region, accountId, targetFunctionState.parameters.functionName));
+  const groupName = group ? JSON.stringify(getServiceName(group, options)) : 'undefined';
 
   const clientParameters = JSON.stringify({
     prefix: getServiceName('', options),

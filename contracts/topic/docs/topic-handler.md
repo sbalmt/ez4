@@ -1,11 +1,11 @@
 # EZ4: Topic Handler
 
-Topic handlers define the **business logic** executed when a lambda subscription receives an event. A handler receives a fully typed request object, a runtime context, and returns void. Handlers run inside an isolated cloud resource and represent the core execution unit of a topic lambda subscription.
+Topic handlers define the **business logic** executed when a function subscription receives an event. A handler receives a fully typed request object, a runtime context, and returns void. Handlers run inside an isolated cloud resource and represent the core execution unit of a topic function subscription.
 
 ## Event handler
 
 ```ts
-export function myHandler(request: Topic.Incoming<MyTopicEvent>, { event }: Service.Context<MyTopic>): void {
+export function myHandler(request: Topic.Incoming<MyTopicEvent>, context: Service.Context<MyTopic>): void {
   // Business logic here.
 }
 ```
@@ -31,7 +31,7 @@ All fields are validated and transformed according to the declared topic service
 
 - Handlers should be written assuming at‑least‑once delivery, the same event may be delivered more than once.
 - Successful enqueueing of the queue subscription results in event acknowledgement.
-- Successful completion of the lambda handler results in event acknowledgement.
+- Successful completion of the function handler results in event acknowledgement.
 
 ## What's next
 

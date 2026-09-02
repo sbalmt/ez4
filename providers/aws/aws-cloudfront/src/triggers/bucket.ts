@@ -1,11 +1,11 @@
 import type { CdnService } from '@ez4/distribution/library';
 import type { DeployOptions } from '@ez4/project/library';
 import type { BucketState } from '@ez4/aws-bucket';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { createBucketPolicy, getBucketName } from '@ez4/aws-bucket';
 import { getServiceName } from '@ez4/project/library';
-import { linkEntryDependency } from '@ez4/stateful';
+import { linkEntryDependency } from '@ez4/state';
 
 import { getDistributionArn, getDistributionState } from '../distribution/utils';
 import { DistributionServiceType } from '../distribution/types';

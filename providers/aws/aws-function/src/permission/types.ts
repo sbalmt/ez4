@@ -1,4 +1,4 @@
-import type { EntryState, StepContext } from '@ez4/stateful';
+import type { EntryState, StepContext } from '@ez4/state';
 import type { CreateRequest, CreateResponse } from './client';
 
 export const PermissionServiceName = 'AWS:Lambda/Permission';

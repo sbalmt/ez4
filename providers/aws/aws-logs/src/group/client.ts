@@ -8,7 +8,8 @@ import {
   TagResourceCommand,
   UntagResourceCommand,
   ResourceAlreadyExistsException,
-  ResourceNotFoundException
+  ResourceNotFoundException,
+  DescribeLogStreamsCommand
 } from '@aws-sdk/client-cloudwatch-logs';
 
 import { getCloudWatchLogsClient } from '../utils/deploy';
@@ -51,7 +52,7 @@ export const createGroup = async (logger: OperationLogLine, request: CreateReque
   };
 };
 
-export const createRetention = async (logger: OperationLogLine, groupName: string, retention: number) => {
+export const putLogRetention = async (logger: OperationLogLine, groupName: string, retention: number) => {
   logger.update(`Updating log group retention`);
 
   return getCloudWatchLogsClient().send(
@@ -62,7 +63,7 @@ export const createRetention = async (logger: OperationLogLine, groupName: strin
   );
 };
 
-export const deleteRetention = async (logger: OperationLogLine, groupName: string) => {
+export const deleteLogRetention = async (logger: OperationLogLine, groupName: string) => {
   logger.update(`Deleting log group retention`);
 
   await getCloudWatchLogsClient().send(
@@ -95,6 +96,27 @@ export const untagGroup = async (logger: OperationLogLine, groupArn: Arn, tagKey
       tagKeys
     })
   );
+};
+
+export const canDeleteGroup = async (logger: OperationLogLine, groupName: string) => {
+  logger.update(`Validating deletion`);
+
+  try {
+    const response = await getCloudWatchLogsClient().send(
+      new DescribeLogStreamsCommand({
+        logGroupName: groupName,
+        limit: 1
+      })
+    );
+
+    return !!response.logStreams?.length;
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundException)) {
+      throw error;
+    }
+
+    return true;
+  }
 };
 
 export const deleteGroup = async (logger: OperationLogLine, groupName: string) => {

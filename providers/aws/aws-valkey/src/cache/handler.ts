@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { CacheState, CacheResult, CacheParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -7,7 +7,6 @@ import { deepCompare } from '@ez4/utils';
 
 import { importCache, createCache, deleteCache, tagCache, untagCache } from './client';
 import { CacheServiceName } from './types';
-import { CacheDeletionDeniedError } from './errors';
 
 export const getCacheHandler = (): StepHandler<CacheState> => ({
   equals: equalsResource,
@@ -61,30 +60,28 @@ const createResource = (candidate: CacheState): Promise<CacheResult> => {
   });
 };
 
-const updateResource = (candidate: CacheState, current: CacheState): Promise<CacheResult> => {
+const updateResource = async (candidate: CacheState, current: CacheState) => {
   const { result, parameters } = candidate;
   const { name } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(CacheServiceName, name);
-  }
-
   return OperationLogger.logExecution(CacheServiceName, name, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(CacheServiceName, name);
+    }
 
-    return result;
+    await checkTagUpdates(logger, result.cacheArn, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: CacheState, context: StepContext) => {
   const { result, parameters } = current;
+  const { name, allowDeletion } = parameters;
 
   if (result) {
-    const { name, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
-        throw new CacheDeletionDeniedError(name);
+        context.addWarning(`Deletion of cache '${name}' is denied.`);
+        return;
       }
 
       await deleteCache(logger, name);

@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { CacheParameters, CacheState } from './types';
 
 import { hashData, toKebabCase } from '@ez4/utils';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { CacheServiceType } from './types';
 

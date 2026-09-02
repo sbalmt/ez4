@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, DeployOptions, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { QueueService } from '@ez4/queue/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { isQueueService } from '@ez4/queue/library';
 
@@ -35,11 +35,14 @@ export const prepareServices = (event: PrepareResourceEvent) => {
     queueName: getQueueName(service, options),
     deadLetter: service.deadLetter,
     fifoMode: !!fifoMode,
-    tags: options.tags,
     retention,
     polling,
     timeout,
-    delay
+    delay,
+    tags: {
+      ...service.tags,
+      ...options.tags
+    }
   });
 
   context.setServiceState(service, options, queueState);

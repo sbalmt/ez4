@@ -54,6 +54,13 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
   }>;
 
   /**
+   * Custom tags for the queue.
+   */
+  tags: Queue.UseTags<{
+    TestTag: 'test-tag';
+  }>;
+
+  /**
    * All handlers for this queue (When more than one subscription is set, they are chosen randomly).
    */
   subscriptions: [
@@ -132,6 +139,13 @@ export declare class FifoSqs extends Queue.Ordered<MessageRequest> {
   backoff: Queue.UseBackoff<{
     minDelay: 5;
     maxDelay: 90;
+  }>;
+
+  /**
+   * Custom tags for the queue.
+   */
+  tags: Queue.UseTags<{
+    TestTag: 'test-tag';
   }>;
 
   /**

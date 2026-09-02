@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { AttributeSchema, AttributeSchemaGroup } from '../types/schema';
 import type { TableState, TableResult, TableParameters } from './types';
 
@@ -22,7 +22,6 @@ import {
 
 import { getSecondaryIndexName } from './helpers/indexes';
 import { TableServiceName } from './types';
-import { TableDeletionDeniedError } from './errors';
 
 export const getTableHandler = (): StepHandler<TableState> => ({
   equals: equalsResource,
@@ -88,18 +87,18 @@ const updateResource = (candidate: TableState, current: TableState): Promise<Tab
   const { result, parameters } = candidate;
   const { tableName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(TableServiceName, tableName);
-  }
-
   return OperationLogger.logExecution(TableServiceName, tableName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(TableServiceName, tableName);
+    }
+
     const newResult = await checkStreamsUpdates(logger, tableName, parameters, current.parameters);
 
+    await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
+    await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
     await checkCapacityUpdates(logger, tableName, parameters, current.parameters);
     await checkDeletionUpdates(logger, tableName, parameters, current.parameters);
-    await checkTimeToLiveUpdates(logger, tableName, parameters, current.parameters);
     await checkIndexUpdates(logger, tableName, parameters, current.parameters);
-    await checkTagUpdates(logger, result.tableArn, parameters, current.parameters);
 
     return {
       ...result,
@@ -114,11 +113,12 @@ const deleteResource = async (current: TableState, context: StepContext) => {
   if (result) {
     const { tableName } = result;
 
-    await OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(TableServiceName, tableName, 'deletion', async (logger) => {
       const { allowDeletion } = parameters;
 
       if (!allowDeletion && !context.force) {
-        throw new TableDeletionDeniedError(tableName);
+        context.addWarning(`Deletion of table '${tableName}' is denied.`);
+        return;
       }
 
       if (!allowDeletion) {

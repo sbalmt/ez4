@@ -1,5 +1,5 @@
 import type { OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { AccessState, AccessResult, AccessParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -69,33 +69,28 @@ const createResource = (candidate: AccessState): Promise<AccessResult> => {
   });
 };
 
-const updateResource = (candidate: AccessState, current: AccessState): Promise<AccessResult> => {
+const updateResource = async (candidate: AccessState, current: AccessState) => {
   const { result, parameters } = candidate;
   const { accessName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(AccessServiceName, accessName);
-  }
-
   return OperationLogger.logExecution(AccessServiceName, accessName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(AccessServiceName, accessName);
+    }
 
-    return result;
+    await checkGeneralUpdates(logger, result.accessId, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: AccessState) => {
   const { parameters, result } = current;
+  const { accessName } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(AccessServiceName, accessName, 'deletion', async (logger) => {
+      await deleteOriginAccess(logger, result.accessId);
+    });
   }
-
-  const accessName = parameters.accessName;
-
-  await OperationLogger.logExecution(AccessServiceName, accessName, 'deletion', async (logger) => {
-    await deleteOriginAccess(logger, result.accessId);
-  });
 };
 
 const checkGeneralUpdates = async (logger: OperationLogLine, accessId: string, candidate: AccessParameters, current: AccessParameters) => {

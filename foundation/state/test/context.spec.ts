@@ -1,0 +1,210 @@
+import type { EntryStates, StepContext, StepHandlers } from '@ez4/state';
+import type { TestEntryState } from './common/entry';
+
+import { planSteps, applySteps } from '@ez4/state';
+import { describe, it, mock } from 'node:test';
+import { equal } from 'node:assert/strict';
+
+import { commonStepHandler, commonStepHandlers } from './common/handler';
+import { TestEntryType } from './common/entry';
+
+const baseState: EntryStates<TestEntryState> = {
+  entryA: {
+    type: TestEntryType.A,
+    entryId: 'entryA',
+    connections: ['entryA', 'entryB', 'entryC'],
+    dependencies: ['entryC', 'entryB'],
+    parameters: {}
+  },
+  entryB: {
+    type: TestEntryType.B,
+    entryId: 'entryB',
+    dependencies: [],
+    parameters: {}
+  },
+  entryC: {
+    type: TestEntryType.C,
+    entryId: 'entryC',
+    connections: ['entryD'],
+    dependencies: [],
+    parameters: {}
+  },
+  entryD: {
+    type: TestEntryType.D,
+    entryId: 'entryD',
+    dependencies: ['entryA'],
+    parameters: {}
+  }
+};
+
+const checkDependencies = (context: StepContext) => {
+  // Filter
+  equal(context.getDependencies(TestEntryType.B).length, 1);
+  equal(context.getDependencies(TestEntryType.C).length, 1);
+
+  // Everything
+  equal(context.getDependencies().length, 2);
+};
+
+const checkConnections = (context: StepContext, replacement?: TestEntryType) => {
+  // Filter
+  equal(context.getConnections(replacement ?? TestEntryType.A).length, 1);
+  equal(context.getConnections(TestEntryType.B).length, 1);
+  equal(context.getConnections(TestEntryType.C).length, 1);
+
+  // Everything
+  equal(context.getConnections().length, 4);
+};
+
+const checkDependents = (context: StepContext) => {
+  // Filter
+  equal(context.getDependents(TestEntryType.D).length, 1);
+
+  // Everything
+  equal(context.getDependents().length, 1);
+};
+
+describe('context tests', () => {
+  it('assert :: create context', async () => {
+    const postActionHandler = mock.fn(() => {});
+
+    const createHandler = mock.fn((_candidate: TestEntryState, context: StepContext) => {
+      context.postAction(() => context.postAction(postActionHandler));
+      equal(context.force, true);
+      checkDependencies(context);
+      checkConnections(context);
+      checkDependents(context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      ...commonStepHandlers,
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        create: createHandler
+      }
+    };
+
+    const steps = await planSteps(baseState, undefined, {
+      handlers
+    });
+
+    const { errors } = await applySteps(steps, baseState, undefined, {
+      force: true,
+      handlers
+    });
+
+    equal(createHandler.mock.callCount(), 1);
+    equal(postActionHandler.mock.callCount(), 1);
+    equal(errors.length, 0);
+  });
+
+  it('assert :: update context', async () => {
+    const postActionHandler = mock.fn(() => {});
+
+    const updateHandler = mock.fn((_candidate: TestEntryState, _current: TestEntryState, context: StepContext) => {
+      context.postAction(() => context.postAction(postActionHandler));
+      equal(context.force, true);
+      checkDependencies(context);
+      checkConnections(context);
+      checkDependents(context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      ...commonStepHandlers,
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        update: updateHandler
+      }
+    };
+
+    const newState = { ...baseState };
+
+    const steps = await planSteps(newState, baseState, {
+      handlers
+    });
+
+    const { errors, warnings } = await applySteps(steps, newState, baseState, {
+      force: true,
+      handlers
+    });
+
+    equal(updateHandler.mock.callCount(), 1);
+    equal(postActionHandler.mock.callCount(), 1);
+    equal(warnings.length, 0);
+    equal(errors.length, 0);
+  });
+
+  it('assert :: replace context', async () => {
+    const postActionHandler = mock.fn(() => {});
+
+    const replaceHandler = mock.fn((_candidate: TestEntryState, _current: TestEntryState, context: StepContext) => {
+      context.postAction(() => context.postAction(postActionHandler));
+      equal(context.force, true);
+      checkDependencies(context);
+      checkConnections(context, TestEntryType.E);
+      checkDependents(context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      ...commonStepHandlers,
+      [TestEntryType.E]: {
+        ...commonStepHandler,
+        replace: replaceHandler
+      }
+    };
+
+    const newState = {
+      ...baseState,
+      entryA: {
+        ...(baseState.entryA as any),
+        type: TestEntryType.E
+      }
+    };
+
+    const steps = await planSteps(newState, baseState, {
+      handlers
+    });
+
+    const { errors, warnings } = await applySteps(steps, newState, baseState, {
+      force: true,
+      handlers
+    });
+
+    equal(replaceHandler.mock.callCount(), 1);
+    equal(postActionHandler.mock.callCount(), 1);
+    equal(warnings.length, 0);
+    equal(errors.length, 0);
+  });
+
+  it('assert :: delete context', async () => {
+    const postActionHandler = mock.fn(() => {});
+
+    const deleteHandler = mock.fn((_candidate: TestEntryState, context: StepContext) => {
+      context.postAction(() => context.postAction(postActionHandler));
+      equal(context.force, false);
+      checkDependencies(context);
+      checkConnections(context);
+      checkDependents(context);
+    });
+
+    const handlers: StepHandlers<TestEntryState> = {
+      ...commonStepHandlers,
+      [TestEntryType.A]: {
+        ...commonStepHandler,
+        delete: deleteHandler
+      }
+    };
+
+    const steps = await planSteps(undefined, baseState, {
+      handlers
+    });
+
+    const { errors } = await applySteps(steps, undefined, baseState, {
+      handlers
+    });
+
+    equal(deleteHandler.mock.callCount(), 1);
+    equal(postActionHandler.mock.callCount(), 1);
+    equal(errors.length, 0);
+  });
+});

@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, DeployOptions, EventContext, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { WsService } from '@ez4/gateway/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { GatewayState } from '../../gateway/types';
 
 import { getServiceName, isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';

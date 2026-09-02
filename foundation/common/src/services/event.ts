@@ -8,6 +8,7 @@ export type ServiceAnyEvent<T extends ServiceRequest> =
   | ServiceBeginEvent<T>
   | ServiceReadyEvent<T>
   | ServiceDoneEvent<T>
+  | ServiceTimeoutEvent<T>
   | ServiceErrorEvent<T>
   | ServiceEndEvent<T>;
 
@@ -49,6 +50,21 @@ export type ServiceDoneEvent<T extends ServiceRequest> = {
    * Event type.
    */
   type: ServiceEventType.Done;
+
+  /**
+   * Event request.
+   */
+  request: Partial<T>;
+};
+
+/**
+ * Service event for an execution timing out.
+ */
+export type ServiceTimeoutEvent<T extends ServiceRequest> = {
+  /**
+   * Event type.
+   */
+  type: ServiceEventType.Timeout;
 
   /**
    * Event request.

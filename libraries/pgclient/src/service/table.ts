@@ -181,7 +181,8 @@ export class Table<T extends InternalTableMetadata> implements DbTable<T> {
         where: query.where
       });
 
-      const [{ records }, { records: count }] = await Promise.all([this.sendStatement(findStatement), this.sendStatement(countStatement)]);
+      const { records } = await this.sendStatement(findStatement);
+      const { records: count } = await this.sendStatement(countStatement);
 
       return {
         records,

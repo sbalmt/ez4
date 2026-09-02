@@ -9,9 +9,9 @@
     "name": "@options",
     "context": {}
   },
-  "TestScheduler1": {
+  "TestScheduler": {
     "type": "@ez4/cron",
-    "name": "TestScheduler1",
+    "name": "TestScheduler",
     "file": "test/input/output-vpc.ts",
     "context": {},
     "variables": {},

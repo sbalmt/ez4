@@ -1,12 +1,11 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { ClusterState, ClusterResult, ClusterParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { importCluster, createCluster, updateCluster, deleteCluster, tagCluster, untagCluster, updateDeletion } from './client';
-import { ClusterDeletionDeniedError } from './errors';
 import { ClusterServiceName } from './types';
 
 export const getClusterHandler = (): StepHandler<ClusterState> => ({
@@ -67,33 +66,32 @@ const updateResource = (candidate: ClusterState, current: ClusterState): Promise
   const { result, parameters } = candidate;
   const { clusterName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(ClusterServiceName, clusterName);
-  }
-
   return OperationLogger.logExecution(ClusterServiceName, clusterName, 'updates', async (logger) => {
-    const newResult = await checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(ClusterServiceName, clusterName);
+    }
 
     await checkDeletionUpdates(logger, clusterName, parameters, current.parameters);
     await checkTagUpdates(logger, result.clusterArn, parameters, current.parameters);
 
-    return newResult;
+    return checkGeneralUpdates(logger, clusterName, result, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: ClusterState, context: StepContext) => {
   const { result, parameters } = current;
+  const { clusterName, branchMode, allowDeletion } = parameters;
 
   if (result) {
-    const { clusterName, branchMode, allowDeletion } = parameters;
-
-    await OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
-      if (branchMode) {
+    return OperationLogger.logExecution(ClusterServiceName, clusterName, 'deletion', async (logger) => {
+      if (!branchMode) {
+        // Removal in branch mode shouldn't remove the cluster.
         return;
       }
 
       if (!allowDeletion && !context.force) {
-        throw new ClusterDeletionDeniedError(clusterName);
+        context.addWarning(`Deletion of cluster '${clusterName}' is denied.`);
+        return;
       }
 
       if (!allowDeletion) {

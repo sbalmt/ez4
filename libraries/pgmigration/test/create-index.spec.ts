@@ -4,7 +4,7 @@ import type { TableIndex } from '@ez4/database/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -56,19 +56,35 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
-        }
-      ],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -83,23 +99,39 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [
-        {
-          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
-          name: 'table_index_uk'
-        }
-      ],
-      relations: [],
-      indexes: [
-        {
-          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_index_uk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+          }
+        ]
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -114,23 +146,39 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [
-        {
-          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
-          name: 'table_index_sk'
-        }
-      ],
-      relations: [],
-      indexes: [
-        {
-          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_index_sk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
+          }
+        ]
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -145,19 +193,35 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
-        }
-      ],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -172,23 +236,39 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [
-        {
-          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
-          name: 'table_index_uk'
-        }
-      ],
-      relations: [],
-      indexes: [
-        {
-          query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")'
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_index_uk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")'
+          }
+        ]
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -203,23 +283,39 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [
-        {
-          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
-          name: 'table_index_sk'
-        }
-      ],
-      relations: [],
-      indexes: [
-        {
-          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_index_sk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
+          }
+        ]
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -234,23 +330,39 @@ describe('migration :: create index tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [
-        {
-          query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
-          name: 'table_index_sk'
-        }
-      ],
-      relations: [],
-      indexes: [
-        {
-          query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
-        }
-      ]
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            name: 'table_index_sk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
+          }
+        ]
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

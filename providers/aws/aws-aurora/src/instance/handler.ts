@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { InstanceState, InstanceResult, InstanceParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, ReplaceResourceError } from '@ez4/aws-common';
@@ -10,7 +10,6 @@ import { createInstance, deleteInstance, importInstance, tagInstance, untagInsta
 
 import { getClusterName } from '../cluster/utils';
 import { InstanceServiceName } from './types';
-import { InstanceDeletionDeniedError } from './errors';
 
 export const getInstanceHandler = (): StepHandler<InstanceState> => ({
   equals: equalsResource,
@@ -70,35 +69,34 @@ const createResource = (candidate: InstanceState, context: StepContext): Promise
   });
 };
 
-const updateResource = (candidate: InstanceState, current: InstanceState): Promise<InstanceResult> => {
+const updateResource = async (candidate: InstanceState, current: InstanceState) => {
   const { result, parameters } = candidate;
   const { instanceName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(InstanceServiceName, instanceName);
-  }
-
   return OperationLogger.logExecution(InstanceServiceName, instanceName, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(InstanceServiceName, instanceName);
+    }
 
-    return result;
+    await checkTagUpdates(logger, result.instanceArn, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: InstanceState, context: StepContext) => {
   const { result, parameters } = current;
+  const { branchMode, allowDeletion } = parameters;
 
   if (result) {
-    const { branchMode, allowDeletion } = parameters;
     const { instanceName } = result;
 
-    await OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(InstanceServiceName, instanceName, 'deletion', async (logger) => {
       if (branchMode) {
         return;
       }
 
       if (!allowDeletion && !context.force) {
-        throw new InstanceDeletionDeniedError(instanceName);
+        context.addWarning(`Deletion of instance '${instanceName}' is denied.`);
+        return;
       }
 
       await deleteInstance(logger, instanceName);

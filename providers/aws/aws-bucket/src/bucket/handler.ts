@@ -1,5 +1,5 @@
 import type { OperationLogLine, ResourceTags } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { BucketState, BucketResult, BucketParameters } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -71,20 +71,18 @@ const createResource = (candidate: BucketState): Promise<BucketResult> => {
   });
 };
 
-const updateResource = (candidate: BucketState, current: BucketState): Promise<BucketResult> => {
+const updateResource = async (candidate: BucketState, current: BucketState) => {
   const { result, parameters } = candidate;
   const { bucketName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(BucketServiceName, bucketName);
-  }
-
   return OperationLogger.logExecution(BucketServiceName, bucketName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(BucketServiceName, bucketName);
+    }
+
     await checkCorsUpdates(logger, bucketName, parameters, current.parameters);
     await checkLifecycleUpdates(logger, bucketName, parameters, current.parameters);
     await checkTagUpdates(logger, bucketName, parameters.tags, current.parameters.tags);
-
-    return result;
   });
 };
 
@@ -94,7 +92,7 @@ const deleteResource = async (current: BucketState) => {
   if (result) {
     const { bucketName } = result;
 
-    await OperationLogger.logExecution(BucketServiceName, bucketName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(BucketServiceName, bucketName, 'deletion', async (logger) => {
       const isEmpty = await isBucketEmpty(logger, result.bucketName);
 
       if (isEmpty) {

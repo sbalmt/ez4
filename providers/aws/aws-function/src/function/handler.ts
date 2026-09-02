@@ -1,5 +1,5 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
@@ -14,6 +14,8 @@ import {
   deleteFunction,
   updateConfiguration,
   updateSourceCode,
+  unpublishFunctions,
+  updateAlias,
   untagFunction,
   tagFunction
 } from './client';
@@ -45,6 +47,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
   const changes = deepCompare(
     {
       ...target,
+      rollout: true,
       connections: candidate.connections,
       dependencies: candidate.dependencies,
       variables: protectVariables(await target.getFunctionVariables()),
@@ -54,6 +57,7 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     },
     {
       ...source,
+      rollout: !current.partial,
       connections: current.connections,
       dependencies: current.dependencies,
       variables: current.result?.variables,
@@ -105,10 +109,9 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
     const bundleHash = await hashFile(sourceFile);
 
     if (importedFunction) {
-      await updateSourceCode(logger, functionName, {
+      const { functionVersion } = await updateSourceCode(logger, functionName, {
         architecture: parameters.architecture,
         files: parameters.files,
-        publish: false,
         sourceFile
       });
 
@@ -131,10 +134,12 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
         })
       });
 
+      await updateAlias(logger, functionName, functionVersion);
+
       return {
-        functionArn: importedFunction.functionArn,
-        functionVersion: importedFunction.functionVersion,
         variables: protectVariables(variables),
+        functionArn: importedFunction.functionArn,
+        functionVersion,
         sourceHash,
         valuesHash,
         bundleHash,
@@ -144,9 +149,8 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
       };
     }
 
-    const createdFunction = await createFunction(logger, {
+    const { functionArn, functionVersion } = await createFunction(logger, {
       ...parameters,
-      publish: true,
       functionName,
       sourceFile,
       logGroup,
@@ -165,10 +169,12 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
       }
     });
 
+    await updateAlias(logger, functionName, functionVersion);
+
     return {
-      functionArn: createdFunction.functionArn,
-      functionVersion: createdFunction.functionVersion,
       variables: protectVariables(variables),
+      functionVersion,
+      functionArn,
       sourceHash,
       valuesHash,
       bundleHash,
@@ -183,11 +189,11 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
   const { parameters, result } = candidate;
   const { functionName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(FunctionServiceName, functionName);
-  }
-
   return OperationLogger.logExecution(FunctionServiceName, functionName, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(FunctionServiceName, functionName);
+    }
+
     const newVariables = await parameters.getFunctionVariables();
     const oldVariables = current.result?.variables ?? newVariables;
 
@@ -205,6 +211,22 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
     await checkConfigurationUpdates(logger, functionName, newConfig, oldConfig, isUpdated, context);
     await checkTagUpdates(logger, result.functionArn, parameters, current.parameters, isUpdated);
 
+    if (newResult.functionVersion || current.partial || context.force) {
+      const activeVersion = newResult.functionVersion ?? result.functionVersion;
+
+      context.postAction(() =>
+        OperationLogger.logExecution(FunctionServiceName, functionName, 'rollout', async (logger) => {
+          await updateAlias(logger, functionName, activeVersion);
+
+          context.postAction(() =>
+            OperationLogger.logExecution(FunctionServiceName, functionName, 'cleanup', async (logger) => {
+              await unpublishFunctions(logger, functionName, activeVersion);
+            })
+          );
+        })
+      );
+    }
+
     return {
       ...result,
       ...newResult,
@@ -217,11 +239,10 @@ const updateResource = (candidate: FunctionState, current: FunctionState, contex
 
 const deleteResource = async (current: FunctionState) => {
   const { result, parameters } = current;
+  const { functionName } = parameters;
 
   if (result) {
-    const { functionName } = parameters;
-
-    await OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
+    return OperationLogger.logExecution(FunctionServiceName, functionName, 'deletion', async (logger) => {
       await deleteFunction(logger, functionName);
     });
   }
@@ -327,7 +348,6 @@ const checkSourceCodeUpdates = async (
 
     const { functionVersion } = await updateSourceCode(logger, functionName, {
       architecture: candidate.architecture,
-      publish: !current?.functionVersion,
       sourceFile: newSourceFile,
       files: candidate.files
     });
@@ -338,9 +358,7 @@ const checkSourceCodeUpdates = async (
       sourceHash: newSourceHash,
       bundleHash: newBundleHash,
       filesHash: newFilesHash,
-      ...(functionVersion && {
-        functionVersion
-      })
+      functionVersion
     };
   }
 

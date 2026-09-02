@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 
 import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -8,7 +8,7 @@ import {
   createBucket,
   createBucketEvent,
   createBucketEventFunction,
-  getBucketEventFunctionArn,
+  getBucketEventFunctionAliasArn,
   isBucketState,
   registerTriggers
 } from '@ez4/aws-bucket';
@@ -93,8 +93,7 @@ describe('bucket resources', { timeout: 60000 }, () => {
       eventGetters: [
         (context) => {
           return {
-            functionArn: getBucketEventFunctionArn('ez4-test-bucket', lambdaResource.entryId, context),
-
+            functionArn: getBucketEventFunctionAliasArn('ez4-test-bucket', lambdaResource.entryId, context),
             events: ['s3:ObjectCreated:*'],
             path: '*'
           };
@@ -162,7 +161,9 @@ describe('bucket resources', { timeout: 60000 }, () => {
 
     ok(lastState[bucketId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[bucketId], undefined);
   });

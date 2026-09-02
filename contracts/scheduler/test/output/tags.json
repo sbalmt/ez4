@@ -1,0 +1,40 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "file": "test/input/output-tags.ts",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-tags.ts",
+        "position": [
+          16,
+          1
+        ]
+      }
+    },
+    "tags": {
+      "FOO": "foo",
+      "BAR": "bar"
+    }
+  }
+}

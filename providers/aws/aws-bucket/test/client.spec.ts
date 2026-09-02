@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { ok, equal, deepEqual } from 'node:assert/strict';
 import { createReadStream } from 'node:fs';

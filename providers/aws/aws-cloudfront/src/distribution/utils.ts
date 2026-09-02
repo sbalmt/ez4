@@ -1,7 +1,7 @@
-import type { EntryState, EntryStates, StepContext } from '@ez4/stateful';
+import type { EntryState, EntryStates, StepContext } from '@ez4/state';
 import type { DistributionState } from './types';
 
-import { getEntry, EntryNotFoundError } from '@ez4/stateful';
+import { getEntry, EntryNotFoundError } from '@ez4/state';
 import { IncompleteResourceError } from '@ez4/aws-common';
 import { hashData, toKebabCase } from '@ez4/utils';
 

@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { StageState, StageResult, StageParameters } from './types';
 
 import { deepCompare, deepEqual } from '@ez4/utils';
@@ -51,11 +51,11 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
 
     const importedStage = await importStage(logger, apiId, stageName);
 
-    if (importedStage) {
-      if (logGroupArn) {
-        await enableAccessLogs(logger, apiId, stageName, logGroupArn);
-      }
+    if (logGroupArn) {
+      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
+    }
 
+    if (importedStage) {
       return {
         stageName: importedStage.stageName,
         logGroupArn,
@@ -68,10 +68,6 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
       stageName
     });
 
-    if (logGroupArn) {
-      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
-    }
-
     return {
       stageName: createdStage.stageName,
       logGroupArn,
@@ -83,11 +79,11 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
 const updateResource = (candidate: StageState, current: StageState, context: StepContext): Promise<StageResult> => {
   const { parameters: newParameters, result } = candidate;
 
-  if (!result) {
-    throw new CorruptedResourceError(StageServiceName, getStageName(newParameters));
-  }
-
   return OperationLogger.logExecution(StageServiceName, getStageName(newParameters), 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(StageServiceName, getStageName(newParameters));
+    }
+
     const { parameters: oldParameters } = current;
 
     const newLogGroupArn = tryGetLogGroupArn(context);
@@ -106,13 +102,11 @@ const updateResource = (candidate: StageState, current: StageState, context: Ste
 const deleteResource = async (current: StageState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(StageServiceName, getStageName(parameters), 'deletion', async (logger) => {
+      await deleteStage(logger, result.apiId, result.stageName);
+    });
   }
-
-  await OperationLogger.logExecution(StageServiceName, getStageName(parameters), 'deletion', async (logger) => {
-    await deleteStage(logger, result.apiId, result.stageName);
-  });
 };
 
 const checkGeneralUpdates = async (

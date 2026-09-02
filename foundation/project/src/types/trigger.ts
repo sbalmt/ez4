@@ -1,4 +1,4 @@
-import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/stateful';
+import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state';
 import type { EveryType, ReflectionTypes, TypeClass, TypeObject } from '@ez4/reflection';
 import type { ServiceEmulator, EmulateServiceEvent, EmulateClientEvent, EmulatorRequestEvent, EmulatorResponse } from '../emulator/types';
 import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/events';

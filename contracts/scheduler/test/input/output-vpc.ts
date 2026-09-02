@@ -1,6 +1,6 @@
 import type { Cron } from '@ez4/scheduler';
 
-export declare class TestScheduler1 extends Cron.Service<{}> {
+export declare class TestScheduler extends Cron.Service<{}> {
   expression: 'dynamic';
 
   target: Cron.UseTarget<{

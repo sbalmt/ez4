@@ -19,6 +19,10 @@ export function apiListener(event: Http.ServiceEvent) {
       console.log('Event done', event.request);
       break;
 
+    case ServiceEventType.Timeout:
+      console.log('Event timeout', event.request);
+      break;
+
     case ServiceEventType.Error:
       console.log('Request error', event.request);
       break;

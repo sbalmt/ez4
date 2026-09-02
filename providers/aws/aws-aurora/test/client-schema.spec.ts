@@ -1,7 +1,7 @@
 import type { Database, Client as DbClient } from '@ez4/database';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { PostgresEngine } from '@ez4/pgclient';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { String } from '@ez4/schema';
 
 import { before, after, describe, it } from 'node:test';

@@ -11,7 +11,7 @@
   },
   "workspaces": [
     "foundation/utils",
-    "foundation/stateful",
+    "foundation/state",
     "foundation/reflection",
     "foundation/logger",
     "foundation/project",
@@ -63,6 +63,7 @@
     "providers/aws/aws-certificate",
     "providers/aws/aws-cloudfront",
     "providers/aws/aws-email",
+    "providers/raw/raw-pg",
     "examples/*",
     "tests/*"
   ],

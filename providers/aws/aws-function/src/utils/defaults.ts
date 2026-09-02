@@ -2,6 +2,11 @@ import { ArchitectureType, RuntimeType, LogLevel as ProjectLogLevel } from '@ez4
 
 export namespace FunctionDefaults {
   /**
+   * Default function alias name.
+   */
+  export const AliasName = 'live';
+
+  /**
    * Default log retention in days.
    */
   export const LogRetention = 90;

@@ -1,11 +1,11 @@
-import type { StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { LogGroupState, LogGroupResult, LogGroupParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare } from '@ez4/utils';
 
-import { createGroup, deleteGroup, createRetention, deleteRetention, tagGroup, untagGroup } from './client';
+import { createGroup, deleteGroup, tagGroup, untagGroup, canDeleteGroup, putLogRetention, deleteLogRetention } from './client';
 import { LogGroupServiceName } from './types';
 
 export const getLogGroupHandler = (): StepHandler<LogGroupState> => ({
@@ -59,32 +59,38 @@ const createResource = (candidate: LogGroupState): Promise<LogGroupResult> => {
   });
 };
 
-const updateResource = (candidate: LogGroupState, current: LogGroupState): Promise<LogGroupResult> => {
+const updateResource = async (candidate: LogGroupState, current: LogGroupState) => {
   const { result, parameters } = candidate;
   const { groupName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(LogGroupServiceName, groupName);
-  }
-
   return OperationLogger.logExecution(LogGroupServiceName, groupName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
-    await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(LogGroupServiceName, groupName);
+    }
 
-    return result;
+    await checkTagUpdates(logger, result.groupArn, parameters, current.parameters);
+    await checkGeneralUpdates(logger, groupName, parameters, current.parameters);
   });
 };
 
-const deleteResource = async (current: LogGroupState) => {
+const deleteResource = async (current: LogGroupState, context: StepContext) => {
   const { parameters, result } = current;
+  const { groupName } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(LogGroupServiceName, groupName, 'deletion', async (logger) => {
+      if (!context.force) {
+        const canDelete = await canDeleteGroup(logger, groupName);
+
+        if (!canDelete) {
+          context.addWarning(`Log group '${groupName}' isn't yet empty; deletion may occur next time.`);
+          return;
+        }
+      }
+
+      await deleteGroup(logger, groupName);
+    });
   }
-
-  await OperationLogger.logExecution(LogGroupServiceName, parameters.groupName, 'deletion', async (logger) => {
-    await deleteGroup(logger, parameters.groupName);
-  });
 };
 
 const checkTagUpdates = async (logger: OperationLogLine, policyArn: Arn, candidate: LogGroupParameters, current: LogGroupParameters) => {
@@ -107,8 +113,8 @@ const checkGeneralUpdates = async (
   }
 
   if (candidate.retention) {
-    return createRetention(logger, groupName, candidate.retention);
+    return putLogRetention(logger, groupName, candidate.retention);
   }
 
-  return deleteRetention(logger, groupName);
+  return deleteLogRetention(logger, groupName);
 };

@@ -3,7 +3,7 @@ import type { ObjectSchemaProperties } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -69,27 +69,43 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
-        },
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
-        },
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
+          },
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" TYPE text USING "default"::text, ALTER COLUMN "default" SET DEFAULT 'foo'`
+          },
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" TYPE text USING "nullable"::text`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -109,19 +125,35 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT false`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -144,19 +176,35 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" SET DEFAULT true`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -176,19 +224,35 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -224,23 +288,39 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
-          query: 'ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT'
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" ALTER COLUMN "default" DROP DEFAULT'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
-  it('assert :: alter table (make required column)', async () => {
+  it('assert :: alter table (make required column, explicit)', async () => {
     const sourceTable = getDatabaseTables({
       nullable: {
         type: SchemaType.Boolean,
@@ -257,19 +337,82 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: alter table (make required column, implicit)', async () => {
+    const sourceTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean,
+        optional: true,
+        nullable: true
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      nullable: {
+        type: SchemaType.Boolean
+      }
+    });
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" SET NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -288,19 +431,35 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" DROP NOT null`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "nullable" DROP NOT null`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -334,28 +493,44 @@ describe('migration :: update column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "renamed_column"`
-        },
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'enumerable' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "enumerable" TO "enumerable_renamed"`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_enumerable_renamed_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_enumerable_ck" TO "table_enumerable_renamed_ck"`
-        }
-      ],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "renamed_column"`
+          },
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'enumerable' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" RENAME COLUMN "enumerable" TO "enumerable_renamed"`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_enumerable_renamed_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_enumerable_ck" TO "table_enumerable_renamed_ck"`
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

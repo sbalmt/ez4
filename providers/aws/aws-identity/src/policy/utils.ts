@@ -1,4 +1,4 @@
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { PolicyState } from './types';
 
 import { PolicyServiceType } from './types';

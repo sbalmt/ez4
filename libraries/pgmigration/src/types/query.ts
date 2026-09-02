@@ -16,3 +16,9 @@ export type PgMigrationQueries = {
   relations: PgMigrationStatement[];
   indexes: PgMigrationStatement[];
 };
+
+export type PgMigrationStepQueries = {
+  create: PgMigrationQueries;
+  update: PgMigrationQueries;
+  delete: PgMigrationQueries;
+};

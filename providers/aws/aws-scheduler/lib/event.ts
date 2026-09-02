@@ -19,6 +19,9 @@ declare function handle(request: Cron.Incoming<Cron.Event | null>, context: obje
 export async function eventEntryPoint(payload: AnyObject | null, context: Context): Promise<void> {
   const traceId = payload?.traceId ?? getRandomUUID();
 
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: context.awsRequestId,
     event: null,
@@ -42,6 +45,7 @@ export async function eventEntryPoint(payload: AnyObject | null, context: Contex
   } catch (error) {
     await onError(error, request);
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -70,6 +74,18 @@ const onDone = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Cron.Incoming<Cron.Event | null>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

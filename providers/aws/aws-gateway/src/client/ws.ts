@@ -33,19 +33,25 @@ export namespace WsClient {
 
     return new (class {
       async sendMessage(connectionId: string, message: T) {
-        const [content, { wsClient, PostToConnectionCommand }] = await Promise.all([
+        const [content, { wsClient, PostToConnectionCommand, GoneException }] = await Promise.all([
           resolveResponseBody(message, messageSchema, preferences),
           getWsClient(endpoint)
         ]);
 
         const payload = JSON.stringify(content);
 
-        await wsClient.send(
-          new PostToConnectionCommand({
-            Data: Buffer.from(payload),
-            ConnectionId: connectionId
-          })
-        );
+        try {
+          await wsClient.send(
+            new PostToConnectionCommand({
+              Data: Buffer.from(payload),
+              ConnectionId: connectionId
+            })
+          );
+        } catch (error) {
+          if (!(error instanceof GoneException)) {
+            throw error;
+          }
+        }
       }
 
       async disconnect(connectionId: string) {

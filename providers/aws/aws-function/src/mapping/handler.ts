@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { MappingParameters, MappingResult, MappingState } from './types';
 import type { UpdateRequest } from './client';
@@ -6,7 +6,7 @@ import type { UpdateRequest } from './client';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getFunctionName } from '../function/utils';
+import { getFunctionAliasName } from '../function/utils';
 import { importMapping, createMapping, deleteMapping, updateMapping } from './client';
 import { MappingServiceName } from './types';
 
@@ -56,7 +56,7 @@ const replaceResource = async (candidate: MappingState, current: MappingState, c
 const createResource = (candidate: MappingState, context: StepContext): Promise<MappingResult> => {
   const parameters = candidate.parameters;
 
-  const functionName = getFunctionName(MappingServiceName, 'mapping', context);
+  const functionName = getFunctionAliasName(MappingServiceName, 'mapping', context);
 
   return OperationLogger.logExecution(MappingServiceName, functionName, 'creation', async (logger) => {
     const sourceArn = await parameters.getSourceArn(context);
@@ -81,12 +81,12 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
   const { result, parameters } = candidate;
   const { fromService } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(MappingServiceName, 'mapping');
-  }
-
   return OperationLogger.logExecution(MappingServiceName, fromService, 'updates', async (logger) => {
-    const newFunctionName = getFunctionName(MappingServiceName, 'mapping', context);
+    if (!result) {
+      throw new CorruptedResourceError(MappingServiceName, 'mapping');
+    }
+
+    const newFunctionName = getFunctionAliasName(MappingServiceName, 'mapping', context);
     const oldFunctionName = current.result?.functionName ?? result.functionName;
 
     const sourceArn = result.sourceArn;
@@ -115,15 +115,13 @@ const updateResource = (candidate: MappingState, current: MappingState, context:
 const deleteResource = async (current: MappingState) => {
   const result = current.result;
 
-  if (!result) {
-    return;
+  if (result) {
+    const { functionName } = result;
+
+    return OperationLogger.logExecution(MappingServiceName, functionName, 'deletion', async (logger) => {
+      await deleteMapping(logger, result.eventId);
+    });
   }
-
-  const { functionName } = result;
-
-  await OperationLogger.logExecution(MappingServiceName, functionName, 'deletion', async (logger) => {
-    await deleteMapping(logger, result.eventId);
-  });
 };
 
 const checkGeneralUpdates = async (

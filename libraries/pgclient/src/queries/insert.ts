@@ -176,14 +176,14 @@ export const getInsertRecord = async (
       continue;
     }
 
-    //  Will post-create relations
+    //  Will post-create relations.
     if (relationSchema) {
       if (targetIndex === Index.Primary) {
         await validateRecordSchema(fieldValue, relationSchema, fieldPath);
         continue;
       }
 
-      // Will pre-create relations
+      // Will pre-create relations.
       record[targetColumn] = relationQueries[0].reference(sourceColumn);
 
       await validateRecordSchema(fieldValue, relationSchema, fieldPath);
@@ -294,7 +294,7 @@ const preparePostInsertRelations = (
             results.column(targetColumn);
           }
 
-          // Connect an existing relation
+          // Connect an existing relation.
           const relationQuery = builder
             .update(sourceSchema)
             .from(source.reference())
@@ -314,7 +314,7 @@ const preparePostInsertRelations = (
           results.column(targetColumn);
         }
 
-        // Create a new relation
+        // Create a new relation.
         const relationQuery = builder
           .insert(sourceSchema)
           .select(source.reference())
@@ -369,7 +369,7 @@ const getInsertSelectFields = (
       const relationFields = fieldValue === true ? getDefaultSelectFields(sourceSchema) : fieldValue;
       const relationQuery = builder.select(sourceSchema);
 
-      // Connected relations
+      // Connected relations.
       if (!relationQueries?.length) {
         relationQuery.from(sourceTable).where({
           [sourceColumn]: source.reference(targetColumn)
@@ -391,7 +391,7 @@ const getInsertSelectFields = (
         continue;
       }
 
-      // Inserted relations
+      // Inserted relations.
       if (relationQueries.length > 1) {
         relationQuery.from(builder.union(relationQueries.map((input) => builder.select().rawColumn('*').from(input.reference()))));
       } else {
@@ -454,7 +454,7 @@ const getRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSc
 
   const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
 
-  // Will connect an existing relation
+  // Will connect an existing relation.
   if (isEmptyObject(otherFields)) {
     if (relationValue !== undefined) {
       const relationSchema = getConnectionSchema(sourceSchema, relationColumn);
@@ -465,14 +465,14 @@ const getRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWithSc
     return [];
   }
 
-  // Will post-create relations
+  // Will post-create relations.
   if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
     const relationSchema = getTargetCreationSchema(sourceSchema, sourceColumn);
 
     return [, relationSchema];
   }
 
-  // Will pre-create relations
+  // Will pre-create relations.
   const relationSchema = getSourceCreationSchema(sourceSchema, sourceColumn);
 
   return [, relationSchema];
@@ -485,17 +485,17 @@ const getPreRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWit
 
   const { [relationColumn]: _relationValue, ...otherFields } = fieldValue;
 
-  // Will connect an existing relation
+  // Will connect an existing relation.
   if (isEmptyObject(otherFields)) {
     return undefined;
   }
 
-  // Will post-create relations
+  // Will post-create relations.
   if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
     return undefined;
   }
 
-  // Will pre-create relations
+  // Will pre-create relations.
   return fieldValue;
 };
 
@@ -506,7 +506,7 @@ const getPostRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWi
 
   const { [relationColumn]: relationValue, ...otherFields } = fieldValue;
 
-  // Will connect an existing relation
+  // Will connect an existing relation.
   if (isEmptyObject(otherFields)) {
     if (targetIndex === Index.Primary || !sourceIndex || sourceIndex === Index.Secondary) {
       return [relationValue, relationColumn];
@@ -515,11 +515,11 @@ const getPostRelationValue = (fieldValue: AnyObject, fieldRelation: PgRelationWi
     return [];
   }
 
-  // Will post-create relations
+  // Will post-create relations.
   if (targetIndex === Index.Primary || (targetIndex === Index.Unique && (!sourceIndex || sourceIndex === Index.Secondary))) {
     return [, , fieldValue];
   }
 
-  // Will pre-create relations
+  // Will pre-create relations.
   return [];
 };

@@ -79,6 +79,8 @@ const handleQueueMessage = async (
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
   if (queueSubscription) {
-    await processLambdaMessage(service, options, context, queueSubscription, message);
+    await processLambdaMessage(service, options, context, queueSubscription, message, (delay) => {
+      setTimeout(() => handleQueueMessage(service, options, context, message), 1000 * delay);
+    });
   }
 };

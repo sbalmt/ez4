@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { FunctionState } from '../function/types';
 import type { PermissionParameters, PermissionState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { PermissionServiceType } from './types';

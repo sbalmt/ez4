@@ -13,6 +13,7 @@ import {
   getModelMembers,
   getPropertyNumber,
   getPropertyString,
+  getServiceTags,
   hasHeritageType
 } from '@ez4/common/library';
 
@@ -80,6 +81,13 @@ export const getBucketServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'variables': {
           service.variables = getLinkedVariablesObject(member, errorList);
+          break;
+        }
+
+        case 'tags': {
+          if (!member.inherited) {
+            service.tags = getServiceTags(member);
+          }
           break;
         }
 

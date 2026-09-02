@@ -1,5 +1,5 @@
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { StepHandler } from '@ez4/stateful';
+import type { StepHandler } from '@ez4/state';
 import type { GatewayState, GatewayResult, GatewayParameters } from './types';
 
 import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -69,23 +69,29 @@ const createResource = (candidate: GatewayState): Promise<GatewayResult> => {
   });
 };
 
-const updateResource = (candidate: GatewayState, current: GatewayState): Promise<GatewayResult> => {
+const updateResource = async (candidate: GatewayState, current: GatewayState): Promise<GatewayResult> => {
   const { result, parameters } = candidate;
   const { gatewayName } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(GatewayServiceName, gatewayName);
-  }
-
-  if (parameters.import) {
-    return Promise.resolve(result);
-  }
-
   return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'updates', async (logger) => {
-    const { apiId, apiArn } = result;
+    if (!result) {
+      throw new CorruptedResourceError(GatewayServiceName, gatewayName);
+    }
 
-    await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
-    await checkTagUpdates(logger, apiArn, parameters, current.parameters);
+    if (!parameters.import) {
+      const { apiId, apiArn } = result;
+
+      await checkGeneralUpdates(logger, apiId, parameters, current.parameters);
+      await checkTagUpdates(logger, apiArn, parameters, current.parameters);
+
+      return result;
+    }
+
+    if (parameters.gatewayName !== current.parameters.gatewayName) {
+      const { apiId, apiArn, endpoint } = await fetchGateway(logger, parameters.gatewayName);
+
+      return { apiId, apiArn, endpoint };
+    }
 
     return result;
   });
@@ -93,14 +99,13 @@ const updateResource = (candidate: GatewayState, current: GatewayState): Promise
 
 const deleteResource = async (current: GatewayState) => {
   const { result, parameters } = current;
+  const { gatewayName } = parameters;
 
-  if (!result || parameters.import) {
-    return;
+  if (result && !parameters.import) {
+    return OperationLogger.logExecution(GatewayServiceName, gatewayName, 'deletion', async (logger) => {
+      await deleteGateway(logger, result.apiId);
+    });
   }
-
-  await OperationLogger.logExecution(GatewayServiceName, parameters.gatewayName, 'deletion', async (logger) => {
-    await deleteGateway(logger, result.apiId);
-  });
 };
 
 const checkGeneralUpdates = async (logger: OperationLogLine, apiId: string, candidate: GatewayParameters, current: GatewayParameters) => {

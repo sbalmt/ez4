@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { LogGroupState } from '@ez4/aws-logs';
 import type { RoleState } from '@ez4/aws-identity';
@@ -22,6 +22,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
     sourceFile: authorizer.sourceFile,
+    dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,

@@ -30,6 +30,11 @@ export declare class MyStorage extends Bucket.Service {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
   };
 
+  tags: Bucket.UseTags<{
+    Environment: 'production';
+    Team: 'platform';
+  }>;
+
   services: {
     otherService: Environment.Service<OtherService>;
     variables: Environment.ServiceVariables;
@@ -91,9 +96,14 @@ With your storage defined, EZ4 handles provisioning, synchronization, event rout
 | localPath      | string             | Specify a local path to synchronize with the storage.        |
 | autoExpireDays | integer            | Amount of days an object is stored before its auto-deletion. |
 | variables      | object             | Environment variables associated with the event handler.     |
+| tags           | Bucket.UseTags<>  | Custom string tags associated with the storage bucket.      |
 | services       | object             | Injected services associated with handler function.          |
 
 > Use type helpers for `events` and `cors` properties.
+
+### Custom tags
+
+Custom storage tags are declared on the top-level bucket service with `Bucket.UseTags`. Tags must be a string-to-string object. They are applied to the bucket during deployment, and project deployment tags override service tags when both define the same key.
 
 #### Events
 

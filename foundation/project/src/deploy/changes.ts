@@ -1,10 +1,10 @@
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 import { Logger, LogColor, LogFormat } from '@ez4/logger';
-import { StepAction } from '@ez4/stateful';
+import { StepAction } from '@ez4/state';
 import { deepCompare } from '@ez4/utils';
 
 import { MissingActionProviderError } from '../errors/provider';

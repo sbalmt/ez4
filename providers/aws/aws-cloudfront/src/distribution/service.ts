@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { CertificateState } from '@ez4/aws-certificate';
 import type { FunctionState } from '../function/types';
 import type { AccessState } from '../access/types';
@@ -6,7 +6,7 @@ import type { OriginState } from '../origin/types';
 import type { CacheState } from '../cache/types';
 import type { DistributionParameters, DistributionState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { toKebabCase } from '@ez4/utils';
 
 import { createDistributionStateId } from './utils';

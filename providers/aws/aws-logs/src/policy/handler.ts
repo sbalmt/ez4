@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { LogPolicyResult, LogPolicyState } from './types';
 
 import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
@@ -53,12 +53,11 @@ const updateResource = async () => {};
 
 const deleteResource = async (current: LogPolicyState) => {
   const { result, parameters } = current;
+  const { fromService } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(LogPolicyServiceName, fromService, 'deletion', async (logger) => {
+      await detachPolicy(logger, result.groupArn, result.revisionId);
+    });
   }
-
-  await OperationLogger.logExecution(LogPolicyServiceName, parameters.fromService, 'deletion', async (logger) => {
-    await detachPolicy(logger, result.groupArn, result.revisionId);
-  });
 };

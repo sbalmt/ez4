@@ -21,6 +21,10 @@ export function topicListener(event: Topic.ServiceEvent<MyTopicEvent>, context: 
       // Event processing completed successfully.
       break;
 
+    case ServiceEventType.Timeout:
+      // Event execution is timing out and is gonna be aborted.
+      break;
+
     case ServiceEventType.Error:
       // Event validation or handler execution error.
       break;
@@ -41,6 +45,7 @@ Listeners receive one or more of the following event types during the lifecycle 
 - **Begin** - emitted when the topic receives an event and begins processing.
 - **Ready** - emitted when validation and transformation are complete for the incoming event.
 - **Done** - emitted when the handler completes successfully.
+- **Timeout** - emitted when the handler has 1 second left before its termination.
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.
 

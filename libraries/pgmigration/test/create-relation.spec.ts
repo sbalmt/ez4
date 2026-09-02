@@ -3,7 +3,7 @@ import type { TableRelation } from '@ez4/database/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -55,24 +55,40 @@ describe('migration :: create relation tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
-          query:
-            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-            `ON DELETE CASCADE ` +
-            `ON UPDATE CASCADE ` +
-            `NOT VALID`
-        }
-      ],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE CASCADE ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          }
+        ],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -90,24 +106,40 @@ describe('migration :: create relation tests', () => {
       }
     ]);
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [],
-      constraints: [],
-      validations: [],
-      relations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
-          query:
-            `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-            `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-            `ON DELETE SET null ` +
-            `ON UPDATE CASCADE ` +
-            `NOT VALID`
-        }
-      ],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE SET null ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          }
+        ],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

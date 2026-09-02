@@ -28,6 +28,7 @@ export * from './metadata/services';
 export * from './metadata/listener';
 export * from './metadata/logging';
 export * from './metadata/types';
+export * from './metadata/tags';
 
 export * from './virtual/types';
 export * from './virtual/service';

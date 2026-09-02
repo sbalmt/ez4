@@ -1,0 +1,30 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "file": "test/input/output-tags.ts",
+    "context": {},
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "identity": 1
+    },
+    "subscriptions": [],
+    "tags": {
+      "FOO": "foo",
+      "BAR": "bar"
+    }
+  }
+}

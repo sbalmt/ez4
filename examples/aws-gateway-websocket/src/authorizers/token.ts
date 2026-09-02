@@ -1,9 +1,9 @@
+import type { Service } from '@ez4/common';
 import type { Ws } from '@ez4/gateway';
 import type { Identity } from './types';
+import type { WsAuthProvider } from './provider';
 
 import { HttpForbiddenError } from '@ez4/gateway';
-
-const SUPER_SECRET_API_KEY = 'query-api-key';
 
 /**
  * Token authorizer example.
@@ -24,10 +24,13 @@ export declare class AuthorizerResponse implements Ws.AuthResponse {
 /**
  * Check the `token` query string and authorize or not the request.
  */
-export function tokenAuthorizer(request: Ws.AuthIncoming<AuthorizerRequest>): AuthorizerResponse {
+export function tokenAuthorizer(
+  request: Ws.AuthIncoming<AuthorizerRequest>,
+  { variables }: Service.Context<WsAuthProvider>
+): AuthorizerResponse {
   const { token } = request.query;
 
-  if (token !== SUPER_SECRET_API_KEY) {
+  if (token !== variables.CONNECTION_TOKEN) {
     throw new HttpForbiddenError();
   }
 

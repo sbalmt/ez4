@@ -1,4 +1,4 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { IdentityState, IdentityResult, IdentityParameters } from './types';
 
@@ -57,31 +57,27 @@ const createResource = (candidate: IdentityState): Promise<IdentityResult> => {
   });
 };
 
-const updateResource = (candidate: IdentityState, current: IdentityState): Promise<IdentityResult> => {
+const updateResource = async (candidate: IdentityState, current: IdentityState) => {
   const { result, parameters } = candidate;
   const { identity } = parameters;
 
-  if (!result) {
-    throw new CorruptedResourceError(IdentityServiceName, identity);
-  }
-
   return OperationLogger.logExecution(IdentityServiceName, identity, 'updates', async (logger) => {
-    await checkTagUpdates(logger, result.identityArn, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(IdentityServiceName, identity);
+    }
 
-    return result;
+    await checkTagUpdates(logger, result.identityArn, parameters, current.parameters);
   });
 };
 
-const deleteResource = (current: IdentityState, context: StepContext) => {
+const deleteResource = async (current: IdentityState, context: StepContext) => {
   const { result, parameters } = current;
 
-  if (!result || !context.force) {
-    return;
+  if (result && context.force) {
+    return OperationLogger.logExecution(IdentityServiceName, parameters.identity, 'deletion', async (logger) => {
+      await deleteIdentity(logger, parameters.identity);
+    });
   }
-
-  return OperationLogger.logExecution(IdentityServiceName, parameters.identity, 'deletion', async (logger) => {
-    await deleteIdentity(logger, parameters.identity);
-  });
 };
 
 const checkTagUpdates = async (

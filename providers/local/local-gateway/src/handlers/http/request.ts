@@ -58,6 +58,7 @@ export const processHttpRequest = async (
     method: route.method,
     path: route.path,
     encoded: false,
+    data: route.body?.toString(),
     traceId
   };
 
@@ -74,7 +75,6 @@ export const processHttpRequest = async (
       Object.assign(currentRequest, await getIncomingRequestParameters(handler.request, route, onCustomValidation));
       Object.assign(currentRequest, await getIncomingRequestQuery(handler.request, route, onCustomValidation));
       Object.assign(currentRequest, await getIncomingRequestBody(handler.request, route, onCustomValidation));
-      Object.assign(currentRequest, { data: route.body?.toString() });
     }
 
     await onReady(module, serviceClients, currentRequest);

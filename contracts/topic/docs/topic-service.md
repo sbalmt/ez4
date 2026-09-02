@@ -33,7 +33,7 @@ Defines all subscriptions attached to the topic.
 
 - When multiple subscriptions exist, events are delivered to all of them according to the cloud provider policy.
 - Topic subscriptions are the primary mechanism for processing published events.
-- Each subscription can be either a lambda subscription or a queue subscription.
+- Each subscription can be either a function subscription or a queue subscription.
 
 ```ts
 subscriptions: [
@@ -64,7 +64,7 @@ fifoMode: Topic.UseFifoMode<{
 
 #### Variables (optional)
 
-Declares environment variables that apply to every lambda subscription attached to the topic.
+Declares environment variables that apply to every function subscription attached to the topic.
 
 - Supports both mapped variables and literal values.
 - During metadata build, `Environment.Variable<'NAME'>` must resolve to a non-empty value.
@@ -79,9 +79,24 @@ variables: {
 }
 ```
 
+#### Custom tags (optional)
+
+Declares custom tags for the topic resource.
+
+- Tags are defined as a string-to-string object through `Topic.UseTags`.
+- Tags are attached to the topic during deployment and can be updated or removed on later deployments.
+- Project deployment tags are merged with service tags; when the same key is defined in both places, the project deployment tag takes precedence.
+
+```ts
+tags: Topic.UseTags<{
+  Environment: 'production';
+  Team: 'platform';
+}>;
+```
+
 #### Services (optional)
 
-Declares service bindings available to all lambda subscriptions attached to the topic.
+Declares service bindings available to all function subscriptions attached to the topic.
 
 - Each entry represents a service that will be injected into the execution context.
 - Useful for exposing shared infrastructure or internal services.
@@ -96,7 +111,7 @@ services: {
 
 ### Best practices
 
-- Prefer lambda subscriptions for lightweight event handlers and queue subscriptions when you need durable queue processing.
+- Prefer function subscriptions for lightweight event handlers and queue subscriptions when you need durable queue processing.
 - Use ordered topics only when event ordering is required.
 
 ## What's next

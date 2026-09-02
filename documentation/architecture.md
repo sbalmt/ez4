@@ -101,6 +101,8 @@ A well‑structured EZ4 project keeps global infrastructure in root‑level cont
 ## What's next
 
 - [Quick start](./quick-start.md)
+- [Configuration](./configuration.md)
+- [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
 - [Philosophy](./philosophy.md)
 

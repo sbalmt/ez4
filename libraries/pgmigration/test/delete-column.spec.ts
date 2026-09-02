@@ -3,7 +3,7 @@ import type { ObjectSchemaProperties } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateQueries } from '@ez4/pgmigration';
+import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -50,22 +50,38 @@ describe('migration :: delete column tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          query:
-            `ALTER TABLE IF EXISTS "table" ` +
-            `DROP COLUMN IF EXISTS "column_a", ` +
-            `DROP COLUMN IF EXISTS "column_b", ` +
-            `DROP COLUMN IF EXISTS "column_c"`
-        }
-      ],
-      constraints: [],
-      validations: [],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [
+          {
+            query:
+              `ALTER TABLE IF EXISTS "table" ` +
+              `DROP COLUMN IF EXISTS "column_a", ` +
+              `DROP COLUMN IF EXISTS "column_b", ` +
+              `DROP COLUMN IF EXISTS "column_c"`
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

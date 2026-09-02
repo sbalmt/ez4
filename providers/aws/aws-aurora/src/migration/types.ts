@@ -1,5 +1,5 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { Arn } from '@ez4/aws-common';
 
 export const MigrationServiceName = 'AWS:Aurora/Migration';
@@ -13,6 +13,7 @@ export type MigrationParameters = {
 };
 
 export type MigrationResult = {
+  oldRepository?: PgTableRepository;
   clusterArn: Arn;
   secretArn: Arn;
 };

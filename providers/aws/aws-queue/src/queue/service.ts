@@ -1,7 +1,7 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { QueueParameters, QueueState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { toKebabCase } from '@ez4/utils';
 
 import { createQueueStateId } from './utils';

@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 
 import { describe, it } from 'node:test';
 import { ok, equal } from 'node:assert/strict';
@@ -92,7 +92,9 @@ describe('topic subscription', { timeout: 90000 }, () => {
 
     ok(lastState[subscriptionId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[subscriptionId], undefined);
   });

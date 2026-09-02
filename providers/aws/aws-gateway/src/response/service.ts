@@ -1,9 +1,9 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { GatewayState } from '../gateway/types';
 import type { RouteState } from '../route/types';
 import type { ResponseParameters, ResponseState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { ResponseServiceType } from './types';

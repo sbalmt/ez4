@@ -1,8 +1,8 @@
-import type { StepHandler } from '@ez4/stateful';
 import type { OperationLogLine } from '@ez4/aws-common';
+import type { StepHandler } from '@ez4/state';
 import type { OriginState, OriginResult, OriginParameters } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { createOriginPolicy, updateOriginPolicy, deleteOriginPolicy, importOriginPolicy } from './client';
@@ -60,6 +60,7 @@ const createResource = (candidate: OriginState): Promise<OriginResult> => {
         policyId
       };
     }
+
     const { policyId } = await createOriginPolicy(logger, candidate.parameters);
 
     return {
@@ -68,34 +69,28 @@ const createResource = (candidate: OriginState): Promise<OriginResult> => {
   });
 };
 
-const updateResource = (candidate: OriginState, current: OriginState): Promise<OriginResult | undefined> => {
+const updateResource = async (candidate: OriginState, current: OriginState) => {
   const { result, parameters } = candidate;
-
-  if (!result) {
-    return Promise.resolve(undefined);
-  }
-
-  const policyName = parameters.policyName;
+  const { policyName } = parameters;
 
   return OperationLogger.logExecution(OriginServiceName, policyName, 'updates', async (logger) => {
-    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
+    if (!result) {
+      throw new CorruptedResourceError(OriginServiceName, policyName);
+    }
 
-    return result;
+    await checkGeneralUpdates(logger, result.policyId, parameters, current.parameters);
   });
 };
 
 const deleteResource = async (current: OriginState) => {
   const { parameters, result } = current;
+  const { policyName } = parameters;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(OriginServiceName, policyName, 'deletion', async (logger) => {
+      await deleteOriginPolicy(logger, result.policyId);
+    });
   }
-
-  const policyName = parameters.policyName;
-
-  await OperationLogger.logExecution(OriginServiceName, policyName, 'deletion', async (logger) => {
-    await deleteOriginPolicy(logger, result.policyId);
-  });
 };
 
 const checkGeneralUpdates = async (logger: OperationLogLine, policyId: string, candidate: OriginParameters, current: OriginParameters) => {

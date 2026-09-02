@@ -1,4 +1,4 @@
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 
 export const InvalidationServiceName = 'AWS:CloudFront/Invalidation';
 

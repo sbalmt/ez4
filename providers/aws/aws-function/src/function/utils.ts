@@ -1,10 +1,12 @@
+import type { Arn } from '@ez4/aws-common';
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryState, StepContext } from '@ez4/stateful';
+import type { EntryState, StepContext } from '@ez4/state';
 import type { FunctionState } from './types';
 
 import { getDefaultSecurityGroupId, getDefaultSubnetIds, getDefaultVpcId } from '@ez4/aws-vpc';
 import { IncompleteResourceError } from '@ez4/aws-common';
 
+import { FunctionDefaults } from '../utils/defaults';
 import { DefaultVpcDetailsError, FunctionNotFoundError } from './errors';
 import { FunctionServiceType } from './types';
 
@@ -32,6 +34,30 @@ export const getFunctionState = (context: EventContext, functionName: string, op
   }
 
   return functionState;
+};
+
+export const getFunctionAliasName = (serviceName: string, resourceId: string, context: StepContext) => {
+  const entry = context.getDependencies<FunctionState>(FunctionServiceType).at(0);
+
+  const functionName = entry?.parameters.functionName;
+
+  if (!functionName) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'functionName');
+  }
+
+  return `${functionName}:${FunctionDefaults.AliasName}`;
+};
+
+export const getFunctionAliasArn = (serviceName: string, resourceId: string, context: StepContext): Arn => {
+  const entry = context.getDependencies<FunctionState>(FunctionServiceType).at(0);
+
+  const functionArn = entry?.result?.functionArn;
+
+  if (!functionArn) {
+    throw new IncompleteResourceError(serviceName, resourceId, 'functionArn');
+  }
+
+  return `${functionArn}:${FunctionDefaults.AliasName}`;
 };
 
 export const getFunctionName = (serviceName: string, resourceId: string, context: StepContext) => {

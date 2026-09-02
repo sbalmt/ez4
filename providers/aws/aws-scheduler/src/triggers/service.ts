@@ -1,6 +1,6 @@
 import type { ConnectResourceEvent, DeployOptions, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 
 import { isCronService, isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName } from '@ez4/project/library';
@@ -72,7 +72,10 @@ const prepareScheduleGroup = (state: EntryStates, service: CronService, options:
   const groupName = getServiceName(service.group, options);
 
   return createGroup(state, {
-    tags: options.tags,
-    groupName
+    groupName,
+    tags: {
+      ...service.tags,
+      ...options.tags
+    }
   });
 };

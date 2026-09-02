@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { getTableRepository } from '@ez4/pgclient/library';
-import { getCreateQueries, getUpdateQueries } from '@ez4/pgmigration';
+import { getCreateQueries, getUpdateStepQueries } from '@ez4/pgmigration';
 import { SchemaType } from '@ez4/schema';
 
 describe('migration :: create constraint tests', () => {
@@ -84,30 +84,46 @@ describe('migration :: create constraint tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123')) NOT VALID`
-        }
-      ],
-      validations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
-          name: 'table_column_ck'
-        }
-      ],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123')) NOT VALID`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+            name: 'table_column_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -127,30 +143,46 @@ describe('migration :: create constraint tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true) NOT VALID`
-        }
-      ],
-      validations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
-          name: 'table_column_ck'
-        }
-      ],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE boolean USING "column"::boolean`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true) NOT VALID`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+            name: 'table_column_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -170,30 +202,46 @@ describe('migration :: create constraint tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE decimal USING "column"::decimal`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123) NOT VALID`
-        }
-      ],
-      validations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
-          name: 'table_column_ck'
-        }
-      ],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE decimal USING "column"::decimal`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123) NOT VALID`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+            name: 'table_column_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 
@@ -213,30 +261,46 @@ describe('migration :: create constraint tests', () => {
       }
     });
 
-    const queries = getUpdateQueries(targetTable, sourceTable);
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(queries, {
-      tables: [
-        {
-          check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-          query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
-        }
-      ],
-      constraints: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo') NOT VALID`
-        }
-      ],
-      validations: [
-        {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
-          name: 'table_column_ck'
-        }
-      ],
-      relations: [],
-      indexes: []
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: `ALTER TABLE IF EXISTS "table" ALTER COLUMN "column" TYPE text USING "column"::text`
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo') NOT VALID`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+            name: 'table_column_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
     });
   });
 });

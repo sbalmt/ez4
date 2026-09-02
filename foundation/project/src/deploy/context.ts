@@ -1,5 +1,5 @@
 import type { MetadataDependencies, ServiceMetadata } from '@ez4/project/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { DeployOptions } from '../types/options';
 
 import { getServiceState, setServiceState, tryGetServiceState } from '@ez4/project/library';

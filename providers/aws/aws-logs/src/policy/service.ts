@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { LogGroupState } from '../group/types';
 import type { LogPolicyParameters, LogPolicyState } from './types';
 
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 import { hashData } from '@ez4/utils';
 
 import { LogPolicyServiceType } from './types';

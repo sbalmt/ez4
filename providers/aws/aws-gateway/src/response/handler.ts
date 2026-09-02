@@ -1,8 +1,8 @@
-import type { StepContext, StepHandler } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { ResponseState, ResponseResult, ResponseParameters } from './types';
 
-import { OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
 import { getRouteId } from '../route/utils';
@@ -66,12 +66,13 @@ const createResource = (candidate: ResponseState, context: StepContext): Promise
 
 const updateResource = (candidate: ResponseState, current: ResponseState) => {
   const { result, parameters } = candidate;
+  const { responseKey } = parameters;
 
-  if (!result) {
-    return;
-  }
+  return OperationLogger.logExecution(ResponseServiceName, responseKey, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(ResponseServiceName, responseKey);
+    }
 
-  return OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'updates', async (logger) => {
     await checkGeneralUpdates(logger, result.apiId, result.routeId, result.responseId, candidate.parameters, current.parameters);
   });
 };
@@ -79,13 +80,11 @@ const updateResource = (candidate: ResponseState, current: ResponseState) => {
 const deleteResource = async (current: ResponseState) => {
   const { result, parameters } = current;
 
-  if (!result) {
-    return;
+  if (result) {
+    return OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'deletion', async (logger) => {
+      await deleteResponse(logger, result.apiId, result.routeId, result.responseId);
+    });
   }
-
-  await OperationLogger.logExecution(ResponseServiceName, parameters.responseKey, 'deletion', async (logger) => {
-    await deleteResponse(logger, result.apiId, result.routeId, result.responseId);
-  });
 };
 
 const checkGeneralUpdates = async <T extends ResponseParameters>(

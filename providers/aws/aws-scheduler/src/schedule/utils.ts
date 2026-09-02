@@ -1,5 +1,5 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
-import type { EntryState } from '@ez4/stateful';
+import type { EntryState } from '@ez4/state';
 import type { ScheduleState } from './types';
 
 import { isFunctionState } from '@ez4/aws-function';

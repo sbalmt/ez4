@@ -1,8 +1,8 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { TableParameters, TableState } from './types';
 
 import { toKebabCase, hashData } from '@ez4/utils';
-import { attachEntry } from '@ez4/stateful';
+import { attachEntry } from '@ez4/state';
 
 import { TableServiceType } from './types';
 

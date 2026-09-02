@@ -2,6 +2,7 @@ import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
+import type { Service } from '@ez4/common';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -16,6 +17,7 @@ export type CronService = Omit<ServiceMetadata, 'variables' | 'services'> &
     file?: string;
     schema?: CronEventSchema;
     description?: string;
+    tags?: Service.Tags;
     target: CronTarget;
     group?: string;
     expression: string;

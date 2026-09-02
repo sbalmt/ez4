@@ -37,6 +37,9 @@ declare function handle(request: Ws.Incoming<Ws.Request>, context: object): Prom
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
   const traceId = getRandomUUID();
 
   const request: Ws.Incoming<Ws.Request> = {
@@ -66,7 +69,6 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     return getSuccessResponse();
-    //
   } catch (error) {
     await onError(error, request);
 
@@ -75,8 +77,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     return getErrorResponse();
-    //
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -186,6 +188,18 @@ const onDone = (request: Partial<Ws.Incoming<Ws.Request>>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<Ws.Incoming<Ws.Request>>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT

@@ -1,4 +1,4 @@
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
@@ -21,6 +21,7 @@ import { loadPaths } from '../../config/tsconfig';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
+import { exposeAllWarnings } from '../../utils/warnings';
 import { assertNoErrors } from '../../utils/errors';
 
 export const deployCommand = async (input: InputOptions) => {
@@ -92,7 +93,7 @@ export const deployCommand = async (input: InputOptions) => {
   }
 
   const deployState = await performDeploy(options, async () => {
-    const { result, errors } = await applyDeploy(newState, oldState, options);
+    const { result, errors, warnings } = await applyDeploy(newState, oldState, options);
 
     await DynamicLogger.logExecution('✅ Saving state', () => {
       return saveState(project.stateFile, options, result);
@@ -100,10 +101,12 @@ export const deployCommand = async (input: InputOptions) => {
 
     return {
       result,
+      warnings,
       errors
     };
   });
 
   reportResourcesOutput(deployState.result);
+  exposeAllWarnings(deployState.warnings);
   assertNoErrors(deployState.errors);
 };

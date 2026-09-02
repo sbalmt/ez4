@@ -1,5 +1,5 @@
 import type { MetadataReflection } from '@ez4/project/library';
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 import type { IdentityAccount, IdentityGrant } from '../types/identity';
 import type { DeployOptions } from '../types/options';
 

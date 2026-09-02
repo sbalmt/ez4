@@ -1,4 +1,4 @@
-import type { EntryState, EntryStates } from '@ez4/stateful';
+import type { EntryState, EntryStates } from '@ez4/state';
 
 import { ok, equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -121,7 +121,9 @@ describe('dynamodb mapping', { timeout: 60000 }, () => {
 
     ok(lastState[mappingId]);
 
-    const { result } = await deploy(undefined, lastState);
+    const { result } = await deploy(undefined, lastState, {
+      force: true
+    });
 
     equal(result[mappingId], undefined);
   });

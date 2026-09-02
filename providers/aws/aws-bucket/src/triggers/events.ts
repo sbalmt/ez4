@@ -1,6 +1,6 @@
 import type { DeployOptions, EventContext } from '@ez4/project/library';
 import type { BucketService } from '@ez4/storage/library';
-import type { EntryStates } from '@ez4/stateful';
+import type { EntryStates } from '@ez4/state';
 import type { BucketState } from '../bucket/types';
 
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
@@ -9,7 +9,7 @@ import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { attachBucketEvent } from '../event/service';
-import { getBucketEventFunctionArn } from '../event/utils';
+import { getBucketEventFunctionAliasArn } from '../event/utils';
 import { createBucketEventFunction } from '../event/function/service';
 import { getFunctionName, getInternalName } from './utils';
 import { RoleMissingError } from './errors';
@@ -58,6 +58,7 @@ export const prepareBucketEvents = (
       const dependencies = context.getDependencyFiles(handler.file);
 
       const logGroupState = createLogGroup(state, {
+        dependencies: [bucketState.entryId],
         retention: logRetention,
         groupName: eventName,
         tags
@@ -69,6 +70,7 @@ export const prepareBucketEvents = (
         variables: [options.variables, service.variables, variables],
         references: handler.references,
         context: service.context,
+        dependencies: [bucketState.entryId],
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,
@@ -101,7 +103,7 @@ export const prepareBucketEvents = (
       eventGetters: [
         (context) => {
           return {
-            functionArn: getBucketEventFunctionArn(service.name, handlerState.entryId, context),
+            functionArn: getBucketEventFunctionAliasArn(service.name, handlerState.entryId, context),
             events: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
             path
           };

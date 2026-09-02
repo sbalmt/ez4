@@ -1,7 +1,8 @@
-import type { StepContext, StepHandler, StepOptions } from '@ez4/stateful';
+import type { StepContext, StepHandler } from '@ez4/state';
 import type { IntegrityState, IntegrityResult } from './types';
 
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { getCreateQueries, getUpdateStepQueries } from '@ez4/pgmigration';
 import { deepCompare, hashObject } from '@ez4/utils';
 
 import { getMigrationResult } from '../migration/utils';
@@ -21,28 +22,27 @@ const equalsResource = (candidate: IntegrityState, current: IntegrityState) => {
   return !!candidate.result && candidate.parameters.getDatabase() === current.result?.database;
 };
 
-const previewResource = (candidate: IntegrityState, current: IntegrityState, options: StepOptions) => {
+const previewResource = (candidate: IntegrityState, current: IntegrityState) => {
   const target = candidate.parameters;
   const source = current.parameters;
 
-  const resourceChanges = deepCompare(
+  const changes = deepCompare(
     {
       ...target,
+      rollout: true,
       dependencies: candidate.dependencies,
       integrityHash: hashObject(target.getRepository())
     },
     {
       ...source,
+      rollout: !current.partial,
       dependencies: current.dependencies,
-      ...(!options.force && {
-        integrityHash: current.result?.integrityHash
-      })
+      integrityHash: current.result?.integrityHash
     }
   );
 
   return {
-    ...resourceChanges,
-    counts: resourceChanges.counts,
+    ...changes,
     name: target.getDatabase()
   };
 };
@@ -64,9 +64,10 @@ const createResource = (candidate: IntegrityState, context: StepContext): Promis
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
     const repository = parameters.getRepository();
+    const queries = getCreateQueries(repository);
 
     await validateChanges(logger, {
-      repository,
+      queries,
       clusterArn,
       secretArn,
       database
@@ -84,11 +85,11 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
   const database = parameters.getDatabase();
 
-  if (!result) {
-    throw new CorruptedResourceError(IntegrityServiceName, database);
-  }
-
   return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', async (logger) => {
+    if (!result) {
+      throw new CorruptedResourceError(IntegrityServiceName, database);
+    }
+
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
     const targetRepository = parameters.getRepository();
@@ -96,16 +97,42 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     const newIntegrityHash = hashObject(targetRepository);
     const oldIntegrityHash = current.result?.integrityHash;
 
-    if (newIntegrityHash === oldIntegrityHash && !context.force) {
+    const forceApply = current.partial || context.force;
+
+    if (newIntegrityHash === oldIntegrityHash && !forceApply) {
       return result;
     }
 
+    const steps = getUpdateStepQueries(targetRepository, {});
+
     await validateChanges(logger, {
-      repository: parameters.getRepository(),
+      queries: steps.create,
+      database,
       clusterArn,
-      secretArn,
-      database
+      secretArn
     });
+
+    context.postAction(() =>
+      OperationLogger.logExecution(IntegrityServiceName, database, 'rollout', async (logger) => {
+        await validateChanges(logger, {
+          queries: steps.update,
+          database,
+          clusterArn,
+          secretArn
+        });
+
+        context.postAction(() =>
+          OperationLogger.logExecution(IntegrityServiceName, database, 'cleanup', async (logger) => {
+            await validateChanges(logger, {
+              queries: steps.delete,
+              database,
+              clusterArn,
+              secretArn
+            });
+          })
+        );
+      })
+    );
 
     return {
       ...result,
@@ -114,4 +141,6 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
   });
 };
 
-const deleteResource = async () => {};
+const deleteResource = async () => {
+  // There's no integrity check when deleting the database.
+};

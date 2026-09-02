@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
 import { Client } from '@ez4/pgclient/driver';
-import { getCreateQueries, getDeleteQueries, getUpdateQueries } from '@ez4/pgmigration';
+import { getCreateQueries, getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
@@ -121,9 +121,11 @@ describe('migration :: client tables tests', async () => {
   });
 
   it('assert :: update tables', async () => {
-    const queries = getUpdateQueries(repositoryV2, repositoryV1);
+    const steps = getUpdateStepQueries(repositoryV2, repositoryV1);
 
-    await runMigration(client, queries);
+    await runMigration(client, steps.create);
+    await runMigration(client, steps.update);
+    await runMigration(client, steps.delete);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -136,9 +138,11 @@ describe('migration :: client tables tests', async () => {
   });
 
   it('assert :: rename tables', async () => {
-    const queries = getUpdateQueries(repositoryV3, repositoryV2);
+    const steps = getUpdateStepQueries(repositoryV3, repositoryV2);
 
-    await runMigration(client, queries);
+    await runMigration(client, steps.create);
+    await runMigration(client, steps.update);
+    await runMigration(client, steps.delete);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -164,9 +168,11 @@ describe('migration :: client tables tests', async () => {
   });
 
   it('assert :: extra tables', async () => {
-    const queries = getUpdateQueries(repositoryV4, repositoryV3);
+    const steps = getUpdateStepQueries(repositoryV4, repositoryV3);
 
-    await runMigration(client, queries);
+    await runMigration(client, steps.create);
+    await runMigration(client, steps.update);
+    await runMigration(client, steps.delete);
 
     const result = await Promise.all([
       tableExists(client, 'renamed_table_a'),

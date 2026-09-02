@@ -37,6 +37,9 @@ declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
+  const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
   const resourceArn = event.methodArn ?? event.routeArn;
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
@@ -66,8 +69,6 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     return getAuthorizationResponse(!!identity, resourceArn, {
       identity: JSON.stringify(identity ?? {})
     });
-
-    //
   } catch (error) {
     await onError(error, request);
 
@@ -80,8 +81,8 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     }
 
     throw error;
-    //
   } finally {
+    clearTimeout(timeoutEvent);
     await onEnd(request);
   }
 }
@@ -165,6 +166,18 @@ const onDone = (request: Partial<IncomingRequest>) => {
   return dispatch(
     {
       type: ServiceEventType.Done,
+      request
+    },
+    __EZ4_CONTEXT
+  );
+};
+
+const onTimeout = (request: Partial<IncomingRequest>, timeoutAfter: number) => {
+  console.warn({ ...Runtime.getScope(), timeoutAfter });
+
+  return dispatch(
+    {
+      type: ServiceEventType.Timeout,
       request
     },
     __EZ4_CONTEXT
