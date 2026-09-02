@@ -46,7 +46,7 @@ const canRenameTable = (target: ObjectSchema, source: ObjectSchema) => {
 };
 
 const canRenameIndex = (target: PgTableIndex, source: PgTableIndex) => {
-  return target.type === source.type;
+  return target.type === source.type && deepEqual(target.columns, source.columns);
 };
 
 const canRenameColumn = (target: AnySchema, source: AnySchema) => {

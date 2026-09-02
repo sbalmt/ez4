@@ -130,7 +130,7 @@ describe('migration :: primary column tests', () => {
         constraints: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_id_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_id_pk" TO "table_renamed_id_pk"'
+            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_renamed_id_pk" PRIMARY KEY ("renamed_id")'
           }
         ],
         validations: [],
@@ -139,7 +139,11 @@ describe('migration :: primary column tests', () => {
       },
       delete: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []
@@ -187,19 +191,19 @@ describe('migration :: primary column tests', () => {
             query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
           }
         ],
-        constraints: [
-          {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_replacement_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_replacement_pk" PRIMARY KEY ("replacement")'
-          }
-        ],
+        constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
       update: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_replacement_pk'`,
+            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_replacement_pk" PRIMARY KEY ("replacement")'
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []

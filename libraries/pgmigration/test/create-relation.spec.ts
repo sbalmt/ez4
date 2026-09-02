@@ -62,6 +62,13 @@ describe('migration :: create relation tests', () => {
         tables: [],
         constraints: [],
         validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -73,13 +80,6 @@ describe('migration :: create relation tests', () => {
               `NOT VALID`
           }
         ],
-        indexes: []
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
         indexes: []
       },
       delete: {
@@ -113,6 +113,13 @@ describe('migration :: create relation tests', () => {
         tables: [],
         constraints: [],
         validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -124,13 +131,6 @@ describe('migration :: create relation tests', () => {
               `NOT VALID`
           }
         ],
-        indexes: []
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
         indexes: []
       },
       delete: {

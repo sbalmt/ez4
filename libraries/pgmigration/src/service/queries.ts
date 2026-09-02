@@ -107,7 +107,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (indexChanges?.create) {
-        combineQueries(steps.create, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
+        combineQueries(steps.update, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
       }
 
       if (indexChanges?.nested) {
@@ -126,7 +126,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (relationChanges?.create) {
-        steps.create.relations.push(...RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+        steps.update.relations.push(...RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
       }
 
       if (relationChanges?.remove) {

@@ -192,8 +192,8 @@ export namespace IndexQueries {
         }
 
         case Index.Unique: {
-          const newName = getUniqueKeyName(table, fromIndex);
-          const oldName = getUniqueKeyName(table, toIndex);
+          const oldName = getUniqueKeyName(table, fromIndex);
+          const newName = getUniqueKeyName(table, toIndex);
 
           statements.indexes.push({
             query: builder.index(oldName).rename(newName).existing().build()

@@ -160,11 +160,16 @@ describe('migration :: secondary column tests', () => {
           }
         ],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            name: 'table_renamed_secondary_sk',
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND "indisvalid" = false AND "indisready" = true`
+          }
+        ],
         relations: [],
         indexes: [
           {
-            query: 'ALTER INDEX IF EXISTS "table_secondary_sk" RENAME TO "table_renamed_secondary_sk"'
+            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_renamed_secondary_sk" ON "table" USING BTREE ("renamed_secondary")'
           }
         ]
       },
@@ -173,7 +178,11 @@ describe('migration :: secondary column tests', () => {
         constraints: [],
         validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_secondary_sk"'
+          }
+        ]
       }
     });
   });
@@ -235,6 +244,13 @@ describe('migration :: secondary column tests', () => {
           }
         ],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
             query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
@@ -247,13 +263,6 @@ describe('migration :: secondary column tests', () => {
             query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_replacement_sk" ON "table" USING BTREE ("replacement")'
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [
