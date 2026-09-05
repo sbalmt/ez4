@@ -4,3 +4,9 @@ export class MigrationFailedError extends Error {
     super(`Migration failed with errors:${allErrors}`);
   }
 }
+
+export class MigrationAssertionFailedError extends Error {
+  constructor() {
+    super(`Unable to assert migration statement.`);
+  }
+}

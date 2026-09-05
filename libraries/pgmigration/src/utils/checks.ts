@@ -1,4 +1,4 @@
-import type { SqlBuilder } from '@ez4/pgsql';
+import type { SqlBuilder, SqlFilters } from '@ez4/pgsql';
 
 export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => {
   const [query] = builder
@@ -56,6 +56,30 @@ export const getCheckConstraintValidatedQuery = (builder: SqlBuilder, name: stri
       convalidated: builder.rawValue('true'),
       conname: builder.rawString(name)
     })
+    .build();
+
+  return query;
+};
+
+export const getCheckUniqueQuery = (builder: SqlBuilder, table: string, columns: string[]) => {
+  const filters = columns.reduce<SqlFilters>((filters, column) => {
+    filters[column] = { isNull: false };
+    return filters;
+  }, {});
+
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from(table)
+    .where(filters)
+    .group(...columns)
+    .having({
+      '*': {
+        count: true,
+        gt: builder.rawValue('1')
+      }
+    })
+    .take(1)
     .build();
 
   return query;

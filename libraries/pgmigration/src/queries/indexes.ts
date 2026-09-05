@@ -8,7 +8,7 @@ import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
-import { getCheckConstraintQuery } from '../utils/checks';
+import { getCheckConstraintQuery, getCheckUniqueQuery } from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
@@ -43,6 +43,7 @@ export namespace IndexQueries {
           const type = getIndexType(columns, schema);
 
           statements.indexes.push({
+            assert: getCheckUniqueQuery(builder, table, columns),
             query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build()
           });
 

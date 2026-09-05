@@ -1,11 +1,11 @@
-import type { PgMigrationQueries, PgValidationStatement } from '@ez4/pgmigration/library';
+import type { PgValidationStatement } from '@ez4/pgmigration/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { PgExecuteOptions } from '@ez4/pgclient';
 
-import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
-import { ApiClientDriver } from '../client/drivers/api';
 import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
+import { ApiClientDriver } from '../client/drivers/api';
 
 export type ConnectionRequest = {
   database: string;
@@ -14,7 +14,7 @@ export type ConnectionRequest = {
 };
 
 export type ValidateChangesRequest = ConnectionRequest & {
-  queries: PgMigrationQueries;
+  queries: PgValidationStatement[];
 };
 
 export const validateChanges = async (logger: OperationLogLine, request: ValidateChangesRequest): Promise<void> => {
@@ -28,7 +28,7 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
     database
   });
 
-  const results = await executeIntegrityChecks(logger, driver, queries.validations);
+  const results = await executeIntegrityChecks(logger, driver, queries);
 
   assertNoFailureErrors(results);
 };
@@ -48,32 +48,17 @@ const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
 };
 
 const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClientDriver, validations: PgValidationStatement[]) => {
+  const options: PgExecuteOptions = {
+    noErrorLog: true
+  };
+
   const operations = validations.map(
     (statement) => () =>
-      Wait.until(async (attempt) => {
+      Wait.until(async (attempt, attempts) => {
         try {
-          if (attempt > 1) {
-            if (!statement.check) {
-              throw new Error(`Missing integrity check query.`);
-            }
-
-            const { records } = await driver.executeStatement({
-              query: statement.check
-            });
-
-            const [isValidated] = records;
-
-            if (!isValidated) {
-              return Wait.RetryAttempt;
-            }
-
-            return true;
-          }
-
-          return await executeMigrationStatement(driver, statement);
-          //
+          return await executeIntegrityStatement(driver, statement, options);
         } catch (error) {
-          if (error instanceof StatementTimeoutException) {
+          if (attempt < attempts) {
             return Wait.RetryAttempt;
           }
 
@@ -90,13 +75,11 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
   });
 };
 
-const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgValidationStatement) => {
-  const { check, ...change } = statement;
+const executeIntegrityStatement = async (driver: ApiClientDriver, statement: PgValidationStatement, options?: PgExecuteOptions) => {
+  const { check, query } = statement;
 
   if (check) {
-    const { records } = await driver.executeStatement({
-      query: check
-    });
+    const { records } = await driver.executeStatement({ query: check }, options);
 
     const [shouldSkip] = records;
 
@@ -105,15 +88,12 @@ const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgV
     }
   }
 
-  const { records } = await driver.executeStatement(change, {
-    noErrorLog: true,
-    noTimeout: true
-  });
+  const { records } = await driver.executeStatement({ query }, options);
 
   const [hasError] = records;
 
   if (hasError) {
-    throw new IntegrityCheckError(change.name);
+    throw new IntegrityCheckError(statement.name);
   }
 
   return true;

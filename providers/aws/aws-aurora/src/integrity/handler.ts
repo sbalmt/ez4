@@ -67,7 +67,7 @@ const createResource = (candidate: IntegrityState, context: StepContext): Promis
     const queries = getCreateQueries(repository);
 
     await validateChanges(logger, {
-      queries,
+      queries: queries.validations,
       clusterArn,
       secretArn,
       database
@@ -85,7 +85,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
   const database = parameters.getDatabase();
 
-  return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', async (logger) => {
+  return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', () => {
     if (!result) {
       throw new CorruptedResourceError(IntegrityServiceName, database);
     }
@@ -105,29 +105,22 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
     const steps = getUpdateStepQueries(repository, {});
 
-    await validateChanges(logger, {
-      queries: steps.create,
-      database,
-      clusterArn,
-      secretArn
-    });
-
     context.postAction(() =>
       OperationLogger.logExecution(IntegrityServiceName, database, 'rollout', async (logger) => {
         await validateChanges(logger, {
-          queries: steps.update,
-          database,
+          queries: [...steps.create.validations, ...steps.create.validations],
           clusterArn,
-          secretArn
+          secretArn,
+          database
         });
 
         context.postAction(() =>
           OperationLogger.logExecution(IntegrityServiceName, database, 'cleanup', async (logger) => {
             await validateChanges(logger, {
-              queries: steps.delete,
-              database,
+              queries: steps.delete.validations,
               clusterArn,
-              secretArn
+              secretArn,
+              database
             });
           })
         );

@@ -1,5 +1,6 @@
 export type PgMigrationStatement = {
   check?: string;
+  assert?: string;
   query: string;
 };
 

@@ -63,7 +63,15 @@ const runAllStatements = async (client: DbClient<Database.Service<any>>, stateme
 };
 
 const runStatement = async (client: DbClient<Database.Service<any>>, statement: PgMigrationStatement) => {
-  const { check, query } = statement;
+  const { assert, check, query } = statement;
+
+  if (assert) {
+    const [shouldFail] = await client.rawQuery(assert);
+
+    if (shouldFail) {
+      throw new Error(`Migration assertion failed for statement.`);
+    }
+  }
 
   if (check) {
     const [shouldSkip] = await client.rawQuery(check);

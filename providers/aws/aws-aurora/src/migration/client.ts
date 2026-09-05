@@ -1,10 +1,12 @@
 import type { PgMigrationQueries, PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { PgExecuteOptions } from '@ez4/pgclient';
 
+import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
 import { DatabaseQueries } from '@ez4/pgmigration/library';
 
+import { MigrationAssertionFailedError, MigrationFailedError } from './errors';
 import { ApiClientDriver } from '../client/drivers/api';
-import { MigrationFailedError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -67,9 +69,13 @@ export const deleteDatabase = async (logger: OperationLogLine, request: Connecti
 const executeMigrationStatements = async (driver: ApiClientDriver, statements: PgMigrationStatement[]) => {
   const errors = [];
 
+  const options: PgExecuteOptions = {
+    noErrorLog: true
+  };
+
   for (const statement of statements) {
     try {
-      await executeMigrationStatement(driver, statement);
+      await executeMigrationStatement(driver, statement, options);
     } catch (error) {
       errors.push(`${error}`);
     }
@@ -80,13 +86,21 @@ const executeMigrationStatements = async (driver: ApiClientDriver, statements: P
   }
 };
 
-const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgMigrationStatement) => {
-  const { check, ...query } = statement;
+const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgMigrationStatement, options?: PgExecuteOptions) => {
+  const { check, assert, ...query } = statement;
+
+  if (assert) {
+    const { records } = await driver.executeStatement({ query: assert }, options);
+
+    const [shouldFail] = records;
+
+    if (shouldFail) {
+      throw new MigrationAssertionFailedError();
+    }
+  }
 
   if (check) {
-    const { records } = await driver.executeStatement({
-      query: check
-    });
+    const { records } = await driver.executeStatement({ query: check }, options);
 
     const [shouldSkip] = records;
 
@@ -95,9 +109,16 @@ const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgM
     }
   }
 
-  await driver.executeStatement(query, {
-    noErrorLog: true
-  });
+  try {
+    await driver.executeStatement(query, {
+      ...options,
+      noTimeout: true
+    });
+  } catch (error) {
+    if (!(error instanceof StatementTimeoutException)) {
+      throw error;
+    }
+  }
 
   return true;
 };
