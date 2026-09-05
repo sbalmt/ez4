@@ -4,7 +4,7 @@ import type { SqlFilters } from '../../common/types';
 
 import { SqlConditions } from '../../operations/conditions';
 
-export class SqlWhereClause {
+export class SqlHavingClause {
   #state: {
     source: SqlSource;
     filters: SqlConditions;
@@ -43,7 +43,7 @@ export class SqlWhereClause {
     if (result) {
       const [clause, variables] = result;
 
-      return [`WHERE ${clause}`, variables];
+      return [`HAVING ${clause}`, variables];
     }
 
     return undefined;

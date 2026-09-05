@@ -212,6 +212,16 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" LIMIT 100');
   });
 
+  it('assert :: select with group', async () => {
+    const query = sql.select().from('table').rawColumn('*').group('foo', 'bar');
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" GROUP BY "foo", "bar"');
+  });
+
   it('assert :: select with order', async () => {
     const query = sql.select().from('table').rawColumn('*').order({
       foo: Order.Asc,
@@ -223,6 +233,26 @@ describe('sql select tests', () => {
     deepEqual(variables, []);
 
     equal(statement, 'SELECT * FROM "table" ORDER BY "foo" ASC, "bar" DESC');
+  });
+
+  it('assert :: select with having', async () => {
+    const query = sql
+      .select()
+      .from('table')
+      .rawColumn(1)
+      .group('foo', 'bar')
+      .having({
+        '*': {
+          count: true,
+          gt: 1
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [1]);
+
+    equal(statement, 'SELECT 1 FROM "table" GROUP BY "foo", "bar" HAVING COUNT(*) > :0');
   });
 
   it('assert :: select with where', async () => {

@@ -92,10 +92,10 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
-    const targetRepository = parameters.getRepository();
+    const repository = parameters.getRepository();
 
-    const newIntegrityHash = hashObject(targetRepository);
     const oldIntegrityHash = current.result?.integrityHash;
+    const newIntegrityHash = hashObject(repository);
 
     const forceApply = current.partial || context.force;
 
@@ -103,7 +103,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
       return result;
     }
 
-    const steps = getUpdateStepQueries(targetRepository, {});
+    const steps = getUpdateStepQueries(repository, {});
 
     await validateChanges(logger, {
       queries: steps.create,

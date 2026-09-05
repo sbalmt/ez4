@@ -6,6 +6,8 @@ export * from './clauses/query/where';
 export * from './clauses/query/join';
 export * from './clauses/query/conflict';
 export * from './clauses/query/returning';
+export * from './clauses/query/having';
+export * from './clauses/query/group';
 export * from './clauses/query/order';
 export * from './clauses/query/union';
 export * from './clauses/query/with';

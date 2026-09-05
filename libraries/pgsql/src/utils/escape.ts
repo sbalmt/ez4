@@ -3,7 +3,7 @@ export const escapeSqlNames = (names: string[]) => {
 };
 
 export const escapeSqlName = (name: string) => {
-  return `"${name.replaceAll('"', '')}"`;
+  return name === '*' ? name : `"${name.replaceAll('"', '')}"`;
 };
 
 export const escapeSqlText = (text: string) => {

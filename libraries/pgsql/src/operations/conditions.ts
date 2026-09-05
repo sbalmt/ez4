@@ -143,7 +143,7 @@ const getFieldOperation = (
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
-      const { insensitive, ...valueOperation } = value;
+      const { insensitive, count, ...valueOperation } = value;
 
       const operationEntries = Object.entries(valueOperation);
 
@@ -154,7 +154,10 @@ const getFieldOperation = (
       if (operationEntries.length === 1) {
         return getSingleOperation(columnPath, columnSchema, operationEntries[0], {
           ...context,
-          insensitive
+          flags: {
+            insensitive,
+            count
+          }
         });
       }
 
