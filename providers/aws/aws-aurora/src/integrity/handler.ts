@@ -108,7 +108,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     context.postAction(() =>
       OperationLogger.logExecution(IntegrityServiceName, database, 'rollout', async (logger) => {
         await validateChanges(logger, {
-          queries: [...steps.create.validations, ...steps.create.validations],
+          queries: [...steps.create.validations, ...steps.update.validations],
           clusterArn,
           secretArn,
           database
