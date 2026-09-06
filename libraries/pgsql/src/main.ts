@@ -1,7 +1,3 @@
-export * from './operations/errors';
-export * from './statements/errors';
-export * from './clauses/errors';
-
 export * from './clauses/query/where';
 export * from './clauses/query/join';
 export * from './clauses/query/conflict';
@@ -48,5 +44,11 @@ export * from './common/raw';
 
 export * from './utils/escape';
 export * from './utils/merge';
+
+export * from './errors/clauses';
+export * from './errors/operations';
+export * from './errors/statements';
+export * from './errors/alias';
+export * from './errors/data';
 
 export * from './builder';

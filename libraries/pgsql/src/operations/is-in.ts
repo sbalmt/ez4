@@ -4,8 +4,8 @@ import type { SqlOperationContext } from './types';
 import { isAnyArray, isEmptyArray } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
+import { InvalidOperandError } from '../errors/operations';
 import { getOperandColumn, getOperandFunction, getOperandValue } from './utils';
-import { InvalidOperandError } from './errors';
 
 export const getIsInOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   if (!isAnyArray(operand)) {

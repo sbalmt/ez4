@@ -10,7 +10,7 @@ describe('sql union tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: union single select', async () => {
+  it('assert :: union single select', () => {
     const query = sql.select().from('table').rawColumn('*');
 
     const [statement, variables] = sql.union([query]).build();
@@ -20,7 +20,7 @@ describe('sql union tests', () => {
     equal(statement, `SELECT * FROM "table"`);
   });
 
-  it('assert :: union multiple selects', async () => {
+  it('assert :: union multiple selects', () => {
     const query1 = sql.select().from('table1').rawColumn('*');
     const query2 = sql.select().from('table2').rawColumn('*');
 
@@ -31,7 +31,7 @@ describe('sql union tests', () => {
     equal(statement, `SELECT * FROM "table1" UNION ALL SELECT * FROM "table2"`);
   });
 
-  it('assert :: union single insert', async () => {
+  it('assert :: union single insert', () => {
     const query = sql.insert().into('table').returning(['foo']).record({
       foo: 'foo',
       bar: 123
@@ -44,7 +44,7 @@ describe('sql union tests', () => {
     equal(statement, `INSERT INTO "table" ("foo", "bar") VALUES (:0, :1) RETURNING "foo"`);
   });
 
-  it('assert :: union multiple inserts', async () => {
+  it('assert :: union multiple inserts', () => {
     const query1 = sql.insert().into('table1').returning(['foo']).record({
       foo: 'abc'
     });
@@ -66,7 +66,7 @@ describe('sql union tests', () => {
     );
   });
 
-  it('assert :: union single update', async () => {
+  it('assert :: union single update', () => {
     const query = sql.update().only('table').returning(['foo']).record({
       foo: 'foo',
       bar: 123
@@ -79,7 +79,7 @@ describe('sql union tests', () => {
     equal(statement, `UPDATE ONLY "table" SET "foo" = :0, "bar" = :1 RETURNING "foo"`);
   });
 
-  it('assert :: union multiple updates', async () => {
+  it('assert :: union multiple updates', () => {
     const query1 = sql.update().only('table1').returning(['foo']).record({
       foo: 'abc'
     });

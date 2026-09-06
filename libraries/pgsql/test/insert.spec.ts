@@ -11,7 +11,7 @@ describe('sql insert tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: insert with record', async () => {
+  it('assert :: insert with record', () => {
     const query = sql.insert().into('table').record({
       foo: 123,
       bar: true,
@@ -30,7 +30,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" ("foo", "bar", "baz", "xyz") VALUES (:0, :1, :2, null)');
   });
 
-  it('assert :: insert with json record', async () => {
+  it('assert :: insert with json record', () => {
     const query = sql
       .insert()
       .into('table')
@@ -52,7 +52,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" ("foo") VALUES (:0)');
   });
 
-  it('assert :: insert with nullable record', async () => {
+  it('assert :: insert with nullable record', () => {
     const query = sql.insert().into('table').record({
       foo: null
     });
@@ -67,7 +67,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" ("foo") VALUES (null)');
   });
 
-  it('assert :: insert with inner select record', async () => {
+  it('assert :: insert with inner select record', () => {
     const inner = sql.select().columns('baz').from('table2');
 
     const query = sql.insert().into('table1').record({
@@ -85,7 +85,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table1" ("foo", "bar") VALUES (:0, (SELECT "baz" FROM "table2"))');
   });
 
-  it('assert :: insert with raw record value', async () => {
+  it('assert :: insert with raw record value', () => {
     const value = {
       baz: {
         qux: 'abc'
@@ -107,7 +107,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" ("foo", "bar") VALUES (:0, :1)');
   });
 
-  it('assert :: insert with no record', async () => {
+  it('assert :: insert with no record', () => {
     const query = sql.insert().into('table');
 
     const [statement, variables] = query.build();
@@ -117,7 +117,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" DEFAULT VALUES');
   });
 
-  it('assert :: insert with alias', async () => {
+  it('assert :: insert with alias', () => {
     const query = sql.insert().into('table').as('alias');
 
     const [statement, variables] = query.build();
@@ -127,7 +127,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES');
   });
 
-  it('assert :: insert with returning', async () => {
+  it('assert :: insert with returning', () => {
     const query = sql.insert().into('table').as('alias').returning(['foo', 'bar']);
 
     const [statement, variables] = query.build();
@@ -137,7 +137,7 @@ describe('sql insert tests', () => {
     equal(statement, 'INSERT INTO "table" AS "alias" DEFAULT VALUES RETURNING "alias"."foo", "alias"."bar"');
   });
 
-  it('assert :: insert with conflict (do nothing)', async () => {
+  it('assert :: insert with conflict (do nothing)', () => {
     const query = sql.insert().into('table').as('alias').conflict(['foo', 'bar']).record({
       foo: 'abc',
       bar: true
@@ -150,7 +150,17 @@ describe('sql insert tests', () => {
     equal(statement, `INSERT INTO "table" AS "alias" ("foo", "bar") VALUES (:0, :1) ON CONFLICT ("foo", "bar") DO NOTHING`);
   });
 
-  it('assert :: insert with conflict (do update)', async () => {
+  it('assert :: insert with conflict (empty columns)', () => {
+    const query = sql.insert().into('table').conflict([], { foo: 'updated' }).record({ foo: 'created' });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, ['created']);
+
+    equal(statement, 'INSERT INTO "table" ("foo") VALUES (:0)');
+  });
+
+  it('assert :: insert with conflict (do update)', () => {
     const query = sql
       .insert()
       .into('table')
@@ -170,7 +180,7 @@ describe('sql insert tests', () => {
     equal(statement, `INSERT INTO "table" AS "alias" ("foo", "bar") VALUES (:0, :1) ON CONFLICT ("foo", "bar") DO UPDATE SET "bar" = :2`);
   });
 
-  it('assert :: insert with select', async () => {
+  it('assert :: insert with select', () => {
     const query = sql.insert().into('table').select().record({
       foo: 123,
       bar: 'abc',
@@ -184,7 +194,7 @@ describe('sql insert tests', () => {
     equal(statement, `INSERT INTO "table" ("foo", "bar", "baz") SELECT :0, :1, :2`);
   });
 
-  it('assert :: insert with select where', async () => {
+  it('assert :: insert with select where', () => {
     const query = sql
       .insert()
       .into('table')
@@ -204,7 +214,7 @@ describe('sql insert tests', () => {
     equal(statement, `INSERT INTO "table" ("foo", "bar") SELECT :0, :1 WHERE "baz" = :2`);
   });
 
-  it('assert :: insert with select from', async () => {
+  it('assert :: insert with select from', () => {
     const inner = sql.select().columns('foo').from('inner').as('alias').where({ bar: 'abc' }).take(1).order({
       baz: Order.Desc
     });
@@ -230,7 +240,7 @@ describe('sql insert tests', () => {
     );
   });
 
-  it('assert :: insert with inner query', async () => {
+  it('assert :: insert with inner query', () => {
     const inner = sql.select().columns('foo').from('inner').as('inner').where({ bar: 'abc' }).take(1).order({
       baz: Order.Desc
     });

@@ -1,11 +1,11 @@
 import type { AnySchema } from '@ez4/schema';
 import type { SqlOperationContext } from './types';
 
+import { InvalidOperandError } from '../errors/operations';
 import { getOperandColumn, getOperandFunction, getOperandValue } from './utils';
-import { InvalidOperandError } from './errors';
 
 export const getIsBetweenOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
-  if (!Array.isArray(operand)) {
+  if (!Array.isArray(operand) || operand.length !== 2) {
     throw new InvalidOperandError(column);
   }
 

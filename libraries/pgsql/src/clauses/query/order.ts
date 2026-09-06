@@ -6,7 +6,7 @@ import { Order } from '@ez4/database';
 
 import { mergeSqlAlias } from '../../utils/merge';
 import { escapeSqlName } from '../../utils/escape';
-import { InvalidColumnOrderError } from '../errors';
+import { InvalidColumnOrderError } from '../../errors/clauses';
 
 export class SqlOrderClause {
   #state: {

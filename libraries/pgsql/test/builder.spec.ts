@@ -7,7 +7,18 @@ import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
 describe('sql builder tests', () => {
-  it('assert :: on prepare insert variable', async () => {
+  it('assert :: reset aliases', () => {
+    const sql = new SqlBuilder();
+
+    equal(sql.alias('alias'), 'alias0');
+    equal(sql.alias('alias'), 'alias1');
+
+    sql.reset();
+
+    equal(sql.alias('alias'), 'alias0');
+  });
+
+  it('assert :: on prepare insert variable', () => {
     const onPrepareVariable = mock.fn((value, { index }) => `insert_${index}_${value}`);
 
     const sql = new SqlBuilder({
@@ -21,7 +32,7 @@ describe('sql builder tests', () => {
     deepEqual(variables, ['insert_0_bar']);
   });
 
-  it('assert :: on prepare insert variable (with schema)', async () => {
+  it('assert :: on prepare insert variable (with schema)', () => {
     const onPrepareVariable = mock.fn((value, { index, schema }) => {
       if (!schema) {
         throw new Error(`Missing INSERT schema.`);
@@ -50,7 +61,7 @@ describe('sql builder tests', () => {
     deepEqual(variables, ['insert_0_bar']);
   });
 
-  it('assert :: on prepare update variable', async () => {
+  it('assert :: on prepare update variable', () => {
     const onPrepareVariable = mock.fn((value, { index }) => `update_${index}_${value}`);
 
     const sql = new SqlBuilder({
@@ -64,7 +75,7 @@ describe('sql builder tests', () => {
     deepEqual(variables, ['update_0_bar']);
   });
 
-  it('assert :: on prepare update variable (with schema)', async () => {
+  it('assert :: on prepare update variable (with schema)', () => {
     const onPrepareVariable = mock.fn((value, { index, schema }) => {
       if (!schema) {
         throw new Error(`Missing UPDATE schema.`);
@@ -102,7 +113,7 @@ describe('sql builder tests', () => {
     deepEqual(variables, ['update_0_baz']);
   });
 
-  it('assert :: on prepare where variable', async () => {
+  it('assert :: on prepare where variable', () => {
     const onPrepareVariable = mock.fn((value, { index }) => `where_${index}_${value}`);
 
     const sql = new SqlBuilder({
@@ -116,7 +127,7 @@ describe('sql builder tests', () => {
     deepEqual(variables, ['where_0_bar']);
   });
 
-  it('assert :: on prepare undefined variable', async () => {
+  it('assert :: on prepare undefined variable', () => {
     const onPrepareVariable = mock.fn((value, { index }) => `undefined_${index}_${value}`);
 
     const sql = new SqlBuilder({

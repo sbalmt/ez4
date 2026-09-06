@@ -11,7 +11,7 @@ describe('sql select tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: select all', async () => {
+  it('assert :: select all', () => {
     const query = sql.select().from('table').rawColumn('*');
 
     equal(query.fields.length, 1);
@@ -23,7 +23,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table"');
   });
 
-  it('assert :: select with extra columns', async () => {
+  it('assert :: select with extra columns', () => {
     const query = sql.select().columns('foo', 'bar').from('table');
 
     query.column('baz');
@@ -37,7 +37,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT "foo", "bar", "baz" FROM "table"');
   });
 
-  it('assert :: select with alias', async () => {
+  it('assert :: select with alias', () => {
     const query = sql.select().columns('foo', ['bar', 'alias_bar']).from('table').as('alias_table');
 
     deepEqual(query.fields, ['foo', ['bar', 'alias_bar']]);
@@ -49,7 +49,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT "alias_table"."foo", "alias_table"."bar" AS "alias_bar" FROM "table" AS "alias_table"');
   });
 
-  it('assert :: select with raw columns', async () => {
+  it('assert :: select with raw columns', () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.rawColumn((source) => mergeSqlAlias('*', source?.alias));
@@ -61,7 +61,7 @@ describe('sql select tests', () => {
     equal(statement, `SELECT "alias"."foo", "alias"."bar", "alias".* FROM "table" AS "alias"`);
   });
 
-  it('assert :: select with json object columns', async () => {
+  it('assert :: select with json object columns', () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.objectColumn(
@@ -109,7 +109,7 @@ describe('sql select tests', () => {
     );
   });
 
-  it('assert :: select with json array columns', async () => {
+  it('assert :: select with json array columns', () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
     query.arrayColumn(
@@ -141,7 +141,7 @@ describe('sql select tests', () => {
     );
   });
 
-  it('assert :: select with inner select columns', async () => {
+  it('assert :: select with inner select columns', () => {
     const inner = sql.select().columns('bar').from('inner').as('alias').where({ baz: 'abc' }).take(1).order({
       bar: Order.Desc
     });
@@ -160,7 +160,7 @@ describe('sql select tests', () => {
     );
   });
 
-  it('assert :: select with record columns', async () => {
+  it('assert :: select with record columns', () => {
     const query = sql.select().as('alias').from('table');
 
     query.record({
@@ -192,7 +192,7 @@ describe('sql select tests', () => {
     );
   });
 
-  it('assert :: select with offset', async () => {
+  it('assert :: select with offset', () => {
     const query = sql.select().from('table').rawColumn('*').skip(100);
 
     const [statement, variables] = query.build();
@@ -202,7 +202,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" OFFSET 100');
   });
 
-  it('assert :: select with limit', async () => {
+  it('assert :: select with limit', () => {
     const query = sql.select().from('table').rawColumn('*').take(100);
 
     const [statement, variables] = query.build();
@@ -212,7 +212,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" LIMIT 100');
   });
 
-  it('assert :: select with group', async () => {
+  it('assert :: select with group', () => {
     const query = sql.select().from('table').rawColumn('*').group('foo', 'bar');
 
     const [statement, variables] = query.build();
@@ -222,7 +222,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" GROUP BY "foo", "bar"');
   });
 
-  it('assert :: select with order', async () => {
+  it('assert :: select with order', () => {
     const query = sql.select().from('table').rawColumn('*').order({
       foo: Order.Asc,
       bar: Order.Desc
@@ -235,7 +235,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" ORDER BY "foo" ASC, "bar" DESC');
   });
 
-  it('assert :: select with having', async () => {
+  it('assert :: select with having', () => {
     const query = sql
       .select()
       .from('table')
@@ -255,7 +255,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT 1 FROM "table" GROUP BY "foo", "bar" HAVING COUNT(*) > :0');
   });
 
-  it('assert :: select with where', async () => {
+  it('assert :: select with where', () => {
     const query = sql.select().from('table').rawColumn('*').where({
       foo: 'abc'
     });
@@ -267,7 +267,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" WHERE "foo" = :0');
   });
 
-  it('assert :: select with lock', async () => {
+  it('assert :: select with lock', () => {
     const query = sql.select().from('table').rawColumn('*').lock();
 
     const [statement, variables] = query.build();
@@ -277,7 +277,7 @@ describe('sql select tests', () => {
     equal(statement, 'SELECT * FROM "table" FOR UPDATE');
   });
 
-  it('assert :: select with inner query', async () => {
+  it('assert :: select with inner query', () => {
     const inner = sql.select().columns('foo', 'bar').from('table').as('inner').where({ baz: 'abc' }).take(1).order({
       qux: Order.Desc
     });
@@ -295,7 +295,7 @@ describe('sql select tests', () => {
     );
   });
 
-  it('assert :: select with inner join', async () => {
+  it('assert :: select with inner join', () => {
     const query = sql.select().from('table1').as('alias1').column('bar');
 
     const join = query
@@ -319,5 +319,47 @@ describe('sql select tests', () => {
         `INNER JOIN "table2" AS "alias2" ` +
         `ON "alias2"."foo" = :0 AND "alias2"."baz" = "alias1"."qux"`
     );
+  });
+
+  it('assert :: select with joins without conditions', () => {
+    const left = sql.select().from('table1').rawColumn('*');
+    const right = sql.select().from('table1').rawColumn('*');
+    const full = sql.select().from('table1').rawColumn('*');
+    const cross = sql.select().from('table1').rawColumn('*');
+    const natural = sql.select().from('table1').rawColumn('*');
+
+    left.join('table2').left();
+    right.join('table2').right();
+    full.join('table2').full();
+    cross.join('table2').cross();
+    natural.join('table2').natural();
+
+    equal(left.build()[0], 'SELECT * FROM "table1" LEFT JOIN "table2" ON TRUE');
+    equal(right.build()[0], 'SELECT * FROM "table1" RIGHT JOIN "table2" ON TRUE');
+    equal(full.build()[0], 'SELECT * FROM "table1" FULL JOIN "table2" ON TRUE');
+    equal(cross.build()[0], 'SELECT * FROM "table1" CROSS JOIN "table2"');
+    equal(natural.build()[0], 'SELECT * FROM "table1" NATURAL INNER JOIN "table2"');
+  });
+
+  it('assert :: replace select clause state', () => {
+    const query = sql
+      .select()
+      .from('table')
+      .as('alias')
+      .rawColumn('*')
+      .group('foo')
+      .group('bar')
+      .order({ foo: Order.Asc })
+      .order({ bar: Order.Desc })
+      .skip(0)
+      .take(0)
+      .lock()
+      .lock(false);
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, 'SELECT * FROM "table" AS "alias" GROUP BY "alias"."bar" ORDER BY "alias"."bar" DESC OFFSET 0 LIMIT 0');
   });
 });

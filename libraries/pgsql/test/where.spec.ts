@@ -1,6 +1,6 @@
 import { beforeEach, describe, it } from 'node:test';
 
-import { SqlBuilder } from '@ez4/pgsql';
+import { InvalidOperandError, SqlBuilder } from '@ez4/pgsql';
 
 describe('sql where tests', () => {
   let sql: SqlBuilder;
@@ -165,6 +165,19 @@ describe('sql where tests', () => {
     assert.deepEqual(variables, [1, 2]);
 
     assert.equal(statement, 'SELECT FROM "test" WHERE "foo" BETWEEN :0 AND :1');
+  });
+
+  it('assert :: where is between (invalid operand)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          isBetween: [1]
+        }
+      });
+
+    assert.throws(() => query.build(), InvalidOperandError);
   });
 
   it('assert :: where is null (implicit)', ({ assert }) => {

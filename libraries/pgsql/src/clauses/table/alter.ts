@@ -1,7 +1,7 @@
 import type { SqlTableStatement } from '../../statements/table';
 
 import { escapeSqlName } from '../../utils/escape';
-import { MissingClauseError, TooManyClausesError } from '../errors';
+import { MissingClauseError, TooManyClausesError } from '../../errors/clauses';
 import { SqlConstraintClause } from '../constraint/clause';
 import { SqlAddColumnClause } from '../column/add';
 import { SqlAlterColumnClause } from '../column/alter';

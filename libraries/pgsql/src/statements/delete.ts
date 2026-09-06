@@ -5,10 +5,10 @@ import type { SqlFilters } from '../common/types';
 import type { ObjectSchema } from '@ez4/schema';
 
 import { SqlSource } from '../common/source';
+import { MissingTableNameError } from '../errors/statements';
 import { SqlReturningClause } from '../clauses/query/returning';
 import { SqlWhereClause } from '../clauses/query/where';
 import { escapeSqlName } from '../utils/escape';
-import { MissingTableNameError } from './errors';
 
 export class SqlDeleteStatement extends SqlSource {
   #state: {
