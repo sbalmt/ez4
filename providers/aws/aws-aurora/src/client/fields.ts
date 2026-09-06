@@ -276,7 +276,7 @@ const readArrayValue = (array: ArrayValue): unknown[] => {
   }
 
   if (array.arrayValues !== undefined) {
-    return array.arrayValues.map(readArrayValue);
+    return array.arrayValues.map((value) => value && readArrayValue(value));
   }
 
   return [];
