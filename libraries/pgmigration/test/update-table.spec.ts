@@ -1,5 +1,7 @@
-import { describe, it } from 'node:test';
+import type { ObjectSchema } from '@ez4/schema';
+
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
@@ -120,5 +122,35 @@ describe('migration :: update table tests', () => {
         indexes: []
       }
     });
+  });
+
+  it('assert :: rename table with column update', async () => {
+    const targetTable = {
+      renamed_table: {
+        ...sourceTable.table,
+        name: 'renamed_table',
+        schema: {
+          ...sourceTable.table.schema,
+          properties: {
+            ...sourceTable.table.schema.properties,
+            column_a: {
+              type: SchemaType.String
+            }
+          }
+        } as ObjectSchema
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps.update.tables, [
+      {
+        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+      },
+      {
+        check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'renamed_table')`,
+        query: 'ALTER TABLE IF EXISTS "renamed_table" ALTER COLUMN "column_a" TYPE text USING "column_a"::text'
+      }
+    ]);
   });
 });

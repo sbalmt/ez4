@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
@@ -78,6 +78,7 @@ describe('migration :: update relation tests', () => {
         ],
         relations: [
           {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
             query:
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
@@ -134,6 +135,7 @@ describe('migration :: update relation tests', () => {
         ],
         relations: [
           {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
             query:
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
@@ -153,6 +155,119 @@ describe('migration :: update relation tests', () => {
           },
           {
             query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: update relation source column', () => {
+    const sourceTable = getDatabaseTables(false);
+    const baseTarget = getDatabaseTables(false);
+
+    const targetTable = {
+      ...baseTarget,
+      table_a: {
+        ...baseTarget.table_a,
+        relations: {
+          relation: {
+            ...baseTarget.table_a.relations.relation,
+            sourceColumn: 'other_column'
+          }
+        }
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_tmp_fk'`,
+            name: 'table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("other_column") ` +
+              `ON DELETE CASCADE ` +
+              `ON UPDATE CASCADE`
+          }
+        ],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"'
+          },
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: update relation to secondary source', () => {
+    const sourceTable = getDatabaseTables(false);
+    const baseTarget = getDatabaseTables(false);
+
+    const targetTable = {
+      ...baseTarget,
+      table_a: {
+        ...baseTarget.table_a,
+        relations: {
+          relation: {
+            ...baseTarget.table_a.relations.relation,
+            sourceIndex: Index.Secondary
+          }
+        }
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      create: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      delete: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"'
           }
         ],
         indexes: []

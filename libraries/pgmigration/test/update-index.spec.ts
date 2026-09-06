@@ -1,8 +1,8 @@
 import type { ObjectSchemaProperties } from '@ez4/schema';
 import type { TableIndex } from '@ez4/database/library';
 
-import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
@@ -68,7 +68,12 @@ describe('migration :: update index tests', () => {
             query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"'
           }
         ],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_uk'
+          }
+        ],
         relations: [],
         indexes: [
           {
@@ -109,7 +114,12 @@ describe('migration :: update index tests', () => {
             query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_index_pk"'
           }
         ],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_sk'
+          }
+        ],
         relations: [],
         indexes: [
           {
@@ -184,7 +194,12 @@ describe('migration :: update index tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_sk'
+          }
+        ],
         relations: [],
         indexes: [
           {
@@ -222,7 +237,12 @@ describe('migration :: update index tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_uk'
+          }
+        ],
         relations: [],
         indexes: [
           {
@@ -341,7 +361,12 @@ describe('migration :: update index tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_uk'
+          }
+        ],
         relations: [],
         indexes: [
           {
@@ -382,7 +407,12 @@ describe('migration :: update index tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            name: 'table_index_sk'
+          }
+        ],
         relations: [],
         indexes: [
           {

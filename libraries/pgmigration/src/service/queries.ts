@@ -76,12 +76,14 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const { schema, relations: relationChanges, indexes: indexChanges } = tableChanges;
 
       const targetColumns = schema?.nested?.properties;
+
+      const sourceRelations = changes.source[table].relations;
       const targetRelations = target[table].relations;
 
-      const sourceIndexes = source[table].indexes;
+      const sourceIndexes = changes.source[table].indexes;
       const targetIndexes = target[table].indexes;
 
-      const sourceSchema = source[table].schema;
+      const sourceSchema = changes.source[table].schema;
       const targetSchema = target[table].schema;
 
       if (targetColumns?.create) {
@@ -92,7 +94,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       if (targetColumns?.nested) {
         steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
         combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
-        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
+        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema.properties, targetRelations));
       }
 
       if (targetColumns?.rename) {
@@ -128,6 +130,20 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
 
       if (relationChanges?.create) {
         combineQueries(steps.update, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+      }
+
+      if (relationChanges?.nested) {
+        combineSteps(
+          steps,
+          RelationQuery.prepareUpdateSource(
+            builder,
+            table,
+            targetSchema.properties,
+            sourceRelations,
+            targetRelations,
+            relationChanges.nested
+          )
+        );
       }
 
       if (relationChanges?.remove) {

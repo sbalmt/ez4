@@ -1,6 +1,7 @@
 import type { AnySchema, NumberSchema, StringSchema } from '@ez4/schema';
 
 import { isArraySchema, isEnumSchema, isObjectSchema, isScalarSchema, isStringSchema, isTupleSchema, SchemaType } from '@ez4/schema';
+import { escapeSqlText } from '@ez4/pgsql';
 import { isAnyNumber } from '@ez4/utils';
 
 export const isOptionalColumn = (schema: AnySchema) => {
@@ -17,10 +18,10 @@ export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
         return `${definitions.default}`;
 
       case 'string':
-        return `'${definitions.default}'`;
+        return escapeSqlText(definitions.default);
 
       case 'object':
-        return `'${JSON.stringify(definitions.default)}'`;
+        return escapeSqlText(JSON.stringify(definitions.default));
     }
   }
 
@@ -28,7 +29,7 @@ export const getColumnDefault = (schema: AnySchema, primaryIndex: boolean) => {
     const { definitions } = schema;
 
     if (definitions?.default) {
-      return `'${definitions.default}'`;
+      return escapeSqlText(`${definitions.default}`);
     }
   }
 

@@ -105,6 +105,7 @@ export namespace IndexQueries {
         const operation = prepareCreate(builder, table, schema, { [indexName]: targetIndexes[indexName] });
 
         statements.constraints.push(...operation.constraints);
+        statements.validations.push(...operation.validations);
         statements.indexes.push(...operation.indexes);
       }
     }

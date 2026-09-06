@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import { equal } from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 import { escapeSqlData, escapeSqlName, escapeSqlNames, escapeSqlText } from '@ez4/pgsql';
 import { UnsupportedSqlDataError } from '@ez4/pgsql';
@@ -17,7 +17,7 @@ describe('sql escape tests', () => {
 
   it('assert :: escape names', () => {
     equal(escapeSqlName('*'), '*');
-    equal(escapeSqlName('user"name'), '"username"');
+    equal(escapeSqlName('user"name'), '"user""name"');
     equal(escapeSqlNames(['foo', 'bar']), '"foo", "bar"');
   });
 

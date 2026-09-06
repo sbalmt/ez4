@@ -5,11 +5,11 @@ export const escapeSqlNames = (names: string[]) => {
 };
 
 export const escapeSqlName = (name: string) => {
-  return name === '*' ? name : `"${name.replaceAll('"', '')}"`;
+  return name === '*' ? name : `"${name.replaceAll('"', '""')}"`;
 };
 
 export const escapeSqlText = (text: string) => {
-  return `'${text.replaceAll(/'/g, `''`)}'`;
+  return `'${text.replaceAll("'", `''`)}'`;
 };
 
 export const escapeSqlData = (data: unknown) => {

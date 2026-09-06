@@ -1,6 +1,6 @@
 import type { PgRelationMetadata, PgRelationRepository } from '@ez4/pgclient/library';
+import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
-import type { ObjectSchema } from '@ez4/schema';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { PgMigrationQueries } from '../types/query';
 
@@ -47,12 +47,7 @@ export namespace RelationQuery {
     return statements;
   };
 
-  export const prepareUpdate = (
-    builder: SqlBuilder,
-    table: string,
-    relations: PgRelationRepository,
-    changes: Record<string, ObjectComparison>
-  ) => {
+  export const prepareUpdate = (builder: SqlBuilder, table: string, columns: ObjectSchemaProperties, relations: PgRelationRepository) => {
     const steps = {
       update: { validations: [], relations: [] } as RelationQueries,
       delete: { validations: [], relations: [] } as RelationQueries
@@ -65,8 +60,8 @@ export namespace RelationQuery {
         continue;
       }
 
-      const targetUpdates = changes[relation.targetColumn]?.update;
-      const targetRequired = targetUpdates?.optional ?? targetUpdates?.nullable;
+      const targetSchema = columns[relation.targetColumn];
+      const targetRequired = !!(targetSchema?.optional ?? targetSchema?.nullable);
 
       if (targetRequired === undefined) {
         continue;
@@ -76,7 +71,65 @@ export namespace RelationQuery {
       const newName = getRelationName(table, targetAlias);
 
       steps.update.relations.push({
+        check: getCheckConstraintExistsQuery(builder, tmpName),
         query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
+      });
+
+      steps.update.validations.push({
+        query: getCheckConstraintInvalidQuery(builder, tmpName),
+        name: newName
+      });
+
+      steps.delete.relations.push(
+        {
+          query: getDeleteQuery(builder, table, newName).build()
+        },
+        {
+          query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
+        }
+      );
+    }
+
+    return steps;
+  };
+
+  export const prepareUpdateSource = (
+    builder: SqlBuilder,
+    table: string,
+    columns: ObjectSchemaProperties,
+    sourceRelations: PgRelationRepository,
+    targetRelations: PgRelationRepository,
+    changes: Record<string, ObjectComparison>
+  ) => {
+    const steps = {
+      update: { validations: [], relations: [] } as RelationQueries,
+      delete: { validations: [], relations: [] } as RelationQueries
+    };
+
+    for (const targetAlias in changes) {
+      const newName = getRelationName(table, targetAlias);
+
+      const sourceRelation = sourceRelations[targetAlias];
+      const targetRelation = targetRelations[targetAlias];
+
+      if (isNotRealRelation(targetRelation)) {
+        if (!isNotRealRelation(sourceRelation)) {
+          steps.delete.relations.push({
+            query: getDeleteQuery(builder, table, newName).build()
+          });
+        }
+
+        continue;
+      }
+
+      const targetSchema = columns[targetRelation.targetColumn];
+      const targetRequired = !!(targetSchema?.optional ?? targetSchema?.nullable);
+
+      const tmpName = getRelationName(table, `${targetAlias}_tmp`);
+
+      steps.update.relations.push({
+        check: getCheckConstraintExistsQuery(builder, tmpName),
+        query: getCreateQuery(builder, table, tmpName, targetRelation, targetRequired).build()
       });
 
       steps.update.validations.push({
