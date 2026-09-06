@@ -8,7 +8,7 @@ import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
-import { getCheckConstraintQuery, getCheckUniqueQuery } from '../utils/checks';
+import { getCheckConstraintExistsQuery, getCheckUniqueRecordsQuery } from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
@@ -31,7 +31,7 @@ export namespace IndexQueries {
           const name = getPrimaryKeyName(table, indexName);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, name),
+            check: getCheckConstraintExistsQuery(builder, name),
             query: builder.table(table).alter().existing().constraint(name).primary(columns).build()
           });
 
@@ -43,7 +43,7 @@ export namespace IndexQueries {
           const type = getIndexType(columns, schema);
 
           statements.indexes.push({
-            assert: getCheckUniqueQuery(builder, table, columns),
+            assert: getCheckUniqueRecordsQuery(builder, table, columns),
             query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build(),
             name
           });
@@ -131,7 +131,7 @@ export namespace IndexQueries {
           const toName = getPrimaryKeyName(toTable, indexName);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, toName),
+            check: getCheckConstraintExistsQuery(builder, toName),
             query: builder.table(toTable).alter().existing().constraint(fromName).rename(toName).build()
           });
 
@@ -186,7 +186,7 @@ export namespace IndexQueries {
           const newName = getPrimaryKeyName(table, toIndex);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, newName),
+            check: getCheckConstraintExistsQuery(builder, newName),
             query: builder.table(table).alter().existing().constraint(oldName).rename(newName).build()
           });
 

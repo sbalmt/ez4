@@ -7,7 +7,7 @@ import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintQuery } from '../utils/checks';
+import { getCheckConstraintExistsQuery } from '../utils/checks';
 import { getRelationName } from '../utils/naming';
 
 export namespace RelationQuery {
@@ -28,7 +28,7 @@ export namespace RelationQuery {
       const targetRequired = !!isNullishSchema(targetSchema);
 
       statements.push({
-        check: getCheckConstraintQuery(builder, relationName),
+        check: getCheckConstraintExistsQuery(builder, relationName),
         query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
       });
     }
@@ -89,7 +89,7 @@ export namespace RelationQuery {
       const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
 
       statements.push({
-        check: getCheckConstraintQuery(builder, newName),
+        check: getCheckConstraintExistsQuery(builder, newName),
         query: query.build()
       });
     }

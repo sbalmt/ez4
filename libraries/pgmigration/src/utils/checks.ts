@@ -1,6 +1,6 @@
 import type { SqlBuilder, SqlFilters } from '@ez4/pgsql';
 
-export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => {
+export const getCheckDatabaseExistsQuery = (builder: SqlBuilder, database: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -13,7 +13,7 @@ export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => 
   return query;
 };
 
-export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
+export const getCheckConstraintExistsQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -26,7 +26,7 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
   return query;
 };
 
-export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: string) => {
+export const getCheckColumnExistsQuery = (builder: SqlBuilder, table: string, column: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -61,7 +61,21 @@ export const getCheckConstraintValidatedQuery = (builder: SqlBuilder, name: stri
   return query;
 };
 
-export const getCheckUniqueQuery = (builder: SqlBuilder, table: string, columns: string[]) => {
+export const getCheckConstraintRecordsQuery = (builder: SqlBuilder, table: string, filters: SqlFilters) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from(table)
+    .where({
+      NOT: filters
+    })
+    .take(1)
+    .build();
+
+  return query;
+};
+
+export const getCheckUniqueRecordsQuery = (builder: SqlBuilder, table: string, columns: string[]) => {
   const filters = columns.reduce<SqlFilters>((filters, column) => {
     filters[column] = { isNull: false };
     return filters;

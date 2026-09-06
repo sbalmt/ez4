@@ -74,7 +74,9 @@ describe('migration :: update constraint tests', () => {
             query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
           },
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456')) NOT VALID`
+            assert: `SELECT 1 FROM "table" WHERE NOT "column" IN ('foo', '123', 'bar', '456') LIMIT 1`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123', 'bar', '456')) NOT VALID`,
+            name: 'table_column_ck'
           }
         ],
         validations: [
@@ -133,7 +135,9 @@ describe('migration :: update constraint tests', () => {
             query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
           },
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = false) NOT VALID`
+            assert: 'SELECT 1 FROM "table" WHERE NOT "column" = false LIMIT 1',
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = false) NOT VALID`,
+            name: 'table_column_ck'
           }
         ],
         validations: [
@@ -192,7 +196,9 @@ describe('migration :: update constraint tests', () => {
             query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
           },
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 456) NOT VALID`
+            assert: 'SELECT 1 FROM "table" WHERE NOT "column" = 456 LIMIT 1',
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 456) NOT VALID`,
+            name: 'table_column_ck'
           }
         ],
         validations: [
@@ -251,7 +257,9 @@ describe('migration :: update constraint tests', () => {
             query: `ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_ck"`
           },
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'bar') NOT VALID`
+            assert: `SELECT 1 FROM "table" WHERE NOT "column" = 'bar' LIMIT 1`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'bar') NOT VALID`,
+            name: 'table_column_ck'
           }
         ],
         validations: [

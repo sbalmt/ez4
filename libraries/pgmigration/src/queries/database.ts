@@ -1,13 +1,13 @@
 import { SqlBuilder } from '@ez4/pgsql';
 
-import { getCheckDatabaseQuery } from '../utils/checks';
+import { getCheckDatabaseExistsQuery } from '../utils/checks';
 
 export namespace DatabaseQueries {
   export const prepareCreate = (database: string) => {
     const builder = new SqlBuilder();
 
     return {
-      check: getCheckDatabaseQuery(builder, database),
+      check: getCheckDatabaseExistsQuery(builder, database),
       query: `CREATE DATABASE "${database}"`
     };
   };
