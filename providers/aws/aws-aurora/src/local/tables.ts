@@ -4,7 +4,7 @@ import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { ServeOptions } from '@ez4/project/library';
 import type { ClientConnection } from '@ez4/pgclient';
 
-import { DatabaseQueries } from '@ez4/pgmigration/library';
+import { DatabaseQueries, MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { Client } from '@ez4/pgclient/driver';
 
@@ -63,13 +63,13 @@ const runAllStatements = async (client: DbClient<Database.Service<any>>, stateme
 };
 
 const runStatement = async (client: DbClient<Database.Service<any>>, statement: PgMigrationStatement) => {
-  const { assert, check, query } = statement;
+  const { name, assert, check, query } = statement;
 
   if (assert) {
     const [shouldFail] = await client.rawQuery(assert);
 
     if (shouldFail) {
-      throw new Error(`Migration assertion failed for statement.`);
+      throw new MigrationAssertionFailedError(name);
     }
   }
 

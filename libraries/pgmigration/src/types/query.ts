@@ -1,4 +1,5 @@
 export type PgMigrationStatement = {
+  name?: string;
   check?: string;
   assert?: string;
   query: string;

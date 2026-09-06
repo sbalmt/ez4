@@ -73,7 +73,8 @@ describe('migration :: update index tests', () => {
         indexes: [
           {
             assert: 'SELECT 1 FROM "table" WHERE "column" IS NOT null GROUP BY "column" HAVING COUNT(*) > 1 LIMIT 1',
-            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")',
+            name: 'table_index_uk'
           }
         ]
       },
@@ -229,7 +230,8 @@ describe('migration :: update index tests', () => {
           },
           {
             assert: 'SELECT 1 FROM "table" WHERE "column" IS NOT null GROUP BY "column" HAVING COUNT(*) > 1 LIMIT 1',
-            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")',
+            name: 'table_index_uk'
           }
         ]
       },
@@ -348,7 +350,8 @@ describe('migration :: update index tests', () => {
           {
             assert:
               'SELECT 1 FROM "table" WHERE "column" IS NOT null AND "other" IS NOT null GROUP BY "column", "other" HAVING COUNT(*) > 1 LIMIT 1',
-            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column", "other")'
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column", "other")',
+            name: 'table_index_uk'
           }
         ]
       },

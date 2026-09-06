@@ -44,7 +44,8 @@ export namespace IndexQueries {
 
           statements.indexes.push({
             assert: getCheckUniqueQuery(builder, table, columns),
-            query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build()
+            query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build(),
+            name
           });
 
           statements.validations.push({

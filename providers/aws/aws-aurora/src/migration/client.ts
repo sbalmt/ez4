@@ -2,10 +2,10 @@ import type { PgMigrationQueries, PgMigrationStatement } from '@ez4/pgmigration/
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { PgExecuteOptions } from '@ez4/pgclient';
 
+import { DatabaseQueries, MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
-import { DatabaseQueries } from '@ez4/pgmigration/library';
 
-import { MigrationAssertionFailedError, MigrationFailedError } from './errors';
+import { MigrationFailedError } from '../common/errors';
 import { ApiClientDriver } from '../client/drivers/api';
 
 export type ConnectionRequest = {
@@ -87,7 +87,7 @@ const executeMigrationStatements = async (driver: ApiClientDriver, statements: P
 };
 
 const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgMigrationStatement, options?: PgExecuteOptions) => {
-  const { check, assert, ...query } = statement;
+  const { name, check, assert, ...query } = statement;
 
   if (assert) {
     const { records } = await driver.executeStatement({ query: assert }, options);
@@ -95,7 +95,7 @@ const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgM
     const [shouldFail] = records;
 
     if (shouldFail) {
-      throw new MigrationAssertionFailedError();
+      throw new MigrationAssertionFailedError(name);
     }
   }
 
