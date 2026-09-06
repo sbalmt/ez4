@@ -59,6 +59,24 @@ describe('aurora client driver', { timeout: 180000 }, async () => {
     deepEqual(result, [{ alive: 1 }]);
   });
 
+  it('assert :: raw query (json column)', async () => {
+    const result = await dbClient.rawQuery(`SELECT '{"a":1}'::json AS column`);
+
+    deepEqual(result, [{ column: { a: 1 } }]);
+  });
+
+  it('assert :: raw query (jsonb column)', async () => {
+    const result = await dbClient.rawQuery(`SELECT '{"a":1}'::jsonb AS column`);
+
+    deepEqual(result, [{ column: { a: 1 } }]);
+  });
+
+  it('assert :: raw query (json aggregate)', async () => {
+    const result = await dbClient.rawQuery(`SELECT jsonb_agg(to_jsonb(t)) AS column FROM (SELECT 1 AS field) t`);
+
+    deepEqual(result, [{ column: [{ field: 1 }] }]);
+  });
+
   it('assert :: transaction', async () => {
     const result = await dbClient.transaction(async (transaction: DbClient<Database.Service<any>>) => {
       return transaction.rawQuery('SELECT 1 AS alive');
