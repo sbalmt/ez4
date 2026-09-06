@@ -7,7 +7,7 @@ export const escapeSqlName = (name: string) => {
 };
 
 export const escapeSqlText = (text: string) => {
-  return `'${text.replaceAll(/'/g, `\\'`)}'`;
+  return `'${text.replaceAll(/'/g, `''`)}'`;
 };
 
 export const escapeSqlData = (data: unknown) => {
