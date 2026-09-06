@@ -68,7 +68,13 @@ describe('migration :: create relation tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
+            query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"',
+            name: 'table_a_relation_fk'
+          }
+        ],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -119,7 +125,13 @@ describe('migration :: create relation tests', () => {
       update: {
         tables: [],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
+            query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"',
+            name: 'table_a_relation_fk'
+          }
+        ],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,

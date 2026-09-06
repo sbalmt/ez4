@@ -26,8 +26,8 @@ export const getCreateQueries = (target: PgTableRepository) => {
     const { name, schema, indexes, relations } = target[table];
 
     queries.tables.push(TableQuery.prepareCreate(builder, name, schema, indexes));
-    queries.relations.push(...RelationQuery.prepareCreate(builder, name, schema, relations));
 
+    combineQueries(queries, RelationQuery.prepareCreate(builder, name, schema, relations));
     combineQueries(queries, ConstraintQuery.prepareCreate(builder, name, schema.properties));
     combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes));
   }
@@ -92,7 +92,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       if (targetColumns?.nested) {
         steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
         combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
-        steps.update.relations.push(...RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
+        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
       }
 
       if (targetColumns?.rename) {
@@ -127,7 +127,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (relationChanges?.create) {
-        steps.update.relations.push(...RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+        combineQueries(steps.update, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
       }
 
       if (relationChanges?.remove) {
