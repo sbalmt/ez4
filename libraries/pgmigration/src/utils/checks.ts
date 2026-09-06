@@ -82,8 +82,14 @@ export const getIndexInvalidQuery = (builder: SqlBuilder, name: string) => {
     .from('pg_index')
     .where({
       indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
-      indisvalid: builder.rawValue('false'),
-      indisready: builder.rawValue('true')
+      OR: [
+        {
+          indisvalid: builder.rawValue('false')
+        },
+        {
+          indisready: builder.rawValue('false')
+        }
+      ]
     })
     .build();
 

@@ -532,7 +532,7 @@ describe('migration :: update index tests', () => {
         validations: [
           {
             name: 'table_index_renamed_sk',
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_renamed_sk'::regclass AND "indisvalid" = false AND "indisready" = true`
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_renamed_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`
           }
         ],
         relations: [],

@@ -114,7 +114,7 @@ describe('migration :: create index tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_uk'
           }
         ],
@@ -163,7 +163,7 @@ describe('migration :: create index tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
@@ -253,7 +253,7 @@ describe('migration :: create index tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_uk'
           }
         ],
@@ -303,7 +303,7 @@ describe('migration :: create index tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
@@ -350,7 +350,7 @@ describe('migration :: create index tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
