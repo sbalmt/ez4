@@ -47,13 +47,13 @@ export const getCheckColumnExistsQuery = (builder: SqlBuilder, table: string, co
   return query;
 };
 
-export const getCheckConstraintValidatedQuery = (builder: SqlBuilder, name: string) => {
+export const getCheckConstraintInvalidQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
     .from('pg_constraint')
     .where({
-      convalidated: builder.rawValue('true'),
+      convalidated: builder.rawValue('false'),
       conname: builder.rawString(name)
     })
     .build();
@@ -70,6 +70,21 @@ export const getCheckConstraintRecordsQuery = (builder: SqlBuilder, table: strin
       NOT: filters
     })
     .take(1)
+    .build();
+
+  return query;
+};
+
+export const getIndexInvalidQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from('pg_index')
+    .where({
+      indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
+      indisvalid: builder.rawValue('false'),
+      indisready: builder.rawValue('true')
+    })
     .build();
 
   return query;

@@ -6,7 +6,7 @@ import type { PgMigrationQueries } from '../types/query';
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
 
-import { getCheckConstraintExistsQuery, getCheckConstraintRecordsQuery, getCheckConstraintValidatedQuery } from '../utils/checks';
+import { getCheckConstraintExistsQuery, getCheckConstraintRecordsQuery, getCheckConstraintInvalidQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
 type ConstraintQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
@@ -32,8 +32,7 @@ export namespace ConstraintQuery {
         });
 
         statements.validations.push({
-          check: getCheckConstraintValidatedQuery(builder, name),
-          query: getValidationQuery(builder, table, name).build(),
+          query: getCheckConstraintInvalidQuery(builder, name),
           name
         });
       }
@@ -86,8 +85,7 @@ export namespace ConstraintQuery {
           });
 
           steps.update.validations.push({
-            check: getCheckConstraintValidatedQuery(builder, tmpName),
-            query: getValidationQuery(builder, table, tmpName).build(),
+            query: getCheckConstraintInvalidQuery(builder, tmpName),
             name: newName
           });
 
@@ -173,14 +171,10 @@ export namespace ConstraintQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
-  const getValidationQuery = (builder: SqlBuilder, table: string, name: string) => {
-    return builder.table(table).alter().existing().constraint(name).validate();
-  };
-
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, schema: EnumSchema | ScalarSchema) => {
     const query = builder.table(table).alter().existing().constraint(name);
 
-    query.check(getConstraintFilters(builder, column, schema)).validate(false);
+    query.check(getConstraintFilters(builder, column, schema));
 
     return query;
   };

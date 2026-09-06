@@ -8,7 +8,7 @@ import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintExistsQuery, getCheckConstraintValidatedQuery } from '../utils/checks';
+import { getCheckConstraintExistsQuery, getCheckConstraintInvalidQuery } from '../utils/checks';
 import { getRelationName } from '../utils/naming';
 
 type RelationQueries = Pick<PgMigrationQueries, 'relations' | 'validations'>;
@@ -39,8 +39,7 @@ export namespace RelationQuery {
       });
 
       statements.validations.push({
-        check: getCheckConstraintValidatedQuery(builder, relationName),
-        query: getValidationQuery(builder, table, relationName).build(),
+        query: getCheckConstraintInvalidQuery(builder, relationName),
         name: relationName
       });
     }
@@ -81,8 +80,7 @@ export namespace RelationQuery {
       });
 
       steps.update.validations.push({
-        check: getCheckConstraintValidatedQuery(builder, tmpName),
-        query: getValidationQuery(builder, table, tmpName).build(),
+        query: getCheckConstraintInvalidQuery(builder, tmpName),
         name: newName
       });
 
@@ -153,17 +151,13 @@ export namespace RelationQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
-  const getValidationQuery = (builder: SqlBuilder, table: string, name: string) => {
-    return builder.table(table).alter().existing().constraint(name).validate();
-  };
-
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, relation: PgRelationMetadata, optional: boolean) => {
     const { sourceTable, sourceColumn, targetColumn } = relation;
 
     const sourceTableName = getTableName(sourceTable);
 
     const query = builder.table(table).alter().existing().constraint(name);
-    const constraint = query.foreign(targetColumn, sourceTableName, [sourceColumn]).validate(false);
+    const constraint = query.foreign(targetColumn, sourceTableName, [sourceColumn]);
 
     if (!optional) {
       constraint.delete().cascade();

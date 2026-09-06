@@ -7,7 +7,6 @@ export type PgMigrationStatement = {
 
 export type PgValidationStatement = {
   name: string;
-  check?: string;
   query: string;
 };
 

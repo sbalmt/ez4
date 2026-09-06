@@ -70,8 +70,7 @@ describe('migration :: create relation tests', () => {
         constraints: [],
         validations: [
           {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
-            query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"',
+            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
             name: 'table_a_relation_fk'
           }
         ],
@@ -82,8 +81,7 @@ describe('migration :: create relation tests', () => {
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
               `ON DELETE CASCADE ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+              `ON UPDATE CASCADE`
           }
         ],
         indexes: []
@@ -127,8 +125,7 @@ describe('migration :: create relation tests', () => {
         constraints: [],
         validations: [
           {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
-            query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"',
+            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
             name: 'table_a_relation_fk'
           }
         ],
@@ -139,8 +136,7 @@ describe('migration :: create relation tests', () => {
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
               `ON DELETE SET null ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+              `ON UPDATE CASCADE`
           }
         ],
         indexes: []

@@ -83,24 +83,14 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
 };
 
 const executeIntegrityStatement = async (driver: ApiClientDriver, statement: PgValidationStatement, options?: PgExecuteOptions) => {
-  const { check, query } = statement;
-
-  if (check) {
-    const { records } = await driver.executeStatement({ query: check }, options);
-
-    const [shouldSkip] = records;
-
-    if (shouldSkip) {
-      return false;
-    }
-  }
+  const { name, query } = statement;
 
   const { records } = await driver.executeStatement({ query }, options);
 
   const [hasError] = records;
 
   if (hasError) {
-    throw new IntegrityCheckError(statement.name);
+    throw new IntegrityCheckError(name);
   }
 
   return true;
