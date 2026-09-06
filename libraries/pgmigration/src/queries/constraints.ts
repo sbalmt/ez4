@@ -184,7 +184,7 @@ export namespace ConstraintQuery {
       case SchemaType.Enum: {
         return {
           [column]: {
-            isIn: schema.options.map(({ value }) => builder.rawValue(`'${value}'`))
+            isIn: schema.options.map(({ value }) => builder.rawString(`${value}`))
           }
         };
       }
@@ -200,7 +200,7 @@ export namespace ConstraintQuery {
       case SchemaType.String: {
         return {
           [column]: {
-            equal: builder.rawValue(`'${schema.definitions?.value}'`)
+            equal: builder.rawString(`${schema.definitions?.value}`)
           }
         };
       }
