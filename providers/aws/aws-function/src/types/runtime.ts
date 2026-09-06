@@ -1,4 +1,5 @@
 export const enum FunctionRuntime {
   Node22 = 'nodejs22.x',
-  Node24 = 'nodejs24.x'
+  Node24 = 'nodejs24.x',
+  Node26 = 'nodejs26.x'
 }
