@@ -9,11 +9,11 @@ import { isNotNullish } from '@ez4/utils';
 import { getCheckConstraintExistsQuery, getCheckConstraintRecordsQuery, getCheckConstraintValidatedQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
-type ConstraintMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
+type ConstraintQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
 
 export namespace ConstraintQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, columns: Record<string, AnySchema>) => {
-    const statements: ConstraintMigrationQueries = {
+    const statements: ConstraintQueries = {
       constraints: [],
       validations: []
     };
@@ -49,15 +49,13 @@ export namespace ConstraintQuery {
     sourceSchema: ObjectSchema,
     changes: Record<string, ObjectComparison>
   ) => {
-    const statements: ConstraintMigrationQueries = {
-      constraints: [],
-      validations: []
+    const steps = {
+      update: { validations: [], constraints: [] } as ConstraintQueries,
+      delete: { validations: [], constraints: [] } as ConstraintQueries
     };
 
     for (const columnName in changes) {
       const { update, create, remove, nested } = changes[columnName];
-
-      const constraints = [];
 
       if (remove || update || nested) {
         const columnSchema = sourceSchema.properties[columnName];
@@ -66,7 +64,7 @@ export namespace ConstraintQuery {
         if (isConstrainedChange(columnSchema, change)) {
           const name = getConstraintName(table, columnName);
 
-          constraints.push({
+          steps.delete.constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
@@ -77,28 +75,30 @@ export namespace ConstraintQuery {
         const change = { ...create, ...update, ...nested };
 
         if (isConstrainedChange(columnSchema, change)) {
-          const name = getConstraintName(table, columnName);
-          const removal = constraints.length;
+          const tmpName = getConstraintName(table, `${columnName}_tmp`);
+          const newName = getConstraintName(table, columnName);
 
-          constraints.push({
-            ...(!removal && { check: getCheckConstraintExistsQuery(builder, name) }),
+          steps.update.constraints.push({
+            check: getCheckConstraintExistsQuery(builder, tmpName),
             assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
-            query: getCreateQuery(builder, table, name, columnName, columnSchema).build(),
-            name
+            query: getCreateQuery(builder, table, tmpName, columnName, columnSchema).build(),
+            name: newName
           });
 
-          statements.validations.push({
-            check: getCheckConstraintValidatedQuery(builder, name),
-            query: getValidationQuery(builder, table, name).build(),
-            name
+          steps.update.validations.push({
+            check: getCheckConstraintValidatedQuery(builder, tmpName),
+            query: getValidationQuery(builder, table, tmpName).build(),
+            name: newName
+          });
+
+          steps.delete.constraints.push({
+            query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
           });
         }
       }
-
-      statements.constraints.push(...constraints);
     }
 
-    return statements;
+    return steps;
   };
 
   export const prepareRenameTable = (builder: SqlBuilder, fromTable: string, toTable: string, columns: Record<string, AnySchema>) => {

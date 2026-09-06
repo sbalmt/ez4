@@ -1,5 +1,6 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { PgMigrationQueries, PgMigrationStepQueries } from '../types/query';
+import type { OptionalObject } from '@ez4/utils';
+import type { PgMigrationQueries, PgMigrationSteps } from '../types/query';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
@@ -38,7 +39,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
   const changes = getTableRepositoryChanges(target, source);
   const builder = new SqlBuilder();
 
-  const steps: PgMigrationStepQueries = {
+  const steps: PgMigrationSteps = {
     create: getStepQueries(),
     update: getStepQueries(),
     delete: getStepQueries()
@@ -90,7 +91,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
 
       if (targetColumns?.nested) {
         steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
-        combineQueries(steps.update, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
+        combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
         steps.update.relations.push(...RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
       }
 
@@ -162,7 +163,21 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   return queries;
 };
 
-const combineQueries = (target: PgMigrationQueries, source: Partial<PgMigrationQueries>) => {
+const combineSteps = (target: PgMigrationSteps, source: OptionalObject<PgMigrationSteps>) => {
+  if (source.create) {
+    combineQueries(target.create, source.create);
+  }
+
+  if (source.update) {
+    combineQueries(target.update, source.update);
+  }
+
+  if (source.delete) {
+    combineQueries(target.delete, source.delete);
+  }
+};
+
+const combineQueries = (target: PgMigrationQueries, source: OptionalObject<PgMigrationQueries>) => {
   if (source.tables) {
     target.tables.push(...source.tables);
   }
