@@ -5,8 +5,8 @@ import type { PgExecuteOptions } from '@ez4/pgclient';
 import { DatabaseQueries, MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
 
-import { MigrationFailedError } from '../common/errors';
 import { ApiClientDriver } from '../client/drivers/api';
+import { MigrationFailedError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
