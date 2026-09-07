@@ -19,7 +19,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 
 import { getDynamoDBClient, getDynamoDBWaiter } from '../utils/deploy';
-import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex } from './helpers/indexes';
+import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex, waitForSecondaryIndexDeletion } from './helpers/indexes';
 import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema';
 import { waitForTimeToLive } from './helpers/ttl';
 
@@ -245,7 +245,7 @@ export const deleteIndex = async (logger: OperationLogLine, tableName: string, r
       })
     );
 
-    await waitForSecondaryIndex(client, tableName, indexName);
+    await waitForSecondaryIndexDeletion(client, tableName, indexName);
 
     return true;
   } catch (error) {
