@@ -262,4 +262,26 @@ describe('update operations', () => {
       })
     );
   });
+
+  it('assert :: prepare update operations (invalid scalar multiplication operand)', async ({ assert }) => {
+    await assert.rejects(() =>
+      prepareUpdate({
+        scalar: {
+          multiply: '123' as any
+        }
+      })
+    );
+  });
+
+  it('assert :: prepare update operations (invalid json multiplication operand)', async ({ assert }) => {
+    await assert.rejects(() =>
+      prepareUpdate({
+        json: {
+          foo: {
+            multiply: '123' as any
+          }
+        }
+      })
+    );
+  });
 });
