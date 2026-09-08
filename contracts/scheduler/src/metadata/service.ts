@@ -180,7 +180,7 @@ const validateDynamicProperties = (parent: TypeModel, service: CronService) => {
     const allIncorrect = [];
 
     for (const property of allProperties) {
-      if (service[property]) {
+      if (property in service) {
         allIncorrect.push(property);
       }
     }

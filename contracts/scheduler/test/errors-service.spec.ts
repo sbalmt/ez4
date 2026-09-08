@@ -36,6 +36,13 @@ describe('scheduler service metadata errors', () => {
     deepEqual(error1.properties, ['disabled', 'timezone', 'startDate', 'endDate']);
   });
 
+  it('assert :: incorrect scheduler (falsy property)', () => {
+    const [error1] = parseFile('incorrect-service-falsy', 1);
+
+    ok(error1 instanceof IncorrectServiceError);
+    deepEqual(error1.properties, ['disabled']);
+  });
+
   it('assert :: invalid service property', () => {
     const [error1] = parseFile('invalid-service-property', 1);
 
