@@ -61,7 +61,7 @@ export namespace Runtime {
    * @returns Returns `true` when the current runtime is debug, `false` otherwise.
    */
   export const isDebug = () => {
-    return typeof EZ4_IS_DEBUG_RUNTIME !== 'undefined';
+    return typeof EZ4_IS_DEBUG_RUNTIME !== 'undefined' && !!EZ4_IS_DEBUG_RUNTIME;
   };
 
   /**
@@ -70,7 +70,7 @@ export namespace Runtime {
    * @returns Returns `true` when the current runtime is remote, `false` otherwise.
    */
   export const isRemote = () => {
-    return typeof EZ4_IS_REMOTE_RUNTIME !== 'undefined';
+    return typeof EZ4_IS_REMOTE_RUNTIME !== 'undefined' && !!EZ4_IS_REMOTE_RUNTIME;
   };
 
   /**
