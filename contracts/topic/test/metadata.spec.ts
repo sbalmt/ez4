@@ -29,6 +29,7 @@ describe('topic metadata', () => {
   it('assert :: topic tags', () => testFile('tags'));
   it('assert :: subscription variables', () => testFile('variables'));
   it('assert :: subscription dependencies', () => testFile('dependencies'));
+  it('assert :: subscription empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: subscription listener', () => testFile('listener'));
   it('assert :: subscription vpc', () => testFile('vpc'));
   it('assert :: import topic', () => testFile('import'));

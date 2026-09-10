@@ -26,7 +26,7 @@ export const getValidationHandlerMetadata = (type: AllType, errorList: Error[]) 
 
     const references = getFunctionReferences(contextType);
 
-    if (references?.length) {
+    if (references) {
       handler.references = references;
     }
   }

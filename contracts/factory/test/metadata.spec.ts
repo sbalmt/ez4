@@ -24,5 +24,6 @@ describe('factory metadata', () => {
   process.env.TEST_ENV_VAR = 'test-env-var-value';
 
   it('assert :: factory service', () => testFile('service'));
-  it('assert :: factory dependencies', () => testFile('dependencies'));
+  it('assert :: service dependencies', () => testFile('dependencies'));
+  it('assert :: service empty dependencies', () => testFile('empty-dependencies'));
 });
