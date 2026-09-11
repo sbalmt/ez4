@@ -22,7 +22,7 @@ export const getEventHandlerMetadata = (type: AllType, errorList: Error[]) => {
   }
 
   if (type.parameters) {
-    const [contextType] = type.parameters;
+    const [, contextType] = type.parameters;
 
     if (contextType) {
       const references = getFunctionReferences(contextType);
