@@ -68,8 +68,8 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
         },
         {
           minDelay: 5,
-          maxDelay: 120,
-          attempts: 10
+          maxDelay: 60,
+          attempts: 25
         }
       )
   );
