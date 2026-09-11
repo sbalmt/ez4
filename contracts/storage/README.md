@@ -22,9 +22,12 @@ import type { Bucket } from '@ez4/storage';
 export declare class MyStorage extends Bucket.Service {
   autoExpireDays: 1;
 
-  events: Bucket.UseEvents<{
-    handler: typeof eventHandler;
-  }>;
+  events: [
+    Bucket.UseEvent<{
+      path: 'uploads/';
+      handler: typeof eventHandler;
+    }>
+  ];
 
   variables: {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
@@ -48,9 +51,12 @@ EZ4 injects all variables and services, and then invokes your event handler.
 
 ```ts
 // MyStorage event handler
-export function eventHandler(request: Bucket.Event, { otherService, variables }: Service.Context<MyStorage>): void {
+export function eventHandler(
+  request: Bucket.Incoming,
+  { otherService, variables }: Service.Context<MyStorage>
+): void {
   // Access event contents
-  request.eventType;
+  request.event;
 
   // Access injected services
   otherService.call();
@@ -76,7 +82,7 @@ export async function anotherHandler(_request: any, { myStorage }: Service.Conte
   await myStorage.write('dummy.txt', 'Hello storage');
 
   // Read a file
-  const content = myStorage.read('dummy.txt');
+  const content = await myStorage.read('dummy.txt');
 }
 ```
 
@@ -90,7 +96,7 @@ With your storage defined, EZ4 handles provisioning, synchronization, event rout
 
 | Name           | Type               | Description                                                  |
 | -------------- | ------------------ | ------------------------------------------------------------ |
-| events         | Bucket.UseEvents<> | Entry-point handler for storage events.                      |
+| events         | Bucket.UseEvent<>[] | Entry-point handlers for storage events.                    |
 | cors           | Bucket.UseCors<>   | CORS configuration for the storage.                          |
 | globalName     | string             | Overwrite the global storage name.                           |
 | localPath      | string             | Specify a local path to synchronize with the storage.        |
