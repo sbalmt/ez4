@@ -168,7 +168,7 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions);
+    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions, reflection);
 
     queueImports[declaration.name] = service;
   }
