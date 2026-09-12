@@ -1,0 +1,65 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/ws",
+    "name": "TestService",
+    "context": {},
+    "file": "test/ws/input/output-empty-dependencies.ts",
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "connect": {
+      "handler": {
+        "name": "connectHandler",
+        "file": "test/ws/input/output-empty-dependencies.ts",
+        "position": [
+          22,
+          1
+        ],
+        "request": {},
+        "references": []
+      }
+    },
+    "disconnect": {
+      "handler": {
+        "name": "disconnectHandler",
+        "file": "test/ws/input/output-empty-dependencies.ts",
+        "position": [
+          24,
+          1
+        ],
+        "request": {},
+        "references": []
+      }
+    },
+    "message": {
+      "handler": {
+        "name": "messageHandler",
+        "file": "test/ws/input/output-empty-dependencies.ts",
+        "position": [
+          26,
+          1
+        ],
+        "request": {},
+        "references": []
+      }
+    }
+  }
+}

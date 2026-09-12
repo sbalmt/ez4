@@ -14,7 +14,7 @@ describe('sql update tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: update with record', async () => {
+  it('assert :: update with record', () => {
     const query = sql.update().only('table').record({
       foo: 123,
       bar: 'abc',
@@ -31,7 +31,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
   });
 
-  it('assert :: update with json record (no schema)', async () => {
+  it('assert :: update with json record (no schema)', () => {
     const query = sql
       .update()
       .only('table')
@@ -65,7 +65,7 @@ describe('sql update tests', () => {
     );
   });
 
-  it('assert :: update with json record (with schema)', async () => {
+  it('assert :: update with json record (with schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -113,7 +113,7 @@ describe('sql update tests', () => {
     equal(statement, `UPDATE ONLY "table" SET "foo"['bar'] = "foo"['bar'] || jsonb_build_object('baz', :0)`);
   });
 
-  it('assert :: update with json record (nullable in schema)', async () => {
+  it('assert :: update with json record (nullable in schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -140,7 +140,7 @@ describe('sql update tests', () => {
     equal(statement, `UPDATE ONLY "table" SET "foo" = null`);
   });
 
-  it('assert :: update with json record (optional in schema)', async () => {
+  it('assert :: update with json record (optional in schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -204,7 +204,7 @@ describe('sql update tests', () => {
     );
   });
 
-  it('assert :: update with inner select record', async () => {
+  it('assert :: update with inner select record', () => {
     const inner = sql.select().columns('baz').from('table2').where({
       qux: true
     });
@@ -224,7 +224,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table1" SET "foo" = :0, "bar" = (SELECT "baz" FROM "table2" WHERE "qux" = :1)');
   });
 
-  it('assert :: update with raw record value', async () => {
+  it('assert :: update with raw record value', () => {
     const value = {
       baz: {
         qux: 'abc'
@@ -246,7 +246,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = :1');
   });
 
-  it('assert :: update with raw record operation', async () => {
+  it('assert :: update with raw record operation', () => {
     const query = sql
       .update()
       .only('table')
@@ -262,7 +262,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0, "bar" = ("bar" + :1)');
   });
 
-  it('assert :: update with raw json record operation', async () => {
+  it('assert :: update with raw json record operation', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -294,7 +294,7 @@ describe('sql update tests', () => {
     equal(statement, `UPDATE ONLY "table" SET "foo"['bar'] = (("foo"->>'bar')::int - (:0)::int)::text::jsonb`);
   });
 
-  it('assert :: update with raw json record operation (optional in schema)', async () => {
+  it('assert :: update with raw json record operation (optional in schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -334,7 +334,7 @@ describe('sql update tests', () => {
     );
   });
 
-  it('assert :: update with raw json record operation (union schema)', async () => {
+  it('assert :: update with raw json record operation (union schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
       properties: {
@@ -392,7 +392,7 @@ describe('sql update tests', () => {
     equal(statement2, `UPDATE ONLY "table" SET "foo"['bar'] = (("foo"->>'bar')::dec / (:0)::dec)::text::jsonb`);
   });
 
-  it('assert :: update with alias', async () => {
+  it('assert :: update with alias', () => {
     const query = sql.update().only('table').as('alias').record({
       foo: true
     });
@@ -404,7 +404,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" AS "alias" SET "foo" = :0');
   });
 
-  it('assert :: update with returning', async () => {
+  it('assert :: update with returning', () => {
     const query = sql.update().only('table').as('alias').returning(['foo', 'bar']).record({
       foo: true
     });
@@ -416,7 +416,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" AS "alias" SET "foo" = :0 RETURNING "alias"."foo", "alias"."bar"');
   });
 
-  it('assert :: update with where', async () => {
+  it('assert :: update with where', () => {
     const query = sql
       .update()
       .only('table')
@@ -434,7 +434,7 @@ describe('sql update tests', () => {
     equal(statement, 'UPDATE ONLY "table" SET "foo" = :0 WHERE "bar" = :1');
   });
 
-  it('assert :: update with inner query', async () => {
+  it('assert :: update with inner query', () => {
     const inner = sql.select().columns('foo').from('inner').as('inner').where({ bar: 'abc' }).take(1).order({
       baz: Order.Desc
     });

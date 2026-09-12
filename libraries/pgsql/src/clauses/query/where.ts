@@ -4,29 +4,41 @@ import type { SqlFilters } from '../../common/types';
 
 import { SqlConditions } from '../../operations/conditions';
 
-export class SqlWhereClause extends SqlConditions {
+export class SqlWhereClause {
   #state: {
     source: SqlSource;
-    filters: SqlFilters;
+    filters: SqlConditions;
   };
 
   constructor(source: SqlSource, references: SqlBuilderReferences, options: SqlBuilderOptions, filters: SqlFilters = {}) {
-    super(source, references, options, filters);
-
     this.#state = {
-      source,
-      filters
+      filters: new SqlConditions(source, references, options, filters),
+      source
     };
   }
 
+  get empty() {
+    return this.#state.filters.empty;
+  }
+
+  apply(filters: SqlFilters) {
+    this.#state.filters.apply(filters);
+    return this;
+  }
+
+  merge(filters: SqlFilters) {
+    this.#state.filters.merge(filters);
+    return this;
+  }
+
   build(): [string, unknown[]] | undefined {
-    const { source } = this.#state;
+    const { source, filters } = this.#state;
 
     if (!source.building) {
       return source.build();
     }
 
-    const result = super.build();
+    const result = filters.build();
 
     if (result) {
       const [clause, variables] = result;

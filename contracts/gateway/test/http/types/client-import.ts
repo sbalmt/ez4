@@ -17,13 +17,14 @@ export declare class TestImport extends Http.Import<TestService> {
   project: 'test project';
 
   authorization: {
+    header: 'x-api-key';
     value: 'secret';
   };
 }
 
 declare class TestAuthRequest implements Http.AuthRequest {
   headers: {
-    authorization: string;
+    'x-api-key': string;
   };
 }
 
@@ -55,7 +56,7 @@ function testRoute(_request: TestRouteRequest): Http.SuccessEmptyResponse {
 
 declare const client: TestImport['client'];
 
-// Assert request can be made without headers
+// Assert the configured authorization header is supplied by the client.
 client.testRoute({
   body: {
     foo: 'foo'

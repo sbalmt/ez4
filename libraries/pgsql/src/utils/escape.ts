@@ -1,13 +1,15 @@
+import { UnsupportedSqlDataError } from '../errors/data';
+
 export const escapeSqlNames = (names: string[]) => {
   return names.map((name) => escapeSqlName(name)).join(', ');
 };
 
 export const escapeSqlName = (name: string) => {
-  return `"${name.replaceAll('"', '')}"`;
+  return name === '*' ? name : `"${name.replaceAll('"', '""')}"`;
 };
 
 export const escapeSqlText = (text: string) => {
-  return `'${text.replaceAll(/'/g, `\\'`)}'`;
+  return `'${text.replaceAll("'", `''`)}'`;
 };
 
 export const escapeSqlData = (data: unknown) => {
@@ -23,6 +25,6 @@ export const escapeSqlData = (data: unknown) => {
       return escapeSqlText(JSON.stringify(data));
 
     default:
-      throw new Error('Unsupported SQL data.');
+      throw new UnsupportedSqlDataError();
   }
 };

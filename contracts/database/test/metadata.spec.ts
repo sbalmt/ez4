@@ -32,5 +32,6 @@ describe('database service metadata', () => {
   it('assert :: table stream', () => testFile('stream'));
   it('assert :: stream variables', () => testFile('variables'));
   it('assert :: stream dependencies', () => testFile('dependencies'));
+  it('assert :: stream empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: stream listener', () => testFile('listener'));
 });

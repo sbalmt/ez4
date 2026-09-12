@@ -7,8 +7,8 @@ import type { PgMigrationQueries } from '../types/query';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
+import { getCheckConstraintExistsQuery, getCheckUniqueRecordsQuery, getIndexInvalidQuery } from '../utils/checks';
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
-import { getCheckConstraintQuery } from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
@@ -31,7 +31,7 @@ export namespace IndexQueries {
           const name = getPrimaryKeyName(table, indexName);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, name),
+            check: getCheckConstraintExistsQuery(builder, name),
             query: builder.table(table).alter().existing().constraint(name).primary(columns).build()
           });
 
@@ -43,11 +43,13 @@ export namespace IndexQueries {
           const type = getIndexType(columns, schema);
 
           statements.indexes.push({
-            query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build()
+            assert: getCheckUniqueRecordsQuery(builder, table, columns),
+            query: builder.index(name).create(table, columns).type(type).unique().concurrent().missing().build(),
+            name
           });
 
           statements.validations.push({
-            query: getValidationQuery(builder, name),
+            query: getIndexInvalidQuery(builder, name),
             name
           });
 
@@ -63,7 +65,7 @@ export namespace IndexQueries {
           });
 
           statements.validations.push({
-            query: getValidationQuery(builder, name),
+            query: getIndexInvalidQuery(builder, name),
             name
           });
 
@@ -103,6 +105,7 @@ export namespace IndexQueries {
         const operation = prepareCreate(builder, table, schema, { [indexName]: targetIndexes[indexName] });
 
         statements.constraints.push(...operation.constraints);
+        statements.validations.push(...operation.validations);
         statements.indexes.push(...operation.indexes);
       }
     }
@@ -129,7 +132,7 @@ export namespace IndexQueries {
           const toName = getPrimaryKeyName(toTable, indexName);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, toName),
+            check: getCheckConstraintExistsQuery(builder, toName),
             query: builder.table(toTable).alter().existing().constraint(fromName).rename(toName).build()
           });
 
@@ -184,7 +187,7 @@ export namespace IndexQueries {
           const newName = getPrimaryKeyName(table, toIndex);
 
           statements.constraints.push({
-            check: getCheckConstraintQuery(builder, newName),
+            check: getCheckConstraintExistsQuery(builder, newName),
             query: builder.table(table).alter().existing().constraint(oldName).rename(newName).build()
           });
 
@@ -192,8 +195,8 @@ export namespace IndexQueries {
         }
 
         case Index.Unique: {
-          const newName = getUniqueKeyName(table, fromIndex);
-          const oldName = getUniqueKeyName(table, toIndex);
+          const oldName = getUniqueKeyName(table, fromIndex);
+          const newName = getUniqueKeyName(table, toIndex);
 
           statements.indexes.push({
             query: builder.index(oldName).rename(newName).existing().build()
@@ -268,21 +271,6 @@ export namespace IndexQueries {
     }
 
     return statements;
-  };
-
-  export const getValidationQuery = (builder: SqlBuilder, name: string) => {
-    const [query] = builder
-      .select()
-      .rawColumn(1)
-      .from('pg_index')
-      .where({
-        indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
-        indisvalid: builder.rawValue('false'),
-        indisready: builder.rawValue('true')
-      })
-      .build();
-
-    return query;
   };
 
   const getIndexType = (columns: string[], schema: ObjectSchema) => {

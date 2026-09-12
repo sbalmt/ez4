@@ -3,9 +3,10 @@ import type { PgMigrationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 
 import { getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
+import { MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient/driver';
 
-import { MissingConnectionStringAtApplyError } from './errors';
+import { MissingConnectionStringError } from '../common/errors';
 
 type ApplyContext = {
   envName: string;
@@ -17,7 +18,7 @@ const getConnection = ({ envName, database }: ApplyContext) => {
   const connectionString = process.env[envName];
 
   if (!connectionString) {
-    throw new MissingConnectionStringAtApplyError(envName, database);
+    throw new MissingConnectionStringError(envName, database);
   }
 
   return Client.make({
@@ -64,7 +65,15 @@ const runAllStatements = async (client: DbClient<Database.Service<any>>, stateme
 };
 
 const runStatement = async (client: DbClient<Database.Service<any>>, statement: PgMigrationStatement) => {
-  const { check, query } = statement;
+  const { name, assert, check, query } = statement;
+
+  if (assert) {
+    const [shouldFail] = await client.rawQuery(assert);
+
+    if (shouldFail) {
+      throw new MigrationAssertionFailedError(name);
+    }
+  }
 
   if (check) {
     const [shouldSkip] = await client.rawQuery(check);

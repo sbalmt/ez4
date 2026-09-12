@@ -10,7 +10,7 @@ describe('sql with tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: with no select', async () => {
+  it('assert :: with no select', () => {
     const query = sql.select().from('table');
 
     const [statement, variables] = sql.with([query]).build();
@@ -20,7 +20,7 @@ describe('sql with tests', () => {
     equal(statement, `SELECT FROM "table"`);
   });
 
-  it('assert :: with single select', async () => {
+  it('assert :: with single select', () => {
     const query = sql.select().from('table').rawColumn('*');
 
     const [statement, variables] = sql.with([query]).build();
@@ -30,7 +30,7 @@ describe('sql with tests', () => {
     equal(statement, `SELECT * FROM "table"`);
   });
 
-  it('assert :: with multiple selects', async () => {
+  it('assert :: with multiple selects', () => {
     const query1 = sql.select().from('table1').rawColumn('*');
 
     const query2 = sql.select().from('table2').column(query1.reference('foo'));
@@ -42,7 +42,7 @@ describe('sql with tests', () => {
     equal(statement, `WITH "Q0" AS (SELECT * FROM "table1") SELECT "Q0"."foo" FROM "table2"`);
   });
 
-  it('assert :: with single insert', async () => {
+  it('assert :: with single insert', () => {
     const query = sql.insert().into('table').record({
       foo: 'abc',
       bar: 123
@@ -55,7 +55,7 @@ describe('sql with tests', () => {
     equal(statement, `INSERT INTO "table" ("foo", "bar") VALUES (:0, :1)`);
   });
 
-  it('assert :: with multiple inserts', async () => {
+  it('assert :: with multiple inserts', () => {
     const query1 = sql.insert().into('table1').record({ foo: 'abc' }).returning(['foo']);
 
     const query2 = sql
@@ -78,7 +78,7 @@ describe('sql with tests', () => {
     );
   });
 
-  it('assert :: with multiple inserts (and select)', async () => {
+  it('assert :: with multiple inserts (and select)', () => {
     const query1 = sql.insert().into('table1').record({ foo: 'abc' }).returning(['foo']);
 
     const query2 = sql
@@ -108,7 +108,7 @@ describe('sql with tests', () => {
     );
   });
 
-  it('assert :: with single update', async () => {
+  it('assert :: with single update', () => {
     const query1 = sql.select().columns('foo').from('table1');
 
     const query2 = sql
@@ -127,7 +127,7 @@ describe('sql with tests', () => {
     equal(statement, `WITH "Q0" AS (SELECT "foo" FROM "table1") UPDATE ONLY "table2" SET "foo" = "Q0"."foo", "bar" = :0 FROM "Q0"`);
   });
 
-  it('assert :: with multiple updates', async () => {
+  it('assert :: with multiple updates', () => {
     const query1 = sql.update().only('table1').returning(['foo']).record({
       foo: 'abc'
     });
@@ -153,7 +153,7 @@ describe('sql with tests', () => {
     );
   });
 
-  it('assert :: with multiple updates (and select)', async () => {
+  it('assert :: with multiple updates (and select)', () => {
     const query1 = sql.update().only('table1').returning(['foo']).record({
       foo: 'abc'
     });

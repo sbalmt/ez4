@@ -1,5 +1,6 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { PgMigrationQueries, PgMigrationStepQueries } from '../types/query';
+import type { OptionalObject } from '@ez4/utils';
+import type { PgMigrationQueries, PgMigrationSteps } from '../types/query';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
@@ -25,8 +26,8 @@ export const getCreateQueries = (target: PgTableRepository) => {
     const { name, schema, indexes, relations } = target[table];
 
     queries.tables.push(TableQuery.prepareCreate(builder, name, schema, indexes));
-    queries.relations.push(...RelationQuery.prepareCreate(builder, name, schema, relations));
 
+    combineQueries(queries, RelationQuery.prepareCreate(builder, name, schema, relations));
     combineQueries(queries, ConstraintQuery.prepareCreate(builder, name, schema.properties));
     combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes));
   }
@@ -38,7 +39,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
   const changes = getTableRepositoryChanges(target, source);
   const builder = new SqlBuilder();
 
-  const steps: PgMigrationStepQueries = {
+  const steps: PgMigrationSteps = {
     create: getStepQueries(),
     update: getStepQueries(),
     delete: getStepQueries()
@@ -75,12 +76,14 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const { schema, relations: relationChanges, indexes: indexChanges } = tableChanges;
 
       const targetColumns = schema?.nested?.properties;
+
+      const sourceRelations = changes.source[table].relations;
       const targetRelations = target[table].relations;
 
-      const sourceIndexes = source[table].indexes;
+      const sourceIndexes = changes.source[table].indexes;
       const targetIndexes = target[table].indexes;
 
-      const sourceSchema = source[table].schema;
+      const sourceSchema = changes.source[table].schema;
       const targetSchema = target[table].schema;
 
       if (targetColumns?.create) {
@@ -90,8 +93,8 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
 
       if (targetColumns?.nested) {
         steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
-        combineQueries(steps.update, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
-        steps.update.relations.push(...RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
+        combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
+        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema.properties, targetRelations));
       }
 
       if (targetColumns?.rename) {
@@ -107,7 +110,7 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (indexChanges?.create) {
-        combineQueries(steps.create, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
+        combineQueries(steps.update, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
       }
 
       if (indexChanges?.nested) {
@@ -126,7 +129,21 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (relationChanges?.create) {
-        steps.create.relations.push(...RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+        combineQueries(steps.update, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+      }
+
+      if (relationChanges?.nested) {
+        combineSteps(
+          steps,
+          RelationQuery.prepareUpdateSource(
+            builder,
+            table,
+            targetSchema.properties,
+            sourceRelations,
+            targetRelations,
+            relationChanges.nested
+          )
+        );
       }
 
       if (relationChanges?.remove) {
@@ -162,7 +179,21 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   return queries;
 };
 
-const combineQueries = (target: PgMigrationQueries, source: Partial<PgMigrationQueries>) => {
+const combineSteps = (target: PgMigrationSteps, source: OptionalObject<PgMigrationSteps>) => {
+  if (source.create) {
+    combineQueries(target.create, source.create);
+  }
+
+  if (source.update) {
+    combineQueries(target.update, source.update);
+  }
+
+  if (source.delete) {
+    combineQueries(target.delete, source.delete);
+  }
+};
+
+const combineQueries = (target: PgMigrationQueries, source: OptionalObject<PgMigrationQueries>) => {
   if (source.tables) {
     target.tables.push(...source.tables);
   }

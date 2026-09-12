@@ -1,0 +1,44 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "file": "test/http/input/output-empty-dependencies.ts",
+    "variables": {},
+    "services": {},
+    "routes": [
+      {
+        "path": "GET /empty",
+        "handler": {
+          "name": "handler",
+          "file": "test/http/input/output-empty-dependencies.ts",
+          "position": [
+            15,
+            1
+          ],
+          "request": {},
+          "references": [],
+          "provider": {
+            "name": "TestService",
+            "file": "test/http/input/output-empty-dependencies.ts",
+            "services": {}
+          },
+          "isolated": true,
+          "response": {
+            "status": 204
+          }
+        }
+      }
+    ]
+  }
+}

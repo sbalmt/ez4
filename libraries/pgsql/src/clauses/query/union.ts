@@ -1,6 +1,6 @@
 import type { SqlSource } from '../../common/source';
 
-import { NoStatementsError } from '../errors';
+import { NoStatementsError } from '../../errors/clauses';
 
 export class SqlUnionClause {
   #state: {

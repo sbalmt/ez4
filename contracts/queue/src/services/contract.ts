@@ -207,6 +207,11 @@ export namespace Queue {
     readonly fifoMode: T['fifoMode'];
 
     /**
+     * Imported fair mode options (do not replace).
+     */
+    readonly fairMode: T['fairMode'];
+
+    /**
      * Imported dead-letter configuration options (do not replace).
      */
     readonly deadLetter: T['deadLetter'];

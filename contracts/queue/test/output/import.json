@@ -18,6 +18,9 @@
     "services": {},
     "timeout": 20,
     "polling": 10,
+    "fairMode": {
+      "groupId": "foo"
+    },
     "backoff": {
       "maxDelay": 90,
       "minDelay": 15
@@ -72,6 +75,9 @@
       }
     },
     "timeout": 20,
+    "fairMode": {
+      "groupId": "foo"
+    },
     "schema": {
       "type": "object",
       "identity": 1,
@@ -87,7 +93,7 @@
           "name": "testHandler",
           "file": "test/input/output-import.ts",
           "position": [
-            29,
+            33,
             1
           ]
         }

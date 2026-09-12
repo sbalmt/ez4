@@ -53,7 +53,7 @@ const getWsHandler = (
     if (contextType) {
       const references = getFunctionReferences(contextType);
 
-      if (references?.length) {
+      if (references) {
         handler.references = references;
       }
     }

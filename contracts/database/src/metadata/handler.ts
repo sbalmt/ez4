@@ -27,7 +27,7 @@ export const getStreamHandlerMetadata = (type: AllType, _reflection: ReflectionT
       if (contextType) {
         const references = getFunctionReferences(contextType);
 
-        if (references?.length) {
+        if (references) {
           handler.references = references;
         }
       }

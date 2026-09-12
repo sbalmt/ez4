@@ -1,6 +1,6 @@
-import type { SqlBuilder } from '@ez4/pgsql';
+import type { SqlBuilder, SqlFilters } from '@ez4/pgsql';
 
-export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => {
+export const getCheckDatabaseExistsQuery = (builder: SqlBuilder, database: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -13,7 +13,7 @@ export const getCheckDatabaseQuery = (builder: SqlBuilder, database: string) => 
   return query;
 };
 
-export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
+export const getCheckConstraintExistsQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -26,7 +26,7 @@ export const getCheckConstraintQuery = (builder: SqlBuilder, name: string) => {
   return query;
 };
 
-export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: string) => {
+export const getCheckColumnExistsQuery = (builder: SqlBuilder, table: string, column: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
@@ -47,15 +47,74 @@ export const getCheckColumnQuery = (builder: SqlBuilder, table: string, column: 
   return query;
 };
 
-export const getCheckConstraintValidatedQuery = (builder: SqlBuilder, name: string) => {
+export const getCheckConstraintInvalidQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()
     .rawColumn(1)
     .from('pg_constraint')
     .where({
-      convalidated: builder.rawValue('true'),
+      convalidated: builder.rawValue('false'),
       conname: builder.rawString(name)
     })
+    .build();
+
+  return query;
+};
+
+export const getCheckConstraintRecordsQuery = (builder: SqlBuilder, table: string, filters: SqlFilters) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from(table)
+    .where({
+      NOT: filters
+    })
+    .take(1)
+    .build();
+
+  return query;
+};
+
+export const getIndexInvalidQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from('pg_index')
+    .where({
+      indexrelid: builder.rawValue(`${builder.rawString(name).build()}::regclass`),
+      OR: [
+        {
+          indisvalid: builder.rawValue('false')
+        },
+        {
+          indisready: builder.rawValue('false')
+        }
+      ]
+    })
+    .build();
+
+  return query;
+};
+
+export const getCheckUniqueRecordsQuery = (builder: SqlBuilder, table: string, columns: string[]) => {
+  const filters = columns.reduce<SqlFilters>((filters, column) => {
+    filters[column] = { isNull: false };
+    return filters;
+  }, {});
+
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from(table)
+    .where(filters)
+    .group(...columns)
+    .having({
+      '*': {
+        count: true,
+        gt: builder.rawValue('1')
+      }
+    })
+    .take(1)
     .build();
 
   return query;

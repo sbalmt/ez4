@@ -62,6 +62,18 @@ describe('migration :: create relation tests', () => {
         tables: [],
         constraints: [],
         validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
+            name: 'table_a_relation_fk'
+          }
+        ],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -69,17 +81,9 @@ describe('migration :: create relation tests', () => {
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
               `ON DELETE CASCADE ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+              `ON UPDATE CASCADE`
           }
         ],
-        indexes: []
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
         indexes: []
       },
       delete: {
@@ -113,6 +117,18 @@ describe('migration :: create relation tests', () => {
         tables: [],
         constraints: [],
         validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
+            name: 'table_a_relation_fk'
+          }
+        ],
         relations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
@@ -120,17 +136,9 @@ describe('migration :: create relation tests', () => {
               `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
               `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
               `ON DELETE SET null ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+              `ON UPDATE CASCADE`
           }
         ],
-        indexes: []
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
         indexes: []
       },
       delete: {

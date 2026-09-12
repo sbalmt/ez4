@@ -1,5 +1,5 @@
 import type { AnySchema } from '@ez4/schema';
-import type { SqlOperationContext } from './types';
+import type { SqlOperationContext, SqlOperationFlags } from './types';
 
 import { SchemaType } from '@ez4/schema';
 
@@ -75,6 +75,18 @@ export const getOperandColumn = (schema: AnySchema | undefined, column: string, 
 
       break;
     }
+  }
+
+  return column;
+};
+
+export const getOperandFunction = (column: string, flags: SqlOperationFlags) => {
+  if (flags.count) {
+    return `COUNT(${column})`;
+  }
+
+  if (flags.insensitive) {
+    return `LOWER(${column})`;
   }
 
   return column;

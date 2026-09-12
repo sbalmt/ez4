@@ -1,0 +1,42 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "context": {},
+    "file": "test/input/output-empty-dependencies.ts",
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "handler": {
+          "name": "handler",
+          "file": "test/input/output-empty-dependencies.ts",
+          "position": [
+            16,
+            1
+          ],
+          "references": []
+        }
+      }
+    ]
+  }
+}

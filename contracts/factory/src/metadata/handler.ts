@@ -27,7 +27,7 @@ export const getFactoryHandlerMetadata = (type: AllType, errorList: Error[]) => 
     if (contextType) {
       const references = getFunctionReferences(contextType);
 
-      if (references?.length) {
+      if (references) {
         handler.references = references;
       }
     }

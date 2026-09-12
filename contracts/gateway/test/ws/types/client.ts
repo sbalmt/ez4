@@ -30,4 +30,6 @@ async function messageHandler(_request: Ws.EmptyRequest, context: Service.Contex
     foo: 'foo',
     bar: 123
   });
+
+  await selfClient.disconnect('foo-bar');
 }

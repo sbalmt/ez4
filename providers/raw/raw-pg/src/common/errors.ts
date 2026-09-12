@@ -1,4 +1,4 @@
-export class MissingConnectionStringAtApplyError extends Error {
+export class MissingConnectionStringError extends Error {
   constructor(
     public envName: string,
     public database: string

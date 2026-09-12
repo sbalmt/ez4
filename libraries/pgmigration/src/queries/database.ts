@@ -1,20 +1,20 @@
-import { SqlBuilder } from '@ez4/pgsql';
+import { escapeSqlName, SqlBuilder } from '@ez4/pgsql';
 
-import { getCheckDatabaseQuery } from '../utils/checks';
+import { getCheckDatabaseExistsQuery } from '../utils/checks';
 
 export namespace DatabaseQueries {
   export const prepareCreate = (database: string) => {
     const builder = new SqlBuilder();
 
     return {
-      check: getCheckDatabaseQuery(builder, database),
-      query: `CREATE DATABASE "${database}"`
+      check: getCheckDatabaseExistsQuery(builder, database),
+      query: `CREATE DATABASE ${escapeSqlName(database)}`
     };
   };
 
   export const prepareDelete = (database: string) => {
     return {
-      query: `DROP DATABASE IF EXISTS "${database}" WITH (FORCE)`
+      query: `DROP DATABASE IF EXISTS ${escapeSqlName(database)} WITH (FORCE)`
     };
   };
 }

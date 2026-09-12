@@ -160,7 +160,7 @@ export const getQueueServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions);
+    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions, reflection);
 
     allServices[declaration.name] = service;
   }
@@ -178,12 +178,18 @@ const isCompleteService = (type: Incomplete<QueueService>): type is QueueService
 const validateModeProperties = (parent: TypeModel, service: QueueService) => {
   const { fifoMode, fairMode } = service;
 
-  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
-    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
-  }
-
   if (fairMode && !hasSchemaProperty(service.schema, fairMode.groupId)) {
     return [new IncorrectFairModePropertyError([fairMode.groupId], parent.file)];
+  }
+
+  if (fifoMode) {
+    const properties = [fifoMode.groupId, fifoMode.uniqueId].filter((property): property is string => {
+      return !!property && !hasSchemaProperty(service.schema, property);
+    });
+
+    if (properties.length) {
+      return [new IncorrectFifoModePropertyError(properties, parent.file)];
+    }
   }
 
   return [];

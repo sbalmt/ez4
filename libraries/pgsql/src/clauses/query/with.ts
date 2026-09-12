@@ -2,8 +2,8 @@ import type { SqlBuilderReferences } from '../../builder';
 import type { SqlSource } from '../../common/source';
 
 import { escapeSqlName } from '../../utils/escape';
+import { NoStatementsError } from '../../errors/clauses';
 import { getUniqueAlias } from '../../helpers/alias';
-import { NoStatementsError } from '../errors';
 
 type SqlWithContext = {
   variables: unknown[];

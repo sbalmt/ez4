@@ -5,6 +5,7 @@ import type { ServeOptions } from '@ez4/project/library';
 import type { ClientConnection } from '@ez4/pgclient';
 
 import { getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
+import { MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient/driver';
 
 import { loadRepositoryState, saveRepositoryState } from './state';
@@ -47,7 +48,15 @@ const runAllStatements = async (client: DbClient<Database.Service<any>>, stateme
 };
 
 const runStatement = async (client: DbClient<Database.Service<any>>, statement: PgMigrationStatement) => {
-  const { check, query } = statement;
+  const { name, assert, check, query } = statement;
+
+  if (assert) {
+    const [shouldFail] = await client.rawQuery(assert);
+
+    if (shouldFail) {
+      throw new MigrationAssertionFailedError(name);
+    }
+  }
 
   if (check) {
     const [shouldSkip] = await client.rawQuery(check);

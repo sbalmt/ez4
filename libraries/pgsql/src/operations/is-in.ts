@@ -4,8 +4,8 @@ import type { SqlOperationContext } from './types';
 import { isAnyArray, isEmptyArray } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
-import { getOperandColumn, getOperandValue } from './utils';
-import { InvalidOperandError } from './errors';
+import { InvalidOperandError } from '../errors/operations';
+import { getOperandColumn, getOperandFunction, getOperandValue } from './utils';
 
 export const getIsInOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   if (!isAnyArray(operand)) {
@@ -16,7 +16,7 @@ export const getIsInOperation = (column: string, schema: AnySchema | undefined, 
     return 'false';
   }
 
-  const lhsOperand = getOperandColumn(schema, column, context);
+  const lhsColumn = getOperandColumn(schema, column, context);
 
   switch (schema?.type) {
     case SchemaType.Object:
@@ -24,10 +24,11 @@ export const getIsInOperation = (column: string, schema: AnySchema | undefined, 
     case SchemaType.Tuple: {
       const rhsOperands = operand.map((current) => getOperandValue(schema, current, context, true));
 
-      return `(${rhsOperands.map((rhsOperand) => `${lhsOperand} <@ ${rhsOperand}`).join(' OR ')})`;
+      return `(${rhsOperands.map((rhsOperand) => `${lhsColumn} <@ ${rhsOperand}`).join(' OR ')})`;
     }
 
     default: {
+      const lhsOperand = context.flags ? getOperandFunction(lhsColumn, context.flags) : lhsColumn;
       const rhsOperands = operand.map((current) => getOperandValue(schema, current, context));
 
       return `${lhsOperand} IN (${rhsOperands.join(', ')})`;

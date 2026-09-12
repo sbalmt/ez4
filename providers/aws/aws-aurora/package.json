@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-aurora",
   "description": "EZ4: Self-managed AWS Aurora serverless v2 provider",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -61,19 +61,19 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@aws-sdk/client-rds": "^3.996.0",
-    "@aws-sdk/client-rds-data": "^3.996.0",
-    "@aws-sdk/client-secrets-manager": "^3.996.0",
-    "@ez4/aws-common": "^0.52.0",
-    "@ez4/aws-identity": "^0.52.0",
-    "@ez4/common": "^0.52.0",
-    "@ez4/database": "^0.52.0",
-    "@ez4/pgclient": "^0.52.0",
-    "@ez4/pgmigration": "^0.52.0",
-    "@ez4/pgsql": "^0.52.0",
-    "@ez4/project": "^0.52.0",
-    "@ez4/schema": "^0.52.0",
-    "@ez4/state": "^0.52.0",
-    "@ez4/utils": "^0.52.0"
+    "@aws-sdk/client-rds": "^3.1127.0",
+    "@aws-sdk/client-rds-data": "^3.1127.0",
+    "@aws-sdk/client-secrets-manager": "^3.1127.0",
+    "@ez4/aws-common": "^0.53.0",
+    "@ez4/aws-identity": "^0.53.0",
+    "@ez4/common": "^0.53.0",
+    "@ez4/database": "^0.53.0",
+    "@ez4/pgclient": "^0.53.0",
+    "@ez4/pgmigration": "^0.53.0",
+    "@ez4/pgsql": "^0.53.0",
+    "@ez4/project": "^0.53.0",
+    "@ez4/schema": "^0.53.0",
+    "@ez4/state": "^0.53.0",
+    "@ez4/utils": "^0.53.0"
   }
 }

@@ -61,19 +61,19 @@ describe('migration :: create index tests', () => {
     deepEqual(steps, {
       create: {
         tables: [],
-        constraints: [
-          {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
-          }
-        ],
+        constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
       update: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column")`
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []
@@ -105,25 +105,27 @@ describe('migration :: create index tests', () => {
       create: {
         tables: [],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_uk'
           }
         ],
         relations: [],
         indexes: [
           {
-            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")'
+            assert: 'SELECT 1 FROM "table" WHERE "column" IS NOT null GROUP BY "column" HAVING COUNT(*) > 1 LIMIT 1',
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column")',
+            name: 'table_index_uk'
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [],
@@ -152,9 +154,16 @@ describe('migration :: create index tests', () => {
       create: {
         tables: [],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
@@ -164,13 +173,6 @@ describe('migration :: create index tests', () => {
             query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column")`
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [],
@@ -198,19 +200,19 @@ describe('migration :: create index tests', () => {
     deepEqual(steps, {
       create: {
         tables: [],
-        constraints: [
-          {
-            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
-          }
-        ],
+        constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
       update: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_index_pk'`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_index_pk" PRIMARY KEY ("column_a", "column_b")`
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []
@@ -242,25 +244,28 @@ describe('migration :: create index tests', () => {
       create: {
         tables: [],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_uk'
           }
         ],
         relations: [],
         indexes: [
           {
-            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")'
+            assert:
+              'SELECT 1 FROM "table" WHERE "column_a" IS NOT null AND "column_b" IS NOT null GROUP BY "column_a", "column_b" HAVING COUNT(*) > 1 LIMIT 1',
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "table_index_uk" ON "table" USING BTREE ("column_a", "column_b")',
+            name: 'table_index_uk'
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [],
@@ -289,9 +294,16 @@ describe('migration :: create index tests', () => {
       create: {
         tables: [],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
@@ -301,13 +313,6 @@ describe('migration :: create index tests', () => {
             query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING BTREE ("column_a", "column_b")`
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [],
@@ -336,9 +341,16 @@ describe('migration :: create index tests', () => {
       create: {
         tables: [],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      update: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
             name: 'table_index_sk'
           }
         ],
@@ -348,13 +360,6 @@ describe('migration :: create index tests', () => {
             query: `CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_index_sk" ON "table" USING GIN ("column")`
           }
         ]
-      },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
       },
       delete: {
         tables: [],

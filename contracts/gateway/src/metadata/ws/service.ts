@@ -136,7 +136,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachLinkedServices(service, errorList, fileName);
+    attachLinkedServices(service, reflection, errorList, fileName);
 
     allServices[declaration.name] = service;
   }
@@ -151,14 +151,14 @@ const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
   return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
 };
 
-const attachLinkedServices = (service: WsService, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (service: WsService, reflection: ReflectionTypes, errorList: Error[], fileName?: string) => {
   const { connect, disconnect, message } = service;
 
-  attachValidatorLinkedServices(connect.handler, service.services);
-  attachValidatorLinkedServices(disconnect.handler, service.services);
-  attachValidatorLinkedServices(message.handler, service.services);
+  attachValidatorLinkedServices(connect.handler, service.services, reflection);
+  attachValidatorLinkedServices(disconnect.handler, service.services, reflection);
+  attachValidatorLinkedServices(message.handler, service.services, reflection);
 
   if (connect.authorizer) {
-    attachProviderLinkedServices(connect.authorizer, service.services, errorList, fileName);
+    attachProviderLinkedServices(connect.authorizer, service.services, reflection, errorList, fileName);
   }
 };

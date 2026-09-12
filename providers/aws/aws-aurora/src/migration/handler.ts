@@ -68,8 +68,7 @@ const replaceResource = async (candidate: MigrationState, current: MigrationStat
 };
 
 const createResource = (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
-  const { parameters } = candidate;
-  const { database, repository } = parameters;
+  const { database, repository } = candidate.parameters;
 
   return OperationLogger.logExecution(MigrationServiceName, database, 'creation', async (logger) => {
     const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);

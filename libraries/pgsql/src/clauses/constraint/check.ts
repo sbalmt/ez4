@@ -3,7 +3,7 @@ import type { SqlConstraintClause } from './clause';
 
 import { escapeSqlName } from '../../utils/escape';
 import { SqlConditions } from '../../operations/conditions';
-import { MissingClauseError } from '../errors';
+import { MissingClauseError } from '../../errors/clauses';
 
 export class SqlCheckConstraintClause {
   #state: {

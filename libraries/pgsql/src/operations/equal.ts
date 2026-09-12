@@ -1,7 +1,7 @@
 import type { AnySchema } from '@ez4/schema';
 import type { SqlOperationContext } from './types';
 
-import { getOperandColumn, getOperandValue } from './utils';
+import { getOperandColumn, getOperandFunction, getOperandValue } from './utils';
 import { getIsNullOperation } from './is-null';
 
 export const getEqualOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
@@ -9,12 +9,11 @@ export const getEqualOperation = (column: string, schema: AnySchema | undefined,
     return getIsNullOperation(column, true);
   }
 
-  const lhsOperand = getOperandColumn(schema, column, context);
-  const rhsOperand = getOperandValue(schema, operand, context);
+  const lhsColumn = getOperandColumn(schema, column, context);
+  const rhsValue = getOperandValue(schema, operand, context);
 
-  if (context.insensitive) {
-    return `LOWER(${lhsOperand}) = LOWER(${rhsOperand})`;
-  }
+  const lhsOperand = context.flags ? getOperandFunction(lhsColumn, context.flags) : lhsColumn;
+  const rhsOperand = context.flags?.insensitive ? getOperandFunction(rhsValue, context.flags) : rhsValue;
 
   return `${lhsOperand} = ${rhsOperand}`;
 };

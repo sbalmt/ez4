@@ -1,4 +1,5 @@
 import type { LinkedServices } from '@ez4/project/library';
+import type { ReflectionTypes } from '@ez4/reflection';
 import type { AuthHandler } from '../auth/types';
 import type { HttpHandler } from '../http/types';
 
@@ -10,6 +11,7 @@ import { attachValidatorLinkedServices } from './validator';
 export const attachProviderLinkedServices = (
   handler: HttpHandler | AuthHandler,
   services: LinkedServices,
+  reflection: ReflectionTypes,
   errorList: Error[],
   fileName?: string
 ) => {
@@ -20,7 +22,7 @@ export const attachProviderLinkedServices = (
   }
 
   if (request) {
-    attachValidatorLinkedServices(handler, provider.services);
+    attachValidatorLinkedServices(handler, provider.services, reflection);
   }
 
   for (const serviceName in provider.services) {

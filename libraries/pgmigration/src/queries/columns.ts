@@ -6,7 +6,7 @@ import type { SqlBuilder } from '@ez4/pgsql';
 import { Index } from '@ez4/database';
 
 import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns';
-import { getCheckColumnQuery } from '../utils/checks';
+import { getCheckColumnExistsQuery } from '../utils/checks';
 
 export namespace ColumnQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, indexes: PgIndexRepository, columns: Record<string, AnySchema>) => {
@@ -95,7 +95,7 @@ export namespace ColumnQuery {
 
       if (!query.empty) {
         statements.push({
-          check: getCheckColumnQuery(builder, table, columnName),
+          check: getCheckColumnExistsQuery(builder, table, columnName),
           query: query.build()
         });
       }
@@ -113,7 +113,7 @@ export namespace ColumnQuery {
       const statement = builder.table(table).alter().existing().rename(fromColumn, toColum);
 
       statements.push({
-        check: getCheckColumnQuery(builder, table, fromColumn),
+        check: getCheckColumnExistsQuery(builder, table, fromColumn),
         query: statement.build()
       });
     }

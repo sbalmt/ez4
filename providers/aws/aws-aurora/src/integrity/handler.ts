@@ -67,7 +67,7 @@ const createResource = (candidate: IntegrityState, context: StepContext): Promis
     const queries = getCreateQueries(repository);
 
     await validateChanges(logger, {
-      queries,
+      queries: queries.validations,
       clusterArn,
       secretArn,
       database
@@ -85,17 +85,17 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
 
   const database = parameters.getDatabase();
 
-  return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', async (logger) => {
+  return OperationLogger.logExecution(IntegrityServiceName, database, 'updates', () => {
     if (!result) {
       throw new CorruptedResourceError(IntegrityServiceName, database);
     }
 
     const { clusterArn, secretArn } = getMigrationResult(IntegrityServiceName, 'integrity', context);
 
-    const targetRepository = parameters.getRepository();
+    const repository = parameters.getRepository();
 
-    const newIntegrityHash = hashObject(targetRepository);
     const oldIntegrityHash = current.result?.integrityHash;
+    const newIntegrityHash = hashObject(repository);
 
     const forceApply = current.partial || context.force;
 
@@ -103,31 +103,24 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
       return result;
     }
 
-    const steps = getUpdateStepQueries(targetRepository, {});
-
-    await validateChanges(logger, {
-      queries: steps.create,
-      database,
-      clusterArn,
-      secretArn
-    });
+    const steps = getUpdateStepQueries(repository, {});
 
     context.postAction(() =>
       OperationLogger.logExecution(IntegrityServiceName, database, 'rollout', async (logger) => {
         await validateChanges(logger, {
-          queries: steps.update,
-          database,
+          queries: [...steps.create.validations, ...steps.update.validations],
           clusterArn,
-          secretArn
+          secretArn,
+          database
         });
 
         context.postAction(() =>
           OperationLogger.logExecution(IntegrityServiceName, database, 'cleanup', async (logger) => {
             await validateChanges(logger, {
-              queries: steps.delete,
-              database,
+              queries: steps.delete.validations,
               clusterArn,
-              secretArn
+              secretArn,
+              database
             });
           })
         );

@@ -1,7 +1,7 @@
 import type { SqlOperationContext } from './types';
 
+import { InvalidOperandError } from '../errors/operations';
 import { SqlSelectStatement } from '../statements/select';
-import { InvalidOperandError } from './errors';
 
 export const getExistsOperation = (column: string, operand: unknown, context: SqlOperationContext) => {
   if (!(operand instanceof SqlSelectStatement)) {

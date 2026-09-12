@@ -1,3 +1,4 @@
+export * from './errors/assertion';
 export * from './utils/repository';
 export * from './types/query';
 
