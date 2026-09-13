@@ -1,10 +1,12 @@
 import type { PgMigrationQueries, PgMigrationStatement } from '@ez4/pgmigration/library';
+import type { PgExecuteOptions, PgExecuteStatement } from '@ez4/pgclient';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
-import type { PgExecuteOptions } from '@ez4/pgclient';
 
 import { DatabaseQueries, MigrationAssertionFailedError } from '@ez4/pgmigration/library';
 import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
+import { Wait } from '@ez4/utils';
 
+import { isDeadlockException } from '../client/errors';
 import { ApiClientDriver } from '../client/drivers/api';
 import { MigrationFailedError } from './errors';
 
@@ -110,10 +112,7 @@ const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgM
   }
 
   try {
-    await driver.executeStatement(query, {
-      ...options,
-      noTimeout: true
-    });
+    await executeWithDeadlockRetry(driver, query, options);
   } catch (error) {
     if (!(error instanceof StatementTimeoutException)) {
       throw error;
@@ -121,4 +120,28 @@ const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgM
   }
 
   return true;
+};
+
+const executeWithDeadlockRetry = (driver: ApiClientDriver, query: PgExecuteStatement, options?: PgExecuteOptions) => {
+  return Wait.until(
+    async () => {
+      try {
+        return await driver.executeStatement(query, {
+          ...options,
+          noTimeout: true
+        });
+      } catch (error) {
+        if (isDeadlockException(error)) {
+          return Wait.RetryAttempt;
+        }
+
+        throw error;
+      }
+    },
+    {
+      minDelay: 1,
+      maxDelay: 5,
+      attempts: 5
+    }
+  );
 };
