@@ -1,4 +1,5 @@
 export * from './errors/assertion';
+export * from './errors/validation';
 export * from './utils/repository';
 export * from './types/query';
 

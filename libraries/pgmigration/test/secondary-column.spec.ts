@@ -163,7 +163,8 @@ describe('migration :: secondary column tests', () => {
         validations: [
           {
             name: 'table_renamed_secondary_sk',
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_renamed_secondary_sk"' || '%' LIMIT 1`
           }
         ],
         relations: [],
@@ -253,7 +254,8 @@ describe('migration :: secondary column tests', () => {
         constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_replacement_sk"' || '%' LIMIT 1`,
             name: 'table_replacement_sk'
           }
         ],

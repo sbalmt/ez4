@@ -2,10 +2,11 @@ import type { PgValidationStatement } from '@ez4/pgmigration/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
 import type { PgExecuteOptions } from '@ez4/pgclient';
 
+import { MigrationValidationFailedError } from '@ez4/pgmigration/library';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
-import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
 import { ApiClientDriver } from '../client/drivers/api';
+import { IntegrityCheckFailedError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -59,7 +60,7 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
           try {
             return await executeIntegrityStatement(driver, statement, options);
           } catch (error) {
-            if (attempt < attempts) {
+            if (attempt < attempts && (await isValidationRunning(driver, statement.retry, options))) {
               return Wait.RetryAttempt;
             }
 
@@ -83,15 +84,23 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
 };
 
 const executeIntegrityStatement = async (driver: ApiClientDriver, statement: PgValidationStatement, options?: PgExecuteOptions) => {
-  const { name, query } = statement;
+  const { name, check } = statement;
 
-  const { records } = await driver.executeStatement({ query }, options);
+  const { records } = await driver.executeStatement({ query: check }, options);
 
   const [hasError] = records;
 
   if (hasError) {
-    throw new IntegrityCheckError(name);
+    throw new MigrationValidationFailedError(name);
   }
 
   return true;
+};
+
+const isValidationRunning = async (driver: ApiClientDriver, retry: string, options?: PgExecuteOptions) => {
+  const { records } = await driver.executeStatement({ query: retry }, options);
+
+  const [isRunning] = records;
+
+  return !!isRunning;
 };

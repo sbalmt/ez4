@@ -8,8 +8,14 @@ import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintExistsQuery, getCheckConstraintInvalidQuery, getCheckConstraintValidQuery } from '../utils/checks';
 import { getRelationName } from '../utils/naming';
+
+import {
+  getCheckConstraintExistsQuery,
+  getCheckConstraintInvalidQuery,
+  getCheckRunningValidationQuery,
+  getCheckConstraintValidQuery
+} from '../utils/checks';
 
 type RelationQueries = Pick<PgMigrationQueries, 'relations' | 'validations'>;
 
@@ -45,7 +51,8 @@ export namespace RelationQuery {
       );
 
       statements.validations.push({
-        query: getCheckConstraintInvalidQuery(builder, relationName),
+        check: getCheckConstraintInvalidQuery(builder, relationName),
+        retry: getCheckRunningValidationQuery(builder, relationName),
         name: relationName
       });
     }
@@ -88,7 +95,8 @@ export namespace RelationQuery {
       );
 
       steps.update.validations.push({
-        query: getCheckConstraintInvalidQuery(builder, tmpName),
+        check: getCheckConstraintInvalidQuery(builder, tmpName),
+        retry: getCheckRunningValidationQuery(builder, tmpName),
         name: newName
       });
 
@@ -151,7 +159,8 @@ export namespace RelationQuery {
       );
 
       steps.update.validations.push({
-        query: getCheckConstraintInvalidQuery(builder, tmpName),
+        check: getCheckConstraintInvalidQuery(builder, tmpName),
+        retry: getCheckRunningValidationQuery(builder, tmpName),
         name: newName
       });
 

@@ -1,11 +1,11 @@
 import type { Database, Client as DbClient } from '@ez4/database';
-import type { PgMigrationStatement } from '@ez4/pgmigration/library';
+import type { PgMigrationStatement, PgValidationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { ServeOptions } from '@ez4/project/library';
 import type { ClientConnection } from '@ez4/pgclient';
 
 import { getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
-import { MigrationAssertionFailedError } from '@ez4/pgmigration/library';
+import { MigrationAssertionFailedError, MigrationValidationFailedError } from '@ez4/pgmigration/library';
 import { Client } from '@ez4/pgclient/driver';
 
 import { loadRepositoryState, saveRepositoryState } from './state';
@@ -27,7 +27,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
 
   const validations = [...steps.create.validations, ...steps.update.validations, ...steps.delete.validations];
 
-  await runAllStatements(client, validations);
+  await runAllValidations(client, validations);
 
   await saveRepositoryState(database, repository);
 };
@@ -44,6 +44,16 @@ export const deleteAllTables = async (connection: ClientConnection, repository: 
 const runAllStatements = async (client: DbClient<Database.Service<any>>, statements: PgMigrationStatement[]) => {
   for (const query of statements) {
     await runStatement(client, query);
+  }
+};
+
+const runAllValidations = async (client: DbClient<Database.Service<any>>, validations: PgValidationStatement[]) => {
+  for (const { name, check } of validations) {
+    const [hasError] = await client.rawQuery(check);
+
+    if (hasError) {
+      throw new MigrationValidationFailedError(name);
+    }
   }
 };
 

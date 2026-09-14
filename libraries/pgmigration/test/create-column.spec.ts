@@ -660,19 +660,23 @@ describe('migration :: create column tests', () => {
         ],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
             name: 'table_column_ck'
           },
           {
-            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_a_ck'`,
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_a_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_default_a_ck"' || '%' LIMIT 1`,
             name: 'table_default_a_ck'
           },
           {
-            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_b_ck'`,
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_b_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_default_b_ck"' || '%' LIMIT 1`,
             name: 'table_default_b_ck'
           },
           {
-            query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_nullable_ck'`,
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_nullable_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_nullable_ck"' || '%' LIMIT 1`,
             name: 'table_nullable_ck'
           }
         ],

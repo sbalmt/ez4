@@ -6,13 +6,15 @@ import type { PgMigrationQueries } from '../types/query';
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
 
+import { getConstraintName } from '../utils/naming';
+
 import {
   getCheckConstraintExistsQuery,
   getCheckConstraintRecordsQuery,
   getCheckConstraintInvalidQuery,
+  getCheckRunningValidationQuery,
   getCheckConstraintValidQuery
 } from '../utils/checks';
-import { getConstraintName } from '../utils/naming';
 
 type ConstraintQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
 
@@ -43,7 +45,8 @@ export namespace ConstraintQuery {
         );
 
         statements.validations.push({
-          query: getCheckConstraintInvalidQuery(builder, name),
+          check: getCheckConstraintInvalidQuery(builder, name),
+          retry: getCheckRunningValidationQuery(builder, name),
           name
         });
       }
@@ -102,7 +105,8 @@ export namespace ConstraintQuery {
           );
 
           steps.update.validations.push({
-            query: getCheckConstraintInvalidQuery(builder, tmpName),
+            check: getCheckConstraintInvalidQuery(builder, tmpName),
+            retry: getCheckRunningValidationQuery(builder, tmpName),
             name: newName
           });
 

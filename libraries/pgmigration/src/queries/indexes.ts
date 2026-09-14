@@ -7,8 +7,14 @@ import type { PgMigrationQueries } from '../types/query';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintExistsQuery, getCheckUniqueRecordsQuery, getIndexInvalidQuery } from '../utils/checks';
 import { getPrimaryKeyName, getSecondaryKeyName, getUniqueKeyName } from '../utils/naming';
+
+import {
+  getCheckConstraintExistsQuery,
+  getCheckRunningValidationQuery,
+  getCheckUniqueRecordsQuery,
+  getIndexInvalidQuery
+} from '../utils/checks';
 
 type IndexMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations' | 'indexes'>;
 
@@ -49,7 +55,8 @@ export namespace IndexQueries {
           });
 
           statements.validations.push({
-            query: getIndexInvalidQuery(builder, name),
+            check: getIndexInvalidQuery(builder, name),
+            retry: getCheckRunningValidationQuery(builder, name),
             name
           });
 
@@ -65,7 +72,8 @@ export namespace IndexQueries {
           });
 
           statements.validations.push({
-            query: getIndexInvalidQuery(builder, name),
+            check: getIndexInvalidQuery(builder, name),
+            retry: getCheckRunningValidationQuery(builder, name),
             name
           });
 

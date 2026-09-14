@@ -89,6 +89,24 @@ export const getCheckConstraintRecordsQuery = (builder: SqlBuilder, table: strin
   return query;
 };
 
+export const getCheckRunningValidationQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from('pg_stat_activity')
+    .where({
+      state: builder.rawString('active'),
+      query: {
+        contains: builder.rawString(`"${name}"`),
+        insensitive: true
+      }
+    })
+    .take(1)
+    .build();
+
+  return query;
+};
+
 export const getIndexInvalidQuery = (builder: SqlBuilder, name: string) => {
   const [query] = builder
     .select()

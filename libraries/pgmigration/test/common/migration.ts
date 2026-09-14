@@ -1,16 +1,12 @@
-import type { PgMigrationQueries, PgMigrationStatement } from '@ez4/pgmigration/library';
+import type { PgMigrationQueries, PgMigrationStatement, PgValidationStatement } from '@ez4/pgmigration/library';
 import type { Database, Client as DbClient } from '@ez4/database';
 
-import { MigrationAssertionFailedError } from '@ez4/pgmigration/library';
+import { MigrationAssertionFailedError, MigrationValidationFailedError } from '@ez4/pgmigration/library';
 
 export const runMigration = async (client: DbClient<Database.Service<any>>, queries: PgMigrationQueries) => {
-  await runStatements(client, [
-    ...queries.tables,
-    ...queries.constraints,
-    ...queries.indexes,
-    ...queries.relations,
-    ...queries.validations
-  ]);
+  await runStatements(client, [...queries.tables, ...queries.constraints, ...queries.indexes, ...queries.relations]);
+
+  await runValidations(client, queries.validations);
 };
 
 const runStatements = async (client: DbClient<Database.Service<any>>, statements: PgMigrationStatement[]) => {
@@ -32,5 +28,15 @@ const runStatements = async (client: DbClient<Database.Service<any>>, statements
     }
 
     await client.rawQuery(query);
+  }
+};
+
+const runValidations = async (client: DbClient<Database.Service<any>>, validations: PgValidationStatement[]) => {
+  for (const { name, check } of validations) {
+    const [hasError] = await client.rawQuery(check);
+
+    if (hasError) {
+      throw new MigrationValidationFailedError(name);
+    }
   }
 };

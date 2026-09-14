@@ -59,7 +59,8 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -98,7 +99,8 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -139,7 +141,8 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -180,7 +183,8 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -221,7 +225,8 @@ describe('migration :: constraint types tests', () => {
       ],
       validations: [
         {
-          query: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
