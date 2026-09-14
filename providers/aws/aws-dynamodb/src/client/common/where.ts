@@ -27,7 +27,7 @@ export const prepareWhereFields = (input: Query.WhereInput<InternalTableMetadata
           if (nestedOperations.length > 1) {
             operations.push(`NOT (${nestedOperations.join(' AND ')})`);
           } else {
-            operations.push(`NOT ${nestedOperations[0]})`);
+            operations.push(`NOT (${nestedOperations[0]})`);
           }
 
           variables.push(...nestedVariables);

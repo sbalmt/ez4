@@ -26,6 +26,7 @@ describe('ws metadata', () => {
   it('assert :: basic service', () => testFile('service'));
   it('assert :: service defaults', () => testFile('defaults'));
   it('assert :: service dependencies', () => testFile('dependencies'));
+  it('assert :: service empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: service variables', () => testFile('variables'));
   it('assert :: service event', () => testFile('event'));
   it('assert :: service validation', () => testFile('validation'));

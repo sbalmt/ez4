@@ -28,7 +28,7 @@ export const getTargetHandlerMetadata = (type: AllType, reflection: ReflectionTy
     if (handler && contextType) {
       const references = getFunctionReferences(contextType);
 
-      if (references?.length) {
+      if (references) {
         handler.references = references;
       }
     }

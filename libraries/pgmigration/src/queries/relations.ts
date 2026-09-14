@@ -1,18 +1,30 @@
 import type { PgRelationMetadata, PgRelationRepository } from '@ez4/pgclient/library';
-import type { ObjectSchema } from '@ez4/schema';
+import type { ObjectSchema, ObjectSchemaProperties } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
+import type { PgMigrationQueries } from '../types/query';
 
 import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintQuery } from '../utils/checks';
 import { getRelationName } from '../utils/naming';
+
+import {
+  getCheckConstraintExistsQuery,
+  getCheckConstraintInvalidQuery,
+  getCheckRunningValidationQuery,
+  getCheckConstraintValidQuery
+} from '../utils/checks';
+
+type RelationQueries = Pick<PgMigrationQueries, 'relations' | 'validations'>;
 
 export namespace RelationQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, schema: ObjectSchema, relations: PgRelationRepository) => {
-    const statements = [];
+    const statements: RelationQueries = {
+      validations: [],
+      relations: []
+    };
 
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
@@ -27,22 +39,32 @@ export namespace RelationQuery {
 
       const targetRequired = !!isNullishSchema(targetSchema);
 
-      statements.push({
-        check: getCheckConstraintQuery(builder, relationName),
-        query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
+      statements.relations.push(
+        {
+          check: getCheckConstraintExistsQuery(builder, relationName),
+          query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
+        },
+        {
+          check: getCheckConstraintValidQuery(builder, relationName),
+          query: getValidateQuery(builder, table, relationName).build()
+        }
+      );
+
+      statements.validations.push({
+        check: getCheckConstraintInvalidQuery(builder, relationName),
+        retry: getCheckRunningValidationQuery(builder, relationName),
+        name: relationName
       });
     }
 
     return statements;
   };
 
-  export const prepareUpdate = (
-    builder: SqlBuilder,
-    table: string,
-    relations: PgRelationRepository,
-    changes: Record<string, ObjectComparison>
-  ) => {
-    const statements: any[] = [];
+  export const prepareUpdate = (builder: SqlBuilder, table: string, columns: ObjectSchemaProperties, relations: PgRelationRepository) => {
+    const steps = {
+      rollout: { validations: [], relations: [] } as RelationQueries,
+      cleanup: { validations: [], relations: [] } as RelationQueries
+    };
 
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
@@ -51,26 +73,108 @@ export namespace RelationQuery {
         continue;
       }
 
-      const targetUpdates = changes[relation.targetColumn]?.update;
-      const targetRequired = targetUpdates?.optional ?? targetUpdates?.nullable;
+      const targetSchema = columns[relation.targetColumn];
+      const targetRequired = !!(targetSchema?.optional ?? targetSchema?.nullable);
 
       if (targetRequired === undefined) {
         continue;
       }
 
-      const relationName = getRelationName(table, targetAlias);
+      const tmpName = getRelationName(table, `${targetAlias}_tmp`);
+      const newName = getRelationName(table, targetAlias);
 
-      statements.push(
+      steps.rollout.relations.push(
         {
-          query: getDeleteQuery(builder, table, relationName).build()
+          check: getCheckConstraintExistsQuery(builder, tmpName),
+          query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
         },
         {
-          query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
+          check: getCheckConstraintValidQuery(builder, tmpName),
+          query: getValidateQuery(builder, table, tmpName).build()
+        }
+      );
+
+      steps.rollout.validations.push({
+        check: getCheckConstraintInvalidQuery(builder, tmpName),
+        retry: getCheckRunningValidationQuery(builder, tmpName),
+        name: newName
+      });
+
+      steps.cleanup.relations.push(
+        {
+          query: getDeleteQuery(builder, table, newName).build()
+        },
+        {
+          query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
         }
       );
     }
 
-    return statements;
+    return steps;
+  };
+
+  export const prepareUpdateSource = (
+    builder: SqlBuilder,
+    table: string,
+    columns: ObjectSchemaProperties,
+    sourceRelations: PgRelationRepository,
+    targetRelations: PgRelationRepository,
+    changes: Record<string, ObjectComparison>
+  ) => {
+    const steps = {
+      rollout: { validations: [], relations: [] } as RelationQueries,
+      cleanup: { validations: [], relations: [] } as RelationQueries
+    };
+
+    for (const targetAlias in changes) {
+      const newName = getRelationName(table, targetAlias);
+
+      const sourceRelation = sourceRelations[targetAlias];
+      const targetRelation = targetRelations[targetAlias];
+
+      if (isNotRealRelation(targetRelation)) {
+        if (!isNotRealRelation(sourceRelation)) {
+          steps.cleanup.relations.push({
+            query: getDeleteQuery(builder, table, newName).build()
+          });
+        }
+
+        continue;
+      }
+
+      const targetSchema = columns[targetRelation.targetColumn];
+      const targetRequired = !!(targetSchema?.optional ?? targetSchema?.nullable);
+
+      const tmpName = getRelationName(table, `${targetAlias}_tmp`);
+
+      steps.rollout.relations.push(
+        {
+          check: getCheckConstraintExistsQuery(builder, tmpName),
+          query: getCreateQuery(builder, table, tmpName, targetRelation, targetRequired).build()
+        },
+        {
+          check: getCheckConstraintValidQuery(builder, tmpName),
+          query: getValidateQuery(builder, table, tmpName).build()
+        }
+      );
+
+      steps.rollout.validations.push({
+        check: getCheckConstraintInvalidQuery(builder, tmpName),
+        retry: getCheckRunningValidationQuery(builder, tmpName),
+        name: newName
+      });
+
+      steps.cleanup.relations.push(
+        {
+          query: getDeleteQuery(builder, table, newName).build()
+        },
+        {
+          query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
+        }
+      );
+    }
+
+    return steps;
   };
 
   export const prepareRename = (builder: SqlBuilder, fromTable: string, toTable: string, relations: PgRelationRepository) => {
@@ -89,7 +193,7 @@ export namespace RelationQuery {
       const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
 
       statements.push({
-        check: getCheckConstraintQuery(builder, newName),
+        check: getCheckConstraintExistsQuery(builder, newName),
         query: query.build()
       });
     }
@@ -127,13 +231,17 @@ export namespace RelationQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
+  const getValidateQuery = (builder: SqlBuilder, table: string, name: string) => {
+    return builder.table(table).alter().existing().constraint(name).validate();
+  };
+
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, relation: PgRelationMetadata, optional: boolean) => {
     const { sourceTable, sourceColumn, targetColumn } = relation;
 
     const sourceTableName = getTableName(sourceTable);
 
     const query = builder.table(table).alter().existing().constraint(name);
-    const constraint = query.foreign(targetColumn, sourceTableName, [sourceColumn]).validate(false);
+    const constraint = query.foreign(targetColumn, sourceTableName, [sourceColumn]);
 
     if (!optional) {
       constraint.delete().cascade();
@@ -142,6 +250,7 @@ export namespace RelationQuery {
     }
 
     constraint.update().cascade();
+    constraint.validate(false);
 
     return query;
   };

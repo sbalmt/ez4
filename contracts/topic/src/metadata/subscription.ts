@@ -43,8 +43,13 @@ export const getTopicSubscriptionsMetadata = (
   reflection: ReflectionTypes,
   errorList: Error[]
 ) => {
-  const subscriptionItems = getPropertyTuple(member) ?? [];
+  const subscriptionItems = getPropertyTuple(member);
   const resultList: TopicSubscription[] = [];
+
+  if (!subscriptionItems) {
+    errorList.push(new InvalidSubscriptionTypeError(parent.file));
+    return resultList;
+  }
 
   for (const subscription of subscriptionItems) {
     const result = getTopicSubscription(subscription, parent, reflection, errorList);

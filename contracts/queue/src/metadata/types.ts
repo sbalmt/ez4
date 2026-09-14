@@ -39,6 +39,7 @@ export type QueueImport = Omit<ServiceMetadata, 'variables' | 'services'> &
     subscriptions: QueueSubscription[];
     description?: string;
     fifoMode?: QueueFifoMode;
+    fairMode?: QueueFairMode;
     deadLetter?: QueueDeadLetter;
     backoff?: QueueBackoff;
     timeout?: number;

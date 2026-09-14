@@ -7,6 +7,12 @@ import { Wait } from '@ez4/utils';
 import { getIndexName } from '../../types/indexes';
 import { getAttributeKeyTypes } from './schema';
 
+const RETRY_OPTIONS = {
+  minDelay: 10,
+  maxDelay: 300,
+  attempts: 50
+};
+
 export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
   const indexList: GlobalSecondaryIndex[] = [];
 
@@ -24,20 +30,27 @@ export const getSecondaryIndexes = (...groups: AttributeSchemaGroup[]) => {
 };
 
 export const waitForSecondaryIndex = async (client: DynamoDBClient, tableName: string, indexName: string) => {
-  await Wait.until(
-    async () => {
-      const result = await getSecondaryIndexStatus(client, tableName, indexName);
+  await Wait.until(async () => {
+    const result = await getSecondaryIndexStatus(client, tableName, indexName);
 
-      if (result && result.IndexStatus !== IndexStatus.ACTIVE) {
-        return Wait.RetryAttempt;
-      }
-
-      return true;
-    },
-    {
-      attempts: 90
+    if (result && result.IndexStatus !== IndexStatus.ACTIVE) {
+      return Wait.RetryAttempt;
     }
-  );
+
+    return true;
+  }, RETRY_OPTIONS);
+};
+
+export const waitForSecondaryIndexDeletion = async (client: DynamoDBClient, tableName: string, indexName: string) => {
+  await Wait.until(async () => {
+    const result = await getSecondaryIndexStatus(client, tableName, indexName);
+
+    if (result) {
+      return Wait.RetryAttempt;
+    }
+
+    return true;
+  }, RETRY_OPTIONS);
 };
 
 export const getSecondaryIndexName = (schema: AttributeSchemaGroup) => {

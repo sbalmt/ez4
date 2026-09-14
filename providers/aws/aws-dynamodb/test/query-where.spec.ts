@@ -243,6 +243,16 @@ describe('dynamodb query (where)', () => {
     deepEqual(variables, ['abc', 123]);
   });
 
+  it('assert :: prepare where (single not)', () => {
+    const [whereStatement, variables] = getWhereOperation({
+      NOT: { id: 'abc' }
+    });
+
+    equal(whereStatement, `WHERE NOT ("id" = ?)`);
+
+    deepEqual(variables, ['abc']);
+  });
+
   it('assert :: prepare where (and)', () => {
     const [whereStatement, variables] = getWhereOperation({
       AND: [{ foo: 123, id: 'abc' }, { OR: [{ foo: 456 }, { foo: 789 }] }]

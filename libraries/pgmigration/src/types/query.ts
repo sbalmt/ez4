@@ -1,12 +1,14 @@
 export type PgMigrationStatement = {
+  name?: string;
   check?: string;
+  assert?: string;
   query: string;
 };
 
 export type PgValidationStatement = {
   name: string;
-  check?: string;
-  query: string;
+  check: string;
+  retry: string;
 };
 
 export type PgMigrationQueries = {
@@ -17,8 +19,8 @@ export type PgMigrationQueries = {
   indexes: PgMigrationStatement[];
 };
 
-export type PgMigrationStepQueries = {
-  create: PgMigrationQueries;
-  update: PgMigrationQueries;
-  delete: PgMigrationQueries;
+export type PgMigrationSteps = {
+  prepare: PgMigrationQueries;
+  rollout: PgMigrationQueries;
+  cleanup: PgMigrationQueries;
 };

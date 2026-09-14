@@ -41,4 +41,11 @@ describe('topic subscription metadata errors', () => {
     ok(error1 instanceof InvalidServicePropertyError);
     deepEqual(error1.propertyName, 'invalid_property');
   });
+
+  it('assert :: invalid subscription tuple', () => {
+    const [error1] = parseFile('invalid-subscription-tuple', 1);
+
+    ok(error1 instanceof InvalidSubscriptionTypeError);
+    equal(error1.baseType, 'Topic.Subscription');
+  });
 });

@@ -1,4 +1,4 @@
-import { TooManyClausesError } from '../clauses/errors';
+import { TooManyClausesError } from '../errors/clauses';
 import { SqlCreateIndexClause } from '../clauses/index/create';
 import { SqlRenameIndexClause } from '../clauses/index/rename';
 import { SqlDropIndexClause } from '../clauses/index/drop';

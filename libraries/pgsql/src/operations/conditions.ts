@@ -11,6 +11,7 @@ import { SqlRawValue } from '../common/raw';
 import { SqlOperator } from '../common/types';
 import { SqlColumnReference } from '../common/reference';
 import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
+import { InvalidOperandError, MissingOperatorError } from '../errors/operations';
 import { SqlSelectStatement } from '../statements/select';
 import { getIsNullOperation } from './is-null';
 import { getExistsOperation } from './exists';
@@ -26,8 +27,6 @@ import { getStartsWithOperation } from './starts-with';
 import { getContainsOperation } from './contains';
 import { getIsMissingOperation } from './is-missing';
 import { getIsMissingOrNullOperation } from './is-missing-or-null';
-
-import { InvalidOperandError, MissingOperatorError } from './errors';
 
 export class SqlConditions {
   #state: {
@@ -143,7 +142,7 @@ const getFieldOperation = (
         return getEqualOperation(columnPath, columnSchema, value, context);
       }
 
-      const { insensitive, ...valueOperation } = value;
+      const { insensitive, count, ...valueOperation } = value;
 
       const operationEntries = Object.entries(valueOperation);
 
@@ -154,7 +153,10 @@ const getFieldOperation = (
       if (operationEntries.length === 1) {
         return getSingleOperation(columnPath, columnSchema, operationEntries[0], {
           ...context,
-          insensitive
+          flags: {
+            insensitive,
+            count
+          }
         });
       }
 

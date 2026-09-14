@@ -53,21 +53,21 @@ describe('migration :: delete column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [
           {
             query:

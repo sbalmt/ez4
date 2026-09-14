@@ -25,4 +25,5 @@ describe('validation metadata', () => {
 
   it('assert :: validation service', () => testFile('service'));
   it('assert :: validation dependencies', () => testFile('dependencies'));
+  it('assert :: validation empty dependencies', () => testFile('empty-dependencies'));
 });

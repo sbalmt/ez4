@@ -15,6 +15,8 @@ import { SqlResults } from '../common/results';
 import { escapeSqlName } from '../utils/escape';
 import { getSelectExpressions } from '../helpers/select';
 import { SqlWhereClause } from '../clauses/query/where';
+import { SqlHavingClause } from '../clauses/query/having';
+import { SqlGroupClause } from '../clauses/query/group';
 import { SqlOrderClause } from '../clauses/query/order';
 import { SqlJoin } from '../clauses/query/join';
 
@@ -24,6 +26,8 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     references: SqlBuilderReferences;
     tables?: (string | SqlRawValue | SqlTableReference | SqlUnionClause | SqlSelectStatement)[];
     where?: SqlWhereClause;
+    having?: SqlHavingClause;
+    group?: SqlGroupClause;
     order?: SqlOrderClause;
     schema?: ObjectSchema;
     results: SqlResults;
@@ -144,6 +148,30 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
+  group(...columns: string[]) {
+    const { group } = this.#state;
+
+    if (!group) {
+      this.#state.group = new SqlGroupClause(this, columns);
+    } else if (columns) {
+      group.apply(columns);
+    }
+
+    return this;
+  }
+
+  having(filters?: SqlFilters) {
+    const { having, references, options } = this.#state;
+
+    if (!having) {
+      this.#state.having = new SqlHavingClause(this, references, options, filters);
+    } else if (filters) {
+      having.apply(filters);
+    }
+
+    return this;
+  }
+
   order(columns: SqlOrder | undefined) {
     const { order } = this.#state;
 
@@ -172,7 +200,7 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
   }
 
   build(): [string, unknown[]] {
-    const { tables, references, alias, results, joins, where, order, skip, take, lock } = this.#state;
+    const { tables, references, alias, results, joins, where, group, having, order, skip, take, lock } = this.#state;
 
     const [columns, variables] = results.build();
 
@@ -211,6 +239,21 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
 
           variables.push(...whereVariables);
           statement.push(whereClause);
+        }
+      }
+
+      if (group && !group.empty) {
+        statement.push(group.build());
+      }
+
+      if (having && !having.empty) {
+        const havingResult = having.build();
+
+        if (havingResult) {
+          const [havingClause, havingVariables] = havingResult;
+
+          variables.push(...havingVariables);
+          statement.push(havingClause);
         }
       }
 

@@ -7,10 +7,10 @@ import { getSchemaProperty, isDynamicObjectSchema, isNullishSchema, isObjectSche
 import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
-import { InvalidAtomicOperation } from '../operations/errors';
-import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
-import { SqlSelectStatement } from '../statements/select';
 import { SqlColumnReference } from '../common/reference';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
+import { InvalidAtomicOperation } from '../errors/operations';
+import { SqlSelectStatement } from '../statements/select';
 
 export type SqlUpdateContext = {
   options: SqlBuilderOptions;

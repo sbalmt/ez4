@@ -29,6 +29,7 @@ describe('storage metadata', () => {
   it('assert :: storage tags', () => testFile('tags'));
   it('assert :: events variables', () => testFile('variables'));
   it('assert :: events dependencies', () => testFile('dependencies'));
+  it('assert :: events empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: events listener', () => testFile('listener'));
   it('assert :: events vpc', () => testFile('vpc'));
 });

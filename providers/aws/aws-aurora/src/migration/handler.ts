@@ -68,8 +68,7 @@ const replaceResource = async (candidate: MigrationState, current: MigrationStat
 };
 
 const createResource = (candidate: MigrationState, context: StepContext): Promise<MigrationResult> => {
-  const { parameters } = candidate;
-  const { database, repository } = parameters;
+  const { database, repository } = candidate.parameters;
 
   return OperationLogger.logExecution(MigrationServiceName, database, 'creation', async (logger) => {
     const { clusterArn, secretArn } = getClusterResult(MigrationServiceName, 'migration', context);
@@ -124,7 +123,7 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
 
       await modifyDatabase(logger, {
         ...connectionData,
-        queries: steps.create,
+        queries: steps.prepare,
         database
       });
 
@@ -132,7 +131,7 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
         OperationLogger.logExecution(MigrationServiceName, database, 'rollout', async (logger) => {
           await modifyDatabase(logger, {
             ...connectionData,
-            queries: steps.update,
+            queries: steps.rollout,
             database
           });
 
@@ -140,7 +139,7 @@ const updateResource = async (candidate: MigrationState, current: MigrationState
             OperationLogger.logExecution(MigrationServiceName, database, 'cleanup', async (logger) => {
               await modifyDatabase(logger, {
                 ...connectionData,
-                queries: steps.delete,
+                queries: steps.cleanup,
                 database
               });
 

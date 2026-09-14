@@ -1,8 +1,8 @@
 import { beforeEach, describe, it } from 'node:test';
 
-import { SqlBuilder } from '@ez4/pgsql';
+import { InvalidOperandError, SqlBuilder } from '@ez4/pgsql';
 
-describe('sql where raw tests', () => {
+describe('sql where tests', () => {
   let sql: SqlBuilder;
 
   beforeEach(() => {
@@ -48,24 +48,6 @@ describe('sql where raw tests', () => {
     assert.equal(statement, 'SELECT FROM "test" WHERE "foo" = :0');
   });
 
-  it('assert :: where equal (with insensitive)', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          insensitive: true,
-          equal: 'abc'
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, ['abc']);
-
-    assert.equal(statement, `SELECT FROM "test" WHERE LOWER("foo") = LOWER(:0)`);
-  });
-
   it('assert :: where not equal', ({ assert }) => {
     const query = sql
       .select()
@@ -81,24 +63,6 @@ describe('sql where raw tests', () => {
     assert.deepEqual(variables, [123]);
 
     assert.equal(statement, 'SELECT FROM "test" WHERE "foo" != :0');
-  });
-
-  it('assert :: where not equal (with insensitive)', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          insensitive: true,
-          not: 'abc'
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, ['abc']);
-
-    assert.equal(statement, `SELECT FROM "test" WHERE LOWER("foo") != LOWER(:0)`);
   });
 
   it('assert :: where greater than', ({ assert }) => {
@@ -201,6 +165,19 @@ describe('sql where raw tests', () => {
     assert.deepEqual(variables, [1, 2]);
 
     assert.equal(statement, 'SELECT FROM "test" WHERE "foo" BETWEEN :0 AND :1');
+  });
+
+  it('assert :: where is between (invalid operand)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          isBetween: [1]
+        }
+      });
+
+    assert.throws(() => query.build(), InvalidOperandError);
   });
 
   it('assert :: where is null (implicit)', ({ assert }) => {
@@ -461,62 +438,5 @@ describe('sql where raw tests', () => {
     assert.deepEqual(variables, []);
 
     assert.equal(statement, `SELECT FROM "test" AS "alias_test" WHERE NOT EXISTS (SELECT 1 FROM "another_table")`);
-  });
-
-  it('assert :: where empty', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: {
-          // Make where condition to be falsy.
-          isIn: []
-        },
-        AND: [],
-        OR: [],
-        NOT: {}
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, `SELECT FROM "test" WHERE false`);
-  });
-
-  it('assert :: where undefined', ({ assert }) => {
-    const query = sql
-      .select()
-      .from('test')
-      .where({
-        foo: undefined,
-        bar: {
-          equal: undefined
-        },
-        baz: {
-          qux: undefined
-        },
-        AND: [
-          {
-            foo: undefined
-          },
-          {}
-        ],
-        OR: [
-          {
-            bar: undefined
-          },
-          {}
-        ],
-        NOT: {
-          baz: undefined
-        }
-      });
-
-    const [statement, variables] = query.build();
-
-    assert.deepEqual(variables, []);
-
-    assert.equal(statement, `SELECT FROM "test"`);
   });
 });

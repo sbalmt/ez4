@@ -35,6 +35,10 @@
           "position": [
             19,
             1
+          ],
+          "references": [
+            "selfOptions",
+            "selfVariables"
           ]
         }
       }

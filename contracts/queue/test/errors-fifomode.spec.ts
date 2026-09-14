@@ -34,6 +34,20 @@ describe('queue fifo mode metadata errors', () => {
     deepEqual(error2.properties, ['wrong']);
   });
 
+  it('assert :: incorrect fifo group identifier', () => {
+    const [error1] = parseFile('incorrect-fifomode-group', 1);
+
+    ok(error1 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error1.properties, ['group']);
+  });
+
+  it('assert :: incorrect fifo unique identifier', () => {
+    const [error1] = parseFile('incorrect-fifomode-unique', 1);
+
+    ok(error1 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error1.properties, ['unique']);
+  });
+
   it('assert :: invalid fifo mode (declaration)', () => {
     const [error1] = parseFile('invalid-fifomode-class', 1);
 

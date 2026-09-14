@@ -8,12 +8,12 @@ import type { SqlSelectStatement } from './select';
 
 import { getUpdateColumns } from '../helpers/update';
 import { getSelectExpressions } from '../helpers/select';
+import { MissingTableNameError, MissingRecordError, EmptyRecordError } from '../errors/statements';
 import { SqlReturningClause } from '../clauses/query/returning';
 import { SqlWhereClause } from '../clauses/query/where';
 import { getFields, getValues } from '../utils/column';
 import { escapeSqlName } from '../utils/escape';
 import { SqlSource } from '../common/source';
-import { MissingTableNameError, MissingRecordError, EmptyRecordError } from './errors';
 
 export class SqlUpdateStatement extends SqlSource {
   #state: {

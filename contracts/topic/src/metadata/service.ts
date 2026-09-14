@@ -140,8 +140,14 @@ const isCompleteService = (type: Incomplete<TopicService>): type is TopicService
 const validateFifoModeProperties = (parent: TypeModel, service: TopicService) => {
   const { fifoMode } = service;
 
-  if (fifoMode && !hasSchemaProperty(service.schema, fifoMode.groupId)) {
-    return [new IncorrectFifoModePropertyError([fifoMode.groupId], parent.file)];
+  if (fifoMode) {
+    const properties = [fifoMode.groupId, fifoMode.uniqueId].filter((property): property is string => {
+      return !!property && !hasSchemaProperty(service.schema, property);
+    });
+
+    if (properties.length) {
+      return [new IncorrectFifoModePropertyError(properties, parent.file)];
+    }
   }
 
   return [];

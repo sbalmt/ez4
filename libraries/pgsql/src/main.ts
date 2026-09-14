@@ -1,11 +1,9 @@
-export * from './operations/errors';
-export * from './statements/errors';
-export * from './clauses/errors';
-
 export * from './clauses/query/where';
 export * from './clauses/query/join';
 export * from './clauses/query/conflict';
 export * from './clauses/query/returning';
+export * from './clauses/query/having';
+export * from './clauses/query/group';
 export * from './clauses/query/order';
 export * from './clauses/query/union';
 export * from './clauses/query/with';
@@ -46,5 +44,11 @@ export * from './common/raw';
 
 export * from './utils/escape';
 export * from './utils/merge';
+
+export * from './errors/clauses';
+export * from './errors/operations';
+export * from './errors/statements';
+export * from './errors/alias';
+export * from './errors/data';
 
 export * from './builder';

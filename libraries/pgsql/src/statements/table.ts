@@ -1,4 +1,4 @@
-import { TooManyClausesError } from '../clauses/errors';
+import { TooManyClausesError } from '../errors/clauses';
 import { SqlAlterTableClause } from '../clauses/table/alter';
 import { SqlCreateTableClause } from '../clauses/table/create';
 import { SqlRenameTableClause } from '../clauses/table/rename';

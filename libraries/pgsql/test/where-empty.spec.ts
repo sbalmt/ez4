@@ -94,4 +94,54 @@ describe('sql where empty tests', () => {
 
     assert.equal(statement, 'SELECT FROM "test" WHERE "bar" @> :0');
   });
+
+  it('assert :: where empty operations', ({ assert }) => {
+    const query = sql.select().from('test').where({
+      AND: [],
+      OR: [],
+      NOT: {}
+    });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+
+    assert.equal(statement, `SELECT FROM "test"`);
+  });
+
+  it('assert :: where empty (undefined)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: undefined,
+        bar: {
+          equal: undefined
+        },
+        baz: {
+          qux: undefined
+        },
+        AND: [
+          {
+            foo: undefined
+          },
+          {}
+        ],
+        OR: [
+          {
+            bar: undefined
+          },
+          {}
+        ],
+        NOT: {
+          baz: undefined
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+
+    assert.equal(statement, `SELECT FROM "test"`);
+  });
 });

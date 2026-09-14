@@ -30,6 +30,7 @@ export const getTagList = (tags: ResourceTags) => {
  * @param source Source tags.
  * @param tagResource Callback to tag a resource.
  * @param untagResource Callback to untag a resource.
+ * @returns Returns `true` if any changes were applied, otherwise `false`.
  */
 export const applyTagUpdates = async (
   target: ResourceTags | undefined,
@@ -46,4 +47,6 @@ export const applyTagUpdates = async (
   if (changes.create || changes.update) {
     await tagResource({ ...changes.create, ...changes.update });
   }
+
+  return !!(changes.remove || changes.create || changes.update);
 };

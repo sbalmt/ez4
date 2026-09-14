@@ -29,7 +29,7 @@ export const getSubscriptionHandlerMetadata = (type: AllType, reflection: Reflec
     if (handler && contextType) {
       const references = getFunctionReferences(contextType);
 
-      if (references?.length) {
+      if (references) {
         handler.references = references;
       }
     }

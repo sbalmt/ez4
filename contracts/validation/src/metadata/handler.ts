@@ -22,12 +22,14 @@ export const getValidationHandlerMetadata = (type: AllType, errorList: Error[]) 
   }
 
   if (type.parameters) {
-    const [contextType] = type.parameters;
+    const [, contextType] = type.parameters;
 
-    const references = getFunctionReferences(contextType);
+    if (contextType) {
+      const references = getFunctionReferences(contextType);
 
-    if (references?.length) {
-      handler.references = references;
+      if (references) {
+        handler.references = references;
+      }
     }
   }
 

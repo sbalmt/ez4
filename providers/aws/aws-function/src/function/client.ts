@@ -223,29 +223,17 @@ export const updateSourceCode = async (logger: OperationLogLine, functionName: s
     new UpdateFunctionCodeCommand({
       Architectures: architecture && [getFunctionArchitecture(architecture)],
       FunctionName: functionName,
-      ZipFile: sourceFile,
-      Publish: true
+      ZipFile: sourceFile
     })
   );
 
   const functionArn = response.FunctionArn as Arn;
-  const functionVersion = response.Version!;
 
-  const waiter = getLambdaWaiter(client);
-
-  await waitUntilFunctionUpdated(waiter, {
+  await waitUntilFunctionUpdated(getLambdaWaiter(client), {
     FunctionName: functionName
   });
 
-  await waitUntilPublishedVersionActive(waiter, {
-    FunctionName: functionName,
-    Qualifier: functionVersion
-  });
-
-  return {
-    functionArn,
-    functionVersion
-  };
+  return functionArn;
 };
 
 export const updateConfiguration = async (logger: OperationLogLine, functionName: string, request: UpdateConfigurationRequest) => {
@@ -328,7 +316,7 @@ export const publishFunction = async (logger: OperationLogLine, functionName: st
     })
   );
 
-  const functionVersion = response.Version;
+  const functionVersion = response.Version!;
 
   await waitUntilPublishedVersionActive(getLambdaWaiter(client), {
     FunctionName: functionName,
@@ -339,18 +327,18 @@ export const publishFunction = async (logger: OperationLogLine, functionName: st
 };
 
 export const unpublishFunctions = async (logger: OperationLogLine, functionName: string, activeVersion: string) => {
-  logger.update(`Unpublishing version`);
+  logger.update(`Unpublishing versions`);
 
   const client = getLambdaClient();
-
   const response = await client.send(
     new ListVersionsByFunctionCommand({
-      FunctionName: functionName
+      FunctionName: functionName,
+      MaxItems: 25
     })
   );
 
   const unpublishTasks = response.Versions?.map(({ Version }) => async () => {
-    if (Version && Version !== activeVersion) {
+    if (Version && Version !== '$LATEST' && Version !== activeVersion) {
       await client.send(
         new DeleteFunctionCommand({
           FunctionName: functionName,

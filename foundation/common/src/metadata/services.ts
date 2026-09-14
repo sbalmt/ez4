@@ -17,6 +17,18 @@ export const isLinkedService = (member: ModelProperty, reflection: ReflectionTyp
   return !!(referencePath && reflection[referencePath]);
 };
 
+export const isExternalLinkedService = (serviceName: string, reflection: ReflectionTypes) => {
+  for (const identity in reflection) {
+    const declaration = reflection[identity];
+
+    if (declaration.name === serviceName && !isExternalDeclaration(declaration)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const getLinkedServicesObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
   const object = getPropertyObject(member);
 

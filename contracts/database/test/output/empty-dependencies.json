@@ -1,0 +1,55 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "context": {},
+    "file": "test/input/output-empty-dependencies.ts",
+    "variables": {},
+    "services": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "paginationMode": "offset",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [
+      {
+        "name": "table",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        "indexes": [],
+        "stream": {
+          "handler": {
+            "name": "handler",
+            "file": "test/input/output-empty-dependencies.ts",
+            "position": [
+              20,
+              1
+            ],
+            "references": []
+          }
+        }
+      }
+    ]
+  }
+}
