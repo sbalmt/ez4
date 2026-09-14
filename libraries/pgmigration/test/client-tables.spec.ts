@@ -1,7 +1,7 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
 
-import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { Client } from '@ez4/pgclient/driver';
 import { getCreateQueries, getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';

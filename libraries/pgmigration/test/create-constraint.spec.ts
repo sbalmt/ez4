@@ -69,6 +69,92 @@ describe('migration :: create constraint tests', () => {
     });
   });
 
+  it('assert :: create (with table rename)', () => {
+    const sourceTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String
+      }
+    });
+
+    const newTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String
+      },
+      status: {
+        type: SchemaType.Enum,
+        optional: true,
+        options: [
+          {
+            value: 'foo'
+          }
+        ]
+      }
+    });
+
+    const targetTable = {
+      renamed_table: {
+        ...newTable.table,
+        name: 'renamed_table'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "status" text DEFAULT null'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_status_ck'`,
+            assert: `SELECT 1 FROM "table" WHERE NOT "status" IN ('foo') LIMIT 1`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_status_ck" CHECK ("status" IN ('foo')) NOT VALID`,
+            name: 'table_status_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_status_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_status_ck"'
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_status_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_status_ck"' || '%' LIMIT 1`,
+            name: 'table_status_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_status_ck'`,
+            query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_status_ck" TO "renamed_table_status_ck"'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
   it('assert :: create (with enum column type)', async () => {
     const sourceTable = getDatabaseTables({
       column: {

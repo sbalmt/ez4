@@ -317,4 +317,110 @@ describe('migration :: update constraint tests', () => {
       }
     });
   });
+
+  it('assert :: rename constraint (with table rename)', () => {
+    const sourceTable = getDatabaseTables({
+      column: {
+        type: SchemaType.Enum,
+        options: [
+          {
+            value: 'foo'
+          }
+        ]
+      }
+    });
+
+    const targetTable = {
+      renamed_table: {
+        ...sourceTable.table,
+        name: 'renamed_table'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME CONSTRAINT "table_column_ck" TO "renamed_table_column_ck"'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename constraint (with column rename)', () => {
+    const sourceTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String,
+        definitions: {
+          value: 'foo'
+        }
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      renamed_column: sourceTable.table.schema.properties.column
+    });
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "renamed_column"'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_column_ck'`,
+            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_column_ck" TO "table_renamed_column_ck"'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
 });

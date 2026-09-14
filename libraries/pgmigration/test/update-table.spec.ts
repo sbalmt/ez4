@@ -124,7 +124,77 @@ describe('migration :: update table tests', () => {
     });
   });
 
-  it('assert :: rename table with column update', async () => {
+  it('assert :: rename table with added column', () => {
+    const source = getTableRepository([
+      {
+        name: 'table',
+        indexes: [],
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    ]);
+
+    const target = {
+      renamed_table: {
+        ...source.table,
+        name: 'renamed_table',
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            },
+            added: {
+              type: SchemaType.String,
+              optional: true
+            }
+          }
+        } satisfies ObjectSchema
+      }
+    };
+
+    const steps = getUpdateStepQueries(target, source);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "added" text DEFAULT null'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename table with updated column', async () => {
     const targetTable = {
       renamed_table: {
         ...sourceTable.table,
@@ -137,7 +207,7 @@ describe('migration :: update table tests', () => {
               type: SchemaType.String
             }
           }
-        } as ObjectSchema
+        } satisfies ObjectSchema
       }
     };
 

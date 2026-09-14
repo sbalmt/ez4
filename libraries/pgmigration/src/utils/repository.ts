@@ -84,7 +84,14 @@ const getRepositoryChanges = (target: PgTableRepository, source: PgTableReposito
 };
 
 const canRenameTable = (target: ObjectSchema, source: ObjectSchema) => {
-  return deepEqual(Object.keys(target.properties), Object.keys(source.properties));
+  const targetColumns = Object.keys(target.properties);
+  const sourceColumns = Object.keys(source.properties);
+
+  if (targetColumns.length && sourceColumns.length) {
+    return targetColumns.some((column) => sourceColumns.includes(column));
+  }
+
+  return true;
 };
 
 const canRenameIndex = (target: PgTableIndex, source: PgTableIndex) => {

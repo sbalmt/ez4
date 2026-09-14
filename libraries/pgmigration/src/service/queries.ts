@@ -38,6 +38,7 @@ export const getCreateQueries = (target: PgTableRepository) => {
 export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableRepository) => {
   const changes = getTableRepositoryChanges(target, source);
   const builder = new SqlBuilder();
+  const renamed = new Set();
 
   const steps: PgMigrationSteps = {
     prepare: getStepQueries(),
@@ -53,15 +54,17 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
     for (const fromTable in changes.rename) {
       const toTable = changes.rename[fromTable];
 
-      const targetIndexes = target[toTable].indexes;
-      const targetRelations = target[toTable].relations;
-      const targetSchema = target[toTable].schema;
+      const sourceIndexes = source[fromTable].indexes;
+      const sourceRelations = source[fromTable].relations;
+      const sourceSchema = source[fromTable].schema;
 
       steps.rollout.tables.push(TableQuery.prepareRename(builder, fromTable, toTable));
-      steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, targetSchema.properties));
-      steps.rollout.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, targetRelations));
+      steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, sourceSchema.properties));
+      steps.rollout.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, sourceRelations));
 
-      combineQueries(steps.rollout, IndexQueries.prepareRenameTable(builder, fromTable, toTable, targetIndexes));
+      combineQueries(steps.rollout, IndexQueries.prepareRenameTable(builder, fromTable, toTable, sourceIndexes));
+
+      renamed.add(toTable);
     }
   }
 
@@ -86,9 +89,15 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const sourceSchema = changes.source[table].schema;
       const targetSchema = target[table].schema;
 
+      const sourceTable = changes.source[table].name;
+
       if (targetColumns?.create) {
-        steps.prepare.tables.push(ColumnQuery.prepareCreate(builder, table, targetIndexes, targetColumns.create));
-        combineQueries(steps.prepare, ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
+        steps.prepare.tables.push(ColumnQuery.prepareCreate(builder, sourceTable, targetIndexes, targetColumns.create));
+        combineQueries(steps.prepare, ConstraintQuery.prepareCreate(builder, sourceTable, targetColumns.create));
+
+        if (renamed.has(table)) {
+          steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, sourceTable, table, targetColumns.create));
+        }
       }
 
       if (targetColumns?.nested) {

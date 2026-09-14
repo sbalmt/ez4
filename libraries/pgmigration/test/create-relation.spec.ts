@@ -162,4 +162,75 @@ describe('migration :: create relation tests', () => {
       }
     });
   });
+
+  it('assert :: create (with table rename)', () => {
+    const sourceTable = getDatabaseTables(false, []);
+
+    const newTable = getDatabaseTables(false, [
+      {
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
+        sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
+        targetIndex: Index.Secondary
+      }
+    ]);
+
+    const targetTable = {
+      table_b: newTable.table_b,
+      renamed_table_a: {
+        ...newTable.table_a,
+        name: 'renamed_table_a'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME TO "renamed_table_a"'
+          }
+        ],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'renamed_table_a_relation_fk'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"renamed_table_a_relation_fk"' || '%' LIMIT 1`,
+            name: 'renamed_table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_a_relation_fk'`,
+            query:
+              'ALTER TABLE IF EXISTS "renamed_table_a" ADD CONSTRAINT "renamed_table_a_relation_fk" ' +
+              'FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ' +
+              'ON DELETE CASCADE ON UPDATE CASCADE NOT VALID'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'renamed_table_a_relation_fk'`,
+            query: 'ALTER TABLE IF EXISTS "renamed_table_a" VALIDATE CONSTRAINT "renamed_table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
 });

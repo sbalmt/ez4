@@ -375,4 +375,178 @@ describe('migration :: create index tests', () => {
       }
     });
   });
+
+  it('assert :: create primary index (with table rename)', () => {
+    const sourceTable = getDatabaseTables(singleColumn);
+
+    const newTable = getDatabaseTables(singleColumn, [
+      {
+        name: 'index',
+        type: Index.Primary,
+        columns: ['column']
+      }
+    ]);
+
+    const targetTable = {
+      renamed_table: {
+        ...newTable.table,
+        name: 'renamed_table'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_index_pk'`,
+            query: 'ALTER TABLE IF EXISTS "renamed_table" ADD CONSTRAINT "renamed_table_index_pk" PRIMARY KEY ("column")'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: create unique index (with table rename)', () => {
+    const sourceTable = getDatabaseTables(singleColumn);
+
+    const newTable = getDatabaseTables(singleColumn, [
+      {
+        name: 'index',
+        type: Index.Unique,
+        columns: ['column']
+      }
+    ]);
+
+    const targetTable = {
+      renamed_table: {
+        ...newTable.table,
+        name: 'renamed_table'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'renamed_table_index_uk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"renamed_table_index_uk"' || '%' LIMIT 1`,
+            name: 'renamed_table_index_uk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            assert: 'SELECT 1 FROM "renamed_table" WHERE "column" IS NOT null GROUP BY "column" HAVING COUNT(*) > 1 LIMIT 1',
+            query: 'CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "renamed_table_index_uk" ON "renamed_table" USING BTREE ("column")',
+            name: 'renamed_table_index_uk'
+          }
+        ]
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: create secondary index (with table rename)', () => {
+    const sourceTable = getDatabaseTables(singleColumn);
+
+    const newTable = getDatabaseTables(singleColumn, [
+      {
+        name: 'index',
+        type: Index.Secondary,
+        columns: ['column']
+      }
+    ]);
+
+    const targetTable = {
+      renamed_table: {
+        ...newTable.table,
+        name: 'renamed_table'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'renamed_table_index_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"renamed_table_index_sk"' || '%' LIMIT 1`,
+            name: 'renamed_table_index_sk'
+          }
+        ],
+        relations: [],
+        indexes: [
+          {
+            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "renamed_table_index_sk" ON "renamed_table" USING BTREE ("column")'
+          }
+        ]
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
 });
