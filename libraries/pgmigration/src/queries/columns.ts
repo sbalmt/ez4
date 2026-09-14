@@ -3,6 +3,7 @@ import type { AnySchema, ObjectSchema } from '@ez4/schema';
 import type { ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 
+import { isAnyNumber, isNotNullish } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 import { getColumnDefault, getColumnType, isOptionalColumn } from '../utils/columns';
@@ -49,48 +50,36 @@ export namespace ColumnQuery {
 
       const query = builder.table(table).alter().existing().column(columnName);
 
-      if (create) {
-        const columnDefault = create.definitions?.default;
-        const columnOptional = create?.nullable;
+      const attributeChanges = [create, update, remove];
 
-        if (columnDefault !== undefined) {
-          query.default(getColumnDefault(columnSchema, columnIsPrimary));
-        }
+      const definitionChanges = [
+        create?.definitions,
+        update?.definitions,
+        remove?.definitions,
+        nested?.definitions?.create,
+        nested?.definitions?.update,
+        nested?.definitions?.remove,
+        nested?.definitions?.nested
+      ];
 
-        if (!columnIsPrimary && columnOptional !== undefined) {
-          query.optional(columnOptional);
-        }
+      const hasTypeChanged = attributeChanges.some((change) => change?.type || change?.format);
+      const hasNullityChanged = attributeChanges.some((change) => isNotNullish(change?.optional ?? change?.nullable));
+
+      const hasDefaultChanged = definitionChanges.some((change) => change?.default !== undefined);
+      const hasLengthChanged = definitionChanges.some((change) => isAnyNumber(change?.maxLength));
+
+      if (hasTypeChanged || hasLengthChanged) {
+        query.type(getColumnType(columnSchema, false));
       }
 
-      if (update || nested) {
-        const columnDefault = nested?.definitions?.update?.default;
-        const columnOptional = update?.nullable;
-        const columnType = update?.type;
-
-        if (columnType !== undefined) {
-          query.type(getColumnType(columnSchema, columnIsPrimary));
-        }
-
-        if (columnDefault !== undefined) {
-          query.default(getColumnDefault(columnSchema, columnIsPrimary));
-        }
-
-        if (!columnIsPrimary && columnOptional !== undefined) {
-          query.optional(columnOptional);
-        }
+      if (!columnIsPrimary && hasNullityChanged) {
+        query.optional(isOptionalColumn(columnSchema));
       }
 
-      if (remove) {
-        const columnDefault = remove.definitions?.default;
-        const columnOptional = remove?.nullable;
+      if (hasDefaultChanged) {
+        const isDefaultRemoved = remove?.definitions?.default !== undefined || nested?.definitions?.remove?.default !== undefined;
 
-        if (columnDefault !== undefined) {
-          query.default(null);
-        }
-
-        if (!columnIsPrimary && columnOptional !== undefined) {
-          query.required(columnOptional);
-        }
+        query.default(isDefaultRemoved ? null : getColumnDefault(columnSchema, columnIsPrimary));
       }
 
       if (!query.empty) {
