@@ -73,8 +73,12 @@ describe('migration :: update constraint tests', () => {
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_tmp_ck'`,
             assert: `SELECT 1 FROM "table" WHERE NOT "column" IN ('foo', '123', 'bar', '456') LIMIT 1`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" IN ('foo', '123', 'bar', '456'))`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" IN ('foo', '123', 'bar', '456')) NOT VALID`,
             name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_tmp_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_tmp_ck"`
           }
         ],
         validations: [
@@ -138,8 +142,12 @@ describe('migration :: update constraint tests', () => {
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_tmp_ck'`,
             assert: 'SELECT 1 FROM "table" WHERE NOT "column" = false LIMIT 1',
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = false)`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = false) NOT VALID`,
             name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_tmp_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_tmp_ck"`
           }
         ],
         validations: [
@@ -203,8 +211,12 @@ describe('migration :: update constraint tests', () => {
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_tmp_ck'`,
             assert: 'SELECT 1 FROM "table" WHERE NOT "column" = 456 LIMIT 1',
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = 456)`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = 456) NOT VALID`,
             name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_tmp_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_tmp_ck"`
           }
         ],
         validations: [
@@ -268,8 +280,12 @@ describe('migration :: update constraint tests', () => {
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_tmp_ck'`,
             assert: `SELECT 1 FROM "table" WHERE NOT "column" = 'bar' LIMIT 1`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = 'bar')`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = 'bar') NOT VALID`,
             name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_tmp_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_tmp_ck"`
           }
         ],
         validations: [

@@ -61,6 +61,20 @@ export const getCheckConstraintInvalidQuery = (builder: SqlBuilder, name: string
   return query;
 };
 
+export const getCheckConstraintValidQuery = (builder: SqlBuilder, name: string) => {
+  const [query] = builder
+    .select()
+    .rawColumn(1)
+    .from('pg_constraint')
+    .where({
+      convalidated: builder.rawValue('true'),
+      conname: builder.rawString(name)
+    })
+    .build();
+
+  return query;
+};
+
 export const getCheckConstraintRecordsQuery = (builder: SqlBuilder, table: string, filters: SqlFilters) => {
   const [query] = builder
     .select()

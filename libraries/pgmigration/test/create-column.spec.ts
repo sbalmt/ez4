@@ -620,26 +620,42 @@ describe('migration :: create column tests', () => {
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
             assert: 'SELECT 1 FROM "table" WHERE NOT false LIMIT 1',
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false)`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`,
             name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_a_ck'`,
             assert: `SELECT 1 FROM "table" WHERE NOT "default_a" IN ('foo') LIMIT 1`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_a_ck" CHECK ("default_a" IN ('foo'))`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_a_ck" CHECK ("default_a" IN ('foo')) NOT VALID`,
             name: 'table_default_a_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_a_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_a_ck"`
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_default_b_ck'`,
             assert: `SELECT 1 FROM "table" WHERE NOT "default_b" IN ('123') LIMIT 1`,
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_b_ck" CHECK ("default_b" IN ('123'))`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_default_b_ck" CHECK ("default_b" IN ('123')) NOT VALID`,
             name: 'table_default_b_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_default_b_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_default_b_ck"`
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_nullable_ck'`,
             assert: 'SELECT 1 FROM "table" WHERE NOT false LIMIT 1',
-            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false)`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_nullable_ck" CHECK (false) NOT VALID`,
             name: 'table_nullable_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_nullable_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_nullable_ck"`
           }
         ],
         validations: [

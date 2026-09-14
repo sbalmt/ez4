@@ -6,7 +6,12 @@ import type { PgMigrationQueries } from '../types/query';
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
 
-import { getCheckConstraintExistsQuery, getCheckConstraintRecordsQuery, getCheckConstraintInvalidQuery } from '../utils/checks';
+import {
+  getCheckConstraintExistsQuery,
+  getCheckConstraintRecordsQuery,
+  getCheckConstraintInvalidQuery,
+  getCheckConstraintValidQuery
+} from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
 type ConstraintQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
@@ -24,12 +29,18 @@ export namespace ConstraintQuery {
       if (isEnumSchema(columnSchema) || (isScalarSchema(columnSchema) && isNotNullish(columnSchema.definitions?.value))) {
         const name = getConstraintName(table, columnName);
 
-        statements.constraints.push({
-          check: getCheckConstraintExistsQuery(builder, name),
-          assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
-          query: getCreateQuery(builder, table, name, columnName, columnSchema).build(),
-          name
-        });
+        statements.constraints.push(
+          {
+            check: getCheckConstraintExistsQuery(builder, name),
+            assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
+            query: getCreateQuery(builder, table, name, columnName, columnSchema).build(),
+            name
+          },
+          {
+            check: getCheckConstraintValidQuery(builder, name),
+            query: getValidateQuery(builder, table, name).build()
+          }
+        );
 
         statements.validations.push({
           query: getCheckConstraintInvalidQuery(builder, name),
@@ -77,12 +88,18 @@ export namespace ConstraintQuery {
           const tmpName = getConstraintName(table, `${columnName}_tmp`);
           const newName = getConstraintName(table, columnName);
 
-          steps.update.constraints.push({
-            check: getCheckConstraintExistsQuery(builder, tmpName),
-            assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
-            query: getCreateQuery(builder, table, tmpName, columnName, columnSchema).build(),
-            name: newName
-          });
+          steps.update.constraints.push(
+            {
+              check: getCheckConstraintExistsQuery(builder, tmpName),
+              assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
+              query: getCreateQuery(builder, table, tmpName, columnName, columnSchema).build(),
+              name: newName
+            },
+            {
+              check: getCheckConstraintValidQuery(builder, tmpName),
+              query: getValidateQuery(builder, table, tmpName).build()
+            }
+          );
 
           steps.update.validations.push({
             query: getCheckConstraintInvalidQuery(builder, tmpName),
@@ -171,10 +188,14 @@ export namespace ConstraintQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
+  const getValidateQuery = (builder: SqlBuilder, table: string, name: string) => {
+    return builder.table(table).alter().existing().constraint(name).validate();
+  };
+
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, schema: EnumSchema | ScalarSchema) => {
     const query = builder.table(table).alter().existing().constraint(name);
 
-    query.check(getConstraintFilters(builder, column, schema));
+    query.check(getConstraintFilters(builder, column, schema)).validate(false);
 
     return query;
   };

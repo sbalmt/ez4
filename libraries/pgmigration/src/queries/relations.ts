@@ -8,7 +8,7 @@ import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
 import { Index } from '@ez4/database';
 
-import { getCheckConstraintExistsQuery, getCheckConstraintInvalidQuery } from '../utils/checks';
+import { getCheckConstraintExistsQuery, getCheckConstraintInvalidQuery, getCheckConstraintValidQuery } from '../utils/checks';
 import { getRelationName } from '../utils/naming';
 
 type RelationQueries = Pick<PgMigrationQueries, 'relations' | 'validations'>;
@@ -33,10 +33,16 @@ export namespace RelationQuery {
 
       const targetRequired = !!isNullishSchema(targetSchema);
 
-      statements.relations.push({
-        check: getCheckConstraintExistsQuery(builder, relationName),
-        query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
-      });
+      statements.relations.push(
+        {
+          check: getCheckConstraintExistsQuery(builder, relationName),
+          query: getCreateQuery(builder, table, relationName, relation, targetRequired).build()
+        },
+        {
+          check: getCheckConstraintValidQuery(builder, relationName),
+          query: getValidateQuery(builder, table, relationName).build()
+        }
+      );
 
       statements.validations.push({
         query: getCheckConstraintInvalidQuery(builder, relationName),
@@ -70,10 +76,16 @@ export namespace RelationQuery {
       const tmpName = getRelationName(table, `${targetAlias}_tmp`);
       const newName = getRelationName(table, targetAlias);
 
-      steps.update.relations.push({
-        check: getCheckConstraintExistsQuery(builder, tmpName),
-        query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
-      });
+      steps.update.relations.push(
+        {
+          check: getCheckConstraintExistsQuery(builder, tmpName),
+          query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
+        },
+        {
+          check: getCheckConstraintValidQuery(builder, tmpName),
+          query: getValidateQuery(builder, table, tmpName).build()
+        }
+      );
 
       steps.update.validations.push({
         query: getCheckConstraintInvalidQuery(builder, tmpName),
@@ -127,10 +139,16 @@ export namespace RelationQuery {
 
       const tmpName = getRelationName(table, `${targetAlias}_tmp`);
 
-      steps.update.relations.push({
-        check: getCheckConstraintExistsQuery(builder, tmpName),
-        query: getCreateQuery(builder, table, tmpName, targetRelation, targetRequired).build()
-      });
+      steps.update.relations.push(
+        {
+          check: getCheckConstraintExistsQuery(builder, tmpName),
+          query: getCreateQuery(builder, table, tmpName, targetRelation, targetRequired).build()
+        },
+        {
+          check: getCheckConstraintValidQuery(builder, tmpName),
+          query: getValidateQuery(builder, table, tmpName).build()
+        }
+      );
 
       steps.update.validations.push({
         query: getCheckConstraintInvalidQuery(builder, tmpName),
@@ -204,6 +222,10 @@ export namespace RelationQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
+  const getValidateQuery = (builder: SqlBuilder, table: string, name: string) => {
+    return builder.table(table).alter().existing().constraint(name).validate();
+  };
+
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, relation: PgRelationMetadata, optional: boolean) => {
     const { sourceTable, sourceColumn, targetColumn } = relation;
 
@@ -219,6 +241,7 @@ export namespace RelationQuery {
     }
 
     constraint.update().cascade();
+    constraint.validate(false);
 
     return query;
   };
