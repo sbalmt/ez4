@@ -40,13 +40,13 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
   const builder = new SqlBuilder();
 
   const steps: PgMigrationSteps = {
-    create: getStepQueries(),
-    update: getStepQueries(),
-    delete: getStepQueries()
+    prepare: getStepQueries(),
+    rollout: getStepQueries(),
+    cleanup: getStepQueries()
   };
 
   if (changes.create) {
-    combineQueries(steps.create, getCreateQueries(changes.create));
+    combineQueries(steps.prepare, getCreateQueries(changes.create));
   }
 
   if (changes.rename) {
@@ -57,11 +57,11 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const targetRelations = target[toTable].relations;
       const targetSchema = target[toTable].schema;
 
-      steps.update.tables.push(TableQuery.prepareRename(builder, fromTable, toTable));
-      steps.update.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, targetSchema.properties));
-      steps.update.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, targetRelations));
+      steps.rollout.tables.push(TableQuery.prepareRename(builder, fromTable, toTable));
+      steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, targetSchema.properties));
+      steps.rollout.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, targetRelations));
 
-      combineQueries(steps.update, IndexQueries.prepareRenameTable(builder, fromTable, toTable, targetIndexes));
+      combineQueries(steps.rollout, IndexQueries.prepareRenameTable(builder, fromTable, toTable, targetIndexes));
     }
   }
 
@@ -87,49 +87,49 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const targetSchema = target[table].schema;
 
       if (targetColumns?.create) {
-        steps.create.tables.push(ColumnQuery.prepareCreate(builder, table, targetIndexes, targetColumns.create));
-        combineQueries(steps.create, ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
+        steps.prepare.tables.push(ColumnQuery.prepareCreate(builder, table, targetIndexes, targetColumns.create));
+        combineQueries(steps.prepare, ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
       }
 
       if (targetColumns?.nested) {
-        steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
+        steps.rollout.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
         combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
         combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema.properties, targetRelations));
       }
 
       if (targetColumns?.rename) {
-        steps.update.tables.push(...ColumnQuery.prepareRename(builder, table, targetColumns.rename));
-        steps.update.constraints.push(
+        steps.rollout.tables.push(...ColumnQuery.prepareRename(builder, table, targetColumns.rename));
+        steps.rollout.constraints.push(
           ...ConstraintQuery.prepareRenameColumns(builder, table, targetSchema.properties, targetColumns.rename)
         );
       }
 
       if (targetColumns?.remove) {
-        steps.delete.tables.push(ColumnQuery.prepareDelete(builder, table, targetColumns.remove));
-        steps.delete.constraints.push(...ConstraintQuery.prepareDelete(builder, table, targetColumns.remove));
+        steps.cleanup.tables.push(ColumnQuery.prepareDelete(builder, table, targetColumns.remove));
+        steps.cleanup.constraints.push(...ConstraintQuery.prepareDelete(builder, table, targetColumns.remove));
       }
 
       if (indexChanges?.create) {
-        combineQueries(steps.update, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
+        combineQueries(steps.rollout, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
       }
 
       if (indexChanges?.nested) {
         combineQueries(
-          steps.update,
+          steps.rollout,
           IndexQueries.prepareUpdate(builder, table, targetSchema, sourceIndexes, targetIndexes, indexChanges.nested)
         );
       }
 
       if (indexChanges?.rename) {
-        combineQueries(steps.update, IndexQueries.prepareRenameColumns(builder, table, targetIndexes, indexChanges.rename));
+        combineQueries(steps.rollout, IndexQueries.prepareRenameColumns(builder, table, targetIndexes, indexChanges.rename));
       }
 
       if (indexChanges?.remove) {
-        combineQueries(steps.delete, IndexQueries.prepareDelete(builder, table, indexChanges.remove));
+        combineQueries(steps.cleanup, IndexQueries.prepareDelete(builder, table, indexChanges.remove));
       }
 
       if (relationChanges?.create) {
-        combineQueries(steps.update, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+        combineQueries(steps.rollout, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
       }
 
       if (relationChanges?.nested) {
@@ -147,13 +147,13 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       }
 
       if (relationChanges?.remove) {
-        steps.delete.relations.push(...RelationQuery.prepareDelete(builder, table, relationChanges.remove));
+        steps.cleanup.relations.push(...RelationQuery.prepareDelete(builder, table, relationChanges.remove));
       }
     }
   }
 
   if (changes.remove) {
-    combineQueries(steps.delete, getDeleteQueries(changes.remove));
+    combineQueries(steps.cleanup, getDeleteQueries(changes.remove));
   }
 
   return steps;
@@ -180,16 +180,16 @@ export const getDeleteQueries = (target: PgTableRepository) => {
 };
 
 const combineSteps = (target: PgMigrationSteps, source: OptionalObject<PgMigrationSteps>) => {
-  if (source.create) {
-    combineQueries(target.create, source.create);
+  if (source.prepare) {
+    combineQueries(target.prepare, source.prepare);
   }
 
-  if (source.update) {
-    combineQueries(target.update, source.update);
+  if (source.rollout) {
+    combineQueries(target.rollout, source.rollout);
   }
 
-  if (source.delete) {
-    combineQueries(target.delete, source.delete);
+  if (source.cleanup) {
+    combineQueries(target.cleanup, source.cleanup);
   }
 };
 

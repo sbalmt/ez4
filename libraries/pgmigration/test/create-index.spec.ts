@@ -59,14 +59,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -78,7 +78,7 @@ describe('migration :: create index tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -102,14 +102,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -128,7 +128,7 @@ describe('migration :: create index tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -152,14 +152,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -176,7 +176,7 @@ describe('migration :: create index tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -200,14 +200,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -219,7 +219,7 @@ describe('migration :: create index tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -243,14 +243,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -270,7 +270,7 @@ describe('migration :: create index tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -294,14 +294,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -318,7 +318,7 @@ describe('migration :: create index tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -342,14 +342,14 @@ describe('migration :: create index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -366,7 +366,7 @@ describe('migration :: create index tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],

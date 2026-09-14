@@ -19,13 +19,13 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   const steps = getUpdateStepQueries(repository, oldRepository);
   const client = getClient(connection);
 
-  const createQueries = [...steps.create.tables, ...steps.create.constraints, ...steps.create.indexes, ...steps.create.relations];
-  const updateQueries = [...steps.update.tables, ...steps.update.constraints, ...steps.update.indexes, ...steps.update.relations];
-  const deleteQueries = [...steps.delete.tables, ...steps.delete.constraints, ...steps.delete.indexes, ...steps.delete.relations];
+  const prepareQueries = [...steps.prepare.tables, ...steps.prepare.constraints, ...steps.prepare.indexes, ...steps.prepare.relations];
+  const rolloutQueries = [...steps.rollout.tables, ...steps.rollout.constraints, ...steps.rollout.indexes, ...steps.rollout.relations];
+  const cleanupQueries = [...steps.cleanup.tables, ...steps.cleanup.constraints, ...steps.cleanup.indexes, ...steps.cleanup.relations];
 
-  await runAllStatements(client, [...updateQueries, ...createQueries, ...deleteQueries]);
+  await runAllStatements(client, [...prepareQueries, ...rolloutQueries, ...cleanupQueries]);
 
-  const validations = [...steps.create.validations, ...steps.update.validations, ...steps.delete.validations];
+  const validations = [...steps.prepare.validations, ...steps.rollout.validations, ...steps.cleanup.validations];
 
   await runAllValidations(client, validations);
 

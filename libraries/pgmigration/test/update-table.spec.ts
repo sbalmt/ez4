@@ -75,14 +75,14 @@ describe('migration :: update table tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
@@ -114,7 +114,7 @@ describe('migration :: update table tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -143,7 +143,7 @@ describe('migration :: update table tests', () => {
 
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
-    deepEqual(steps.update.tables, [
+    deepEqual(steps.rollout.tables, [
       {
         query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
       },

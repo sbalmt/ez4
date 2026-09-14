@@ -62,8 +62,8 @@ export namespace RelationQuery {
 
   export const prepareUpdate = (builder: SqlBuilder, table: string, columns: ObjectSchemaProperties, relations: PgRelationRepository) => {
     const steps = {
-      update: { validations: [], relations: [] } as RelationQueries,
-      delete: { validations: [], relations: [] } as RelationQueries
+      rollout: { validations: [], relations: [] } as RelationQueries,
+      cleanup: { validations: [], relations: [] } as RelationQueries
     };
 
     for (const targetAlias in relations) {
@@ -83,7 +83,7 @@ export namespace RelationQuery {
       const tmpName = getRelationName(table, `${targetAlias}_tmp`);
       const newName = getRelationName(table, targetAlias);
 
-      steps.update.relations.push(
+      steps.rollout.relations.push(
         {
           check: getCheckConstraintExistsQuery(builder, tmpName),
           query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
@@ -94,13 +94,13 @@ export namespace RelationQuery {
         }
       );
 
-      steps.update.validations.push({
+      steps.rollout.validations.push({
         check: getCheckConstraintInvalidQuery(builder, tmpName),
         retry: getCheckRunningValidationQuery(builder, tmpName),
         name: newName
       });
 
-      steps.delete.relations.push(
+      steps.cleanup.relations.push(
         {
           query: getDeleteQuery(builder, table, newName).build()
         },
@@ -122,8 +122,8 @@ export namespace RelationQuery {
     changes: Record<string, ObjectComparison>
   ) => {
     const steps = {
-      update: { validations: [], relations: [] } as RelationQueries,
-      delete: { validations: [], relations: [] } as RelationQueries
+      rollout: { validations: [], relations: [] } as RelationQueries,
+      cleanup: { validations: [], relations: [] } as RelationQueries
     };
 
     for (const targetAlias in changes) {
@@ -134,7 +134,7 @@ export namespace RelationQuery {
 
       if (isNotRealRelation(targetRelation)) {
         if (!isNotRealRelation(sourceRelation)) {
-          steps.delete.relations.push({
+          steps.cleanup.relations.push({
             query: getDeleteQuery(builder, table, newName).build()
           });
         }
@@ -147,7 +147,7 @@ export namespace RelationQuery {
 
       const tmpName = getRelationName(table, `${targetAlias}_tmp`);
 
-      steps.update.relations.push(
+      steps.rollout.relations.push(
         {
           check: getCheckConstraintExistsQuery(builder, tmpName),
           query: getCreateQuery(builder, table, tmpName, targetRelation, targetRequired).build()
@@ -158,13 +158,13 @@ export namespace RelationQuery {
         }
       );
 
-      steps.update.validations.push({
+      steps.rollout.validations.push({
         check: getCheckConstraintInvalidQuery(builder, tmpName),
         retry: getCheckRunningValidationQuery(builder, tmpName),
         name: newName
       });
 
-      steps.delete.relations.push(
+      steps.cleanup.relations.push(
         {
           query: getDeleteQuery(builder, table, newName).build()
         },

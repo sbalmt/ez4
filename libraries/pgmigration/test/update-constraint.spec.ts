@@ -60,14 +60,14 @@ describe('migration :: update constraint tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -91,7 +91,7 @@ describe('migration :: update constraint tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [
           {
@@ -130,14 +130,14 @@ describe('migration :: update constraint tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -161,7 +161,7 @@ describe('migration :: update constraint tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [
           {
@@ -200,14 +200,14 @@ describe('migration :: update constraint tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -231,7 +231,7 @@ describe('migration :: update constraint tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [
           {
@@ -270,14 +270,14 @@ describe('migration :: update constraint tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [
           {
@@ -301,7 +301,7 @@ describe('migration :: update constraint tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [
           {

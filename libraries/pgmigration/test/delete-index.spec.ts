@@ -40,21 +40,21 @@ describe('migration :: delete index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [
           {
@@ -82,21 +82,21 @@ describe('migration :: delete index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -124,21 +124,21 @@ describe('migration :: delete index tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],

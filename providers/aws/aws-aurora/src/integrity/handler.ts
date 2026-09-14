@@ -108,7 +108,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
     context.postAction(() =>
       OperationLogger.logExecution(IntegrityServiceName, database, 'rollout', async (logger) => {
         await validateChanges(logger, {
-          queries: [...steps.create.validations, ...steps.update.validations],
+          queries: [...steps.prepare.validations, ...steps.rollout.validations],
           clusterArn,
           secretArn,
           database
@@ -117,7 +117,7 @@ const updateResource = (candidate: IntegrityState, current: IntegrityState, cont
         context.postAction(() =>
           OperationLogger.logExecution(IntegrityServiceName, database, 'cleanup', async (logger) => {
             await validateChanges(logger, {
-              queries: steps.delete.validations,
+              queries: steps.cleanup.validations,
               clusterArn,
               secretArn,
               database

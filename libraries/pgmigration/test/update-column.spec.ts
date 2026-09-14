@@ -72,14 +72,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
@@ -99,7 +99,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -128,14 +128,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
@@ -147,7 +147,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -179,14 +179,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
@@ -198,7 +198,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -227,14 +227,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
@@ -246,7 +246,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -291,14 +291,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'default' AND "table_name" = 'table')`,
@@ -310,7 +310,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -340,14 +340,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
@@ -359,7 +359,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -387,14 +387,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
@@ -406,7 +406,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -434,14 +434,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'nullable' AND "table_name" = 'table')`,
@@ -453,7 +453,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -496,14 +496,14 @@ describe('migration :: update column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
@@ -524,7 +524,7 @@ describe('migration :: update column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],

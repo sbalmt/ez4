@@ -63,8 +63,8 @@ export namespace ConstraintQuery {
     changes: Record<string, ObjectComparison>
   ) => {
     const steps = {
-      update: { validations: [], constraints: [] } as ConstraintQueries,
-      delete: { validations: [], constraints: [] } as ConstraintQueries
+      rollout: { validations: [], constraints: [] } as ConstraintQueries,
+      cleanup: { validations: [], constraints: [] } as ConstraintQueries
     };
 
     for (const columnName in changes) {
@@ -77,7 +77,7 @@ export namespace ConstraintQuery {
         if (isConstrainedChange(columnSchema, change)) {
           const name = getConstraintName(table, columnName);
 
-          steps.delete.constraints.push({
+          steps.cleanup.constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
@@ -91,7 +91,7 @@ export namespace ConstraintQuery {
           const tmpName = getConstraintName(table, `${columnName}_tmp`);
           const newName = getConstraintName(table, columnName);
 
-          steps.update.constraints.push(
+          steps.rollout.constraints.push(
             {
               check: getCheckConstraintExistsQuery(builder, tmpName),
               assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
@@ -104,13 +104,13 @@ export namespace ConstraintQuery {
             }
           );
 
-          steps.update.validations.push({
+          steps.rollout.validations.push({
             check: getCheckConstraintInvalidQuery(builder, tmpName),
             retry: getCheckRunningValidationQuery(builder, tmpName),
             name: newName
           });
 
-          steps.delete.constraints.push({
+          steps.cleanup.constraints.push({
             query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
           });
         }

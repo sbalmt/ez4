@@ -66,14 +66,14 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
@@ -85,7 +85,7 @@ describe('migration :: secondary column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -145,14 +145,14 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
@@ -174,7 +174,7 @@ describe('migration :: secondary column tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -238,7 +238,7 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [
           {
             query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
@@ -249,7 +249,7 @@ describe('migration :: secondary column tests', () => {
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [
@@ -266,7 +266,7 @@ describe('migration :: secondary column tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [
           {
             query: 'ALTER TABLE IF EXISTS "table" DROP COLUMN IF EXISTS "secondary"'

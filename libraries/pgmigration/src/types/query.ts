@@ -20,7 +20,7 @@ export type PgMigrationQueries = {
 };
 
 export type PgMigrationSteps = {
-  create: PgMigrationQueries;
-  update: PgMigrationQueries;
-  delete: PgMigrationQueries;
+  prepare: PgMigrationQueries;
+  rollout: PgMigrationQueries;
+  cleanup: PgMigrationQueries;
 };
