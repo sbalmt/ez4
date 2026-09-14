@@ -21,8 +21,8 @@ export const isExternalLinkedService = (serviceName: string, reflection: Reflect
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if ('name' in declaration && declaration.name === serviceName) {
-      return isExternalDeclaration(declaration);
+    if (declaration.name === serviceName && !isExternalDeclaration(declaration)) {
+      return false;
     }
   }
 
