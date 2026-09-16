@@ -1,5 +1,5 @@
 import type { Database, Client as DbClient } from '@ez4/database';
-import type { PgMigrationStatement, PgValidationStatement } from '@ez4/pgmigration/library';
+import type { PgMigrationQueries, PgMigrationStatement, PgValidationStatement } from '@ez4/pgmigration/library';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 
 import { getDeleteQueries, getUpdateStepQueries } from '@ez4/pgmigration';
@@ -32,8 +32,16 @@ export const createTables = async (context: ApplyContext) => {
   return applyStepQueries(context, {});
 };
 
-export const updateTables = async (context: ApplyContext, oldRepository: PgTableRepository) => {
-  return applyStepQueries(context, oldRepository);
+export const updateTables = async (context: ApplyContext, queries: PgMigrationQueries) => {
+  const client = getConnection(context);
+
+  await runAllStatements(client, [...queries.tables, ...queries.constraints, ...queries.indexes, ...queries.relations]);
+};
+
+export const validateTables = async (context: ApplyContext, validations: PgValidationStatement[]) => {
+  const client = getConnection(context);
+
+  await runAllValidations(client, validations);
 };
 
 export const deleteTables = async (context: ApplyContext) => {
