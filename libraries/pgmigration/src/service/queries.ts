@@ -103,14 +103,12 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       if (targetColumns?.nested) {
         steps.rollout.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
         combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
-        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema.properties, targetRelations));
+        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema, targetRelations, targetColumns.nested));
       }
 
       if (targetColumns?.rename) {
         steps.rollout.tables.push(...ColumnQuery.prepareRename(builder, table, targetColumns.rename));
-        steps.rollout.constraints.push(
-          ...ConstraintQuery.prepareRenameColumns(builder, table, targetSchema.properties, targetColumns.rename)
-        );
+        steps.rollout.constraints.push(...ConstraintQuery.prepareRenameColumns(builder, table, targetSchema, targetColumns.rename));
       }
 
       if (targetColumns?.remove) {

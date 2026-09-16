@@ -109,7 +109,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (make default column)', async () => {
+  it('assert :: alter table (alter default column to false)', async () => {
     const sourceTable = getDatabaseTables({
       default: {
         type: SchemaType.Boolean
@@ -157,7 +157,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (alter default column)', async () => {
+  it('assert :: alter table (alter default column to true)', async () => {
     const sourceTable = getDatabaseTables({
       default: {
         type: SchemaType.Boolean,
