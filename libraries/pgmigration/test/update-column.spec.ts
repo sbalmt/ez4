@@ -15,7 +15,56 @@ describe('migration :: update column tests', () => {
         name: 'table',
         schema: {
           type: SchemaType.Object,
-          properties
+          properties: {
+            parent_id: {
+              type: SchemaType.String
+            },
+            status: {
+              type: SchemaType.Enum,
+              options: [
+                {
+                  value: 'active'
+                },
+                {
+                  value: 'inactive'
+                }
+              ]
+            },
+            ...properties
+          }
+        },
+        indexes: [
+          {
+            name: 'id',
+            type: Index.Primary,
+            columns: ['id']
+          },
+          {
+            name: 'parent_id',
+            type: Index.Secondary,
+            columns: ['parent_id']
+          }
+        ],
+        relations: [
+          {
+            sourceTable: 'parent',
+            sourceColumn: 'id',
+            sourceIndex: Index.Primary,
+            targetAlias: 'parent',
+            targetColumn: 'parent_id',
+            targetIndex: Index.Secondary
+          }
+        ]
+      },
+      {
+        name: 'parent',
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            }
+          }
         },
         indexes: [
           {

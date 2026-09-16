@@ -19,6 +19,17 @@ describe('migration :: update json column tests', () => {
             parent_id: {
               type: SchemaType.String
             },
+            status: {
+              type: SchemaType.Enum,
+              options: [
+                {
+                  value: 'active'
+                },
+                {
+                  value: 'inactive'
+                }
+              ]
+            },
             json: {
               type: SchemaType.Object,
               properties
@@ -64,7 +75,7 @@ describe('migration :: update json column tests', () => {
     ]);
   };
 
-  it('assert :: alter table (change json column properties with foreign key)', () => {
+  it('assert :: alter table (change json column properties with foreign key, secondary index and constraint)', () => {
     const sourceTable = getDatabaseTables({
       changed: {
         type: SchemaType.String
