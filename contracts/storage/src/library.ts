@@ -7,5 +7,6 @@ export * from './metadata/cors';
 export * from './metadata/types';
 
 export * from './errors/service';
+export * from './errors/handler';
 export * from './errors/event';
 export * from './errors/cors';

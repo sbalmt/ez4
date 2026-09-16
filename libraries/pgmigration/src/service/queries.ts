@@ -1,5 +1,6 @@
 import type { PgTableRepository } from '@ez4/pgclient/library';
-import type { PgMigrationQueries, PgMigrationStepQueries } from '../types/query';
+import type { OptionalObject } from '@ez4/utils';
+import type { PgMigrationQueries, PgMigrationSteps } from '../types/query';
 
 import { SqlBuilder } from '@ez4/pgsql';
 
@@ -25,8 +26,8 @@ export const getCreateQueries = (target: PgTableRepository) => {
     const { name, schema, indexes, relations } = target[table];
 
     queries.tables.push(TableQuery.prepareCreate(builder, name, schema, indexes));
-    queries.relations.push(...RelationQuery.prepareCreate(builder, name, schema, relations));
 
+    combineQueries(queries, RelationQuery.prepareCreate(builder, name, schema, relations));
     combineQueries(queries, ConstraintQuery.prepareCreate(builder, name, schema.properties));
     combineQueries(queries, IndexQueries.prepareCreate(builder, name, schema, indexes));
   }
@@ -37,30 +38,33 @@ export const getCreateQueries = (target: PgTableRepository) => {
 export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableRepository) => {
   const changes = getTableRepositoryChanges(target, source);
   const builder = new SqlBuilder();
+  const renamed = new Set();
 
-  const steps: PgMigrationStepQueries = {
-    create: getStepQueries(),
-    update: getStepQueries(),
-    delete: getStepQueries()
+  const steps: PgMigrationSteps = {
+    prepare: getStepQueries(),
+    rollout: getStepQueries(),
+    cleanup: getStepQueries()
   };
 
   if (changes.create) {
-    combineQueries(steps.create, getCreateQueries(changes.create));
+    combineQueries(steps.prepare, getCreateQueries(changes.create));
   }
 
   if (changes.rename) {
     for (const fromTable in changes.rename) {
       const toTable = changes.rename[fromTable];
 
-      const targetIndexes = target[toTable].indexes;
-      const targetRelations = target[toTable].relations;
-      const targetSchema = target[toTable].schema;
+      const sourceIndexes = source[fromTable].indexes;
+      const sourceRelations = source[fromTable].relations;
+      const sourceSchema = source[fromTable].schema;
 
-      steps.update.tables.push(TableQuery.prepareRename(builder, fromTable, toTable));
-      steps.update.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, targetSchema.properties));
-      steps.update.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, targetRelations));
+      steps.rollout.tables.push(TableQuery.prepareRename(builder, fromTable, toTable));
+      steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, fromTable, toTable, sourceSchema.properties));
+      steps.rollout.relations.push(...RelationQuery.prepareRename(builder, fromTable, toTable, sourceRelations));
 
-      combineQueries(steps.update, IndexQueries.prepareRenameTable(builder, fromTable, toTable, targetIndexes));
+      combineQueries(steps.rollout, IndexQueries.prepareRenameTable(builder, fromTable, toTable, sourceIndexes));
+
+      renamed.add(toTable);
     }
   }
 
@@ -75,68 +79,90 @@ export const getUpdateStepQueries = (target: PgTableRepository, source: PgTableR
       const { schema, relations: relationChanges, indexes: indexChanges } = tableChanges;
 
       const targetColumns = schema?.nested?.properties;
+
+      const sourceRelations = changes.source[table].relations;
       const targetRelations = target[table].relations;
 
-      const sourceIndexes = source[table].indexes;
+      const sourceIndexes = changes.source[table].indexes;
       const targetIndexes = target[table].indexes;
 
-      const sourceSchema = source[table].schema;
+      const sourceSchema = changes.source[table].schema;
       const targetSchema = target[table].schema;
 
+      const sourceTable = changes.source[table].name;
+
       if (targetColumns?.create) {
-        steps.create.tables.push(ColumnQuery.prepareCreate(builder, table, targetIndexes, targetColumns.create));
-        combineQueries(steps.create, ConstraintQuery.prepareCreate(builder, table, targetColumns.create));
+        steps.prepare.tables.push(ColumnQuery.prepareCreate(builder, sourceTable, targetIndexes, targetColumns.create));
+        combineQueries(steps.prepare, ConstraintQuery.prepareCreate(builder, sourceTable, targetColumns.create));
+
+        if (renamed.has(table)) {
+          steps.rollout.constraints.push(...ConstraintQuery.prepareRenameTable(builder, sourceTable, table, targetColumns.create));
+        }
       }
 
       if (targetColumns?.nested) {
-        steps.update.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
-        combineQueries(steps.update, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
-        steps.update.relations.push(...RelationQuery.prepareUpdate(builder, table, targetRelations, targetColumns.nested));
+        steps.rollout.tables.push(...ColumnQuery.prepareUpdate(builder, table, targetSchema, targetIndexes, targetColumns.nested));
+        combineSteps(steps, ConstraintQuery.prepareUpdate(builder, table, targetSchema, sourceSchema, targetColumns.nested));
+        combineSteps(steps, RelationQuery.prepareUpdate(builder, table, targetSchema.properties, targetRelations));
       }
 
       if (targetColumns?.rename) {
-        steps.update.tables.push(...ColumnQuery.prepareRename(builder, table, targetColumns.rename));
-        steps.update.constraints.push(
+        steps.rollout.tables.push(...ColumnQuery.prepareRename(builder, table, targetColumns.rename));
+        steps.rollout.constraints.push(
           ...ConstraintQuery.prepareRenameColumns(builder, table, targetSchema.properties, targetColumns.rename)
         );
       }
 
       if (targetColumns?.remove) {
-        steps.delete.tables.push(ColumnQuery.prepareDelete(builder, table, targetColumns.remove));
-        steps.delete.constraints.push(...ConstraintQuery.prepareDelete(builder, table, targetColumns.remove));
+        steps.cleanup.tables.push(ColumnQuery.prepareDelete(builder, table, targetColumns.remove));
+        steps.cleanup.constraints.push(...ConstraintQuery.prepareDelete(builder, table, targetColumns.remove));
       }
 
       if (indexChanges?.create) {
-        combineQueries(steps.create, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
+        combineQueries(steps.rollout, IndexQueries.prepareCreate(builder, table, targetSchema, indexChanges.create));
       }
 
       if (indexChanges?.nested) {
         combineQueries(
-          steps.update,
+          steps.rollout,
           IndexQueries.prepareUpdate(builder, table, targetSchema, sourceIndexes, targetIndexes, indexChanges.nested)
         );
       }
 
       if (indexChanges?.rename) {
-        combineQueries(steps.update, IndexQueries.prepareRenameColumns(builder, table, targetIndexes, indexChanges.rename));
+        combineQueries(steps.rollout, IndexQueries.prepareRenameColumns(builder, table, targetIndexes, indexChanges.rename));
       }
 
       if (indexChanges?.remove) {
-        combineQueries(steps.delete, IndexQueries.prepareDelete(builder, table, indexChanges.remove));
+        combineQueries(steps.cleanup, IndexQueries.prepareDelete(builder, table, indexChanges.remove));
       }
 
       if (relationChanges?.create) {
-        steps.create.relations.push(...RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+        combineQueries(steps.rollout, RelationQuery.prepareCreate(builder, table, targetSchema, relationChanges.create));
+      }
+
+      if (relationChanges?.nested) {
+        combineSteps(
+          steps,
+          RelationQuery.prepareUpdateSource(
+            builder,
+            table,
+            targetSchema.properties,
+            sourceRelations,
+            targetRelations,
+            relationChanges.nested
+          )
+        );
       }
 
       if (relationChanges?.remove) {
-        steps.delete.relations.push(...RelationQuery.prepareDelete(builder, table, relationChanges.remove));
+        steps.cleanup.relations.push(...RelationQuery.prepareDelete(builder, table, relationChanges.remove));
       }
     }
   }
 
   if (changes.remove) {
-    combineQueries(steps.delete, getDeleteQueries(changes.remove));
+    combineQueries(steps.cleanup, getDeleteQueries(changes.remove));
   }
 
   return steps;
@@ -162,7 +188,21 @@ export const getDeleteQueries = (target: PgTableRepository) => {
   return queries;
 };
 
-const combineQueries = (target: PgMigrationQueries, source: Partial<PgMigrationQueries>) => {
+const combineSteps = (target: PgMigrationSteps, source: OptionalObject<PgMigrationSteps>) => {
+  if (source.prepare) {
+    combineQueries(target.prepare, source.prepare);
+  }
+
+  if (source.rollout) {
+    combineQueries(target.rollout, source.rollout);
+  }
+
+  if (source.cleanup) {
+    combineQueries(target.cleanup, source.cleanup);
+  }
+};
+
+const combineQueries = (target: PgMigrationQueries, source: OptionalObject<PgMigrationQueries>) => {
   if (source.tables) {
     target.tables.push(...source.tables);
   }

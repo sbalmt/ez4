@@ -20,7 +20,7 @@ export type BucketObjectEvent = {
   readonly objectKey: string;
 
   /**
-   * Size of the created object.
+   * Size of the object when available.
    */
   readonly objectSize?: number;
 };

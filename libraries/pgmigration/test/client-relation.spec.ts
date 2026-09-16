@@ -130,9 +130,9 @@ describe('migration :: client relation tests', async () => {
   it('assert :: create relation', async () => {
     const steps = getUpdateStepQueries(repositoryV2, repositoryV1);
 
-    await runMigration(client, steps.create);
-    await runMigration(client, steps.update);
-    await runMigration(client, steps.delete);
+    await runMigration(client, steps.prepare);
+    await runMigration(client, steps.rollout);
+    await runMigration(client, steps.cleanup);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -154,9 +154,9 @@ describe('migration :: client relation tests', async () => {
   it('assert :: rename tables', async () => {
     const steps = getUpdateStepQueries(repositoryV3, repositoryV2);
 
-    await runMigration(client, steps.create);
-    await runMigration(client, steps.update);
-    await runMigration(client, steps.delete);
+    await runMigration(client, steps.prepare);
+    await runMigration(client, steps.rollout);
+    await runMigration(client, steps.cleanup);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),
@@ -178,9 +178,9 @@ describe('migration :: client relation tests', async () => {
   it('assert :: delete relation', async () => {
     const steps = getUpdateStepQueries(repositoryV4, repositoryV3);
 
-    await runMigration(client, steps.create);
-    await runMigration(client, steps.update);
-    await runMigration(client, steps.delete);
+    await runMigration(client, steps.prepare);
+    await runMigration(client, steps.rollout);
+    await runMigration(client, steps.cleanup);
 
     const result = await Promise.all([
       tableExists(client, 'table_a'),

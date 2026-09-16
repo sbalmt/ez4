@@ -8,9 +8,9 @@ import { isAnyObject, isAnyString } from '@ez4/utils';
 
 import { mergeSqlAlias } from '../utils/merge';
 import { escapeSqlName } from '../utils/escape';
-import { getUniqueAlias } from '../helpers/alias';
+import { MissingColumnAliasError } from '../errors/alias';
 import { SqlSelectStatement } from '../statements/select';
-import { MissingColumnAliasError } from './errors';
+import { getUniqueAlias } from '../helpers/alias';
 import { SqlRawColumn, SqlRawValue } from './raw';
 import { SqlColumnReference } from './reference';
 import { SqlJsonColumn } from './json';

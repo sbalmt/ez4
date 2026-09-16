@@ -23,6 +23,20 @@ describe('topic fifo mode metadata errors', () => {
     deepEqual(error1.properties, ['groupId']);
   });
 
+  it('assert :: incorrect fifo group identifier', () => {
+    const [error1] = parseFile('incorrect-fifo-group', 1);
+
+    ok(error1 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error1.properties, ['group']);
+  });
+
+  it('assert :: incorrect fifo unique identifier', () => {
+    const [error1] = parseFile('incorrect-fifo-unique', 1);
+
+    ok(error1 instanceof IncorrectFifoModePropertyError);
+    deepEqual(error1.properties, ['unique']);
+  });
+
   it('assert :: incorrect fifo mode', () => {
     const [error1, error2] = parseFile('incorrect-fifo', 2);
 

@@ -1,7 +1,7 @@
 import type { SqlFilters } from '../../common/types';
 import type { SqlAlterTableClause } from '../table/alter';
 
-import { MissingClauseError } from '../errors';
+import { MissingClauseError } from '../../errors/clauses';
 import { SqlPrimaryKeyConstraintClause } from './primary';
 import { SqlForeignKeyConstraintClause } from './foreign';
 import { SqlUniqueConstraintClause } from './unique';

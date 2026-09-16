@@ -66,14 +66,14 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
@@ -85,7 +85,7 @@ describe('migration :: secondary column tests', () => {
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -145,14 +145,14 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'secondary' AND "table_name" = 'table')`,
@@ -160,20 +160,30 @@ describe('migration :: secondary column tests', () => {
           }
         ],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            name: 'table_renamed_secondary_sk',
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_renamed_secondary_sk"' || '%' LIMIT 1`
+          }
+        ],
         relations: [],
         indexes: [
           {
-            query: 'ALTER INDEX IF EXISTS "table_secondary_sk" RENAME TO "table_renamed_secondary_sk"'
+            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_renamed_secondary_sk" ON "table" USING BTREE ("renamed_secondary")'
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_secondary_sk"'
+          }
+        ]
       }
     });
   });
@@ -228,16 +238,24 @@ describe('migration :: secondary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [
           {
             query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
           }
         ],
         constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [],
+        constraints: [],
         validations: [
           {
-            query: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND "indisvalid" = false AND "indisready" = true`,
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_replacement_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_replacement_sk"' || '%' LIMIT 1`,
             name: 'table_replacement_sk'
           }
         ],
@@ -248,14 +266,7 @@ describe('migration :: secondary column tests', () => {
           }
         ]
       },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
-      },
-      delete: {
+      cleanup: {
         tables: [
           {
             query: 'ALTER TABLE IF EXISTS "table" DROP COLUMN IF EXISTS "secondary"'

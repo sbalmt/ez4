@@ -48,13 +48,19 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123')) NOT VALID`
+          assert: `SELECT 1 FROM "table" WHERE NOT "column" IN ('foo', '123') LIMIT 1`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" IN ('foo', '123')) NOT VALID`,
+          name: 'table_column_ck'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
         }
       ],
       validations: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -82,13 +88,19 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`
+          assert: 'SELECT 1 FROM "table" WHERE NOT false LIMIT 1',
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK (false) NOT VALID`,
+          name: 'table_column_ck'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
         }
       ],
       validations: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -118,13 +130,19 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true) NOT VALID`
+          assert: 'SELECT 1 FROM "table" WHERE NOT "column" = true LIMIT 1',
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = true) NOT VALID`,
+          name: 'table_column_ck'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
         }
       ],
       validations: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -154,13 +172,19 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123) NOT VALID`
+          assert: 'SELECT 1 FROM "table" WHERE NOT "column" = 123 LIMIT 1',
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 123) NOT VALID`,
+          name: 'table_column_ck'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
         }
       ],
       validations: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],
@@ -190,13 +214,19 @@ describe('migration :: constraint types tests', () => {
       constraints: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_ck'`,
-          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo') NOT VALID`
+          assert: `SELECT 1 FROM "table" WHERE NOT "column" = 'foo' LIMIT 1`,
+          query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_ck" CHECK ("column" = 'foo') NOT VALID`,
+          name: 'table_column_ck'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
+          query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"`
         }
       ],
       validations: [
         {
-          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_ck'`,
-          query: 'ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_ck"',
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
           name: 'table_column_ck'
         }
       ],

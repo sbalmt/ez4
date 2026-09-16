@@ -55,21 +55,21 @@ describe('migration :: primary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -113,14 +113,14 @@ describe('migration :: primary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'id' AND "table_name" = 'table')`,
@@ -130,16 +130,20 @@ describe('migration :: primary column tests', () => {
         constraints: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_id_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_id_pk" TO "table_renamed_id_pk"'
+            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_renamed_id_pk" PRIMARY KEY ("renamed_id")'
           }
         ],
         validations: [],
         relations: [],
         indexes: []
       },
-      delete: {
+      cleanup: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []
@@ -181,12 +185,19 @@ describe('migration :: primary column tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [
           {
             query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
           }
         ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [],
         constraints: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_replacement_pk'`,
@@ -197,14 +208,7 @@ describe('migration :: primary column tests', () => {
         relations: [],
         indexes: []
       },
-      update: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
-        indexes: []
-      },
-      delete: {
+      cleanup: {
         tables: [
           {
             query: 'ALTER TABLE IF EXISTS "table" DROP COLUMN IF EXISTS "id"'

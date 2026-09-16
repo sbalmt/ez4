@@ -113,7 +113,7 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachLinkedServices(service, errorList, fileName);
+    attachLinkedServices(service, reflection, errorList, fileName);
 
     allServices[declaration.name] = service;
   }
@@ -128,12 +128,12 @@ const isCompleteService = (type: Incomplete<HttpService>): type is HttpService =
   return isObjectWith(type, ['routes', 'variables', 'services']);
 };
 
-const attachLinkedServices = (service: HttpService, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (service: HttpService, reflection: ReflectionTypes, errorList: Error[], fileName?: string) => {
   for (const route of service.routes) {
-    attachProviderLinkedServices(route.handler, service.services, errorList, fileName);
+    attachProviderLinkedServices(route.handler, service.services, reflection, errorList, fileName);
 
     if (route.authorizer) {
-      attachProviderLinkedServices(route.authorizer, service.services, errorList, fileName);
+      attachProviderLinkedServices(route.authorizer, service.services, reflection, errorList, fileName);
     }
   }
 };

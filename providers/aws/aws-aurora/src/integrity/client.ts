@@ -1,11 +1,12 @@
-import type { PgMigrationQueries, PgValidationStatement } from '@ez4/pgmigration/library';
+import type { PgValidationStatement } from '@ez4/pgmigration/library';
 import type { Arn, OperationLogLine } from '@ez4/aws-common';
+import type { PgExecuteOptions } from '@ez4/pgclient';
 
-import { StatementTimeoutException } from '@aws-sdk/client-rds-data';
+import { MigrationValidationFailedError } from '@ez4/pgmigration/library';
 import { Tasks, TaskStatus, Wait } from '@ez4/utils';
 
 import { ApiClientDriver } from '../client/drivers/api';
-import { IntegrityCheckFailedError, IntegrityCheckError } from './errors';
+import { IntegrityCheckFailedError } from './errors';
 
 export type ConnectionRequest = {
   database: string;
@@ -14,7 +15,7 @@ export type ConnectionRequest = {
 };
 
 export type ValidateChangesRequest = ConnectionRequest & {
-  queries: PgMigrationQueries;
+  queries: PgValidationStatement[];
 };
 
 export const validateChanges = async (logger: OperationLogLine, request: ValidateChangesRequest): Promise<void> => {
@@ -28,7 +29,7 @@ export const validateChanges = async (logger: OperationLogLine, request: Validat
     database
   });
 
-  const results = await executeIntegrityChecks(logger, driver, queries.validations);
+  const results = await executeIntegrityChecks(logger, driver, queries);
 
   assertNoFailureErrors(results);
 };
@@ -48,38 +49,30 @@ const assertNoFailureErrors = (results: Tasks.Result<boolean>[]) => {
 };
 
 const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClientDriver, validations: PgValidationStatement[]) => {
+  const options: PgExecuteOptions = {
+    noErrorLog: true
+  };
+
   const operations = validations.map(
     (statement) => () =>
-      Wait.until(async (attempt) => {
-        try {
-          if (attempt > 1) {
-            if (!statement.check) {
-              throw new Error(`Missing integrity check query.`);
-            }
-
-            const { records } = await driver.executeStatement({
-              query: statement.check
-            });
-
-            const [isValidated] = records;
-
-            if (!isValidated) {
+      Wait.until(
+        async (attempt, attempts) => {
+          try {
+            return await executeIntegrityStatement(driver, statement, options);
+          } catch (error) {
+            if (attempt < attempts && (await isValidationRunning(driver, statement.retry, options))) {
               return Wait.RetryAttempt;
             }
 
-            return true;
+            throw error;
           }
-
-          return await executeMigrationStatement(driver, statement);
-          //
-        } catch (error) {
-          if (error instanceof StatementTimeoutException) {
-            return Wait.RetryAttempt;
-          }
-
-          throw error;
+        },
+        {
+          minDelay: 5,
+          maxDelay: 60,
+          attempts: 25
         }
-      })
+      )
   );
 
   return Tasks.safeRun(operations, {
@@ -90,31 +83,24 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
   });
 };
 
-const executeMigrationStatement = async (driver: ApiClientDriver, statement: PgValidationStatement) => {
-  const { check, ...change } = statement;
+const executeIntegrityStatement = async (driver: ApiClientDriver, statement: PgValidationStatement, options?: PgExecuteOptions) => {
+  const { name, check } = statement;
 
-  if (check) {
-    const { records } = await driver.executeStatement({
-      query: check
-    });
-
-    const [shouldSkip] = records;
-
-    if (shouldSkip) {
-      return false;
-    }
-  }
-
-  const { records } = await driver.executeStatement(change, {
-    noErrorLog: true,
-    noTimeout: true
-  });
+  const { records } = await driver.executeStatement({ query: check }, options);
 
   const [hasError] = records;
 
   if (hasError) {
-    throw new IntegrityCheckError(change.name);
+    throw new MigrationValidationFailedError(name);
   }
 
   return true;
+};
+
+const isValidationRunning = async (driver: ApiClientDriver, retry: string, options?: PgExecuteOptions) => {
+  const { records } = await driver.executeStatement({ query: retry }, options);
+
+  const [isRunning] = records;
+
+  return !!isRunning;
 };

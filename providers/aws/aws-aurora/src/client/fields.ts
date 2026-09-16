@@ -87,16 +87,21 @@ export const detectFieldData = (name: string, value: unknown): SqlParameter => {
 
 export const parseRecordsWithMetadata = (records: Field[][], metadata: ColumnMetadata[]): AnyObject[] => {
   const columns = metadata.map(({ label, name }, index) => label ?? name ?? `${++index}`);
+  const types = metadata.map(({ typeName }) => typeName ?? 'unknown');
 
-  return parseRecordsWithColumns(records, columns);
+  return parseRecordsWithColumns(records, columns, types);
 };
 
-export const parseRecordsWithColumns = (records: Field[][], columns: string[]): AnyObject[] => {
+export const parseRecordsWithColumns = (records: Field[][], columns: string[], types?: string[]): AnyObject[] => {
   return records.map((record) => {
     const result: AnyObject = {};
 
     for (let index = 0; index < columns.length; index++) {
-      result[columns[index]] = readFieldValue(record[index]);
+      const columnType = types?.[index];
+      const columnData = readFieldValue(record[index], columnType);
+      const columnName = columns[index];
+
+      result[columnName] = columnData;
     }
 
     return result;
@@ -219,9 +224,13 @@ const getStringFieldData = (name: string, value: string, format?: string): SqlPa
   }
 };
 
-const readFieldValue = (field: Field): unknown => {
+const readFieldValue = (field: Field, type?: string): unknown => {
   if (!field.isNull) {
     if (field.stringValue !== undefined) {
+      if (type === 'json' || type === 'jsonb') {
+        return JSON.parse(field.stringValue);
+      }
+
       return field.stringValue;
     }
 
@@ -267,7 +276,7 @@ const readArrayValue = (array: ArrayValue): unknown[] => {
   }
 
   if (array.arrayValues !== undefined) {
-    return array.arrayValues.map(readArrayValue);
+    return array.arrayValues.map((value) => value && readArrayValue(value));
   }
 
   return [];

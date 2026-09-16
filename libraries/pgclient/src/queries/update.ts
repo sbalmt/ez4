@@ -336,6 +336,8 @@ const getAtomicNumberOperationUpdate = async (
       }
 
       case 'multiply': {
+        await validateRecordSchema(value, fieldSchema, fieldPath);
+
         return builder.rawOperation('*', value);
       }
 

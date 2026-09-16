@@ -1,0 +1,41 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestScheduler": {
+    "type": "@ez4/cron",
+    "name": "TestScheduler",
+    "context": {},
+    "file": "test/input/output-empty-dependencies.ts",
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "expression": "dynamic",
+    "target": {
+      "handler": {
+        "name": "handler",
+        "file": "test/input/output-empty-dependencies.ts",
+        "position": [
+          15,
+          1
+        ],
+        "references": []
+      }
+    }
+  }
+}

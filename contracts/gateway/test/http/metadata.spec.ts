@@ -28,6 +28,7 @@ describe('http metadata', () => {
   it('assert :: service routes', () => testFile('route'));
   it('assert :: service variables', () => testFile('variables'));
   it('assert :: service dependencies', () => testFile('dependencies'));
+  it('assert :: service empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: service validation', () => testFile('validation'));
   it('assert :: service cache', () => testFile('cache'));
   it('assert :: service access', () => testFile('access'));

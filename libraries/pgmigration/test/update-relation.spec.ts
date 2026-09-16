@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
@@ -55,14 +55,14 @@ describe('migration :: update relation tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
@@ -70,27 +70,42 @@ describe('migration :: update relation tests', () => {
           }
         ],
         constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_tmp_fk'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_tmp_fk"' || '%' LIMIT 1`,
+            name: 'table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE CASCADE ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_tmp_fk'`,
+            query: `ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_tmp_fk"`
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
         validations: [],
         relations: [
           {
             query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
           },
           {
-            query:
-              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-              `ON DELETE CASCADE ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
           }
         ],
-        indexes: []
-      },
-      delete: {
-        tables: [],
-        constraints: [],
-        validations: [],
-        relations: [],
         indexes: []
       }
     });
@@ -103,14 +118,14 @@ describe('migration :: update relation tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
@@ -118,27 +133,288 @@ describe('migration :: update relation tests', () => {
           }
         ],
         constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_tmp_fk'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_tmp_fk"' || '%' LIMIT 1`,
+            name: 'table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
+              `ON DELETE SET null ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_tmp_fk'`,
+            query: `ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_tmp_fk"`
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
         validations: [],
         relations: [
           {
             query: `ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"`
           },
           {
-            query:
-              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ` +
-              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ` +
-              `ON DELETE SET null ` +
-              `ON UPDATE CASCADE ` +
-              `NOT VALID`
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
           }
         ],
         indexes: []
-      },
-      delete: {
+      }
+    });
+  });
+
+  it('assert :: update relation source column', () => {
+    const sourceTable = getDatabaseTables(false);
+    const baseTarget = getDatabaseTables(false);
+
+    const targetTable = {
+      ...baseTarget,
+      table_a: {
+        ...baseTarget.table_a,
+        relations: {
+          relation: {
+            ...baseTarget.table_a.relations.relation,
+            sourceColumn: 'other_column'
+          }
+        }
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_tmp_fk'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_tmp_fk"' || '%' LIMIT 1`,
+            name: 'table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
+            query:
+              `ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ` +
+              `FOREIGN KEY ("column_a") REFERENCES "table_b" ("other_column") ` +
+              `ON DELETE CASCADE ` +
+              `ON UPDATE CASCADE ` +
+              `NOT VALID`
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_tmp_fk'`,
+            query: `ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_tmp_fk"`
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"'
+          },
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: update relation to secondary source', () => {
+    const sourceTable = getDatabaseTables(false);
+    const baseTarget = getDatabaseTables(false);
+
+    const targetTable = {
+      ...baseTarget,
+      table_a: {
+        ...baseTarget.table_a,
+        relations: {
+          relation: {
+            ...baseTarget.table_a.relations.relation,
+            sourceIndex: Index.Secondary
+          }
+        }
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename relation (with table rename)', () => {
+    const sourceTable = getDatabaseTables(false);
+
+    const targetTable = {
+      table_b: sourceTable.table_b,
+      renamed_table_a: {
+        ...sourceTable.table_a,
+        name: 'renamed_table_a'
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME TO "renamed_table_a"'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'renamed_table_a_relation_fk'`,
+            query: 'ALTER TABLE IF EXISTS "renamed_table_a" RENAME CONSTRAINT "table_a_relation_fk" TO "renamed_table_a_relation_fk"'
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename relation (with column rename)', () => {
+    const sourceTable = getDatabaseTables(false);
+    const baseTable = sourceTable.table_a;
+
+    const targetTable = {
+      ...sourceTable,
+      table_a: {
+        ...baseTable,
+        schema: {
+          ...baseTable.schema,
+          properties: {
+            renamed_column_a: baseTable.schema.properties.column_a
+          }
+        },
+        relations: {
+          relation: {
+            ...baseTable.relations.relation,
+            targetColumn: 'renamed_column_a'
+          }
+        }
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'table_a')`,
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME COLUMN "column_a" TO "renamed_column_a"'
+          }
+        ],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_tmp_fk'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_tmp_fk"' || '%' LIMIT 1`,
+            name: 'table_a_relation_fk'
+          }
+        ],
+        relations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_tmp_fk'`,
+            query:
+              'ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_tmp_fk" ' +
+              'FOREIGN KEY ("renamed_column_a") REFERENCES "table_b" ("column_b") ' +
+              'ON DELETE CASCADE ON UPDATE CASCADE NOT VALID'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_tmp_fk'`,
+            query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_tmp_fk"'
+          }
+        ],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" DROP CONSTRAINT IF EXISTS "table_a_relation_fk"'
+          },
+          {
+            query: 'ALTER TABLE IF EXISTS "table_a" RENAME CONSTRAINT "table_a_relation_tmp_fk" TO "table_a_relation_fk"'
+          }
+        ],
         indexes: []
       }
     });

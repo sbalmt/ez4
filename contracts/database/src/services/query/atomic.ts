@@ -1,25 +1,27 @@
 import type { AnyObject, IsAllTrue, IsNullish, IsObject } from '@ez4/utils';
 import type { PreserveNull } from './utils';
 
-export type AtomicFields<T extends AnyObject, I extends boolean = false> = {
-  [P in keyof T]?: AtomicField<T[P], IsNullish<T[P]>, I>;
+export type AtomicFields<T extends AnyObject> = AtomicObjectFields<T, false>;
+
+type AtomicObjectFields<T extends AnyObject, J extends boolean> = {
+  [P in keyof T]?: AtomicObjectField<T[P], IsNullish<T[P]>, J>;
 };
 
-type AtomicField<T, N extends boolean, I extends boolean> = T extends number
+type AtomicObjectField<T, N extends boolean, J extends boolean> = T extends number
   ? AtomicIncrement | AtomicDecrement | AtomicMultiply | AtomicDivide | T
   : IsObject<T> extends true
-    ? IsAllTrue<[N, I]> extends true
-      ? PreserveNull<T, AtomicFields<NonNullable<T>, true> | AtomicReplaceWith<NonNullable<T>>> | AtomicRemoveFrom
-      : PreserveNull<T, AtomicFields<NonNullable<T>, true> | AtomicReplaceWith<NonNullable<T>>>
-    : IsAllTrue<[N, I]> extends true
+    ? IsAllTrue<[N, J]> extends true
+      ? PreserveNull<T, AtomicObjectFields<NonNullable<T>, true>> | AtomicReplaceWith<NonNullable<T>, N> | AtomicRemoveFrom
+      : PreserveNull<T, AtomicObjectFields<NonNullable<T>, true>> | AtomicReplaceWith<NonNullable<T>, N>
+    : IsAllTrue<[N, J]> extends true
       ? T | AtomicRemoveFrom
       : T;
 
-type AtomicReplaceWith<T extends AnyObject> = {
+type AtomicReplaceWith<T extends AnyObject, N extends boolean> = {
   /**
    * Replace the entry value with the given object.
    */
-  replaceWith?: T;
+  replaceWith?: N extends true ? T | null : T;
 };
 
 type AtomicRemoveFrom = {

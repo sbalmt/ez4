@@ -1,5 +1,7 @@
-import { describe, it } from 'node:test';
+import type { ObjectSchema } from '@ez4/schema';
+
 import { deepEqual } from 'assert/strict';
+import { describe, it } from 'node:test';
 
 import { getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
@@ -73,14 +75,14 @@ describe('migration :: update table tests', () => {
     const steps = getUpdateStepQueries(targetTable, sourceTable);
 
     deepEqual(steps, {
-      create: {
+      prepare: {
         tables: [],
         constraints: [],
         validations: [],
         relations: [],
         indexes: []
       },
-      update: {
+      rollout: {
         tables: [
           {
             query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
@@ -112,7 +114,7 @@ describe('migration :: update table tests', () => {
           }
         ]
       },
-      delete: {
+      cleanup: {
         tables: [],
         constraints: [],
         validations: [],
@@ -120,5 +122,105 @@ describe('migration :: update table tests', () => {
         indexes: []
       }
     });
+  });
+
+  it('assert :: rename table with added column', () => {
+    const source = getTableRepository([
+      {
+        name: 'table',
+        indexes: [],
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    ]);
+
+    const target = {
+      renamed_table: {
+        ...source.table,
+        name: 'renamed_table',
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            },
+            added: {
+              type: SchemaType.String,
+              optional: true
+            }
+          }
+        } satisfies ObjectSchema
+      }
+    };
+
+    const steps = getUpdateStepQueries(target, source);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "added" text DEFAULT null'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+          }
+        ],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename table with updated column', async () => {
+    const targetTable = {
+      renamed_table: {
+        ...sourceTable.table,
+        name: 'renamed_table',
+        schema: {
+          ...sourceTable.table.schema,
+          properties: {
+            ...sourceTable.table.schema.properties,
+            column_a: {
+              type: SchemaType.String
+            }
+          }
+        } satisfies ObjectSchema
+      }
+    };
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps.rollout.tables, [
+      {
+        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+      },
+      {
+        check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'renamed_table')`,
+        query: 'ALTER TABLE IF EXISTS "renamed_table" ALTER COLUMN "column_a" TYPE text USING "column_a"::text'
+      }
+    ]);
   });
 });

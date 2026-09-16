@@ -1,7 +1,7 @@
 import type { SqlAlterTableClause } from '../table/alter';
 
 import { escapeSqlName } from '../../utils/escape';
-import { MissingClauseError } from '../errors';
+import { MissingClauseError } from '../../errors/clauses';
 
 export class SqlAlterColumnClause {
   #state: {

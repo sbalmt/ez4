@@ -7,15 +7,15 @@ import type { SqlFilters, SqlRecord } from '../common/types';
 
 import { getFields, getValues } from '../utils/column';
 import { escapeSqlName, escapeSqlNames } from '../utils/escape';
+import { MissingTableNameError } from '../errors/statements';
+import { InvalidWhereClauseError } from '../errors/clauses';
 import { SqlReturningClause } from '../clauses/query/returning';
 import { SqlConflictClause } from '../clauses/query/conflict';
 import { SqlWhereClause } from '../clauses/query/where';
-import { InvalidWhereClauseError } from '../clauses/errors';
 import { SqlColumnReference } from '../common/reference';
 import { getSelectExpressions } from '../helpers/select';
 import { SqlSource } from '../common/source';
 import { SqlRawValue } from '../common/raw';
-import { MissingTableNameError } from './errors';
 import { SqlSelectStatement } from './select';
 
 type SqlInsertContext = {

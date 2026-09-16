@@ -8,6 +8,10 @@ interface TestMessage extends Queue.Message {
 export declare class TestUnorderedQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [];
 
+  fairMode: Queue.UseFairMode<{
+    groupId: 'foo';
+  }>;
+
   backoff: Queue.UseBackoff<{
     maxDelay: 90;
     minDelay: 15;

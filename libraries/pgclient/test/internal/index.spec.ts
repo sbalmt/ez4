@@ -5,7 +5,7 @@ import { Index } from '@ez4/database';
 
 import { tryExtractUniqueIndex } from '../../src/service/utils/indexes';
 
-describe('index functions', () => {
+describe('index utils', () => {
   const indexes = [
     {
       columns: ['primary'],

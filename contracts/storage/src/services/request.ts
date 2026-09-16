@@ -3,7 +3,7 @@
  */
 export type BucketRequest = {
   /**
-   *  Unique identifier for the request.
+   * Unique identifier for the request.
    */
   readonly requestId: string;
 

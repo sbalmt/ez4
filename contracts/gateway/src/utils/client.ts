@@ -52,6 +52,7 @@ export const sendClientRequest = async (url: string, method: string, request: Cl
 
   return {
     status: result.status,
+    headers: Object.fromEntries(result.headers.entries()),
     ...(response && {
       body: prepareResponseBody(response, responseSchema, namingStyle)
     })

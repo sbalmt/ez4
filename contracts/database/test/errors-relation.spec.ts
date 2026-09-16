@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import {
   IncorrectRelationsTypeError,
   InvalidRelationsTypeError,
+  InvalidRelationAliasError,
   InvalidRelationTargetError,
   InvalidRelationTableError,
   InvalidRelationColumnError,
@@ -50,5 +51,12 @@ describe('database relation errors', () => {
 
     ok(error1 instanceof InvalidRelationColumnError);
     equal(error1.relationColumn, 'random_id');
+  });
+
+  it('assert :: invalid relation alias', () => {
+    const [error1] = parseFile('invalid-relation-alias', 1);
+
+    ok(error1 instanceof InvalidRelationAliasError);
+    equal(error1.relationAlias, 'alias');
   });
 });

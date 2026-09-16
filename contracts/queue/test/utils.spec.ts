@@ -3,7 +3,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'node:assert';
 
-import { getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
+import { MalformedMessageError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { SchemaType } from '@ez4/schema';
 
 describe('queue message utils', () => {
@@ -48,5 +48,19 @@ describe('queue message utils', () => {
     const outputOutput = await getJsonStringMessage(messageInput, messageSchema);
 
     deepEqual(outputOutput, JSON.stringify(messageInput));
+  });
+
+  it('assert :: reject malformed json message', async ({ assert }) => {
+    const messageSchema: ObjectSchema = {
+      type: SchemaType.Object,
+      properties: {
+        fooKey: {
+          type: SchemaType.String
+        }
+      }
+    };
+
+    await assert.rejects(() => getJsonMessage({}, messageSchema), MalformedMessageError);
+    await assert.rejects(() => getJsonMessage({ fooKey: 123 }, messageSchema), MalformedMessageError);
   });
 });

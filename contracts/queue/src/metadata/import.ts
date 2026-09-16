@@ -22,9 +22,11 @@ import { isModelProperty, isTypeReference, isTypeUnion } from '@ez4/reflection';
 import { isAnyNumber, isObjectWith } from '@ez4/utils';
 
 import { IncompleteServiceError } from '../errors/service';
+import { attachValidatorLinkedServices } from './utils/validator';
 import { getQueueSubscriptionsMetadata } from './subscription';
 import { getQueueDeadLetterMetadata } from './deadletter';
 import { getQueueFifoModeMetadata } from './fifomode';
+import { getQueueFairModeMetadata } from './fairmode';
 import { getQueueBackoffMetadata } from './backoff';
 import { getQueueMessageMetadata } from './message';
 import { createQueueImport } from './types';
@@ -95,6 +97,17 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
           break;
         }
 
+        case 'fairMode': {
+          if (member.inherited) {
+            const reference = getReferenceModel(member.value, reflection);
+
+            if (reference && !isTypeUnion(reference)) {
+              service.fairMode = getQueueFairModeMetadata(reference, declaration, reflection, errorList);
+            }
+          }
+          break;
+        }
+
         case 'deadLetter': {
           if (!member.inherited) {
             service.deadLetter = getQueueDeadLetterMetadata(member.value, declaration, reflection, errorList);
@@ -154,6 +167,8 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       errorList.push(new DuplicateServiceError(declaration.name, fileName));
       continue;
     }
+
+    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions, reflection);
 
     queueImports[declaration.name] = service;
   }

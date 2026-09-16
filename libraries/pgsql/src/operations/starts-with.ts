@@ -7,7 +7,7 @@ export const getStartsWithOperation = (column: string, schema: AnySchema | undef
   const rhsOperand = getOperandValue(schema, operand, context);
   const lhsOperand = getOperandColumn(schema, column, context);
 
-  if (context.insensitive) {
+  if (context.flags?.insensitive) {
     return `${lhsOperand} ILIKE ${rhsOperand} || '%'`;
   }
 

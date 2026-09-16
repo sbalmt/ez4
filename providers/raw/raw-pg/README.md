@@ -117,10 +117,13 @@ What happens during deploy:
 1. **`prepareResources`** validates the env var is present and registers a
    `raw:pg.migration` state entry containing the target table repository.
 2. **Migration apply** (a stateful step) opens a TCP connection to the
-   Postgres URL and runs `getUpdateQueries` between the previous repository
-   stored in state and the current target. Same diff logic as dev. On first
-   deploy this creates all tables; on subsequent deploys it applies only
-   the delta.
+  Postgres URL. On first deploy this creates all tables; subsequent deploys
+  use `getUpdateStepQueries` to apply the delta in three phases: **prepare**
+  runs during the update, **rollout** runs as a post-action, and **cleanup**
+  runs as a nested post-action. Prepare and rollout validations run after
+  rollout; cleanup validations run after cleanup. The previous repository
+  remains in the migration result until cleanup succeeds, allowing partial
+  deployments to resume.
 3. **`prepareLinkedService`** emits a `ContextSource` that constructs the
    `@ez4/raw-pg/client` `Client` at runtime, reading
    `process.env.EZ4_RAW_PG_<NAME>_URL`. The deploy-time env value is

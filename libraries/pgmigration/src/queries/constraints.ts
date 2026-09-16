@@ -6,14 +6,21 @@ import type { PgMigrationQueries } from '../types/query';
 import { isEnumSchema, isScalarSchema, SchemaType } from '@ez4/schema';
 import { isNotNullish } from '@ez4/utils';
 
-import { getCheckConstraintQuery, getCheckConstraintValidatedQuery } from '../utils/checks';
 import { getConstraintName } from '../utils/naming';
 
-type ConstraintMigrationQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
+import {
+  getCheckConstraintExistsQuery,
+  getCheckConstraintRecordsQuery,
+  getCheckConstraintInvalidQuery,
+  getCheckRunningValidationQuery,
+  getCheckConstraintValidQuery
+} from '../utils/checks';
+
+type ConstraintQueries = Pick<PgMigrationQueries, 'constraints' | 'validations'>;
 
 export namespace ConstraintQuery {
   export const prepareCreate = (builder: SqlBuilder, table: string, columns: Record<string, AnySchema>) => {
-    const statements: ConstraintMigrationQueries = {
+    const statements: ConstraintQueries = {
       constraints: [],
       validations: []
     };
@@ -24,14 +31,22 @@ export namespace ConstraintQuery {
       if (isEnumSchema(columnSchema) || (isScalarSchema(columnSchema) && isNotNullish(columnSchema.definitions?.value))) {
         const name = getConstraintName(table, columnName);
 
-        statements.constraints.push({
-          check: getCheckConstraintQuery(builder, name),
-          query: getCreateQuery(builder, table, name, columnName, columnSchema).build()
-        });
+        statements.constraints.push(
+          {
+            check: getCheckConstraintExistsQuery(builder, name),
+            assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
+            query: getCreateQuery(builder, table, name, columnName, columnSchema).build(),
+            name
+          },
+          {
+            check: getCheckConstraintValidQuery(builder, name),
+            query: getValidateQuery(builder, table, name).build()
+          }
+        );
 
         statements.validations.push({
-          check: getCheckConstraintValidatedQuery(builder, name),
-          query: getValidationQuery(builder, table, name).build(),
+          check: getCheckConstraintInvalidQuery(builder, name),
+          retry: getCheckRunningValidationQuery(builder, name),
           name
         });
       }
@@ -47,54 +62,62 @@ export namespace ConstraintQuery {
     sourceSchema: ObjectSchema,
     changes: Record<string, ObjectComparison>
   ) => {
-    const statements: ConstraintMigrationQueries = {
-      constraints: [],
-      validations: []
+    const steps = {
+      rollout: { validations: [], constraints: [] } as ConstraintQueries,
+      cleanup: { validations: [], constraints: [] } as ConstraintQueries
     };
 
     for (const columnName in changes) {
       const { update, create, remove, nested } = changes[columnName];
 
-      const constraints = [];
-
       if (remove || update || nested) {
-        const schema = sourceSchema.properties[columnName];
+        const columnSchema = sourceSchema.properties[columnName];
         const change = { ...remove, ...update, ...nested };
 
-        if (isConstrainedChange(schema, change)) {
+        if (isConstrainedChange(columnSchema, change)) {
           const name = getConstraintName(table, columnName);
 
-          constraints.push({
+          steps.cleanup.constraints.push({
             query: getDeleteQuery(builder, table, name).build()
           });
         }
       }
 
       if (create || update || nested) {
-        const schema = targetSchema.properties[columnName];
+        const columnSchema = targetSchema.properties[columnName];
         const change = { ...create, ...update, ...nested };
 
-        if (isConstrainedChange(schema, change)) {
-          const name = getConstraintName(table, columnName);
-          const removal = constraints.length;
+        if (isConstrainedChange(columnSchema, change)) {
+          const tmpName = getConstraintName(table, `${columnName}_tmp`);
+          const newName = getConstraintName(table, columnName);
 
-          constraints.push({
-            ...(!removal && { check: getCheckConstraintQuery(builder, name) }),
-            query: getCreateQuery(builder, table, name, columnName, schema).build()
+          steps.rollout.constraints.push(
+            {
+              check: getCheckConstraintExistsQuery(builder, tmpName),
+              assert: getCheckConstraintRecordsQuery(builder, table, getConstraintFilters(builder, columnName, columnSchema)),
+              query: getCreateQuery(builder, table, tmpName, columnName, columnSchema).build(),
+              name: newName
+            },
+            {
+              check: getCheckConstraintValidQuery(builder, tmpName),
+              query: getValidateQuery(builder, table, tmpName).build()
+            }
+          );
+
+          steps.rollout.validations.push({
+            check: getCheckConstraintInvalidQuery(builder, tmpName),
+            retry: getCheckRunningValidationQuery(builder, tmpName),
+            name: newName
           });
 
-          statements.validations.push({
-            check: getCheckConstraintValidatedQuery(builder, name),
-            query: getValidationQuery(builder, table, name).build(),
-            name
+          steps.cleanup.constraints.push({
+            query: builder.table(table).alter().existing().constraint(tmpName).rename(newName).build()
           });
         }
       }
-
-      statements.constraints.push(...constraints);
     }
 
-    return statements;
+    return steps;
   };
 
   export const prepareRenameTable = (builder: SqlBuilder, fromTable: string, toTable: string, columns: Record<string, AnySchema>) => {
@@ -110,7 +133,7 @@ export namespace ConstraintQuery {
         const query = builder.table(toTable).alter().existing().constraint(oldName).rename(newName);
 
         statements.push({
-          check: getCheckConstraintQuery(builder, newName),
+          check: getCheckConstraintExistsQuery(builder, newName),
           query: query.build()
         });
       }
@@ -138,7 +161,7 @@ export namespace ConstraintQuery {
         const query = builder.table(table).alter().existing().constraint(oldName).rename(newName);
 
         statements.push({
-          check: getCheckConstraintQuery(builder, newName),
+          check: getCheckConstraintExistsQuery(builder, newName),
           query: query.build()
         });
       }
@@ -169,42 +192,44 @@ export namespace ConstraintQuery {
     return builder.table(table).alter().existing().constraint(name).drop().existing();
   };
 
-  const getValidationQuery = (builder: SqlBuilder, table: string, name: string) => {
+  const getValidateQuery = (builder: SqlBuilder, table: string, name: string) => {
     return builder.table(table).alter().existing().constraint(name).validate();
   };
 
   const getCreateQuery = (builder: SqlBuilder, table: string, name: string, column: string, schema: EnumSchema | ScalarSchema) => {
     const query = builder.table(table).alter().existing().constraint(name);
 
+    query.check(getConstraintFilters(builder, column, schema)).validate(false);
+
+    return query;
+  };
+
+  const getConstraintFilters = (builder: SqlBuilder, column: string, schema: EnumSchema | ScalarSchema) => {
     switch (schema.type) {
       case SchemaType.Enum: {
-        const values = schema.options.map(({ value }) => `${value}`);
-
-        const constraint = query.check({
+        return {
           [column]: {
-            isIn: values
+            isIn: schema.options.map(({ value }) => builder.rawString(`${value}`))
           }
-        });
-
-        constraint.validate(false);
-        break;
+        };
       }
 
       case SchemaType.Boolean:
       case SchemaType.Number:
-      case SchemaType.String: {
-        const constraint = query.check({
+        return {
           [column]: {
-            equal: schema.definitions?.value
+            equal: builder.rawValue(schema.definitions?.value)
           }
-        });
+        };
 
-        constraint.validate(false);
-        break;
+      case SchemaType.String: {
+        return {
+          [column]: {
+            equal: builder.rawString(`${schema.definitions?.value}`)
+          }
+        };
       }
     }
-
-    return query;
   };
 
   const isConstrainedSchema = (schema: AnySchema): schema is EnumSchema | ScalarSchema => {

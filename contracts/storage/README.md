@@ -20,11 +20,12 @@ import type { Bucket } from '@ez4/storage';
 
 // MyStorage declaration
 export declare class MyStorage extends Bucket.Service {
-  autoExpireDays: 1;
-
-  events: Bucket.UseEvents<{
-    handler: typeof eventHandler;
-  }>;
+  events: [
+    Bucket.UseEvent<{
+      path: 'uploads/';
+      handler: typeof eventHandler;
+    }>
+  ];
 
   variables: {
     myVariable: Environment.Variable<'MY_VARIABLE'>;
@@ -48,9 +49,9 @@ EZ4 injects all variables and services, and then invokes your event handler.
 
 ```ts
 // MyStorage event handler
-export function eventHandler(request: Bucket.Event, { otherService, variables }: Service.Context<MyStorage>): void {
+export function eventHandler(request: Bucket.Incoming, { otherService, variables }: Service.Context<MyStorage>): void {
   // Access event contents
-  request.eventType;
+  request.objectKey;
 
   // Access injected services
   otherService.call();
@@ -76,7 +77,7 @@ export async function anotherHandler(_request: any, { myStorage }: Service.Conte
   await myStorage.write('dummy.txt', 'Hello storage');
 
   // Read a file
-  const content = myStorage.read('dummy.txt');
+  const content = await myStorage.read('dummy.txt');
 }
 ```
 
@@ -84,44 +85,12 @@ export async function anotherHandler(_request: any, { myStorage }: Service.Conte
 
 With your storage defined, EZ4 handles provisioning, synchronization, event routing, and execution automatically according to your contract.
 
-## Storage properties
+## What's next
 
-#### Service
-
-| Name           | Type               | Description                                                  |
-| -------------- | ------------------ | ------------------------------------------------------------ |
-| events         | Bucket.UseEvents<> | Entry-point handler for storage events.                      |
-| cors           | Bucket.UseCors<>   | CORS configuration for the storage.                          |
-| globalName     | string             | Overwrite the global storage name.                           |
-| localPath      | string             | Specify a local path to synchronize with the storage.        |
-| autoExpireDays | integer            | Amount of days an object is stored before its auto-deletion. |
-| variables      | object             | Environment variables associated with the event handler.     |
-| tags           | Bucket.UseTags<>  | Custom string tags associated with the storage bucket.      |
-| services       | object             | Injected services associated with handler function.          |
-
-> Use type helpers for `events` and `cors` properties.
-
-### Custom tags
-
-Custom storage tags are declared on the top-level bucket service with `Bucket.UseTags`. Tags must be a string-to-string object. They are applied to the bucket during deployment, and project deployment tags override service tags when both define the same key.
-
-#### Events
-
-| Name         | Type             | Description                                                 |
-| ------------ | ---------------- | ----------------------------------------------------------- |
-| listener     | function         | Life-cycle listener function for the event.                 |
-| handler      | function         | Entry-point handler function for the event.                 |
-| path         | string           | Path associated with the event handler.                     |
-| variables    | object           | Environment variables associated with the handler.          |
-| logRetention | integer          | Log retention (in days) for the handler.                    |
-| logLevel     | LogLevel         | Log level for the handler.                                  |
-| architecture | ArchitectureType | Architecture type for the cloud function.                   |
-| runtime      | RuntimeType      | Runtime for the cloud function.                             |
-| files        | string[]         | Additional resource files added into the handler bundle.    |
-| timeout      | integer          | Maximum execution time (in seconds) for the handler.        |
-| memory       | integer          | Memory available (in megabytes) for the handler.            |
-| debug        | boolean          | Determine whether the debug mode is active for the handler. |
-| vpc          | boolean          | Determines whether or not VPC is enabled for the handler.   |
+- [Storage service](./docs/storage-service.md)
+- [Storage events](./docs/storage-events.md)
+- [Storage handlers](./docs/storage-handlers.md)
+- [Storage client](./docs/storage-client.md)
 
 ## Examples
 
