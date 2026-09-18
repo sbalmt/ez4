@@ -3,10 +3,10 @@ import type { AnyObject } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
 import { readFile, stat } from 'node:fs/promises';
+import { availableParallelism } from 'node:os';
 import { createHash } from 'node:crypto';
 import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
-import { cpus } from 'node:os';
 
 import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
@@ -81,7 +81,7 @@ export const getBundleHash = async (sourceFile: string, dependencyFiles: string[
   return bundleHash;
 };
 
-const maxTokens = Math.max(1, Math.floor(cpus().length / 2));
+const maxTokens = Math.max(1, Math.floor(availableParallelism() / 2));
 
 const scheduleQueue: {
   provider: string;
