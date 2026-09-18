@@ -21,7 +21,7 @@ export const bundlePackage = async (entryFile, outFile, format, options) => {
     bundle: true,
     entryPoints: [entryFile],
     outfile: outFile,
-    target: options?.target ?? 'node22',
+    target: options?.target ?? 'node24',
     platform: options?.platform ?? 'node',
     sourcemap: options?.sourcemap ?? 'linked',
     packages: options?.packages ?? 'external',

@@ -18,7 +18,7 @@
     "directory": "providers/local/local-scheduler"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

@@ -16,7 +16,7 @@
     "directory": "providers/aws/aws-email"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

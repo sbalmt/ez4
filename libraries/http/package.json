@@ -17,7 +17,7 @@
     "directory": "libraries/http"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     "types": "./dist/main.d.ts",

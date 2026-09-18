@@ -16,7 +16,7 @@
     "directory": "contracts/factory"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

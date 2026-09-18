@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",

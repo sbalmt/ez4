@@ -80,8 +80,8 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 
 ## Requirements
 
-- TypeScript 5.8+
-- NodeJS 22.7+
+- TypeScript 7.0+
+- NodeJS 24.21+
 
 ## License
 

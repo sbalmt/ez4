@@ -18,7 +18,7 @@
     "directory": "providers/aws/aws-aurora"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

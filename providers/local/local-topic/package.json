@@ -17,7 +17,7 @@
     "directory": "providers/local/local-topic"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

@@ -17,7 +17,7 @@
     "directory": "providers/aws/aws-queue"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {

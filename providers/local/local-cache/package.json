@@ -17,7 +17,7 @@
     "directory": "providers/local/local-cache"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
