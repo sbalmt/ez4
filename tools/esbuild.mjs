@@ -18,8 +18,10 @@ export const bundlePackage = async (entryFile, outFile, options) => {
 
   const result = await build({
     treeShaking: true,
+    minifyWhitespace: false,
+    minifyIdentifiers: true,
+    minifySyntax: true,
     keepNames: true,
-    minify: true,
     bundle: true,
     entryPoints: [entryFile],
     outfile: outFile,
