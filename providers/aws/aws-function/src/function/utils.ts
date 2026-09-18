@@ -60,6 +60,25 @@ export const getFunctionAliasArn = (serviceName: string, resourceId: string, con
   return `${functionArn}:${FunctionDefaults.AliasName}`;
 };
 
+/**
+ * The alias-qualified form of a target a trigger is still holding unqualified, or `undefined` when
+ * it already points at the alias.
+ *
+ * A trigger records no qualifier in its own parameters, so one created before the alias existed
+ * keeps the plain function and compares equal on every later deploy: the plan reports no change and
+ * the update that would repoint it never runs. Feeding this into the comparison is what puts the
+ * repoint in the plan.
+ */
+export const getFunctionAliasTarget = <T extends string>(target: T | undefined): T | undefined => {
+  const suffix = `:${FunctionDefaults.AliasName}`;
+
+  if (!target || target.endsWith(suffix)) {
+    return undefined;
+  }
+
+  return `${target}${suffix}` as T;
+};
+
 export const getFunctionName = (serviceName: string, resourceId: string, context: StepContext) => {
   const resource = context.getDependencies<FunctionState>(FunctionServiceType).at(0)?.parameters;
 

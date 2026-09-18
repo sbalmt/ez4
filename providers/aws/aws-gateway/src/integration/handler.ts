@@ -2,7 +2,7 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { IntegrationState, IntegrationResult, IntegrationParameters } from './types';
 
-import { getFunctionAliasArn } from '@ez4/aws-function';
+import { getFunctionAliasArn, getFunctionAliasTarget } from '@ez4/aws-function';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
@@ -27,6 +27,13 @@ const equalsResource = (candidate: IntegrationState, current: IntegrationState) 
 const previewResource = (candidate: IntegrationState, current: IntegrationState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const functionArn = getFunctionAliasTarget(current.result?.functionArn);
+
+  if (functionArn) {
+    Object.assign(target, { functionArn });
+    Object.assign(source, { functionArn: current.result?.functionArn });
+  }
 
   const changes = deepCompare(target, source);
 

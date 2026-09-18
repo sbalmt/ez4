@@ -6,7 +6,7 @@ import type { UpdateRequest } from './client';
 import { CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual } from '@ez4/utils';
 
-import { getFunctionAliasName } from '../function/utils';
+import { getFunctionAliasName, getFunctionAliasTarget } from '../function/utils';
 import { importMapping, createMapping, deleteMapping, updateMapping } from './client';
 import { MappingServiceName } from './types';
 
@@ -28,6 +28,13 @@ const equalsResource = (candidate: MappingState, current: MappingState) => {
 const previewResource = (candidate: MappingState, current: MappingState) => {
   const target = { ...candidate.parameters, dependencies: candidate.dependencies };
   const source = { ...current.parameters, dependencies: current.dependencies };
+
+  const functionName = getFunctionAliasTarget(current.result?.functionName);
+
+  if (functionName) {
+    Object.assign(target, { functionName });
+    Object.assign(source, { functionName: current.result?.functionName });
+  }
 
   const changes = deepCompare(target, source, {
     exclude: {
