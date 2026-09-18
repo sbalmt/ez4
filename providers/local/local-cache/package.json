@@ -22,18 +22,15 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./test": {
       "types": "./dist/test.d.ts",
-      "require": "./dist/test.cjs",
-      "import": "./dist/test.mjs"
+      "default": "./dist/test.mjs"
     },
     "./run": {
       "types": "./dist/run.d.ts",
-      "require": "./dist/run.cjs",
-      "import": "./dist/run.mjs"
+      "default": "./dist/run.mjs"
     }
   },
   "workspaces": [

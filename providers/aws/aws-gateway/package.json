@@ -22,22 +22,18 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./client/http": {
       "types": "./dist/client-http.d.ts",
-      "require": "./dist/client-http.cjs",
-      "import": "./dist/client-http.mjs"
+      "default": "./dist/client-http.mjs"
     },
     "./client/ws": {
       "types": "./dist/client-ws.d.ts",
-      "require": "./dist/client-ws.cjs",
-      "import": "./dist/client-ws.mjs"
+      "default": "./dist/client-ws.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "workspaces": [

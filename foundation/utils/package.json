@@ -21,8 +21,7 @@
     ".": {
       "types": "./dist/main.d.ts",
       "browser": "./dist/browser.js",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "sideEffects": false,

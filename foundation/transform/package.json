@@ -19,8 +19,7 @@
   },
   "exports": {
     "types": "./dist/main.d.ts",
-    "require": "./dist/main.cjs",
-    "import": "./dist/main.mjs"
+    "default": "./dist/main.mjs"
   },
   "sideEffects": false,
   "workspaces": [

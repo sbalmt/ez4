@@ -22,23 +22,19 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./driver": {
       "types": "./dist/driver.d.ts",
-      "require": "./dist/driver.cjs",
-      "import": "./dist/driver.mjs"
+      "default": "./dist/driver.mjs"
     },
     "./library": {
       "types": "./dist/library.d.ts",
-      "require": "./dist/library.cjs",
-      "import": "./dist/library.mjs"
+      "default": "./dist/library.mjs"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.mjs"
+      "default": "./dist/utils.mjs"
     }
   },
   "sideEffects": false,

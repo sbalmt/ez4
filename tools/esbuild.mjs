@@ -13,7 +13,9 @@ const cjsDefinitions = {
   __MODULE_PATH: '__dirname'
 };
 
-export const bundlePackage = async (entryFile, outFile, format, options) => {
+export const bundlePackage = async (entryFile, outFile, options) => {
+  const format = options?.format ?? 'esm';
+
   const result = await build({
     treeShaking: true,
     keepNames: true,

@@ -23,17 +23,14 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./client": {
       "types": "./dist/client.d.ts",
-      "require": "./dist/client.cjs",
-      "import": "./dist/client.mjs"
+      "default": "./dist/client.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "workspaces": [
