@@ -25,6 +25,52 @@
             }
           ]
         }
+      },
+      {
+        "type": "property",
+        "name": "requiredArray",
+        "value": {
+          "type": "array",
+          "element": {
+            "type": "undefined"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "optionalArray",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "array",
+              "element": {
+                "type": "undefined"
+              }
+            },
+            {
+              "type": "undefined"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "explicitOptionalArray",
+        "value": {
+          "type": "union",
+          "elements": [
+            {
+              "type": "array",
+              "element": {
+                "type": "undefined"
+              }
+            },
+            {
+              "type": "undefined"
+            }
+          ]
+        }
       }
     ]
   }
