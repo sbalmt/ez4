@@ -21,8 +21,6 @@ import {
   ModuleKind
 } from 'typescript';
 
-const SOURCE_CACHE = new Map<string, SourceFile>();
-
 const EMPTY_WATCHER: FileWatcher = {
   close: () => {}
 };
@@ -52,6 +50,7 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
 
 export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
   const onResolveFileName = events?.onResolveFileName;
+  const sourceFilesCache = new Map<string, SourceFile>();
 
   return {
     fileExists: sys.fileExists,
@@ -65,7 +64,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     getSourceFile: (fileName, languageVersion, onError) => {
       try {
         const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-        const cachedSourceFile = SOURCE_CACHE.get(resolvedFileName);
+        const cachedSourceFile = sourceFilesCache.get(resolvedFileName);
 
         if (cachedSourceFile) {
           return cachedSourceFile;
@@ -79,7 +78,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
 
         const sourceFile = createSourceFile(resolvedFileName, sourceText, languageVersion);
 
-        SOURCE_CACHE.set(resolvedFileName, sourceFile);
+        sourceFilesCache.set(resolvedFileName, sourceFile);
 
         return sourceFile;
         //
