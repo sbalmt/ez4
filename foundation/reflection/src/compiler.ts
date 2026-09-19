@@ -37,7 +37,7 @@ export type CompilerEvents = {
 };
 
 export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOptions => {
-  return {
+  const compilerOptions: BaseCompilerOptions = {
     ...options,
     module: ModuleKind.Preserve,
     moduleResolution: ModuleResolutionKind.Bundler,
@@ -46,6 +46,12 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
     checkJs: false,
     strict: true
   };
+
+  if (!compilerOptions.noLib) {
+    compilerOptions.lib ??= ['lib.esnext.d.ts'];
+  }
+
+  return compilerOptions;
 };
 
 export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
