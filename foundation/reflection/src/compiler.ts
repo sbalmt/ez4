@@ -128,20 +128,27 @@ export const createWatchCompilerHost = (
 
       return EMPTY_WATCHER;
     },
-    createProgram: (rootNames, options, host) =>
-      createSemanticDiagnosticsBuilderProgram(rootNames, options, {
-        ...host!,
-        getSourceFile: (fileName, languageVersion, onError) => {
-          try {
-            const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-            return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
-            //
-          } catch (error) {
-            onError?.(`${error}`);
-            return undefined;
+    createProgram: (rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences) => {
+      return createSemanticDiagnosticsBuilderProgram(
+        rootNames,
+        options,
+        {
+          ...host!,
+          getSourceFile: (fileName, languageVersion, onError) => {
+            try {
+              const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
+              return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
+            } catch (error) {
+              onError?.(`${error}`);
+              return undefined;
+            }
           }
-        }
-      })
+        },
+        oldProgram,
+        configFileParsingDiagnostics,
+        projectReferences
+      );
+    }
   };
 };
 
