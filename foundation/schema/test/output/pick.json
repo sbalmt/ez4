@@ -1,0 +1,77 @@
+{
+  "type": "object",
+  "description": "Pick test object.",
+  "identity": 1,
+  "properties": {
+    "single": {
+      "type": "object",
+      "description": "Single selected property.",
+      "identity": 2,
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property."
+        }
+      }
+    },
+    "multiple": {
+      "type": "object",
+      "description": "Multiple selected properties.",
+      "identity": 3,
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        }
+      }
+    },
+    "partial": {
+      "type": "object",
+      "description": "Selected partial property.",
+      "identity": 4,
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property.",
+          "optional": true
+        }
+      }
+    },
+    "required": {
+      "type": "object",
+      "description": "Selected required property.",
+      "identity": 5,
+      "properties": {
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property."
+        }
+      }
+    },
+    "original": {
+      "type": "object",
+      "description": "Original object with all properties.",
+      "identity": 6,
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        },
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property."
+        }
+      }
+    }
+  }
+}
