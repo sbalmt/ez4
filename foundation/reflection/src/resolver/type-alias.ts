@@ -37,7 +37,7 @@ export const tryTypeAlias = (node: Node, types: TypeArguments | undefined, conte
   return tryTypes(node.type, context, { ...state, types: newTypes });
 };
 
-export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
+export const tryNativeTypeAlias = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
   if (!isTypeAlias(node) || !isInternalType(node) || !types?.length) {
     return undefined;
   }
@@ -47,9 +47,16 @@ export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefine
   switch (name) {
     case 'Pick': {
       const resultType = tryTypes(types[0], context, state);
-      const resultKeys = getPickKeys(tryTypes(types[1], context, state));
+      const resultKeys = getMemberKeys(tryTypes(types[1], context, state));
 
       return tryPickObject(resultType, resultKeys) ?? tryUnionElements(resultType, (type) => tryPickObject(type, resultKeys));
+    }
+
+    case 'Omit': {
+      const resultType = tryTypes(types[0], context, state);
+      const resultKeys = getMemberKeys(tryTypes(types[1], context, state));
+
+      return tryOmitObject(resultType, resultKeys) ?? tryUnionElements(resultType, (type) => tryOmitObject(type, resultKeys));
     }
 
     case 'Required': {
@@ -68,14 +75,14 @@ export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefine
   return undefined;
 };
 
-const getPickKeys = (type: EveryType | undefined): string[] => {
+const getMemberKeys = (type: EveryType | undefined): string[] => {
   if (type) {
     if (isTypeString(type) || isTypeNumber(type)) {
       return type.literal !== undefined ? [String(type.literal)] : [];
     }
 
     if (isTypeUnion(type)) {
-      return type.elements.flatMap((element) => getPickKeys(element));
+      return type.elements.flatMap((element) => getMemberKeys(element));
     }
   }
 
@@ -90,6 +97,17 @@ const tryPickObject = (type: EveryType | undefined, keys: string[]) => {
   return {
     ...type,
     members: type.members.filter((member) => keys.includes(member.name))
+  };
+};
+
+const tryOmitObject = (type: EveryType | undefined, keys: string[]) => {
+  if (!type || !isTypeObject(type) || !Array.isArray(type.members)) {
+    return undefined;
+  }
+
+  return {
+    ...type,
+    members: type.members.filter((member) => !keys.includes(member.name))
   };
 };
 

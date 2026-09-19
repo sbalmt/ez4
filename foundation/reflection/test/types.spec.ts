@@ -40,6 +40,7 @@ describe('reflection types', () => {
   it('assert :: partial', () => testFile('partial'));
   it('assert :: required', () => testFile('required'));
   it('assert :: pick', () => testFile('pick'));
+  it('assert :: omit', () => testFile('omit'));
   it('assert :: typeof', () => testFile('typeof'));
   it('assert :: type', () => testFile('type'));
   it('assert :: comments', () => testFile('comments'));
