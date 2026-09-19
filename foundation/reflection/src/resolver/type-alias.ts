@@ -5,10 +5,14 @@ import type { Context, State } from './common';
 import { isTypeAliasDeclaration } from 'typescript';
 
 import { isInternalType } from '../helpers/node';
-import { isModelProperty, isTypeObject, isTypeUnion, TypeName } from '../types';
-import { appendTypeUnionElements, removeTypeUnionElements } from '../types/type-union';
+import { isModelProperty } from '../types/model-property';
+import { appendTypeUnionElements, removeTypeUnionElements, isTypeUnion } from '../types/type-union';
+import { isTypeObject } from '../types/type-object';
+import { isTypeString } from '../types/type-string';
+import { isTypeNumber } from '../types/type-number';
 import { getTypeArguments } from './type-parameter';
 import { createUndefined } from './type-undefined';
+import { TypeName } from '../types/common';
 import { getNewState } from './common';
 import { tryTypes } from './types';
 
@@ -41,20 +45,52 @@ export const tryInternalTypeAlias = (node: Node, types: TypeArguments | undefine
   const name = node.name.getText();
 
   switch (name) {
-    case 'Required': {
-      const result = tryTypes(types[0], context, state);
+    case 'Pick': {
+      const resultType = tryTypes(types[0], context, state);
+      const resultKeys = getPickKeys(tryTypes(types[1], context, state));
 
-      return tryRequiredObject(result) ?? tryUnionElements(result, tryRequiredObject) ?? result;
+      return tryPickObject(resultType, resultKeys) ?? tryUnionElements(resultType, (type) => tryPickObject(type, resultKeys));
+    }
+
+    case 'Required': {
+      const resultType = tryTypes(types[0], context, state);
+
+      return tryRequiredObject(resultType) ?? tryUnionElements(resultType, tryRequiredObject) ?? resultType;
     }
 
     case 'Partial': {
-      const result = tryTypes(types[0], context, state);
+      const resultType = tryTypes(types[0], context, state);
 
-      return tryPartialObject(result) ?? tryUnionElements(result, tryPartialObject) ?? result;
+      return tryPartialObject(resultType) ?? tryUnionElements(resultType, tryPartialObject) ?? resultType;
     }
   }
 
   return undefined;
+};
+
+const getPickKeys = (type: EveryType | undefined): string[] => {
+  if (type) {
+    if (isTypeString(type) || isTypeNumber(type)) {
+      return type.literal !== undefined ? [String(type.literal)] : [];
+    }
+
+    if (isTypeUnion(type)) {
+      return type.elements.flatMap((element) => getPickKeys(element));
+    }
+  }
+
+  return [];
+};
+
+const tryPickObject = (type: EveryType | undefined, keys: string[]) => {
+  if (!type || !isTypeObject(type) || !Array.isArray(type.members)) {
+    return undefined;
+  }
+
+  return {
+    ...type,
+    members: type.members.filter((member) => keys.includes(member.name))
+  };
 };
 
 const tryPartialObject = (type: EveryType | undefined) => {
