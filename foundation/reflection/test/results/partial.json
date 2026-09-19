@@ -1,0 +1,77 @@
+{
+  "0f524307e2e0e85a601a0e6d28812a70:PartialUnion": {
+    "type": "interface",
+    "name": "PartialUnion",
+    "file": "test/types/partial.ts",
+    "position": {
+      "line": 5,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "partial",
+        "value": {
+          "type": "object",
+          "file": "test/types/partial.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "value",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "original",
+        "value": {
+          "type": "object",
+          "file": "test/types/partial.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "value",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

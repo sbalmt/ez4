@@ -1,0 +1,121 @@
+{
+  "f523fc846283f836bcd62bc621067cc4:RequiredUnion": {
+    "type": "interface",
+    "name": "RequiredUnion",
+    "file": "test/types/required.ts",
+    "position": {
+      "line": 7,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "required",
+        "value": {
+          "type": "object",
+          "file": "test/types/required.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "scalar",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "value",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "regular",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "original",
+        "value": {
+          "type": "object",
+          "file": "test/types/required.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "scalar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "value",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "regular",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
