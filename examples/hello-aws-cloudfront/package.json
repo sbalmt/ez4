@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "workspaces": [
     "examples/*"
@@ -17,11 +17,11 @@
     "destroy": "ez4 destroy -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-bucket": "^0.53.0",
-    "@ez4/aws-cloudfront": "^0.53.0",
-    "@ez4/common": "^0.53.0",
-    "@ez4/distribution": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/storage": "^0.53.0"
+    "@ez4/aws-bucket": "^0.54.0",
+    "@ez4/aws-cloudfront": "^0.54.0",
+    "@ez4/common": "^0.54.0",
+    "@ez4/distribution": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/storage": "^0.54.0"
   }
 }

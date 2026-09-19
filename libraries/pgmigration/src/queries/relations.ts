@@ -6,8 +6,10 @@ import type { PgMigrationQueries } from '../types/query';
 
 import { getTableName } from '@ez4/pgclient/utils';
 import { isNullishSchema } from '@ez4/schema';
+import { isNullish } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
+import { isOptionalColumn } from '../utils/columns';
 import { getRelationName } from '../utils/naming';
 
 import {
@@ -60,7 +62,13 @@ export namespace RelationQuery {
     return statements;
   };
 
-  export const prepareUpdate = (builder: SqlBuilder, table: string, columns: ObjectSchemaProperties, relations: PgRelationRepository) => {
+  export const prepareUpdate = (
+    builder: SqlBuilder,
+    table: string,
+    targetSchema: ObjectSchema,
+    relations: PgRelationRepository,
+    changes: Record<string, ObjectComparison>
+  ) => {
     const steps = {
       rollout: { validations: [], relations: [] } as RelationQueries,
       cleanup: { validations: [], relations: [] } as RelationQueries
@@ -68,17 +76,22 @@ export namespace RelationQuery {
 
     for (const targetAlias in relations) {
       const relation = relations[targetAlias];
+      const relationChanges = changes[relation.targetColumn];
 
-      if (isNotRealRelation(relation)) {
+      if (isNotRealRelation(relation) || !relationChanges) {
         continue;
       }
 
-      const targetSchema = columns[relation.targetColumn];
-      const targetRequired = !!(targetSchema?.optional ?? targetSchema?.nullable);
+      const { create, update, remove } = relationChanges;
 
-      if (targetRequired === undefined) {
+      const change = { ...remove, ...update, ...create };
+
+      if (isNullish(change.optional) && isNullish(change.nullable)) {
         continue;
       }
+
+      const columnSchema = targetSchema.properties[relation.targetColumn];
+      const columnOptional = isOptionalColumn(columnSchema);
 
       const tmpName = getRelationName(table, `${targetAlias}_tmp`);
       const newName = getRelationName(table, targetAlias);
@@ -86,7 +99,7 @@ export namespace RelationQuery {
       steps.rollout.relations.push(
         {
           check: getCheckConstraintExistsQuery(builder, tmpName),
-          query: getCreateQuery(builder, table, tmpName, relation, targetRequired).build()
+          query: getCreateQuery(builder, table, tmpName, relation, columnOptional).build()
         },
         {
           check: getCheckConstraintValidQuery(builder, tmpName),

@@ -3,7 +3,7 @@ import type { TableRelation } from '@ez4/database/library';
 import { describe, it } from 'node:test';
 import { deepEqual } from 'assert/strict';
 
-import { getUpdateStepQueries } from '@ez4/pgmigration';
+import { getCreateQueries, getUpdateStepQueries } from '@ez4/pgmigration';
 import { getTableRepository } from '@ez4/pgclient/library';
 import { SchemaType } from '@ez4/schema';
 import { Index } from '@ez4/database';
@@ -40,6 +40,128 @@ describe('migration :: create relation tests', () => {
       }
     ]);
   };
+
+  it('assert :: create (with table)', () => {
+    const targetTable = getDatabaseTables(false, [
+      {
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
+        sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
+        targetIndex: Index.Secondary
+      }
+    ]);
+
+    targetTable.table_b.indexes = {
+      column_b: {
+        name: 'column_b',
+        type: Index.Primary,
+        columns: ['column_b']
+      }
+    };
+
+    const queries = getCreateQueries(targetTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          query: 'CREATE TABLE IF NOT EXISTS "table_a" ("column_a" text NOT null)'
+        },
+        {
+          query: 'CREATE TABLE IF NOT EXISTS "table_b" ("column_b" text NOT null)'
+        }
+      ],
+      constraints: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_b_column_b_pk'`,
+          query: 'ALTER TABLE IF EXISTS "table_b" ADD CONSTRAINT "table_b_column_b_pk" PRIMARY KEY ("column_b")'
+        }
+      ],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+          name: 'table_a_relation_fk'
+        }
+      ],
+      relations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+          query:
+            'ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ' +
+            'FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ' +
+            'ON DELETE CASCADE ON UPDATE CASCADE NOT VALID'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
+          query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"'
+        }
+      ],
+      indexes: []
+    });
+  });
+
+  it('assert :: create (nullable with table)', () => {
+    const targetTable = getDatabaseTables(true, [
+      {
+        sourceTable: 'table_b',
+        sourceColumn: 'column_b',
+        sourceIndex: Index.Primary,
+        targetAlias: 'relation',
+        targetColumn: 'column_a',
+        targetIndex: Index.Unique
+      }
+    ]);
+
+    targetTable.table_b.indexes = {
+      column_b: {
+        name: 'column_b',
+        type: Index.Primary,
+        columns: ['column_b']
+      }
+    };
+
+    const queries = getCreateQueries(targetTable);
+
+    deepEqual(queries, {
+      tables: [
+        {
+          query: 'CREATE TABLE IF NOT EXISTS "table_a" ("column_a" text DEFAULT null)'
+        },
+        {
+          query: 'CREATE TABLE IF NOT EXISTS "table_b" ("column_b" text NOT null)'
+        }
+      ],
+      constraints: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_b_column_b_pk'`,
+          query: 'ALTER TABLE IF EXISTS "table_b" ADD CONSTRAINT "table_b_column_b_pk" PRIMARY KEY ("column_b")'
+        }
+      ],
+      validations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+          name: 'table_a_relation_fk'
+        }
+      ],
+      relations: [
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_a_relation_fk'`,
+          query:
+            'ALTER TABLE IF EXISTS "table_a" ADD CONSTRAINT "table_a_relation_fk" ' +
+            'FOREIGN KEY ("column_a") REFERENCES "table_b" ("column_b") ' +
+            'ON DELETE SET null ON UPDATE CASCADE NOT VALID'
+        },
+        {
+          check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_a_relation_fk'`,
+          query: 'ALTER TABLE IF EXISTS "table_a" VALIDATE CONSTRAINT "table_a_relation_fk"'
+        }
+      ],
+      indexes: []
+    });
+  });
 
   it('assert :: create (mandatory)', async () => {
     const sourceTable = getDatabaseTables(false, []);

@@ -157,12 +157,13 @@ export const resolveReflectionFiles = (program: Program, compilerOptions: Compil
     return dependencies;
   };
 
-  return program.getRootFileNames().reduce<ReflectionFiles>((imports, fileName) => {
-    return {
-      ...imports,
-      [fileName]: [...groupReflectionFiles(fileName)]
-    };
-  }, {});
+  const imports: ReflectionFiles = {};
+
+  for (const fileName of program.getRootFileNames()) {
+    imports[fileName] = [...groupReflectionFiles(fileName)];
+  }
+
+  return imports;
 };
 
 export const resolveReflectionMetadata = (program: Program, options?: ReflectionOptions) => {

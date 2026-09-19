@@ -7,5 +7,4 @@
 !docs/*.md
 
 !dist/**/*.d.ts
-!dist/**/*.cjs
 !dist/**/*.mjs

@@ -223,15 +223,15 @@ type AwesomeType = {
 
 ## Native helpers
 
-EZ4 supports TypeScript's native `Partial` and `Required` helpers when used with object schemas.
+EZ4 supports TypeScript's native `Partial`, `Required`, `Pick`, and `Omit` helpers when used with object schemas.
 
 #### Partial types
 
 ```ts
 type AwesomeType = {
-  // Accept any number
   bar: number;
 };
+
 type AwesomeObjectType = {
   // Accept objects with `AwesomeType` shape and partial properties
   foo: Partial<AwesomeType>;
@@ -242,15 +242,49 @@ type AwesomeObjectType = {
 
 ```ts
 type AwesomeType = {
-  // Optionally accept any string
   bar?: string;
-
-  // Optionally accept any number
   baz: number | undefined;
 };
+
 type AwesomeObjectType = {
   // Accept objects with `AwesomeType` shape and require all properties
   foo: Required<AwesomeType>;
+};
+```
+
+#### Pick types
+
+```ts
+type AwesomeType = {
+  foo: number;
+  bar?: string;
+  baz: boolean;
+};
+
+type AwesomeObjectType = {
+  // Accept objects with `AwesomeType` shape and require only `foo` property
+  single: Pick<AwesomeType, 'foo'>;
+
+  // Accept objects with `AwesomeType` shape and require only `foo` and `bar` property
+  multiple: Pick<AwesomeType, 'foo' | 'bar'>;
+};
+```
+
+#### Omit types
+
+```ts
+type AwesomeType = {
+  foo: number;
+  bar?: string;
+  baz: boolean;
+};
+
+type AwesomeObjectType = {
+  // Accept objects with `AwesomeType` shape and require only `bar` and `baz` property
+  single: Omit<AwesomeType, 'foo'>;
+
+  // Accept objects with `AwesomeType` shape and require only `baz` property
+  multiple: Omit<AwesomeType, 'foo' | 'bar'>;
 };
 ```
 
@@ -258,7 +292,7 @@ type AwesomeObjectType = {
 
 The following TypeScript features are **not supported** for object schemas:
 
-- Native helpers other than `Partial` and `Required`
+- Native helpers other than `Partial`, `Required`, `Pick`, and `Omit`
 - Deeply nested generics
 - Template literal types
 - Conditional types

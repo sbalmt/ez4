@@ -1,8 +1,17 @@
-import { S3Client, CreateBucketCommand, GetObjectCommand, PutObjectCommand, NotFound, NoSuchKey } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  CreateBucketCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  BucketAlreadyOwnedByYou,
+  NoSuchKey,
+  NotFound
+} from '@aws-sdk/client-s3';
 
+import { getAwsClientOptions } from '../utils/clients';
 import { getRandomName } from '../utils/names';
 
-const s3Client = new S3Client();
+const s3Client = new S3Client(getAwsClientOptions());
 
 export const loadStateFile = async (filePath: string) => {
   const bucketName = await getStateBucketName();
@@ -45,11 +54,17 @@ export const saveStateFile = async (filePath: string, contents: string) => {
 };
 
 const ensureBucketExists = async (bucketName: string) => {
-  await s3Client.send(
-    new CreateBucketCommand({
-      Bucket: bucketName
-    })
-  );
+  try {
+    await s3Client.send(
+      new CreateBucketCommand({
+        Bucket: bucketName
+      })
+    );
+  } catch (error) {
+    if (!(error instanceof BucketAlreadyOwnedByYou)) {
+      throw error;
+    }
+  }
 };
 
 const getStateBucketName = async () => {

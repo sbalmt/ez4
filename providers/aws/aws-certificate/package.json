@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-certificate",
   "description": "EZ4: Self-managed AWS certificate provider",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -17,17 +17,15 @@
     "directory": "providers/aws/aws-certificate"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "workspaces": [
@@ -46,9 +44,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1127.0",
-    "@ez4/aws-common": "^0.53.0",
-    "@ez4/state": "^0.53.0",
-    "@ez4/utils": "^0.53.0",
+    "@ez4/aws-common": "^0.54.0",
+    "@ez4/state": "^0.54.0",
+    "@ez4/utils": "^0.54.0",
     "mime": "^3.0.0"
   }
 }

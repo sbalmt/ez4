@@ -70,15 +70,16 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: WatchRef
       options: compilerOptions,
       rootFiles: fileNames,
       afterProgramCreate: async (event) => {
-        const reflection = resolveReflectionMetadata(event.getProgram(), options);
-
         try {
+          const reflection = resolveReflectionMetadata(event.getProgram(), options);
+
           await onReflectionReady?.(reflection);
+
+          resolve(handler);
         } catch (error) {
+          program.close();
           reject(error);
         }
-
-        resolve(handler);
       }
     });
 

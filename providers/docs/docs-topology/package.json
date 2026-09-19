@@ -1,7 +1,7 @@
 {
   "name": "@ez4/docs-topology",
   "description": "EZ4: Topology documentation generator",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -17,13 +17,12 @@
     "directory": "providers/docs/docs-topology"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "workspaces": [
@@ -40,19 +39,19 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.53.0",
-    "@ez4/distribution": "^0.53.0",
-    "@ez4/database": "^0.53.0",
-    "@ez4/factory": "^0.53.0",
-    "@ez4/gateway": "^0.53.0",
-    "@ez4/logger": "^0.53.0",
-    "@ez4/queue": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/scheduler": "^0.53.0",
-    "@ez4/schema": "^0.53.0",
-    "@ez4/storage": "^0.53.0",
-    "@ez4/topic": "^0.53.0",
-    "@ez4/utils": "^0.53.0",
-    "@ez4/validation": "^0.53.0"
+    "@ez4/common": "^0.54.0",
+    "@ez4/distribution": "^0.54.0",
+    "@ez4/database": "^0.54.0",
+    "@ez4/factory": "^0.54.0",
+    "@ez4/gateway": "^0.54.0",
+    "@ez4/logger": "^0.54.0",
+    "@ez4/queue": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/scheduler": "^0.54.0",
+    "@ez4/schema": "^0.54.0",
+    "@ez4/storage": "^0.54.0",
+    "@ez4/topic": "^0.54.0",
+    "@ez4/utils": "^0.54.0",
+    "@ez4/validation": "^0.54.0"
   }
 }

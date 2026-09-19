@@ -1,0 +1,121 @@
+{
+  "f523fc846283f836bcd62bc621067cc4:Requireds": {
+    "type": "interface",
+    "name": "Requireds",
+    "file": "test/types/required.ts",
+    "position": {
+      "line": 7,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "required",
+        "value": {
+          "type": "object",
+          "file": "test/types/required.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "original",
+        "value": {
+          "type": "object",
+          "file": "test/types/required.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

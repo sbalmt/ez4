@@ -1,0 +1,321 @@
+{
+  "0f985a0d2e135b625b10334ea9cb0745:Omits": {
+    "type": "interface",
+    "name": "Omits",
+    "file": "test/types/omit.ts",
+    "position": {
+      "line": 11,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "empty",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "single",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "multiple",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "numeric",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 20,
+            "character": 17
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "1",
+              "value": {
+                "type": "number"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "partial",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "required",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "all",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": []
+        }
+      },
+      {
+        "type": "property",
+        "name": "unknown",
+        "value": {
+          "type": "object",
+          "file": "test/types/omit.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "property",
+              "name": "baz",
+              "value": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

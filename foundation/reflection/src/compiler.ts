@@ -21,8 +21,6 @@ import {
   ModuleKind
 } from 'typescript';
 
-const SOURCE_CACHE = new Map<string, SourceFile>();
-
 const EMPTY_WATCHER: FileWatcher = {
   close: () => {}
 };
@@ -39,7 +37,7 @@ export type CompilerEvents = {
 };
 
 export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOptions => {
-  return {
+  const compilerOptions: BaseCompilerOptions = {
     ...options,
     module: ModuleKind.Preserve,
     moduleResolution: ModuleResolutionKind.Bundler,
@@ -48,10 +46,17 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
     checkJs: false,
     strict: true
   };
+
+  if (!compilerOptions.noLib) {
+    compilerOptions.lib ??= ['lib.esnext.d.ts'];
+  }
+
+  return compilerOptions;
 };
 
 export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
   const onResolveFileName = events?.onResolveFileName;
+  const sourceFilesCache = new Map<string, SourceFile>();
 
   return {
     fileExists: sys.fileExists,
@@ -65,7 +70,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     getSourceFile: (fileName, languageVersion, onError) => {
       try {
         const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-        const cachedSourceFile = SOURCE_CACHE.get(resolvedFileName);
+        const cachedSourceFile = sourceFilesCache.get(resolvedFileName);
 
         if (cachedSourceFile) {
           return cachedSourceFile;
@@ -79,7 +84,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
 
         const sourceFile = createSourceFile(resolvedFileName, sourceText, languageVersion);
 
-        SOURCE_CACHE.set(resolvedFileName, sourceFile);
+        sourceFilesCache.set(resolvedFileName, sourceFile);
 
         return sourceFile;
         //
@@ -123,20 +128,27 @@ export const createWatchCompilerHost = (
 
       return EMPTY_WATCHER;
     },
-    createProgram: (rootNames, options, host) =>
-      createSemanticDiagnosticsBuilderProgram(rootNames, options, {
-        ...host!,
-        getSourceFile: (fileName, languageVersion, onError) => {
-          try {
-            const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-            return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
-            //
-          } catch (error) {
-            onError?.(`${error}`);
-            return undefined;
+    createProgram: (rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences) => {
+      return createSemanticDiagnosticsBuilderProgram(
+        rootNames,
+        options,
+        {
+          ...host!,
+          getSourceFile: (fileName, languageVersion, onError) => {
+            try {
+              const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
+              return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
+            } catch (error) {
+              onError?.(`${error}`);
+              return undefined;
+            }
           }
-        }
-      })
+        },
+        oldProgram,
+        configFileParsingDiagnostics,
+        projectReferences
+      );
+    }
   };
 };
 

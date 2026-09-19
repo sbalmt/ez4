@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-vpc",
   "description": "EZ4: Self-managed AWS VPC provider",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -16,17 +16,15 @@
     "directory": "providers/aws/aws-vpc"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "workspaces": [
@@ -45,7 +43,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.1127.0",
-    "@ez4/aws-common": "^0.53.0",
-    "@ez4/project": "^0.53.0"
+    "@ez4/aws-common": "^0.54.0",
+    "@ez4/project": "^0.54.0"
   }
 }

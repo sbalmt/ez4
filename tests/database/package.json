@@ -7,13 +7,12 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "workspaces": [
@@ -29,7 +28,7 @@
     "clean:registry": "rm -rf ../../.registry/@ez4/tests-database"
   },
   "dependencies": {
-    "@ez4/database": "^0.53.0",
-    "@ez4/schema": "^0.53.0"
+    "@ez4/database": "^0.54.0",
+    "@ez4/schema": "^0.54.0"
   }
 }

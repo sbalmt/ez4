@@ -1,7 +1,7 @@
 {
   "name": "@ez4/docs-gateway-ui",
   "description": "EZ4: Gateway documentation UI",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Wellington Martins",
   "license": "MIT",
   "type": "module",
@@ -12,13 +12,12 @@
     "ui"
   ],
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     }
   },
   "scripts": {
@@ -31,9 +30,9 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/docs-gateway": "^0.53.0",
-    "@ez4/gateway": "^0.53.0",
-    "@ez4/project": "^0.53.0",
+    "@ez4/docs-gateway": "^0.54.0",
+    "@ez4/gateway": "^0.54.0",
+    "@ez4/project": "^0.54.0",
     "yaml": "^2.8.2"
   }
 }

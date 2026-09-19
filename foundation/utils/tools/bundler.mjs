@@ -1,8 +1,7 @@
 import { bundlePackage } from '../../../tools/esbuild.mjs';
 
 // Default package.
-bundlePackage('src/main.ts', 'dist/main.mjs', 'esm');
-bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
+bundlePackage('src/main.ts', 'dist/main.mjs');
 
 // Browser package.
-bundlePackage('src/browser.ts', 'dist/browser.js', 'esm');
+bundlePackage('src/browser.ts', 'dist/browser.js');

@@ -8,5 +8,4 @@
 !bin/*.mjs
 
 !dist/**/*.d.ts
-!dist/**/*.cjs
 !dist/**/*.mjs
