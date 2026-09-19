@@ -1,7 +1,7 @@
 {
-  "f523fc846283f836bcd62bc621067cc4:RequiredUnion": {
+  "f523fc846283f836bcd62bc621067cc4:Requireds": {
     "type": "interface",
-    "name": "RequiredUnion",
+    "name": "Requireds",
     "file": "test/types/required.ts",
     "position": {
       "line": 7,
@@ -24,14 +24,14 @@
           "members": [
             {
               "type": "property",
-              "name": "scalar",
+              "name": "foo",
               "value": {
                 "type": "string"
               }
             },
             {
               "type": "property",
-              "name": "value",
+              "name": "bar",
               "value": {
                 "type": "union",
                 "elements": [
@@ -50,7 +50,7 @@
             },
             {
               "type": "property",
-              "name": "regular",
+              "name": "baz",
               "value": {
                 "type": "boolean"
               }
@@ -71,7 +71,7 @@
           "members": [
             {
               "type": "property",
-              "name": "scalar",
+              "name": "foo",
               "value": {
                 "type": "union",
                 "elements": [
@@ -86,7 +86,7 @@
             },
             {
               "type": "property",
-              "name": "value",
+              "name": "bar",
               "value": {
                 "type": "union",
                 "elements": [
@@ -108,7 +108,7 @@
             },
             {
               "type": "property",
-              "name": "regular",
+              "name": "baz",
               "value": {
                 "type": "boolean"
               }

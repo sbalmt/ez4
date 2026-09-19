@@ -2,7 +2,7 @@ type Base = {
   value: string | number;
 };
 
-export interface PartialUnion {
+export interface Partials {
   partial: Partial<Base>;
   original: Base;
 }

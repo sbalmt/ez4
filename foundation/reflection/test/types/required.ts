@@ -1,10 +1,10 @@
 type Base = {
-  scalar?: string;
-  value?: string | number | null;
-  regular: boolean;
+  foo?: string;
+  bar?: string | number | null;
+  baz: boolean;
 };
 
-export interface RequiredUnion {
+export interface Requireds {
   required: Required<Base>;
   original: Base;
 }

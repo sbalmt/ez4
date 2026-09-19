@@ -1,7 +1,7 @@
 {
-  "0f524307e2e0e85a601a0e6d28812a70:PartialUnion": {
+  "0f524307e2e0e85a601a0e6d28812a70:Partials": {
     "type": "interface",
-    "name": "PartialUnion",
+    "name": "Partials",
     "file": "test/types/partial.ts",
     "position": {
       "line": 5,
