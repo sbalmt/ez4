@@ -229,7 +229,6 @@ EZ4 supports TypeScript's native `Partial`, `Required`, `Pick`, and `Omit` helpe
 
 ```ts
 type AwesomeType = {
-  // Accept any number
   bar: number;
 };
 
@@ -243,10 +242,7 @@ type AwesomeObjectType = {
 
 ```ts
 type AwesomeType = {
-  // Optionally accept any string
   bar?: string;
-
-  // Optionally accept any number
   baz: number | undefined;
 };
 
@@ -266,7 +262,10 @@ type AwesomeType = {
 };
 
 type AwesomeObjectType = {
+  // Accept objects with `AwesomeType` shape and require only `foo` property
   single: Pick<AwesomeType, 'foo'>;
+
+  // Accept objects with `AwesomeType` shape and require only `foo` and `bar` property
   multiple: Pick<AwesomeType, 'foo' | 'bar'>;
 };
 ```
@@ -281,7 +280,10 @@ type AwesomeType = {
 };
 
 type AwesomeObjectType = {
+  // Accept objects with `AwesomeType` shape and require only `bar` and `baz` property
   single: Omit<AwesomeType, 'foo'>;
+
+  // Accept objects with `AwesomeType` shape and require only `baz` property
   multiple: Omit<AwesomeType, 'foo' | 'bar'>;
 };
 ```
