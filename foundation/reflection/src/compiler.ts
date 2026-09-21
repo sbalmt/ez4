@@ -1,4 +1,4 @@
-import type { ReflectionTypes } from './types';
+import type { EverySourceType, ReflectionTypes } from './types';
 
 import type {
   CompilerOptions as BaseCompilerOptions,
@@ -29,10 +29,12 @@ export type CompilerOptions = Omit<BaseCompilerOptions, 'module' | 'target' | 's
 
 export type ResolveFileNameListener = (fileName: string) => string;
 export type ReflectionReadyListener = (reflection: ReflectionTypes) => Promise<void> | void;
+export type ReflectionFileListener = (type: EverySourceType) => boolean;
 
 export type CompilerEvents = {
   onResolveFileName?: ResolveFileNameListener;
   onReflectionReady?: ReflectionReadyListener;
+  onReflectionFile?: ReflectionFileListener;
   additionalPaths?: string[];
 };
 

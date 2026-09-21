@@ -9,7 +9,8 @@ const testFile = (fileName: string, overwrite = false) => {
   const sourceFile = `./test/input/output-${fileName}.ts`;
   const outputFile = `./test/output/${fileName}.json`;
 
-  const reflection = buildReflection([sourceFile]);
+  const { reflection } = buildReflection([sourceFile]);
+
   const result = getCdnServicesMetadata(reflection);
 
   result.errors.forEach((error) => {

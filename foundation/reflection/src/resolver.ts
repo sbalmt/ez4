@@ -112,7 +112,7 @@ export type ReflectionOptions = {
 
 export type ReflectionFiles = Record<string, string[]>;
 
-export const resolveReflectionFiles = (program: Program, compilerOptions: CompilerOptions, compilerHost: CompilerHost) => {
+export const resolveReflectionFiles = (program: Program, options: CompilerOptions, host: CompilerHost, fileNames?: string[]) => {
   const basePath = program.getCurrentDirectory();
   const importGraph: ReflectionFiles = {};
 
@@ -129,7 +129,7 @@ export const resolveReflectionFiles = (program: Program, compilerOptions: Compil
       }
 
       const moduleName = node.moduleSpecifier.text;
-      const modulePath = getModulePath(moduleName, sourceFile.fileName, compilerOptions, compilerHost);
+      const modulePath = getModulePath(moduleName, sourceFile.fileName, options, host);
 
       if (modulePath) {
         importFiles.push(relative(basePath, modulePath));
@@ -159,7 +159,7 @@ export const resolveReflectionFiles = (program: Program, compilerOptions: Compil
 
   const imports: ReflectionFiles = {};
 
-  for (const fileName of program.getRootFileNames()) {
+  for (const fileName of fileNames ?? program.getRootFileNames()) {
     imports[fileName] = [...groupReflectionFiles(fileName)];
   }
 

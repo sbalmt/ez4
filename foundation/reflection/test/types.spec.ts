@@ -8,7 +8,7 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
   const sourceFile = `./test/types/${fileName}.ts`;
   const outputFile = `./test/results/${fileName}.json`;
 
-  const reflection = getReflectionFromFiles([sourceFile], {
+  const { reflection } = getReflectionFromFiles([sourceFile], {
     resolverOptions: {
       includeLocation: true
     }

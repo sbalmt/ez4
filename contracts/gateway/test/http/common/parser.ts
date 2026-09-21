@@ -6,7 +6,7 @@ import { buildReflection } from '@ez4/project/library';
 export const parseFile = (fileName: string, errorCount: number) => {
   const sourceFile = `./test/http/input/${fileName}.ts`;
 
-  const reflection = buildReflection([sourceFile]);
+  const { reflection } = buildReflection([sourceFile]);
 
   const httpServices = getHttpServicesMetadata(reflection);
   const httpImports = getHttpImportsMetadata(reflection);

@@ -1,10 +1,12 @@
+import type { ResolverOptions, ResolverEvents, ReflectionFiles } from './resolver';
 import type { CompilerOptions, CompilerEvents } from './compiler';
-import type { ResolverOptions, ResolverEvents } from './resolver';
+import type { ReflectionTypes } from './types';
 
 import { createProgram, createWatchProgram } from 'typescript';
 
 import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
 import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver';
+import { getReflectionFileNames } from './utils/reflection';
 
 export * from './types';
 export * from './compiler';
@@ -31,18 +33,41 @@ export type ReflectionOptions = {
    * All resolver events.
    */
   resolverEvents?: ResolverEvents;
+
+  /**
+   * Determines whether or not source file dependencies should be included.
+   */
+  includeFiles?: boolean;
 };
 
-export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions) => {
+export type ReflectionOutput = {
+  reflection: ReflectionTypes;
+  files: ReflectionFiles;
+};
+
+export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions): ReflectionOutput => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
+  const compilerHost = createCompilerHost(compilerOptions, options?.compilerEvents);
 
   const program = createProgram({
-    host: createCompilerHost(compilerOptions, options?.compilerEvents),
+    host: compilerHost,
     options: compilerOptions,
     rootNames: fileNames
   });
 
-  return resolveReflectionMetadata(program, options);
+  const reflection = resolveReflectionMetadata(program, options);
+
+  return {
+    reflection,
+    files: options?.includeFiles
+      ? resolveReflectionFiles(
+          program,
+          compilerOptions,
+          compilerHost,
+          getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile)
+        )
+      : {}
+  };
 };
 
 export type WatchReflectionHandler = {

@@ -6,7 +6,8 @@ import { isModelProperty } from '@ez4/reflection';
 
 export const loadTestMember = (fileName: string) => {
   const sourceFile = `./test/input/${fileName}.ts`;
-  const reflection = buildReflection([sourceFile]);
+
+  const { reflection } = buildReflection([sourceFile]);
 
   const entryKey = Object.keys(reflection).find((key) => key.endsWith('CommonTest'));
 

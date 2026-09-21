@@ -17,7 +17,7 @@ export const testFile = (fileName: string, options?: TestFileOptions) => {
   const outputFile = `./test/output/${options?.fileName ?? fileName}.json`;
   const sourceFile = `./test/input/${fileName}.ts`;
 
-  const reflection = buildReflection([sourceFile]);
+  const { reflection } = buildReflection([sourceFile]);
 
   const entryKey = Object.keys(reflection).find((key) => key.endsWith('TestSchema'));
 
