@@ -27,7 +27,7 @@ export declare class TestDatabase extends Database.Service<TestEngineInsensitive
   };
 }
 
-export async function testInsensitiveUnsupported({ selfClient }: Service.Context<TestDatabase>) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   const result = await selfClient.table.findMany({
     select: {
       id: true

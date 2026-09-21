@@ -20,8 +20,11 @@
       "parametersMode": "index",
       "transactionMode": "static",
       "insensitiveMode": "unsupported",
+      "undefinedMode": "supported",
       "paginationMode": "offset",
+      "relationMode": "supported",
       "orderMode": "any",
+      "streamMode": "supported",
       "lockMode": "unsupported",
       "name": "test"
     },

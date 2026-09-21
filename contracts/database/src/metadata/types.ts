@@ -2,8 +2,18 @@ import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema } from '@ez4/schema';
-import type { ParametersMode, TransactionMode, InsensitiveMode, PaginationMode, OrderMode, LockMode } from '../types/mode';
+import type { UndefinedMode } from '../types/mode';
 import type { Index } from '../types/index';
+import type {
+  ParametersMode,
+  TransactionMode,
+  InsensitiveMode,
+  PaginationMode,
+  OrderMode,
+  LockMode,
+  StreamMode,
+  RelationMode
+} from '../types/mode';
 
 import { createServiceMetadata } from '@ez4/project/library';
 
@@ -28,8 +38,11 @@ export type DatabaseEngine = {
   parametersMode: ParametersMode;
   transactionMode: TransactionMode;
   insensitiveMode: InsensitiveMode;
+  undefinedMode: UndefinedMode;
   paginationMode: PaginationMode;
+  relationMode: RelationMode;
   orderMode: OrderMode;
+  streamMode: StreamMode;
   lockMode: LockMode;
   name: string;
 };

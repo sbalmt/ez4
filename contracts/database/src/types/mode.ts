@@ -23,27 +23,19 @@ export const enum InsensitiveMode {
 }
 
 /**
+ * Undefined value mode.
+ */
+export const enum UndefinedMode {
+  Unsupported = 'unsupported',
+  Supported = 'supported'
+}
+
+/**
  * Pagination mode.
  */
 export const enum PaginationMode {
   Cursor = 'cursor',
   Offset = 'offset'
-}
-
-/**
- * Order mode.
- */
-export const enum OrderMode {
-  IndexColumns = 'index',
-  AnyColumns = 'any'
-}
-
-/**
- * Lock mode.
- */
-export const enum LockMode {
-  Unsupported = 'unsupported',
-  Supported = 'supported'
 }
 
 /**
@@ -55,9 +47,25 @@ export const enum RelationMode {
 }
 
 /**
+ * Order mode.
+ */
+export const enum OrderMode {
+  IndexColumns = 'index',
+  AnyColumns = 'any'
+}
+
+/**
  * Stream mode.
  */
 export const enum StreamMode {
+  Unsupported = 'unsupported',
+  Supported = 'supported'
+}
+
+/**
+ * Lock mode.
+ */
+export const enum LockMode {
   Unsupported = 'unsupported',
   Supported = 'supported'
 }

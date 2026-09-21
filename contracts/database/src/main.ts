@@ -6,6 +6,7 @@ export { TableMetadata, Table } from './services/table';
 export { ParametersModeUtils } from './services/parameters';
 export { TransactionModeUtils } from './services/transaction';
 export { InsensitiveModeUtils } from './services/insensitive';
+export { UndefinedModeUtils } from './services/undefined';
 export { PaginationModeUtils } from './services/pagination';
 export { OrderModeUtils } from './services/order';
 export { LockModeUtils } from './services/lock';

@@ -5,6 +5,7 @@ import type {
   ParametersMode,
   TransactionMode,
   InsensitiveMode,
+  UndefinedMode,
   PaginationMode,
   RelationMode,
   StreamMode,
@@ -19,6 +20,7 @@ export type DatabaseEngine = {
   parametersMode: ParametersMode;
   transactionMode: TransactionMode;
   insensitiveMode: InsensitiveMode;
+  undefinedMode: UndefinedMode;
   paginationMode: PaginationMode;
   relationMode: RelationMode;
   streamMode: StreamMode;
@@ -46,6 +48,11 @@ export namespace EngineUtils {
    * Get the insensitive mode from the given database engine.
    */
   export type GetInsensitiveMode<E extends DatabaseEngine> = E extends { insensitiveMode: infer M } ? M : never;
+
+  /**
+   * Get the undefined value mode from the given database engine.
+   */
+  export type GetUndefinedMode<E extends DatabaseEngine> = E extends { undefinedMode: infer M } ? M : never;
 
   /**
    * Get the pagination mode from the given database engine.

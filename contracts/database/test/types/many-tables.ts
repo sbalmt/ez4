@@ -769,7 +769,7 @@ export declare class ManyTablesDatabase extends Database.Service<TestEngine> {
   };
 }
 
-export const testManyTables = async ({ selfClient }: Service.Context<ManyTablesDatabase>) => {
+export const testHandler = async ({ selfClient }: Service.Context<ManyTablesDatabase>) => {
   // Forces full client instantiation, including relation-connect inputs.
   await selfClient.table0.insertOne({
     data: {

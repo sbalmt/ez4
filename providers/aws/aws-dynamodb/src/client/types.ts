@@ -6,10 +6,11 @@ import type {
   ParametersMode,
   TransactionMode,
   InsensitiveMode,
+  UndefinedMode,
   PaginationMode,
   RelationMode,
-  StreamMode,
   OrderMode,
+  StreamMode,
   LockMode
 } from '@ez4/database';
 
@@ -28,10 +29,11 @@ export type DynamoDbEngine = {
   parametersMode: ParametersMode.OnlyIndex;
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
+  undefinedMode: UndefinedMode.Supported;
   paginationMode: PaginationMode.Cursor;
   relationMode: RelationMode.Unsupported;
-  streamMode: StreamMode.Supported;
   orderMode: OrderMode.IndexColumns;
+  streamMode: StreamMode.Supported;
   lockMode: LockMode.Unsupported;
   options: never;
   name: 'dynamodb';

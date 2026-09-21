@@ -1,4 +1,4 @@
-import type { Client, Database, Index, RelationMode, StreamMode } from '@ez4/database';
+import type { Client, Database, Index, RelationMode, StreamMode, UndefinedMode } from '@ez4/database';
 import type { Environment, Service } from '@ez4/common';
 import type { TestEngine } from '../common/engines';
 
@@ -8,10 +8,11 @@ export type UnsupportedRelationEngine = {
   parametersMode: TestEngine['parametersMode'];
   transactionMode: TestEngine['transactionMode'];
   insensitiveMode: TestEngine['insensitiveMode'];
+  undefinedMode: UndefinedMode.Supported;
   paginationMode: TestEngine['paginationMode'];
   relationMode: RelationMode.Unsupported;
-  streamMode: StreamMode.Unsupported;
   orderMode: TestEngine['orderMode'];
+  streamMode: StreamMode.Unsupported;
   lockMode: TestEngine['lockMode'];
   options: never;
   name: 'unsupported';
@@ -40,7 +41,7 @@ export declare class TestDatabase extends Database.Service<UnsupportedRelationEn
   };
 }
 
-export async function testUnsupportedModes({ selfClient }: Service.Context<TestDatabase>) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   const result = await selfClient.table.findMany({
     select: {
       id: true
