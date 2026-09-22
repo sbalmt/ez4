@@ -5,7 +5,7 @@ export default {
   prefix: 'ez4',
   debugMode: true,
   projectName: 'hello-cloudfront',
-  sourceFiles: ['./src/distribution.ts', './src/storage.ts'],
+  sourceFiles: ['./src/*.ts'],
   stateFile: {
     path: 'ez4-deploy'
   },
