@@ -1,4 +1,4 @@
-import type { String } from '@ez4/schema';
+import type { Integer, String } from '@ez4/schema';
 import type { Service } from '@ez4/common';
 import type { Http } from '@ez4/gateway';
 import type { ItemTagType } from '../../schemas/item';
@@ -29,7 +29,7 @@ declare class ReadItemResponse implements Http.Response {
     /**
      * @description Item description.
      */
-    description?: string;
+    description: string | null;
 
     /**
      * @description Item category name.
@@ -44,7 +44,7 @@ declare class ReadItemResponse implements Http.Response {
     /**
      * @description Item order.
      */
-    order?: number;
+    order: Integer.Any | null;
 
     /**
      * @description Item tags.
