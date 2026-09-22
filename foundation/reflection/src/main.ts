@@ -4,9 +4,9 @@ import type { ReflectionTypes } from './types';
 
 import { createProgram, createWatchProgram } from 'typescript';
 
+import { getReflectionFileNames } from './utils/reflection';
 import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
 import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver';
-import { getReflectionFileNames } from './utils/reflection';
 
 export * from './types';
 export * from './compiler';
@@ -41,8 +41,8 @@ export type ReflectionOptions = {
 };
 
 export type ReflectionOutput = {
+  dependencies: ReflectionFiles;
   reflection: ReflectionTypes;
-  files: ReflectionFiles;
 };
 
 export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions): ReflectionOutput => {
@@ -57,16 +57,19 @@ export const getReflectionFromFiles = (fileNames: string[], options?: Reflection
 
   const reflection = resolveReflectionMetadata(program, options);
 
+  if (!options?.includeFiles) {
+    return {
+      dependencies: {},
+      reflection
+    };
+  }
+
+  const reflectionFiles = getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile);
+  const dependencies = resolveReflectionFiles(program, compilerOptions, compilerHost, reflectionFiles);
+
   return {
-    reflection,
-    files: options?.includeFiles
-      ? resolveReflectionFiles(
-          program,
-          compilerOptions,
-          compilerHost,
-          getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile)
-        )
-      : {}
+    dependencies,
+    reflection
   };
 };
 
@@ -125,7 +128,6 @@ export const getReflectionFiles = (fileNames: string[], options?: CompilerOption
     host: compilerHost,
     options: {
       ...compilerOptions,
-      skipLibCheck: true,
       noCheck: true
     }
   });

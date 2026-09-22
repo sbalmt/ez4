@@ -112,7 +112,7 @@ export type ReflectionOptions = {
 
 export type ReflectionFiles = Record<string, string[]>;
 
-export const resolveReflectionFiles = (program: Program, options: CompilerOptions, host: CompilerHost, fileNames?: string[]) => {
+export const resolveReflectionFiles = (program: Program, options: CompilerOptions, host: CompilerHost, files?: string[]) => {
   const basePath = program.getCurrentDirectory();
   const importGraph: ReflectionFiles = {};
 
@@ -159,7 +159,7 @@ export const resolveReflectionFiles = (program: Program, options: CompilerOption
 
   const imports: ReflectionFiles = {};
 
-  for (const fileName of fileNames ?? program.getRootFileNames()) {
+  for (const fileName of files ?? program.getRootFileNames()) {
     imports[fileName] = [...groupReflectionFiles(fileName)];
   }
 
@@ -171,8 +171,8 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
 
   const sourceContext = {
     checker: program.getTypeChecker(),
-    options: options?.resolverOptions ?? {},
     events: options?.resolverEvents ?? {},
+    options: options?.resolverOptions ?? {},
     cache: new WeakMap<Node, AllType>(),
     pending: new Set<Node>()
   };

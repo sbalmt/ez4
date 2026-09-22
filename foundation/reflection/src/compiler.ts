@@ -45,7 +45,9 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
     moduleResolution: ModuleResolutionKind.Bundler,
     target: ScriptTarget.ESNext,
     skipDefaultLibCheck: true,
+    skipLibCheck: true,
     checkJs: false,
+    noLib: false,
     strict: true
   };
 

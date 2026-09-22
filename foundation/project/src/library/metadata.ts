@@ -19,7 +19,7 @@ export type BuildMetadataOptions = {
 };
 
 export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOptions): MetadataResult => {
-  const { reflection, files: dependencies } = buildReflection(sourceFiles, options);
+  const { dependencies, reflection } = buildReflection(sourceFiles, options);
 
   const metadata: MetadataReflection = {};
 
