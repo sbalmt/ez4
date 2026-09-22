@@ -120,6 +120,6 @@
     "@vscode/test-electron": "^2.5.2",
     "monaco-editor": "^0.55.1",
     "strip-json-comments": "^3.1.1",
-    "vsce": "^2.15.0"
+    "@vscode/vsce": "^4.0.0"
   }
 }
