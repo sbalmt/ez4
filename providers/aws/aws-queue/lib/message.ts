@@ -78,13 +78,13 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
       const retry = async (options?: Queue.RetryOptions) => {
-        failedMessageIds.add(messageId);
+        await retryMessage(record, options?.delay);
 
         if (messageGroupId) {
           failedGroupIds.add(messageGroupId);
         }
 
-        await retryMessage(record, options?.delay);
+        failedMessageIds.add(messageId);
       };
 
       currentRequest = {
@@ -112,11 +112,11 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       await onError(error, currentRequest ?? request);
       await retryMessage(record);
 
-      failedMessageIds.add(messageId);
-
       if (messageGroupId) {
         failedGroupIds.add(messageGroupId);
       }
+
+      failedMessageIds.add(messageId);
     }
   }
 
