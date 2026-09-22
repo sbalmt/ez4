@@ -80,7 +80,7 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 
 ## Requirements
 
-- TypeScript 7.0+
+- TypeScript 6.0+
 - NodeJS 24.21+
 
 ## License
