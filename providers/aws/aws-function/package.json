@@ -51,7 +51,7 @@
     "@ez4/common": "^0.54.0",
     "@ez4/state": "^0.54.0",
     "@ez4/utils": "^0.54.0",
-    "@types/adm-zip": "^0.5.5",
-    "adm-zip": "^0.5.14"
+    "@types/adm-zip": "^0.5.8",
+    "adm-zip": "^0.6.1"
   }
 }
