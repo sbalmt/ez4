@@ -2,7 +2,7 @@ import type { Node } from 'typescript';
 import type { EveryType } from '../types';
 import type { Context, State } from './common';
 
-import { isParenthesizedTypeNode, isRestTypeNode } from 'typescript';
+import { isNamedTupleMember, isParenthesizedTypeNode, isRestTypeNode } from 'typescript';
 
 import { tryTypeAny } from './type-any';
 import { tryTypeVoid } from './type-void';
@@ -27,6 +27,10 @@ import { tryEnumReference } from './enum-reference';
 export const tryTypes = (node: Node, context: Context, state: State): EveryType | undefined => {
   if (isParenthesizedTypeNode(node)) {
     return tryTypes(node.type, context, state);
+  }
+
+  if (isNamedTupleMember(node)) {
+    return tryTypes(node.type, context, { ...state, spread: !!node.dotDotDotToken });
   }
 
   if (isRestTypeNode(node)) {

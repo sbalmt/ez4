@@ -47,16 +47,14 @@ export const removeTypeUnionElements = (target: TypeUnion, types: TypeName[]): E
  * Append to the given type all the given new elements and transform it into a union type if needed.
  *
  * @param target Target type.
- * @param elements Element to append.
+ * @param types Element types to append.
  * @returns Returns a union type containing all types.
  */
-export const appendTypeUnionElements = (target: EveryType, elements: EveryType[]): TypeUnion => {
-  if (isTypeUnion(target)) {
-    target.elements.push(...elements);
-  }
+export const appendTypeUnionElements = (target: EveryType, types: EveryType[]): TypeUnion => {
+  const elements = isTypeUnion(target) ? [...target.elements, ...types] : [target, ...types];
 
   return {
     type: TypeName.Union,
-    elements: [target, ...elements]
+    elements
   };
 };

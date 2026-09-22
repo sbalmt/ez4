@@ -1,7 +1,8 @@
-import type { ResolveHook, ResolveHookContext } from 'node:module';
+import type { ResolveHookContext } from 'node:module';
 
-import { fileURLToPath } from 'node:url';
+import { registerHooks } from 'node:module';
 import { dirname, extname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 
 import { tryLoadProject } from '../config/project';
@@ -17,24 +18,26 @@ const aliasPaths = {
   ...paths
 };
 
-export const resolve: ResolveHook = (specifier, context, defaultResolve) => {
-  if (isGlobalParentModule(context)) {
-    return defaultResolve(specifier, context);
+registerHooks({
+  resolve: (specifier, context, defaultResolve) => {
+    if (isGlobalParentModule(context)) {
+      return defaultResolve(specifier, context);
+    }
+
+    const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
+    const modulePath = resolveImportPath(specifier, parentFile, aliasPaths);
+
+    if (!modulePath) {
+      return defaultResolve(specifier, context);
+    }
+
+    if (isTemporaryParentModule(context)) {
+      return defaultResolve(getTemporaryModulePath(modulePath), context);
+    }
+
+    return defaultResolve(modulePath, context);
   }
-
-  const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
-  const modulePath = resolveImportPath(specifier, parentFile, aliasPaths);
-
-  if (!modulePath) {
-    return defaultResolve(specifier, context);
-  }
-
-  if (isTemporaryParentModule(context)) {
-    return defaultResolve(getTemporaryModulePath(modulePath), context);
-  }
-
-  return defaultResolve(modulePath, context);
-};
+});
 
 const isGlobalParentModule = ({ parentURL }: ResolveHookContext) => {
   return parentURL?.includes('/node_modules/');

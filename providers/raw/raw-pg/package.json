@@ -1,7 +1,7 @@
 {
   "name": "@ez4/raw-pg",
   "description": "EZ4: External Postgres provider (connect to any Postgres via TCP, e.g. Supabase, Neon, RDS direct)",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -18,22 +18,19 @@
     "directory": "providers/raw/raw-pg"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./client": {
       "types": "./dist/client.d.ts",
-      "require": "./dist/client.cjs",
-      "import": "./dist/client.mjs"
+      "default": "./dist/client.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "scripts": {
@@ -45,13 +42,13 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/aws-common": "^0.53.0",
-    "@ez4/common": "^0.53.0",
-    "@ez4/database": "^0.53.0",
-    "@ez4/pgclient": "^0.53.0",
-    "@ez4/pgmigration": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/state": "^0.53.0",
-    "@ez4/utils": "^0.53.0"
+    "@ez4/aws-common": "^0.54.0",
+    "@ez4/common": "^0.54.0",
+    "@ez4/database": "^0.54.0",
+    "@ez4/pgclient": "^0.54.0",
+    "@ez4/pgmigration": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/state": "^0.54.0",
+    "@ez4/utils": "^0.54.0"
   }
 }

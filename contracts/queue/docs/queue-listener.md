@@ -18,7 +18,7 @@ export function myListener(event: Queue.ServiceEvent<MyMessage>, context: Servic
       break;
 
     case ServiceEventType.Done:
-      // Current message processing completed successfully.
+      // Handler completed without throwing for the current message.
       break;
 
     case ServiceEventType.Timeout:
@@ -44,10 +44,12 @@ Listeners receive one or more of the following event types during the lifecycle 
 
 - **Begin** - emitted when the queue receives messages and the subscription handler begins processing.
 - **Ready** - emitted when validation and transformation are complete for the message the handler is about to run.
-- **Done** - emitted when the handler completes successfully the message processing.
+- **Done** - emitted when the handler returns successfully for the current message.
 - **Timeout** - emitted when the handler has 1 second left before its termination.
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.
+
+> A handler-requested retry still counts as a successful handler completion and does not imply message acknowledgement.
 
 ## What's next
 

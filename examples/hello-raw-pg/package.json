@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
@@ -15,8 +15,8 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/database": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/raw-pg": "^0.53.0"
+    "@ez4/database": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/raw-pg": "^0.54.0"
   }
 }

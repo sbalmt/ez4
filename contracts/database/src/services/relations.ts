@@ -10,7 +10,7 @@ import type {
   PropertyType,
   Exclusive,
   IsArrayEmpty,
-  IsUndefined,
+  IsNullish,
   MergeObject,
   Prettify,
   TryArrayType
@@ -146,7 +146,7 @@ type IsSecondaryTargetIndex<V, I extends TableIndexes> =
  */
 type IsOptionalRelation<C, V, T extends TableSchema, I extends Record<string, TableIndexes>, E extends boolean> =
   IsPrimarySourceIndex<C, I> extends true
-    ? IsUndefined<PropertyType<RelationTargetColumn<V>, T>>
+    ? IsNullish<PropertyType<RelationTargetColumn<V>, T>>
     : IsUniqueSourceIndex<C, I> extends true
       ? true
       : E;

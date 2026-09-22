@@ -8,8 +8,8 @@ import { mock } from 'node:test';
 import { createClientMock } from '../client/mock';
 
 export namespace TopicTester {
-  export type ClientMock<T extends Topic.Service<any, any>> = Client<T['schema']> & {
-    publishEvent: Mock<Client<T['schema']>['publishEvent']>;
+  export type ClientMock<T extends Topic.Event> = Client<T> & {
+    publishEvent: Mock<Client<T>['publishEvent']>;
   };
 
   export const getClient = <T extends Topic.Service<any, any>>(resourceName: string) => {

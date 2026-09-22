@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-queue",
   "description": "EZ4: Self-managed AWS Simple Queue provider",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -17,22 +17,19 @@
     "directory": "providers/aws/aws-queue"
   },
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.mjs"
+      "default": "./dist/main.mjs"
     },
     "./client": {
       "types": "./dist/client.d.ts",
-      "require": "./dist/client.cjs",
-      "import": "./dist/client.mjs"
+      "default": "./dist/client.mjs"
     }
   },
   "sideEffects": [
-    "./dist/main.cjs",
     "./dist/main.mjs"
   ],
   "workspaces": [
@@ -54,17 +51,17 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.1127.0",
-    "@ez4/aws-common": "^0.53.0",
-    "@ez4/aws-function": "^0.53.0",
-    "@ez4/aws-identity": "^0.53.0",
-    "@ez4/aws-logs": "^0.53.0",
-    "@ez4/common": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/queue": "^0.53.0",
-    "@ez4/schema": "^0.53.0",
-    "@ez4/state": "^0.53.0",
-    "@ez4/transform": "^0.53.0",
-    "@ez4/utils": "^0.53.0",
-    "@ez4/validator": "^0.53.0"
+    "@ez4/aws-common": "^0.54.0",
+    "@ez4/aws-function": "^0.54.0",
+    "@ez4/aws-identity": "^0.54.0",
+    "@ez4/aws-logs": "^0.54.0",
+    "@ez4/common": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/queue": "^0.54.0",
+    "@ez4/schema": "^0.54.0",
+    "@ez4/state": "^0.54.0",
+    "@ez4/transform": "^0.54.0",
+    "@ez4/utils": "^0.54.0",
+    "@ez4/validator": "^0.54.0"
   }
 }

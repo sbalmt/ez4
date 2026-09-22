@@ -15,7 +15,9 @@ describe('schema types', () => {
   it('assert :: array types', () => testFile('array'));
   it('assert :: tuple types', () => testFile('tuple'));
   it('assert :: enum types', () => testFile('enum'));
-  it('assert :: required types', () => testFile('required'));
   it('assert :: partial types', () => testFile('partial'));
+  it('assert :: required types', () => testFile('required'));
+  it('assert :: pick types', () => testFile('pick'));
+  it('assert :: omit types', () => testFile('omit'));
   it('assert :: nullish types', () => testFile('nullish', { nullish: true }));
 });

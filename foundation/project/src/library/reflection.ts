@@ -1,4 +1,4 @@
-import type { ReflectionOptions, ReflectionReadyListener, ReflectionTypes } from '@ez4/reflection';
+import type { ReflectionOptions, ReflectionOutput, ReflectionReadyListener } from '@ez4/reflection';
 
 import { existsSync } from 'node:fs';
 
@@ -11,11 +11,13 @@ export type BuildReflectionOptions = {
   aliasPaths?: Record<string, string[]>;
 };
 
-export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): ReflectionTypes => {
+export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): ReflectionOutput => {
   assertSourceFiles(sourceFiles);
 
+  const reflectionOptions = getReflectionOptions();
+
   return getReflectionFromFiles(sourceFiles, {
-    ...getReflectionOptions(),
+    ...reflectionOptions,
     compilerOptions: {
       paths: options?.aliasPaths
     }
@@ -44,10 +46,14 @@ export const watchReflection = (sourceFiles: string[], options: WatchReflectionO
 
 const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): ReflectionOptions => {
   return {
+    includeFiles: true,
     compilerEvents: {
       onReflectionReady,
       onResolveFileName: (fileName) => {
         return triggerAllSync('reflection:loadFile', (handler) => handler(fileName)) ?? fileName;
+      },
+      onReflectionFile: (type) => {
+        return !!type.file && !type.file.startsWith('..');
       }
     },
     resolverEvents: {

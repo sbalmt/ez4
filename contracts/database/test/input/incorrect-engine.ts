@@ -3,6 +3,7 @@ import type {
   ParametersMode,
   TransactionMode,
   InsensitiveMode,
+  UndefinedMode,
   PaginationMode,
   RelationMode,
   StreamMode,
@@ -21,6 +22,7 @@ declare class TestEngine {
   parametersMode: ParametersMode.OnlyIndex;
   transactionMode: TransactionMode.Static;
   insensitiveMode: InsensitiveMode.Unsupported;
+  undefinedMode: UndefinedMode.Supported;
   paginationMode: PaginationMode.Offset;
   relationMode: RelationMode.Supported;
   streamMode: StreamMode.Unsupported;

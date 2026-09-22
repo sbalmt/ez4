@@ -1,7 +1,5 @@
-import type { AllType, ReflectionTypes } from '@ez4/reflection';
 import type { MetadataDependencies, MetadataReflection } from '../types/metadata';
 
-import { getReflectionFiles, TypeName } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
@@ -21,13 +19,12 @@ export type BuildMetadataOptions = {
 };
 
 export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOptions): MetadataResult => {
-  const reflectionTypes = buildReflection(sourceFiles, options);
-  const reflectionFiles = getMetadataFiles(reflectionTypes);
+  const { dependencies, reflection } = buildReflection(sourceFiles, options);
 
   const metadata: MetadataReflection = {};
 
   triggerAllSync('metadata:getServices', (handler) => {
-    const result = handler(reflectionTypes);
+    const result = handler(reflection);
 
     if (result) {
       assertNoErrors(result.errors);
@@ -39,9 +36,7 @@ export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOpti
 
   return {
     metadata,
-    dependencies: getReflectionFiles(reflectionFiles, {
-      paths: options?.aliasPaths
-    })
+    dependencies
   };
 };
 
@@ -89,50 +84,4 @@ const assignMetadataServices = (metadata: MetadataReflection, services: Metadata
 
     metadata[identity] = services[identity];
   }
-};
-
-const getMetadataFiles = (reflection: ReflectionTypes) => {
-  const metadataFiles = new Set<string>();
-
-  for (const identity in reflection) {
-    const declaration = reflection[identity];
-
-    // It needs to be a file in the project's root.
-    if (!declaration.file || declaration.file.startsWith('..')) {
-      continue;
-    }
-
-    groupDeclarationFiles(declaration, metadataFiles);
-
-    metadataFiles.add(declaration.file);
-  }
-
-  return [...metadataFiles];
-};
-
-const groupDeclarationFiles = (declaration: AllType, files = new Set<string>()) => {
-  switch (declaration.type) {
-    case TypeName.Function:
-      if (declaration.file) {
-        files.add(declaration.file);
-      }
-      break;
-
-    case TypeName.Object:
-      if (Array.isArray(declaration.members)) {
-        declaration.members?.forEach((member) => {
-          groupDeclarationFiles(member, files);
-        });
-      }
-      break;
-
-    case TypeName.Class:
-    case TypeName.Interface:
-      declaration.members?.forEach((member) => {
-        groupDeclarationFiles(member, files);
-      });
-      break;
-  }
-
-  return files;
 };

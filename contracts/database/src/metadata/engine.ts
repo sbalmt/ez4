@@ -25,6 +25,7 @@ import {
   InsensitiveMode,
   PaginationMode,
   RelationMode,
+  UndefinedMode,
   StreamMode,
   OrderMode,
   LockMode
@@ -49,7 +50,18 @@ export const getDatabaseEngineMetadata = (type: AllType, parent: TypeModel, refl
 };
 
 const isCompleteEngine = (type: Incomplete<DatabaseEngine>): type is DatabaseEngine => {
-  return isObjectWith(type, ['name', 'parametersMode', 'transactionMode', 'insensitiveMode', 'paginationMode', 'orderMode']);
+  return isObjectWith(type, [
+    'parametersMode',
+    'transactionMode',
+    'insensitiveMode',
+    'undefinedMode',
+    'paginationMode',
+    'relationMode',
+    'orderMode',
+    'streamMode',
+    'lockMode',
+    'name'
+  ]);
 };
 
 const getTypeEngine = (type: AllType, parent: TypeModel, errorList: Error[]) => {
@@ -74,14 +86,16 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
   const engine: Incomplete<DatabaseEngine> = {};
 
   const properties = new Set([
-    'name',
     'parametersMode',
     'transactionMode',
     'insensitiveMode',
+    'undefinedMode',
     'paginationMode',
     'relationMode',
     'streamMode',
-    'orderMode'
+    'orderMode',
+    'lockMode',
+    'name'
   ]);
 
   for (const member of members) {
@@ -127,6 +141,13 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
         break;
       }
 
+      case 'undefinedMode': {
+        if ((engine.undefinedMode = getPropertyStringIn(member, [UndefinedMode.Unsupported, UndefinedMode.Supported]))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
       case 'paginationMode': {
         if ((engine.paginationMode = getPropertyStringIn(member, [PaginationMode.Cursor, PaginationMode.Offset]))) {
           properties.delete(member.name);
@@ -135,14 +156,7 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
       }
 
       case 'relationMode': {
-        if (getPropertyStringIn(member, [RelationMode.Unsupported, RelationMode.Supported])) {
-          properties.delete(member.name);
-        }
-        break;
-      }
-
-      case 'streamMode': {
-        if (getPropertyStringIn(member, [StreamMode.Unsupported, StreamMode.Supported])) {
+        if ((engine.relationMode = getPropertyStringIn(member, [RelationMode.Unsupported, RelationMode.Supported]))) {
           properties.delete(member.name);
         }
         break;
@@ -150,6 +164,13 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'orderMode': {
         if ((engine.orderMode = getPropertyStringIn(member, [OrderMode.AnyColumns, OrderMode.IndexColumns]))) {
+          properties.delete(member.name);
+        }
+        break;
+      }
+
+      case 'streamMode': {
+        if ((engine.streamMode = getPropertyStringIn(member, [StreamMode.Unsupported, StreamMode.Supported]))) {
           properties.delete(member.name);
         }
         break;

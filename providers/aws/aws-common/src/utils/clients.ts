@@ -1,8 +1,18 @@
+import { Agent } from 'node:https';
+
+const httpsAgent = new Agent({
+  keepAlive: true,
+  maxSockets: 64
+});
+
 export const getAwsClientOptions = () => {
   return {
     userAgentAppId: 'EZ4',
     retryMode: 'adaptive',
-    maxAttempts: 10
+    maxAttempts: 10,
+    requestHandler: {
+      httpsAgent
+    }
   };
 };
 

@@ -13,15 +13,19 @@ const cjsDefinitions = {
   __MODULE_PATH: '__dirname'
 };
 
-export const bundlePackage = async (entryFile, outFile, format, options) => {
+export const bundlePackage = async (entryFile, outFile, options) => {
+  const format = options?.format ?? 'esm';
+
   const result = await build({
     treeShaking: true,
+    minifyWhitespace: false,
+    minifyIdentifiers: true,
+    minifySyntax: true,
     keepNames: true,
-    minify: true,
     bundle: true,
     entryPoints: [entryFile],
     outfile: outFile,
-    target: options?.target ?? 'node22',
+    target: options?.target ?? 'node24',
     platform: options?.platform ?? 'node',
     sourcemap: options?.sourcemap ?? 'linked',
     packages: options?.packages ?? 'external',

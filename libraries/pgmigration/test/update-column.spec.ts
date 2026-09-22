@@ -15,7 +15,56 @@ describe('migration :: update column tests', () => {
         name: 'table',
         schema: {
           type: SchemaType.Object,
-          properties
+          properties: {
+            parent_id: {
+              type: SchemaType.String
+            },
+            status: {
+              type: SchemaType.Enum,
+              options: [
+                {
+                  value: 'active'
+                },
+                {
+                  value: 'inactive'
+                }
+              ]
+            },
+            ...properties
+          }
+        },
+        indexes: [
+          {
+            name: 'id',
+            type: Index.Primary,
+            columns: ['id']
+          },
+          {
+            name: 'parent_id',
+            type: Index.Secondary,
+            columns: ['parent_id']
+          }
+        ],
+        relations: [
+          {
+            sourceTable: 'parent',
+            sourceColumn: 'id',
+            sourceIndex: Index.Primary,
+            targetAlias: 'parent',
+            targetColumn: 'parent_id',
+            targetIndex: Index.Secondary
+          }
+        ]
+      },
+      {
+        name: 'parent',
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            }
+          }
         },
         indexes: [
           {
@@ -109,7 +158,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (make default column)', async () => {
+  it('assert :: alter table (alter default column to false)', async () => {
     const sourceTable = getDatabaseTables({
       default: {
         type: SchemaType.Boolean
@@ -157,7 +206,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (alter default column)', async () => {
+  it('assert :: alter table (alter default column to true)', async () => {
     const sourceTable = getDatabaseTables({
       default: {
         type: SchemaType.Boolean,

@@ -56,8 +56,8 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
   }
 }
 
-const processAllRecords = async (request: Queue.Request, schema: MessageSchema, records: SQSRecord[]) => {
-  const failedMessages: SQSBatchItemFailure[] = [];
+const processAllRecords = async (request: Queue.Request, schema: MessageSchema, records: SQSRecord[]): Promise<SQSBatchItemFailure[]> => {
+  const failedMessageIds = new Set<string>();
   const failedGroupIds = new Set<string>();
 
   for (const record of records) {
@@ -68,7 +68,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       // If a previous message from the same message group (FIFO Queues) has failed,
       // skip all the next messages in that group to avoid duplication.
       if (messageGroupId && failedGroupIds.has(messageGroupId)) {
-        failedMessages.push({ itemIdentifier: messageId });
+        failedMessageIds.add(messageId);
         continue;
       }
 
@@ -77,12 +77,22 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
 
       const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
+      const retry = async (options?: Queue.RetryOptions) => {
+        await retryMessage(record, options?.delay);
+
+        if (messageGroupId) {
+          failedGroupIds.add(messageGroupId);
+        }
+
+        failedMessageIds.add(messageId);
+      };
+
       currentRequest = {
         ...request,
         attempt: Number(record.attributes.ApproximateReceiveCount),
-        retry: (options?: Queue.RetryOptions) => retryMessage(record, options?.delay),
         traceId,
-        message
+        message,
+        retry
       };
 
       Runtime.setScope({
@@ -92,22 +102,27 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       await onReady(currentRequest);
 
       await handle(currentRequest, __EZ4_CONTEXT);
-      await ackMessage(record);
+
+      if (!failedMessageIds.has(messageId)) {
+        await ackMessage(record);
+      }
 
       await onDone(currentRequest);
     } catch (error) {
       await onError(error, currentRequest ?? request);
       await retryMessage(record);
 
-      failedMessages.push({ itemIdentifier: messageId });
-
       if (messageGroupId) {
         failedGroupIds.add(messageGroupId);
       }
+
+      failedMessageIds.add(messageId);
     }
   }
 
-  return failedMessages;
+  return [...failedMessageIds].map((messageId) => ({
+    itemIdentifier: messageId
+  }));
 };
 
 const getQueueUrl = (queueArn: string): string => {

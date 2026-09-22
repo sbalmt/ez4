@@ -1,4 +1,4 @@
-import type { AnySchema, EnumSchema, ObjectSchema, ObjectSchemaProperties, ScalarSchema } from '@ez4/schema';
+import type { AnySchema, EnumSchema, ObjectSchema, ScalarSchema } from '@ez4/schema';
 import type { AnyObject, ObjectComparison } from '@ez4/utils';
 import type { SqlBuilder } from '@ez4/pgsql';
 import type { PgMigrationQueries } from '../types/query';
@@ -142,17 +142,12 @@ export namespace ConstraintQuery {
     return statements;
   };
 
-  export const prepareRenameColumns = (
-    builder: SqlBuilder,
-    table: string,
-    columns: ObjectSchemaProperties,
-    changes: Record<string, string>
-  ) => {
+  export const prepareRenameColumns = (builder: SqlBuilder, table: string, columnSchema: ObjectSchema, changes: Record<string, string>) => {
     const statements = [];
 
     for (const fromColumn in changes) {
       const toColum = changes[fromColumn];
-      const toSchema = columns[toColum];
+      const toSchema = columnSchema.properties[toColum];
 
       if (isConstrainedSchema(toSchema)) {
         const oldName = getConstraintName(table, fromColumn);

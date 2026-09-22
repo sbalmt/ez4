@@ -14,13 +14,10 @@ import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
 import { loadPaths } from '../../config/tsconfig';
 
-import { join } from 'node:path';
-import { readdir } from 'node:fs/promises';
+import { glob } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import { spec } from 'node:test/reporters';
 import { run } from 'node:test';
-
-const INCLUDE_PATTERN = /\.(spec|test)\.(js|ts)$/;
-const EXCLUDE_PATTERN = /^node_modules\//;
 
 export const testCommand = async (input: InputOptions) => {
   const project = await loadProject(input.project);
@@ -71,21 +68,20 @@ export const testCommand = async (input: InputOptions) => {
     await prepareServices(emulators);
     await bootstrapServices(emulators);
 
-    const allFiles = await readdir(workingDirectory, {
-      recursive: true
+    const testFiles: string[] = [];
+
+    const allFiles = glob('**/*.{spec,test}.{js,ts}', {
+      exclude: (path) => basename(path) === 'node_modules',
+      cwd: workingDirectory
     });
 
-    const testFiles = allFiles.filter((file) => {
-      if (INCLUDE_PATTERN.test(file)) {
-        return !EXCLUDE_PATTERN.test(file) && (!filePatterns || filePatterns.some((filePattern) => file.includes(filePattern)));
+    for await (const file of allFiles) {
+      if (!filePatterns || filePatterns.some((filePattern) => file.includes(filePattern))) {
+        testFiles.push(join(workingDirectory, file));
       }
+    }
 
-      return false;
-    });
-
-    return testFiles.map((testFile) => {
-      return join(workingDirectory, testFile);
-    });
+    return testFiles;
   });
 
   if (!testFiles.length) {

@@ -1,17 +1,13 @@
 import { bundlePackage } from '../../../tools/esbuild.mjs';
 
 // Default package.
-bundlePackage('src/main.ts', 'dist/main.mjs', 'esm');
-bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
+bundlePackage('src/main.ts', 'dist/main.mjs');
 
 // Library package.
-bundlePackage('src/library.ts', 'dist/library.mjs', 'esm');
-bundlePackage('src/library.ts', 'dist/library.cjs', 'cjs');
+bundlePackage('src/library.ts', 'dist/library.mjs');
 
 // Driver package.
-bundlePackage('src/driver.ts', 'dist/driver.mjs', 'esm');
-bundlePackage('src/driver.ts', 'dist/driver.cjs', 'cjs');
+bundlePackage('src/driver.ts', 'dist/driver.mjs');
 
 // Utils package.
-bundlePackage('src/utils.ts', 'dist/utils.mjs', 'esm');
-bundlePackage('src/utils.ts', 'dist/utils.cjs', 'cjs');
+bundlePackage('src/utils.ts', 'dist/utils.mjs');

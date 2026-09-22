@@ -1,13 +1,10 @@
 import { bundlePackage } from '../../../../tools/esbuild.mjs';
 
 // Default package.
-bundlePackage('src/main.ts', 'dist/main.mjs', 'esm');
-bundlePackage('src/main.ts', 'dist/main.cjs', 'cjs');
+bundlePackage('src/main.ts', 'dist/main.mjs');
 
 // Client HTTP package.
-bundlePackage('src/client-http.ts', 'dist/client-http.mjs', 'esm');
-bundlePackage('src/client-http.ts', 'dist/client-http.cjs', 'cjs');
+bundlePackage('src/client-http.ts', 'dist/client-http.mjs');
 
 // Client WS package.
-bundlePackage('src/client-ws.ts', 'dist/client-ws.mjs', 'esm');
-bundlePackage('src/client-ws.ts', 'dist/client-ws.cjs', 'cjs');
+bundlePackage('src/client-ws.ts', 'dist/client-ws.mjs');

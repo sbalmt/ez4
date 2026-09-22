@@ -31,7 +31,7 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
   };
 }
 
-export const testSelectConditional = async ({ selfClient }: Service.Context<TestDatabase>, flag?: boolean) => {
+export const testHandler = async ({ selfClient }: Service.Context<TestDatabase>, flag?: boolean) => {
   // Select required array
   const resultA = await selfClient.table_a.findOne({
     select: {

@@ -1,0 +1,203 @@
+{
+  "44a527eb48eee69b8def10c4338e9fa3:Picks": {
+    "type": "interface",
+    "name": "Picks",
+    "file": "test/types/pick.ts",
+    "position": {
+      "line": 11,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "empty",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": []
+        }
+      },
+      {
+        "type": "property",
+        "name": "single",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "multiple",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "numeric",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 20,
+            "character": 17
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "0",
+              "value": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "partial",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "foo",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "required",
+        "value": {
+          "type": "object",
+          "file": "test/types/pick.ts",
+          "position": {
+            "line": 1,
+            "character": 13
+          },
+          "members": [
+            {
+              "type": "property",
+              "name": "bar",
+              "value": {
+                "type": "union",
+                "elements": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null",
+                    "literal": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

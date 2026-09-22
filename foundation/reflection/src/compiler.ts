@@ -1,4 +1,4 @@
-import type { ReflectionTypes } from './types';
+import type { EverySourceType, ReflectionTypes } from './types';
 
 import type {
   CompilerOptions as BaseCompilerOptions,
@@ -21,8 +21,6 @@ import {
   ModuleKind
 } from 'typescript';
 
-const SOURCE_CACHE = new Map<string, SourceFile>();
-
 const EMPTY_WATCHER: FileWatcher = {
   close: () => {}
 };
@@ -31,27 +29,38 @@ export type CompilerOptions = Omit<BaseCompilerOptions, 'module' | 'target' | 's
 
 export type ResolveFileNameListener = (fileName: string) => string;
 export type ReflectionReadyListener = (reflection: ReflectionTypes) => Promise<void> | void;
+export type ReflectionFileListener = (type: EverySourceType) => boolean;
 
 export type CompilerEvents = {
   onResolveFileName?: ResolveFileNameListener;
   onReflectionReady?: ReflectionReadyListener;
+  onReflectionFile?: ReflectionFileListener;
   additionalPaths?: string[];
 };
 
 export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOptions => {
-  return {
+  const compilerOptions: BaseCompilerOptions = {
     ...options,
     module: ModuleKind.Preserve,
     moduleResolution: ModuleResolutionKind.Bundler,
     target: ScriptTarget.ESNext,
     skipDefaultLibCheck: true,
+    skipLibCheck: true,
     checkJs: false,
+    noLib: false,
     strict: true
   };
+
+  if (!compilerOptions.noLib) {
+    compilerOptions.lib ??= ['lib.esnext.d.ts'];
+  }
+
+  return compilerOptions;
 };
 
 export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
   const onResolveFileName = events?.onResolveFileName;
+  const sourceFilesCache = new Map<string, SourceFile>();
 
   return {
     fileExists: sys.fileExists,
@@ -65,7 +74,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     getSourceFile: (fileName, languageVersion, onError) => {
       try {
         const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-        const cachedSourceFile = SOURCE_CACHE.get(resolvedFileName);
+        const cachedSourceFile = sourceFilesCache.get(resolvedFileName);
 
         if (cachedSourceFile) {
           return cachedSourceFile;
@@ -79,7 +88,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
 
         const sourceFile = createSourceFile(resolvedFileName, sourceText, languageVersion);
 
-        SOURCE_CACHE.set(resolvedFileName, sourceFile);
+        sourceFilesCache.set(resolvedFileName, sourceFile);
 
         return sourceFile;
         //
@@ -123,20 +132,27 @@ export const createWatchCompilerHost = (
 
       return EMPTY_WATCHER;
     },
-    createProgram: (rootNames, options, host) =>
-      createSemanticDiagnosticsBuilderProgram(rootNames, options, {
-        ...host!,
-        getSourceFile: (fileName, languageVersion, onError) => {
-          try {
-            const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
-            return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
-            //
-          } catch (error) {
-            onError?.(`${error}`);
-            return undefined;
+    createProgram: (rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences) => {
+      return createSemanticDiagnosticsBuilderProgram(
+        rootNames,
+        options,
+        {
+          ...host!,
+          getSourceFile: (fileName, languageVersion, onError) => {
+            try {
+              const resolvedFileName = onResolveFileName?.(fileName) ?? fileName;
+              return host!.getSourceFile(resolvedFileName, languageVersion, onError, false);
+            } catch (error) {
+              onError?.(`${error}`);
+              return undefined;
+            }
           }
-        }
-      })
+        },
+        oldProgram,
+        configFileParsingDiagnostics,
+        projectReferences
+      );
+    }
   };
 };
 

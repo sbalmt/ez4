@@ -27,7 +27,7 @@ export declare class TestDatabase extends Database.Service<TestEngineLock<LockMo
   };
 }
 
-export async function testLockSupported({ selfClient }: Service.Context<TestDatabase>) {
+export async function testHandler({ selfClient }: Service.Context<TestDatabase>) {
   const result = await selfClient.table.findOne({
     select: {
       id: true

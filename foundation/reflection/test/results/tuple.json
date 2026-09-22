@@ -31,7 +31,25 @@
       },
       {
         "type": "property",
-        "name": "spread",
+        "name": "labeled",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "spread1",
         "value": {
           "type": "tuple",
           "elements": [
@@ -47,6 +65,49 @@
                 },
                 {
                   "type": "unknown"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "spread2",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "spread": true,
+              "element": {
+                "type": "number"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "spread3",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "tuple",
+              "spread": true,
+              "elements": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
                 }
               ]
             }
@@ -86,6 +147,21 @@
       },
       {
         "type": "property",
+        "name": "template3",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
         "name": "import1",
         "value": {
           "type": "tuple",
@@ -110,6 +186,24 @@
             },
             {
               "type": "never"
+            }
+          ]
+        }
+      },
+      {
+        "type": "property",
+        "name": "mixed",
+        "value": {
+          "type": "tuple",
+          "elements": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
             }
           ]
         }

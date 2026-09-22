@@ -8,7 +8,7 @@ const testFile = (fileName: string, overwrite: boolean = false) => {
   const sourceFile = `./test/types/${fileName}.ts`;
   const outputFile = `./test/results/${fileName}.json`;
 
-  const reflection = getReflectionFromFiles([sourceFile], {
+  const { reflection } = getReflectionFromFiles([sourceFile], {
     resolverOptions: {
       includeLocation: true
     }
@@ -37,6 +37,10 @@ describe('reflection types', () => {
   it('assert :: callback', () => testFile('callback'));
   it('assert :: special', () => testFile('special'));
   it('assert :: optional', () => testFile('optional'));
+  it('assert :: partial', () => testFile('partial'));
+  it('assert :: required', () => testFile('required'));
+  it('assert :: pick', () => testFile('pick'));
+  it('assert :: omit', () => testFile('omit'));
   it('assert :: typeof', () => testFile('typeof'));
   it('assert :: type', () => testFile('type'));
   it('assert :: comments', () => testFile('comments'));

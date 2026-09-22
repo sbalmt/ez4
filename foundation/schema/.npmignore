@@ -8,5 +8,4 @@
 !lib/*.ts
 
 !dist/**/*.d.ts
-!dist/**/*.cjs
 !dist/**/*.mjs

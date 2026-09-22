@@ -1,0 +1,86 @@
+{
+  "type": "object",
+  "description": "Omit test object.",
+  "identity": 1,
+  "properties": {
+    "single": {
+      "type": "object",
+      "description": "Single omitted property.",
+      "identity": 2,
+      "properties": {
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        },
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property."
+        }
+      }
+    },
+    "multiple": {
+      "type": "object",
+      "description": "Multiple omitted properties.",
+      "identity": 3,
+      "properties": {
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property."
+        }
+      }
+    },
+    "partial": {
+      "type": "object",
+      "description": "Remaining partial properties.",
+      "identity": 4,
+      "properties": {
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        },
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property.",
+          "optional": true
+        }
+      }
+    },
+    "required": {
+      "type": "object",
+      "description": "Remaining required properties.",
+      "identity": 5,
+      "properties": {
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property."
+        },
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property."
+        }
+      }
+    },
+    "original": {
+      "type": "object",
+      "description": "Original object with all properties.",
+      "identity": 6,
+      "properties": {
+        "foo": {
+          "type": "number",
+          "description": "Inner required property."
+        },
+        "bar": {
+          "type": "string",
+          "description": "Inner optional property.",
+          "optional": true
+        },
+        "baz": {
+          "type": "boolean",
+          "description": "Inner boolean property."
+        }
+      }
+    }
+  }
+}

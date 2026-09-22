@@ -435,4 +435,68 @@ describe('migration :: create constraint tests', () => {
       }
     });
   });
+
+  it('assert :: create (without column type change)', () => {
+    const sourceTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String
+      }
+    });
+
+    const targetTable = getDatabaseTables({
+      column: {
+        type: SchemaType.String,
+        definitions: {
+          value: 'foo'
+        }
+      }
+    });
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_column_tmp_ck'`,
+            assert: `SELECT 1 FROM "table" WHERE NOT "column" = 'foo' LIMIT 1`,
+            query: `ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_column_tmp_ck" CHECK ("column" = 'foo') NOT VALID`,
+            name: 'table_column_ck'
+          },
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = true AND "conname" = 'table_column_tmp_ck'`,
+            query: `ALTER TABLE IF EXISTS "table" VALIDATE CONSTRAINT "table_column_tmp_ck"`
+          }
+        ],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_tmp_ck'`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_tmp_ck"' || '%' LIMIT 1`,
+            name: 'table_column_ck'
+          }
+        ],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_column_tmp_ck" TO "table_column_ck"'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
 });

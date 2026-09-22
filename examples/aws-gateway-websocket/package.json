@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.7"
+    "node": ">=24.21"
   },
   "workspaces": [
     "examples/*"
@@ -19,14 +19,14 @@
     "output": "ez4 output -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-queue": "^0.53.0",
-    "@ez4/aws-gateway": "^0.53.0",
-    "@ez4/common": "^0.53.0",
-    "@ez4/gateway": "^0.53.0",
-    "@ez4/queue": "^0.53.0",
-    "@ez4/local-gateway": "^0.53.0",
-    "@ez4/local-queue": "^0.53.0",
-    "@ez4/project": "^0.53.0",
-    "@ez4/schema": "^0.53.0"
+    "@ez4/aws-queue": "^0.54.0",
+    "@ez4/aws-gateway": "^0.54.0",
+    "@ez4/common": "^0.54.0",
+    "@ez4/gateway": "^0.54.0",
+    "@ez4/queue": "^0.54.0",
+    "@ez4/local-gateway": "^0.54.0",
+    "@ez4/local-queue": "^0.54.0",
+    "@ez4/project": "^0.54.0",
+    "@ez4/schema": "^0.54.0"
   }
 }

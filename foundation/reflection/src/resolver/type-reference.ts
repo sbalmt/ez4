@@ -6,7 +6,7 @@ import { isTypeReferenceNode } from 'typescript';
 
 import { getNodeTypeDeclaration } from '../helpers/declaration';
 import { isIndexReference, tryIndexReference } from './index-reference';
-import { tryInternalTypeAlias, tryTypeAlias } from './type-alias';
+import { tryNativeTypeAlias, tryTypeAlias } from './type-alias';
 import { tryTypeParameter } from './type-parameter';
 import { tryInternalReference } from './internal-reference';
 import { tryGenericReference } from './generic-reference';
@@ -34,8 +34,8 @@ export const tryTypeReference = (node: Node, context: Context, state: State): Ev
   }
 
   return (
+    tryNativeTypeAlias(declaration, types, context, state) ||
     tryTypeAlias(declaration, types, context, state) ||
-    tryInternalTypeAlias(declaration, types, context, state) ||
     tryTypeParameter(declaration, context, state) ||
     tryInternalReference(declaration, types, context, state) ||
     tryGenericReference(declaration, types, context, state) ||

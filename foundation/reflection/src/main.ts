@@ -1,8 +1,10 @@
+import type { ResolverOptions, ResolverEvents, ReflectionFiles } from './resolver';
 import type { CompilerOptions, CompilerEvents } from './compiler';
-import type { ResolverOptions, ResolverEvents } from './resolver';
+import type { ReflectionTypes } from './types';
 
 import { createProgram, createWatchProgram } from 'typescript';
 
+import { getReflectionFileNames } from './utils/reflection';
 import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
 import { resolveReflectionMetadata, resolveReflectionFiles } from './resolver';
 
@@ -31,18 +33,44 @@ export type ReflectionOptions = {
    * All resolver events.
    */
   resolverEvents?: ResolverEvents;
+
+  /**
+   * Determines whether or not source file dependencies should be included.
+   */
+  includeFiles?: boolean;
 };
 
-export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions) => {
+export type ReflectionOutput = {
+  dependencies: ReflectionFiles;
+  reflection: ReflectionTypes;
+};
+
+export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions): ReflectionOutput => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
+  const compilerHost = createCompilerHost(compilerOptions, options?.compilerEvents);
 
   const program = createProgram({
-    host: createCompilerHost(compilerOptions, options?.compilerEvents),
+    host: compilerHost,
     options: compilerOptions,
     rootNames: fileNames
   });
 
-  return resolveReflectionMetadata(program, options);
+  const reflection = resolveReflectionMetadata(program, options);
+
+  if (!options?.includeFiles) {
+    return {
+      dependencies: {},
+      reflection
+    };
+  }
+
+  const reflectionFiles = getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile);
+  const dependencies = resolveReflectionFiles(program, compilerOptions, compilerHost, reflectionFiles);
+
+  return {
+    dependencies,
+    reflection
+  };
 };
 
 export type WatchReflectionHandler = {
@@ -70,15 +98,16 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: WatchRef
       options: compilerOptions,
       rootFiles: fileNames,
       afterProgramCreate: async (event) => {
-        const reflection = resolveReflectionMetadata(event.getProgram(), options);
-
         try {
+          const reflection = resolveReflectionMetadata(event.getProgram(), options);
+
           await onReflectionReady?.(reflection);
+
+          resolve(handler);
         } catch (error) {
+          program.close();
           reject(error);
         }
-
-        resolve(handler);
       }
     });
 
@@ -99,7 +128,6 @@ export const getReflectionFiles = (fileNames: string[], options?: CompilerOption
     host: compilerHost,
     options: {
       ...compilerOptions,
-      skipLibCheck: true,
       noCheck: true
     }
   });

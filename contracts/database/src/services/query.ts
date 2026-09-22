@@ -2,8 +2,9 @@ import type { AnyObject, PartialProperties, PartialObject, StrictObject, IsObjec
 import type { AtomicFields } from './query/atomic';
 import type { WhereFieldInput, WhereRelationInput } from './query/where';
 import type { DatabaseEngine } from './engine';
-import type { RelationMetadata } from './relations';
+import type { UndefinedModeUtils } from './undefined';
 import type { PaginationModeUtils } from './pagination';
+import type { RelationMetadata } from './relations';
 import type { OrderModeUtils } from './order';
 import type { LockModeUtils } from './lock';
 import type { TableMetadata } from './table';
@@ -112,7 +113,10 @@ export namespace Query {
 
   export type DeleteManyResult<S extends AnyObject, T extends TableMetadata> = SelectInput<T> extends S ? void : Record<S, T>[];
 
-  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<SelectOutputFields<T['schema'], T['relations']>, S>;
+  export type Record<S extends AnyObject, T extends TableMetadata> = PartialObject<
+    UndefinedModeUtils.Output<SelectOutputFields<T['schema'], T['relations']>, T['engine']>,
+    S
+  >;
 
   export type SelectInput<T extends TableMetadata> = PartialProperties<SelectInputFields<T['schema'], T['relations']>>;
 
