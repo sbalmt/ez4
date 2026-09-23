@@ -88,7 +88,10 @@ const canRenameTable = (target: ObjectSchema, source: ObjectSchema) => {
   const sourceColumns = Object.keys(source.properties);
 
   if (targetColumns.length && sourceColumns.length) {
-    return targetColumns.some((column) => sourceColumns.includes(column));
+    const sharedColumns = targetColumns.filter((column) => sourceColumns.includes(column)).length;
+    const totalColumns = Math.max(targetColumns.length, sourceColumns.length);
+
+    return sharedColumns / totalColumns >= 0.5;
   }
 
   return true;
