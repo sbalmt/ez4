@@ -15,7 +15,10 @@ import {
 } from '@aws-sdk/client-iam';
 
 import { getTagList } from '@ez4/aws-common';
+
 import { getIAMClient } from '../utils/deploy';
+import { RoleConstraints } from './constraints';
+import { InvalidRoleNameError } from './errors';
 
 export type CreateRequest = {
   roleName: string;
@@ -58,6 +61,10 @@ export const createRole = async (logger: OperationLogLine, request: CreateReques
   logger.update(`Creating IAM role`);
 
   const { roleName, description, roleDocument } = request;
+
+  if (roleName.length > RoleConstraints.MaxNameLength) {
+    throw new InvalidRoleNameError(roleName, RoleConstraints.MaxNameLength);
+  }
 
   const response = await getIAMClient().send(
     new CreateRoleCommand({

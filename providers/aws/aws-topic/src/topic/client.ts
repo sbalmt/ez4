@@ -4,6 +4,8 @@ import { CreateTopicCommand, DeleteTopicCommand, TagResourceCommand, UntagResour
 import { getTagList } from '@ez4/aws-common';
 
 import { getSNSClient } from '../utils/deploy';
+import { TopicConstraints } from './constraints';
+import { InvalidTopicNameError } from './errors';
 
 export type CreateRequest = {
   topicName: string;
@@ -19,6 +21,10 @@ export const createTopic = async (logger: OperationLogLine, request: CreateReque
   logger.update(`Creating topic`);
 
   const { topicName, fifoMode } = request;
+
+  if (topicName.length > TopicConstraints.MaxNameLength) {
+    throw new InvalidTopicNameError(topicName, TopicConstraints.MaxNameLength);
+  }
 
   const response = await getSNSClient().send(
     new CreateTopicCommand({

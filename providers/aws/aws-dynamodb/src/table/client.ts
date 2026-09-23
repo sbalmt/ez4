@@ -22,6 +22,8 @@ import { getDynamoDBClient, getDynamoDBWaiter } from '../utils/deploy';
 import { getSecondaryIndexes, getSecondaryIndexName, waitForSecondaryIndex, waitForSecondaryIndexDeletion } from './helpers/indexes';
 import { getAttributeDefinitions, getAttributeKeyTypes } from './helpers/schema';
 import { waitForTimeToLive } from './helpers/ttl';
+import { TableConstraints } from './constraints';
+import { InvalidTableNameError } from './errors';
 
 export type CapacityUnits = {
   maxReadUnits: number;
@@ -56,7 +58,11 @@ export type UpdateTimeToLiveRequest = {
 export const createTable = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating table`);
 
-  const { attributeSchema, capacityUnits, enableStreams } = request;
+  const { attributeSchema, capacityUnits, enableStreams, tableName } = request;
+
+  if (tableName.length > TableConstraints.MaxNameLength) {
+    throw new InvalidTableNameError(tableName, TableConstraints.MaxNameLength);
+  }
 
   const [primarySchema, ...secondarySchema] = attributeSchema;
 
