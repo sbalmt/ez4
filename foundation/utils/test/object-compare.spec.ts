@@ -155,4 +155,28 @@ describe('object comparison utils', () => {
       }
     });
   });
+
+  it('assert :: deep compare (custom name mismatch)', () => {
+    const source = {
+      first_old: {
+        level: 2,
+        second: 'value'
+      }
+    };
+
+    const changes = deepCompare(target, source, {
+      onCompareName: () => false,
+      onRename: () => true
+    });
+
+    deepEqual(changes, {
+      counts: 2,
+      create: {
+        first: target.first
+      },
+      remove: {
+        first_old: source.first_old
+      }
+    });
+  });
 });
