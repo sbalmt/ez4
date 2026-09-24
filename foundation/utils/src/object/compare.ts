@@ -23,11 +23,13 @@ export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
   /**
    * Determines whether or not the given key names are the same.
    *
-   * @param target Target key name.
-   * @param source Source key name.
+   * @param targetKey Target key.
+   * @param sourceKey Source key.
+   * @param targetValue Target value.
+   * @param sourceValue Source value.
    * @returns Returns `true` when the given keys are the same, `false` otherwise.
    */
-  onCompareName?: (target: string, source: string) => boolean;
+  onCompareName?: (targetKey: string, sourceKey: string, targetValue?: Decompose<T>, sourceValue?: Decompose<S>) => boolean;
 
   /**
    * Determines whether or not an object property can be renamed.
@@ -113,7 +115,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue !== undefined && sourceValue === undefined) {
       toCreateKeys.push(key);
 
-      const removeKey = getSimilarName(key, toRemoveKeys, onCompareName);
+      const removeKey = getSimilarName(key, targetValue, toRemoveKeys, toRemove, onCompareName);
 
       if (removeKey && (!onRename || onRename(targetValue, toRemove[removeKey]))) {
         delete toRemove[removeKey];
@@ -134,7 +136,7 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue === undefined && sourceValue !== undefined) {
       toRemoveKeys.push(key);
 
-      const createKey = getSimilarName(key, toCreateKeys, onCompareName);
+      const createKey = getSimilarName(key, sourceValue, toCreateKeys, toCreate, onCompareName);
 
       if (createKey && (!onRename || onRename(toCreate[createKey], sourceValue))) {
         delete toCreate[createKey];
@@ -196,10 +198,14 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
   };
 };
 
-const getSimilarName = (name: string, keys: string[], predicate?: (target: string, source: string) => boolean) => {
-  const keyIndex = keys.findIndex((key) => {
-    return predicate ? predicate(name, key) : key.includes(name) || name.includes(key);
-  });
+const getSimilarName = <T extends AnyObject, S extends AnyObject>(
+  name: string,
+  value: Decompose<T>,
+  keys: string[],
+  values: Record<string, Decompose<S>>,
+  predicate?: (targetKey: string, sourceKey: string, targetValue?: Decompose<T>, sourceValue?: Decompose<S>) => boolean
+) => {
+  const keyIndex = keys.findIndex((key) => predicate?.(name, key, value, values[key]) || name.includes(key));
 
   if (keyIndex >= 0) {
     const [keyName] = keys.splice(keyIndex, 1);
