@@ -124,7 +124,7 @@ describe('migration :: update table tests', () => {
     });
   });
 
-  it('assert :: rename table with unrelated name', () => {
+  it('assert :: rename table (unrelated name)', () => {
     const source = getTableRepository([
       {
         name: 'table',
@@ -141,9 +141,9 @@ describe('migration :: update table tests', () => {
     ]);
 
     const target = {
-      completely_different_table: {
+      completely_different_name: {
         ...source.table,
-        name: 'completely_different_table'
+        name: 'completely_different_name'
       }
     };
 
@@ -151,7 +151,7 @@ describe('migration :: update table tests', () => {
 
     deepEqual(steps.rollout.tables, [
       {
-        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "completely_different_table"'
+        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "completely_different_name"'
       }
     ]);
   });

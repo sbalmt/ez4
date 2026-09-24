@@ -160,17 +160,11 @@ describe('migration :: secondary column tests', () => {
           }
         ],
         constraints: [],
-        validations: [
-          {
-            name: 'table_renamed_secondary_sk',
-            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_renamed_secondary_sk"' || '%') LIMIT 1`
-          }
-        ],
+        validations: [],
         relations: [],
         indexes: [
           {
-            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_renamed_secondary_sk" ON "table" USING BTREE ("renamed_secondary")'
+            query: 'ALTER INDEX IF EXISTS "table_secondary_sk" RENAME TO "table_renamed_secondary_sk"'
           }
         ]
       },
@@ -179,9 +173,99 @@ describe('migration :: secondary column tests', () => {
         constraints: [],
         validations: [],
         relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename column (unrelated name)', async () => {
+    const sourceTable = getDatabaseTables(
+      {
+        id: {
+          type: SchemaType.String
+        },
+        column: {
+          type: SchemaType.String
+        }
+      },
+      [
+        {
+          name: 'id',
+          type: Index.Primary,
+          columns: ['id']
+        },
+        {
+          name: 'column',
+          type: Index.Secondary,
+          columns: ['column']
+        }
+      ]
+    );
+
+    const targetTable = getDatabaseTables(
+      {
+        id: {
+          type: SchemaType.String
+        },
+        completely_different_name: {
+          type: SchemaType.String
+        }
+      },
+      [
+        {
+          name: 'id',
+          type: Index.Primary,
+          columns: ['id']
+        },
+        {
+          name: 'completely_different_name',
+          type: Index.Secondary,
+          columns: ['completely_different_name']
+        }
+      ]
+    );
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "completely_different_name"'
+          }
+        ],
+        constraints: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_completely_different_name_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_completely_different_name_sk"' || '%') LIMIT 1`,
+            name: 'table_completely_different_name_sk'
+          }
+        ],
         indexes: [
           {
-            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_secondary_sk"'
+            query:
+              'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_completely_different_name_sk" ON "table" USING BTREE ("completely_different_name")'
+          }
+        ],
+        relations: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_column_sk"'
           }
         ]
       }
@@ -218,7 +302,7 @@ describe('migration :: secondary column tests', () => {
           type: SchemaType.String
         },
         replacement: {
-          type: SchemaType.String
+          type: SchemaType.Number
         }
       },
       [
@@ -241,7 +325,7 @@ describe('migration :: secondary column tests', () => {
       prepare: {
         tables: [
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
+            query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" decimal NOT null`
           }
         ],
         constraints: [],

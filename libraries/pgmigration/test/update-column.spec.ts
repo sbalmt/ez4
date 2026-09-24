@@ -1231,7 +1231,7 @@ describe('migration :: update column tests', () => {
     });
   });
 
-  it('assert :: alter table (rename column with unrelated name)', () => {
+  it('assert :: alter table (rename column, unrelated name)', () => {
     const sourceTable = getDatabaseTables({
       column: {
         type: SchemaType.String
@@ -1239,7 +1239,7 @@ describe('migration :: update column tests', () => {
     });
 
     const targetTable = getDatabaseTables({
-      completely_different_column: {
+      completely_different_name: {
         type: SchemaType.String
       }
     });
@@ -1249,7 +1249,7 @@ describe('migration :: update column tests', () => {
     deepEqual(steps.rollout.tables, [
       {
         check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
-        query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "completely_different_column"'
+        query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "completely_different_name"'
       }
     ]);
   });
