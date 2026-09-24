@@ -661,22 +661,22 @@ describe('migration :: create column tests', () => {
         validations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_column_ck'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_column_ck"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_column_ck"' || '%') LIMIT 1`,
             name: 'table_column_ck'
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_a_ck'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_default_a_ck"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_default_a_ck"' || '%') LIMIT 1`,
             name: 'table_default_a_ck'
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_default_b_ck'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_default_b_ck"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_default_b_ck"' || '%') LIMIT 1`,
             name: 'table_default_b_ck'
           },
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_nullable_ck'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_nullable_ck"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_nullable_ck"' || '%') LIMIT 1`,
             name: 'table_nullable_ck'
           }
         ],
