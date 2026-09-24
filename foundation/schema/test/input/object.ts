@@ -93,7 +93,7 @@ export interface ObjectTestSchema {
   /**
    * @description Intersection object with union.
    */
-  intersection_union: { foo: number } & ({ bar: string } | { baz: boolean });
+  intersection_union: { foo: number } & ({ bar: string } | { baz: boolean }) & { qux: number };
 
   /**
    * @description Any object extending intersection.
