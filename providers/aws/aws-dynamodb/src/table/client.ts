@@ -103,7 +103,6 @@ export const createTable = async (logger: OperationLogLine, request: CreateReque
   );
 
   const tableDescription = response.TableDescription!;
-  const tableName = tableDescription.TableName!;
 
   await waitUntilTableExists(getDynamoDBWaiter(client), {
     TableName: tableName
