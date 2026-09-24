@@ -190,10 +190,40 @@
         }
       }
     },
+    "intersection_union": {
+      "type": "union",
+      "description": "Intersection object with union.",
+      "elements": [
+        {
+          "type": "object",
+          "identity": 15,
+          "properties": {
+            "foo": {
+              "type": "number"
+            },
+            "bar": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "identity": 16,
+          "properties": {
+            "foo": {
+              "type": "number"
+            },
+            "baz": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
     "extends_intersection": {
       "type": "object",
       "description": "Any object extending intersection.",
-      "identity": 15,
+      "identity": 18,
       "definitions": {
         "extensible": true
       },
@@ -209,7 +239,7 @@
     "dynamic_intersection": {
       "type": "object",
       "description": "Dynamic object intersection.",
-      "identity": 16,
+      "identity": 19,
       "properties": {},
       "definitions": {
         "extensible": true
@@ -226,7 +256,7 @@
     "encoded": {
       "type": "object",
       "description": "Base64-encoded object.",
-      "identity": 17,
+      "identity": 20,
       "definitions": {
         "encoded": true
       },
@@ -242,7 +272,7 @@
     "combined": {
       "type": "object",
       "description": "Combined base64-encoded, extended and default object.",
-      "identity": 18,
+      "identity": 21,
       "definitions": {
         "encoded": true,
         "extensible": true,
@@ -263,7 +293,7 @@
     "preserve": {
       "type": "object",
       "description": "Preserve object naming style.",
-      "identity": 19,
+      "identity": 22,
       "definitions": {
         "preserve": true
       },
