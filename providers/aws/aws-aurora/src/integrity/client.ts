@@ -75,7 +75,7 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
   });
 
   return Tasks.safeRun(operations, {
-    concurrency: 5,
+    concurrency: 10,
     onProgress: (completed, total) => {
       logger.update(`Validating integrity (${completed} of ${total})`);
     }
