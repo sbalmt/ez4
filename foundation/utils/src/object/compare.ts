@@ -21,7 +21,7 @@ export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
   include?: PartialProperties<T & S>;
 
   /**
-   * Determines whether or not the given key names are the same.
+   * Determines whether or not an object property can be renamed.
    *
    * @param targetKey Target key.
    * @param sourceKey Source key.
@@ -29,16 +29,7 @@ export type ObjectCompareOptions<T extends AnyObject, S extends AnyObject> = {
    * @param sourceValue Source value.
    * @returns Returns `true` when the given keys are the same, `false` otherwise.
    */
-  onCompareName?: (targetKey: string, sourceKey: string, targetValue?: Decompose<T>, sourceValue?: Decompose<S>) => boolean;
-
-  /**
-   * Determines whether or not an object property can be renamed.
-   *
-   * @param target Target value.
-   * @param source Source value.
-   * @returns Returns `true` when the object property can be renamed, `false` otherwise.
-   */
-  onRename?: (target: Decompose<T>, source: Decompose<S>) => boolean;
+  onRename?: (targetKey: string, sourceKey: string, targetValue?: Decompose<T>, sourceValue?: Decompose<S>) => boolean;
 };
 
 export type ObjectComparison = {
@@ -75,7 +66,6 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
 
   const depth = options?.depth ?? +Infinity;
 
-  const onCompareName = options?.onCompareName;
   const onRename = options?.onRename;
 
   const toCreateKeys = [];
@@ -115,9 +105,9 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue !== undefined && sourceValue === undefined) {
       toCreateKeys.push(key);
 
-      const removeKey = getSimilarName(key, targetValue, toRemoveKeys, toRemove, onCompareName);
+      const removeKey = getSimilarName(key, targetValue, toRemoveKeys, toRemove, onRename);
 
-      if (removeKey && (!onRename || onRename(targetValue, toRemove[removeKey]))) {
+      if (removeKey) {
         delete toRemove[removeKey];
         counter.remove--;
 
@@ -136,9 +126,9 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
     if (targetValue === undefined && sourceValue !== undefined) {
       toRemoveKeys.push(key);
 
-      const createKey = getSimilarName(key, sourceValue, toCreateKeys, toCreate, onCompareName);
+      const createKey = getSimilarName(key, sourceValue, toCreateKeys, toCreate, onRename);
 
-      if (createKey && (!onRename || onRename(toCreate[createKey], sourceValue))) {
+      if (createKey) {
         delete toCreate[createKey];
         counter.create--;
 
@@ -170,7 +160,6 @@ export const deepCompareObject = <T extends AnyObject, S extends AnyObject>(
         const changes = deepCompareObject(targetValue, sourceValue, {
           ...(isAnyObject(keyState) && (isInclude ? { include: keyState } : { exclude: keyState })),
           depth: depth - 1,
-          onCompareName,
           onRename
         });
 

@@ -133,18 +133,19 @@ describe('object comparison utils', () => {
     };
 
     const changes = deepCompare(target, source, {
-      onCompareName: (target, source) => {
-        const lcTarget = target.toLowerCase();
-        const lcSource = source.toLowerCase();
+      onRename: (targetKey, sourceKey, targetValue, sourceValue) => {
+        const lcTargetKey = targetKey.toLowerCase();
+        const lcSourceKey = sourceKey.toLowerCase();
 
-        return lcTarget.includes(lcSource) || lcSource.includes(lcTarget);
-      },
-      onRename: (target, source) => {
-        if ((isAnyObject(target) && isAnyObject(source)) || (isAnyArray(target) && isAnyArray(source))) {
-          return deepEquals(target, source);
+        if (!lcTargetKey.includes(lcSourceKey) && !lcSourceKey.includes(lcTargetKey)) {
+          return false;
         }
 
-        return target === source;
+        if ((isAnyObject(targetValue) && isAnyObject(sourceValue)) || (isAnyArray(targetValue) && isAnyArray(sourceValue))) {
+          return deepEquals(targetValue, sourceValue);
+        }
+
+        return targetValue === sourceValue;
       }
     });
 
@@ -152,30 +153,6 @@ describe('object comparison utils', () => {
       counts: 1,
       rename: {
         FIRST_OLD: 'first'
-      }
-    });
-  });
-
-  it('assert :: deep compare (custom name mismatch)', () => {
-    const source = {
-      first_old: {
-        level: 2,
-        second: 'value'
-      }
-    };
-
-    const changes = deepCompare(target, source, {
-      onCompareName: () => false,
-      onRename: () => true
-    });
-
-    deepEqual(changes, {
-      counts: 2,
-      create: {
-        first: target.first
-      },
-      remove: {
-        first_old: source.first_old
       }
     });
   });

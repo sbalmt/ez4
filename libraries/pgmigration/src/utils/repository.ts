@@ -49,7 +49,7 @@ export const getTableRepositoryChanges = (target: PgTableRepository, source: PgT
 
 const getRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
-    onCompareName: (targetKey, sourceKey, targetValue, sourceValue) => {
+    onRename: (targetKey, sourceKey, targetValue, sourceValue) => {
       if (!isAnyObject(targetValue) || !isAnyObject(sourceValue)) {
         return false;
       }
