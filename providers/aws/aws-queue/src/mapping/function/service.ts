@@ -40,7 +40,7 @@ export const createQueueFunction = <E extends EntryState>(
       return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

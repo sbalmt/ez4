@@ -70,15 +70,13 @@ export const createBundleHash = async (allSourceFiles: string[]) => {
   return fileSignatures.digest('hex');
 };
 
-export const getBundleHash = async (sourceFile: string, dependencyFiles: string[]) => {
-  const sourceFiles = arrayUnique(dependencyFiles);
-
-  let bundleHash = hashCache.get(sourceFile);
+export const getBundleHash = async (cacheKey: string, sourceFiles: string[]) => {
+  let bundleHash = hashCache.get(cacheKey);
 
   if (!bundleHash) {
-    bundleHash = await createBundleHash(sourceFiles);
+    bundleHash = await createBundleHash(arrayUnique(sourceFiles));
 
-    hashCache.set(sourceFile, bundleHash);
+    hashCache.set(cacheKey, bundleHash);
   }
 
   return bundleHash;

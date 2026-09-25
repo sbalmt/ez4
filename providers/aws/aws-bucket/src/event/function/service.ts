@@ -39,7 +39,7 @@ export const createBucketEventFunction = <E extends EntryState>(
       return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

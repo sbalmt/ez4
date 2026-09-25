@@ -40,7 +40,7 @@ export const createStreamFunction = <E extends EntryState>(
       return bundleStreamFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

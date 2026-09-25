@@ -41,7 +41,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
       return bundleApiFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [authorizer.sourceFile, authorizer.dependencies];
+      return [authorizer.sourceFile, ...authorizer.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

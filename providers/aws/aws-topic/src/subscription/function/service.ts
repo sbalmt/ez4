@@ -40,7 +40,7 @@ export const createSubscriptionFunction = <E extends EntryState>(
       return bundleSubscriptionFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

@@ -39,7 +39,7 @@ export const createTargetFunction = <E extends EntryState>(
       return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

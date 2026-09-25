@@ -49,7 +49,7 @@ export const createIntegrationFunction = <E extends EntryState>(
       return bundleFunctions[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
