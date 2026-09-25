@@ -173,14 +173,26 @@ const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?
 
   if (changes.nested) {
     for (const property in changes.nested) {
+      const oldValue = values?.[getRenamedProperty(changes.rename, property)];
       const newValue = changes.nested[property];
-      const oldValue = values[property];
 
       output.push(...formatReportChanges(newValue, oldValue, getOutputName(property)));
     }
   }
 
   return output;
+};
+
+const getRenamedProperty = (rename: Record<string, string> | undefined, property: string) => {
+  if (rename) {
+    for (const sourceProperty in rename) {
+      if (rename[sourceProperty] === property) {
+        return sourceProperty;
+      }
+    }
+  }
+
+  return property;
 };
 
 const getMaxPropertyLength = (object: AnyObject) => {
