@@ -23,12 +23,15 @@
     "events": [
       {
         "path": "uploads/",
+        "triggers": [
+          "create"
+        ],
         "handler": {
           "description": "Test storage event.",
           "name": "eventHandler",
           "file": "test/input/output-events.ts",
           "position": [
-            34,
+            36,
             1
           ]
         },
@@ -51,7 +54,7 @@
           "name": "eventHandler",
           "file": "test/input/output-events.ts",
           "position": [
-            34,
+            36,
             1
           ]
         }

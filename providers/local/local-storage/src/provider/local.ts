@@ -3,6 +3,7 @@ import type { Client as StorageClient } from '@ez4/storage';
 import type { BucketService } from '@ez4/storage/library';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+import { BucketEventType } from '@ez4/storage';
 import { Logger } from '@ez4/logger';
 
 import { processLambdaEvent } from '../handlers/lambda';
@@ -50,6 +51,7 @@ const getStorageClient = async (service: BucketService, options: ServeOptions, c
       return {
         prefix,
         suffix,
+        triggers: event.triggers ?? [BucketEventType.Create, BucketEventType.Delete],
         handler: (input) => {
           return processLambdaEvent(service, options, context, event, input);
         }
