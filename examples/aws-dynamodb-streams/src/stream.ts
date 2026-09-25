@@ -24,5 +24,5 @@ export async function streamHandler(request: Database.Incoming<ExampleSchema>, {
   }
 
   // Do another stuff...
-  selfClient.example;
+  selfClient.any_example;
 }
