@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 
 import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
+import { ServiceEventType } from '@ez4/common';
 import { Logger } from '@ez4/logger';
 
 import { SourceFileError } from '../errors/bundler';
@@ -217,7 +218,22 @@ const getEntrypointCode = async (options: BundlerOptions) => {
 
   return `
 import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
-${listener ? `import { ${listener.functionName} as dispatch } from '${getEntrypointImport(listener)}'` : `const dispatch = () => {}`};
+${listener ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}'` : `const __EZ4_DISPATCH = null`};
+
+const dispatch = async (event, context) => {
+  try {
+    await __EZ4_DISPATCH?.(event, context);
+  } catch (error) {
+    if (event.type === '${ServiceEventType.Begin}' || event.type === '${ServiceEventType.Ready}') {
+      throw error;
+    }
+
+    console.error({
+      ...Runtime.getScope(),
+      error
+    });
+  }
+};
 ${context.packages.join('\n')}
 
 const __EZ4_MAKE_LAZY_CONTEXT_FACTORY = (context)=> {
