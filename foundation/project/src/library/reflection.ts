@@ -30,7 +30,7 @@ export type WatchReflectionOptions = {
   additionalPaths?: string[];
 };
 
-export const watchReflection = async (sourceFiles: string[], options: WatchReflectionOptions) => {
+export const watchReflection = (sourceFiles: string[], options: WatchReflectionOptions) => {
   const { additionalPaths, aliasPaths } = options;
 
   const reflectionSources = getReflectionSources(sourceFiles);
