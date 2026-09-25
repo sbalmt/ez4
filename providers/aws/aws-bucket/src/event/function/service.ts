@@ -8,7 +8,7 @@ import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
 import { LogLevel } from '@ez4/project';
 
-import { bundleBucketEventFunction } from './bundler';
+import { bundleBucketEventFunction, getBundleTemplateFile } from './bundler';
 
 export const createBucketEventFunction = <E extends EntryState>(
   state: EntryStates<E>,
@@ -39,7 +39,7 @@ export const createBucketEventFunction = <E extends EntryState>(
       return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

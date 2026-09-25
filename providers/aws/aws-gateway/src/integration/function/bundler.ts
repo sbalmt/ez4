@@ -8,9 +8,20 @@ import { getFunctionBundle } from '@ez4/aws-common';
 import { pickObject } from '@ez4/utils';
 
 import { IntegrationServiceName } from '../types';
+import { IntegrationFunctionType } from './types';
 
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
+
+const bundleTemplateFiles: Record<IntegrationFunctionType, string> = {
+  [IntegrationFunctionType.HttpRequest]: 'request.ts',
+  [IntegrationFunctionType.WsConnection]: 'connection.ts',
+  [IntegrationFunctionType.WsMessage]: 'message.ts'
+};
+
+export const getBundleTemplateFile = (type: IntegrationFunctionType) => {
+  return join(__MODULE_PATH, '../lib', bundleTemplateFiles[type]);
+};
 
 export type BundleFunction = (parameters: IntegrationFunctionParameters, connections: EntryState[]) => Promise<string>;
 
@@ -36,7 +47,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
-    templateFile: join(__MODULE_PATH, '../lib/request.ts'),
+    templateFile: getBundleTemplateFile(IntegrationFunctionType.HttpRequest),
     resourceName: functionName,
     filePrefix: 'api',
     define: {
@@ -64,7 +75,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
 
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
-    templateFile: join(__MODULE_PATH, '../lib/connection.ts'),
+    templateFile: getBundleTemplateFile(IntegrationFunctionType.WsConnection),
     resourceName: functionName,
     filePrefix: 'api',
     define: {
@@ -88,7 +99,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
 
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
-    templateFile: join(__MODULE_PATH, '../lib/message.ts'),
+    templateFile: getBundleTemplateFile(IntegrationFunctionType.WsMessage),
     resourceName: functionName,
     filePrefix: 'api',
     define: {

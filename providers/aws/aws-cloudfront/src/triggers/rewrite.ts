@@ -25,7 +25,6 @@ export const prepareRewrites = (state: EntryStates, service: CdnService, options
     functionName,
     getFunctionBundle: () => {
       return bundleViewerFunction({
-        templateFile: 'rewrite.ts',
         functionName,
         define: {
           __EZ4_REWRITE_RULES: JSON.stringify(rewriteRules)

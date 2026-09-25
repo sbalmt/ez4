@@ -11,6 +11,10 @@ import { pickObject } from '@ez4/utils';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
+export const getBundleTemplateFile = () => {
+  return join(__MODULE_PATH, '../lib/stream.ts');
+};
+
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
   const { handler, listener, functionName, tableSchema, context, references, debug } = parameters;
 
@@ -18,7 +22,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
 
   return getFunctionBundle(MappingServiceName, {
     context: context && references ? pickObject(context, references) : context,
-    templateFile: join(__MODULE_PATH, '../lib/stream.ts'),
+    templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'db',
     define: {

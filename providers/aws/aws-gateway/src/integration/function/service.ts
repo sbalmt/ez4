@@ -9,7 +9,7 @@ import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
 import { LogLevel } from '@ez4/project';
 
-import { bundleConnectionFunction, bundleMessageFunction, bundleRequestFunction } from './bundler';
+import { bundleConnectionFunction, bundleMessageFunction, bundleRequestFunction, getBundleTemplateFile } from './bundler';
 import { IntegrationFunctionType } from './types';
 
 const bundleFunctions: Record<IntegrationFunctionType, BundleFunction> = {
@@ -49,7 +49,7 @@ export const createIntegrationFunction = <E extends EntryState>(
       return bundleFunctions[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(type), ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

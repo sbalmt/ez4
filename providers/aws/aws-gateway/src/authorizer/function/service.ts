@@ -8,7 +8,7 @@ import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
 import { LogLevel } from '@ez4/project';
 
-import { bundleApiFunction } from './bundler';
+import { bundleApiFunction, getBundleTemplateFile } from './bundler';
 
 export const createAuthorizerFunction = <E extends EntryState>(
   state: EntryStates<E>,
@@ -41,7 +41,7 @@ export const createAuthorizerFunction = <E extends EntryState>(
       return bundleApiFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [authorizer.sourceFile, ...authorizer.dependencies];
+      return [authorizer.sourceFile, getBundleTemplateFile(), ...authorizer.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({
