@@ -42,8 +42,8 @@ export const prepareBucketEvents = (
       memory = defaults?.memory ?? Defaults.Memory,
       timeout = Defaults.Timeout,
       debug = options.debug,
+      triggers = [],
       variables,
-      triggers,
       listener,
       handler,
       files,
@@ -99,18 +99,23 @@ export const prepareBucketEvents = (
       context.setServiceState(internalName, options, handlerState);
     }
 
-    const events = triggers?.map((trigger) => {
+    if (!triggers.length) {
+      triggers.push(BucketEventType.Create, BucketEventType.Delete);
+    }
+
+    const events = triggers.map((trigger) => {
       return trigger === BucketEventType.Create ? 's3:ObjectCreated:*' : 's3:ObjectRemoved:*';
     });
 
     attachBucketEvent(state, bucketState, handlerState, {
       toService: internalName,
       fromPath: path,
+      triggers,
       eventGetters: [
         (context) => {
           return {
             functionArn: getBucketEventFunctionAliasArn(service.name, handlerState.entryId, context),
-            events: events ?? ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
+            events,
             path
           };
         }
