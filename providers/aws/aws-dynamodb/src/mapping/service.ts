@@ -8,6 +8,12 @@ import { StreamChangeType } from '@ez4/database';
 
 import { getTableStreamArn } from '../table/utils';
 
+const EVENT_NAMES = {
+  [StreamChangeType.Insert]: 'INSERT',
+  [StreamChangeType.Update]: 'MODIFY',
+  [StreamChangeType.Delete]: 'REMOVE'
+};
+
 export const createMapping = <E extends EntryState>(
   state: EntryStates<E>,
   tableState: TableState,
@@ -26,19 +32,13 @@ export const createMapping = <E extends EntryState>(
 };
 
 const getFilters = (triggers: StreamChangeType[] | undefined) => {
-  if (!triggers || triggers.length === 3) {
-    return undefined;
+  if (triggers && triggers.length !== 3) {
+    return triggers.map((trigger) =>
+      JSON.stringify({
+        eventName: [EVENT_NAMES[trigger]]
+      })
+    );
   }
 
-  const eventNames = {
-    [StreamChangeType.Insert]: 'INSERT',
-    [StreamChangeType.Update]: 'MODIFY',
-    [StreamChangeType.Delete]: 'REMOVE'
-  };
-
-  return triggers.map((trigger) =>
-    JSON.stringify({
-      eventName: [eventNames[trigger]]
-    })
-  );
+  return [];
 };
