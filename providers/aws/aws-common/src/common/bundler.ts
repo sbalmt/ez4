@@ -2,10 +2,10 @@ import type { LinkedContext } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
-import { readFile, stat } from 'node:fs/promises';
+import { join, parse, relative } from 'node:path';
 import { availableParallelism } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
@@ -39,41 +39,44 @@ export type BundlerOptions = {
 export const createBundleHash = async (allSourceFiles: string[]) => {
   const fileSignatures = createHash('sha256');
 
-  const pathSignatures = await Promise.all(
+  const pathHashes = await Promise.all(
     allSourceFiles.map(async (filePath) => {
-      let pathSignature = pathCache.get(filePath);
+      const relativePath = relative(process.cwd(), filePath);
 
-      if (!pathSignature) {
-        const fileStat = await stat(filePath);
-        const modified = fileStat.mtime.getTime();
+      let contentHash = pathCache.get(relativePath);
 
-        pathSignature = `${filePath}:${modified}`;
+      if (!contentHash) {
+        const contentData = await readFile(filePath);
 
-        pathCache.set(filePath, pathSignature);
+        contentHash = createHash('sha256').update(contentData).digest('hex');
+
+        pathCache.set(relativePath, contentHash);
       }
 
       return {
-        filePath,
-        pathSignature
+        filePath: relativePath,
+        pathHash: `${relativePath}:${contentHash}`
       };
     })
   );
 
   // Ensure the same position to not trigger updates without real changes.
-  pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
+  pathHashes.sort((a, b) => a.filePath.localeCompare(b.filePath));
 
-  for (const { pathSignature } of pathSignatures) {
-    fileSignatures.update(pathSignature);
+  for (const { pathHash } of pathHashes) {
+    fileSignatures.update(pathHash);
   }
 
   return fileSignatures.digest('hex');
 };
 
 export const getBundleHash = async (sourceFile: string, dependencyFiles: string[]) => {
+  const sourceFiles = arrayUnique(dependencyFiles);
+
   let bundleHash = hashCache.get(sourceFile);
 
   if (!bundleHash) {
-    bundleHash = await createBundleHash(arrayUnique(dependencyFiles));
+    bundleHash = await createBundleHash(sourceFiles);
 
     hashCache.set(sourceFile, bundleHash);
   }
