@@ -3,6 +3,7 @@ import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema } from '@ez4/schema';
 import type { UndefinedMode } from '../types/mode';
+import type { StreamChangeType } from '../services/streams';
 import type { Index } from '../types/index';
 import type {
   ParametersMode,
@@ -76,6 +77,7 @@ export type DatabaseTable = {
 };
 
 export type TableStream = {
+  triggers?: StreamChangeType[];
   listener?: ServiceListener;
   handler: StreamHandler;
   variables?: LinkedVariables;

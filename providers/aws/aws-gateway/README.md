@@ -45,6 +45,12 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Gateway child resources are removed through their dependency order. Routes,
+integrations, responses, authorizers, and stages must be removed before the
+gateway itself; stage access logging is detached during stage deletion.
+
 ## License
 
 MIT License

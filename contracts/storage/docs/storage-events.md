@@ -28,6 +28,16 @@ path: 'uploads/*.ext';
 
 > The `*` wildcard matches the middle of an object key. In `uploads/*.ext`, the key must start with `uploads/` and end with `.ext`.
 
+#### Triggers (optional)
+
+Restricts the object event types that trigger the handler. When omitted, both object creation and removal events trigger the handler.
+
+```ts
+triggers: [BucketEventType.Create];
+```
+
+Use `BucketEventType.Create` for object creation events and `BucketEventType.Delete` for object removal events.
+
 #### Handler
 
 Main entry-point function for processing matching object events.

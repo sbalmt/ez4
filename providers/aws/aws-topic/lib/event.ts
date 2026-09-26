@@ -54,6 +54,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     }
   } catch (error) {
     await onError(error, currentRequest ?? request);
+    throw error;
   } finally {
     clearTimeout(timeoutEvent);
     await onEnd(request);

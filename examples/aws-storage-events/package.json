@@ -1,0 +1,25 @@
+{
+  "name": "aws-storage-events",
+  "description": "Example of a service using AWS S3 events.",
+  "version": "0.0.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24.21"
+  },
+  "workspaces": [
+    "examples/*"
+  ],
+  "scripts": {
+    "deploy": "tsc && ez4 deploy -e local.env",
+    "destroy": "ez4 destroy -e local.env --force"
+  },
+  "dependencies": {
+    "@ez4/aws-bucket": "^0.55.0",
+    "@ez4/common": "^0.55.0",
+    "@ez4/project": "^0.55.0",
+    "@ez4/storage": "^0.55.0"
+  }
+}

@@ -91,13 +91,11 @@ paths:
           required: false
           schema:
             type: string
-            description: "Page cursor."
         - name: limit
           in: query
           required: false
           schema:
             type: integer
-            description: "Page limit."
             minimum: 1
             maximum: 10
       responses:
@@ -112,36 +110,29 @@ components:
   requestSchemes:
     createScheduleHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         date:
           type: string
-          description: "Event date.11(Use custom type validation rather than validation service.)"
           format: date-time
         message:
           type: string
-          description: "Event message."
       required:
         - date
         - message
     updateScheduleHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         date:
           type: string
-          description: "New event date."
           format: date-time
         message:
           type: string
-          description: "New event message."
 
   responseSchemes:
     createScheduleHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
@@ -150,22 +141,18 @@ components:
         - id
     readScheduleHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         date:
           type: string
-          description: "Event date."
           format: date-time
         message:
           type: string
-          description: "Event message."
       required:
         - date
         - message
     updateScheduleHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
@@ -174,25 +161,20 @@ components:
         - message
     listSchedulesHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         next:
           type: string
-          description: "Next page cursor."
         schedules:
           type: array
-          description: "List of schedules."
           items:
             type: object
             additionalProperties: false
             properties:
               id:
                 type: string
-                description: "Event id."
               date:
                 type: string
-                description: "Event date."
                 format: date-time
               status:
                 enum: 
@@ -200,10 +182,8 @@ components:
                   - 'completed'
               created_at:
                 type: string
-                description: "Event creation date."
               updated_at:
                 type: string
-                description: "Event last update date."
             required:
               - id
               - date

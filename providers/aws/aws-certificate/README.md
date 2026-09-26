@@ -34,6 +34,12 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Certificate deletion requires `allowDeletion: true` unless deployment is
+forced with `--force`. Certificates still in use must be detached from their
+dependents before deletion.
+
 ## License
 
 MIT License

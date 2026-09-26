@@ -3,8 +3,8 @@
 erDiagram
 	TableA {
 		id string PK
-		value number
 		table_b_id string FK
+		value number
 	}
 	TableB ||--|{ TableA : "table_b(id) → table_a(table_b_id)"
 	TableB {
@@ -13,7 +13,7 @@ erDiagram
 	}
 	TableC {
 		id string PK
-		value number
 		table_b_id string FK
+		value number
 	}
 	TableB ||--o{ TableC : "table_b(id) → table_c(table_b_id)"

@@ -11,7 +11,6 @@ graph LR
 	end
 	classDef ez4Scheduler fill:#9b51e050, stroke:#9b51e0a0
 	classDef ez4SchedulerEdge stroke:#9b51e0
-	classDef ez4SchedulerEdge stroke:#9b51e0
 	subgraph Schedulers
 		style Schedulers fill: #f5f5f5, stroke-width: 0
 		EventScheduler@{ shape: stadium, label: "EventScheduler" }
@@ -38,19 +37,19 @@ graph LR
 		StatsServiceFactory@{ shape: rounded, label: "StatsServiceFactory" }
 		class StatsServiceFactory ez4Factory
 	end
-	StatsServiceFactory EventDbStatsServiceFactory@--> EventDb
-	DateValidation EventDbDateValidation@--> EventDb
 	Api DateValidationApi@--> DateValidation
 	Api StatsServiceFactoryApi@--> StatsServiceFactory
 	Api EventSchedulerApi@--> EventScheduler
 	Api EventDbApi@--> EventDb
 	Api DateValidationApi@--> DateValidation
+	DateValidation EventDbDateValidation@--> EventDb
 	EventScheduler EventDbEventScheduler@--> EventDb
-	class EventDbStatsServiceFactory ez4FactoryEdge
-	class EventDbDateValidation ez4ValidationEdge
+	StatsServiceFactory EventDbStatsServiceFactory@--> EventDb
 	class DateValidationApi ez4ApiEdge
 	class StatsServiceFactoryApi ez4ApiEdge
 	class EventSchedulerApi ez4ApiEdge
 	class EventDbApi ez4ApiEdge
 	class DateValidationApi ez4ApiEdge
+	class EventDbDateValidation ez4ValidationEdge
 	class EventDbEventScheduler ez4SchedulerEdge
+	class EventDbStatsServiceFactory ez4FactoryEdge

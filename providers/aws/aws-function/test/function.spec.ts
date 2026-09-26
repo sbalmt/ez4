@@ -73,7 +73,7 @@ describe('function', { timeout: 60000 }, () => {
         test1: 'ez4-variable'
       }),
       getFunctionFiles: () => {
-        return [sourceFile, [sourceFile]];
+        return [sourceFile];
       },
       getFunctionBundle: () => {
         return sourceFile;

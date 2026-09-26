@@ -49,6 +49,15 @@ Listeners receive one or more of the following event types during the lifecycle 
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.
 
+## Listener failures
+
+Listener failures follow the event's role in the execution lifecycle:
+
+- `Begin` and `Ready` are fail-fast. If either listener event fails, topic event processing fails and the delivery can be retried.
+- `Done`, `Timeout`, `Error`, and `End` are best-effort notifications. A failure in one of these listener events is logged and does not change event processing or delivery outcome.
+
+Listeners should keep best-effort events focused on observability, such as logging, metrics, and tracing. They should not perform required event processing in those events.
+
 ## What's next
 
 - [Topic service](./topic-service.md)

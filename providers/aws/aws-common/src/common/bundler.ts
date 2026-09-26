@@ -2,14 +2,15 @@ import type { LinkedContext } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
-import { readFile, stat } from 'node:fs/promises';
+import { join, parse, relative } from 'node:path';
 import { availableParallelism } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { join, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
+import { ServiceEventType } from '@ez4/common';
 import { Logger } from '@ez4/logger';
 
 import { SourceFileError } from '../errors/bundler';
@@ -39,43 +40,44 @@ export type BundlerOptions = {
 export const createBundleHash = async (allSourceFiles: string[]) => {
   const fileSignatures = createHash('sha256');
 
-  const pathSignatures = await Promise.all(
+  const pathHashes = await Promise.all(
     allSourceFiles.map(async (filePath) => {
-      let pathSignature = pathCache.get(filePath);
+      const relativePath = relative(process.cwd(), filePath);
 
-      if (!pathSignature) {
-        const fileStat = await stat(filePath);
-        const modified = fileStat.mtime.getTime();
+      let contentHash = pathCache.get(relativePath);
 
-        pathSignature = `${filePath}:${modified}`;
+      if (!contentHash) {
+        const contentData = await readFile(filePath);
 
-        pathCache.set(filePath, pathSignature);
+        contentHash = createHash('sha256').update(contentData).digest('hex');
+
+        pathCache.set(relativePath, contentHash);
       }
 
       return {
-        filePath,
-        pathSignature
+        filePath: relativePath,
+        pathHash: `${relativePath}:${contentHash}`
       };
     })
   );
 
   // Ensure the same position to not trigger updates without real changes.
-  pathSignatures.sort((a, b) => a.filePath.localeCompare(b.filePath));
+  pathHashes.sort((a, b) => a.filePath.localeCompare(b.filePath));
 
-  for (const { pathSignature } of pathSignatures) {
-    fileSignatures.update(pathSignature);
+  for (const { pathHash } of pathHashes) {
+    fileSignatures.update(pathHash);
   }
 
   return fileSignatures.digest('hex');
 };
 
-export const getBundleHash = async (sourceFile: string, dependencyFiles: string[]) => {
-  let bundleHash = hashCache.get(sourceFile);
+export const getBundleHash = async (cacheKey: string, sourceFiles: string[]) => {
+  let bundleHash = hashCache.get(cacheKey);
 
   if (!bundleHash) {
-    bundleHash = await createBundleHash(arrayUnique(dependencyFiles));
+    bundleHash = await createBundleHash(arrayUnique(sourceFiles));
 
-    hashCache.set(sourceFile, bundleHash);
+    hashCache.set(cacheKey, bundleHash);
   }
 
   return bundleHash;
@@ -216,7 +218,22 @@ const getEntrypointCode = async (options: BundlerOptions) => {
 
   return `
 import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
-${listener ? `import { ${listener.functionName} as dispatch } from '${getEntrypointImport(listener)}'` : `const dispatch = () => {}`};
+${listener ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}'` : `const __EZ4_DISPATCH = null`};
+
+const dispatch = async (event, context) => {
+  try {
+    await __EZ4_DISPATCH?.(event, context);
+  } catch (error) {
+    if (event.type === '${ServiceEventType.Begin}' || event.type === '${ServiceEventType.Ready}') {
+      throw error;
+    }
+
+    console.error({
+      ...Runtime.getScope(),
+      error
+    });
+  }
+};
 ${context.packages.join('\n')}
 
 const __EZ4_MAKE_LAZY_CONTEXT_FACTORY = (context)=> {

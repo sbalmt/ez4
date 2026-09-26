@@ -15,6 +15,7 @@ import { Logger } from '@ez4/logger';
 export type LocalClientOptions = ServeOptions & {
   events?: {
     handler: (event: Bucket.ObjectEvent) => Promise<void>;
+    triggers: BucketEventType[];
     prefix: string;
     suffix: string;
   }[];
@@ -60,8 +61,8 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`⬆️  File ${key} uploaded.`);
 
-      storageEvents?.forEach(async ({ prefix, suffix, handler }) => {
-        if (key.startsWith(prefix) && key.endsWith(suffix)) {
+      storageEvents?.forEach(async ({ prefix, suffix, triggers, handler }) => {
+        if (triggers.includes(BucketEventType.Create) && key.startsWith(prefix) && key.endsWith(suffix)) {
           const stats = await stat(filePath);
 
           await handler({
@@ -90,8 +91,8 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
       Logger.log(`ℹ️  File ${key} deleted.`);
 
-      storageEvents?.forEach(async ({ prefix, suffix, handler }) => {
-        if (key.startsWith(prefix) && key.endsWith(suffix)) {
+      storageEvents?.forEach(async ({ prefix, suffix, triggers, handler }) => {
+        if (triggers.includes(BucketEventType.Delete) && key.startsWith(prefix) && key.endsWith(suffix)) {
           await handler({
             eventType: BucketEventType.Delete,
             bucketName: storageIdentifier,

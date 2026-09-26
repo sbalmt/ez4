@@ -57,12 +57,12 @@ declare class UpdateItemResponse implements Http.Response {
     /**
      * @description Old or current item description.
      */
-    description?: string;
+    description: string | null;
 
     /**
      * @description Old or current item order.
      */
-    order?: Integer.Any;
+    order: Integer.Any | null;
 
     /**
      * @description Old or current item category name.

@@ -10,6 +10,10 @@ A local cache emulator.
 npm install @ez4/local-cache -D
 ```
 
+## Deletion behavior
+
+Resetting the local cache emulator clears all cached values before use.
+
 ## License
 
 MIT License

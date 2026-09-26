@@ -1,6 +1,7 @@
 import type { ReflectionOptions, ReflectionOutput, ReflectionReadyListener } from '@ez4/reflection';
 
-import { existsSync } from 'node:fs';
+import { globSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import { getReflectionFromFiles, watchReflectionFromFiles } from '@ez4/reflection';
 import { triggerAllSync } from '@ez4/project/library';
@@ -12,11 +13,10 @@ export type BuildReflectionOptions = {
 };
 
 export const buildReflection = (sourceFiles: string[], options?: BuildReflectionOptions): ReflectionOutput => {
-  assertSourceFiles(sourceFiles);
-
+  const reflectionSources = getReflectionSources(sourceFiles);
   const reflectionOptions = getReflectionOptions();
 
-  return getReflectionFromFiles(sourceFiles, {
+  return getReflectionFromFiles(reflectionSources, {
     ...reflectionOptions,
     compilerOptions: {
       paths: options?.aliasPaths
@@ -31,17 +31,19 @@ export type WatchReflectionOptions = {
 };
 
 export const watchReflection = (sourceFiles: string[], options: WatchReflectionOptions) => {
-  assertSourceFiles(sourceFiles);
-
   const { additionalPaths, aliasPaths } = options;
 
-  return watchReflectionFromFiles(sourceFiles, {
+  const reflectionSources = getReflectionSources(sourceFiles);
+
+  const reflectionOptions = {
     ...getReflectionOptions(options.onReflectionReady),
     additionalPaths,
     compilerOptions: {
       paths: aliasPaths
     }
-  });
+  };
+
+  return watchReflectionFromFiles(reflectionSources, reflectionOptions);
 };
 
 const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): ReflectionOptions => {
@@ -68,10 +70,22 @@ const getReflectionOptions = (onReflectionReady?: ReflectionReadyListener): Refl
   };
 };
 
-const assertSourceFiles = (sourceFiles: string[]) => {
+export const getReflectionSources = (sourceFiles: string[]) => {
+  const reflectionSources = new Set<string>();
+
   for (const sourceFile of sourceFiles) {
-    if (!existsSync(sourceFile)) {
+    const matches = globSync(sourceFile, {
+      exclude: ['**/node_modules/**']
+    });
+
+    if (!matches.length) {
       throw new ReflectionSourceFileNotFound(sourceFile);
     }
+
+    for (const match of matches) {
+      reflectionSources.add(resolve(match));
+    }
   }
+
+  return [...reflectionSources];
 };

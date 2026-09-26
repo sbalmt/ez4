@@ -15,5 +15,7 @@ export const getDatabaseServices = (metadata: MetadataReflection) => {
     databaseServices.push(service);
   }
 
-  return databaseServices;
+  return databaseServices.sort((a, b) => {
+    return a.name.localeCompare(b.name);
+  });
 };

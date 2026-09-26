@@ -109,6 +109,18 @@ describe('sql select tests', () => {
     );
   });
 
+  it('assert :: select with json object column reference', () => {
+    const query = sql.select().as('alias').from('table');
+
+    query.objectColumn('column');
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `SELECT "alias"."column" FROM "table" AS "alias"`);
+  });
+
   it('assert :: select with json array columns', () => {
     const query = sql.select().columns('foo', 'bar').as('alias').from('table');
 
@@ -137,6 +149,27 @@ describe('sql select tests', () => {
         `jsonb_build_object('foo', "alias"."foo", 'bar', "alias".column1, 'baz', "alias"."column2") ` +
         /**/ `ORDER BY "alias"."qux" DESC` +
         `), '[]'::json) AS "json" ` +
+        `FROM "table" AS "alias"`
+    );
+  });
+
+  it('assert :: select with json array column reference', () => {
+    const query = sql.select().as('alias').from('table');
+
+    query.arrayColumn('column', {
+      order: {
+        order: Order.Desc,
+        foo: Order.Asc
+      }
+    });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(
+      statement,
+      `SELECT COALESCE(json_agg("alias"."column" ORDER BY "alias"."order" DESC, "alias"."foo" ASC), '[]'::json) ` +
         `FROM "table" AS "alias"`
     );
   });

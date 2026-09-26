@@ -1,5 +1,6 @@
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Environment, Service } from '@ez4/common';
+import type { BucketEventType } from '@ez4/storage';
 import type { Bucket } from '@ez4/storage';
 
 export declare class TestStorage extends Bucket.Service {
@@ -8,6 +9,7 @@ export declare class TestStorage extends Bucket.Service {
       path: 'uploads/';
       handler: typeof eventHandler;
       files: ['path/to/file-a.txt', 'path/to/file-b.json'];
+      triggers: [BucketEventType.Create];
     }>,
     Bucket.UseEvent<{
       path: 'others/';

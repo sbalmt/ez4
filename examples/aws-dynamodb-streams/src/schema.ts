@@ -17,5 +17,5 @@ export declare class ExampleSchema implements Database.Schema {
   /**
    * Example of time-to-live property.
    */
-  expire_at: number;
+  expire_at?: number;
 }

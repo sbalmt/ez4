@@ -44,6 +44,7 @@ export async function eventEntryPoint(payload: AnyObject | null, context: Contex
     await onDone(request);
   } catch (error) {
     await onError(error, request);
+    throw error;
   } finally {
     clearTimeout(timeoutEvent);
     await onEnd(request);

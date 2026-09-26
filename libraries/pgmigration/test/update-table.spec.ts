@@ -124,6 +124,38 @@ describe('migration :: update table tests', () => {
     });
   });
 
+  it('assert :: rename table (unrelated name)', () => {
+    const source = getTableRepository([
+      {
+        name: 'table',
+        indexes: [],
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    ]);
+
+    const target = {
+      completely_different_name: {
+        ...source.table,
+        name: 'completely_different_name'
+      }
+    };
+
+    const steps = getUpdateStepQueries(target, source);
+
+    deepEqual(steps.rollout.tables, [
+      {
+        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "completely_different_name"'
+      }
+    ]);
+  });
+
   it('assert :: rename table with added column', () => {
     const source = getTableRepository([
       {
@@ -220,6 +252,52 @@ describe('migration :: update table tests', () => {
       {
         check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'renamed_table')`,
         query: 'ALTER TABLE IF EXISTS "renamed_table" ALTER COLUMN "column_a" TYPE text USING "column_a"::text'
+      }
+    ]);
+  });
+
+  it('assert :: rename table with renamed column', () => {
+    const source = getTableRepository([
+      {
+        name: 'table',
+        indexes: [],
+        schema: {
+          type: SchemaType.Object,
+          properties: {
+            id: {
+              type: SchemaType.String
+            },
+            column_a: {
+              type: SchemaType.String
+            }
+          }
+        }
+      }
+    ]);
+
+    const target = {
+      renamed_table: {
+        ...source.table,
+        name: 'renamed_table',
+        schema: {
+          ...source.table.schema,
+          properties: {
+            id: source.table.schema.properties.id,
+            completely_different_column: source.table.schema.properties.column_a
+          }
+        } satisfies ObjectSchema
+      }
+    };
+
+    const steps = getUpdateStepQueries(target, source);
+
+    deepEqual(steps.rollout.tables, [
+      {
+        query: 'ALTER TABLE IF EXISTS "table" RENAME TO "renamed_table"'
+      },
+      {
+        check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column_a' AND "table_name" = 'renamed_table')`,
+        query: 'ALTER TABLE IF EXISTS "renamed_table" RENAME COLUMN "column_a" TO "completely_different_column"'
       }
     ]);
   });

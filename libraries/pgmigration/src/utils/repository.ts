@@ -49,33 +49,21 @@ export const getTableRepositoryChanges = (target: PgTableRepository, source: PgT
 
 const getRepositoryChanges = (target: PgTableRepository, source: PgTableRepository) => {
   return deepCompareObject(target, source, {
-    onCompareName: (target, source) => {
-      const targetParts = new Set(toSnakeCase(target).split('_'));
-      const sourceParts = new Set(toSnakeCase(source).split('_'));
-
-      for (const sourcePart of sourceParts) {
-        if (sourcePart.length > 1 && targetParts.has(sourcePart)) {
-          return true;
-        }
-      }
-
-      return false;
-    },
-    onRename: (target, source) => {
-      if (!isAnyObject(target) || !isAnyObject(source)) {
+    onRename: (targetKey, sourceKey, targetValue, sourceValue) => {
+      if (!isAnyObject(targetValue) || !isAnyObject(sourceValue)) {
         return false;
       }
 
-      if (isTableMetadata(target) && isTableMetadata(source)) {
-        return canRenameTable(target.schema, source.schema);
+      if (isTableMetadata(targetValue) && isTableMetadata(sourceValue)) {
+        return canRenameBasedTableSchema(targetKey, sourceKey, targetValue.schema, sourceValue.schema);
       }
 
-      if (isTableIndex(target) && isTableIndex(source)) {
-        return canRenameIndex(target, source);
+      if (isTableIndex(targetValue) && isTableIndex(sourceValue)) {
+        return canRenameBasedOnIndexColumns(targetKey, sourceKey, targetValue, sourceValue);
       }
 
-      if (isAnySchema(target) && isAnySchema(source)) {
-        return canRenameColumn(target, source);
+      if (isAnySchema(targetValue) && isAnySchema(sourceValue)) {
+        return canRenameBasedOnColumnSechema(targetKey, sourceKey, targetValue, sourceValue);
       }
 
       return false;
@@ -83,29 +71,56 @@ const getRepositoryChanges = (target: PgTableRepository, source: PgTableReposito
   });
 };
 
-const canRenameTable = (target: ObjectSchema, source: ObjectSchema) => {
-  const targetColumns = Object.keys(target.properties);
-  const sourceColumns = Object.keys(source.properties);
+const canRenameBasedOnIndexColumns = (targetKey: string, sourceKey: string, targetValue: PgTableIndex, sourceValue: PgTableIndex) => {
+  if (targetValue.type === sourceValue.type) {
+    if (!deepEqual(targetValue.columns, sourceValue.columns)) {
+      return targetValue.columns.length === sourceValue.columns.length && canRenameBasedOnName(targetKey, sourceKey);
+    }
 
-  if (targetColumns.length && sourceColumns.length) {
-    return targetColumns.some((column) => sourceColumns.includes(column));
+    return true;
   }
 
-  return true;
+  return false;
 };
 
-const canRenameIndex = (target: PgTableIndex, source: PgTableIndex) => {
-  return target.type === source.type && deepEqual(target.columns, source.columns);
+const canRenameBasedTableSchema = (targetKey: string, sourceKey: string, targetValue: ObjectSchema, sourceValue: ObjectSchema) => {
+  const targetColumns = Object.keys(targetValue.properties);
+  const sourceColumns = Object.keys(sourceValue.properties);
+
+  if (targetColumns.length && sourceColumns.length) {
+    const sharedColumns = targetColumns.filter((column) => sourceColumns.includes(column)).length;
+    const totalColumns = Math.max(targetColumns.length, sourceColumns.length);
+
+    return sharedColumns / totalColumns >= 0.5;
+  }
+
+  return canRenameBasedOnName(targetKey, sourceKey);
 };
 
-const canRenameColumn = (target: AnySchema, source: AnySchema) => {
-  return deepEqual(target, source, {
-    depth: 1,
-    include: {
-      type: true,
-      definitions: true,
-      nullable: true,
-      format: true
+const canRenameBasedOnColumnSechema = (targetKey: string, sourceKey: string, targetValue: AnySchema, sourceValue: AnySchema) => {
+  return (
+    canRenameBasedOnName(targetKey, sourceKey) ||
+    deepEqual(targetValue, sourceValue, {
+      depth: 1,
+      include: {
+        type: true,
+        definitions: true,
+        nullable: true,
+        format: true
+      }
+    })
+  );
+};
+
+const canRenameBasedOnName = (target: string, source: string) => {
+  const targetParts = new Set(toSnakeCase(target).split('_'));
+  const sourceParts = new Set(toSnakeCase(source).split('_'));
+
+  for (const sourcePart of sourceParts) {
+    if (sourcePart.length > 1 && targetParts.has(sourcePart)) {
+      return true;
     }
-  });
+  }
+
+  return false;
 };

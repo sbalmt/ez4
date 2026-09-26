@@ -120,7 +120,6 @@ components:
   requestSchemes:
     createItemHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         name:
@@ -133,6 +132,9 @@ components:
           description: "Item description."
           minLength: 1
           maxLength: 128
+        order:
+          type: integer
+          description: "Item order."
         category:
           anyOf:
           - type: object
@@ -159,11 +161,29 @@ components:
                 format: uuid
             required:
               - category_id
+        tags:
+          type: array
+          description: "New item tags."
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              label:
+                type: string
+                description: "Item tag label."
+                minLength: 1
+                maxLength: 32
+              type:
+                enum: 
+                  - 'regular'
+                  - 'hidden'
+            required:
+              - label
+              - type
       required:
         - name
     updateItemHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         name:
@@ -171,6 +191,9 @@ components:
           description: "New item name."
           minLength: 1
           maxLength: 16
+        order:
+          type: integer
+          description: "New item order."
         description:
           type: string
           description: "New item description."
@@ -178,39 +201,58 @@ components:
           maxLength: 128
         category:
           type: object
-          description: "Item category."
+          description: "New item category."
           additionalProperties: false
           properties:
             name:
               type: string
-              description: "New category name."
+              description: "Category name."
               minLength: 1
               maxLength: 32
             description:
               type: string
-              description: "New category description."
+              description: "Category description."
               minLength: 1
               maxLength: 128
           required:
             - name
+        tags:
+          type: array
+          description: "New item tags."
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              label:
+                type: string
+                description: "Item tag label."
+                minLength: 1
+                maxLength: 32
+              type:
+                enum: 
+                  - 'regular'
+                  - 'hidden'
+            required:
+              - label
+              - type
 
   responseSchemes:
     createItemHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         item_id:
           type: string
           description: "Created item Id."
+          format: uuid
         category_id:
           type: string
           description: "Created category Id."
+          format: uuid
       required:
         - item_id
     readItemHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
@@ -225,11 +267,30 @@ components:
         category_description:
           type: string
           description: "Item category description."
+        order:
+          type: integer
+          description: "Item order."
+        tags:
+          type: array
+          description: "Item tags."
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              label:
+                type: string
+                description: "Item tag label."
+              type:
+                enum: 
+                  - 'regular'
+                  - 'hidden'
+            required:
+              - label
+              - type
       required:
         - name
     updateItemHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
@@ -238,6 +299,9 @@ components:
         description:
           type: string
           description: "Old or current item description."
+        order:
+          type: integer
+          description: "Old or current item order."
         category_name:
           type: string
           description: "Old or current item category name."
@@ -248,20 +312,18 @@ components:
         - name
     deleteItemHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         name:
           type: string
-          description: "Old item name."
+          description: "Deleted item name."
         description:
           type: string
-          description: "Old item description."
+          description: "Deleted item description."
       required:
         - name
     listItemsHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         total:
@@ -269,17 +331,25 @@ components:
           description: "Total amount of items."
         items:
           type: array
-          description: "Items of the current."
+          description: "Items of the current page."
           items:
             type: object
             additionalProperties: false
             properties:
               id:
                 type: string
+                description: "Item id."
               name:
                 type: string
+                description: "Item name."
               category:
                 type: string
+                description: "Item category name."
+              tags:
+                type: array
+                description: "All visible tags for the item."
+                items:
+                  type: string
             required:
               - id
               - name

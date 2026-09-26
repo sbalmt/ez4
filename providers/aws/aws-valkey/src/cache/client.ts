@@ -13,6 +13,8 @@ import { getTagList } from '@ez4/aws-common';
 
 import { getCacheClient } from '../utils/deploy';
 import { waitForServerlessCache } from './helpers/waiter';
+import { CacheConstraints } from './constraints';
+import { InvalidCacheNameError } from './errors';
 
 export type CreateRequest = {
   name: string;
@@ -60,6 +62,10 @@ export const createCache = async (logger: OperationLogLine, request: CreateReque
   logger.update(`Creating cache`);
 
   const { name, description } = request;
+
+  if (name.length > CacheConstraints.MaxNameLength) {
+    throw new InvalidCacheNameError(name, CacheConstraints.MaxNameLength);
+  }
 
   const client = getCacheClient();
 

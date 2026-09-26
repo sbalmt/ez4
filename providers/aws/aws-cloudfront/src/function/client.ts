@@ -12,6 +12,8 @@ import {
 } from '@aws-sdk/client-cloudfront';
 
 import { getCloudFrontClient } from '../utils/deploy';
+import { FunctionConstraints } from './constraints';
+import { InvalidFunctionNameError } from './errors';
 
 export type CreateRequest = {
   functionName: string;
@@ -56,6 +58,10 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
   logger.update(`Creating function`);
 
   const { functionName, functionCode, description } = request;
+
+  if (functionName.length > FunctionConstraints.MaxNameLength) {
+    throw new InvalidFunctionNameError(functionName, FunctionConstraints.MaxNameLength);
+  }
 
   const client = getCloudFrontClient();
 

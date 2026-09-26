@@ -40,6 +40,7 @@ export const prepareTableStream = (
     timeout = Defaults.Timeout,
     debug = options.debug,
     variables,
+    triggers,
     listener,
     handler,
     files,
@@ -96,7 +97,8 @@ export const prepareTableStream = (
   }
 
   createMapping(state, tableState, handlerState, {
-    fromService: internalName
+    fromService: internalName,
+    triggers
   });
 
   return handlerState;

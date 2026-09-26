@@ -1,3 +1,9 @@
+export class InvalidScheduleNameError extends Error {
+  constructor(scheduleName: string, maxLength: number) {
+    super(`Cron name ${scheduleName} exceeds ${maxLength} characters.`);
+  }
+}
+
 export class ScheduleNotFoundError extends Error {
   constructor(scheduleName: string) {
     super(`Cron service ${scheduleName} wasn't found.`);

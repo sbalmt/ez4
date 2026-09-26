@@ -18,6 +18,8 @@ import {
 } from '@aws-sdk/client-s3';
 
 import { getS3Client } from '../utils/deploy';
+import { BucketConstraints } from './constraints';
+import { InvalidBucketNameError } from './errors';
 
 export type CreateRequest = {
   bucketName: string;
@@ -58,6 +60,10 @@ export const createBucket = async (logger: OperationLogLine, request: CreateRequ
   logger.update(`Creating bucket`);
 
   const { bucketName } = request;
+
+  if (bucketName.length > BucketConstraints.MaxNameLength) {
+    throw new InvalidBucketNameError(bucketName, BucketConstraints.MaxNameLength);
+  }
 
   await getS3Client().send(
     new CreateBucketCommand({

@@ -9,6 +9,11 @@ import type { TableSchema } from './schemas';
  */
 export interface TableStream<T extends TableSchema> {
   /**
+   * Change types that trigger the stream handler.
+   */
+  readonly triggers?: StreamChangeType[];
+
+  /**
    * Life-cycle listener function for the stream.
    */
   readonly listener?: TableStreamListener<T>;

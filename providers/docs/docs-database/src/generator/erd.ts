@@ -1,6 +1,6 @@
-import type { DatabaseService, DatabaseTable } from '@ez4/database/library';
+import type { DatabaseService, DatabaseTable, TableIndex, TableRelation } from '@ez4/database/library';
 
-import { toPascalCase } from '@ez4/utils';
+import { sortObject, toPascalCase } from '@ez4/utils';
 import { Index } from '@ez4/database';
 
 export namespace EntityRelationshipGenerator {
@@ -11,10 +11,12 @@ export namespace EntityRelationshipGenerator {
       'erDiagram'
     ];
 
-    for (const table of databaseService.tables) {
+    const tables = sortTables(databaseService.tables);
+
+    for (const table of tables) {
       const tableName = toPascalCase(table.name);
 
-      const allRelations = getRelationsOutput(table, databaseService.tables);
+      const allRelations = getRelationsOutput(table, tables);
       const allColumns = getColumnsOutput(table);
 
       output.push(`\t${tableName} {`);
@@ -30,12 +32,14 @@ export namespace EntityRelationshipGenerator {
   const getColumnsOutput = (table: DatabaseTable) => {
     const { schema, indexes, relations = [] } = table;
 
-    const columns = schema.properties;
+    const columns = sortObject({ ...schema.properties });
+    const sortedRelations = sortRelations(relations);
+    const sortedIndexes = sortIndexes(indexes);
     const output = [];
 
-    for (const name in columns) {
-      const relation = relations.find((relation) => relation.targetColumn === name);
-      const index = indexes.find((index) => index.columns.includes(name));
+    for (const name of Object.keys(columns)) {
+      const relation = sortedRelations.find((relation) => relation.targetColumn === name);
+      const index = sortedIndexes.find((index) => index.columns.includes(name));
 
       const schema = columns[name];
       const column = [name, schema.type];
@@ -78,7 +82,7 @@ export namespace EntityRelationshipGenerator {
       return `${tableName}(${columnName})`;
     };
 
-    for (const relation of relations) {
+    for (const relation of sortRelations(relations)) {
       const { sourceTable, sourceColumn, targetColumn, sourceIndex, targetIndex } = relation;
 
       const sourceTableData = tables.find((table) => table.name === sourceTable);
@@ -128,5 +132,26 @@ export namespace EntityRelationshipGenerator {
     }
 
     return output;
+  };
+
+  const sortTables = (tables: DatabaseTable[]) => {
+    return [...tables].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+  };
+
+  const sortRelations = (relations: TableRelation[]) => {
+    return [...relations].sort((a, b) => {
+      const relationA = `${a.sourceTable}:${a.targetColumn}`;
+      const relationB = `${b.sourceTable}:${b.targetColumn}`;
+
+      return relationA.localeCompare(relationB);
+    });
+  };
+
+  const sortIndexes = (indexes: TableIndex[]) => {
+    return [...indexes].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
   };
 }

@@ -80,10 +80,10 @@ const deleteResource = async (current: LogGroupState, context: StepContext) => {
   if (result) {
     return OperationLogger.logExecution(LogGroupServiceName, groupName, 'deletion', async (logger) => {
       if (!context.force) {
-        const canDelete = await canDeleteGroup(logger, groupName);
+        const canDelete = await canDeleteGroup(logger, groupName, parameters.retention);
 
         if (!canDelete) {
-          context.addWarning(`Log group '${groupName}' isn't yet empty; deletion may occur next time.`);
+          context.addWarning(`Log group '${groupName}' has not reached its retention period; deletion may occur next time.`);
           return;
         }
       }

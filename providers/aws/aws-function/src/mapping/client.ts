@@ -6,9 +6,9 @@ import {
   UpdateEventSourceMappingCommand,
   DeleteEventSourceMappingCommand,
   ListEventSourceMappingsCommand,
+  ResourceNotFoundException,
   FunctionResponseType,
-  EventSourcePosition,
-  ResourceNotFoundException
+  EventSourcePosition
 } from '@aws-sdk/client-lambda';
 
 import { parseArn } from '@ez4/aws-common';
@@ -25,6 +25,7 @@ export type BatchOptions = {
 export type CreateRequest = {
   functionName: string;
   sourceArn: Arn;
+  filters?: string[];
   concurrency?: number;
   enabled?: boolean;
   batch?: BatchOptions;
@@ -128,7 +129,7 @@ export const deleteMapping = async (logger: OperationLogLine, eventId: string) =
 const upsertMappingRequest = (
   request: CreateRequest | UpdateRequest
 ): Omit<Partial<CreateEventSourceMappingRequest | UpdateEventSourceMappingRequest>, 'functionName'> => {
-  const { sourceArn, enabled, concurrency, batch } = request;
+  const { sourceArn, enabled, concurrency, batch, filters } = request;
 
   const { service } = parseArn(sourceArn);
 
@@ -143,6 +144,13 @@ const upsertMappingRequest = (
     ...(service === MappingService.Queue && {
       ScalingConfig: {
         MaximumConcurrency: concurrency
+      }
+    }),
+    ...(filters?.length && {
+      FilterCriteria: {
+        Filters: filters.map((pattern) => ({
+          Pattern: pattern
+        }))
       }
     })
   };

@@ -53,30 +53,29 @@ const executeIntegrityChecks = async (logger: OperationLogLine, driver: ApiClien
     noErrorLog: true
   };
 
-  const operations = validations.map(
-    (statement) => () =>
-      Wait.until(
-        async (attempt, attempts) => {
-          try {
-            return await executeIntegrityStatement(driver, statement, options);
-          } catch (error) {
-            if (attempt < attempts && (await isValidationRunning(driver, statement.retry, options))) {
-              return Wait.RetryAttempt;
-            }
-
-            throw error;
+  const operations = validations.map((statement) => () => {
+    return Wait.until(
+      async (attempt, attempts) => {
+        try {
+          return await executeIntegrityStatement(driver, statement, options);
+        } catch (error) {
+          if (attempt < attempts && (await isValidationRunning(driver, statement.retry, options))) {
+            return Wait.RetryAttempt;
           }
-        },
-        {
-          minDelay: 5,
-          maxDelay: 60,
-          attempts: 25
+
+          throw error;
         }
-      )
-  );
+      },
+      {
+        minDelay: 5,
+        maxDelay: 60,
+        attempts: 25
+      }
+    );
+  });
 
   return Tasks.safeRun(operations, {
-    concurrency: 5,
+    concurrency: 10,
     onProgress: (completed, total) => {
       logger.update(`Validating integrity (${completed} of ${total})`);
     }

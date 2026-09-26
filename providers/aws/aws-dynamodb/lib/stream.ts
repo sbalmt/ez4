@@ -61,6 +61,7 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
     }
   } catch (error) {
     await onError(error, currentRequest ?? request);
+    throw error;
   } finally {
     clearTimeout(timeoutEvent);
     await onEnd(request);

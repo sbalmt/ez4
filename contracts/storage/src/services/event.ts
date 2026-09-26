@@ -1,5 +1,6 @@
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { BucketEventType } from '../types/event';
 import type { BucketObjectEvent } from './object';
 import type { BucketListener } from './listener';
 import type { BucketHandler } from './handler';
@@ -12,6 +13,11 @@ export interface BucketEvent {
    * Path associated to the event.
    */
   readonly path: string;
+
+  /**
+   * Object event types that trigger the handler.
+   */
+  readonly triggers?: BucketEventType[];
 
   /**
    * Life-cycle listener function for the event.

@@ -13,6 +13,7 @@ import {
   getPropertyNumber,
   getPropertyString,
   getPropertyStringList,
+  getPropertyStringListIn,
   getPropertyBoolean,
   getServiceListener,
   getServiceArchitecture,
@@ -26,6 +27,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteEventError, IncorrectEventTypeError, InvalidEventTypeError } from '../errors/event';
+import { BucketEventType } from '../types/event';
 import { getEventHandlerMetadata } from './handler';
 
 export const isBucketEventDeclaration = (type: TypeModel) => {
@@ -100,6 +102,11 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'path': {
         event.path = getPropertyString(member);
+        break;
+      }
+
+      case 'triggers': {
+        event.triggers = getPropertyStringListIn(member, [BucketEventType.Create, BucketEventType.Delete]);
         break;
       }
 

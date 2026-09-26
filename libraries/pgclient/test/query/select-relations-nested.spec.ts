@@ -22,6 +22,7 @@ declare class Test extends Database.Service<PostgresEngine> {
       };
       schema: {
         id: string;
+        column: number;
       };
     },
     {
@@ -54,6 +55,7 @@ declare class Test extends Database.Service<PostgresEngine> {
         id: string;
         relation_b_id?: string;
         column: number;
+        date: string;
       };
     },
     {
@@ -108,6 +110,9 @@ describe('select nested relations', () => {
           id: {
             type: SchemaType.String,
             format: 'uuid'
+          },
+          column: {
+            type: SchemaType.Number
           },
           relation1_id: {
             type: SchemaType.String,
@@ -184,6 +189,10 @@ describe('select nested relations', () => {
           },
           column: {
             type: SchemaType.Number
+          },
+          date: {
+            type: SchemaType.String,
+            format: 'date-time'
           }
         }
       }
@@ -332,6 +341,33 @@ describe('select nested relations', () => {
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
   });
 
+  it('assert :: prepare nested relation filters', ({ assert }) => {
+    const [statement, variables] = prepareCSelect({
+      select: {
+        id: true
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000001',
+        relation_b: {
+          relation_a: {
+            column: 42
+          }
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id" FROM "ez4-test-c" AS "R0" ` +
+        `WHERE "R0"."id" = :0 AND EXISTS (SELECT 1 FROM "ez4-test-b" AS "T0" ` +
+        `WHERE EXISTS (SELECT 1 FROM "ez4-test-a" AS "T1" ` +
+        `WHERE "T1"."column" = :1 AND "T1"."id" = "T0"."relation_a_id") ` +
+        `AND "T0"."id" = "R0"."relation_b_id")`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000001', 42]);
+  });
+
   it('assert :: prepare select nested relations (with include and order)', ({ assert }) => {
     const [statement, variables] = prepareDSelect({
       select: {
@@ -360,7 +396,7 @@ describe('select nested relations', () => {
     assert.equal(
       statement,
       `SELECT "R0"."id", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "S0"."id", 'column', "S0"."column") ORDER BY "S0"."column" DESC), '[]'::json) ` +
+        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "S0"."id") ORDER BY "S0"."column" DESC), '[]'::json) ` +
         /**/ `FROM "ez4-test-c" AS "S0" ` +
         /**/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id"` +
         `) AS "relation_cb" ` +
@@ -371,12 +407,79 @@ describe('select nested relations', () => {
     assert.deepEqual(variables, [100, '00000000-0000-1000-9000-000000000000']);
   });
 
+  it('assert :: prepare nested includes with relation filters', ({ assert }) => {
+    const [statement, variables] = prepareDSelect({
+      select: {
+        id: true,
+        relation_cb: {
+          id: true,
+          relation_b: {
+            id: true,
+            relation_a: {
+              id: true
+            }
+          }
+        }
+      },
+      include: {
+        relation_cb: {
+          where: {
+            column: {
+              gt: 100
+            }
+          },
+          order: {
+            column: Order.Desc
+          },
+          take: 2,
+          include: {
+            relation_b: {
+              include: {
+                relation_a: {
+                  where: {
+                    column: {
+                      gt: 20
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000000'
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id", ` +
+        // Paginated collection
+        `(SELECT COALESCE(json_agg("R1"."__EZ4_RECORD" ORDER BY "__EZ4_ORDER_0" DESC), '[]'::json) ` +
+        /**/ `FROM (` +
+        // Related row with nested relations
+        /****/ `SELECT jsonb_build_object('id', "S0"."id", ` +
+        /*********/ `'relation_b', (SELECT jsonb_build_object('id', "S1"."id", 'relation_a', ` +
+        /****************/ `(SELECT jsonb_build_object('id', "S2"."id") FROM "ez4-test-a" AS "S2" ` +
+        /****************/ `WHERE "S2"."column" > :0 AND "S2"."id" = "S1"."relation_a_id" LIMIT 1)) ` +
+        /*********/ `FROM "ez4-test-b" AS "S1" WHERE "S1"."id" = "S0"."relation_b_id" LIMIT 1)) AS "__EZ4_RECORD", ` +
+        /****/ `"S0"."column" AS "__EZ4_ORDER_0" FROM "ez4-test-c" AS "S0" ` +
+        /****/ `WHERE "S0"."column" > :1 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
+        /****/ `ORDER BY "S0"."column" DESC LIMIT 2) AS "R1") AS "relation_cb" ` +
+        `FROM "ez4-test-d" AS "R0" WHERE "R0"."id" = :2`
+    );
+
+    assert.deepEqual(variables, [20, 100, '00000000-0000-1000-9000-000000000000']);
+  });
+
   it('assert :: prepare select nested relations (with include, skip and take)', ({ assert }) => {
     const [statement, variables] = prepareDSelect({
       select: {
         id: true,
         relation_cb: {
-          id: true
+          id: true,
+          date: true
         }
       },
       include: {
@@ -398,10 +501,10 @@ describe('select nested relations', () => {
     assert.equal(
       statement,
       `SELECT "R0"."id", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id")), '[]'::json) ` +
+        `(SELECT COALESCE(json_agg("__EZ4_RECORD"), '[]'::json) ` +
         /**/ `FROM (` +
-        /****/ `SELECT "S0"."id" FROM "ez4-test-c" AS "S0" ` +
-        /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
+        /****/ `SELECT jsonb_build_object('id', "S0"."id", 'date', to_char("S0"."date", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')) AS "__EZ4_RECORD" ` +
+        /****/ `FROM "ez4-test-c" AS "S0" WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
         /****/ `OFFSET 1 ` +
         /****/ `LIMIT 2` +
         /**/ `) AS "S0"` +
@@ -418,7 +521,8 @@ describe('select nested relations', () => {
       select: {
         id: true,
         relation_cb: {
-          id: true
+          id: true,
+          date: true
         }
       },
       include: {
@@ -443,9 +547,11 @@ describe('select nested relations', () => {
     assert.equal(
       statement,
       `SELECT "R0"."id", ` +
-        `(SELECT COALESCE(json_agg(jsonb_build_object('id', "id", 'column', "column") ORDER BY "column" DESC), '[]'::json) ` +
+        `(SELECT COALESCE(json_agg("__EZ4_RECORD" ORDER BY "__EZ4_ORDER_0" DESC), '[]'::json) ` +
         /**/ `FROM (` +
-        /****/ `SELECT "S0"."id", "S0"."column" FROM "ez4-test-c" AS "S0" ` +
+        /****/ `SELECT jsonb_build_object('id', "S0"."id", ` +
+        /*********/ `'date', to_char("S0"."date", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')) AS "__EZ4_RECORD", ` +
+        /****/ `"S0"."column" AS "__EZ4_ORDER_0" FROM "ez4-test-c" AS "S0" ` +
         /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
         /****/ `ORDER BY "S0"."column" DESC ` +
         /****/ `OFFSET 1 ` +

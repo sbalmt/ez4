@@ -63,6 +63,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Roles detach their attached policies before deletion. Managed policies remove
+historical policy versions before the policy itself is deleted.
+
 ## License
 
 MIT License

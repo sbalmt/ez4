@@ -64,6 +64,7 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 - [DynamoDB streams](./examples/aws-dynamodb-streams)
 - [Schedule manager](./examples/aws-schedule-manager)
 - [Storage manager](./examples/aws-storage-manager)
+- [Storage events](./examples/aws-storage-events)
 - [Importing gateway](./examples/aws-import-gateway)
 - [Importing queue](./examples/aws-import-queue)
 - [Importing topic](./examples/aws-import-topic)

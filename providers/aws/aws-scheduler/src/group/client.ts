@@ -12,6 +12,8 @@ import {
 import { getTagList } from '@ez4/aws-common';
 
 import { getSchedulerClient } from '../utils/deploy';
+import { GroupConstraints } from './constraints';
+import { InvalidGroupNameError } from './errors';
 
 export type CreateRequest = {
   groupName: string;
@@ -48,6 +50,10 @@ export const importGroup = async (logger: OperationLogLine, groupName: string) =
 
 export const createGroup = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler group`);
+
+  if (request.groupName.length > GroupConstraints.MaxNameLength) {
+    throw new InvalidGroupNameError(request.groupName, GroupConstraints.MaxNameLength);
+  }
 
   const response = await getSchedulerClient().send(
     new CreateScheduleGroupCommand({
