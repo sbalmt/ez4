@@ -118,14 +118,33 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     select: {
       value_c: true,
       relation_b: {
-        value_b: true
+        value_b: true,
+        relation_a: {
+          value_a: true
+        }
       }
     },
     include: {
       relation_b: {
         where: {
+          value_b: 1,
           relation_a: {
             value_a: 2
+          }
+        },
+        order: {
+          value_b: Order.Desc
+        },
+        take: 1,
+        include: {
+          relation_a: {
+            where: {
+              value_a: 2
+            },
+            order: {
+              value_a: Order.Desc
+            },
+            take: 1
           }
         }
       }
@@ -140,7 +159,12 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
     }
   });
 
-  assertType<{ records: { value_c: number; relation_b: { value_b: number } | undefined }[] }, typeof resultC>(true);
+  assertType<
+    {
+      records: { value_c: number; relation_b: { value_b: number; relation_a: { value_a: number } } | undefined }[];
+    },
+    typeof resultC
+  >(true);
 
   // Fetch tableB and tableA connections through tableC.
   const resultD = await selfClient.tableC.findMany({

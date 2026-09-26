@@ -25,11 +25,13 @@ export interface TableRelations {}
  * Internal relation type.
  */
 export type RelationMetadata = {
-  filters: Record<string, AnyObject | undefined>;
   updates: Record<string, AnyObject | undefined>;
   inserts: Record<string, AnyObject | undefined>;
   selects: Record<string, AnyObject | undefined>;
   records: Record<string, AnyObject | undefined>;
+  filters: Record<string, AnyObject | undefined>;
+  includes: Record<string, RelationMetadata | undefined>;
+  orders: Record<string, AnyObject | undefined>;
   indexes: string;
 };
 
@@ -97,6 +99,8 @@ type ExtractRelations<
               selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
               records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
               filters: FilterRelationSchemas<S, R> & NestedFilterRelationSchemas<T, S, I, R>;
+              orders: FilterRelationSchemas<S, R>;
+              includes: NestedIncludeRelationSchemas<T, S, I, R>;
             };
           }
         : {}
@@ -108,6 +112,8 @@ type ExtractRelations<
             selects: {};
             records: {};
             filters: {};
+            orders: {};
+            includes: {};
           };
         }
     : {}
@@ -190,6 +196,20 @@ type NestedFilterRelationSchemas<
     ? MergeRelations<T, T, S, I>[RelationSourceTable<R[P]>] extends { filters: infer N }
       ? N
       : never
+    : never;
+};
+
+/**
+ * Produce relation metadata for recursively nested include operations.
+ */
+type NestedIncludeRelationSchemas<
+  T extends DatabaseTable<TableSchema, any>[],
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
+  R extends AnyObject
+> = {
+  [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[P]>]
     : never;
 };
 

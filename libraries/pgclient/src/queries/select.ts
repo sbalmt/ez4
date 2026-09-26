@@ -84,7 +84,7 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationIncludes = include && include[fieldKey];
+      const relationIncludes = include?.[fieldKey] as AnyObject;
 
       const relationQuery = builder.select(sourceSchema).from(sourceTable);
 
@@ -102,7 +102,16 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       }
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
+        const record = getSelectFields(
+          builder,
+          relationFields,
+          relationIncludes?.include,
+          sourceSchema,
+          relations,
+          relationQuery,
+          sourceTable,
+          true
+        );
 
         relationQuery.take(1).objectColumn(record);
 
@@ -111,7 +120,16 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       }
 
       if (!relationIncludes || (!('skip' in relationIncludes) && !('take' in relationIncludes))) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
+        const record = getSelectFields(
+          builder,
+          relationFields,
+          relationIncludes?.include,
+          sourceSchema,
+          relations,
+          relationQuery,
+          sourceTable,
+          true
+        );
 
         if (relationIncludes?.order) {
           assignExtraSelectFields(record, relationIncludes.order);
@@ -125,7 +143,15 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         continue;
       }
 
-      const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable);
+      const record = getSelectFields(
+        builder,
+        relationFields,
+        relationIncludes?.include,
+        sourceSchema,
+        relations,
+        relationQuery,
+        sourceTable
+      );
 
       if (relationIncludes?.order) {
         assignExtraSelectFields(relationFields, relationIncludes.order);

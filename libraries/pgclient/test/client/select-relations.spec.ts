@@ -4,6 +4,8 @@ import { after, before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
+import { Order } from '@ez4/database';
+
 describe('client select relations', async () => {
   const client = await makeRelationClient();
 
@@ -151,7 +153,24 @@ describe('client select relations', async () => {
           where: {
             value: 'tableB'
           },
-          take: 1
+          include: {
+            relations: {
+              where: {
+                value: 'tableA2'
+              },
+              order: {
+                value: Order.Asc
+              },
+              take: 1,
+              include: {
+                relation_1: {
+                  where: {
+                    value: 'tableB'
+                  }
+                }
+              }
+            }
+          }
         },
         relation_2: {
           where: {
@@ -177,15 +196,8 @@ describe('client select relations', async () => {
             relation_1: {
               value: 'tableB'
             },
-            relation_2: null
-          },
-          {
-            value: 'tableA',
-            relation_1: {
-              value: 'tableB'
-            },
             relation_2: {
-              value: 'tableC'
+              value: null
             }
           }
         ]
