@@ -22,6 +22,7 @@ declare class Test extends Database.Service<PostgresEngine> {
       };
       schema: {
         id: string;
+        column: number;
       };
     },
     {
@@ -108,6 +109,9 @@ describe('select nested relations', () => {
           id: {
             type: SchemaType.String,
             format: 'uuid'
+          },
+          column: {
+            type: SchemaType.Number
           },
           relation1_id: {
             type: SchemaType.String,
@@ -330,6 +334,33 @@ describe('select nested relations', () => {
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
+  });
+
+  it('assert :: prepare nested relation filters', ({ assert }) => {
+    const [statement, variables] = prepareCSelect({
+      select: {
+        id: true
+      },
+      where: {
+        id: '00000000-0000-1000-9000-000000000001',
+        relation_b: {
+          relation_a: {
+            column: 42
+          }
+        }
+      }
+    });
+
+    assert.equal(
+      statement,
+      `SELECT "R0"."id" FROM "ez4-test-c" AS "R0" ` +
+        `WHERE "R0"."id" = :0 AND EXISTS (SELECT 1 FROM "ez4-test-b" AS "T0" ` +
+        `WHERE EXISTS (SELECT 1 FROM "ez4-test-a" AS "T1" ` +
+        `WHERE "T1"."column" = :1 AND "T1"."id" = "T0"."relation_a_id") ` +
+        `AND "T0"."id" = "R0"."relation_b_id")`
+    );
+
+    assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000001', 42]);
   });
 
   it('assert :: prepare select nested relations (with include and order)', ({ assert }) => {

@@ -86,13 +86,16 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 
       const relationIncludes = include && include[fieldKey];
 
-      const relationQuery = builder
-        .select(sourceSchema)
-        .from(sourceTable)
-        .where({
-          ...relationIncludes?.where,
-          [sourceColumn]: source.reference(targetColumn)
-        });
+      const relationQuery = builder.select(sourceSchema).from(sourceTable);
+
+      const relationFilters = relationIncludes?.where
+        ? getSelectFilters(builder, relationIncludes.where, relations, relationQuery, sourceTable)
+        : {};
+
+      relationQuery.where({
+        ...relationFilters,
+        [sourceColumn]: source.reference(targetColumn)
+      });
 
       if (!source.alias) {
         source.as(builder.alias('R'));
@@ -213,7 +216,7 @@ export const getSelectFilters = (
 
         const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-        const relationQuery = builder.select(sourceSchema).from(sourceTable).rawColumn(1).as('T');
+        const relationQuery = builder.select(sourceSchema).from(sourceTable).rawColumn(1).as(builder.alias('T'));
 
         result[filterKey] = relationQuery;
 
@@ -223,7 +226,7 @@ export const getSelectFilters = (
 
         if (relationFilters) {
           relationQuery.where({
-            ...relationFilters,
+            ...getSelectFilters(builder, relationFilters, relations, relationQuery, sourceTable),
             [sourceColumn]: source.reference(targetColumn)
           });
 

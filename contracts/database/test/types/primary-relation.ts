@@ -121,9 +121,21 @@ export const testSelect = async ({ selfClient }: Service.Context<TestDatabase>) 
         value_b: true
       }
     },
+    include: {
+      relation_b: {
+        where: {
+          relation_a: {
+            value_a: 2
+          }
+        }
+      }
+    },
     where: {
       relation_b: {
-        value_b: 1
+        value_b: 1,
+        relation_a: {
+          value_a: 2
+        }
       }
     }
   });

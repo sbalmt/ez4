@@ -92,22 +92,22 @@ type ExtractRelations<
         ? {
             [P in N]: {
               indexes: RelationIndexes<N, I, R>;
-              filters: FilterableRelationSchemas<S, R>;
               updates: UpdateRelationSchemas<N, S, I, R>;
               inserts: InsertRelationSchemas<N, PropertyType<N, S>, S, I, R>;
               selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
               records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
+              filters: FilterRelationSchemas<S, R> & NestedFilterRelationSchemas<T, S, I, R>;
             };
           }
         : {}
       : {
           [P in N]: {
             indexes: never;
-            filters: {};
             updates: {};
             inserts: {};
             selects: {};
             records: {};
+            filters: {};
           };
         }
     : {}
@@ -173,8 +173,24 @@ type IsRelationIndex<N, C, V, I extends Record<string, TableIndexes>> =
 /**
  * Produce an object containing relation schemas for filters.
  */
-type FilterableRelationSchemas<S extends Record<string, TableSchema>, R extends AnyObject> = {
+type FilterRelationSchemas<S extends Record<string, TableSchema>, R extends AnyObject> = {
   [P in keyof R as RelationTargetAlias<P>]: Omit<PropertyType<RelationSourceTable<R[P]>, S>, RelationSourceColumn<R[P]>>;
+};
+
+/**
+ * Produce an object containing all nested relation schemas for filter operations.
+ */
+type NestedFilterRelationSchemas<
+  T extends DatabaseTable<TableSchema, any>[],
+  S extends Record<string, TableSchema>,
+  I extends Record<string, TableIndexes>,
+  R extends AnyObject
+> = {
+  [P in keyof R as RelationTargetAlias<P>]?: RelationSourceTable<R[P]> extends keyof MergeRelations<T, T, S, I>
+    ? MergeRelations<T, T, S, I>[RelationSourceTable<R[P]>] extends { filters: infer N }
+      ? N
+      : never
+    : never;
 };
 
 /**
