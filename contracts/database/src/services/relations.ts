@@ -99,8 +99,8 @@ type ExtractRelations<
               selects: SelectRelationSchemas<S, I, R> & NestedSelectRelationSchemas<T, S, I, R>;
               records: MergeObject<RecordsRelationSchemas<PropertyType<N, S>, S, I, R>, NestedRecordsRelationSchemas<T, S, I, R>>;
               filters: FilterRelationSchemas<S, R> & NestedFilterRelationSchemas<T, S, I, R>;
-              orders: FilterRelationSchemas<S, R>;
               includes: NestedIncludeRelationSchemas<T, S, I, R>;
+              orders: FilterRelationSchemas<S, R>;
             };
           }
         : {}
@@ -112,8 +112,8 @@ type ExtractRelations<
             selects: {};
             records: {};
             filters: {};
-            orders: {};
             includes: {};
+            orders: {};
           };
         }
     : {}
