@@ -196,9 +196,7 @@ describe('client select relations', async () => {
             relation_1: {
               value: 'tableB'
             },
-            relation_2: {
-              value: null
-            }
+            relation_2: null
           }
         ]
       },

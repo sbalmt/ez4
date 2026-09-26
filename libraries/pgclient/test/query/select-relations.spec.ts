@@ -414,11 +414,11 @@ describe('select relations', () => {
       statement,
       `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT COALESCE(json_agg(jsonb_build_object('foo', "foo")), '[]'::json) ` +
+        `(SELECT COALESCE(json_agg("__EZ4_RECORD"), '[]'::json) ` +
         `FROM (` +
-        `SELECT "S0"."foo" FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id" OFFSET 5 LIMIT 5` +
-        `) AS "S0"` +
+        /**/ `SELECT jsonb_build_object('foo', "S0"."foo") AS "__EZ4_RECORD" FROM "ez4_test_table" AS "S0" ` +
+        /**/ `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id" OFFSET 5 LIMIT 5` +
+        /**/ `) AS "S0"` +
         `) AS "primary_to_secondary" ` +
         //
         `FROM "ez4_test_table" AS "R0" ` +

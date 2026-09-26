@@ -131,10 +131,6 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
           true
         );
 
-        if (relationIncludes?.order) {
-          assignExtraSelectFields(record, relationIncludes.order);
-        }
-
         relationQuery.arrayColumn(record, {
           order: relationIncludes?.order
         });
@@ -153,14 +149,24 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         sourceTable
       );
 
-      if (relationIncludes?.order) {
-        assignExtraSelectFields(relationFields, relationIncludes.order);
-        assignExtraSelectFields(record, relationIncludes.order);
+      const orderAliases: AnyObject = {};
 
+      relationQuery.columns().jsonColumn(record, {
+        alias: '__EZ4_RECORD',
+        aggregate: false
+      });
+
+      if (relationIncludes.order) {
         relationQuery.order(relationIncludes.order);
-      }
 
-      relationQuery.record(record);
+        for (const orderField in relationIncludes.order) {
+          const orderAlias = builder.alias('__EZ4_ORDER_');
+
+          orderAliases[orderAlias] = relationIncludes.order[orderField];
+
+          relationQuery.column([orderField, orderAlias]);
+        }
+      }
 
       if ('skip' in relationIncludes) {
         relationQuery.skip(relationIncludes.skip);
@@ -172,8 +178,8 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 
       const wrapQuery = builder.select().from(relationQuery);
 
-      wrapQuery.arrayColumn(relationFields, {
-        order: relationIncludes?.order
+      wrapQuery.arrayColumn(relationQuery.reference('__EZ4_RECORD'), {
+        order: orderAliases
       });
 
       output[fieldKey] = wrapQuery;
@@ -278,12 +284,4 @@ export const getDefaultSelectFields = (schema: ObjectSchema) => {
   }
 
   return fields;
-};
-
-const assignExtraSelectFields = (record: SqlJsonColumnRecord, fields: Record<string, unknown>) => {
-  for (const fieldName in fields) {
-    if (!record[fieldName]) {
-      record[fieldName] = true;
-    }
-  }
 };
