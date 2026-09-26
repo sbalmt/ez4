@@ -33,7 +33,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "File Id."
             format: uuid
       responses:
         200:
@@ -53,7 +52,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "File Id."
             format: uuid
       responses:
         200:
@@ -72,7 +70,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "File name."
             format: uuid
       responses:
         204:
@@ -88,13 +85,11 @@ paths:
           required: false
           schema:
             type: string
-            description: "Page cursor."
         - name: limit
           in: path
           required: false
           schema:
             type: integer
-            description: "Page limit."
             minimum: 1
             maximum: 10
       responses:
@@ -109,7 +104,6 @@ components:
   requestSchemes:
     startUploadHandler:
       type: object
-      description: "Typed request body payload.\n\n- Automatically parsed into the declared types.\n- Supports JSON objects and raw string payloads.\n- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         contentType:
@@ -118,92 +112,73 @@ components:
             - 'image/png'
         maxCacheAge:
           type: integer
-          description: "Max cache age (in seconds) for the given file."
       required:
         - contentType
 
   responseSchemes:
     startUploadHandler:
       type: object
-      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
           type: string
-          description: "File Id."
         url:
           type: string
-          description: "Signed URL to upload the file."
         headers:
           type: object
-          description: "Headers required when uploading the file."
           additionalProperties: false
           properties:
             cacheControl:
               type: string
-              description: "Cache control header to send."
             expires:
               type: string
-              description: "Expiration date header to send."
       required:
         - id
         - url
     startDownloadHandler:
       type: object
-      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         url:
           type: string
-          description: "URL to download the given file."
       required:
         - url
     fileStatHandler:
       type: object
-      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         type:
           type: string
-          description: "MIME type of the given file."
         metadata:
           type: object
-          description: "Custom metadata for the given file."
           additionalProperties: true
         size:
           type: number
-          description: "File size."
       required:
         - type
         - size
     listFilesHandler:
       type: object
-      description: "Typed HTTP response body.\n\n- Automatically removes fields not matching the contract.\n- Shape is determined by the declared contract.\n- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         next:
           type: string
-          description: "Next page cursor."
         files:
           type: array
-          description: "List of files."
           items:
             type: object
             additionalProperties: false
             properties:
               id:
                 type: string
-                description: "File id."
               status:
                 enum: 
                   - 'pending'
                   - 'completed'
               created_at:
                 type: string
-                description: "File creation date."
               updated_at:
                 type: string
-                description: "File last update date."
             required:
               - id
               - status

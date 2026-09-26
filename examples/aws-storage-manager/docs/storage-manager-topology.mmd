@@ -23,9 +23,9 @@ graph LR
 		FileStorage@{ shape: lin-cyl, label: "FileStorage" }
 		class FileStorage ez4Bucket
 	end
-	FileStorage FileDbFileStorage@--> FileDb
 	Api FileStorageApi@--> FileStorage
 	Api FileDbApi@--> FileDb
-	class FileDbFileStorage ez4BucketEdge
+	FileStorage FileDbFileStorage@--> FileDb
 	class FileStorageApi ez4ApiEdge
 	class FileDbApi ez4ApiEdge
+	class FileDbFileStorage ez4BucketEdge
