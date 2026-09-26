@@ -1,4 +1,4 @@
-import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from './json';
+import type { SqlJsonColumnInput, SqlJsonColumnOptions, SqlJsonColumnRecord } from './json';
 import type { SqlBuilderReferences } from '../builder';
 import type { SqlRawGenerator } from './raw';
 import type { SqlSource } from './source';
@@ -85,20 +85,20 @@ export class SqlResults {
     return this;
   }
 
-  jsonColumn(record: SqlJsonColumnRecord, options: SqlJsonColumnOptions) {
-    this.#state.columns.push(new SqlJsonColumn(record, this.#state.source, this.#state.references, options));
+  jsonColumn(input: SqlJsonColumnInput, options: SqlJsonColumnOptions) {
+    this.#state.columns.push(new SqlJsonColumn(input, this.#state.source, this.#state.references, options));
     return this;
   }
 
-  objectColumn(record: SqlJsonColumnRecord, options?: SqlObjectColumn) {
-    return this.jsonColumn(record, {
+  objectColumn(input: SqlJsonColumnInput, options?: SqlObjectColumn) {
+    return this.jsonColumn(input, {
       ...options,
       aggregate: false
     });
   }
 
-  arrayColumn(record: SqlJsonColumnRecord, options?: SqlArrayColumn) {
-    return this.jsonColumn(record, {
+  arrayColumn(input: SqlJsonColumnInput, options?: SqlArrayColumn) {
+    return this.jsonColumn(input, {
       ...options,
       aggregate: true
     });

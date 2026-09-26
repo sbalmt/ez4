@@ -1,5 +1,5 @@
 import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../../common/results';
-import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../../common/json';
+import type { SqlJsonColumnInput, SqlJsonColumnOptions } from '../../common/json';
 import type { SqlBuilderReferences } from '../../builder';
 import type { SqlSource } from '../../common/source';
 
@@ -39,18 +39,18 @@ export class SqlReturningClause {
     return this;
   }
 
-  jsonColumn(record: SqlJsonColumnRecord, options: SqlJsonColumnOptions) {
-    this.#state.results.jsonColumn(record, options);
+  jsonColumn(input: SqlJsonColumnInput, options: SqlJsonColumnOptions) {
+    this.#state.results.jsonColumn(input, options);
     return this;
   }
 
-  objectColumn(record: SqlJsonColumnRecord, options?: SqlObjectColumn) {
-    this.#state.results.objectColumn(record, options);
+  objectColumn(input: SqlJsonColumnInput, options?: SqlObjectColumn) {
+    this.#state.results.objectColumn(input, options);
     return this;
   }
 
-  arrayColumn(record: SqlJsonColumnRecord, options?: SqlArrayColumn) {
-    this.#state.results.arrayColumn(record, options);
+  arrayColumn(input: SqlJsonColumnInput, options?: SqlArrayColumn) {
+    this.#state.results.arrayColumn(input, options);
     return this;
   }
 
