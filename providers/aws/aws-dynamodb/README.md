@@ -37,6 +37,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+DynamoDB table deletion is protected and requires forcing the deployment with
+`--force`. Index changes may delete existing indexes.
+
 ## License
 
 MIT License

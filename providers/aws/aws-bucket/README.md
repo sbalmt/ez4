@@ -42,6 +42,12 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+A bucket is deleted only after it is empty. Managed objects, event
+notifications, policies, CORS, and lifecycle configuration are removed as
+separate resources.
+
 ## License
 
 MIT License
