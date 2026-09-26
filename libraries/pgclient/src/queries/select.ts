@@ -146,7 +146,8 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         sourceSchema,
         relations,
         relationQuery,
-        sourceTable
+        sourceTable,
+        true
       );
 
       const orderAliases: AnyObject = {};

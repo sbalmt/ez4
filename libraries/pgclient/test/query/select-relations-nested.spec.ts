@@ -55,6 +55,7 @@ declare class Test extends Database.Service<PostgresEngine> {
         id: string;
         relation_b_id?: string;
         column: number;
+        date: string;
       };
     },
     {
@@ -188,6 +189,10 @@ describe('select nested relations', () => {
           },
           column: {
             type: SchemaType.Number
+          },
+          date: {
+            type: SchemaType.String,
+            format: 'date-time'
           }
         }
       }
@@ -473,7 +478,8 @@ describe('select nested relations', () => {
       select: {
         id: true,
         relation_cb: {
-          id: true
+          id: true,
+          date: true
         }
       },
       include: {
@@ -497,8 +503,8 @@ describe('select nested relations', () => {
       `SELECT "R0"."id", ` +
         `(SELECT COALESCE(json_agg("__EZ4_RECORD"), '[]'::json) ` +
         /**/ `FROM (` +
-        /****/ `SELECT jsonb_build_object('id', "S0"."id") AS "__EZ4_RECORD" FROM "ez4-test-c" AS "S0" ` +
-        /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
+        /****/ `SELECT jsonb_build_object('id', "S0"."id", 'date', to_char("S0"."date", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')) AS "__EZ4_RECORD" ` +
+        /****/ `FROM "ez4-test-c" AS "S0" WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
         /****/ `OFFSET 1 ` +
         /****/ `LIMIT 2` +
         /**/ `) AS "S0"` +
@@ -515,7 +521,8 @@ describe('select nested relations', () => {
       select: {
         id: true,
         relation_cb: {
-          id: true
+          id: true,
+          date: true
         }
       },
       include: {
@@ -542,7 +549,8 @@ describe('select nested relations', () => {
       `SELECT "R0"."id", ` +
         `(SELECT COALESCE(json_agg("__EZ4_RECORD" ORDER BY "__EZ4_ORDER_0" DESC), '[]'::json) ` +
         /**/ `FROM (` +
-        /****/ `SELECT jsonb_build_object('id', "S0"."id") AS "__EZ4_RECORD", ` +
+        /****/ `SELECT jsonb_build_object('id', "S0"."id", ` +
+        /*********/ `'date', to_char("S0"."date", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')) AS "__EZ4_RECORD", ` +
         /****/ `"S0"."column" AS "__EZ4_ORDER_0" FROM "ez4-test-c" AS "S0" ` +
         /****/ `WHERE "S0"."column" > :0 AND "S0"."relation_b_id" = "R0"."relation_cb_id" ` +
         /****/ `ORDER BY "S0"."column" DESC ` +
