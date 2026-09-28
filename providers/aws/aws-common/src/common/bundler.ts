@@ -83,6 +83,12 @@ export const getBundleHash = async (cacheKey: string, sourceFiles: string[]) => 
   return bundleHash;
 };
 
+export const clearBundleCache = () => {
+  fileCache.clear();
+  hashCache.clear();
+  pathCache.clear();
+};
+
 const maxTokens = Math.max(1, Math.floor(availableParallelism() / 2));
 
 const scheduleQueue: {

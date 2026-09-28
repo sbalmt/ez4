@@ -1,14 +1,14 @@
 import type { EntryState, EntryStates } from '@ez4/state';
 
 import { ok, equal, notEqual } from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import { join } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
-import { deploy } from '@ez4/aws-common';
+import { clearBundleCache, deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -40,6 +40,10 @@ describe('function', { timeout: 60000 }, () => {
   let functionId: string | undefined;
 
   registerTriggers();
+
+  beforeEach(() => {
+    clearBundleCache();
+  });
 
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
@@ -131,7 +135,7 @@ describe('function', { timeout: 60000 }, () => {
     };
 
     resource.parameters.getFunctionFiles = () => {
-      return [sourceFile, [sourceFile]];
+      return [sourceFile];
     };
 
     const { state, result } = await assertDeploy(functionId, localState, lastState);
