@@ -16,7 +16,7 @@ export default {
   prefix: 'dev', // Project prefix
   projectName: 'backend', // Project name (required)
   branchName: 'feat-1', // Optional branch name to share deployed resources
-  sourceFiles: ['./src/api.ts'], // Entry-point source files
+  sourceFiles: ['./src/**/*.ts'], // Entry-point source files or glob patterns
 
   tsconfigFile: 'tsconfig.json', // Specify a custom tsconfig.json location
   packageFile: 'package.json', // Specify a custom package.json location

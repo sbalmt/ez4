@@ -13,6 +13,8 @@ import {
 import { isAnyBoolean, isAnyNumber } from '@ez4/utils';
 
 import { getSchedulerClient } from '../utils/deploy';
+import { ScheduleConstraints } from './constraints';
+import { InvalidScheduleNameError } from './errors';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -37,6 +39,10 @@ export type UpdateRequest = Partial<Omit<CreateRequest, 'scheduleName'>>;
 
 export const createSchedule = async (logger: OperationLogLine, request: CreateRequest): Promise<CreateResponse> => {
   logger.update(`Creating scheduler`);
+
+  if (request.scheduleName.length > ScheduleConstraints.MaxNameLength) {
+    throw new InvalidScheduleNameError(request.scheduleName, ScheduleConstraints.MaxNameLength);
+  }
 
   const response = await getSchedulerClient().send(
     new CreateScheduleCommand({

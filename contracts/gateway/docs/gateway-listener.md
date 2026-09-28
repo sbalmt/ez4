@@ -49,6 +49,15 @@ Listeners receive one or more of the following event types during the lifecycle 
 - **Error** - emitted when an exception occurs during execution (includes the `error` thrown).
 - **End** - emitted at the end of execution, regardless of success or failure.
 
+## Listener failures
+
+Listener failures follow the event's role in the execution lifecycle:
+
+- `Begin` and `Ready` are fail-fast. If either listener event fails, handler execution fails.
+- `Done`, `Timeout`, `Error`, and `End` are best-effort notifications. A failure in one of these listener events is logged and does not change the handler result or response.
+
+Listeners should keep best-effort events focused on observability, such as logging, metrics, and tracing. They should not perform required request processing in those events.
+
 ## What's next
 
 - [HTTP routes](./http-routes.md)

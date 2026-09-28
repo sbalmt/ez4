@@ -11,6 +11,7 @@ import {
   getObjectMembers,
   getPropertyNumber,
   getPropertyStringList,
+  getPropertyStringListIn,
   getPropertyBoolean,
   getReferenceType,
   getServiceListener,
@@ -24,6 +25,7 @@ import { isModelProperty, isTypeObject, isTypeReference } from '@ez4/reflection'
 import { isObjectWith } from '@ez4/utils';
 
 import { IncompleteStreamError, IncorrectStreamTypeError, InvalidStreamTypeError } from '../errors/stream';
+import { StreamChangeType } from '../services/streams';
 import { getStreamHandlerMetadata } from './handler';
 
 export const isTableStreamDeclaration = (type: TypeModel) => {
@@ -89,6 +91,11 @@ const getTypeFromMembers = (
 
       case 'handler': {
         stream.handler = getStreamHandlerMetadata(member.value, reflection, errorList);
+        break;
+      }
+
+      case 'triggers': {
+        stream.triggers = getPropertyStringListIn(member, [StreamChangeType.Insert, StreamChangeType.Update, StreamChangeType.Delete]);
         break;
       }
 

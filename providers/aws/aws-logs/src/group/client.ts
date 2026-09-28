@@ -14,6 +14,7 @@ import {
 
 import { getCloudWatchLogsClient } from '../utils/deploy';
 import { getLogGroupArn } from '../utils/group';
+import { LogConstants } from './constants';
 
 export type CreateRequest = {
   groupName: string;
@@ -98,18 +99,33 @@ export const untagGroup = async (logger: OperationLogLine, groupArn: Arn, tagKey
   );
 };
 
-export const canDeleteGroup = async (logger: OperationLogLine, groupName: string) => {
+export const canDeleteGroup = async (logger: OperationLogLine, groupName: string, retention?: number) => {
   logger.update(`Validating deletion`);
 
   try {
     const response = await getCloudWatchLogsClient().send(
       new DescribeLogStreamsCommand({
         logGroupName: groupName,
+        orderBy: 'LastEventTime',
+        descending: true,
         limit: 1
       })
     );
 
-    return !!response.logStreams?.length;
+    const lastEventTimestamp = response.logStreams?.[0]?.lastEventTimestamp;
+
+    if (!lastEventTimestamp) {
+      return true;
+    }
+
+    if (retention) {
+      const retentionMilliseconds = retention * LogConstants.millisecondsPerDay;
+      const elapsedMilliseconds = Date.now() - lastEventTimestamp;
+
+      return elapsedMilliseconds > retentionMilliseconds;
+    }
+
+    return false;
   } catch (error) {
     if (!(error instanceof ResourceNotFoundException)) {
       throw error;

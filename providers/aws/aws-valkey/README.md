@@ -55,6 +55,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Valkey cache deletion is protected and requires forcing the deployment with
+`--force`. In local mode, resetting the emulator flushes all cached keys.
+
 ## License
 
 MIT License

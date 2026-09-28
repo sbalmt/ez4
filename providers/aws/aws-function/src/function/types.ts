@@ -7,7 +7,7 @@ export const FunctionServiceName = 'AWS:Lambda/Function';
 
 export const FunctionServiceType = 'aws:lambda.function';
 
-export type GetFunctionFiles = () => [string, string[]];
+export type GetFunctionFiles = () => string[];
 export type GetFunctionVariables = () => Promise<LinkedVariables> | LinkedVariables;
 export type GetFunctionBundle = (context: StepContext) => Promise<string> | string;
 export type GetFunctionHash = () => Promise<string | undefined> | string | undefined;

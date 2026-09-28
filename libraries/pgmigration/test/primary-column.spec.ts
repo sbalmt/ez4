@@ -130,7 +130,76 @@ describe('migration :: primary column tests', () => {
         constraints: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_id_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_renamed_id_pk" PRIMARY KEY ("renamed_id")'
+            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_id_pk" TO "table_renamed_id_pk"'
+          }
+        ],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      cleanup: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      }
+    });
+  });
+
+  it('assert :: rename column (unrelated name)', async () => {
+    const sourceTable = getDatabaseTables(
+      {
+        column: {
+          type: SchemaType.String
+        }
+      },
+      [
+        {
+          name: 'column',
+          type: Index.Primary,
+          columns: ['column']
+        }
+      ]
+    );
+
+    const targetTable = getDatabaseTables(
+      {
+        completely_different_name: {
+          type: SchemaType.String
+        }
+      },
+      [
+        {
+          name: 'completely_different_name',
+          type: Index.Primary,
+          columns: ['completely_different_name']
+        }
+      ]
+    );
+
+    const steps = getUpdateStepQueries(targetTable, sourceTable);
+
+    deepEqual(steps, {
+      prepare: {
+        tables: [],
+        constraints: [],
+        validations: [],
+        relations: [],
+        indexes: []
+      },
+      rollout: {
+        tables: [
+          {
+            check: `SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE "column_name" = 'column' AND "table_name" = 'table')`,
+            query: 'ALTER TABLE IF EXISTS "table" RENAME COLUMN "column" TO "completely_different_name"'
+          }
+        ],
+        constraints: [
+          {
+            check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_completely_different_name_pk'`,
+            query:
+              'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_completely_different_name_pk" PRIMARY KEY ("completely_different_name")'
           }
         ],
         validations: [],
@@ -141,7 +210,7 @@ describe('migration :: primary column tests', () => {
         tables: [],
         constraints: [
           {
-            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
+            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_column_pk"'
           }
         ],
         validations: [],
@@ -170,7 +239,7 @@ describe('migration :: primary column tests', () => {
     const targetTable = getDatabaseTables(
       {
         replacement: {
-          type: SchemaType.String
+          type: SchemaType.Number
         }
       },
       [
@@ -188,7 +257,7 @@ describe('migration :: primary column tests', () => {
       prepare: {
         tables: [
           {
-            query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" text NOT null`
+            query: `ALTER TABLE IF EXISTS "table" ADD COLUMN IF NOT EXISTS "replacement" decimal NOT null`
           }
         ],
         constraints: [],

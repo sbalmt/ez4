@@ -52,6 +52,7 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
     }
   } catch (error) {
     await onError(error, currentRequest ?? request);
+    throw error;
   } finally {
     clearTimeout(timeoutEvent);
     await onEnd(request);

@@ -15,8 +15,8 @@ import { loadProject } from '../../config/project';
 import { loadPaths } from '../../config/tsconfig';
 
 import { glob } from 'node:fs/promises';
-import { basename, join } from 'node:path';
 import { spec } from 'node:test/reporters';
+import { join } from 'node:path';
 import { run } from 'node:test';
 
 export const testCommand = async (input: InputOptions) => {
@@ -71,7 +71,7 @@ export const testCommand = async (input: InputOptions) => {
     const testFiles: string[] = [];
 
     const allFiles = glob('**/*.{spec,test}.{js,ts}', {
-      exclude: (path) => basename(path) === 'node_modules',
+      exclude: ['**/node_modules/**'],
       cwd: workingDirectory
     });
 

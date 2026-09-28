@@ -91,6 +91,11 @@ export interface ObjectTestSchema {
   intersection: { foo: number } & { foo: string; bar: string };
 
   /**
+   * @description Intersection object with union.
+   */
+  intersection_union: { foo: number } & ({ bar: string } | { baz: boolean }) & { qux: number };
+
+  /**
    * @description Any object extending intersection.
    */
   extends_intersection: Object.Extends<{ foo: string } & { bar: number }>;

@@ -30,20 +30,16 @@ export const attachEventNotifications = async (logger: OperationLogLine, bucketN
             Id: `ID${index}`,
             LambdaFunctionArn: functionArn,
             Events: events,
-            Filter: {
-              Key: {
-                FilterRules: [
-                  {
-                    Name: 'prefix',
-                    Value: prefix
-                  },
-                  {
-                    Name: 'suffix',
-                    Value: suffix
-                  }
-                ]
+            ...((prefix || suffix) && {
+              Filter: {
+                Key: {
+                  FilterRules: [
+                    ...(prefix ? [{ Name: 'prefix' as const, Value: prefix }] : []),
+                    ...(suffix ? [{ Name: 'suffix' as const, Value: suffix }] : [])
+                  ]
+                }
               }
-            }
+            })
           };
         })
       }

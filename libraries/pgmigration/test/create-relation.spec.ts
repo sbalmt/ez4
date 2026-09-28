@@ -81,7 +81,7 @@ describe('migration :: create relation tests', () => {
       validations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
-          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_a_relation_fk"' || '%') LIMIT 1`,
           name: 'table_a_relation_fk'
         }
       ],
@@ -142,7 +142,7 @@ describe('migration :: create relation tests', () => {
       validations: [
         {
           check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
-          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+          retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_a_relation_fk"' || '%') LIMIT 1`,
           name: 'table_a_relation_fk'
         }
       ],
@@ -193,7 +193,7 @@ describe('migration :: create relation tests', () => {
         validations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_a_relation_fk"' || '%') LIMIT 1`,
             name: 'table_a_relation_fk'
           }
         ],
@@ -254,7 +254,7 @@ describe('migration :: create relation tests', () => {
         validations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'table_a_relation_fk'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"table_a_relation_fk"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_a_relation_fk"' || '%') LIMIT 1`,
             name: 'table_a_relation_fk'
           }
         ],
@@ -327,7 +327,7 @@ describe('migration :: create relation tests', () => {
         validations: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "convalidated" = false AND "conname" = 'renamed_table_a_relation_fk'`,
-            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND "query" ILIKE '%' || '"renamed_table_a_relation_fk"' || '%' LIMIT 1`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"renamed_table_a_relation_fk"' || '%') LIMIT 1`,
             name: 'renamed_table_a_relation_fk'
           }
         ],

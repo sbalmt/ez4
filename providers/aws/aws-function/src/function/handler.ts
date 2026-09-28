@@ -3,7 +3,7 @@ import type { StepContext, StepHandler } from '@ez4/state';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { FunctionState, FunctionResult, FunctionParameters } from './types';
 
-import { applyTagUpdates, CorruptedResourceError, getBundleHash, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
+import { applyTagUpdates, CorruptedResourceError, OperationLogger, ReplaceResourceError } from '@ez4/aws-common';
 import { deepCompare, deepEqual, hashFile } from '@ez4/utils';
 import { getLogGroupName } from '@ez4/aws-logs';
 import { getRoleArn } from '@ez4/aws-identity';
@@ -21,6 +21,7 @@ import {
   tagFunction
 } from './client';
 
+import { getExtraFilesHash, getSourceCodeHash } from '../utils/hash';
 import { protectVariables } from './helpers/variables';
 import { FunctionServiceName } from './types';
 
@@ -52,8 +53,8 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       connections: candidate.connections,
       dependencies: candidate.dependencies,
       variables: protectVariables(await target.getFunctionVariables()),
-      filesHash: target.files && (await getBundleHash(target.functionName, target.files)),
-      sourceHash: await getBundleHash(...target.getFunctionFiles()),
+      filesHash: target.files && (await getExtraFilesHash(target.functionName, target.files)),
+      sourceHash: await getSourceCodeHash(target.functionName, target.getFunctionFiles()),
       valuesHash: await target.getFunctionHash()
     },
     {
@@ -99,8 +100,8 @@ const createResource = (candidate: FunctionState, context: StepContext): Promise
     const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
     const [sourceHash, filesHash, sourceFile, valuesHash, variables] = await Promise.all([
-      getBundleHash(...parameters.getFunctionFiles()),
-      parameters.files && getBundleHash(functionName, parameters.files),
+      getSourceCodeHash(functionName, parameters.getFunctionFiles()),
+      parameters.files && getExtraFilesHash(functionName, parameters.files),
       parameters.getFunctionBundle(context),
       parameters.getFunctionHash(),
       parameters.getFunctionVariables()
@@ -332,8 +333,8 @@ const checkSourceCodeUpdates = async (
   context: StepContext
 ) => {
   const [newSourceHash, newFilesHash, newValuesHash] = await Promise.all([
-    getBundleHash(...candidate.getFunctionFiles()),
-    candidate.files && getBundleHash(functionName, candidate.files),
+    getSourceCodeHash(functionName, candidate.getFunctionFiles()),
+    candidate.files && getExtraFilesHash(functionName, candidate.files),
     candidate.getFunctionHash()
   ]);
 

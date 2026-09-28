@@ -1,17 +1,19 @@
 %% Auto-generated ERD diagram, any manual modifications will be lost during regeneration.
 %%{init: { "layout": "elk", "theme": "light" } }%%
 erDiagram
-	Items {
-		id string PK
-		name string
-		description string
-		category_id string FK
-		created_at string
-		updated_at string
-	}
 	Categories {
+		description string
 		id string PK
 		name string
-		description string
 	}
 	Categories ||--o{ Items : "categories(id) → items(category_id)"
+	Items {
+		category_id string FK
+		created_at string
+		description string
+		id string PK
+		name string
+		order number
+		tags array
+		updated_at string
+	}

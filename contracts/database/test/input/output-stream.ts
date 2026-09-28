@@ -1,6 +1,7 @@
 import type { StreamAnyChange, Database, Client } from '@ez4/database';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Environment, Service } from '@ez4/common';
+import type { StreamChangeType } from '@ez4/database';
 import type { TestEngine } from '../common/engines';
 
 export declare class TestDatabase extends Database.Service<TestEngine> {
@@ -13,6 +14,7 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
       indexes: {};
       stream: {
         handler: typeof streamHandler;
+        triggers: [StreamChangeType.Insert, StreamChangeType.Delete];
         architecture: ArchitectureType.Arm;
         logLevel: LogLevel.Debug;
         logRetention: 14;

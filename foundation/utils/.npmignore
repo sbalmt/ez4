@@ -8,3 +8,4 @@
 
 !dist/**/*.d.ts
 !dist/**/*.mjs
+!dist/**/*.js

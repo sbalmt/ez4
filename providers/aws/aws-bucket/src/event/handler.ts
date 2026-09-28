@@ -56,7 +56,7 @@ const createResource = (candidate: BucketEventState, context: StepContext): Prom
   const bucketName = getBucketName(BucketEventServiceName, 'bucket', context);
 
   return OperationLogger.logExecution(BucketEventServiceName, bucketName, 'creation', async (logger) => {
-    const events = await Promise.all(parameters.eventGetters.map((getEvent) => getEvent(context)));
+    const events = parameters.eventGetters.map((getEvent) => getEvent(context));
 
     const { functionArns } = await attachEventNotifications(logger, bucketName, events);
 
@@ -77,7 +77,7 @@ const updateResource = (candidate: BucketEventState, _current: BucketEventState,
       throw new CorruptedResourceError(BucketEventServiceName, bucketName);
     }
 
-    const events = await Promise.all(parameters.eventGetters.map((getEvent) => getEvent(context)));
+    const events = parameters.eventGetters.map((getEvent) => getEvent(context));
 
     const { functionArns } = await attachEventNotifications(logger, bucketName, events);
 

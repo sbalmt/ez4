@@ -10,16 +10,18 @@ import { Logger } from '@ez4/logger';
 declare const __MODULE_PATH: string;
 
 export type ViewerFunctionParameter = {
-  templateFile: string;
   functionName: string;
   define?: Record<string, string>;
 };
 
-export const bundleViewerFunction = async (parameters: ViewerFunctionParameter) => {
-  const { templateFile, functionName, define } = parameters;
+const getBundleTemplateFile = () => {
+  return join(__MODULE_PATH, '../lib/rewrite.ts');
+};
 
-  const templatePath = join(__MODULE_PATH, '../lib/', templateFile);
-  const templateData = await readFile(templatePath);
+export const bundleViewerFunction = async (parameters: ViewerFunctionParameter) => {
+  const { functionName, define } = parameters;
+
+  const templateData = await readFile(getBundleTemplateFile());
 
   const outputFile = getTemporaryPath(`cf.${functionName}.mjs`);
 

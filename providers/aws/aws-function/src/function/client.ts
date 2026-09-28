@@ -23,7 +23,9 @@ import {
 } from '@aws-sdk/client-lambda';
 
 import { waitCreation, waitDeletion } from '@ez4/aws-common';
+import { Tasks } from '@ez4/utils';
 
+import { getSafeDescription } from '../utils/description';
 import { getLambdaClient, getLambdaWaiter } from '../utils/deploy';
 import { getFunctionArchitecture } from '../utils/architecture';
 import { getFunctionRuntime } from '../utils/runtime';
@@ -31,9 +33,9 @@ import { FunctionDefaults } from '../utils/defaults';
 import { assertVariables } from './helpers/variables';
 import { getLogLevel } from './helpers/logging';
 import { getZipBuffer } from './helpers/zip';
+import { FunctionConstraints } from './constraints';
+import { InvalidFunctionNameError } from './errors';
 import { getDefaultVpcConfig } from './utils';
-import { getSafeDescription } from '../utils/description';
-import { Tasks } from '@ez4/utils';
 
 export type CreateRequest = {
   roleArn: Arn;
@@ -112,6 +114,10 @@ export const createFunction = async (logger: OperationLogLine, request: CreateRe
 
   if (variables) {
     assertVariables(variables);
+  }
+
+  if (functionName.length > FunctionConstraints.MaxNameLength) {
+    throw new InvalidFunctionNameError(functionName, FunctionConstraints.MaxNameLength);
   }
 
   const vpcConfig = request.vpc ? await getDefaultVpcConfig() : undefined;

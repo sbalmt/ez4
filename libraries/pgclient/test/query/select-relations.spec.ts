@@ -212,11 +212,11 @@ describe('select relations', () => {
         // Main condition
         `FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0 AND ` +
         // First relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :1 AND "T"."id" = "R0"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T0" WHERE "T0"."foo" = :1 AND "T0"."id" = "R0"."relation1_id") AND ` +
         // Second relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."foo" = :2 AND "T"."relation2_id" = "R0"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T1" WHERE "T1"."foo" = :2 AND "T1"."relation2_id" = "R0"."id") AND ` +
         // Third relation condition
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = :3 AND "T"."relation1_id" = "R0"."id")`
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T2" WHERE "T2"."id" = :3 AND "T2"."relation1_id" = "R0"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000', 123, 456, '00000000-0000-1000-9000-000000000001']);
@@ -241,11 +241,11 @@ describe('select relations', () => {
       statement,
       `SELECT "R0"."id" FROM "ez4_test_table" AS "R0" WHERE "R0"."id" = :0 AND ` +
         // First relation
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."id" = "R0"."relation1_id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T0" WHERE "T0"."id" = "R0"."relation1_id") AND ` +
         // Second relation
-        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation2_id" != "R0"."id") AND ` +
+        `EXISTS (SELECT 1 FROM "ez4_test_table" AS "T1" WHERE "T1"."relation2_id" != "R0"."id") AND ` +
         // Third relation
-        `NOT EXISTS (SELECT 1 FROM "ez4_test_table" AS "T" WHERE "T"."relation1_id" != "R0"."id")`
+        `NOT EXISTS (SELECT 1 FROM "ez4_test_table" AS "T2" WHERE "T2"."relation1_id" != "R0"."id")`
     );
 
     assert.deepEqual(variables, ['00000000-0000-1000-9000-000000000000']);
@@ -414,11 +414,11 @@ describe('select relations', () => {
       statement,
       `SELECT "R0"."id", ` +
         // First relation
-        `(SELECT COALESCE(json_agg(jsonb_build_object('foo', "foo")), '[]'::json) ` +
+        `(SELECT COALESCE(json_agg("__EZ4_RECORD"), '[]'::json) ` +
         `FROM (` +
-        `SELECT "S0"."foo" FROM "ez4_test_table" AS "S0" ` +
-        `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id" OFFSET 5 LIMIT 5` +
-        `) AS "S0"` +
+        /**/ `SELECT jsonb_build_object('foo', "S0"."foo") AS "__EZ4_RECORD" FROM "ez4_test_table" AS "S0" ` +
+        /**/ `WHERE "S0"."foo" = :0 AND "S0"."relation1_id" = "R0"."id" OFFSET 5 LIMIT 5` +
+        /**/ `) AS "S0"` +
         `) AS "primary_to_secondary" ` +
         //
         `FROM "ez4_test_table" AS "R0" ` +

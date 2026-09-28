@@ -83,6 +83,12 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Aurora clusters, instances, and migration-managed tables are protected from
+deletion and can be removed by forcing the deployment with `--force`.
+Removing migration state does not drop the managed tables.
+
 ## License
 
 MIT License

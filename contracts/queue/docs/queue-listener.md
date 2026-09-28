@@ -51,6 +51,15 @@ Listeners receive one or more of the following event types during the lifecycle 
 
 > A handler-requested retry still counts as a successful handler completion and does not imply message acknowledgement.
 
+## Listener failures
+
+Listener failures follow the event's role in the execution lifecycle:
+
+- `Begin` and `Ready` are fail-fast. If either listener event fails, the affected queue processing fails and the message or batch can be retried.
+- `Done`, `Timeout`, `Error`, and `End` are best-effort notifications. A failure in one of these listener events is logged and does not change message processing or acknowledgement.
+
+Listeners should keep best-effort events focused on observability, such as logging, metrics, and tracing. They should not perform required message processing in those events.
+
 ## What's next
 
 - [Queue service](./queue-service.md)

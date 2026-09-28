@@ -70,6 +70,7 @@ export const attachBucketEvent = <E extends EntryState>(
   eventState.parameters.fromPath += `, ${parameters.fromPath}`;
   eventState.parameters.toService += `, ${parameters.toService}`;
   eventState.parameters.eventGetters.push(...parameters.eventGetters);
+  eventState.parameters.triggers.push(...parameters.triggers);
 
   tryLinkEntryDependency(state, eventState.entryId, functionState.entryId);
 

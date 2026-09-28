@@ -11,6 +11,10 @@ import { pickObject } from '@ez4/utils';
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_PATH: string;
 
+export const getBundleTemplateFile = () => {
+  return join(__MODULE_PATH, '../lib/message.ts');
+};
+
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
 export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
@@ -20,7 +24,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
 
   return getFunctionBundle(MappingServiceName, {
     context: context && references ? pickObject(context, references) : context,
-    templateFile: join(__MODULE_PATH, '../lib/message.ts'),
+    templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'sqs',
     define: {

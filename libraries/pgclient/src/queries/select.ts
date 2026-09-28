@@ -84,22 +84,34 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         throw new InvalidRelationFieldError(fieldPath);
       }
 
-      const relationIncludes = include && include[fieldKey];
+      const relationIncludes = include?.[fieldKey] as AnyObject;
 
-      const relationQuery = builder
-        .select(sourceSchema)
-        .from(sourceTable)
-        .where({
-          ...relationIncludes?.where,
-          [sourceColumn]: source.reference(targetColumn)
-        });
+      const relationQuery = builder.select(sourceSchema).from(sourceTable);
+
+      const relationFilters = relationIncludes?.where
+        ? getSelectFilters(builder, relationIncludes.where, relations, relationQuery, sourceTable)
+        : {};
+
+      relationQuery.where({
+        ...relationFilters,
+        [sourceColumn]: source.reference(targetColumn)
+      });
 
       if (!source.alias) {
         source.as(builder.alias('R'));
       }
 
       if (sourceIndex === Index.Primary || sourceIndex === Index.Unique) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
+        const record = getSelectFields(
+          builder,
+          relationFields,
+          relationIncludes?.include,
+          sourceSchema,
+          relations,
+          relationQuery,
+          sourceTable,
+          true
+        );
 
         relationQuery.take(1).objectColumn(record);
 
@@ -108,11 +120,16 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
       }
 
       if (!relationIncludes || (!('skip' in relationIncludes) && !('take' in relationIncludes))) {
-        const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable, true);
-
-        if (relationIncludes?.order) {
-          assignExtraSelectFields(record, relationIncludes.order);
-        }
+        const record = getSelectFields(
+          builder,
+          relationFields,
+          relationIncludes?.include,
+          sourceSchema,
+          relations,
+          relationQuery,
+          sourceTable,
+          true
+        );
 
         relationQuery.arrayColumn(record, {
           order: relationIncludes?.order
@@ -122,16 +139,35 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
         continue;
       }
 
-      const record = getSelectFields(builder, relationFields, null, sourceSchema, relations, relationQuery, sourceTable);
+      const record = getSelectFields(
+        builder,
+        relationFields,
+        relationIncludes?.include,
+        sourceSchema,
+        relations,
+        relationQuery,
+        sourceTable,
+        true
+      );
 
-      if (relationIncludes?.order) {
-        assignExtraSelectFields(relationFields, relationIncludes.order);
-        assignExtraSelectFields(record, relationIncludes.order);
+      const orderAliases: AnyObject = {};
 
+      relationQuery.columns().jsonColumn(record, {
+        alias: '__EZ4_RECORD',
+        aggregate: false
+      });
+
+      if (relationIncludes.order) {
         relationQuery.order(relationIncludes.order);
-      }
 
-      relationQuery.record(record);
+        for (const orderField in relationIncludes.order) {
+          const orderAlias = builder.alias('__EZ4_ORDER_');
+
+          orderAliases[orderAlias] = relationIncludes.order[orderField];
+
+          relationQuery.column([orderField, orderAlias]);
+        }
+      }
 
       if ('skip' in relationIncludes) {
         relationQuery.skip(relationIncludes.skip);
@@ -143,8 +179,8 @@ export const getSelectFields = <T extends InternalTableMetadata, S extends AnyOb
 
       const wrapQuery = builder.select().from(relationQuery);
 
-      wrapQuery.arrayColumn(relationFields, {
-        order: relationIncludes?.order
+      wrapQuery.arrayColumn(relationQuery.reference('__EZ4_RECORD'), {
+        order: orderAliases
       });
 
       output[fieldKey] = wrapQuery;
@@ -213,7 +249,7 @@ export const getSelectFilters = (
 
         const { sourceTable, sourceColumn, sourceSchema, targetColumn } = fieldRelation;
 
-        const relationQuery = builder.select(sourceSchema).from(sourceTable).rawColumn(1).as('T');
+        const relationQuery = builder.select(sourceSchema).from(sourceTable).rawColumn(1).as(builder.alias('T'));
 
         result[filterKey] = relationQuery;
 
@@ -223,7 +259,7 @@ export const getSelectFilters = (
 
         if (relationFilters) {
           relationQuery.where({
-            ...relationFilters,
+            ...getSelectFilters(builder, relationFilters, relations, relationQuery, sourceTable),
             [sourceColumn]: source.reference(targetColumn)
           });
 
@@ -249,12 +285,4 @@ export const getDefaultSelectFields = (schema: ObjectSchema) => {
   }
 
   return fields;
-};
-
-const assignExtraSelectFields = (record: SqlJsonColumnRecord, fields: Record<string, unknown>) => {
-  for (const fieldName in fields) {
-    if (!record[fieldName]) {
-      record[fieldName] = true;
-    }
-  }
 };

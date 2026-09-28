@@ -1,6 +1,6 @@
 import type { ObjectSchema } from '@ez4/schema';
 import type { SqlTableReference } from '../common/reference';
-import type { SqlJsonColumnOptions, SqlJsonColumnRecord } from '../common/json';
+import type { SqlJsonColumnInput, SqlJsonColumnOptions } from '../common/json';
 import type { SqlArrayColumn, SqlObjectColumn, SqlResultColumn, SqlResultRecord } from '../common/results';
 import type { SqlRawGenerator, SqlRawValue } from '../common/raw';
 import type { SqlSourceWithResults } from '../common/source';
@@ -101,18 +101,18 @@ export class SqlSelectStatement extends SqlSource implements SqlSourceWithResult
     return this;
   }
 
-  jsonColumn(record: SqlJsonColumnRecord, options: SqlJsonColumnOptions) {
-    this.#state.results.jsonColumn(record, options);
+  jsonColumn(input: SqlJsonColumnInput, options: SqlJsonColumnOptions) {
+    this.#state.results.jsonColumn(input, options);
     return this;
   }
 
-  objectColumn(record: SqlJsonColumnRecord, options?: SqlObjectColumn) {
-    this.#state.results.objectColumn(record, options);
+  objectColumn(input: SqlJsonColumnInput, options?: SqlObjectColumn) {
+    this.#state.results.objectColumn(input, options);
     return this;
   }
 
-  arrayColumn(record: SqlJsonColumnRecord, options?: SqlArrayColumn) {
-    this.#state.results.arrayColumn(record, options);
+  arrayColumn(input: SqlJsonColumnInput, options?: SqlArrayColumn) {
+    this.#state.results.arrayColumn(input, options);
     return this;
   }
 

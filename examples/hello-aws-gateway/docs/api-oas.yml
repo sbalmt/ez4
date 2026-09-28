@@ -33,7 +33,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "Example of `id` in the path parameters."
             format: uuid
       requestBody:
         content:
@@ -58,7 +57,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "Example of `id` in the path parameters."
             format: uuid
       requestBody:
         content:
@@ -83,14 +81,12 @@ paths:
           required: true
           schema:
             type: string
-            description: "Example of `id` in the path parameters."
             format: uuid
         - name: foo
           in: query
           required: false
           schema:
             type: array
-            description: "Example of query string array."
             items:
               type: string
         - name: bar
@@ -98,7 +94,6 @@ paths:
           required: false
           schema:
             type: boolean
-            description: "Example of query string boolean."
       responses:
         200:
           description: "Successful response."
@@ -117,7 +112,6 @@ paths:
           required: true
           schema:
             type: string
-            description: "Example of `id` in the delete parameters."
             format: uuid
       responses:
         204:
@@ -156,90 +150,72 @@ components:
   requestSchemes:
     postHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     patchHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     putHandler:
       type: object
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
       additionalProperties: false
       properties:
         foo:
           type: string
-          description: "Example of validated `string` coming from the body request."
       required:
         - foo
     rawHandler:
       type: string
-      description: "Typed request body payload.2728- Automatically parsed into the declared types.76- Supports JSON objects and raw string payloads.125- Shape is determined by the declared contract."
 
   responseSchemes:
     postHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         id:
           type: string
-          description: "Example of `id` in the response."
       required:
         - id
     patchHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
           type: string
-          description: "Example of `message` in the response."
       required:
         - message
     putHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:
           type: string
-          description: "Example of `message` in the response."
       required:
         - message
     getHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         foo_bar:
           type: string
-          description: "Example of `string` in the response."
         baz_qux:
           type: string
-          description: "Example of base64-encoded response."
           format: byte
       required:
         - foo_bar
         - baz_qux
     rawHandler:
       type: string
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
     getStaticHandler:
       type: object
-      description: "Typed HTTP response body.2526- Automatically removes fields not matching the contract.84- Shape is determined by the declared contract.132- Supports JSON objects and scalar payloads."
       additionalProperties: false
       properties:
         message:

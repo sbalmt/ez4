@@ -2,7 +2,7 @@ import type { SqlBuilderReferences } from '../builder';
 import type { SqlSource } from './source';
 import type { SqlOrder } from './types';
 
-import { isAnyObject } from '@ez4/utils';
+import { isAnyObject, isAnyString } from '@ez4/utils';
 
 import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
 import { escapeSqlName, escapeSqlText } from '../utils/escape';
@@ -24,6 +24,8 @@ export type SqlJsonColumnRecord = {
   [field: string]: undefined | boolean | SqlRawValue | SqlColumnReference | SqlSelectStatement | SqlJsonColumnRecord;
 };
 
+export type SqlJsonColumnInput = SqlJsonColumnRecord | SqlColumnReference | string;
+
 export type SqlJsonColumnOptions = {
   order?: SqlOrder;
   aggregate: boolean;
@@ -35,7 +37,7 @@ export type SqlJsonColumnOptions = {
 export class SqlJsonColumn {
   #state: {
     source: SqlSource;
-    record: SqlJsonColumnRecord;
+    input: SqlJsonColumnInput;
     references: SqlBuilderReferences;
     order?: SqlOrderClause;
     aggregate: boolean;
@@ -44,14 +46,14 @@ export class SqlJsonColumn {
     raw?: boolean;
   };
 
-  constructor(record: SqlJsonColumnRecord, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
+  constructor(input: SqlJsonColumnInput, source: SqlSource, references: SqlBuilderReferences, options: SqlJsonColumnOptions) {
     const { order, aggregate, column, alias, raw } = options;
 
     this.#state = {
       order: order ? new SqlOrderClause(source, order) : undefined,
       references,
       source,
-      record,
+      input,
       aggregate,
       column,
       alias,
@@ -60,11 +62,11 @@ export class SqlJsonColumn {
   }
 
   build() {
-    const { record, source, references, aggregate, order, column, alias, raw } = this.#state;
+    const { input, source, references, aggregate, order, column, alias, raw } = this.#state;
 
     const variables: unknown[] = [];
 
-    const result = getJsonObject(record, {
+    const result = getJsonResult(input, {
       ...(column && { parent: escapeSqlName(column) }),
       alias: source.alias,
       references,
@@ -82,6 +84,18 @@ export class SqlJsonColumn {
     return [jsonResult, variables];
   }
 }
+
+const getJsonResult = (input: SqlJsonColumnInput, context: SqlJsonColumnContext) => {
+  if (input instanceof SqlColumnReference) {
+    return input.build();
+  }
+
+  if (isAnyString(input)) {
+    return mergeSqlAlias(escapeSqlName(input), context.alias);
+  }
+
+  return getJsonObject(input, context);
+};
 
 const getJsonObject = (record: SqlJsonColumnRecord, context: SqlJsonColumnContext): string => {
   const { variables, references, parent, alias, raw } = context;

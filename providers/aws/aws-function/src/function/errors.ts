@@ -1,3 +1,9 @@
+export class InvalidFunctionNameError extends Error {
+  constructor(functionName: string, maxLength: number) {
+    super(`Function name ${functionName} exceeds ${maxLength} characters.`);
+  }
+}
+
 export class FunctionNotFoundError extends Error {
   constructor(bucketName: string) {
     super(`Function ${bucketName} wasn't found.`);

@@ -35,6 +35,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Subscriptions are removed before their SNS topic. Subscription changes are
+replacement operations rather than in-place updates.
+
 ## License
 
 MIT License

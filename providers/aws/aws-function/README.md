@@ -54,6 +54,12 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Lambda functions, event-source mappings, and permissions are managed as
+separate resources. Remove dependent mappings and permissions before removing
+the function.
+
 ## License
 
 MIT License

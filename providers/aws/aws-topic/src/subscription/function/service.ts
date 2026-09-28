@@ -8,7 +8,7 @@ import { createFunction } from '@ez4/aws-function';
 import { hashObject } from '@ez4/utils';
 import { LogLevel } from '@ez4/project';
 
-import { bundleSubscriptionFunction } from './bundler';
+import { bundleSubscriptionFunction, getBundleTemplateFile } from './bundler';
 
 export const createSubscriptionFunction = <E extends EntryState>(
   state: EntryStates<E>,
@@ -40,7 +40,7 @@ export const createSubscriptionFunction = <E extends EntryState>(
       return bundleSubscriptionFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
     },
     getFunctionHash: () => {
       return hashObject({

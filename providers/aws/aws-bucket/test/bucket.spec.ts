@@ -12,6 +12,7 @@ import {
   isBucketState,
   registerTriggers
 } from '@ez4/aws-bucket';
+import { BucketEventType } from '@ez4/storage';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
@@ -89,6 +90,7 @@ describe('bucket resources', { timeout: 60000 }, () => {
 
     createBucketEvent(localState, resource, lambdaResource, {
       toService: 'ez4-test-bucket-event-lambda',
+      triggers: [BucketEventType.Create],
       fromPath: '*',
       eventGetters: [
         (context) => {

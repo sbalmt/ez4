@@ -6,6 +6,7 @@ import type { BucketState } from '../bucket/types';
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
 import { isRoleState } from '@ez4/aws-identity';
+import { BucketEventType } from '@ez4/storage';
 import { createLogGroup } from '@ez4/aws-logs';
 
 import { attachBucketEvent } from '../event/service';
@@ -41,6 +42,7 @@ export const prepareBucketEvents = (
       memory = defaults?.memory ?? Defaults.Memory,
       timeout = Defaults.Timeout,
       debug = options.debug,
+      triggers = [],
       variables,
       listener,
       handler,
@@ -97,14 +99,23 @@ export const prepareBucketEvents = (
       context.setServiceState(internalName, options, handlerState);
     }
 
+    if (!triggers.length) {
+      triggers.push(BucketEventType.Create, BucketEventType.Delete);
+    }
+
+    const events = triggers.map((trigger) => {
+      return trigger === BucketEventType.Create ? 's3:ObjectCreated:*' : 's3:ObjectRemoved:*';
+    });
+
     attachBucketEvent(state, bucketState, handlerState, {
       toService: internalName,
       fromPath: path,
+      triggers,
       eventGetters: [
         (context) => {
           return {
             functionArn: getBucketEventFunctionAliasArn(service.name, handlerState.entryId, context),
-            events: ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
+            events,
             path
           };
         }

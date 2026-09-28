@@ -5,7 +5,7 @@ export default {
   prefix: 'ez4',
   debugMode: false,
   projectName: 'storage-manager',
-  sourceFiles: ['./src/api.ts', './src/dynamo.ts', './src/storage.ts'],
+  sourceFiles: ['./src/*.ts'],
   stateFile: {
     path: 'ez4-deploy'
   },

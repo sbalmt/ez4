@@ -52,6 +52,10 @@
         },
         "indexes": [],
         "stream": {
+          "triggers": [
+            "insert",
+            "delete"
+          ],
           "logLevel": "debug",
           "architecture": "arm",
           "logRetention": 14,
@@ -63,7 +67,7 @@
             "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              63,
+              65,
               1
             ]
           }
@@ -90,7 +94,7 @@
             "summary": "Database stream example.",
             "file": "test/input/output-stream.ts",
             "position": [
-              63,
+              65,
               1
             ]
           },

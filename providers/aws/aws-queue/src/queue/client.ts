@@ -15,6 +15,8 @@ import { waitCreation } from '@ez4/aws-common';
 import { isEmptyObject } from '@ez4/utils';
 
 import { getSQSClient } from '../utils/deploy';
+import { QueueConstraints } from './constraints';
+import { InvalidQueueNameError } from './errors';
 
 export type DeadLetter = {
   targetQueueArn: Arn;
@@ -56,6 +58,10 @@ export const createQueue = async (logger: OperationLogLine, request: CreateReque
   logger.update(`Creating queue`);
 
   const { queueName, fifoMode } = request;
+
+  if (queueName.length > QueueConstraints.MaxNameLength) {
+    throw new InvalidQueueNameError(queueName, QueueConstraints.MaxNameLength);
+  }
 
   const client = getSQSClient();
 

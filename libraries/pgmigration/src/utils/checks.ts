@@ -96,10 +96,18 @@ export const getCheckRunningValidationQuery = (builder: SqlBuilder, name: string
     .from('pg_stat_activity')
     .where({
       state: builder.rawString('active'),
-      query: {
-        contains: builder.rawString(`"${name}"`),
-        insensitive: true
-      }
+      AND: [
+        {
+          query: {
+            startsWith: builder.rawString('ALTER TABLE')
+          }
+        },
+        {
+          query: {
+            contains: builder.rawString(`"${name}"`)
+          }
+        }
+      ]
     })
     .take(1)
     .build();

@@ -28,7 +28,7 @@ declare class DeleteItemResponse implements Http.Response {
     /**
      * @description Deleted item description.
      */
-    description?: string;
+    description: string | null;
   };
 }
 

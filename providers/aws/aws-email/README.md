@@ -34,6 +34,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Removing an email identity deletes the SES identity immediately. Its
+verification state and configuration are not retained.
+
 ## License
 
 MIT License

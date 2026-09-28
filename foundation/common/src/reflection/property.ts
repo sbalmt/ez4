@@ -38,6 +38,16 @@ export const getPropertyStringList = (member: ModelProperty) => {
   return getPropertyList(member, (element) => getLiteralString(element));
 };
 
+export const getPropertyStringListIn = <T extends string>(member: ModelProperty, values: T[]) => {
+  const propertyValues = getPropertyStringList(member);
+
+  if (propertyValues?.every((value) => values.includes(value as T))) {
+    return propertyValues as T[];
+  }
+
+  return undefined;
+};
+
 export const getPropertyStringIn = <T extends string>(member: ModelProperty, values: T[]): T | undefined => {
   const value = getLiteralString(member.value) as T | undefined;
 

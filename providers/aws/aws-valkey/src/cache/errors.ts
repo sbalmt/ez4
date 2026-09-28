@@ -1,3 +1,9 @@
+export class InvalidCacheNameError extends Error {
+  constructor(cacheName: string, maxLength: number) {
+    super(`Cache name ${cacheName} exceeds ${maxLength} characters.`);
+  }
+}
+
 export class CacheNotFoundError extends Error {
   constructor(serviceName: string) {
     super(`Cache service '${serviceName}' wasn't found.`);

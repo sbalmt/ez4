@@ -47,6 +47,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Deleting an SQS queue is destructive: AWS removes the queue and any messages
+still in it. Queue policies are managed as separate resources.
+
 ## License
 
 MIT License

@@ -50,6 +50,7 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
     };
   } catch (error) {
     await onError(error, request);
+    throw error;
   } finally {
     clearTimeout(timeoutEvent);
     await onEnd(request);

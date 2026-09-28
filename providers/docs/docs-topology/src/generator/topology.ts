@@ -2,6 +2,7 @@ import type { MetadataReflection, ServiceMetadata } from '@ez4/project/library';
 import type { GeneratorInput } from '../utils/graph';
 
 import { isCommonService } from '@ez4/common/library';
+import { sortObject } from '@ez4/utils';
 
 import { getEdgeOutput } from '../utils/graph';
 import { getGatewayEdges, getGatewayNodes } from './gateway';
@@ -22,17 +23,19 @@ export namespace TopologyGenerator {
       'graph LR'
     ];
 
+    const sortedMetadata = sortObject({ ...metadata });
+
     output.push(
-      ...getGatewayNodes(metadata),
-      ...getDistributionNodes(metadata, getEdge),
-      ...getSchedulerNodes(metadata),
-      ...getQueueNodes(metadata),
-      ...getTopicNodes(metadata, getEdge),
-      ...getDatabaseNodes(metadata),
-      ...getStorageNodes(metadata),
-      ...getValidationNodes(metadata),
-      ...getFactoryNodes(metadata),
-      ...getServiceEdges(metadata)
+      ...getGatewayNodes(sortedMetadata),
+      ...getDistributionNodes(sortedMetadata, getEdge),
+      ...getSchedulerNodes(sortedMetadata),
+      ...getQueueNodes(sortedMetadata),
+      ...getTopicNodes(sortedMetadata, getEdge),
+      ...getDatabaseNodes(sortedMetadata),
+      ...getStorageNodes(sortedMetadata),
+      ...getValidationNodes(sortedMetadata),
+      ...getFactoryNodes(sortedMetadata),
+      ...getServiceEdges(sortedMetadata)
     );
 
     return output.join('\n');

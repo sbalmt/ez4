@@ -138,19 +138,32 @@ export namespace Query {
   export type OrderInput<T extends TableMetadata> = OrderModeUtils.Input<T>;
 
   export type StrictIncludeInput<S extends AnyObject, T extends TableMetadata> =
-    IsObjectEmpty<T['relations']['filters']> extends true
-      ? never
-      : {
-          [P in keyof T['relations']['filters']]?: P extends keyof S
-            ? StrictIncludeRelation<NonNullable<T['relations']['filters'][P]>, T['engine']>
-            : never;
-        };
+    IsObjectEmpty<T['relations']['filters']> extends true ? never : StrictIncludeRelations<S, T['relations'], T['engine']>;
 
   export type StrictIncludeOrder<T extends AnyObject> = OrderModeUtils.AnyInput<T>;
 
-  export type StrictIncludeRelation<T extends AnyObject, E extends DatabaseEngine> = PaginationModeUtils.Range<E> & {
+  export type StrictIncludeRelation<
+    T extends AnyObject,
+    E extends DatabaseEngine,
+    R extends RelationMetadata = RelationMetadata,
+    S extends AnyObject = {},
+    O extends AnyObject = T
+  > = PaginationModeUtils.Range<E> & {
+    include?: StrictIncludeRelations<S, R, E>;
     where?: WhereRelationInput<T, E>;
-    order?: StrictIncludeOrder<T>;
+    order?: StrictIncludeOrder<O>;
+  };
+
+  type StrictIncludeRelations<S extends AnyObject, R extends RelationMetadata, E extends DatabaseEngine> = {
+    [P in keyof R['filters']]?: P extends keyof S
+      ? StrictIncludeRelation<
+          NonNullable<R['filters'][P]>,
+          E,
+          NonNullable<R['includes'][P]>,
+          S[P] extends AnyObject ? S[P] : {},
+          NonNullable<R['orders'][P]>
+        >
+      : never;
   };
 
   export type WhereInput<T extends TableMetadata, I extends boolean = false> = WhereFieldInput<T, I>;

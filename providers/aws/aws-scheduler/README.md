@@ -53,6 +53,11 @@ Ensure the user performing deployments has the permissions below:
 }
 ```
 
+## Deletion behavior
+
+Schedules are removed before their schedule groups through dependency
+ordering. Target roles and functions are managed as separate resources.
+
 ## License
 
 MIT License
