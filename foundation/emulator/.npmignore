@@ -1,0 +1,10 @@
+*
+
+!package.json
+!README.md
+!LICENSE
+
+!docs/*.md
+
+!dist/**/*.d.ts
+!dist/**/*.mjs
