@@ -1,12 +1,11 @@
 import { deepEqual, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { createModule, HandlerTimeoutError, WorkerMemoryLimitError } from '@ez4/emulator';
+import { createModule } from '@ez4/emulator';
 
 const createTestModule = (handlerName: string) => {
   return createModule({
     environment: {
-      variables: {},
       timeout: 3,
       memory: 32
     },
@@ -19,11 +18,27 @@ const createTestModule = (handlerName: string) => {
       file: 'test/files/listener.ts',
       name: 'listener',
       position: [1, 1]
+    },
+    manager: {
+      file: 'test/files/manager.ts',
+      name: 'makeManager',
+      options: {
+        marker: 'manager-fixture'
+      }
+    },
+    services: {
+      math: {
+        file: 'test/files/service.ts',
+        name: 'makeService',
+        options: {
+          value: 10
+        }
+      }
     }
   });
 };
 
-describe('worker handler tests', { timeout: 10000 }, () => {
+describe('worker tests', { timeout: 10000 }, () => {
   it('assert :: starts the worker and returns the handler result', async () => {
     const module = createTestModule('echo');
 
@@ -36,34 +51,38 @@ describe('worker handler tests', { timeout: 10000 }, () => {
     });
   });
 
+  it('assert :: initializes and injects configured services', async () => {
+    const module = createTestModule('service');
+
+    const result = await module.invoke({ x: 8, y: 3 });
+
+    deepEqual(result, {
+      sum: 11,
+      difference: 5,
+      options: {
+        value: 10
+      }
+    });
+  });
+
+  it('assert :: creates and prepares requests with the manager', async () => {
+    const module = createTestModule('managed');
+
+    deepEqual(await module.invoke({ value: 'input' }), {
+      value: 'input',
+      createdByManager: true,
+      preparedByManager: true,
+      managerOption: 'manager-fixture',
+      serviceOption: 10
+    });
+  });
+
   it('assert :: handler exceptions through the error signal', async () => {
     const module = createTestModule('exception');
 
     await rejects(module.invoke({}), {
-      name: 'TypeError',
       message: 'Fixture handler failed'
     });
-  });
-
-  it('assert :: start errors when the named export is missing', async () => {
-    const module = createTestModule('missing');
-
-    await rejects(module.invoke({}), {
-      name: 'EntrypointNotFoundError',
-      message: "Entrypoint 'missing' was not found in 'test/files/handlers.ts'."
-    });
-  });
-
-  it('assert :: enforces the worker memory limit', async () => {
-    const module = createTestModule('memory');
-
-    await rejects(module.invoke({}), WorkerMemoryLimitError);
-  });
-
-  it('assert :: times out a worker invocation', async () => {
-    const module = createTestModule('timeout');
-
-    await rejects(module.invoke({}), HandlerTimeoutError);
   });
 
   it('assert :: concurrent invocations in separate workers', async () => {

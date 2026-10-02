@@ -1,4 +1,4 @@
-import type { ModuleEntrypoint } from './types';
+import type { ModuleEntrypoint } from '../types/module';
 
 export const formatLogPrefix = (entrypoint: ModuleEntrypoint) => {
   const sourceLocation = `${entrypoint.file}:${entrypoint.position.join(':')}`;

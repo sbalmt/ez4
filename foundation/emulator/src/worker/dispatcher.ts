@@ -1,10 +1,10 @@
 import type { AnyObject } from '@ez4/utils';
 import type { Service } from '@ez4/common';
-import type { FunctionCallback } from './types';
+import type { FunctionCallback } from '../types/common';
 
 import { ServiceEventType } from '@ez4/common';
 
-import { logErrorData } from './utils';
+import { logErrorData } from '../utils/errors';
 
 export const onBegin = async (listener: FunctionCallback | undefined, context: AnyObject, request: AnyObject) => {
   await dispatchEvent(listener, context, {
@@ -34,7 +34,7 @@ export const onTimeout = async (listener: FunctionCallback | undefined, context:
   });
 };
 
-export const onError = async (listener: FunctionCallback | undefined, context: AnyObject, request: AnyObject, error: unknown) => {
+export const onError = async (listener: FunctionCallback | undefined, context: AnyObject, error: unknown, request: AnyObject) => {
   logErrorData(error);
 
   await dispatchEvent(listener, context, {

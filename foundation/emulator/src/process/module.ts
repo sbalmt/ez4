@@ -1,17 +1,13 @@
 import type { AnyObject } from '@ez4/utils';
-import type { HandlerOptions } from './types';
+import type { ModuleInstance, ModuleOptions } from '../types/module';
 
 import { Logger } from '@ez4/logger';
 
-import { formatLogPrefix } from './utils';
-import { HandlerTimeoutError } from './errors';
+import { formatLogPrefix } from '../utils/logs';
+import { ExecutionTimeoutError } from '../errors/handler';
 import { createWorker } from './worker';
 
-export type ModuleInstance<T> = {
-  invoke: (request: AnyObject) => Promise<T>;
-};
-
-export const createModule = <T>(options: HandlerOptions): ModuleInstance<T> => {
+export const createModule = <T>(options: ModuleOptions): ModuleInstance<T> => {
   const { environment, handler } = options;
 
   const timeout = environment.timeout * 1000;
@@ -35,7 +31,7 @@ export const createModule = <T>(options: HandlerOptions): ModuleInstance<T> => {
 
       return output;
     } catch (error) {
-      const handlerError = exitPromise ? new HandlerTimeoutError() : error;
+      const handlerError = exitPromise ? new ExecutionTimeoutError() : error;
 
       Logger.error(`${prefix} ${handlerError}`);
       Logger.error(`${prefix} Finished (with error)`);

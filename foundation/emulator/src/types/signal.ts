@@ -1,5 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
-import type { WorkerEntrypoint } from '../process/types';
+import type { ServiceAnyDescriptor, ServiceDescriptors } from './service';
+import type { WorkerEntrypoint } from './worker';
 
 export enum WorkerSignal {
   Start = 'start',
@@ -12,6 +13,8 @@ export type WorkerSignals = StartWorkerSignal | InvokeWorkerSignal | WorkerResul
 
 export type StartWorkerSignal = {
   signal: WorkerSignal.Start;
+  manager: ServiceAnyDescriptor;
+  services: ServiceDescriptors;
   listener?: WorkerEntrypoint;
   handler: WorkerEntrypoint;
 };

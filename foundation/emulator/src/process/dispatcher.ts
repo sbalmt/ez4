@@ -1,9 +1,13 @@
 import type { Worker } from 'node:worker_threads';
-import type { WorkerSignals } from './types';
+import type { WorkerSignals } from '../types/signal';
 
-import { deserialize, serialize } from './serializer';
-import { UnexpectedSignalError, WorkerMemoryLimitError, WorkerTerminatedError } from './errors';
-import { WorkerSignal } from './types';
+import { isAnyObject } from '@ez4/utils';
+
+import { UnexpectedSignalError } from '../errors/signal';
+import { WorkerMemoryLimitError, WorkerTerminatedError } from '../errors/worker';
+import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
+import { deserialize, serialize } from '../utils/data';
+import { WorkerSignal } from '../types/signal';
 
 /**
  * Dispatch a signal message to the worker and awaits for a response.
@@ -23,7 +27,7 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
     const onError = (error: unknown) => {
       cleanupListeners();
 
-      if (error instanceof Error && 'code' in error && error.code === 'ERR_WORKER_OUT_OF_MEMORY') {
+      if (isMemoryLimitError(error)) {
         reject(new WorkerMemoryLimitError());
       } else {
         reject(error);
@@ -47,10 +51,13 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
           }
 
           case WorkerSignal.Error: {
-            const error = new Error(data.error.message);
+            const error = isServiceError(data.error)
+              ? new ServiceNotFoundError(data.error.message)
+              : isEntrypointError(data.error)
+                ? new EntrypointNotFoundError(data.error.message)
+                : new Error(data.error.message);
 
             error.stack = data.error.stack;
-            error.name = data.error.name;
 
             reject(error);
             break;
@@ -76,4 +83,16 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
       onError(error);
     }
   });
+};
+
+const isMemoryLimitError = (error: unknown) => {
+  return isAnyObject(error) && error.code === 'ERR_WORKER_OUT_OF_MEMORY';
+};
+
+const isEntrypointError = (error: unknown) => {
+  return isAnyObject(error) && error.name === 'EntrypointNotFoundError';
+};
+
+const isServiceError = (error: unknown) => {
+  return isAnyObject(error) && error.name === 'ServiceNotFoundError';
 };

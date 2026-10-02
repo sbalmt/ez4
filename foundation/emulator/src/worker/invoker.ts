@@ -1,8 +1,7 @@
 import type { MessagePort } from 'node:worker_threads';
-import { getRandomUUID, type AnyObject } from '@ez4/utils';
-import type { FunctionCallback } from './types';
-
-import { Runtime } from '@ez4/common';
+import type { AnyObject } from '@ez4/utils';
+import type { FunctionCallback } from '../types/common';
+import type { ModuleManager } from '../types/module';
 
 import { onBegin, onDone, onEnd, onError, onReady } from './dispatcher';
 import { notifyResult } from './notifier';
@@ -11,29 +10,32 @@ export const invokeHandler = async (
   worker: MessagePort,
   handler: FunctionCallback,
   listener: FunctionCallback | undefined,
+  manager: ModuleManager,
   context: AnyObject,
   request: AnyObject
 ) => {
-  let response: unknown;
+  let currentRequest: AnyObject | undefined;
+  let responseResult: unknown;
 
-  Runtime.setScope({
-    traceId: getRandomUUID()
-  });
+  const minimalRequest = manager.createRequest(request);
 
   try {
-    await onBegin(listener, context, request);
+    await onBegin(listener, context, minimalRequest);
+    currentRequest = await manager.prepareRequest(minimalRequest, context);
 
-    await onReady(listener, context, request);
+    await onReady(listener, context, currentRequest);
+    responseResult = await handler(currentRequest, context);
 
-    response = await handler(request, context);
-
-    await onDone(listener, context, request);
+    await onDone(listener, context, currentRequest);
   } catch (error) {
-    await onError(listener, context, request, error);
+    const finishedRequest = manager.finishRequest(minimalRequest, currentRequest, error);
+    await onError(listener, context, error, finishedRequest);
+
     throw error;
   } finally {
-    await onEnd(listener, context, request);
+    const finishedRequest = manager.finishRequest(minimalRequest, currentRequest);
+    await onEnd(listener, context, finishedRequest);
   }
 
-  notifyResult(worker, response);
+  notifyResult(worker, responseResult);
 };

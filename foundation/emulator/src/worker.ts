@@ -1,21 +1,24 @@
-import type { FunctionCallback } from './worker/types';
+import type { AnyObject } from '@ez4/utils';
+import type { FunctionCallback } from './types/common';
+import type { ModuleManager } from './types/module';
 
 import { parentPort } from 'node:worker_threads';
 
 import { invokeHandler } from './worker/invoker';
 import { notifyError, notifyResult } from './worker/notifier';
-import { WorkerNotInitializedError, WorkerUnavailableError } from './worker/errors';
-import { UnexpectedSignalError } from './signals/errors';
-import { deserialize } from './signals/serializer';
-import { WorkerSignal } from './signals/types';
-import { loadFunction } from './worker/loader';
+import { loadFunction, loadServices, loadService } from './worker/loader';
+import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
+import { UnexpectedSignalError } from './errors/signal';
+import { WorkerSignal } from './types/signal';
+import { deserialize } from './utils/data';
 
 const workerPort = parentPort;
 
 let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
 
-const context = {};
+let context: AnyObject = {};
+let manager: ModuleManager;
 
 if (!workerPort) {
   throw new WorkerUnavailableError();
@@ -27,6 +30,9 @@ workerPort.on('message', async (message: string) => {
 
     switch (signal.signal) {
       case WorkerSignal.Start: {
+        manager = await loadService(signal.manager);
+        context = await loadServices(signal.services);
+
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
 
@@ -39,7 +45,7 @@ workerPort.on('message', async (message: string) => {
           throw new WorkerNotInitializedError();
         }
 
-        await invokeHandler(workerPort, handler, listener, context, signal.request);
+        await invokeHandler(workerPort, handler, listener, manager, context, signal.request);
         break;
       }
 

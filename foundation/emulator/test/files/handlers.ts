@@ -12,6 +12,30 @@ export const echo = ({ value }: AnyObject) => {
 };
 
 /**
+ * Handler to test an initialized service from the worker context.
+ */
+export const service = ({ x, y }: AnyObject, context: AnyObject) => {
+  return {
+    sum: context.math.add(x, y),
+    difference: context.math.sub(x, y),
+    options: context.math.options
+  };
+};
+
+/**
+ * Handler to test request creation and preparation by the manager.
+ */
+export const managed = (request: AnyObject) => {
+  return {
+    value: request.value,
+    createdByManager: request.createdByManager,
+    preparedByManager: request.preparedByManager,
+    managerOption: request.managerOption,
+    serviceOption: request.serviceOption
+  };
+};
+
+/**
  * Handler to test worker exceptions.
  */
 export const exception = () => {

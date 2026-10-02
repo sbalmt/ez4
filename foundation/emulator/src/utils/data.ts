@@ -1,6 +1,6 @@
-import type { WorkerSignals } from './types';
+import type { WorkerSignals } from '../types/signal';
 
-import { CorruptedSignalError } from './errors';
+import { CorruptedSignalError } from '../errors/signal';
 
 /**
  * Serialize a worker signal.

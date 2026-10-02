@@ -1,8 +1,8 @@
 import type { MessagePort } from 'node:worker_threads';
 
-import { serialize } from '../signals/serializer';
-import { WorkerSignal } from '../signals/types';
-import { getErrorData } from './utils';
+import { serialize } from '../utils/data';
+import { getErrorData } from '../utils/errors';
+import { WorkerSignal } from '../types/signal';
 
 /**
  * Notify a result signal message to the main worker.
