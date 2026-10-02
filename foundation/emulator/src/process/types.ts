@@ -11,20 +11,20 @@ export type WorkerEntrypoint = {
 
 export type WorkerOptions = {
   environment: WorkerEnvironment;
-  entrypoint: WorkerEntrypoint;
+  listener?: WorkerEntrypoint;
+  handler: WorkerEntrypoint;
 };
 
-export type HandlerFunction = (...inputs: unknown[]) => unknown;
-
-export type HandlerEnvironment = WorkerEnvironment & {
+export type ModuleEnvironment = WorkerEnvironment & {
   timeout: number;
 };
 
-export type HandlerEntrypoint = WorkerEntrypoint & {
+export type ModuleEntrypoint = WorkerEntrypoint & {
   position: [number, number];
 };
 
 export type HandlerOptions = {
-  environment: HandlerEnvironment;
-  entrypoint: HandlerEntrypoint;
+  environment: ModuleEnvironment;
+  listener?: ModuleEntrypoint;
+  handler: ModuleEntrypoint;
 };

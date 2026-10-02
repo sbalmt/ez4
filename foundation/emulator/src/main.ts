@@ -1,4 +1,4 @@
-export * from './process/handler';
+export * from './process/module';
 export * from './process/errors';
 export * from './process/types';
 

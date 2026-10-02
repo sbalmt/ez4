@@ -1,32 +1,29 @@
+import type { AnyObject } from '@ez4/utils';
+import type { WorkerEntrypoint } from '../process/types';
+
 export enum WorkerSignal {
   Start = 'start',
-  Ready = 'ready',
   Invoke = 'invoke',
   Result = 'result',
   Error = 'error'
 }
 
-export type WorkerSignals = StartWorkerSignal | WorkerReadySignal | InvokeWorkerSignal | WorkerResultSignal | WorkerErrorSignal;
+export type WorkerSignals = StartWorkerSignal | InvokeWorkerSignal | WorkerResultSignal | WorkerErrorSignal;
 
 export type StartWorkerSignal = {
   signal: WorkerSignal.Start;
-  module?: string;
-  file: string;
-  name: string;
-};
-
-export type WorkerReadySignal = {
-  signal: WorkerSignal.Ready;
+  listener?: WorkerEntrypoint;
+  handler: WorkerEntrypoint;
 };
 
 export type InvokeWorkerSignal = {
   signal: WorkerSignal.Invoke;
-  inputs: unknown[];
+  request: AnyObject;
 };
 
 export type WorkerResultSignal = {
   signal: WorkerSignal.Result;
-  output: unknown;
+  response: unknown;
 };
 
 export type WorkerErrorSignal = {

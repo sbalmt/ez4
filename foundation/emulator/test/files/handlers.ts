@@ -1,21 +1,29 @@
+import type { AnyObject } from '@ez4/utils';
+
 import { setTimeout } from 'node:timers/promises';
 
 /**
  * Handler to test input and output values.
  */
-export const echo = (value) => ({ value });
+export const echo = ({ value }: AnyObject) => {
+  return {
+    value
+  };
+};
 
 /**
  * Handler to test worker exceptions.
  */
 export const exception = () => {
-  throw new TypeError('fixture handler failed');
+  throw new TypeError('Fixture handler failed');
 };
 
 /**
  * Handler to test invocation timeouts.
  */
-export const timeout = () => new Promise(() => {});
+export const timeout = () => {
+  return new Promise(() => {});
+};
 
 /**
  * Handler to test memory overflow.
@@ -33,7 +41,7 @@ let invocationCount = 0;
 /**
  * Handler to test per-invocation worker isolation.
  */
-export const isolation = async (value, delay) => {
+export const isolation = async ({ value, delay }: AnyObject) => {
   const count = ++invocationCount;
 
   await setTimeout(delay);

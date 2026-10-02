@@ -1,19 +1,19 @@
-import type { StartWorkerSignal } from '../signals/types';
-import type { HandlerFunction } from '../process/types';
+import type { WorkerEntrypoint } from '../process/types';
+import type { FunctionCallback } from './types';
 
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 import { EntrypointNotFoundError } from './errors';
 
-export const loadHandler = async (signal: StartWorkerSignal): Promise<HandlerFunction> => {
-  const moduleUrl = signal.module ? signal.module : pathToFileURL(join(process.cwd(), signal.file)).href;
+export const loadFunction = async (entrypoint: WorkerEntrypoint): Promise<FunctionCallback> => {
+  const moduleUrl = entrypoint.module ? entrypoint.module : pathToFileURL(join(process.cwd(), entrypoint.file)).href;
 
-  const { [signal.name]: handler } = await import(moduleUrl);
+  const { [entrypoint.name]: callback } = await import(moduleUrl);
 
-  if (typeof handler !== 'function') {
-    throw new EntrypointNotFoundError(signal.name, signal.file);
+  if (typeof callback !== 'function') {
+    throw new EntrypointNotFoundError(entrypoint.name, entrypoint.file);
   }
 
-  return handler as HandlerFunction;
+  return callback as FunctionCallback;
 };

@@ -1,16 +1,21 @@
-import type { HandlerFunction } from './process/types';
+import type { FunctionCallback } from './worker/types';
 
 import { parentPort } from 'node:worker_threads';
 
+import { invokeHandler } from './worker/invoker';
+import { notifyError, notifyResult } from './worker/notifier';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './worker/errors';
-import { deserialize, serialize } from './signals/serializer';
 import { UnexpectedSignalError } from './signals/errors';
+import { deserialize } from './signals/serializer';
 import { WorkerSignal } from './signals/types';
-import { loadHandler } from './worker/loader';
+import { loadFunction } from './worker/loader';
 
 const workerPort = parentPort;
 
-let handler: HandlerFunction | undefined;
+let listener: FunctionCallback | undefined;
+let handler: FunctionCallback | undefined;
+
+const context = {};
 
 if (!workerPort) {
   throw new WorkerUnavailableError();
@@ -22,8 +27,10 @@ workerPort.on('message', async (message: string) => {
 
     switch (signal.signal) {
       case WorkerSignal.Start: {
-        handler = await loadHandler(signal);
-        workerPort.postMessage(serialize({ signal: WorkerSignal.Ready }));
+        listener = signal.listener && (await loadFunction(signal.listener));
+        handler = await loadFunction(signal.handler);
+
+        notifyResult(workerPort, undefined);
         break;
       }
 
@@ -32,9 +39,7 @@ workerPort.on('message', async (message: string) => {
           throw new WorkerNotInitializedError();
         }
 
-        const output = await handler(...signal.inputs);
-
-        workerPort.postMessage(serialize({ signal: WorkerSignal.Result, output }));
+        await invokeHandler(workerPort, handler, listener, context, signal.request);
         break;
       }
 
@@ -42,30 +47,6 @@ workerPort.on('message', async (message: string) => {
         throw new UnexpectedSignalError(signal.signal);
     }
   } catch (error) {
-    workerPort.postMessage(
-      serialize({
-        signal: WorkerSignal.Error,
-        error: serializeError(error)
-      })
-    );
+    notifyError(workerPort, error);
   }
 });
-
-const serializeError = (error: unknown) => {
-  if (error instanceof Error) {
-    const errorType = Object.getPrototypeOf(error);
-    const errorClass = errorType?.constructor;
-    const errorName = errorClass?.name;
-
-    return {
-      name: errorName,
-      message: error.message,
-      stack: error.stack
-    };
-  }
-
-  return {
-    name: 'Error',
-    message: String(error)
-  };
-};

@@ -41,13 +41,8 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
             reject(new UnexpectedSignalError(data.signal));
             break;
 
-          case WorkerSignal.Ready: {
-            resolve(undefined);
-            break;
-          }
-
           case WorkerSignal.Result: {
-            resolve(data.output);
+            resolve(data.response);
             break;
           }
 

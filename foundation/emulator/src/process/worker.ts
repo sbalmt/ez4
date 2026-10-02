@@ -1,3 +1,4 @@
+import type { AnyObject } from '@ez4/utils';
 import type { WorkerOptions } from './types';
 
 import { Worker } from 'node:worker_threads';
@@ -9,12 +10,12 @@ const WORKER_URL = new URL('./worker.mjs', import.meta.url);
 
 export type WorkerInstance = {
   initialize: () => Promise<void>;
-  invoke: (...inputs: unknown[]) => Promise<unknown>;
   terminate: () => Promise<void>;
+  invoke: (...requests: AnyObject[]) => Promise<unknown>;
 };
 
 export const createWorker = (options: WorkerOptions): WorkerInstance => {
-  const { environment, entrypoint } = options;
+  const { environment, handler, listener } = options;
 
   const worker = new Worker(WORKER_URL, {
     resourceLimits: {
@@ -29,16 +30,8 @@ export const createWorker = (options: WorkerOptions): WorkerInstance => {
   const initialize = async () => {
     await dispatch(worker, {
       signal: WorkerSignal.Start,
-      module: entrypoint.module,
-      file: entrypoint.file,
-      name: entrypoint.name
-    });
-  };
-
-  const invoke = (...inputs: unknown[]) => {
-    return dispatch(worker, {
-      signal: WorkerSignal.Invoke,
-      inputs
+      listener,
+      handler
     });
   };
 
@@ -46,9 +39,16 @@ export const createWorker = (options: WorkerOptions): WorkerInstance => {
     await worker.terminate();
   };
 
+  const invoke = (request: AnyObject) => {
+    return dispatch(worker, {
+      signal: WorkerSignal.Invoke,
+      request
+    });
+  };
+
   return {
     initialize,
-    invoke,
-    terminate
+    terminate,
+    invoke
   };
 };
