@@ -14,26 +14,26 @@ export const invokeHandler = async (
   context: AnyObject,
   request: AnyObject
 ) => {
-  let currentRequest: AnyObject | undefined;
+  let preparedRequest: AnyObject | undefined;
   let responseResult: unknown;
 
-  const minimalRequest = await manager.createRequest(request);
+  const createdRequest = await manager.beginRequest(request);
 
   try {
-    await onBegin(listener, context, minimalRequest);
-    currentRequest = await manager.prepareRequest(minimalRequest, context);
+    await onBegin(listener, context, createdRequest);
+    preparedRequest = await manager.prepareRequest(createdRequest, request, context);
 
-    await onReady(listener, context, currentRequest);
-    responseResult = await handler(currentRequest, context);
+    await onReady(listener, context, preparedRequest);
+    responseResult = await handler(preparedRequest, context);
 
-    await onDone(listener, context, currentRequest);
+    await onDone(listener, context, preparedRequest);
   } catch (error) {
-    const finishedRequest = manager.finishRequest(minimalRequest, currentRequest, error);
+    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest, error);
     await onError(listener, context, error, finishedRequest);
 
     throw error;
   } finally {
-    const finishedRequest = manager.finishRequest(minimalRequest, currentRequest);
+    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest);
     await onEnd(listener, context, finishedRequest);
   }
 

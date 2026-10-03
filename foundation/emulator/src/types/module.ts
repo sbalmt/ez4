@@ -6,9 +6,9 @@ export type ModuleInstance<T> = {
 };
 
 export type ModuleManager = {
-  createRequest: (base: AnyObject) => Promise<AnyObject> | AnyObject;
-  prepareRequest: (minimal: AnyObject, services: AnyObject) => Promise<AnyObject> | AnyObject;
-  finishRequest: (minimal: AnyObject, current?: AnyObject, error?: unknown) => Promise<AnyObject> | AnyObject;
+  beginRequest: (original: AnyObject) => Promise<AnyObject> | AnyObject;
+  prepareRequest: (minimal: AnyObject, original: AnyObject, context: AnyObject) => Promise<AnyObject> | AnyObject;
+  finishRequest: (minimal: AnyObject, prepared?: AnyObject, error?: unknown) => Promise<AnyObject> | AnyObject;
 };
 
 export type ModuleEnvironment = {

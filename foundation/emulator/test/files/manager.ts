@@ -2,13 +2,13 @@ import type { AnyObject } from '@ez4/utils';
 
 export const makeManager = (options: AnyObject = {}) => {
   return {
-    createRequest: (request: AnyObject) => {
+    beginRequest: (original: AnyObject) => {
       return {
-        ...request,
+        ...original,
         createdByManager: true
       };
     },
-    prepareRequest: async (minimal: AnyObject, context: AnyObject) => {
+    prepareRequest: async (minimal: AnyObject, _original: AnyObject, context: AnyObject) => {
       return {
         ...minimal,
         preparedByManager: true,
@@ -16,8 +16,8 @@ export const makeManager = (options: AnyObject = {}) => {
         managerOption: options.marker
       };
     },
-    finishRequest: (minimal: AnyObject, current?: AnyObject, error?: unknown) => {
-      return error ? minimal : current;
+    finishRequest: (minimal: AnyObject, prepared?: AnyObject, error?: unknown) => {
+      return error ? minimal : prepared;
     }
   };
 };
