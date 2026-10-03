@@ -1,7 +1,11 @@
-import { deepEqual, rejects } from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import type { AnyObject } from '@ez4/utils';
 
-import { createModule } from '@ez4/emulator';
+import { deepEqual, rejects } from 'node:assert/strict';
+import { after, before, beforeEach, describe, it } from 'node:test';
+
+import { createModule, registerProvider, unregisterProvider } from '@ez4/emulator';
+
+const TEST_PROVIDER = 'test-provider';
 
 const createTestModule = (handlerName: string) => {
   return createModule({
@@ -20,6 +24,7 @@ const createTestModule = (handlerName: string) => {
       position: [1, 1]
     },
     manager: {
+      provider: TEST_PROVIDER,
       file: 'test/files/manager.ts',
       name: 'makeManager',
       options: {
@@ -27,7 +32,8 @@ const createTestModule = (handlerName: string) => {
       }
     },
     services: {
-      math: {
+      testService: {
+        provider: TEST_PROVIDER,
         file: 'test/files/service.ts',
         name: 'makeService',
         options: {
@@ -39,6 +45,25 @@ const createTestModule = (handlerName: string) => {
 };
 
 describe('worker tests', { timeout: 10000 }, () => {
+  let lastProviderEvent: AnyObject | undefined;
+
+  before(() => {
+    registerProvider(TEST_PROVIDER, {
+      eventTypes: ['test-event'],
+      eventHandler: (payload: AnyObject | undefined) => {
+        lastProviderEvent = payload;
+      }
+    });
+  });
+
+  beforeEach(() => {
+    lastProviderEvent = undefined;
+  });
+
+  after(() => {
+    unregisterProvider(TEST_PROVIDER);
+  });
+
   it('assert :: starts the worker and returns the handler result', async () => {
     const module = createTestModule('echo');
 
@@ -68,12 +93,26 @@ describe('worker tests', { timeout: 10000 }, () => {
   it('assert :: creates and prepares requests with the manager', async () => {
     const module = createTestModule('managed');
 
-    deepEqual(await module.invoke({ value: 'input' }), {
+    const result = await module.invoke({
+      value: 'input'
+    });
+
+    deepEqual(result, {
       value: 'input',
       createdByManager: true,
       preparedByManager: true,
       managerOption: 'manager-fixture',
       serviceOption: 10
+    });
+  });
+
+  it('assert :: receives provider events from worker handler', async () => {
+    const module = createTestModule('event');
+
+    await module.invoke({});
+
+    deepEqual(lastProviderEvent, {
+      eventMarker: 'foo'
     });
   });
 

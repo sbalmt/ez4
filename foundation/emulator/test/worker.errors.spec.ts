@@ -1,4 +1,4 @@
-import { rejects } from 'node:assert/strict';
+import { doesNotReject, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { createModule, EntrypointNotFoundError, ExecutionTimeoutError, ServiceNotFoundError, WorkerMemoryLimitError } from '@ez4/emulator';
@@ -38,6 +38,18 @@ describe('worker errors', { timeout: 10000 }, () => {
     });
 
     await rejects(module.invoke({ value: 'test' }), ServiceNotFoundError);
+  });
+
+  it('assert :: handles an event from an unregistered provider as fire-and-forget', async () => {
+    const module = createTestModule('event', {
+      testService: {
+        provider: 'unregistered-worker-provider',
+        file: 'test/files/service.ts',
+        name: 'makeService'
+      }
+    });
+
+    await doesNotReject(module.invoke({}));
   });
 
   it('assert :: reports a worker memory limit error', async () => {

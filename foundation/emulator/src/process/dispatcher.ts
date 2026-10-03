@@ -7,7 +7,9 @@ import { UnexpectedSignalError } from '../errors/signal';
 import { WorkerMemoryLimitError, WorkerTerminatedError } from '../errors/worker';
 import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
 import { deserialize, serialize } from '../utils/data';
+import { logErrorData } from '../utils/errors';
 import { WorkerSignal } from '../types/signal';
+import { notifyProvider } from './provider';
 
 /**
  * Dispatch a signal message to the worker and awaits for a response.
@@ -35,17 +37,23 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
     };
 
     const onMessage = (message: string) => {
-      cleanupListeners();
-
       try {
         const data = deserialize(message);
 
         switch (data.signal) {
           default:
-            reject(new UnexpectedSignalError(data.signal));
+            onError(new UnexpectedSignalError(data.signal));
             break;
 
+          case WorkerSignal.Event: {
+            notifyProvider(data.provider, data.event, data.payload).catch((error) => {
+              logErrorData(error);
+            });
+            break;
+          }
+
           case WorkerSignal.Result: {
+            cleanupListeners();
             resolve(data.response);
             break;
           }
@@ -59,12 +67,12 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
 
             error.stack = data.error.stack;
 
-            reject(error);
+            onError(error);
             break;
           }
         }
       } catch (error) {
-        reject(error);
+        onError(error);
       }
     };
 
@@ -73,9 +81,9 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
       reject(new WorkerTerminatedError(code));
     };
 
-    worker.once('error', onError);
-    worker.once('message', onMessage);
-    worker.once('exit', onExit);
+    worker.on('error', onError);
+    worker.on('message', onMessage);
+    worker.on('exit', onExit);
 
     try {
       worker.postMessage(serialize(signal));

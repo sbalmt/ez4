@@ -6,12 +6,14 @@ export type ServiceAnyDescriptor = ServiceFileDescriptor | ServiceModuleDescript
 
 export type ServiceFileDescriptor = {
   options?: AnyObject;
+  provider?: string;
   file: string;
   name: string;
 };
 
 export type ServiceModuleDescriptor = {
   options?: AnyObject;
+  provider?: string;
   module: string;
   name: string;
 };

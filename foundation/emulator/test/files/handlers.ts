@@ -2,6 +2,8 @@ import type { AnyObject } from '@ez4/utils';
 
 import { setTimeout } from 'node:timers/promises';
 
+let INVOCATION_COUNT = 0;
+
 /**
  * Handler to test input and output values.
  */
@@ -14,11 +16,11 @@ export const echo = ({ value }: AnyObject) => {
 /**
  * Handler to test an initialized service from the worker context.
  */
-export const service = ({ x, y }: AnyObject, context: AnyObject) => {
+export const service = ({ x, y }: AnyObject, { testService }: AnyObject) => {
   return {
-    sum: context.math.add(x, y),
-    difference: context.math.sub(x, y),
-    options: context.math.options
+    sum: testService.add(x, y),
+    difference: testService.sub(x, y),
+    options: testService.options
   };
 };
 
@@ -33,6 +35,15 @@ export const managed = (request: AnyObject) => {
     managerOption: request.managerOption,
     serviceOption: request.serviceOption
   };
+};
+
+/**
+ * Handler to test worker provider events.
+ */
+export const event = async (_request: AnyObject, { testService }: AnyObject) => {
+  testService.notify({
+    eventMarker: 'foo'
+  });
 };
 
 /**
@@ -60,13 +71,11 @@ export const memory = () => {
   }
 };
 
-let invocationCount = 0;
-
 /**
  * Handler to test per-invocation worker isolation.
  */
 export const isolation = async ({ value, delay }: AnyObject) => {
-  const count = ++invocationCount;
+  const count = ++INVOCATION_COUNT;
 
   await setTimeout(delay);
 

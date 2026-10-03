@@ -1,8 +1,10 @@
+import type { AnyObject } from '@ez4/utils';
+
 import type { MessagePort } from 'node:worker_threads';
 
-import { serialize } from '../utils/data';
-import { getErrorData } from '../utils/errors';
 import { WorkerSignal } from '../types/signal';
+import { getErrorData } from '../utils/errors';
+import { serialize } from '../utils/data';
 
 /**
  * Notify a result signal message to the main worker.
@@ -15,6 +17,25 @@ export const notifyResult = (worker: MessagePort, response: unknown) => {
     serialize({
       signal: WorkerSignal.Result,
       response
+    })
+  );
+};
+
+/**
+ * Notify an event signal message to the main worker.
+ *
+ * @param worker Worker instace.
+ * @param provider Provider to be notified.
+ * @param event Event name.
+ * @param payload Event payload.
+ */
+export const notifyEvent = (worker: MessagePort, provider: string, event: string, payload?: AnyObject) => {
+  worker.postMessage(
+    serialize({
+      signal: WorkerSignal.Event,
+      provider,
+      payload,
+      event
     })
   );
 };

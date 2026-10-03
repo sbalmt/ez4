@@ -12,7 +12,7 @@ export const makeManager = (options: AnyObject = {}) => {
       return {
         ...minimal,
         preparedByManager: true,
-        serviceOption: context.math?.options?.value,
+        serviceOption: context.testService?.options?.value,
         managerOption: options.marker
       };
     },

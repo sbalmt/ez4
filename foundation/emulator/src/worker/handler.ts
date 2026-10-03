@@ -1,9 +1,9 @@
 import type { MessagePort } from 'node:worker_threads';
 import type { AnyObject } from '@ez4/utils';
-import type { FunctionCallback } from '../types/common';
+import type { FunctionCallback } from '../types/handler';
 import type { ModuleManager } from '../types/module';
 
-import { onBegin, onDone, onEnd, onError, onReady } from './dispatcher';
+import { onBegin, onDone, onEnd, onError, onReady } from './listener';
 import { notifyResult } from './notifier';
 
 export const invokeHandler = async (
@@ -17,7 +17,7 @@ export const invokeHandler = async (
   let currentRequest: AnyObject | undefined;
   let responseResult: unknown;
 
-  const minimalRequest = manager.createRequest(request);
+  const minimalRequest = await manager.createRequest(request);
 
   try {
     await onBegin(listener, context, minimalRequest);

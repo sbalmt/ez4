@@ -1,10 +1,10 @@
 import type { AnyObject } from '@ez4/utils';
-import type { FunctionCallback } from './types/common';
+import type { FunctionCallback } from './types/handler';
 import type { ModuleManager } from './types/module';
 
 import { parentPort } from 'node:worker_threads';
 
-import { invokeHandler } from './worker/invoker';
+import { invokeHandler } from './worker/handler';
 import { notifyError, notifyResult } from './worker/notifier';
 import { loadFunction, loadServices, loadService } from './worker/loader';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
@@ -12,7 +12,7 @@ import { UnexpectedSignalError } from './errors/signal';
 import { WorkerSignal } from './types/signal';
 import { deserialize } from './utils/data';
 
-const workerPort = parentPort;
+const hostWorker = parentPort;
 
 let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
@@ -20,23 +20,23 @@ let handler: FunctionCallback | undefined;
 let context: AnyObject = {};
 let manager: ModuleManager;
 
-if (!workerPort) {
+if (!hostWorker) {
   throw new WorkerUnavailableError();
 }
 
-workerPort.on('message', async (message: string) => {
+hostWorker.on('message', async (message: string) => {
   try {
     const signal = deserialize(message);
 
     switch (signal.signal) {
       case WorkerSignal.Start: {
-        manager = await loadService(signal.manager);
-        context = await loadServices(signal.services);
+        manager = await loadService(hostWorker, signal.manager);
+        context = await loadServices(hostWorker, signal.services);
 
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
 
-        notifyResult(workerPort, undefined);
+        notifyResult(hostWorker, undefined);
         break;
       }
 
@@ -45,7 +45,7 @@ workerPort.on('message', async (message: string) => {
           throw new WorkerNotInitializedError();
         }
 
-        await invokeHandler(workerPort, handler, listener, manager, context, signal.request);
+        await invokeHandler(hostWorker, handler, listener, manager, context, signal.request);
         break;
       }
 
@@ -53,6 +53,6 @@ workerPort.on('message', async (message: string) => {
         throw new UnexpectedSignalError(signal.signal);
     }
   } catch (error) {
-    notifyError(workerPort, error);
+    notifyError(hostWorker, error);
   }
 });
