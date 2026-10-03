@@ -1,6 +1,6 @@
 # EZ4: Emulator
 
-It provides an API for emulating resources and services.
+It provides an API for emulating resources and services in a sandbox.
 
 ## Getting started
 

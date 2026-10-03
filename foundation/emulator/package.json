@@ -1,6 +1,6 @@
 {
   "name": "@ez4/emulator",
-  "description": "EZ4: Resources and Services emulator",
+  "description": "EZ4: Sandboxed resources and services emulator",
   "version": "0.55.0",
   "author": "Silas B.",
   "license": "MIT",
@@ -18,8 +18,8 @@
     "node": ">=24.21"
   },
   "exports": {
-    "types": "./dist/main.d.ts",
-    "default": "./dist/main.mjs"
+    "types": "./dist/library.d.ts",
+    "default": "./dist/library.mjs"
   },
   "sideEffects": false,
   "workspaces": [
