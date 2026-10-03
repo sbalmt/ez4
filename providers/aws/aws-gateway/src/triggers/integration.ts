@@ -82,13 +82,13 @@ const getIntegrationFunction = (
   const { request, response } = handler;
 
   const internalName = getInternalName(service, handler.name);
+  const integrationName = getFunctionName(service, handler, options);
 
   let handlerState = tryGetFunctionState(context, internalName, options);
 
   if (!handlerState) {
     const { release, tags } = options;
 
-    const integrationName = getFunctionName(service, handler, options);
     const dependencies = context.getDependencyFiles(handler.file);
 
     const logGroupState = createLogGroup(state, {
@@ -161,9 +161,9 @@ const getIntegrationFunction = (
   return (
     getIntegration(state, gatewayState, handlerState) ??
     createIntegration(state, gatewayState, handlerState, {
-      fromService: handlerState.parameters.functionName,
       description: handler.summary ?? handler.description,
-      timeout: handlerState.parameters.timeout
+      timeout: handlerState.parameters.timeout,
+      fromService: integrationName
     })
   );
 };
