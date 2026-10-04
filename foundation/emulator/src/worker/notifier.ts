@@ -41,6 +41,23 @@ export const notifyEvent = (worker: MessagePort, provider: string, event: string
 };
 
 /**
+ * Notify a log message to the main worker.
+ *
+ * @param worker Worker instance.
+ * @param error Determines whether or not the log is an error
+ * @param text Log text.
+ */
+export const notifyLog = (worker: MessagePort, error: boolean, text: string) => {
+  worker.postMessage(
+    serialize({
+      signal: WorkerSignal.Log,
+      error,
+      text
+    })
+  );
+};
+
+/**
  * Notify an error signal message to the main worker.
  *
  * @param worker Worker instace.

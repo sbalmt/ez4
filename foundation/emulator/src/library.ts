@@ -1,3 +1,5 @@
+export * from './utils/loader';
+
 export * from './process/module';
 export * from './process/provider';
 

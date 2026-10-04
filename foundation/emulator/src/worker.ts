@@ -1,12 +1,13 @@
 import type { AnyObject } from '@ez4/utils';
-import type { FunctionCallback } from './types/handler';
+import type { FunctionCallback } from './types/function';
 import type { ModuleManager } from './types/module';
 
 import { parentPort } from 'node:worker_threads';
 
 import { invokeHandler } from './worker/handler';
+import { captureOutput } from './worker/output';
+import { loadFunction, loadService } from './worker/loader';
 import { notifyError, notifyResult } from './worker/notifier';
-import { loadFunction, loadServices, loadService } from './worker/loader';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
 import { UnexpectedSignalError } from './errors/signal';
 import { WorkerSignal } from './types/signal';
@@ -17,12 +18,15 @@ const hostWorker = parentPort;
 let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
 
-let context: AnyObject = {};
+let services: AnyObject = {};
 let manager: ModuleManager;
 
 if (!hostWorker) {
   throw new WorkerUnavailableError();
 }
+
+captureOutput(hostWorker, false, process.stdout);
+captureOutput(hostWorker, true, process.stderr);
 
 hostWorker.on('message', async (message: string) => {
   try {
@@ -30,8 +34,11 @@ hostWorker.on('message', async (message: string) => {
 
     switch (signal.signal) {
       case WorkerSignal.Start: {
-        manager = await loadService(hostWorker, signal.manager);
-        context = await loadServices(hostWorker, signal.services);
+        for (const identifier in signal.services) {
+          services[identifier] = await loadService(hostWorker, services, signal.services[identifier]);
+        }
+
+        manager = await loadService(hostWorker, services, signal.manager);
 
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
@@ -45,7 +52,7 @@ hostWorker.on('message', async (message: string) => {
           throw new WorkerNotInitializedError();
         }
 
-        await invokeHandler(hostWorker, handler, listener, manager, context, signal.request);
+        await invokeHandler(hostWorker, handler, listener, manager, services, signal.request);
         break;
       }
 

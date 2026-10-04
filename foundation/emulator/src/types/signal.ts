@@ -7,10 +7,17 @@ export enum WorkerSignal {
   Invoke = 'invoke',
   Result = 'result',
   Event = 'event',
-  Error = 'error'
+  Error = 'error',
+  Log = 'log'
 }
 
-export type WorkerSignals = StartWorkerSignal | InvokeWorkerSignal | WorkerResultSignal | WorkerEventSignal | WorkerErrorSignal;
+export type WorkerSignals =
+  | StartWorkerSignal
+  | InvokeWorkerSignal
+  | WorkerResultSignal
+  | WorkerEventSignal
+  | WorkerErrorSignal
+  | WorkerLogSignal;
 
 export type StartWorkerSignal = {
   signal: WorkerSignal.Start;
@@ -35,6 +42,12 @@ export type WorkerEventSignal = {
   provider: string;
   payload?: AnyObject;
   event: string;
+};
+
+export type WorkerLogSignal = {
+  signal: WorkerSignal.Log;
+  error: boolean;
+  text: string;
 };
 
 export type WorkerErrorSignal = {

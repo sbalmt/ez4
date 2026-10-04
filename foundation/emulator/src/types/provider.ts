@@ -7,4 +7,5 @@ export type ProviderOptions<T extends AnyObject> = {
 
 export type ProviderContext = {
   notify: (event: string, payload: AnyObject) => void;
+  services: AnyObject;
 };

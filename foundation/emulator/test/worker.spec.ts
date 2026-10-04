@@ -1,7 +1,7 @@
 import type { AnyObject } from '@ez4/utils';
 
-import { deepEqual, rejects } from 'node:assert/strict';
-import { after, before, beforeEach, describe, it } from 'node:test';
+import { deepEqual, ok, rejects } from 'node:assert/strict';
+import { after, before, beforeEach, describe, it, mock } from 'node:test';
 
 import { createModule, registerProvider, unregisterProvider } from '@ez4/emulator';
 
@@ -148,5 +148,23 @@ describe('worker tests', { timeout: 10000 }, () => {
         value: 'second'
       }
     ]);
+  });
+
+  it('assert :: forwards worker stdout and stderr before completing', async () => {
+    const stdout = mock.method(process.stdout, 'write');
+    const stderr = mock.method(process.stderr, 'write');
+
+    try {
+      await createTestModule('logging').invoke({});
+
+      const output = stdout.mock.calls.map(({ arguments: args }) => args[0].toString()).join('');
+      const errors = stderr.mock.calls.map(({ arguments: args }) => args[0].toString()).join('');
+
+      ok(output.includes('worker stdout message'));
+      ok(errors.includes('worker stderr message'));
+    } finally {
+      stdout.mock.restore();
+      stderr.mock.restore();
+    }
   });
 });

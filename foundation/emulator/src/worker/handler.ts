@@ -1,6 +1,6 @@
 import type { MessagePort } from 'node:worker_threads';
 import type { AnyObject } from '@ez4/utils';
-import type { FunctionCallback } from '../types/handler';
+import type { FunctionCallback } from '../types/function';
 import type { ModuleManager } from '../types/module';
 
 import { onBegin, onDone, onEnd, onError, onReady } from './listener';

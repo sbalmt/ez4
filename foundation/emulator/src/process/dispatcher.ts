@@ -46,9 +46,12 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
             break;
 
           case WorkerSignal.Event: {
-            notifyProvider(data.provider, data.event, data.payload).catch((error) => {
-              logErrorData(error);
-            });
+            notifyProvider(data.provider, data.event, data.payload).catch(logErrorData);
+            break;
+          }
+
+          case WorkerSignal.Log: {
+            (data.error ? process.stderr : process.stdout).write(data.text);
             break;
           }
 

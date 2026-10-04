@@ -1,6 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 import type { Service } from '@ez4/common';
-import type { FunctionCallback } from '../types/handler';
+import type { FunctionCallback } from '../types/function';
 
 import { ServiceEventType } from '@ez4/common';
 

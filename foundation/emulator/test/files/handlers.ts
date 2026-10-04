@@ -84,3 +84,11 @@ export const isolation = async ({ value, delay }: AnyObject) => {
     value
   };
 };
+
+/**
+ * Handler to test worker logs
+ */
+export const logging = () => {
+  console.log('worker stdout message');
+  console.error('worker stderr message');
+};
