@@ -9,7 +9,6 @@ import {
   InvalidServicePropertyError,
   isExternalDeclaration,
   isClassDeclaration,
-  getLinkedOptionsObject,
   getLinkedVariablesObject,
   getLinkedServicesObject,
   getDeclarationDescription,
@@ -61,7 +60,9 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options': {
           break;
+        }
 
         case 'scalability': {
           if (!member.inherited) {
@@ -80,13 +81,6 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
         case 'tables': {
           if (!member.inherited && (service.tables = getDatabaseTablesMetadata(member, declaration, reflection, errorList))) {
             properties.delete(member.name);
-          }
-          break;
-        }
-
-        case 'options': {
-          if (!member.inherited) {
-            service.options = getLinkedOptionsObject(member);
           }
           break;
         }

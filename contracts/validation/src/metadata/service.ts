@@ -54,7 +54,9 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
+        case 'options': {
           break;
+        }
 
         case 'handler': {
           if (!member.inherited && (service.handler = getValidationHandlerMetadata(member.value, errorList))) {
@@ -67,11 +69,6 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
           if ((service.schema = getAnySchema(member.value, reflection))) {
             properties.delete(member.name);
           }
-          break;
-        }
-
-        case 'options': {
-          service.options = {};
           break;
         }
 

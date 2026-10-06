@@ -57,8 +57,9 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
-        case 'options':
+        case 'options': {
           break;
+        }
 
         case 'schema': {
           if ((service.schema = getCronEventMetadata(member.value, declaration, reflection, errorList))) {
