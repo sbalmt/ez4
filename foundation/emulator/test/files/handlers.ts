@@ -16,11 +16,11 @@ export const echo = ({ value }: AnyObject) => {
 /**
  * Handler to test an initialized service from the worker context.
  */
-export const service = ({ x, y }: AnyObject, { testService }: AnyObject) => {
+export const service = ({ x, y }: AnyObject, { lazyService, mathService }: AnyObject) => {
   return {
-    sum: testService.add(x, y),
-    difference: testService.sub(x, y),
-    options: testService.options
+    sum: mathService.add(x, y),
+    difference: mathService.sub(x, y),
+    options: lazyService.options
   };
 };
 
@@ -40,8 +40,8 @@ export const managed = (request: AnyObject) => {
 /**
  * Handler to test worker provider events.
  */
-export const event = async (_request: AnyObject, { testService }: AnyObject) => {
-  testService.notify({
+export const event = async (_request: AnyObject, { eventService }: AnyObject) => {
+  eventService.notify({
     eventMarker: 'foo'
   });
 };

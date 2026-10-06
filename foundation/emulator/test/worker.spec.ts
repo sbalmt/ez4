@@ -26,20 +26,35 @@ const createTestModule = (handlerName: string) => {
     manager: {
       provider: TEST_PROVIDER,
       file: 'test/files/manager.ts',
-      name: 'makeManager',
+      name: 'makeTestManager',
       options: {
         marker: 'manager-fixture'
       }
     },
     services: {
-      testService: {
+      LazyService: {
         provider: TEST_PROVIDER,
         file: 'test/files/service.ts',
-        name: 'makeService',
+        name: 'makeLazyService',
         options: {
           value: 10
         }
+      },
+      MathService: {
+        provider: TEST_PROVIDER,
+        file: 'test/files/service.ts',
+        name: 'makeMathService'
+      },
+      EventService: {
+        provider: TEST_PROVIDER,
+        file: 'test/files/service.ts',
+        name: 'makeEventService'
       }
+    },
+    references: {
+      lazyService: 'LazyService',
+      mathService: 'MathService',
+      eventService: 'EventService'
     }
   });
 };

@@ -1,6 +1,12 @@
 import type { AnyObject } from '@ez4/utils';
 
-export const makeManager = (options: AnyObject = {}) => {
+export const makeDefaultManager = () => ({
+  beginRequest: () => ({}),
+  prepareRequest: (_minimal: unknown, request: unknown) => request,
+  finishRequest: (request: unknown) => request
+});
+
+export const makeTestManager = (options: AnyObject = {}) => {
   return {
     beginRequest: (original: AnyObject) => {
       return {
@@ -12,7 +18,7 @@ export const makeManager = (options: AnyObject = {}) => {
       return {
         ...minimal,
         preparedByManager: true,
-        serviceOption: context.testService?.options?.value,
+        serviceOption: context.lazyService?.options?.value,
         managerOption: options.marker
       };
     },

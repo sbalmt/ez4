@@ -1,19 +1,23 @@
 import type { AnyObject } from '@ez4/utils';
 
-export type ServiceDescriptors = Record<string, ServiceAnyDescriptor>;
+export type ServiceReferences = Record<string, string>;
 
-export type ServiceAnyDescriptor = ServiceFileDescriptor | ServiceModuleDescriptor;
+export type ServiceDescriptors = Record<string, AnyServiceDescriptor>;
 
-export type ServiceFileDescriptor = {
-  options?: AnyObject;
-  provider?: string;
-  file: string;
+export type ServiceFactories = Record<string, () => AnyObject>;
+
+export type AnyServiceDescriptor = FileServiceDescriptor | ModuleServiceDescriptor;
+
+export type ServiceDescriptor = {
   name: string;
+  provider?: string;
+  options?: AnyObject;
 };
 
-export type ServiceModuleDescriptor = {
-  options?: AnyObject;
-  provider?: string;
+export type FileServiceDescriptor = ServiceDescriptor & {
+  file: string;
+};
+
+export type ModuleServiceDescriptor = ServiceDescriptor & {
   module: string;
-  name: string;
 };

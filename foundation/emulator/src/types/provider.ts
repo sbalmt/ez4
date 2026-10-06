@@ -1,4 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
+import type { ServiceFactories } from './service';
 
 export type ProviderOptions<T extends AnyObject> = {
   eventTypes: string[];
@@ -7,5 +8,5 @@ export type ProviderOptions<T extends AnyObject> = {
 
 export type ProviderContext = {
   notify: (event: string, payload: AnyObject) => void;
-  services: AnyObject;
+  services: ServiceFactories;
 };

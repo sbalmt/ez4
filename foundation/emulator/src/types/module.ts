@@ -1,5 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
-import type { ServiceAnyDescriptor, ServiceDescriptors } from './service';
+import type { AnyServiceDescriptor, ServiceDescriptors, ServiceReferences } from './service';
 
 export type ModuleInstance<T> = {
   invoke: (request: AnyObject) => Promise<T>;
@@ -25,9 +25,10 @@ export type ModuleEntrypoint = {
 };
 
 export type ModuleOptions = {
-  manager: ServiceAnyDescriptor;
+  manager: AnyServiceDescriptor;
   environment: ModuleEnvironment;
   services?: ServiceDescriptors;
+  references?: ServiceReferences;
   listener?: ModuleEntrypoint;
   handler: ModuleEntrypoint;
 };

@@ -1,7 +1,7 @@
 import type { MessagePort } from 'node:worker_threads';
 import type { AnyObject } from '@ez4/utils';
 import type { FunctionCallback } from '../types/function';
-import type { ServiceAnyDescriptor } from '../types/service';
+import type { AnyServiceDescriptor, ServiceFactories } from '../types/service';
 import type { WorkerEntrypoint } from '../types/worker';
 
 import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
@@ -18,7 +18,7 @@ export const loadFunction = async (entrypoint: WorkerEntrypoint): Promise<Functi
   return callback as FunctionCallback;
 };
 
-export const loadService = async <T>(worker: MessagePort, services: AnyObject, descriptor: ServiceAnyDescriptor) => {
+export const loadService = async <T>(worker: MessagePort, services: ServiceFactories, descriptor: AnyServiceDescriptor) => {
   const { specifier, callback } = await loadCallback(descriptor);
 
   if (typeof callback !== 'function') {

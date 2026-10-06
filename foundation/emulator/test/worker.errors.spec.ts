@@ -1,9 +1,11 @@
+import type { ServiceDescriptors, ServiceReferences } from '@ez4/emulator';
+
 import { doesNotReject, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { createModule, EntrypointNotFoundError, ExecutionTimeoutError, ServiceNotFoundError, WorkerMemoryLimitError } from '@ez4/emulator';
 
-const createTestModule = (handlerName: string, services = {}) => {
+const createTestModule = (handlerName: string, services?: ServiceDescriptors, references?: ServiceReferences) => {
   return createModule({
     environment: {
       timeout: 5,
@@ -16,9 +18,10 @@ const createTestModule = (handlerName: string, services = {}) => {
     },
     manager: {
       file: 'test/files/manager.ts',
-      name: 'makeManager'
+      name: 'makeDefaultManager'
     },
-    services
+    services,
+    references
   });
 };
 
@@ -41,13 +44,19 @@ describe('worker errors', { timeout: 10000 }, () => {
   });
 
   it('assert :: handles an event from an unregistered provider as fire-and-forget', async () => {
-    const module = createTestModule('event', {
-      testService: {
-        provider: 'unregistered-worker-provider',
-        file: 'test/files/service.ts',
-        name: 'makeService'
+    const module = createTestModule(
+      'event',
+      {
+        EventService: {
+          provider: 'unregistered-worker-provider',
+          file: 'test/files/service.ts',
+          name: 'makeEventService'
+        }
+      },
+      {
+        eventService: 'EventService'
       }
-    });
+    );
 
     await doesNotReject(module.invoke({}));
   });

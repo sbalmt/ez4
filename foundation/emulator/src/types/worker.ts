@@ -1,5 +1,5 @@
 import type { AnyObject } from '@ez4/utils';
-import type { ServiceAnyDescriptor, ServiceDescriptors } from './service';
+import type { AnyServiceDescriptor, ServiceDescriptors, ServiceReferences } from './service';
 
 export type WorkerInstance = {
   initialize: () => Promise<void>;
@@ -19,9 +19,10 @@ export type WorkerEntrypoint = {
 };
 
 export type WorkerOptions = {
-  manager: ServiceAnyDescriptor;
+  manager: AnyServiceDescriptor;
   environment: WorkerEnvironment;
   services?: ServiceDescriptors;
+  references?: ServiceReferences;
   listener?: WorkerEntrypoint;
   handler: WorkerEntrypoint;
 };

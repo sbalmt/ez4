@@ -1,15 +1,25 @@
 import type { ProviderContext } from '@ez4/emulator';
 import type { AnyObject } from '@ez4/utils';
 
-export const makeService = (options: AnyObject, context: ProviderContext) => {
+export const makeLazyService = (options: AnyObject, _context: ProviderContext) => {
+  return () => ({
+    options
+  });
+};
+
+export const makeMathService = (_options: AnyObject, _context: ProviderContext) => {
   return {
-    options,
     add: (x: number, y: number) => {
       return x + y;
     },
     sub: (x: number, y: number) => {
       return x - y;
-    },
+    }
+  };
+};
+
+export const makeEventService = (_options: AnyObject, context: ProviderContext) => {
+  return {
     notify: (payload: AnyObject) => {
       context.notify('test-event', payload);
     }

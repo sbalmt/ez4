@@ -1,4 +1,4 @@
-import type { ServiceAnyDescriptor } from '../types/service';
+import type { AnyServiceDescriptor } from '../types/service';
 
 export class ExecutionTimeoutError extends Error {
   constructor() {
@@ -7,7 +7,7 @@ export class ExecutionTimeoutError extends Error {
 }
 
 export class ServiceNotFoundError extends Error {
-  constructor(name: string, descriptor?: ServiceAnyDescriptor) {
+  constructor(name: string, descriptor?: AnyServiceDescriptor) {
     if (descriptor) {
       const specifier = 'module' in descriptor ? descriptor.module : descriptor.file;
       super(`Service '${name}' was not found in '${specifier}'.`);
