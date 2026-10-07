@@ -4,7 +4,7 @@ import type { FunctionCallback } from '../types/function';
 import type { ModuleManager } from '../types/module';
 
 import { onBegin, onDone, onEnd, onError, onReady, onTimeout } from './listener';
-import { notifyResult } from './notifier';
+import { notifyData } from './notifier';
 
 export const invokeHandler = async (
   worker: MessagePort,
@@ -46,5 +46,5 @@ export const invokeHandler = async (
     await onEnd(listener, context, finishedRequest);
   }
 
-  notifyResult(worker, responseResult);
+  notifyData(worker, responseResult);
 };

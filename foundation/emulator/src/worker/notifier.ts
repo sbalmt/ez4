@@ -7,15 +7,15 @@ import { getErrorData } from '../utils/errors';
 import { serialize } from '../utils/data';
 
 /**
- * Notify a result signal message to the main worker.
+ * Notify a data signal message to the main worker.
  *
  * @param worker Worker instace.
  * @param response Response to send.
  */
-export const notifyResult = (worker: MessagePort, response: unknown) => {
+export const notifyData = (worker: MessagePort, response: unknown) => {
   worker.postMessage(
     serialize({
-      signal: WorkerSignal.Result,
+      signal: WorkerSignal.Data,
       response
     })
   );

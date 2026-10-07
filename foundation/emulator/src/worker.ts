@@ -7,7 +7,7 @@ import { parentPort } from 'node:worker_threads';
 import { captureOutput } from './worker/output';
 import { invokeHandler } from './worker/handler';
 import { loadFunction, loadService } from './worker/loader';
-import { notifyError, notifyResult } from './worker/notifier';
+import { notifyError, notifyData } from './worker/notifier';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
 import { UnexpectedSignalError } from './errors/signal';
 import { WorkerSignal } from './types/signal';
@@ -51,7 +51,7 @@ hostWorker.on('message', async (message: string) => {
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
 
-        notifyResult(hostWorker, undefined);
+        notifyData(hostWorker, undefined);
         break;
       }
 

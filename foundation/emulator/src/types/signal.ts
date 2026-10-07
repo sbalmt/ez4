@@ -5,16 +5,16 @@ import type { WorkerEntrypoint } from './worker';
 export enum WorkerSignal {
   Start = 'start',
   Invoke = 'invoke',
-  Result = 'result',
   Event = 'event',
   Error = 'error',
+  Data = 'data',
   Log = 'log'
 }
 
 export type WorkerSignals =
   | StartWorkerSignal
   | InvokeWorkerSignal
-  | WorkerResultSignal
+  | WorkerDataSignal
   | WorkerEventSignal
   | WorkerErrorSignal
   | WorkerLogSignal;
@@ -34,8 +34,8 @@ export type InvokeWorkerSignal = {
   request: AnyObject;
 };
 
-export type WorkerResultSignal = {
-  signal: WorkerSignal.Result;
+export type WorkerDataSignal = {
+  signal: WorkerSignal.Data;
   response: unknown;
 };
 

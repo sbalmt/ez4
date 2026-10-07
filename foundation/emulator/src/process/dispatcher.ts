@@ -55,7 +55,7 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
             break;
           }
 
-          case WorkerSignal.Result: {
+          case WorkerSignal.Data: {
             cleanupListeners();
             resolve(data.response);
             break;
