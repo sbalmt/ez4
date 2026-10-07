@@ -1,13 +1,13 @@
 import type { Worker } from 'node:worker_threads';
-import type { WorkerSignals } from '../types/signal';
+import type { WorkerErrorSignal, WorkerEventSignal, WorkerLogSignal, WorkerSignals } from '../types/signal';
 
 import { isAnyObject } from '@ez4/utils';
 
 import { UnexpectedSignalError } from '../errors/signal';
 import { WorkerMemoryLimitError, WorkerTerminatedError } from '../errors/worker';
 import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
+import { getErrorData, logErrorData } from '../utils/errors';
 import { deserialize, serialize } from '../utils/data';
-import { logErrorData } from '../utils/errors';
 import { WorkerSignal } from '../types/signal';
 import { notifyProvider } from './provider';
 
@@ -41,17 +41,18 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
         const data = deserialize(message);
 
         switch (data.signal) {
-          default:
+          default: {
             onError(new UnexpectedSignalError(data.signal));
-            break;
-
-          case WorkerSignal.Event: {
-            notifyProvider(data.provider, data.event, data.payload).catch(logErrorData);
             break;
           }
 
           case WorkerSignal.Log: {
-            (data.error ? process.stderr : process.stdout).write(data.text);
+            handleLog(data);
+            break;
+          }
+
+          case WorkerSignal.Event: {
+            handleEvent(worker, data).catch(logErrorData);
             break;
           }
 
@@ -62,15 +63,7 @@ export const dispatch = (worker: Worker, signal: WorkerSignals) => {
           }
 
           case WorkerSignal.Error: {
-            const error = isServiceError(data.error)
-              ? new ServiceNotFoundError(data.error.message)
-              : isEntrypointError(data.error)
-                ? new EntrypointNotFoundError(data.error.message)
-                : new Error(data.error.message);
-
-            error.stack = data.error.stack;
-
-            onError(error);
+            onError(handleError(data));
             break;
           }
         }
@@ -106,4 +99,56 @@ const isEntrypointError = (error: unknown) => {
 
 const isServiceError = (error: unknown) => {
   return isAnyObject(error) && error.name === 'ServiceNotFoundError';
+};
+
+const handleLog = ({ error, text }: WorkerLogSignal) => {
+  const output = error ? process.stderr : process.stdout;
+
+  output.write(text);
+};
+
+const handleEvent = async (worker: Worker, { provider, event, payload, id }: WorkerEventSignal) => {
+  if (!id) {
+    await notifyProvider(provider, event, payload);
+    return;
+  }
+
+  try {
+    const response = await notifyProvider(provider, event, payload);
+    sendReply(worker, id, response);
+  } catch (error) {
+    sendError(worker, id, error);
+  }
+};
+
+const handleError = ({ error: data }: WorkerErrorSignal) => {
+  const error = isServiceError(data)
+    ? new ServiceNotFoundError(data.message)
+    : isEntrypointError(data)
+      ? new EntrypointNotFoundError(data.message)
+      : new Error(data.message);
+
+  error.stack = data.stack;
+
+  return error;
+};
+
+const sendReply = (worker: Worker, id: string, response: unknown) => {
+  worker.postMessage(
+    serialize({
+      signal: WorkerSignal.Data,
+      response,
+      id
+    })
+  );
+};
+
+const sendError = (worker: Worker, id: string, error: unknown) => {
+  worker.postMessage(
+    serialize({
+      signal: WorkerSignal.Error,
+      error: getErrorData(error),
+      id
+    })
+  );
 };

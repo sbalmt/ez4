@@ -21,7 +21,13 @@ export const makeMathService = (_options: AnyObject, _context: ProviderContext) 
 export const makeEventService = (_options: AnyObject, context: ProviderContext) => {
   return {
     notify: (payload: AnyObject) => {
-      context.notify('test-event', payload);
+      context.notify('test-event-1', payload);
+    },
+    request: (payload: AnyObject) => {
+      return context.request('test-event-2', payload);
+    },
+    requestError: (payload: AnyObject) => {
+      return context.request('test-event-3', payload);
     }
   };
 };

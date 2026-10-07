@@ -38,12 +38,34 @@ export const managed = (request: AnyObject) => {
 };
 
 /**
- * Handler to test worker provider events.
+ * Handler to test worker provider events without reply.
  */
-export const event = async (_request: AnyObject, { eventService }: AnyObject) => {
+export const eventForget = (_request: AnyObject, { eventService }: AnyObject) => {
   eventService.notify({
     eventMarker: 'foo'
   });
+};
+
+/**
+ * Handler to test worker provider events with reply.
+ */
+export const eventAwait = async (_request: AnyObject, { eventService }: AnyObject) => {
+  const reply = await eventService.request({
+    eventMarker: 'bar'
+  });
+
+  return reply;
+};
+
+/**
+ * Handler to test worker provider events with errors.
+ */
+export const eventError = async (_request: AnyObject, { eventService }: AnyObject) => {
+  const reply = await eventService.requestError({
+    eventMarker: 'baz'
+  });
+
+  return reply;
 };
 
 /**

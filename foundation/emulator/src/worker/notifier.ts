@@ -2,9 +2,12 @@ import type { AnyObject } from '@ez4/utils';
 
 import type { MessagePort } from 'node:worker_threads';
 
+import { getRandomUUID } from '@ez4/utils';
+
 import { WorkerSignal } from '../types/signal';
 import { getErrorData } from '../utils/errors';
 import { serialize } from '../utils/data';
+import { waitForReply } from './event';
 
 /**
  * Notify a data signal message to the main worker.
@@ -38,6 +41,32 @@ export const notifyEvent = (worker: MessagePort, provider: string, event: string
       event
     })
   );
+};
+
+/**
+ * Request an event signal message to the main worker and wait for a reply.
+ *
+ * @param worker Worker instace.
+ * @param provider Provider to be notified.
+ * @param event Event name.
+ * @param payload Event payload.
+ */
+export const requestEvent = (worker: MessagePort, provider: string, event: string, payload?: AnyObject) => {
+  const id = getRandomUUID();
+
+  const reply = waitForReply(id);
+
+  worker.postMessage(
+    serialize({
+      signal: WorkerSignal.Event,
+      provider,
+      payload,
+      event,
+      id
+    })
+  );
+
+  return reply;
 };
 
 /**

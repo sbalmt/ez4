@@ -1,6 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 
-import { deepEqual, ok, rejects } from 'node:assert/strict';
+import { deepEqual, equal, ok, rejects } from 'node:assert/strict';
 import { after, before, beforeEach, describe, it, mock } from 'node:test';
 
 import { createModule, registerProvider, unregisterProvider } from '@ez4/emulator';
@@ -62,19 +62,33 @@ const createTestModule = (handlerName: string, listener?: boolean) => {
 };
 
 describe('worker tests', { timeout: 10000 }, () => {
-  let lastProviderEvent: AnyObject | undefined;
+  const lastProviderEvents: AnyObject[] = [];
 
   before(() => {
     registerProvider(TEST_PROVIDER, {
-      eventTypes: ['test-event'],
-      eventHandler: (payload: AnyObject | undefined) => {
-        lastProviderEvent = payload;
+      eventTypes: ['test-event-1', 'test-event-2', 'test-event-3'],
+      eventHandler: (event: string, payload: AnyObject | undefined) => {
+        if (payload) {
+          lastProviderEvents.push(payload);
+        }
+
+        if (event === 'test-event-2') {
+          return {
+            eventReply: true
+          };
+        }
+
+        if (event === 'test-event-3') {
+          throw new Error('Custom provider error.');
+        }
+
+        return;
       }
     });
   });
 
   beforeEach(() => {
-    lastProviderEvent = undefined;
+    lastProviderEvents.splice(0);
   });
 
   after(() => {
@@ -124,13 +138,47 @@ describe('worker tests', { timeout: 10000 }, () => {
   });
 
   it('assert :: receives provider events from worker handler', async () => {
-    const module = createTestModule('event');
+    const module = createTestModule('eventForget');
 
-    await module.invoke({});
+    const result = await module.invoke({});
 
-    deepEqual(lastProviderEvent, {
-      eventMarker: 'foo'
+    equal(result, undefined);
+
+    deepEqual(lastProviderEvents, [
+      {
+        eventMarker: 'foo'
+      }
+    ]);
+  });
+
+  it('assert :: receives provider event replies in worker handler', async () => {
+    const module = createTestModule('eventAwait');
+
+    const result = await module.invoke({});
+
+    deepEqual(result, {
+      eventReply: true
     });
+
+    deepEqual(lastProviderEvents, [
+      {
+        eventMarker: 'bar'
+      }
+    ]);
+  });
+
+  it('assert :: receives provider event errors in worker handler', async () => {
+    const module = createTestModule('eventError');
+
+    await rejects(module.invoke({}), {
+      message: 'Custom provider error.'
+    });
+
+    deepEqual(lastProviderEvents, [
+      {
+        eventMarker: 'baz'
+      }
+    ]);
   });
 
   it('assert :: handler exceptions through the error signal', async () => {

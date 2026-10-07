@@ -45,7 +45,7 @@ describe('worker errors', { timeout: 10000 }, () => {
 
   it('assert :: handles an event from an unregistered provider as fire-and-forget', async () => {
     const module = createTestModule(
-      'event',
+      'eventForget',
       {
         EventService: {
           provider: 'unregistered-worker-provider',

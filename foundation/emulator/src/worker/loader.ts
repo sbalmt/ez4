@@ -6,7 +6,7 @@ import type { WorkerEntrypoint } from '../types/worker';
 
 import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
 import { loadCallback } from '../utils/loader';
-import { notifyEvent } from './notifier';
+import { notifyEvent, requestEvent } from './notifier';
 
 export const loadFunction = async (entrypoint: WorkerEntrypoint): Promise<FunctionCallback> => {
   const { callback } = await loadCallback(entrypoint);
@@ -31,6 +31,9 @@ export const loadService = async <T>(worker: MessagePort, services: ServiceFacto
     services,
     notify: (event: string, payload: AnyObject) => {
       notifyEvent(worker, provider, event, payload);
+    },
+    request: (event: string, payload: AnyObject) => {
+      return requestEvent(worker, provider, event, payload);
     }
   });
 };

@@ -28,7 +28,13 @@ export const notifyProvider = async <T extends AnyObject>(name: string, event: s
     throw new MissingProviderError(name);
   }
 
-  if (provider.eventTypes.includes(event)) {
-    await provider.eventHandler(payload);
+  const { eventTypes, eventHandler } = provider;
+
+  if (eventTypes.includes(event)) {
+    const response = await eventHandler(event, payload);
+
+    return response;
   }
+
+  return Promise.resolve();
 };

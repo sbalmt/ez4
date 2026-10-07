@@ -6,6 +6,7 @@ import { parentPort } from 'node:worker_threads';
 
 import { captureOutput } from './worker/output';
 import { invokeHandler } from './worker/handler';
+import { resolveReply, rejectReply } from './worker/event';
 import { loadFunction, loadService } from './worker/loader';
 import { notifyError, notifyData } from './worker/notifier';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
@@ -63,6 +64,20 @@ hostWorker.on('message', async (message: string) => {
         const context = getLazyContext(services, references);
 
         await invokeHandler(hostWorker, handler, listener, manager, context, signal.request, timeout);
+        break;
+      }
+
+      case WorkerSignal.Data: {
+        if (signal.id) {
+          resolveReply(signal.id, signal.response);
+        }
+        break;
+      }
+
+      case WorkerSignal.Error: {
+        if (signal.id) {
+          rejectReply(signal.id, signal.error);
+        }
         break;
       }
 

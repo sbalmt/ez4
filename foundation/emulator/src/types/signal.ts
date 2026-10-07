@@ -32,11 +32,13 @@ export type StartWorkerSignal = {
 export type InvokeWorkerSignal = {
   signal: WorkerSignal.Invoke;
   request: AnyObject;
+  id?: string;
 };
 
 export type WorkerDataSignal = {
   signal: WorkerSignal.Data;
   response: unknown;
+  id?: string;
 };
 
 export type WorkerEventSignal = {
@@ -44,6 +46,7 @@ export type WorkerEventSignal = {
   provider: string;
   payload?: AnyObject;
   event: string;
+  id?: string;
 };
 
 export type WorkerLogSignal = {
@@ -54,6 +57,7 @@ export type WorkerLogSignal = {
 
 export type WorkerErrorSignal = {
   signal: WorkerSignal.Error;
+  id?: string;
   error: {
     name: string;
     message: string;
