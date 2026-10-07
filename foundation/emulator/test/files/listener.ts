@@ -3,7 +3,35 @@ import type { Service } from '@ez4/common';
 
 import { ServiceEventType } from '@ez4/common';
 
-export const listener = (event: Service.AnyEvent<AnyObject>) => {
+export const defaultListener = (event: Service.AnyEvent<AnyObject>) => {
+  switch (event.type) {
+    case ServiceEventType.Begin:
+      console.log('Begin event.');
+      break;
+
+    case ServiceEventType.Ready:
+      console.log('Ready event.');
+      break;
+
+    case ServiceEventType.Done:
+      console.log('Done event.');
+      break;
+
+    case ServiceEventType.Timeout:
+      console.log('Timeout event.');
+      break;
+
+    case ServiceEventType.Error:
+      console.log('Error event.');
+      break;
+
+    case ServiceEventType.End:
+      console.log('End event.');
+      break;
+  }
+};
+
+export const testListener = (event: Service.AnyEvent<AnyObject>) => {
   switch (event.type) {
     case ServiceEventType.Begin:
       break;
@@ -12,7 +40,6 @@ export const listener = (event: Service.AnyEvent<AnyObject>) => {
       if (!event.request.preparedByManager) {
         throw new Error('Manager preparation must finish before the Ready event.');
       }
-
       break;
 
     case ServiceEventType.Done:

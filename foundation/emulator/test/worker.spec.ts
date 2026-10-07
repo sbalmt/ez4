@@ -7,7 +7,7 @@ import { createModule, registerProvider, unregisterProvider } from '@ez4/emulato
 
 const TEST_PROVIDER = 'test-provider';
 
-const createTestModule = (handlerName: string) => {
+const createTestModule = (handlerName: string, listener?: boolean) => {
   return createModule({
     environment: {
       timeout: 3,
@@ -18,11 +18,13 @@ const createTestModule = (handlerName: string) => {
       name: handlerName,
       position: [1, 1]
     },
-    listener: {
-      file: 'test/files/listener.ts',
-      name: 'listener',
-      position: [1, 1]
-    },
+    ...(listener && {
+      listener: {
+        file: 'test/files/listener.ts',
+        name: 'testListener',
+        position: [1, 1]
+      }
+    }),
     manager: {
       provider: TEST_PROVIDER,
       file: 'test/files/manager.ts',
@@ -106,7 +108,7 @@ describe('worker tests', { timeout: 10000 }, () => {
   });
 
   it('assert :: creates and prepares requests with the manager', async () => {
-    const module = createTestModule('managed');
+    const module = createTestModule('managed', true);
 
     const result = await module.invoke({
       value: 'input'

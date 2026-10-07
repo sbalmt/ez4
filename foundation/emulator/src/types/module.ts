@@ -13,8 +13,8 @@ export type ModuleManager = {
 
 export type ModuleEnvironment = {
   variables?: Record<string, string>;
-  memory: number;
   timeout: number;
+  memory: number;
 };
 
 export type ModuleEntrypoint = {

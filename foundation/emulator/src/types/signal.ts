@@ -26,6 +26,7 @@ export type StartWorkerSignal = {
   references: ServiceReferences;
   listener?: WorkerEntrypoint;
   handler: WorkerEntrypoint;
+  timeout: number;
 };
 
 export type InvokeWorkerSignal = {

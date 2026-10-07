@@ -20,7 +20,9 @@ const services: ServiceFactories = {};
 
 let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
+
 let manager: ModuleManager;
+let timeout: number;
 
 if (!hostWorker) {
   throw new WorkerUnavailableError();
@@ -44,6 +46,7 @@ hostWorker.on('message', async (message: string) => {
         }
 
         manager = await loadService(hostWorker, services, signal.manager);
+        timeout = signal.timeout * 1000;
 
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
@@ -59,7 +62,7 @@ hostWorker.on('message', async (message: string) => {
 
         const context = getLazyContext(services, references);
 
-        await invokeHandler(hostWorker, handler, listener, manager, context, signal.request);
+        await invokeHandler(hostWorker, handler, listener, manager, context, signal.request, timeout);
         break;
       }
 

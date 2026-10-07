@@ -24,6 +24,7 @@ export const createWorker = (options: WorkerOptions): WorkerInstance => {
   const initialize = async () => {
     await dispatch(worker, {
       signal: WorkerSignal.Start,
+      timeout: environment.timeout,
       manager,
       services,
       references,

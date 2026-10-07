@@ -9,6 +9,7 @@ export type WorkerInstance = {
 
 export type WorkerEnvironment = {
   variables?: Record<string, string>;
+  timeout: number;
   memory: number;
 };
 

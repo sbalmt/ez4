@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { FunctionCallback } from '../types/function';
 import type { ModuleManager } from '../types/module';
 
-import { onBegin, onDone, onEnd, onError, onReady } from './listener';
+import { onBegin, onDone, onEnd, onError, onReady, onTimeout } from './listener';
 import { notifyResult } from './notifier';
 
 export const invokeHandler = async (
@@ -12,10 +12,18 @@ export const invokeHandler = async (
   listener: FunctionCallback | undefined,
   manager: ModuleManager,
   context: AnyObject,
-  request: AnyObject
+  request: AnyObject,
+  timeout: number
 ) => {
   let preparedRequest: AnyObject | undefined;
   let responseResult: unknown;
+
+  const milliseconds = Math.max(0, timeout - 1000);
+
+  const timeoutEvent = setTimeout(() => {
+    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest);
+    onTimeout(listener, context, finishedRequest);
+  }, milliseconds);
 
   const createdRequest = await manager.beginRequest(request);
 
@@ -33,6 +41,7 @@ export const invokeHandler = async (
 
     throw error;
   } finally {
+    clearTimeout(timeoutEvent);
     const finishedRequest = manager.finishRequest(createdRequest, preparedRequest);
     await onEnd(listener, context, finishedRequest);
   }
