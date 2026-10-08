@@ -1,6 +1,6 @@
 import type { ServiceFactories, ServiceReferences } from './types/service';
 import type { FunctionCallback } from './types/function';
-import type { ModuleManager } from './types/module';
+import type { ModuleInvoker } from './types/module';
 
 import { parentPort } from 'node:worker_threads';
 
@@ -19,10 +19,10 @@ const hostWorker = parentPort;
 const references: ServiceReferences = {};
 const services: ServiceFactories = {};
 
+let invoker: ModuleInvoker;
 let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
 
-let manager: ModuleManager;
 let timeout: number;
 
 if (!hostWorker) {
@@ -46,11 +46,11 @@ hostWorker.on('message', async (message: string) => {
           services[identifier] = await loadService(hostWorker, services, service);
         }
 
-        manager = await loadService(hostWorker, services, signal.manager);
-        timeout = signal.timeout * 1000;
-
+        invoker = await loadService(hostWorker, services, signal.invoker);
         listener = signal.listener && (await loadFunction(signal.listener));
         handler = await loadFunction(signal.handler);
+
+        timeout = signal.timeout * 1000;
 
         notifyData(hostWorker, undefined);
         break;
@@ -63,7 +63,7 @@ hostWorker.on('message', async (message: string) => {
 
         const context = getLazyContext(services, references);
 
-        await invokeHandler(hostWorker, handler, listener, manager, context, signal.request, timeout);
+        await invokeHandler(hostWorker, handler, listener, invoker, context, signal.request, timeout);
         break;
       }
 

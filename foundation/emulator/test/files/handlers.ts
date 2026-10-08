@@ -25,14 +25,14 @@ export const service = ({ x, y }: AnyObject, { lazyService, mathService }: AnyOb
 };
 
 /**
- * Handler to test request creation and preparation by the manager.
+ * Handler to test request creation and preparation by the invoker.
  */
 export const managed = (request: AnyObject) => {
   return {
     value: request.value,
-    createdByManager: request.createdByManager,
-    preparedByManager: request.preparedByManager,
-    managerOption: request.managerOption,
+    createdByInvoker: request.createdByInvoker,
+    preparedByInvoker: request.preparedByInvoker,
+    invokerOption: request.invokerOption,
     serviceOption: request.serviceOption
   };
 };

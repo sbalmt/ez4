@@ -5,10 +5,17 @@ export type ModuleInstance<T> = {
   invoke: (request: AnyObject) => Promise<T>;
 };
 
-export type ModuleManager = {
-  beginRequest: (original: AnyObject) => Promise<AnyObject> | AnyObject;
-  prepareRequest: (minimal: AnyObject, original: AnyObject, context: AnyObject) => Promise<AnyObject> | AnyObject;
-  finishRequest: (minimal: AnyObject, prepared?: AnyObject, error?: unknown) => Promise<AnyObject> | AnyObject;
+export type ModuleInvoker = (invocation: ModuleInvocation) => Promise<unknown>;
+
+export type ModuleInvocation = {
+  request: AnyObject;
+  context: AnyObject;
+  begin: (request: AnyObject) => Promise<void>;
+  ready: (request: AnyObject) => Promise<void>;
+  invoke: (request: AnyObject) => Promise<unknown>;
+  done: (request: AnyObject) => Promise<void>;
+  error: (error: unknown, request: AnyObject) => Promise<void>;
+  end: (request: AnyObject) => Promise<void>;
 };
 
 export type ModuleEnvironment = {
@@ -25,10 +32,10 @@ export type ModuleEntrypoint = {
 };
 
 export type ModuleOptions = {
-  manager: AnyServiceDescriptor;
   environment: ModuleEnvironment;
   services?: ServiceDescriptors;
   references?: ServiceReferences;
+  invoker: AnyServiceDescriptor;
   listener?: ModuleEntrypoint;
   handler: ModuleEntrypoint;
 };

@@ -16,9 +16,9 @@ const createTestModule = (handlerName: string, services?: ServiceDescriptors, re
       name: handlerName,
       position: [1, 1]
     },
-    manager: {
-      file: 'test/files/manager.ts',
-      name: 'makeDefaultManager'
+    invoker: {
+      file: 'test/files/invoker.ts',
+      name: 'makeDefaultInvoker'
     },
     services,
     references

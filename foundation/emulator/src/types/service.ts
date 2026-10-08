@@ -4,7 +4,9 @@ export type ServiceReferences = Record<string, string>;
 
 export type ServiceDescriptors = Record<string, AnyServiceDescriptor>;
 
-export type ServiceFactories = Record<string, () => AnyObject>;
+export type ServiceFactories = Record<string, ServiceFactory>;
+
+export type ServiceFactory = () => AnyObject;
 
 export type AnyServiceDescriptor = FileServiceDescriptor | ModuleServiceDescriptor;
 

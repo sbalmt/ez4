@@ -25,12 +25,12 @@ const createTestModule = (handlerName: string, listener?: boolean) => {
         position: [1, 1]
       }
     }),
-    manager: {
+    invoker: {
       provider: TEST_PROVIDER,
-      file: 'test/files/manager.ts',
-      name: 'makeTestManager',
+      file: 'test/files/invoker.ts',
+      name: 'makeTestInvoker',
       options: {
-        marker: 'manager-fixture'
+        marker: 'invoker-fixture'
       }
     },
     services: {
@@ -121,7 +121,7 @@ describe('worker tests', { timeout: 10000 }, () => {
     });
   });
 
-  it('assert :: creates and prepares requests with the manager', async () => {
+  it('assert :: creates and prepares requests with the invoker', async () => {
     const module = createTestModule('managed', true);
 
     const result = await module.invoke({
@@ -130,9 +130,9 @@ describe('worker tests', { timeout: 10000 }, () => {
 
     deepEqual(result, {
       value: 'input',
-      createdByManager: true,
-      preparedByManager: true,
-      managerOption: 'manager-fixture',
+      createdByInvoker: true,
+      preparedByInvoker: true,
+      invokerOption: 'invoker-fixture',
       serviceOption: 10
     });
   });

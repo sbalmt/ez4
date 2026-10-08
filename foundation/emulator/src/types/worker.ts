@@ -20,10 +20,10 @@ export type WorkerEntrypoint = {
 };
 
 export type WorkerOptions = {
-  manager: AnyServiceDescriptor;
   environment: WorkerEnvironment;
   services?: ServiceDescriptors;
   references?: ServiceReferences;
+  invoker: AnyServiceDescriptor;
   listener?: WorkerEntrypoint;
   handler: WorkerEntrypoint;
 };

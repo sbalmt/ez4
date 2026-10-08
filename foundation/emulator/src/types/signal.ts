@@ -21,9 +21,9 @@ export type WorkerSignals =
 
 export type StartWorkerSignal = {
   signal: WorkerSignal.Start;
-  manager: AnyServiceDescriptor;
   services: ServiceDescriptors;
   references: ServiceReferences;
+  invoker: AnyServiceDescriptor;
   listener?: WorkerEntrypoint;
   handler: WorkerEntrypoint;
   timeout: number;

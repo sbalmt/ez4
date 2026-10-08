@@ -37,8 +37,8 @@ export const testListener = (event: Service.AnyEvent<AnyObject>) => {
       break;
 
     case ServiceEventType.Ready:
-      if (!event.request.preparedByManager) {
-        throw new Error('Manager preparation must finish before the Ready event.');
+      if (!event.request.preparedByInvoker) {
+        throw new Error('Invoker preparation must finish before the Ready event.');
       }
       break;
 

@@ -9,7 +9,7 @@ import { dispatch } from '../process/dispatcher';
 const WORKER_URL = new URL('./worker.mjs', import.meta.url);
 
 export const createWorker = (options: WorkerOptions): WorkerInstance => {
-  const { environment, handler, listener, manager, services = {}, references = {} } = options;
+  const { environment, invoker, handler, listener, services = {}, references = {} } = options;
 
   const worker = new Worker(WORKER_URL, {
     resourceLimits: {
@@ -25,9 +25,9 @@ export const createWorker = (options: WorkerOptions): WorkerInstance => {
     await dispatch(worker, {
       signal: WorkerSignal.Start,
       timeout: environment.timeout,
-      manager,
       services,
       references,
+      invoker,
       listener,
       handler
     });

@@ -1,4 +1,4 @@
-export type FunctionCallback = <T = unknown>(...inputs: unknown[]) => T;
+export type FunctionCallback = <R = unknown, I = unknown>(...inputs: I[]) => R;
 
 export type FunctionSource = FunctionFileSource | FunctionModuleSource;
 

@@ -1,7 +1,7 @@
 import type { MessagePort } from 'node:worker_threads';
 import type { AnyObject } from '@ez4/utils';
 import type { FunctionCallback } from '../types/function';
-import type { ModuleManager } from '../types/module';
+import type { ModuleInvoker } from '../types/module';
 
 import { onBegin, onDone, onEnd, onError, onReady, onTimeout } from './listener';
 import { notifyData } from './notifier';
@@ -10,41 +10,30 @@ export const invokeHandler = async (
   worker: MessagePort,
   handler: FunctionCallback,
   listener: FunctionCallback | undefined,
-  manager: ModuleManager,
+  invoker: ModuleInvoker,
   context: AnyObject,
   request: AnyObject,
   timeout: number
 ) => {
-  let preparedRequest: AnyObject | undefined;
-  let responseResult: unknown;
+  let currentRequest: AnyObject = {};
 
   const milliseconds = Math.max(0, timeout - 1000);
-
-  const timeoutEvent = setTimeout(() => {
-    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest);
-    onTimeout(listener, context, finishedRequest);
-  }, milliseconds);
-
-  const createdRequest = await manager.beginRequest(request);
+  const timeoutEvent = setTimeout(() => onTimeout(listener, context, currentRequest), milliseconds);
 
   try {
-    await onBegin(listener, context, createdRequest);
-    preparedRequest = await manager.prepareRequest(createdRequest, request, context);
+    const response = await invoker({
+      request,
+      context,
+      begin: (request: AnyObject) => ((currentRequest = request), onBegin(listener, context, request)),
+      ready: (request: AnyObject) => ((currentRequest = request), onReady(listener, context, request)),
+      invoke: (request: AnyObject) => ((currentRequest = request), handler(request, context)),
+      done: (request: AnyObject) => ((currentRequest = request), onDone(listener, context, request)),
+      error: (error: unknown, request: AnyObject) => ((currentRequest = request), onError(listener, context, error, request)),
+      end: (request: AnyObject) => ((currentRequest = request), onEnd(listener, context, request))
+    });
 
-    await onReady(listener, context, preparedRequest);
-    responseResult = await handler(preparedRequest, context);
-
-    await onDone(listener, context, preparedRequest);
-  } catch (error) {
-    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest, error);
-    await onError(listener, context, error, finishedRequest);
-
-    throw error;
+    notifyData(worker, response);
   } finally {
     clearTimeout(timeoutEvent);
-    const finishedRequest = manager.finishRequest(createdRequest, preparedRequest);
-    await onEnd(listener, context, finishedRequest);
   }
-
-  notifyData(worker, responseResult);
 };
