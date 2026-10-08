@@ -7,8 +7,8 @@ import { parentPort } from 'node:worker_threads';
 import { captureOutput } from './worker/output';
 import { invokeHandler } from './worker/handler';
 import { resolveReply, rejectReply } from './worker/event';
-import { loadFunction, loadService } from './worker/loader';
 import { notifyError, notifyData } from './worker/notifier';
+import { loadLocalFunction, loadLocalService } from './worker/loader';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
 import { UnexpectedSignalError } from './errors/signal';
 import { WorkerSignal } from './types/signal';
@@ -43,12 +43,12 @@ hostWorker.on('message', async (message: string) => {
         for (const identifier in signal.services) {
           const service = signal.services[identifier];
 
-          services[identifier] = await loadService(hostWorker, services, service);
+          services[identifier] = await loadLocalService(hostWorker, services, service);
         }
 
-        invoker = await loadService(hostWorker, services, signal.invoker);
-        listener = signal.listener && (await loadFunction(signal.listener));
-        handler = await loadFunction(signal.handler);
+        invoker = await loadLocalService(hostWorker, services, signal.invoker);
+        listener = signal.listener && (await loadLocalFunction(signal.listener));
+        handler = await loadLocalFunction(signal.handler);
 
         timeout = signal.timeout * 1000;
 

@@ -6,6 +6,9 @@ import { Worker } from 'node:worker_threads';
 import { WorkerSignal } from '../types/signal';
 import { dispatch } from '../process/dispatcher';
 
+// __MODULE_PATH is defined by the package bundler.
+declare const __MODULE_URL: string;
+
 const WORKER_URL = new URL('./worker.mjs', import.meta.url);
 
 export const createWorker = (options: WorkerOptions): WorkerInstance => {

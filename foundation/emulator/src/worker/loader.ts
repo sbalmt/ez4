@@ -4,12 +4,12 @@ import type { FunctionCallback } from '../types/function';
 import type { AnyServiceDescriptor, ServiceFactories } from '../types/service';
 import type { WorkerEntrypoint } from '../types/worker';
 
-import { EntrypointNotFoundError, ServiceNotFoundError } from '../errors/handler';
-import { loadCallback } from '../utils/loader';
+import { EntrypointNotFoundError } from '../errors/handler';
+import { loadFunction, loadService } from '../utils/loader';
 import { notifyEvent, requestEvent } from './notifier';
 
-export const loadFunction = async (entrypoint: WorkerEntrypoint): Promise<FunctionCallback> => {
-  const { callback } = await loadCallback(entrypoint);
+export const loadLocalFunction = async (entrypoint: WorkerEntrypoint): Promise<FunctionCallback> => {
+  const { callback } = await loadFunction(entrypoint);
 
   if (typeof callback !== 'function') {
     throw new EntrypointNotFoundError(entrypoint.name, entrypoint.file);
@@ -18,22 +18,13 @@ export const loadFunction = async (entrypoint: WorkerEntrypoint): Promise<Functi
   return callback as FunctionCallback;
 };
 
-export const loadService = async <T>(worker: MessagePort, services: ServiceFactories, descriptor: AnyServiceDescriptor) => {
-  const { specifier, callback } = await loadCallback(descriptor);
-
-  if (typeof callback !== 'function') {
-    throw new ServiceNotFoundError(descriptor.name, descriptor);
-  }
-
-  const provider = descriptor.provider ?? specifier;
-
-  return callback<T>(descriptor.options, {
-    services,
+export const loadLocalService = <T>(worker: MessagePort, services: ServiceFactories, descriptor: AnyServiceDescriptor) => {
+  return loadService<T>(services, descriptor, (provider) => ({
     notify: (event: string, payload: AnyObject) => {
       notifyEvent(worker, provider, event, payload);
     },
     request: (event: string, payload: AnyObject) => {
       return requestEvent(worker, provider, event, payload);
     }
-  });
+  }));
 };
