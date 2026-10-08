@@ -14,11 +14,13 @@
   ],
   "scripts": {
     "deploy": "tsc && ez4 deploy -e local.env",
-    "destroy": "ez4 destroy -e local.env --force"
+    "destroy": "ez4 destroy -e local.env --force",
+    "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
     "@ez4/aws-bucket": "^0.55.0",
     "@ez4/common": "^0.55.0",
+    "@ez4/local-storage": "^0.55.0",
     "@ez4/project": "^0.55.0",
     "@ez4/storage": "^0.55.0"
   }

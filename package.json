@@ -16,6 +16,7 @@
     "foundation/logger",
     "foundation/project",
     "foundation/common",
+    "foundation/emulator",
     "foundation/schema",
     "foundation/validator",
     "foundation/transform",

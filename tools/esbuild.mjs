@@ -6,11 +6,13 @@ if (!import.meta.dirname) {
 }
 
 const esmDefinitions = {
-  __MODULE_PATH: 'import.meta.dirname'
+  __MODULE_PATH: 'import.meta.dirname',
+  __MODULE_URL: 'import.meta.url'
 };
 
 const cjsDefinitions = {
-  __MODULE_PATH: '__dirname'
+  __MODULE_PATH: '__dirname',
+  __MODULE_URL: '__filename'
 };
 
 export const bundlePackage = async (entryFile, outFile, options) => {

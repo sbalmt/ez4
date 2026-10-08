@@ -60,7 +60,6 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'options': {
-          service.options = {};
           break;
         }
 

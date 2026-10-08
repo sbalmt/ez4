@@ -1,0 +1,116 @@
+import type { AnyObject } from '@ez4/utils';
+
+import { setTimeout } from 'node:timers/promises';
+
+let INVOCATION_COUNT = 0;
+
+/**
+ * Handler to test input and output values.
+ */
+export const echo = ({ value }: AnyObject) => {
+  return {
+    value
+  };
+};
+
+/**
+ * Handler to test an initialized service from the worker context.
+ */
+export const service = ({ x, y }: AnyObject, { lazyService, mathService }: AnyObject) => {
+  return {
+    sum: mathService.add(x, y),
+    difference: mathService.sub(x, y),
+    options: lazyService.options
+  };
+};
+
+/**
+ * Handler to test request creation and preparation by the invoker.
+ */
+export const managed = (request: AnyObject) => {
+  return {
+    value: request.value,
+    createdByInvoker: request.createdByInvoker,
+    preparedByInvoker: request.preparedByInvoker,
+    invokerOption: request.invokerOption,
+    serviceOption: request.serviceOption
+  };
+};
+
+/**
+ * Handler to test worker provider events without reply.
+ */
+export const eventForget = (_request: AnyObject, { eventService }: AnyObject) => {
+  eventService.notify({
+    eventMarker: 'foo'
+  });
+};
+
+/**
+ * Handler to test worker provider events with reply.
+ */
+export const eventAwait = async (_request: AnyObject, { eventService }: AnyObject) => {
+  const reply = await eventService.request({
+    eventMarker: 'bar'
+  });
+
+  return reply;
+};
+
+/**
+ * Handler to test worker provider events with errors.
+ */
+export const eventError = async (_request: AnyObject, { eventService }: AnyObject) => {
+  const reply = await eventService.requestError({
+    eventMarker: 'baz'
+  });
+
+  return reply;
+};
+
+/**
+ * Handler to test worker exceptions.
+ */
+export const exception = () => {
+  throw new TypeError('Fixture handler failed');
+};
+
+/**
+ * Handler to test invocation timeouts.
+ */
+export const timeout = () => {
+  return new Promise(() => {});
+};
+
+/**
+ * Handler to test memory overflow.
+ */
+export const memory = () => {
+  const blocks = [];
+
+  while (true) {
+    blocks.push(new Array(1024 * 1024).fill(1));
+  }
+};
+
+/**
+ * Handler to test per-invocation worker isolation.
+ */
+export const isolation = async ({ value, delay }: AnyObject) => {
+  const count = ++INVOCATION_COUNT;
+
+  await setTimeout(delay);
+
+  return {
+    count,
+    value
+  };
+};
+
+/**
+ * Handler to test worker logs
+ */
+export const logging = () => {
+  console.log('worker stdout message');
+  console.error('worker stderr message');
+};

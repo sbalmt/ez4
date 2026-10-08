@@ -60,8 +60,9 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
-        case 'options':
+        case 'options': {
           break;
+        }
 
         case 'name': {
           if (!member.inherited) {
