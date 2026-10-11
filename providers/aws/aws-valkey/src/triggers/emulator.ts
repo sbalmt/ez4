@@ -1,4 +1,6 @@
-import type { EmulateClientEvent, EmulateServiceEvent } from '@ez4/project/library';
+import type { EmulateDescriptorEvent, EmulateServiceEvent, EmulatorServiceDescriptor } from '@ez4/project/library';
+import type { CacheService } from '@ez4/cache/library';
+import type { ClientContext } from '../client/service';
 
 import { importCache } from '../cache/client';
 import { getConnectionOptions } from '../local/options';
@@ -7,19 +9,27 @@ import { deleteAllKeys } from '../local/keys';
 import { Client } from '../client';
 import { getCacheName, isValkeyService } from './utils';
 
-export const createEmulatorClient = async (event: EmulateClientEvent) => {
+export const prepareEmulatorDescriptor = async (event: EmulateDescriptorEvent): Promise<EmulatorServiceDescriptor | null> => {
   const { service, options } = event;
 
   if (!isValkeyService(service)) {
     return null;
   }
 
+  return {
+    module: '@ez4/aws-valkey/worker',
+    name: 'makeService',
+    options: await getClientOptions(service, options)
+  };
+};
+
+const getClientOptions = async (service: CacheService, options: EmulateDescriptorEvent['options']): Promise<ClientContext> => {
   const cacheName = getCacheName(service, options);
 
   if (options.local) {
     const connection = getConnectionOptions(service, options);
 
-    const instance = Client.make({
+    return {
       identifier: cacheName,
       debug: options.debug,
       connection: {
@@ -27,10 +37,6 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
         port: connection.port,
         tls: false
       }
-    });
-
-    return {
-      make: () => instance
     };
   }
 
@@ -40,16 +46,12 @@ export const createEmulatorClient = async (event: EmulateClientEvent) => {
     throw new RemoteCacheNotFoundError(service.name);
   }
 
-  const instance = Client.make({
+  return {
     identifier: cacheName,
     debug: options.debug,
     connection: {
       endpoint: cacheData.writerEndpoint
     }
-  });
-
-  return {
-    make: () => instance
   };
 };
 
@@ -63,7 +65,7 @@ export const resetEmulatorService = async (event: EmulateServiceEvent) => {
   }
 };
 
-export const stopEmulatorService = (event: EmulateClientEvent) => {
+export const stopEmulatorService = (event: EmulateServiceEvent) => {
   const { service, options } = event;
   if (!isValkeyService(service)) {
     return null;
