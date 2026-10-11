@@ -1,22 +1,18 @@
-import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
+import type { DeployOptions, EmulateDescriptorEvent, EventContext, ContextSource } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
-import type { AnyObject } from '@ez4/utils';
+import type { ServiceOptions } from '../worker/service';
 import type { ClusterState } from '../cluster/types';
-import type { ClientOptions } from '../client';
 
 import { getDatabaseName } from '@ez4/pgclient/utils';
 import { getTableRepository } from '@ez4/pgclient/library';
-import { Client as LocalClient } from '@ez4/pgclient/driver';
 import { getDefinitionName } from '@ez4/project/library';
 
 import { importCluster } from '../cluster/client';
 import { getClusterState } from '../cluster/utils';
 import { ClusterDatabaseNotFoundError } from '../cluster/errors';
 import { getIntegrityState } from '../integrity/utils';
-import { Client as NativeClient } from '../client/providers/native';
-import { Client as ApiClient } from '../client/providers/api';
-import { ConnectionMode } from '../client/types';
 import { getConnectionOptions } from '../local/options';
+import { ConnectionMode } from '../client/types';
 import { getClusterName, isAuroraService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
@@ -49,28 +45,36 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
       `})`,
     connectionIds: [clusterId],
     dependencyIds: [clusterId, integrityId],
+    options: service.options,
     requireVpc: !isApiMode
   };
 };
 
-export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
+export const prepareEmulatorDescriptor = async (event: EmulateDescriptorEvent) => {
   const { service, options } = event;
 
   if (!isAuroraService(service)) {
     return null;
   }
 
+  return {
+    name: 'makeService',
+    module: '@ez4/aws-aurora/worker',
+    options: await getDescriptorOptions(service, options)
+  };
+};
+
+const getDescriptorOptions = async (service: DatabaseService, options: EmulateDescriptorEvent['options']): Promise<ServiceOptions> => {
+  const repository = getTableRepository(service.tables);
+
   if (options.local) {
-    const connection = getConnectionOptions(service, options);
-
-    const instance = LocalClient.make({
-      debug: options.debug,
-      repository: getTableRepository(service.tables),
-      connection
-    });
-
     return {
-      make: () => instance
+      local: true,
+      context: {
+        debug: options.debug,
+        connection: getConnectionOptions(service, options),
+        repository
+      }
     };
   }
 
@@ -80,39 +84,18 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
     throw new ClusterDatabaseNotFoundError(service.name);
   }
 
-  const connection = {
-    database: getDatabaseName(service, options),
-    secretArn: cluster.secretArn
-  };
-
   return {
-    make: (serviceOptions: AnyObject) => {
-      const clientOptions: ClientOptions = {
-        ...service.options,
-        ...serviceOptions
-      };
-
-      const { connectionMode } = clientOptions;
-
-      if (connectionMode === ConnectionMode.Native) {
-        return NativeClient.make({
-          debug: options.debug,
-          repository: getTableRepository(service.tables),
-          connection: {
-            ...connection,
-            endpoint: cluster.writerEndpoint
-          }
-        });
+    local: false,
+    defaults: service.options,
+    context: {
+      debug: options.debug,
+      repository,
+      connection: {
+        database: getDatabaseName(service, options),
+        secretArn: cluster.secretArn,
+        resourceArn: cluster.clusterArn,
+        endpoint: cluster.writerEndpoint
       }
-
-      return ApiClient.make({
-        debug: options.debug,
-        repository: getTableRepository(service.tables),
-        connection: {
-          ...connection,
-          resourceArn: cluster.clusterArn
-        }
-      });
     }
   };
 };

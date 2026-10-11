@@ -11,3 +11,6 @@ bundlePackage('src/client-api.ts', 'dist/client-api.mjs');
 
 // Client Native package.
 bundlePackage('src/client-native.ts', 'dist/client-native.mjs');
+
+// Worker package.
+bundlePackage('src/worker.ts', 'dist/worker.mjs');
