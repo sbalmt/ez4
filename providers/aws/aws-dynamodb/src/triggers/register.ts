@@ -8,8 +8,8 @@ import { tryCreateTrigger } from '@ez4/project/library';
 import { registerTableProvider } from '../table/provider';
 import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service';
 import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
+import { prepareEmulatorDescriptor } from './client';
 import { prepareExecutionPolicy } from './policy';
-import { prepareEmulatorClient } from './client';
 
 export const registerTriggers = () => {
   registerAwsTriggers();
@@ -22,7 +22,7 @@ export const registerTriggers = () => {
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
     'deploy:connectResources': connectDatabaseServices,
-    'emulator:clientFactory': prepareEmulatorClient,
+    'emulator:serviceDescriptor': prepareEmulatorDescriptor,
     'emulator:startService': prepareEmulatorStart,
     'emulator:resetService': prepareEmulatorReset
   });
