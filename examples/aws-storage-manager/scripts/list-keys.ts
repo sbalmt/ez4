@@ -1,6 +1,6 @@
-import { BucketRunner } from '@ez4/local-storage/run';
+import { BucketRunner } from '@ez4/local-storage/runner';
 
-const storage = BucketRunner.getClient('FileStorage');
+const storage = await BucketRunner.getClient('FileStorage');
 
 for await (const entry of storage.scan()) {
   console.log(`${entry.modifiedAt.toISOString()}: ${entry.key} (${entry.size} bytes)`);
