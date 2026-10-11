@@ -12,7 +12,7 @@ export namespace ValidationTester {
     resourceName: string,
     resourceOptions?: T extends { options: infer O } ? O : undefined
   ) => {
-    return Tester.getServiceClient(resourceName, resourceOptions) as Client;
+    return Tester.getServiceClient(resourceName, resourceOptions) as Promise<Client>;
   };
 
   export const getClientMock = <T>(_resourceName: string, options?: MockOptions<T>) => {

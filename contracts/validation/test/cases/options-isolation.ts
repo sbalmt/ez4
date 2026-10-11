@@ -24,11 +24,11 @@ export declare class TestOptionsIsolation extends Validation.Service<TestInput> 
 }
 
 export async function testServiceInitializer(input: Validation.Input<TestInput>, context: Service.Context<TestOptionsIsolation>) {
-  const { options, isolated } = context;
+  const { options } = context;
   const { value } = input;
 
   if (options.level === TestLevel.Nested) {
-    return isolated.validate(value);
+    return context.isolated.validate(value);
   }
 
   switch (options.level) {
