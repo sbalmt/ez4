@@ -12,7 +12,7 @@ export namespace FactoryTester {
     resourceName: string,
     resourceOptions?: T extends { options: infer O } ? O : undefined
   ) => {
-    return Tester.getServiceClient(resourceName, resourceOptions) as T['client'];
+    return Tester.getServiceClient(resourceName, resourceOptions) as Promise<T['client']>;
   };
 
   export const getClientMock = <T extends AnyObject>(_resourceName: string, options: MockOptions<T>) => {

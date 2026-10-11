@@ -1,15 +1,15 @@
 import type { TestContext } from 'node:test';
 import type { TestOptionsIsolation } from './cases/options-isolation';
 
-import { FactoryTester } from '@ez4/factory/test';
+import { FactoryTester } from '@ez4/factory/tester';
 
 import { describe, it } from 'node:test';
 
 import { TestLevel } from './cases/options-isolation';
 
-describe('factory options isolation test', () => {
-  it('call first level', (test: TestContext) => {
-    const instance = FactoryTester.getClient<TestOptionsIsolation>('TestOptionsIsolation', {
+describe('factory tester (options isolation test)', () => {
+  it('assert :: call first level', async (test: TestContext) => {
+    const instance = await FactoryTester.getClient<TestOptionsIsolation>('TestOptionsIsolation', {
       level: TestLevel.First
     });
 
@@ -17,8 +17,8 @@ describe('factory options isolation test', () => {
     test.assert.equal(instance.labelName(), 'A');
   });
 
-  it('call nested level', (test: TestContext) => {
-    const instance = FactoryTester.getClient<TestOptionsIsolation>('TestOptionsIsolation', {
+  it('assert :: call nested level', async (test: TestContext) => {
+    const instance = await FactoryTester.getClient<TestOptionsIsolation>('TestOptionsIsolation', {
       level: TestLevel.Nested
     });
 

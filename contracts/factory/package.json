@@ -27,9 +27,13 @@
       "types": "./dist/library.d.ts",
       "default": "./dist/library.mjs"
     },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.mjs"
+    "./tester": {
+      "types": "./dist/tester.d.ts",
+      "default": "./dist/tester.mjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
     }
   },
   "sideEffects": [
@@ -53,6 +57,7 @@
   },
   "dependencies": {
     "@ez4/common": "^0.55.0",
+    "@ez4/emulator": "^0.55.0",
     "@ez4/project": "^0.55.0",
     "@ez4/reflection": "^0.55.0",
     "@ez4/utils": "^0.55.0"
