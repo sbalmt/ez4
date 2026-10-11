@@ -28,6 +28,10 @@
     "./library": {
       "types": "./dist/library.d.ts",
       "default": "./dist/library.mjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
     }
   },
   "sideEffects": [

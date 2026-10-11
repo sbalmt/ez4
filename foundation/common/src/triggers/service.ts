@@ -3,7 +3,6 @@ import type { ReflectionTypes } from '@ez4/reflection';
 
 import { createServiceMetadata, getServiceName } from '@ez4/project/library';
 
-import { VariablesClient, OptionsClient } from '../client';
 import { ServiceName, ServiceType, isCommonService } from '../metadata/types';
 import { createVirtualState } from '../virtual/service';
 import { prepareLinkedClient } from './client';
@@ -51,14 +50,22 @@ export const getCommonEmulators = (event: EmulateServiceEvent): ServiceEmulator 
   return {
     type: 'Common',
     name: resourceName,
+    options: service.options,
     inheritOptions: true,
     identifier: getServiceName(resourceName, options),
-    exportHandler: (serviceOptions) => {
-      if (resourceName !== ServiceName.Variables) {
-        return OptionsClient.make(serviceOptions);
+    exportDescriptor: (options) => {
+      if (resourceName === ServiceName.Variables) {
+        return {
+          name: 'makeVariables',
+          module: '@ez4/common/worker'
+        };
       }
 
-      return VariablesClient.make();
+      return {
+        name: 'makeOptions',
+        module: '@ez4/common/worker',
+        options
+      };
     }
   };
 };
