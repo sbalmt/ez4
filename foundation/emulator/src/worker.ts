@@ -12,7 +12,7 @@ import { loadLocalFunction, loadLocalService } from './worker/loader';
 import { WorkerNotInitializedError, WorkerUnavailableError } from './errors/worker';
 import { UnexpectedSignalError } from './errors/signal';
 import { WorkerSignal } from './types/signal';
-import { getLazyContext } from './utils/context';
+import { getLazyContext } from './process/context';
 import { deserialize } from './utils/data';
 
 const hostWorker = parentPort;

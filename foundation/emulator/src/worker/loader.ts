@@ -5,7 +5,7 @@ import type { AnyServiceDescriptor, ServiceFactories } from '../types/service';
 import type { WorkerEntrypoint } from '../types/worker';
 
 import { EntrypointNotFoundError } from '../errors/handler';
-import { loadFunction, loadService } from '../utils/loader';
+import { loadFunction, loadService } from '../process/loader';
 import { notifyEvent, requestEvent } from './notifier';
 
 export const loadLocalFunction = async (entrypoint: WorkerEntrypoint): Promise<FunctionCallback> => {
