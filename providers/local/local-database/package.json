@@ -24,13 +24,13 @@
       "types": "./dist/main.d.ts",
       "default": "./dist/main.mjs"
     },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.mjs"
+    "./tester": {
+      "types": "./dist/tester.d.ts",
+      "default": "./dist/tester.mjs"
     },
-    "./run": {
-      "types": "./dist/run.d.ts",
-      "default": "./dist/run.mjs"
+    "./runner": {
+      "types": "./dist/runner.d.ts",
+      "default": "./dist/runner.mjs"
     }
   },
   "workspaces": [
@@ -46,9 +46,11 @@
     "clean:registry": "rm -rf ../../../.registry/@ez4/local-database",
     "live:publish": "npm run build && npm publish --access public"
   },
+  "devDependencies": {
+    "@ez4/emulator": "^0.55.0"
+  },
   "dependencies": {
     "@ez4/logger": "^0.55.0",
-    "@ez4/local-common": "^0.55.0",
     "@ez4/project": "^0.55.0",
     "@ez4/database": "^0.55.0",
     "@ez4/utils": "^0.55.0"
