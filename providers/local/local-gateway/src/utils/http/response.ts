@@ -46,9 +46,7 @@ export const getHttpErrorResponse = (error: Error, errorsMap?: HttpErrors | null
 };
 
 const getMappedErrorData = (error: Error, errorsMap: HttpErrors) => {
-  const errorType = Object.getPrototypeOf(error);
-  const errorClass = errorType?.constructor;
-  const errorName = errorClass?.name;
+  const errorName = Object.getPrototypeOf(error)?.constructor?.name;
 
   const statusCode = errorsMap[errorName];
 

@@ -1,7 +1,7 @@
 import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { HttpTester } from '@ez4/local-gateway/test';
+import { HttpTester } from '@ez4/local-gateway/tester';
 import { Http, HttpBadRequestError, HttpInternalServerError } from '@ez4/gateway';
 
 declare class TestApi extends Http.Service {

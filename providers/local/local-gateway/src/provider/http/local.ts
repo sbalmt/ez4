@@ -1,4 +1,4 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
 import type { RouteData } from '../../utils/route';
 
@@ -9,29 +9,39 @@ import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { HttpManifest } from '../../service/manifest/http';
 import { processHttpRequest } from '../../handlers/http/request';
 import { processHttpAuthorization } from '../../handlers/http/authorizer';
-import { createHttpServiceClient } from '../../client/http/service';
 import { getHttpErrorResponse } from '../../utils/http/response';
 import { getMatchingRoute } from '../../utils/route';
 
-export const registerHttpLocalService = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerHttpLocalService = (service: HttpService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName } = service;
 
   const httpRoutes = buildHttpRoutes(service);
 
+  const identifier = getServiceName(resourceName, options);
+
   const clientOptions = {
     operations: getClientOperations(service),
-    ...options
+    host: options.serviceHost,
+    identifier
   };
 
   return {
     type: 'Gateway',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createHttpServiceClient(resourceName, clientOptions);
-    },
+    options: service.options,
+    identifier,
     manifestHandler: () => {
       return HttpManifest.build(service);
+    },
+    exportDescriptor: () => {
+      return {
+        name: 'makeService',
+        module: '@ez4/local-gateway/worker',
+        options: {
+          ...clientOptions,
+          name: resourceName
+        }
+      };
     },
     requestHandler: async (request: EmulatorRequestEvent) => {
       const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
@@ -54,7 +64,13 @@ export const registerHttpLocalService = (service: HttpService, options: ServeOpt
           return await processHttpRequest(service, options, context, currentRoute);
         }
 
-        const identity = await processHttpAuthorization(service, options, context, currentRoute);
+        const authorization = await processHttpAuthorization(service, options, context, currentRoute);
+
+        if (authorization && 'status' in authorization) {
+          return authorization;
+        }
+
+        const identity = authorization?.identity;
 
         if (identity) {
           return await processHttpRequest(service, options, context, currentRoute, identity);
@@ -67,10 +83,7 @@ export const registerHttpLocalService = (service: HttpService, options: ServeOpt
           throw error;
         }
 
-        return getHttpErrorResponse(error, {
-          ...service.defaults?.httpErrors,
-          ...currentRoute?.httpErrors
-        });
+        return getHttpErrorResponse(error);
       }
     }
   };
@@ -96,7 +109,9 @@ const buildHttpRoutes = (service: HttpService) => {
       variables: route.variables,
       authorizer: route.authorizer,
       listener: route.listener,
-      handler: route.handler
+      handler: route.handler,
+      timeout: route.timeout,
+      memory: route.memory
     };
   }
 

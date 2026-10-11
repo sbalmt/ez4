@@ -8,41 +8,54 @@ import { Logger } from '@ez4/logger';
 
 export type WsServiceClientOptions = {
   preferences?: WsPreferences;
-  allConnections: Record<string, EmulatorConnection>;
   messageSchema: AnySchema;
 };
 
-export const createWsServiceClient = <T extends Ws.JsonBody = any>(resourceName: string, options: WsServiceClientOptions): WsClient<T> => {
-  const { allConnections, messageSchema, preferences } = options;
+export type WsServiceConnections = {
+  sendMessage: (connectionId: string, payload: string) => void;
+  disconnect: (connectionId: string) => void;
+};
+
+export const createWsServiceClient = <T extends Ws.JsonBody = any>(
+  resourceName: string,
+  options: WsServiceClientOptions,
+  connections: WsServiceConnections
+): WsClient<T> => {
+  const { messageSchema, preferences } = options;
 
   return new (class {
     async sendMessage<T extends Ws.JsonBody>(connectionId: string, message: T) {
+      Logger.log(`✉️  Sending message to connection [${resourceName}]`);
+
+      const content = await resolveResponseBody(message, messageSchema, preferences);
+      const payload = JSON.stringify(content);
+
+      connections.sendMessage(connectionId, payload);
+    }
+
+    disconnect(connectionId: string) {
+      Logger.log(`🟥 Closing connection [${resourceName}]`);
+
+      connections.disconnect(connectionId);
+
+      return Promise.resolve();
+    }
+  })();
+};
+
+export const createLocalConnections = (allConnections: Record<string, EmulatorConnection>): WsServiceConnections => {
+  return {
+    sendMessage: (connectionId, payload) => {
       const connection = allConnections[connectionId];
 
       if (!connection) {
         throw new Error('Connection not found.');
       }
 
-      Logger.log(`✉️  Sending message to connection [${resourceName}]`);
-
-      const content = await resolveResponseBody(message, messageSchema, preferences);
-      const payload = JSON.stringify(content);
-
       connection.write(payload);
-
-      return Promise.resolve();
+    },
+    disconnect: (connectionId) => {
+      allConnections[connectionId]?.close();
     }
-
-    disconnect(connectionId: string) {
-      const connection = allConnections[connectionId];
-
-      Logger.log(`🟥 Closing connection [${resourceName}]`);
-
-      if (connection) {
-        connection.close();
-      }
-
-      return Promise.resolve();
-    }
-  })();
+  };
 };

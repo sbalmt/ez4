@@ -25,9 +25,13 @@
       "types": "./dist/main.d.ts",
       "default": "./dist/main.mjs"
     },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.mjs"
+    "./tester": {
+      "types": "./dist/tester.d.ts",
+      "default": "./dist/tester.mjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
     }
   },
   "workspaces": [
@@ -44,6 +48,7 @@
   },
   "dependencies": {
     "@ez4/common": "^0.55.0",
+    "@ez4/emulator": "^0.55.0",
     "@ez4/gateway": "^0.55.0",
     "@ez4/http": "^0.55.0",
     "@ez4/local-common": "^0.55.0",

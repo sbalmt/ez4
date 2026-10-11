@@ -10,7 +10,7 @@ export type IncomingRequest = {
   parameters?: Record<string, string>;
   headers?: Record<string, string>;
   query?: Record<string, string>;
-  body?: Buffer;
+  body?: Buffer | string;
 };
 
 export const getIncomingRequestIdentity = async <T extends Http.Identity>(

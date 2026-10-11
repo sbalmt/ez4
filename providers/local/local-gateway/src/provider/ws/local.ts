@@ -1,41 +1,86 @@
 import type { WsService } from '@ez4/gateway/library';
 import type { AnyObject } from '@ez4/utils';
+import type { ProviderConnectionEvent } from '../../types/events';
 
 import type {
   EmulateServiceContext,
   EmulatorConnectionEvent,
   EmulatorMessageEvent,
   EmulatorConnection,
-  ServeOptions
+  ServeOptions,
+  ServiceEmulator
 } from '@ez4/project/library';
 
+import { registerProvider, unregisterProvider } from '@ez4/emulator';
 import { getServiceName } from '@ez4/project/library';
-import { HttpError } from '@ez4/gateway';
+import { Logger } from '@ez4/logger';
 
-import { createWsServiceClient } from '../../client/ws/service';
+import { createLocalConnections } from '../../client/ws/service';
 import { processWsAuthorization } from '../../handlers/ws/authorizer';
 import { processWsConnection } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
-import { getWsErrorResponse } from '../../utils/ws/response';
+import { ProviderEvent } from '../../types/events';
 
-export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName, defaults, connect, message } = service;
 
   const allConnections: Record<string, EmulatorConnection> = {};
   const identities: Record<string, AnyObject> = {};
 
+  const localConnections = createLocalConnections(allConnections);
+
+  const identifier = getServiceName(resourceName, options);
+  const provider = `gateway:${identifier}`;
+
   const clientOptions = {
     messageSchema: service.schema,
-    preferences: message.preferences ?? defaults?.preferences,
-    allConnections
+    preferences: message.preferences ?? defaults?.preferences
   };
 
   return {
     type: 'Gateway',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createWsServiceClient(resourceName, clientOptions);
+    options: service.options,
+    identifier,
+    bootstrapHandler: () => {
+      registerProvider(provider, {
+        eventTypes: [ProviderEvent.SendMessage, ProviderEvent.Disconnect],
+        eventHandler: (event: string, payload: ProviderConnectionEvent | undefined) => {
+          if (!payload) {
+            throw new Error('Missing connection event payload.');
+          }
+
+          const { connectionId } = payload;
+
+          if (event === ProviderEvent.Disconnect) {
+            return localConnections.disconnect(connectionId);
+          }
+
+          if (!payload.payload) {
+            throw new Error('Missing connection message payload.');
+          }
+
+          try {
+            localConnections.sendMessage(connectionId, payload.payload);
+          } catch (error) {
+            Logger.warn(`Unable to send message to connection [${resourceName}]: ${error}`);
+          }
+        }
+      });
+    },
+    shutdownHandler: () => {
+      unregisterProvider(provider);
+    },
+    exportDescriptor: () => {
+      return {
+        name: 'makeWsService',
+        module: '@ez4/local-gateway/worker',
+        provider,
+        options: {
+          ...clientOptions,
+          name: resourceName
+        }
+      };
     },
     connectHandler: async (event: EmulatorConnectionEvent) => {
       const { connection } = event;
@@ -65,18 +110,9 @@ export const registerWsLocalService = (service: WsService, options: ServeOptions
     messageHandler: async (message: EmulatorMessageEvent) => {
       const { connection } = message;
 
-      try {
-        const identity = identities[connection.id];
+      const identity = identities[connection.id];
 
-        return await processWsMessage(service, options, context, message, identity);
-        //
-      } catch (error) {
-        if (error instanceof HttpError) {
-          return getWsErrorResponse(error);
-        }
-
-        throw error;
-      }
+      return processWsMessage(service, options, context, message, identity);
     }
   };
 };
