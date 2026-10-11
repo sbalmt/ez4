@@ -1,22 +1,21 @@
 import type { Client, Queue, SendOptions } from '@ez4/queue';
-import type { ServeOptions } from '@ez4/project/library';
+import type { ProviderContext } from '@ez4/emulator';
 import type { MessageSchema } from '@ez4/queue/utils';
-import type { AnyObject } from '@ez4/utils';
-
-import { setTimeout } from 'node:timers/promises';
 
 import { getJsonMessage } from '@ez4/queue/utils';
 import { Logger } from '@ez4/logger';
 
-export type LocalClientOptions = ServeOptions & {
-  handler: (message: AnyObject) => Promise<void>;
+import { ProviderEvent } from '../types/events';
+
+export type LocalClientOptions = {
   delay: number;
 };
 
 export const createLocalClient = <T extends Queue.Message = any, U extends Queue.Mode = any>(
   resourceName: string,
   messageSchema: MessageSchema,
-  clientOptions: LocalClientOptions
+  clientOptions: LocalClientOptions,
+  context: Pick<ProviderContext, 'notify'>
 ): Client<T, U> => {
   return new (class {
     async sendMessage(message: T, options?: SendOptions<U>) {
@@ -25,14 +24,9 @@ export const createLocalClient = <T extends Queue.Message = any, U extends Queue
       const payload = await getJsonMessage(message, messageSchema);
       const delay = options?.delay ?? clientOptions.delay;
 
-      setImmediate(async () => {
-        try {
-          await setTimeout(delay * 1000);
-          await clientOptions.handler(payload);
-        } catch (error) {
-          Logger.error(`Local queue [${resourceName}] finished with errors.`);
-          Logger.error(`    ${error}`);
-        }
+      context.notify(ProviderEvent.PutMessage, {
+        message: payload,
+        delay
       });
     }
 

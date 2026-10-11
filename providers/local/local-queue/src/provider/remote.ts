@@ -21,10 +21,17 @@ export const registerRemoteService = (service: QueueImport, options: ServeOption
   return {
     type: 'Queue',
     name: resourceName,
+    options: service.options,
     identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createRemoteClient(referenceName, messageSchema, clientOptions);
-    },
+    exportDescriptor: () => ({
+      name: 'makeRemoteService',
+      module: '@ez4/local-queue/worker',
+      options: {
+        resourceName: referenceName,
+        schema: messageSchema,
+        clientOptions
+      }
+    }),
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueForward(service, clientOptions, request);
     }

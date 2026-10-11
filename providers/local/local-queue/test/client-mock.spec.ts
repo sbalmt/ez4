@@ -3,7 +3,7 @@ import type { Queue } from '@ez4/queue';
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { QueueTester } from '@ez4/local-queue/test';
+import { QueueTester } from '@ez4/local-queue/tester';
 
 type TestMessage = {
   foo: string;

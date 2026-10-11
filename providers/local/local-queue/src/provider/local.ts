@@ -1,33 +1,57 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
 import type { AnyObject } from '@ez4/utils';
+import type { ProviderMessageEvent } from '../types/events';
 
+import { registerProvider, unregisterProvider } from '@ez4/emulator';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';
 
 import { processLambdaMessage } from '../handlers/lambda';
-import { createLocalClient } from '../client/local';
 import { QueueManifest } from '../service/manifest';
+import { ProviderEvent } from '../types/events';
 
-export const registerLocalService = (service: QueueService, options: ServeOptions, context: EmulateServiceContext) => {
-  const { name: resourceName, schema: messageSchema } = service;
+export const registerLocalService = (service: QueueService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
+  const { name: resourceName, schema } = service;
 
-  const clientOptions = {
-    ...options,
-    delay: service.delay ?? 0,
-    handler: (message: AnyObject) => {
-      return handleQueueMessage(service, options, context, message);
-    }
-  };
+  const identifier = getServiceName(resourceName, options);
+  const provider = `queue:${identifier}`;
 
   return {
     type: 'Queue',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createLocalClient(resourceName, messageSchema, clientOptions);
+    options: service.options,
+    identifier,
+    bootstrapHandler: () => {
+      registerProvider(provider, {
+        eventTypes: [ProviderEvent.PutMessage],
+        eventHandler: (_event: string, payload: ProviderMessageEvent | undefined) => {
+          if (!payload) {
+            throw new Error('Missing queue event payload.');
+          }
+
+          const { message, delay = service.backoff?.minDelay ?? 0 } = payload;
+
+          setTimeout(() => handleQueueMessage(service, options, context, message), delay * 1000);
+        }
+      });
+    },
+    shutdownHandler: () => {
+      unregisterProvider(provider);
+    },
+    exportDescriptor: () => {
+      return {
+        name: 'makeLocalService',
+        module: '@ez4/local-queue/worker',
+        provider,
+        options: {
+          delay: service.delay ?? 0,
+          identifier,
+          schema
+        }
+      };
     },
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleQueueRequest(service, options, context, request);
@@ -79,8 +103,6 @@ const handleQueueMessage = async (
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
   if (queueSubscription) {
-    await processLambdaMessage(service, options, context, queueSubscription, message, (delay) => {
-      setTimeout(() => handleQueueMessage(service, options, context, message), 1000 * delay);
-    });
+    await processLambdaMessage(service, options, context, queueSubscription, message);
   }
 };
