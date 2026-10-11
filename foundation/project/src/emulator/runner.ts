@@ -2,7 +2,8 @@ import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from './service';
 
 import { getServiceName } from '../utils/service';
-import { EmulatorClientNotFoundError, EmulatorNotFoundError } from './errors';
+import { EmulatorNotFoundError } from './errors';
+import { loadServiceClient } from './client';
 
 type RunnerContext = {
   emulators?: ServiceEmulators;
@@ -26,7 +27,7 @@ export namespace Runner {
 
   export const configure = (emulators: ServiceEmulators, options: Options) => {
     if (CONTEXT.emulators) {
-      throw new Error('Tester is already configured.');
+      throw new Error('Runner is already configured.');
     }
 
     Object.assign(CONTEXT, {
@@ -35,28 +36,17 @@ export namespace Runner {
     });
   };
 
-  export const getServiceClient = (resourceName: string, resourceOptions?: AnyObject): unknown => {
+  export const getServiceClient = async (resourceName: string, resourceOptions?: AnyObject): Promise<unknown> => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Runner is not configured yet.');
     }
 
     const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.emulators[serviceName];
 
-    if (!serviceEmulator) {
+    if (!CONTEXT.emulators[serviceName]) {
       throw new EmulatorNotFoundError(resourceName);
     }
 
-    if (!serviceEmulator.exportHandler) {
-      throw new EmulatorClientNotFoundError(resourceName);
-    }
-
-    const serviceClient = serviceEmulator.exportHandler(resourceOptions ?? {});
-
-    if (serviceClient instanceof Function) {
-      return serviceClient();
-    }
-
-    return serviceClient;
+    return loadServiceClient(CONTEXT.emulators, CONTEXT.options, resourceName, resourceOptions);
   };
 }

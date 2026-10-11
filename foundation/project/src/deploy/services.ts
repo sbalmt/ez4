@@ -16,8 +16,8 @@ type LinkedContextCache = Record<string, LinkedContext>;
 export const prepareLinkedServices = async (metadata: MetadataReflection, context: EventContext, options: DeployOptions) => {
   const operations = [];
 
-  for (const serviceName in metadata) {
-    const target = metadata[serviceName];
+  for (const resourceName in metadata) {
+    const target = metadata[resourceName];
 
     if (isObjectWith(target, ['services'])) {
       operations.push(prepareLinkedContext(target, metadata, options, context));
@@ -39,15 +39,15 @@ const prepareLinkedContext = async (
     const linkedContexts: Record<string, LinkedContext> = {};
 
     for (const linkedName in linkedServices) {
-      const { reference: serviceName, options: serviceOptions } = linkedServices[linkedName];
+      const { reference: resourceName, options: resourceOptions } = linkedServices[linkedName];
 
-      const baseService = metadata[serviceName];
+      const baseService = metadata[resourceName];
 
-      const linkedService = {
+      const linkedService: ServiceMetadata = {
         ...baseService,
         options: {
           ...baseService.options,
-          ...serviceOptions
+          ...resourceOptions
         }
       };
 
@@ -60,7 +60,7 @@ const prepareLinkedContext = async (
 
         linkedContexts[linkedName] = remaining;
 
-        const linkedKey = hashObject({ serviceName, serviceOptions: remaining.options });
+        const linkedKey = hashObject({ resourceName, resourceOptions: remaining.options });
 
         if (contextCache[linkedKey]) {
           linkedContexts[linkedName].context = contextCache[linkedKey].context;
