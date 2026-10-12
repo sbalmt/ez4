@@ -21,6 +21,10 @@ export const unregisterProvider = (name: string) => {
   }
 };
 
+export const providerRegistered = (name: string) => {
+  return ALL_PROVIDERS.has(name);
+};
+
 export const notifyProvider = async <T extends AnyObject>(name: string, event: string, payload: T | undefined) => {
   const provider = ALL_PROVIDERS.get(name);
 
