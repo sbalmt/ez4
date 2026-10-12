@@ -27,11 +27,14 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
     await onBegin(request);
 
     for (const record of event.Records) {
-      const eventType = getKnownEventType(record.eventName);
-
       const { bucket, object } = record.s3;
 
+      const eventType = getKnownEventType(record.eventName);
       const traceId = getRandomUUID();
+
+      Runtime.setScope({
+        traceId
+      });
 
       currentRequest = {
         ...request,
@@ -41,10 +44,6 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
         eventType,
         traceId
       };
-
-      Runtime.setScope({
-        traceId
-      });
 
       await onReady(currentRequest);
       await handle(currentRequest, __EZ4_CONTEXT);

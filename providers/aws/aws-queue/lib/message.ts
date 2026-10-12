@@ -75,7 +75,9 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
 
       const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
-      Runtime.setScope({ traceId });
+      Runtime.setScope({
+        traceId
+      });
 
       const payload = JSON.parse(record.body);
       const message = await getJsonMessage(payload, schema, onCustomValidation);

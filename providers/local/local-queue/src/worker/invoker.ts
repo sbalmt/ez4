@@ -34,25 +34,29 @@ export const makeInvoker = (options: InvokerOptions, context: ProviderContext): 
     try {
       await invocation.begin(request);
 
-      currentRequest = {
-        ...request,
-        message: await getJsonMessage(invocation.request, schema, onCustomValidation),
-        maxAttempts: 1,
-        attempt: 1,
-        traceId,
-        retry: (options?: Queue.RetryOptions) => {
-          notify(ProviderEvent.PutMessage, {
-            delay: options?.delay,
-            message: invocation.request
-          });
-
-          return Promise.resolve();
-        }
-      };
-
       Runtime.setScope({
         traceId
       });
+
+      const message = await getJsonMessage(invocation.request, schema, onCustomValidation);
+
+      const retry = (options?: Queue.RetryOptions) => {
+        notify(ProviderEvent.PutMessage, {
+          message: invocation.request,
+          delay: options?.delay
+        });
+
+        return Promise.resolve();
+      };
+
+      currentRequest = {
+        ...request,
+        message,
+        maxAttempts: 1,
+        attempt: 1,
+        traceId,
+        retry
+      };
 
       await invocation.ready(currentRequest);
 

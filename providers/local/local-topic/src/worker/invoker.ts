@@ -25,15 +25,15 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
     try {
       await invocation.begin(request);
 
+      Runtime.setScope({
+        traceId
+      });
+
       currentRequest = {
         ...request,
         event: await getJsonEvent(invocation.request, schema),
         traceId
       };
-
-      Runtime.setScope({
-        traceId
-      });
 
       await invocation.ready(currentRequest);
 
