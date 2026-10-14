@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where integer', async () => {
+describe('client where column time', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -15,226 +15,204 @@ describe('client where integer', async () => {
         {
           id: randomUUID(),
           integer: 1,
-          string: 'foo'
+          time: '00:00:00Z'
         },
         {
           id: randomUUID(),
           integer: 2,
-          string: 'bar'
+          time: '23:59:59Z'
         }
       ]
     });
   });
 
-  it('assert :: where integer (default)', async () => {
+  it('assert :: where column time (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: 2
+        time: '00:00:00Z'
       }
     });
 
-    deepEqual(records, [{ integer: 2, string: 'bar' }]);
+    deepEqual(records, [{ time: '00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where integer (equal)', async () => {
+  it('assert :: where column time (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          equal: 1
+        time: {
+          equal: '23:59:59Z'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, string: 'foo' }]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where integer (not equal)', async () => {
+  it('assert :: where column time (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          not: 1
+        time: {
+          not: '00:00:00Z'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, string: 'bar' }]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where integer (greater than)', async () => {
+  it('assert :: where column time (greater than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          gt: 0
+        time: {
+          gt: '00:00:00Z'
         }
       }
     });
 
-    deepEqual(records, [
-      { integer: 1, string: 'foo' },
-      { integer: 2, string: 'bar' }
-    ]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where integer (greater than or equal)', async () => {
+  it('assert :: where column time (greater than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          gte: 2
+        time: {
+          gte: '23:59:59Z'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 2, string: 'bar' }]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where integer (less than)', async () => {
+  it('assert :: where column time (less than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          lt: 2
+        time: {
+          lt: '23:59:59Z'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, string: 'foo' }]);
+    deepEqual(records, [{ time: '00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where integer (less than or equal)', async () => {
+  it('assert :: where column time (less than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          lte: 2
-        }
-      }
-    });
-
-    deepEqual(records, [
-      { integer: 1, string: 'foo' },
-      { integer: 2, string: 'bar' }
-    ]);
-  });
-
-  it('assert :: where integer (is in)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true,
-        string: true
-      },
-      where: {
-        integer: {
-          isIn: [1, 2]
+        time: {
+          lte: '23:59:59Z'
         }
       }
     });
 
     deepEqual(records, [
-      { integer: 1, string: 'foo' },
-      { integer: 2, string: 'bar' }
+      { time: '00:00:00.000Z', integer: 1 },
+      { time: '23:59:59.000Z', integer: 2 }
     ]);
   });
 
-  it('assert :: where integer (is between)', async () => {
+  it('assert :: where column time (is between)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
-        integer: {
-          isBetween: [1, 2]
+        time: {
+          isBetween: ['00:00:00Z', '23:59:59Z']
         }
       }
     });
 
     deepEqual(records, [
-      { integer: 1, string: 'foo' },
-      { integer: 2, string: 'bar' }
+      { time: '00:00:00.000Z', integer: 1 },
+      { time: '23:59:59.000Z', integer: 2 }
     ]);
   });
 
-  it('assert :: where integer (not)', async () => {
+  it('assert :: where column time (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
         NOT: {
-          integer: 2
+          time: '23:59:59Z'
         }
       }
     });
 
-    deepEqual(records, [{ integer: 1, string: 'foo' }]);
+    deepEqual(records, [{ time: '00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where integer (and)', async () => {
+  it('assert :: where column time (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
         AND: [
           {
-            integer: 2
+            time: '23:59:59Z'
           }
         ]
       }
     });
 
-    deepEqual(records, [{ integer: 2, string: 'bar' }]);
+    deepEqual(records, [{ time: '23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where integer (or)', async () => {
+  it('assert :: where column time (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
-        string: true
+        time: true
       },
       where: {
         OR: [
           {
-            integer: 1
+            time: '00:00:00Z'
           },
           {
-            integer: 2
+            time: '23:59:59Z'
           }
         ]
       }
     });
 
     deepEqual(records, [
-      { integer: 1, string: 'foo' },
-      { integer: 2, string: 'bar' }
+      { time: '00:00:00.000Z', integer: 1 },
+      { time: '23:59:59.000Z', integer: 2 }
     ]);
   });
 });

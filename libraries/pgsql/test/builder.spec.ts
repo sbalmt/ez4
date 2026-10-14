@@ -140,4 +140,68 @@ describe('sql builder tests', () => {
 
     deepEqual(variables, []);
   });
+
+  it('assert :: on prepare top-level columns (not as json)', () => {
+    const onPrepareVariable = mock.fn((value) => value);
+
+    const sql = new SqlBuilder({
+      onPrepareVariable
+    });
+
+    const [statement, variables] = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          gte: 1,
+          lt: 3
+        }
+      })
+      .build();
+
+    equal(statement, `SELECT FROM "test" WHERE ("foo" >= :0 AND "foo" < :1)`);
+
+    deepEqual(variables, [1, 3]);
+
+    deepEqual(
+      onPrepareVariable.mock.calls.map(({ arguments: args }) => args),
+      [
+        [1, { json: false, schema: undefined, index: 0 }],
+        [3, { json: false, schema: undefined, index: 1 }]
+      ]
+    );
+  });
+
+  it('assert :: on prepare nested columns (as json)', () => {
+    const onPrepareVariable = mock.fn((value) => value);
+
+    const sql = new SqlBuilder({
+      onPrepareVariable
+    });
+
+    const [statement, variables] = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          bar: {
+            gte: 1,
+            lt: 3
+          }
+        }
+      })
+      .build();
+
+    equal(statement, `SELECT FROM "test" WHERE ("foo"['bar'] >= :0 AND "foo"['bar'] < :1)`);
+
+    deepEqual(variables, [1, 3]);
+
+    deepEqual(
+      onPrepareVariable.mock.calls.map(({ arguments: args }) => args),
+      [
+        [1, { json: true, schema: undefined, index: 0 }],
+        [3, { json: true, schema: undefined, index: 1 }]
+      ]
+    );
+  });
 });

@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where boolean', async () => {
+describe('client where column boolean', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -26,7 +26,7 @@ describe('client where boolean', async () => {
     });
   });
 
-  it('assert :: where boolean (default)', async () => {
+  it('assert :: where column boolean (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -40,7 +40,7 @@ describe('client where boolean', async () => {
     deepEqual(records, [{ boolean: false, integer: 2 }]);
   });
 
-  it('assert :: where boolean (equal)', async () => {
+  it('assert :: where column boolean (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -56,7 +56,7 @@ describe('client where boolean', async () => {
     deepEqual(records, [{ boolean: true, integer: 1 }]);
   });
 
-  it('assert :: where boolean (not equal)', async () => {
+  it('assert :: where column boolean (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -72,7 +72,7 @@ describe('client where boolean', async () => {
     deepEqual(records, [{ boolean: false, integer: 2 }]);
   });
 
-  it('assert :: where boolean (is in)', async () => {
+  it('assert :: where column boolean (is in)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -91,7 +91,7 @@ describe('client where boolean', async () => {
     ]);
   });
 
-  it('assert :: where boolean (not)', async () => {
+  it('assert :: where column boolean (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -107,7 +107,7 @@ describe('client where boolean', async () => {
     deepEqual(records, [{ boolean: true, integer: 1 }]);
   });
 
-  it('assert :: where boolean (and)', async () => {
+  it('assert :: where column boolean (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,
@@ -125,7 +125,7 @@ describe('client where boolean', async () => {
     deepEqual(records, [{ boolean: false, integer: 2 }]);
   });
 
-  it('assert :: where boolean (or)', async () => {
+  it('assert :: where column boolean (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         boolean: true,

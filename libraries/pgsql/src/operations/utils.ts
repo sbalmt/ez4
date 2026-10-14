@@ -30,7 +30,7 @@ export const getOperandValue = (schema: AnySchema | undefined, operand: unknown,
   }
 
   const preparedValue = options.onPrepareVariable(operand, {
-    json: encode && !!path,
+    json: !!path && (encode || !schema),
     schema,
     index
   });

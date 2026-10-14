@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where decimal', async () => {
+describe('client where column integer', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -14,227 +14,227 @@ describe('client where decimal', async () => {
       data: [
         {
           id: randomUUID(),
-          decimal: 1.5,
+          integer: 1,
           string: 'foo'
         },
         {
           id: randomUUID(),
-          decimal: 2.5,
+          integer: 2,
           string: 'bar'
         }
       ]
     });
   });
 
-  it('assert :: where decimal (default)', async () => {
+  it('assert :: where column integer (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: 2.5
+        integer: 2
       }
     });
 
-    deepEqual(records, [{ decimal: 2.5, string: 'bar' }]);
+    deepEqual(records, [{ integer: 2, string: 'bar' }]);
   });
 
-  it('assert :: where decimal (equal)', async () => {
+  it('assert :: where column integer (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          equal: 1.5
+        integer: {
+          equal: 1
         }
       }
     });
 
-    deepEqual(records, [{ decimal: 1.5, string: 'foo' }]);
+    deepEqual(records, [{ integer: 1, string: 'foo' }]);
   });
 
-  it('assert :: where decimal (not equal)', async () => {
+  it('assert :: where column integer (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          not: 1.5
+        integer: {
+          not: 1
         }
       }
     });
 
-    deepEqual(records, [{ decimal: 2.5, string: 'bar' }]);
+    deepEqual(records, [{ integer: 2, string: 'bar' }]);
   });
 
-  it('assert :: where decimal (greater than)', async () => {
+  it('assert :: where column integer (greater than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
+        integer: {
           gt: 0
         }
       }
     });
 
     deepEqual(records, [
-      { decimal: 1.5, string: 'foo' },
-      { decimal: 2.5, string: 'bar' }
+      { integer: 1, string: 'foo' },
+      { integer: 2, string: 'bar' }
     ]);
   });
 
-  it('assert :: where decimal (greater than or equal)', async () => {
+  it('assert :: where column integer (greater than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          gte: 1.9
+        integer: {
+          gte: 2
         }
       }
     });
 
-    deepEqual(records, [{ decimal: 2.5, string: 'bar' }]);
+    deepEqual(records, [{ integer: 2, string: 'bar' }]);
   });
 
-  it('assert :: where decimal (less than)', async () => {
+  it('assert :: where column integer (less than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          lt: 1.9
+        integer: {
+          lt: 2
         }
       }
     });
 
-    deepEqual(records, [{ decimal: 1.5, string: 'foo' }]);
+    deepEqual(records, [{ integer: 1, string: 'foo' }]);
   });
 
-  it('assert :: where decimal (less than or equal)', async () => {
+  it('assert :: where column integer (less than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          lte: 2.55
+        integer: {
+          lte: 2
         }
       }
     });
 
     deepEqual(records, [
-      { decimal: 1.5, string: 'foo' },
-      { decimal: 2.5, string: 'bar' }
+      { integer: 1, string: 'foo' },
+      { integer: 2, string: 'bar' }
     ]);
   });
 
-  it('assert :: where decimal (is in)', async () => {
+  it('assert :: where column integer (is in)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          isIn: [1.5, 2.5]
+        integer: {
+          isIn: [1, 2]
         }
       }
     });
 
     deepEqual(records, [
-      { decimal: 1.5, string: 'foo' },
-      { decimal: 2.5, string: 'bar' }
+      { integer: 1, string: 'foo' },
+      { integer: 2, string: 'bar' }
     ]);
   });
 
-  it('assert :: where decimal (is between)', async () => {
+  it('assert :: where column integer (is between)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
-        decimal: {
-          isBetween: [1.1, 2.9]
+        integer: {
+          isBetween: [1, 2]
         }
       }
     });
 
     deepEqual(records, [
-      { decimal: 1.5, string: 'foo' },
-      { decimal: 2.5, string: 'bar' }
+      { integer: 1, string: 'foo' },
+      { integer: 2, string: 'bar' }
     ]);
   });
 
-  it('assert :: where decimal (not)', async () => {
+  it('assert :: where column integer (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
         NOT: {
-          decimal: 2.5
+          integer: 2
         }
       }
     });
 
-    deepEqual(records, [{ decimal: 1.5, string: 'foo' }]);
+    deepEqual(records, [{ integer: 1, string: 'foo' }]);
   });
 
-  it('assert :: where decimal (and)', async () => {
+  it('assert :: where column integer (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
         AND: [
           {
-            decimal: 2.5
+            integer: 2
           }
         ]
       }
     });
 
-    deepEqual(records, [{ decimal: 2.5, string: 'bar' }]);
+    deepEqual(records, [{ integer: 2, string: 'bar' }]);
   });
 
-  it('assert :: where decimal (or)', async () => {
+  it('assert :: where column integer (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
-        decimal: true,
+        integer: true,
         string: true
       },
       where: {
         OR: [
           {
-            decimal: 1.5
+            integer: 1
           },
           {
-            decimal: 2.5
+            integer: 2
           }
         ]
       }
     });
 
     deepEqual(records, [
-      { decimal: 1.5, string: 'foo' },
-      { decimal: 2.5, string: 'bar' }
+      { integer: 1, string: 'foo' },
+      { integer: 2, string: 'bar' }
     ]);
   });
 });

@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where string', async () => {
+describe('client where column string', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -26,7 +26,7 @@ describe('client where string', async () => {
     });
   });
 
-  it('assert :: where string (default)', async () => {
+  it('assert :: where column string (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -40,7 +40,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (equal)', async () => {
+  it('assert :: where column string (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -56,7 +56,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (insensitive equal)', async () => {
+  it('assert :: where column string (insensitive equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -73,7 +73,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (not equal)', async () => {
+  it('assert :: where column string (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -89,7 +89,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (insensitive not equal)', async () => {
+  it('assert :: where column string (insensitive not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -106,7 +106,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (greater than)', async () => {
+  it('assert :: where column string (greater than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -125,7 +125,7 @@ describe('client where string', async () => {
     ]);
   });
 
-  it('assert :: where string (greater than or equal)', async () => {
+  it('assert :: where column string (greater than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -141,7 +141,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (less than)', async () => {
+  it('assert :: where column string (less than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -157,7 +157,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (less than or equal)', async () => {
+  it('assert :: where column string (less than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -176,7 +176,7 @@ describe('client where string', async () => {
     ]);
   });
 
-  it('assert :: where string (is in)', async () => {
+  it('assert :: where column string (is in)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -195,7 +195,7 @@ describe('client where string', async () => {
     ]);
   });
 
-  it('assert :: where string (is between)', async () => {
+  it('assert :: where column string (is between)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -214,7 +214,7 @@ describe('client where string', async () => {
     ]);
   });
 
-  it('assert :: where string (contains)', async () => {
+  it('assert :: where column string (contains)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -230,7 +230,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (insensitive contains)', async () => {
+  it('assert :: where column string (insensitive contains)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -247,7 +247,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (starts with)', async () => {
+  it('assert :: where column string (starts with)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -263,7 +263,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (insensitive starts with)', async () => {
+  it('assert :: where column string (insensitive starts with)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -280,7 +280,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (not)', async () => {
+  it('assert :: where column string (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -296,7 +296,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'foo', integer: 1 }]);
   });
 
-  it('assert :: where string (and)', async () => {
+  it('assert :: where column string (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -314,7 +314,7 @@ describe('client where string', async () => {
     deepEqual(records, [{ string: 'bar', integer: 2 }]);
   });
 
-  it('assert :: where string (or)', async () => {
+  it('assert :: where column string (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,

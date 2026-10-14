@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where datetime', async () => {
+describe('client where column datetime', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -26,7 +26,7 @@ describe('client where datetime', async () => {
     });
   });
 
-  it('assert :: where datetime (default)', async () => {
+  it('assert :: where column datetime (default)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -40,7 +40,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '1991-04-23T00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where datetime (equal)', async () => {
+  it('assert :: where column datetime (equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -56,7 +56,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '2024-07-01T23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where datetime (not equal)', async () => {
+  it('assert :: where column datetime (not equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -72,7 +72,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '2024-07-01T23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where datetime (greater than)', async () => {
+  it('assert :: where column datetime (greater than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -91,7 +91,7 @@ describe('client where datetime', async () => {
     ]);
   });
 
-  it('assert :: where datetime (greater than or equal)', async () => {
+  it('assert :: where column datetime (greater than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -107,7 +107,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '2024-07-01T23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where datetime (less than)', async () => {
+  it('assert :: where column datetime (less than)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -123,7 +123,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '1991-04-23T00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where datetime (less than or equal)', async () => {
+  it('assert :: where column datetime (less than or equal)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -142,7 +142,7 @@ describe('client where datetime', async () => {
     ]);
   });
 
-  it('assert :: where datetime (is between)', async () => {
+  it('assert :: where column datetime (is between)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -161,7 +161,7 @@ describe('client where datetime', async () => {
     ]);
   });
 
-  it('assert :: where datetime (not)', async () => {
+  it('assert :: where column datetime (not)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -177,7 +177,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '1991-04-23T00:00:00.000Z', integer: 1 }]);
   });
 
-  it('assert :: where datetime (and)', async () => {
+  it('assert :: where column datetime (and)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,
@@ -195,7 +195,7 @@ describe('client where datetime', async () => {
     deepEqual(records, [{ datetime: '2024-07-01T23:59:59.000Z', integer: 2 }]);
   });
 
-  it('assert :: where datetime (or)', async () => {
+  it('assert :: where column datetime (or)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         integer: true,

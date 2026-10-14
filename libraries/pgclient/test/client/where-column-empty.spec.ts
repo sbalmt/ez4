@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-describe('client where null', async () => {
+describe('client where column empty', async () => {
   const client = await makeSchemaClient();
 
   before(async () => {
@@ -18,86 +18,85 @@ describe('client where null', async () => {
         },
         {
           id: randomUUID(),
-          integer: 1
-        },
-        {
-          id: randomUUID(),
-          integer: 2
+          json: {
+            array: ['foo', 'bar', 'baz']
+          }
         }
       ]
     });
   });
 
-  it('assert :: where null (implicit)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true
-      },
-      where: {
-        string: null
-      }
-    });
-
-    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
-  });
-
-  it('assert :: where null (explicit)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true
-      },
-      where: {
-        string: {
-          equal: null
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
-  });
-
-  it('assert :: where null (operator)', async () => {
-    const { records } = await client.ez4_test_table.findMany({
-      select: {
-        integer: true
-      },
-      where: {
-        string: {
-          isNull: true
-        }
-      }
-    });
-
-    deepEqual(records, [{ integer: 1 }, { integer: 2 }]);
-  });
-
-  it('assert :: where not null (implicit)', async () => {
+  it('assert :: where column empty string (is in)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         string: true
       },
       where: {
         string: {
-          not: null
+          isIn: []
         }
       }
     });
 
-    deepEqual(records, [{ string: 'foo' }]);
+    deepEqual(records, []);
   });
 
-  it('assert :: where not null (explicit)', async () => {
+  it('assert :: where column empty string (contains)', async () => {
     const { records } = await client.ez4_test_table.findMany({
       select: {
         string: true
       },
       where: {
         string: {
-          isNull: false
+          contains: ''
         }
       }
     });
 
-    deepEqual(records, [{ string: 'foo' }]);
+    deepEqual(records, [
+      {
+        string: 'foo'
+      }
+    ]);
+  });
+
+  it('assert :: where column empty array (is in)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        json: true
+      },
+      where: {
+        json: {
+          array: {
+            isIn: []
+          }
+        }
+      }
+    });
+
+    deepEqual(records, []);
+  });
+
+  it('assert :: where column empty array (contains)', async () => {
+    const { records } = await client.ez4_test_table.findMany({
+      select: {
+        json: true
+      },
+      where: {
+        json: {
+          array: {
+            contains: []
+          }
+        }
+      }
+    });
+
+    deepEqual(records, [
+      {
+        json: {
+          array: ['foo', 'bar', 'baz']
+        }
+      }
+    ]);
   });
 });
