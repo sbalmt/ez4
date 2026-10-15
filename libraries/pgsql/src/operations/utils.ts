@@ -1,6 +1,7 @@
 import type { AnySchema } from '@ez4/schema';
 import type { SqlOperationContext, SqlOperationFlags } from './types';
 
+import { isAnyString } from '@ez4/utils';
 import { SchemaType } from '@ez4/schema';
 
 import { SqlColumnReference } from '../common/reference';
@@ -38,6 +39,14 @@ export const getOperandValue = (schema: AnySchema | undefined, operand: unknown,
   variables.push(preparedValue);
 
   return field;
+};
+
+export const getOperandPattern = (schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
+  if (isAnyString(operand)) {
+    return getOperandValue(schema, operand.replaceAll(/[\\%_]/g, '\\$&'), context);
+  }
+
+  return getOperandValue(schema, operand, context);
 };
 
 export const getOperandColumn = (schema: AnySchema | undefined, column: string, context: SqlOperationContext) => {

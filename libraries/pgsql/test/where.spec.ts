@@ -225,6 +225,23 @@ describe('sql where tests', () => {
     assert.equal(statement, `SELECT FROM "test" WHERE "foo" ILIKE :0 || '%'`);
   });
 
+  it('assert :: where starts with (with pattern characters)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          startsWith: 'C:\\_%'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['C:\\\\\\_\\%']);
+
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" LIKE :0 || '%'`);
+  });
+
   it('assert :: where contains', ({ assert }) => {
     const query = sql
       .select()
@@ -258,6 +275,23 @@ describe('sql where tests', () => {
     assert.deepEqual(variables, ['abc']);
 
     assert.equal(statement, `SELECT FROM "test" WHERE "foo" ILIKE '%' || :0 || '%'`);
+  });
+
+  it('assert :: where contains (with pattern characters)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          contains: '_100%\\'
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, ['\\_100\\%\\\\']);
+
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" LIKE '%' || :0 || '%'`);
   });
 
   it('assert :: where multiple operators', ({ assert }) => {
