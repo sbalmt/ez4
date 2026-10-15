@@ -1,0 +1,52 @@
+{
+  "912b75199c3b1dd3324623ab2f3fc02c:Settings": {
+    "type": "interface",
+    "name": "Settings",
+    "description": "Declaration merging between two interfaces.",
+    "members": [
+      {
+        "type": "property",
+        "name": "first",
+        "value": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "property",
+        "name": "second",
+        "value": {
+          "type": "number"
+        }
+      }
+    ]
+  },
+  "912b75199c3b1dd3324623ab2f3fc02c:Address": {
+    "type": "class",
+    "name": "Address",
+    "file": "test/types/merging.ts",
+    "position": {
+      "line": 15,
+      "character": 1
+    },
+    "description": "Declaration merging between a class and an interface, as `URL` and `URLSearchParams` in `@types/node`.",
+    "modifiers": {
+      "export": true
+    },
+    "members": [
+      {
+        "type": "property",
+        "name": "host",
+        "value": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "property",
+        "name": "port",
+        "value": {
+          "type": "number"
+        }
+      }
+    ]
+  }
+}
