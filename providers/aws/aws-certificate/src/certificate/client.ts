@@ -14,6 +14,7 @@ import {
 } from '@aws-sdk/client-acm';
 
 import { getACMClient, getACMWaiter } from '../utils/deploy';
+import { announceValidationRecord } from './validation';
 
 export type CreateRequest = {
   domainName: string;
@@ -57,6 +58,8 @@ export const createCertificate = async (logger: OperationLogLine, request: Creat
   const certificateArn = response.CertificateArn as Arn;
 
   logger.update(`Awaiting certificate validation`);
+
+  await announceValidationRecord(logger, client, certificateArn, domainName);
 
   await waitUntilCertificateValidated(getACMWaiter(client), {
     CertificateArn: certificateArn
