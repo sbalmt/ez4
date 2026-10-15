@@ -65,6 +65,45 @@ describe('sql update tests', () => {
     );
   });
 
+  it('assert :: update with json record (escaped key)', () => {
+    const query = sql
+      .update()
+      .only('table')
+      .record({
+        foo: {
+          [`bar', 1) || (SELECT 1) || jsonb_build_object('baz`]: true
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, [true]);
+
+    equal(
+      statement,
+      `UPDATE ONLY "table" ` +
+        `SET "foo" = COALESCE("foo", '{}'::jsonb) ` +
+        `|| jsonb_build_object('bar'', 1) || (SELECT 1) || jsonb_build_object(''baz', :0)`
+    );
+  });
+
+  it('assert :: update with json remove operation (escaped path)', () => {
+    const query = sql
+      .update()
+      .only('table')
+      .record({
+        foo: {
+          bar: sql.rawOperation('#-', `{"ba'r"}`)
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    deepEqual(variables, []);
+
+    equal(statement, `UPDATE ONLY "table" SET "foo" = COALESCE("foo", '{}'::jsonb) #- '{"ba''r"}'`);
+  });
+
   it('assert :: update with json record (with schema)', () => {
     const schema: ObjectSchema = {
       type: SchemaType.Object,
