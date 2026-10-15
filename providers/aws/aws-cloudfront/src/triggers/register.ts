@@ -13,6 +13,7 @@ import { registerDistributionProvider } from '../distribution/provider';
 import { registerInvalidationProvider } from '../invalidation/provider';
 import { registerFunctionProvider } from '../function/provider';
 import { prepareCdnServices, connectCdnServices } from './service';
+import { resourceOutput } from './output';
 
 export const registerTriggers = () => {
   registerAwsTriggers();
@@ -23,7 +24,8 @@ export const registerTriggers = () => {
 
   tryCreateTrigger('@ez4/aws-cloudfront', {
     'deploy:prepareResources': prepareCdnServices,
-    'deploy:connectResources': connectCdnServices
+    'deploy:connectResources': connectCdnServices,
+    'deploy:resourceOutput': resourceOutput
   });
 
   registerCachePolicyProvider();
