@@ -4,7 +4,7 @@ import type { Context } from './common';
 
 import { getNodeIdentity } from '../helpers/node';
 import { hasModifierExport } from '../helpers/modifier';
-import { isTypeInterface, mergeTypeInterface } from '../types';
+import { isTypeClass, isTypeInterface, mergeTypeClass, mergeTypeInterface } from '../types';
 import { tryTypeFunction } from './type-function';
 import { tryTypeInterface } from './type-interface';
 import { tryTypeClass } from './type-class';
@@ -32,11 +32,22 @@ export const trySource = (node: SourceFile, context: Context) => {
         return;
       }
 
-      if (!isTypeInterface(current) || !isTypeInterface(resultType)) {
-        throw new Error(`Source identity '${resultType.name}' has a naming collision.`);
+      if (isTypeInterface(current) && isTypeInterface(resultType)) {
+        reflection[identity] = mergeTypeInterface(resultType, current);
+        return;
       }
 
-      reflection[identity] = mergeTypeInterface(resultType, current);
+      if (isTypeClass(current) && isTypeInterface(resultType)) {
+        reflection[identity] = mergeTypeClass(resultType, current);
+        return;
+      }
+
+      if (isTypeInterface(current) && isTypeClass(resultType)) {
+        reflection[identity] = mergeTypeClass(current, resultType);
+        return;
+      }
+
+      throw new Error(`Source identity '${resultType.name}' has a naming collision.`);
     }
   };
 
