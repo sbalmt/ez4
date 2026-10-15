@@ -180,7 +180,7 @@ const deleteResource = async (current: DistributionState) => {
 
   if (result) {
     return OperationLogger.logExecution(DistributionServiceName, distributionName, 'deletion', async (logger) => {
-      const { distributionId, originAccessId } = result;
+      const { distributionId, originAccessId, rewriteFunctionArn, certificateArn } = result;
 
       // Only disabled distributions can be deleted.
       if (parameters.enabled) {
@@ -191,6 +191,8 @@ const deleteResource = async (current: DistributionState) => {
           ...parameters,
           ...allOrigins,
           originAccessId,
+          rewriteFunctionArn,
+          certificateArn,
           enabled: false
         });
       }
