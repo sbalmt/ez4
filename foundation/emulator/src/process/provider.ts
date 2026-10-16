@@ -16,9 +16,7 @@ export const registerProvider = <T extends AnyObject>(name: string, options: Pro
 };
 
 export const unregisterProvider = (name: string) => {
-  if (!ALL_PROVIDERS.delete(name)) {
-    throw new MissingProviderError(name);
-  }
+  return ALL_PROVIDERS.delete(name);
 };
 
 export const providerRegistered = (name: string) => {

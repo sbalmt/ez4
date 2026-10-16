@@ -19,9 +19,7 @@ const payload = {
 
 describe('provider tests', () => {
   afterEach(() => {
-    if (providerRegistered(TEST_PROVIDER)) {
-      unregisterProvider(TEST_PROVIDER);
-    }
+    unregisterProvider(TEST_PROVIDER);
   });
 
   it('assert :: unregisters a provider and allows re-registration', async () => {
@@ -30,7 +28,7 @@ describe('provider tests', () => {
       eventHandler: () => 'original'
     });
 
-    unregisterProvider(TEST_PROVIDER);
+    equal(unregisterProvider(TEST_PROVIDER), true);
     equal(providerRegistered(TEST_PROVIDER), false);
 
     await rejects(notifyProvider(TEST_PROVIDER, TEST_EVENT, payload), MissingProviderError);
@@ -63,8 +61,8 @@ describe('provider tests', () => {
     equal(await notifyProvider(TEST_PROVIDER, TEST_EVENT, payload), 'original');
   });
 
-  it('assert :: rejects unregistering a missing provider', () => {
-    throws(() => unregisterProvider(TEST_PROVIDER), MissingProviderError);
+  it('assert :: reports unregistering a missing provider', () => {
+    equal(unregisterProvider(TEST_PROVIDER), false);
   });
 
   it('assert :: rejects notifications for a missing provider', async () => {
