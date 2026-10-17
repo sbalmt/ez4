@@ -2,9 +2,7 @@ import type { BucketEvent, BucketService } from '@ez4/storage/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { Bucket } from '@ez4/storage';
 
-import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getRandomUUID, pickObject } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { createModule } from '@ez4/emulator';
 
 export const processLambdaEvent = async (
   service: BucketService,
@@ -13,53 +11,28 @@ export const processLambdaEvent = async (
   event: BucketEvent,
   input: Bucket.ObjectEvent
 ) => {
-  const { services } = service;
+  const references = context.makeReferences(service.services, event.handler.references);
+  const services = context.makeDescriptors(service.services);
 
-  const servicesInUse = event.handler.references ? pickObject(services, event.handler.references) : services;
-  const serviceClients = context.makeClients(servicesInUse);
-
-  const traceId = getRandomUUID();
-
-  const module = await createModule({
+  const module = createModule({
     listener: event.listener,
     handler: event.handler,
-    version: options.version,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...event.variables
+    references,
+    services,
+    invoker: {
+      name: 'makeInvoker',
+      module: '@ez4/local-storage/worker'
+    },
+    environment: {
+      memory: event.memory ?? 128,
+      timeout: event.timeout ?? 900,
+      variables: {
+        ...options.variables,
+        ...service.variables,
+        ...event.variables
+      }
     }
   });
 
-  let currentRequest: Bucket.Incoming | undefined;
-
-  const request = {
-    requestId: getRandomUUID()
-  };
-
-  try {
-    await onBegin(module, serviceClients, request);
-
-    currentRequest = {
-      ...request,
-      ...input,
-      traceId
-    };
-
-    Runtime.setScope({
-      traceId
-    });
-
-    await onReady(module, serviceClients, currentRequest);
-    await module.handler(currentRequest, serviceClients);
-    await onDone(module, serviceClients, currentRequest);
-    //
-  } catch (error) {
-    await onError(module, serviceClients, currentRequest ?? request, error);
-
-    throw error;
-    //
-  } finally {
-    await onEnd(module, serviceClients, request);
-  }
+  await module.invoke(input);
 };

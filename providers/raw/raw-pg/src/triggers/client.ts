@@ -1,27 +1,27 @@
-import type { EmulateClientEvent } from '@ez4/project/library';
+import type { EmulateDescriptorEvent } from '@ez4/project/library';
+import type { DatabaseService } from '@ez4/database/library';
 
 import { getTableRepository } from '@ez4/pgclient/library';
-import { Client as NativeClient } from '@ez4/pgclient/driver';
 
 import { getConnectionOptions } from '../local/options';
 import { isRawPgService } from './utils';
 
-export const prepareEmulatorClient = (event: EmulateClientEvent) => {
+export const prepareEmulatorDescriptor = (event: EmulateDescriptorEvent) => {
   const { service, options } = event;
 
   if (!isRawPgService(service)) {
     return null;
   }
 
-  const connection = getConnectionOptions(service, options);
-
-  const instance = NativeClient.make({
-    debug: options.debug,
-    repository: getTableRepository(service.tables),
-    connection
-  });
-
   return {
-    make: () => instance
+    name: 'makeService',
+    module: '@ez4/raw-pg/worker',
+    options: getEmulatorOptions(service, options)
   };
 };
+
+const getEmulatorOptions = (service: DatabaseService, options: EmulateDescriptorEvent['options']) => ({
+  repository: getTableRepository(service.tables),
+  connection: getConnectionOptions(service, options),
+  debug: options.debug
+});

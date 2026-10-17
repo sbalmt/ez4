@@ -1,10 +1,10 @@
 import type { Db } from './aurora';
 
-import { DatabaseRunner } from '@ez4/local-database/run';
+import { DatabaseRunner } from '@ez4/local-database/runner';
 
 import { randomUUID } from 'node:crypto';
 
-const client = DatabaseRunner.getClient<Db>('db');
+const client = await DatabaseRunner.getClient<Db>('db');
 
 const now = new Date().toISOString();
 

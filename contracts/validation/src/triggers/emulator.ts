@@ -1,8 +1,7 @@
-import type { EmulateServiceEvent, EmulatorServiceClients, EntrypointModule, ServiceEmulator } from '@ez4/project/library';
-import type { AnySchema } from '@ez4/schema';
+import type { EmulateServiceEvent, ServiceEmulator } from '@ez4/project/library';
+import type { ServiceOptions } from '../worker';
 
-import { getServiceName, createEmulatorModule } from '@ez4/project/library';
-import { pickObject } from '@ez4/utils';
+import { getServiceName } from '@ez4/project/library';
 
 import { isValidationService } from '../metadata/types';
 
@@ -13,50 +12,26 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
     return null;
   }
 
-  const { name: resourceName, schema, services, handler } = service;
-
-  let validationModule: EntrypointModule;
+  const { name: resourceName, services: dependencies, schema, handler } = service;
 
   return {
     type: 'Validation',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
     options: service.options,
-    exportHandler: (serviceOptions) => () => {
-      const servicesInUse = handler.references ? pickObject(services, handler.references) : services;
-      const serviceClients = context.makeClients(servicesInUse, serviceOptions);
+    identifier: getServiceName(resourceName, options),
+    exportDescriptor: (options) => {
+      const references = context.makeReferences(dependencies, handler.references, options);
 
-      return createClient(schema, validationModule, serviceClients);
-    },
-    bootstrapHandler: async () => {
-      validationModule = await createEmulatorModule({
-        version: options.version,
-        entrypoint: handler,
-        variables: {
-          ...options.variables,
-          ...service.variables
-        }
-      });
+      return {
+        name: 'makeService',
+        module: '@ez4/validation/worker',
+        dependencies,
+        options: {
+          references,
+          handler,
+          schema
+        } satisfies ServiceOptions
+      };
     }
   };
-};
-
-const createClient = (schema: AnySchema, module: EntrypointModule, clients: EmulatorServiceClients) => {
-  return new (class {
-    get schema() {
-      return schema;
-    }
-
-    async validate(value: unknown) {
-      await module.invoke({ value, schema }, clients);
-    }
-
-    async tryValidate(value: unknown) {
-      try {
-        return (await this.validate(value), true);
-      } catch {
-        return false;
-      }
-    }
-  })();
 };

@@ -125,10 +125,16 @@ const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?
   };
 
   const getOutputValue = (property: string, value: unknown) => {
-    const name = getOutputName(property);
-    const size = length + (path ? path.length + 1 : 0);
+    if (value === undefined) {
+      return undefined;
+    }
 
-    return `${name.padEnd(size, ' ')} = ${LogFormat.toColor(LogColor.BrightBlack, formatValue(value))}`;
+    const data = LogFormat.toColor(LogColor.BrightBlack, formatValue(value));
+    const size = length + (path ? path.length + 1 : 0);
+    const name = getOutputName(property);
+    const tabs = name.padEnd(size, ' ');
+
+    return `${tabs} = ${data}`;
   };
 
   const createSign = LogFormat.toColor(LogColor.Green, `+`);
@@ -156,9 +162,12 @@ const formatReportChanges = (changes: ObjectComparison, values: AnyObject, path?
   if (changes.update) {
     for (const property in changes.update) {
       const newValue = getOutputValue(property, changes.update[property]);
-      const oldValue = getOutputValue(property, values[property]);
+      const oldValue = getOutputValue(property, values?.[property]);
 
-      output.push(`${removeSign} ${oldValue}`);
+      if (oldValue) {
+        output.push(`${removeSign} ${oldValue}`);
+      }
+
       output.push(`${createSign} ${newValue}`);
     }
   }

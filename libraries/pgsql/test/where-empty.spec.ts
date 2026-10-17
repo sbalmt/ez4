@@ -95,6 +95,59 @@ describe('sql where empty tests', () => {
     assert.equal(statement, 'SELECT FROM "test" WHERE "bar" @> :0');
   });
 
+  it('assert :: where empty object (equal)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          equal: {}
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [{}]);
+
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" = :0`);
+  });
+
+  it('assert :: where empty object (not equal)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        foo: {
+          not: {}
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [{}]);
+
+    assert.equal(statement, `SELECT FROM "test" WHERE "foo" != :0`);
+  });
+
+  it('assert :: where empty object (nested operand)', ({ assert }) => {
+    const query = sql
+      .select()
+      .from('test')
+      .where({
+        NOT: {
+          foo: {
+            equal: { nested: {} }
+          }
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, [{ nested: {} }]);
+
+    assert.equal(statement, `SELECT FROM "test" WHERE NOT "foo" = :0`);
+  });
+
   it('assert :: where empty operations', ({ assert }) => {
     const query = sql.select().from('test').where({
       AND: [],

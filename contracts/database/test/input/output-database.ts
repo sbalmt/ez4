@@ -12,7 +12,7 @@ export declare class TestDatabase1 extends Database.Service<TestEngineTransactio
 
   // Services to all streams.
   services: {
-    testQueue: Environment.Service<TestDatabase2>;
+    testClient: Environment.Service<TestDatabase2>;
   };
 }
 

@@ -14,7 +14,7 @@ export namespace WsTester {
   };
 
   export const getClient = <T extends Ws.JsonBody>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as WsClient<T>;
+    return Tester.getServiceClient(resourceName) as Promise<WsClient<T>>;
   };
 
   export const getClientMock = <T extends Ws.JsonBody>(resourceName: string) => {

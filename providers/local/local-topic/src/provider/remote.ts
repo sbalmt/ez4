@@ -7,7 +7,7 @@ import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { Logger } from '@ez4/logger';
 
-import { createRemoteClient, subscribeRemoteClient, unsubscribeRemoteClient } from '../client/remote';
+import { subscribeRemoteClient, unsubscribeRemoteClient } from '../client/remote';
 import { processLambdaEvent } from '../handlers/lambda';
 import { processQueueEvent } from '../handlers/queue';
 import { getTopicServiceHost } from '../utils/topic';
@@ -29,10 +29,17 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
   return {
     type: 'Topic',
     name: resourceName,
+    options: service.options,
     identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createRemoteClient(referenceName, eventSchema, clientOptions);
-    },
+    exportDescriptor: () => ({
+      name: 'makeRemoteService',
+      module: '@ez4/local-topic/worker',
+      options: {
+        resourceName: referenceName,
+        schema: eventSchema,
+        clientOptions
+      }
+    }),
     requestHandler: (request: EmulatorRequestEvent) => {
       return handleTopicRequest(service, options, context, request);
     },

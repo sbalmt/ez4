@@ -3,7 +3,7 @@ import type { SqlOperationContext } from './types';
 
 import { SchemaType } from '@ez4/schema';
 
-import { getOperandColumn, getOperandValue } from './utils';
+import { getOperandColumn, getOperandPattern, getOperandValue } from './utils';
 
 export const getContainsOperation = (column: string, schema: AnySchema | undefined, operand: unknown, context: SqlOperationContext) => {
   switch (schema?.type) {
@@ -14,7 +14,7 @@ export const getContainsOperation = (column: string, schema: AnySchema | undefin
     }
 
     default: {
-      const rhsOperand = getOperandValue(schema, operand, context);
+      const rhsOperand = getOperandPattern(schema, operand, context);
       const lhsOperand = getOperandColumn(schema, column, context);
 
       if (context.flags?.insensitive) {

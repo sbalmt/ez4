@@ -25,7 +25,7 @@ export namespace BucketTester {
   };
 
   export const getClient = (resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client;
+    return Tester.getServiceClient(resourceName) as Promise<Client>;
   };
 
   export const getClientMock = (resourceName: string, options?: MockOptions) => {

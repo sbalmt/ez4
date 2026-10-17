@@ -5,6 +5,7 @@ import type { ObjectSchema } from '@ez4/schema';
 import { describe, it } from 'node:test';
 
 import { MalformedRequestError } from '@ez4/pgclient';
+import { SchemaType } from '@ez4/schema';
 import { SqlBuilder } from '@ez4/pgsql';
 
 import { UpdateSchemaJsonTests } from '@ez4/tests-database';
@@ -108,6 +109,43 @@ describe('update json schema', () => {
     );
 
     assert.deepEqual(variables, [123, 456]);
+  });
+
+  it('assert :: prepare update schema (json additional escaped property)', async ({ assert }) => {
+    const [statement, variables] = await prepareUpdate(
+      {
+        type: SchemaType.Object,
+        properties: {
+          json: {
+            type: SchemaType.Object,
+            properties: {},
+            additional: {
+              property: {
+                type: SchemaType.String
+              },
+              value: {
+                type: SchemaType.Number
+              }
+            }
+          }
+        }
+      },
+      {
+        data: {
+          json: {
+            [`foo', 1) || (SELECT 1) || jsonb_build_object('bar`]: 123
+          }
+        } as any
+      }
+    );
+
+    assert.equal(
+      statement,
+      `UPDATE ONLY "ez4-test-update-schema" SET "json" = COALESCE("json", '{}'::jsonb) ` +
+        `|| jsonb_build_object('foo'', 1) || (SELECT 1) || jsonb_build_object(''bar', :0)`
+    );
+
+    assert.deepEqual(variables, [123]);
   });
 
   it('assert :: prepare update schema (json additional number property)', async ({ assert }) => {

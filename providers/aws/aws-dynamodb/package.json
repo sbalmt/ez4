@@ -1,7 +1,7 @@
 {
   "name": "@ez4/aws-dynamodb",
   "description": "EZ4: Self-managed AWS DynamoDB provider",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -30,6 +30,10 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.mjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
     }
   },
   "sideEffects": [
@@ -56,17 +60,17 @@
     "@aws-sdk/client-dynamodb": "^3.1127.0",
     "@aws-sdk/lib-dynamodb": "^3.1127.0",
     "@aws-sdk/util-dynamodb": "^3.996.9",
-    "@ez4/aws-common": "^0.55.0",
-    "@ez4/aws-function": "^0.55.0",
-    "@ez4/aws-identity": "^0.55.0",
-    "@ez4/aws-logs": "^0.55.0",
-    "@ez4/common": "^0.55.0",
-    "@ez4/database": "^0.55.0",
-    "@ez4/project": "^0.55.0",
-    "@ez4/schema": "^0.55.0",
-    "@ez4/state": "^0.55.0",
-    "@ez4/transform": "^0.55.0",
-    "@ez4/utils": "^0.55.0",
-    "@ez4/validator": "^0.55.0"
+    "@ez4/aws-common": "^0.56.0",
+    "@ez4/aws-function": "^0.56.0",
+    "@ez4/aws-identity": "^0.56.0",
+    "@ez4/aws-logs": "^0.56.0",
+    "@ez4/common": "^0.56.0",
+    "@ez4/database": "^0.56.0",
+    "@ez4/project": "^0.56.0",
+    "@ez4/schema": "^0.56.0",
+    "@ez4/state": "^0.56.0",
+    "@ez4/transform": "^0.56.0",
+    "@ez4/utils": "^0.56.0",
+    "@ez4/validator": "^0.56.0"
   }
 }

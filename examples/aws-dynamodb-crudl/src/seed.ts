@@ -1,12 +1,12 @@
 import type { Db } from './dynamo';
 
-import { DatabaseRunner } from '@ez4/local-database/run';
+import { DatabaseRunner } from '@ez4/local-database/runner';
 
 import { randomUUID } from 'node:crypto';
 
 import { ItemType } from './schemas/item';
 
-const client = DatabaseRunner.getClient<Db>('db');
+const client = await DatabaseRunner.getClient<Db>('db');
 
 const now = new Date().toISOString();
 

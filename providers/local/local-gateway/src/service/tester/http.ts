@@ -19,7 +19,7 @@ export namespace HttpTester {
   };
 
   export const getClient = <T extends Http.Service>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as HttpClient<T>;
+    return Tester.getServiceClient(resourceName) as Promise<HttpClient<T>>;
   };
 
   export const getClientMock = <T extends Http.Service>(resourceName: string, options: MockOptions<T>) => {

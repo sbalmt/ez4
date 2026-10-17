@@ -20,6 +20,12 @@ npm run deploy
 
 > This action creates resources on the given AWS account.
 
+#### Emulate
+
+```sh
+npm run serve
+```
+
 #### Destroy
 
 ```sh

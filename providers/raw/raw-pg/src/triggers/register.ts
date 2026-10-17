@@ -4,7 +4,7 @@ import { registerTriggers as registerDatabaseTriggers } from '@ez4/database/libr
 import { tryCreateTrigger } from '@ez4/project/library';
 
 import { registerMigrationProvider } from '../migration/provider';
-import { prepareEmulatorClient } from './client';
+import { prepareEmulatorDescriptor } from './client';
 import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
 import { prepareDatabaseServices, prepareLinkedServices } from './service';
 
@@ -15,7 +15,7 @@ export const registerTriggers = () => {
   tryCreateTrigger('@ez4/raw-pg', {
     'deploy:prepareResources': prepareDatabaseServices,
     'deploy:prepareLinkedService': prepareLinkedServices,
-    'emulator:clientFactory': prepareEmulatorClient,
+    'emulator:serviceDescriptor': prepareEmulatorDescriptor,
     'emulator:startService': prepareEmulatorStart,
     'emulator:resetService': prepareEmulatorReset
   });

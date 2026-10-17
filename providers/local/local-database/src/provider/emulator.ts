@@ -9,15 +9,16 @@ export const registerDatabaseEmulator = async (
   options: ServeOptions,
   context: EmulateServiceContext
 ): Promise<ServiceEmulator | null> => {
-  const clientFactory = await getDatabaseClient(service, options);
+  const descriptor = await getDatabaseDescriptor(service, options);
 
-  if (!clientFactory) {
+  if (!descriptor) {
     return null;
   }
 
   return {
     type: 'Database',
     name: service.name,
+    options: service.options,
     identifier: getServiceName(service.name, options),
     prepareHandler: () => {
       return runDatabaseReset(service, options, context);
@@ -25,8 +26,29 @@ export const registerDatabaseEmulator = async (
     bootstrapHandler: async () => {
       await runDatabaseMigration(service, options, context);
     },
-    exportHandler: (serviceOptions) => {
-      return clientFactory.make(serviceOptions);
+    exportDescriptor: (serviceOptions) => {
+      const descriptorOptions = descriptor.options ?? {};
+
+      if ('defaults' in descriptorOptions) {
+        return {
+          ...descriptor,
+          options: {
+            ...descriptorOptions,
+            defaults: {
+              ...descriptorOptions.defaults,
+              ...serviceOptions
+            }
+          }
+        };
+      }
+
+      return {
+        ...descriptor,
+        options: {
+          ...descriptorOptions,
+          serviceOptions
+        }
+      };
     }
   };
 };
@@ -43,6 +65,6 @@ const runDatabaseMigration = (service: DatabaseService, options: ServeOptions, c
   return triggerAllAsync('emulator:startService', (handler) => handler({ service, options, context }));
 };
 
-const getDatabaseClient = (service: DatabaseService, options: ServeOptions) => {
-  return triggerAllAsync('emulator:clientFactory', (handler) => handler({ service, options }));
+const getDatabaseDescriptor = (service: DatabaseService, options: ServeOptions) => {
+  return triggerAllAsync('emulator:serviceDescriptor', (handler) => handler({ service, options }));
 };

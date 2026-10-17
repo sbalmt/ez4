@@ -1,11 +1,8 @@
 import type { TopicImport, TopicLambdaSubscription, TopicService } from '@ez4/topic/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
-import type { Topic } from '@ez4/topic';
 
-import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getRandomUUID, pickObject } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { createModule } from '@ez4/emulator';
 
 export const processLambdaEvent = async (
   service: TopicService | TopicImport,
@@ -14,53 +11,31 @@ export const processLambdaEvent = async (
   subscription: TopicLambdaSubscription,
   event: AnyObject
 ) => {
-  const { services } = service;
+  const references = context.makeReferences(service.services, subscription.handler.references);
+  const services = context.makeDescriptors(service.services);
 
-  const servicesInUse = event.handler.references ? pickObject(services, event.handler.references) : services;
-  const serviceClients = context.makeClients(servicesInUse);
-
-  const traceId = getRandomUUID();
-
-  const module = await createModule({
+  const module = createModule({
     listener: subscription.listener,
     handler: subscription.handler,
-    version: options.version,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...subscription.variables
+    references,
+    services,
+    invoker: {
+      name: 'makeInvoker',
+      module: '@ez4/local-topic/worker',
+      options: {
+        schema: service.schema
+      }
+    },
+    environment: {
+      memory: subscription.memory ?? 128,
+      timeout: subscription.timeout ?? 900,
+      variables: {
+        ...options.variables,
+        ...service.variables,
+        ...subscription.variables
+      }
     }
   });
 
-  let currentRequest: Topic.Incoming<Topic.Event> | undefined;
-
-  const request = {
-    requestId: getRandomUUID()
-  };
-
-  try {
-    await onBegin(module, serviceClients, request);
-
-    currentRequest = {
-      ...request,
-      event,
-      traceId
-    };
-
-    Runtime.setScope({
-      traceId
-    });
-
-    await onReady(module, serviceClients, currentRequest);
-    await module.handler(currentRequest, serviceClients);
-    await onDone(module, serviceClients, currentRequest);
-    //
-  } catch (error) {
-    await onError(module, serviceClients, currentRequest ?? request, error);
-
-    throw error;
-    //
-  } finally {
-    await onEnd(module, serviceClients, request);
-  }
+  await module.invoke(event);
 };

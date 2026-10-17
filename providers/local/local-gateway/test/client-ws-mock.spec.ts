@@ -1,7 +1,7 @@
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { WsTester } from '@ez4/local-gateway/test';
+import { WsTester } from '@ez4/local-gateway/tester';
 
 type Message = {
   foo: string;

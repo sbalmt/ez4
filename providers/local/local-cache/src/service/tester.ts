@@ -4,6 +4,6 @@ import { Tester } from '@ez4/project/library';
 
 export namespace CacheTester {
   export const getClient = (resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client;
+    return Tester.getServiceClient(resourceName) as Promise<Client>;
   };
 }

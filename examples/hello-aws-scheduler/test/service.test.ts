@@ -1,12 +1,12 @@
 import { rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { CronTester } from '@ez4/local-scheduler/test';
+import { CronTester } from '@ez4/local-scheduler/tester';
 import { setTimeout } from 'node:timers/promises';
 
 describe('hello aws scheduler', { timeout: 30000 }, () => {
   it('create dynamic event with success', async () => {
-    const client = CronTester.getClient('DynamicCron');
+    const client = await CronTester.getClient('DynamicCron');
 
     await client.createEvent('test', {
       date: new Date(Date.now() + 5000),
@@ -22,7 +22,7 @@ describe('hello aws scheduler', { timeout: 30000 }, () => {
   });
 
   it('create dynamic event with failure', async () => {
-    const client = CronTester.getClient('DynamicCron');
+    const client = await CronTester.getClient('DynamicCron');
 
     // Rejects the event since it doesn't pass schema validation.
     await rejects(() =>

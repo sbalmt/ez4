@@ -13,7 +13,7 @@ export namespace TopicTester {
   };
 
   export const getClient = <T extends Topic.Service<any, any>>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client<T['schema']>;
+    return Tester.getServiceClient(resourceName) as Promise<Client<T['schema']>>;
   };
 
   export const getClientMock = <T extends Topic.Service<any, any> = any>(resourceName: string) => {

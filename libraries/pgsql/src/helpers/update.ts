@@ -8,9 +8,10 @@ import { isPlainObject } from '@ez4/utils';
 
 import { SqlRaw, SqlRawOperation } from '../common/raw';
 import { SqlColumnReference } from '../common/reference';
-import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
-import { InvalidAtomicOperation } from '../errors/operations';
 import { SqlSelectStatement } from '../statements/select';
+import { InvalidAtomicOperation } from '../errors/operations';
+import { mergeSqlAlias, mergeSqlJsonPath, mergeSqlPath } from '../utils/merge';
+import { escapeSqlText } from '../utils/escape';
 
 export type SqlUpdateContext = {
   options: SqlBuilderOptions;
@@ -35,7 +36,7 @@ export const getUpdateColumns = (
     if (depth <= 1 && !coalesce) {
       columns.push(`${mergeSqlPath(fieldName, parent)} = ${fieldValue}`);
     } else {
-      columns.push(`'${fieldName}', ${fieldValue}`);
+      columns.push(`${escapeSqlText(fieldName)}, ${fieldValue}`);
     }
   };
 
@@ -116,7 +117,7 @@ export const getUpdateColumns = (
     if (!(value instanceof SqlRawOperation)) {
       pushUpdate(fieldName, `:${fieldIndex}`);
     } else if (isJsonRemoveOperator(value.operator)) {
-      columns.push(`${value.operator} '${value.build()}'`);
+      columns.push(`${value.operator} ${escapeSqlText(`${value.build(source)}`)}`);
       continue;
     } else {
       const columnName = mergeSqlJsonPath(fieldName, parent, true);

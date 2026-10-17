@@ -1,44 +1,11 @@
 import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { BucketTester } from '@ez4/local-storage/test';
+import { BucketTester } from '@ez4/local-storage/tester';
 import { ok } from 'node:assert';
 
 describe('local storage tests', () => {
   const defaultContent = 'This is a mocked content';
-
-  it('assert :: key exists (not found)', async () => {
-    const client = BucketTester.getClientMock('bucket');
-
-    const exists = await client.exists('random-key');
-
-    equal(client.exists.mock.callCount(), 1);
-    equal(exists, false);
-  });
-
-  it('assert :: key exists (from default)', async () => {
-    const client = BucketTester.getClientMock('bucket', {
-      default: Buffer.from(defaultContent)
-    });
-
-    const exists = await client.exists('random-key');
-
-    equal(client.exists.mock.callCount(), 1);
-    equal(exists, true);
-  });
-
-  it('assert :: key exists (from keys)', async () => {
-    const client = BucketTester.getClientMock('bucket', {
-      keys: {
-        foo: Buffer.from(defaultContent)
-      }
-    });
-
-    const exists = await client.exists('foo');
-
-    equal(client.exists.mock.callCount(), 1);
-    equal(exists, true);
-  });
 
   it('assert :: key stat (not found)', async () => {
     const client = BucketTester.getClientMock('bucket');
@@ -104,6 +71,39 @@ describe('local storage tests', () => {
       type: 'image/png',
       size: pngContent.length
     });
+  });
+
+  it('assert :: key exists (not found)', async () => {
+    const client = BucketTester.getClientMock('bucket');
+
+    const exists = await client.exists('random-key');
+
+    equal(client.exists.mock.callCount(), 1);
+    equal(exists, false);
+  });
+
+  it('assert :: key exists (from default)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      default: Buffer.from(defaultContent)
+    });
+
+    const exists = await client.exists('random-key');
+
+    equal(client.exists.mock.callCount(), 1);
+    equal(exists, true);
+  });
+
+  it('assert :: key exists (from keys)', async () => {
+    const client = BucketTester.getClientMock('bucket', {
+      keys: {
+        foo: Buffer.from(defaultContent)
+      }
+    });
+
+    const exists = await client.exists('foo');
+
+    equal(client.exists.mock.callCount(), 1);
+    equal(exists, true);
   });
 
   it('assert :: write key (create key)', async () => {

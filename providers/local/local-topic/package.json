@@ -1,7 +1,7 @@
 {
   "name": "@ez4/local-topic",
   "description": "EZ4: Local topic emulator",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",
@@ -24,9 +24,13 @@
       "types": "./dist/main.d.ts",
       "default": "./dist/main.mjs"
     },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.mjs"
+    "./tester": {
+      "types": "./dist/tester.d.ts",
+      "default": "./dist/tester.mjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
     }
   },
   "workspaces": [
@@ -43,12 +47,13 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@ez4/common": "^0.55.0",
-    "@ez4/logger": "^0.55.0",
-    "@ez4/local-common": "^0.55.0",
-    "@ez4/topic": "^0.55.0",
-    "@ez4/project": "^0.55.0",
-    "@ez4/queue": "^0.55.0",
-    "@ez4/utils": "^0.55.0"
+    "@ez4/common": "^0.56.0",
+    "@ez4/emulator": "^0.56.0",
+    "@ez4/logger": "^0.56.0",
+    "@ez4/local-common": "^0.56.0",
+    "@ez4/topic": "^0.56.0",
+    "@ez4/project": "^0.56.0",
+    "@ez4/queue": "^0.56.0",
+    "@ez4/utils": "^0.56.0"
   }
 }

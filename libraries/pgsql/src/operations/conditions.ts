@@ -5,7 +5,7 @@ import type { SqlFilters } from '../common/types';
 import type { SqlSource } from '../common/source';
 
 import { getSchemaProperty, isArraySchema, isObjectSchema, isTupleSchema, isUnionSchema } from '@ez4/schema';
-import { deepMerge, isAnyObject, isEmptyObject } from '@ez4/utils';
+import { deepMerge, isAnyObject, isPlainObject } from '@ez4/utils';
 
 import { SqlRawValue } from '../common/raw';
 import { SqlOperator } from '../common/types';
@@ -51,7 +51,7 @@ export class SqlConditions {
   }
 
   get empty() {
-    return isEmptyObject(this.#state.filters);
+    return isEmptyFilters(this.#state.filters);
   }
 
   apply(filters: SqlFilters) {
@@ -83,6 +83,40 @@ export class SqlConditions {
     return undefined;
   }
 }
+
+const isEmptyFilters = (filters: SqlFilters): boolean => {
+  for (const field in filters) {
+    const value = filters[field];
+
+    if (value === undefined) {
+      continue;
+    }
+
+    switch (field) {
+      case SqlOperator.Equal:
+      case SqlOperator.NotEqual:
+      case SqlOperator.GreaterThan:
+      case SqlOperator.GreaterThanOrEqual:
+      case SqlOperator.LessThan:
+      case SqlOperator.LessThanOrEqual:
+      case SqlOperator.IsIn:
+      case SqlOperator.IsBetween:
+      case SqlOperator.IsMissing:
+      case SqlOperator.IsNull:
+      case SqlOperator.IsMissingOrNull:
+      case SqlOperator.StartsWith:
+      case SqlOperator.Contains:
+        return false;
+
+      default:
+        if (!isPlainObject(value) || !isEmptyFilters(value)) {
+          return false;
+        }
+    }
+  }
+
+  return true;
+};
 
 const getFilterOperations = (filters: SqlFilters, schema: AnySchema | undefined, context: SqlOperationContext) => {
   const allOperations = [];
@@ -160,11 +194,9 @@ const getFieldOperation = (
         });
       }
 
-      const subContext = { ...context, path: columnPath };
-
-      const allOperations = !hasSubColumn
-        ? getMultipleOperations(columnPath, columnSchema, operationEntries, subContext)
-        : getFilterOperations(valueOperation, columnSchema, subContext);
+      const allOperations = hasSubColumn
+        ? getFilterOperations(valueOperation, columnSchema, { ...context, path: columnPath })
+        : getMultipleOperations(columnPath, columnSchema, operationEntries, context);
 
       if (allOperations.length) {
         return combineOperations(allOperations);

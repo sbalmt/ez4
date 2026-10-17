@@ -1,9 +1,10 @@
+import type { AnyServiceDescriptor, ServiceReferences } from '@ez4/emulator';
 import type { EmulatorServiceManifest } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
-import type { LinkedService, ServiceMetadata } from '../types/service';
+import type { LinkedService, LinkedServices, ServiceMetadata } from '../types/service';
 import type { ServeOptions } from '../types/options';
 
-export type EmulatorExportHandler = (options: AnyObject) => unknown;
+export type EmulatorDescriptorHandler = (options?: AnyObject) => EmulatorServiceDescriptor;
 
 export type EmulatorManifestHandler = () => EmulatorServiceManifest<AnyObject>;
 
@@ -57,7 +58,7 @@ export type ServiceEmulator = {
   identifier: string;
   options?: AnyObject;
   inheritOptions?: boolean;
-  exportHandler?: EmulatorExportHandler;
+  exportDescriptor?: EmulatorDescriptorHandler;
   manifestHandler?: EmulatorManifestHandler;
   prepareHandler?: EmulatorPrepareHandler;
   bootstrapHandler?: EmulatorBootstrapHandler;
@@ -70,11 +71,14 @@ export type ServiceEmulator = {
 
 export type EmulatorLinkedServices = Record<string, LinkedService>;
 
-export type EmulatorServiceClients = Record<string, unknown>;
+export type EmulatorServiceDescriptor = AnyServiceDescriptor & {
+  dependencies?: LinkedServices;
+};
 
 export type EmulateServiceContext = {
-  makeClients: (linkedServices: EmulatorLinkedServices, linkedOptions?: AnyObject) => EmulatorServiceClients;
-  makeClient: (serviceName: string) => unknown;
+  makeService: (resourceName: string, resourceOptions?: AnyObject) => Promise<unknown>;
+  makeReferences: (linkedServices: EmulatorLinkedServices, linkedReferences?: string[], linkedOptions?: AnyObject) => ServiceReferences;
+  makeDescriptors: (linkedServices: EmulatorLinkedServices) => Record<string, EmulatorServiceDescriptor>;
 };
 
 export type EmulateServiceEvent = {
@@ -83,7 +87,7 @@ export type EmulateServiceEvent = {
   options: ServeOptions;
 };
 
-export type EmulateClientEvent = {
+export type EmulateDescriptorEvent = {
   service: ServiceMetadata;
   options: ServeOptions;
 };

@@ -17,7 +17,7 @@
     "context": {},
     "variables": {},
     "services": {
-      "testQueue": {
+      "testClient": {
         "reference": "TestDatabase2"
       }
     },

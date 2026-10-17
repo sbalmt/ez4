@@ -19,7 +19,7 @@ export namespace CronTester {
   };
 
   export const getClient = <T extends Cron.Event>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client<T>;
+    return Tester.getServiceClient(resourceName) as Promise<Client<T>>;
   };
 
   export const getClientMock = <T extends Cron.Event>(resourceName: string, options?: MockOptions<T>) => {

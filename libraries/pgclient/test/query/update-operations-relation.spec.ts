@@ -330,7 +330,7 @@ describe('update operations relation', () => {
     assert.equal(
       statement,
       `WITH "Q0" AS (SELECT "operation_id" FROM "ez4-test-update-relation") ` +
-        `UPDATE ONLY "ez4-test-update-operation" AS "T" SET "json" = "T"."json" #- '{bar}' FROM "Q0" ` +
+        `UPDATE ONLY "ez4-test-update-operation" AS "T" SET "json" = "T"."json" #- '{"bar"}' FROM "Q0" ` +
         `WHERE "T"."id" = "Q0"."operation_id"`
     );
   });
@@ -350,7 +350,7 @@ describe('update operations relation', () => {
     assert.equal(
       statement,
       `WITH "Q0" AS (SELECT "operation_id" FROM "ez4-test-update-relation") ` +
-        `UPDATE ONLY "ez4-test-update-operation" AS "T" SET "json" = "T"."json" #- '{bar}', "json"['foo'] = :0 FROM "Q0" ` +
+        `UPDATE ONLY "ez4-test-update-operation" AS "T" SET "json" = "T"."json" #- '{"bar"}', "json"['foo'] = :0 FROM "Q0" ` +
         `WHERE "T"."id" = "Q0"."operation_id"`
     );
 
