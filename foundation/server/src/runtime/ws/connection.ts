@@ -7,13 +7,13 @@ import { isStreamLive } from '../../utils/ws/stream';
 import { encodeWsTextFrame } from '../../utils/ws/frame';
 import { logConnection, logDisconnection, logError } from '../../utils/logger';
 import { UnavailableConnectionError } from '../../errors/client';
-import { WebSocketState } from '../../types/ws';
+import { WsState } from '../../types/ws';
 import { notifyWsDisconnect } from '../provider';
 import { registerWsClient, unregisterWsClient } from './client';
 import { replyWsClose } from './response';
 
 export const createWsConnection = (stream: Duplex, provider: string, headers: WsProviderConnection['headers']) => {
-  let state: WebSocketState = WebSocketState.Pending;
+  let state: WsState = WsState.Pending;
 
   const id = getRandomUUID();
 
@@ -25,7 +25,7 @@ export const createWsConnection = (stream: Duplex, provider: string, headers: Ws
       return isStreamLive(stream);
     },
     write(data: string) {
-      if (state !== WebSocketState.Connected) {
+      if (state !== WsState.Connected) {
         throw new UnavailableConnectionError();
       }
 
@@ -41,13 +41,13 @@ export const createWsConnection = (stream: Duplex, provider: string, headers: Ws
   };
 
   const disconnect = async () => {
-    if (state === WebSocketState.Disconnected) {
+    if (state === WsState.Disconnected) {
       return;
     }
 
-    const established = state === WebSocketState.Connected;
+    const established = state === WsState.Connected;
 
-    state = WebSocketState.Disconnected;
+    state = WsState.Disconnected;
 
     if (established) {
       unregisterWsClient(id);
@@ -75,10 +75,10 @@ export const createWsConnection = (stream: Duplex, provider: string, headers: Ws
   return {
     id,
     establish: () => {
-      if (state === WebSocketState.Pending) {
+      if (state === WsState.Pending) {
         logConnection(provider);
 
-        state = WebSocketState.Connected;
+        state = WsState.Connected;
 
         registerWsClient(client);
       }

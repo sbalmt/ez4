@@ -1,4 +1,8 @@
-import { WebSocketOpcode } from '../../types/ws';
+import type { WsCloseCode } from '../../types/ws';
+
+import { WsOpcode } from '../../types/ws';
+import { WsFrameTooBigError } from '../../errors/ws';
+import { isWsOpcode } from './opcode';
 
 const OPCODE_MASK = 0x0f;
 const LENGTH_MASK = 0x7f;
@@ -7,6 +11,7 @@ const HUGE_CODE = LENGTH_MASK;
 const REGULAR_CODE = LENGTH_MASK - 1;
 const FIN_CODE = 0x80;
 
+const MAX_SIZE = 32768;
 const REGULAR_SIZE = 65535;
 const TINY_SIZE = 125;
 
@@ -14,24 +19,67 @@ const HUGE_BYTES = 8;
 const REGULAR_BYTES = 2;
 const HEADER_BYTES = 10;
 const MASK_BYTES = 4;
+const CLOSE_BYTES = 2;
 
 export const encodeWsTextFrame = (data: Buffer) => {
-  return Buffer.concat([encodeWsFrameHeader(WebSocketOpcode.Text, data.length), data]);
+  return Buffer.concat([encodeWsFrameHeader(WsOpcode.Text, data.length), data]);
 };
 
 export const encodeWsBinaryFrame = (data: Buffer) => {
-  return Buffer.concat([encodeWsFrameHeader(WebSocketOpcode.Binary, data.length), data]);
+  return Buffer.concat([encodeWsFrameHeader(WsOpcode.Binary, data.length), data]);
 };
 
-export const encodeWsCloseFrame = () => {
-  return Buffer.from([FIN_CODE | WebSocketOpcode.Close, 0x00]);
+export const encodeWsCloseFrame = (code?: WsCloseCode) => {
+  if (code === undefined) {
+    return Buffer.from([FIN_CODE | WsOpcode.Close, 0x00]);
+  }
+
+  const frame = Buffer.allocUnsafe(CLOSE_BYTES + CLOSE_BYTES);
+
+  frame.writeUint8(FIN_CODE | WsOpcode.Close, 0);
+  frame.writeUint8(CLOSE_BYTES, 1);
+  frame.writeUInt16BE(code, CLOSE_BYTES);
+
+  return frame;
 };
 
 export const encodeWsPongFrame = (data: Buffer) => {
-  return Buffer.concat([encodeWsFrameHeader(WebSocketOpcode.Pong, data.length), data]);
+  return Buffer.concat([encodeWsFrameHeader(WsOpcode.Pong, data.length), data]);
 };
 
-const encodeWsFrameHeader = (opcode: WebSocketOpcode, length: number) => {
+export const decodeWsFrame = (buffer: Buffer) => {
+  const headerFrame = decodeWsFrameHeader(buffer);
+
+  if (!headerFrame) {
+    return undefined;
+  }
+
+  const { dataOffset, maskOffset, frameLength, opcode, fin } = headerFrame;
+
+  if (frameLength - maskOffset > MAX_SIZE) {
+    throw new WsFrameTooBigError(MAX_SIZE);
+  }
+
+  if (buffer.length < frameLength) {
+    return undefined;
+  }
+
+  const masking = buffer.subarray(dataOffset, maskOffset);
+  const payload = buffer.subarray(maskOffset, frameLength);
+
+  for (let index = 0; index < payload.length; index++) {
+    payload[index] ^= masking[index % 4];
+  }
+
+  return {
+    length: frameLength,
+    payload,
+    opcode,
+    fin
+  };
+};
+
+const encodeWsFrameHeader = (opcode: WsOpcode, length: number) => {
   const header = Buffer.allocUnsafe(HEADER_BYTES);
 
   let offset = 0;
@@ -57,40 +105,15 @@ const encodeWsFrameHeader = (opcode: WebSocketOpcode, length: number) => {
   return header;
 };
 
-export const decodeWsFrame = (buffer: Buffer) => {
-  const headerFrame = decodeWsFrameHeader(buffer);
-
-  if (!headerFrame) {
-    return undefined;
-  }
-
-  const { dataOffset, maskOffset, frameLength, opcode } = headerFrame;
-
-  if (buffer.length < frameLength) {
-    return undefined;
-  }
-
-  const masking = buffer.subarray(dataOffset, maskOffset);
-  const payload = buffer.subarray(maskOffset, frameLength);
-
-  for (let index = 0; index < payload.length; index++) {
-    payload[index] ^= masking[index % 4];
-  }
-
-  return {
-    length: frameLength,
-    payload,
-    opcode
-  };
-};
-
 const decodeWsFrameHeader = (header: Buffer) => {
   let offset = 0;
+
+  const fin = (header[offset] & FIN_CODE) !== 0;
 
   const opcode = header[offset++] & OPCODE_MASK;
   const length = header[offset++] & LENGTH_MASK;
 
-  if (!isWsHeaderOpcode(opcode)) {
+  if (!isWsOpcode(opcode)) {
     return undefined;
   }
 
@@ -101,7 +124,8 @@ const decodeWsFrameHeader = (header: Buffer) => {
       frameLength: maskOffset + length,
       dataOffset: offset,
       maskOffset,
-      opcode
+      opcode,
+      fin
     };
   }
 
@@ -115,7 +139,8 @@ const decodeWsFrameHeader = (header: Buffer) => {
         frameLength: maskOffset + header.readUInt16BE(offset),
         dataOffset: nextOffset,
         maskOffset,
-        opcode
+        opcode,
+        fin
       };
     }
   }
@@ -130,24 +155,11 @@ const decodeWsFrameHeader = (header: Buffer) => {
         frameLength: maskOffset + Number(header.readBigUInt64BE(offset)),
         dataOffset: nextOffset,
         maskOffset,
-        opcode
+        opcode,
+        fin
       };
     }
   }
 
   return undefined;
-};
-
-const isWsHeaderOpcode = (opcode: number): opcode is WebSocketOpcode => {
-  switch (opcode) {
-    case WebSocketOpcode.Continue:
-    case WebSocketOpcode.Text:
-    case WebSocketOpcode.Binary:
-    case WebSocketOpcode.Close:
-    case WebSocketOpcode.Ping:
-    case WebSocketOpcode.Pong:
-      return true;
-  }
-
-  return false;
 };

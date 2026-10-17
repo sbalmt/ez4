@@ -3,12 +3,38 @@ import type { WsProviderClient } from '../../types/provider';
 
 import { logError } from '../../utils/logger';
 import { decodeWsFrame, encodeWsPongFrame } from '../../utils/ws/frame';
-import { WebSocketOpcode } from '../../types/ws';
+import { WsUnexpectedFrameError, WsCloseError } from '../../errors/ws';
+import { WsOpcode } from '../../types/ws';
 import { notifyWsMessage } from '../provider';
 import { replyWsClose } from './response';
 
+type WsFrame = NonNullable<ReturnType<typeof decodeWsFrame>>;
+
 export const consumeWsFrames = async (stream: Duplex, head: Buffer, provider: string, client: WsProviderClient) => {
   let buffer: Buffer = Buffer.alloc(0);
+  let fragments: Buffer[] = [];
+
+  const collect = (frame: WsFrame) => {
+    if (frame.opcode === WsOpcode.Continue && !fragments.length) {
+      throw new WsUnexpectedFrameError('Unexpected WebSocket continuation frame.');
+    }
+
+    if (frame.opcode !== WsOpcode.Continue && fragments.length) {
+      throw new WsUnexpectedFrameError('Expected a WebSocket continuation frame.');
+    }
+
+    fragments.push(frame.payload);
+
+    if (frame.fin) {
+      const message = Buffer.concat(fragments);
+
+      fragments = [];
+
+      return message;
+    }
+
+    return undefined;
+  };
 
   const consume = async (chunk: Buffer) => {
     buffer = Buffer.concat([buffer, chunk]);
@@ -23,34 +49,44 @@ export const consumeWsFrames = async (stream: Duplex, head: Buffer, provider: st
       buffer = buffer.subarray(frame.length);
 
       switch (frame.opcode) {
-        default:
-          throw new Error('Unsupported WebSocket continuation frame.');
+        case WsOpcode.Text:
+        case WsOpcode.Binary:
+        case WsOpcode.Continue: {
+          const message = collect(frame);
 
-        case WebSocketOpcode.Text:
-        case WebSocketOpcode.Binary: {
-          const response = await notifyWsMessage(provider, {
-            body: frame.payload,
-            client
-          });
+          if (message) {
+            const response = await notifyWsMessage(provider, {
+              body: message,
+              client
+            });
 
-          if (response && client.live) {
-            client.write(response);
+            if (response && client.live) {
+              client.write(response);
+            }
           }
 
           break;
         }
 
-        case WebSocketOpcode.Close: {
+        case WsOpcode.Close: {
           replyWsClose(stream);
           return false;
         }
 
-        case WebSocketOpcode.Ping: {
+        case WsOpcode.Ping: {
+          if (!frame.fin) {
+            throw new WsUnexpectedFrameError('WebSocket control frames cannot be fragmented.');
+          }
+
           stream.write(encodeWsPongFrame(frame.payload));
           break;
         }
 
-        case WebSocketOpcode.Pong: {
+        case WsOpcode.Pong: {
+          if (!frame.fin) {
+            throw new WsUnexpectedFrameError('WebSocket control frames cannot be fragmented.');
+          }
+
           break;
         }
       }
@@ -72,6 +108,11 @@ export const consumeWsFrames = async (stream: Duplex, head: Buffer, provider: st
 
     stream.end();
   } catch (error) {
+    if (error instanceof WsCloseError) {
+      replyWsClose(stream, error.code);
+      return;
+    }
+
     logError(provider, error);
     stream.destroy();
   } finally {
