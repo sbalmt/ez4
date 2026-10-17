@@ -1,6 +1,6 @@
 import type { IncomingMessage } from 'node:http';
 import type { Duplex } from 'node:stream';
-import type { WsCloseCode } from '../../types/ws';
+import type { WsCode } from '../../types/ws';
 
 import { isStreamLive } from '../../utils/ws/stream';
 import { encodeWsCloseFrame } from '../../utils/ws/frame';
@@ -38,7 +38,7 @@ export const replyWsError = (stream: Duplex, request: IncomingMessage, status: n
   );
 };
 
-export const replyWsClose = (stream: Duplex, code?: WsCloseCode) => {
+export const replyWsClose = (stream: Duplex, code?: WsCode) => {
   if (isStreamLive(stream)) {
     stream.end(encodeWsCloseFrame(code));
   }

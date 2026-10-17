@@ -1,5 +1,6 @@
 import type { Duplex } from 'node:stream';
 import type { WsProviderClient } from '../../types/provider';
+import type { WsFrame } from '../../types/ws';
 
 import { logError } from '../../utils/logger';
 import { decodeWsFrame, encodeWsPongFrame } from '../../utils/ws/frame';
@@ -8,10 +9,9 @@ import { WsOpcode } from '../../types/ws';
 import { notifyWsMessage } from '../provider';
 import { replyWsClose } from './response';
 
-type WsFrame = NonNullable<ReturnType<typeof decodeWsFrame>>;
-
 export const consumeWsFrames = async (stream: Duplex, head: Buffer, provider: string, client: WsProviderClient) => {
   let buffer: Buffer = Buffer.alloc(0);
+
   let fragments: Buffer[] = [];
 
   const collect = (frame: WsFrame) => {

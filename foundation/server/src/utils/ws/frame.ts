@@ -1,4 +1,4 @@
-import type { WsCloseCode } from '../../types/ws';
+import type { WsCode, WsFrame } from '../../types/ws';
 
 import { WsOpcode } from '../../types/ws';
 import { WsFrameTooBigError } from '../../errors/ws';
@@ -29,7 +29,7 @@ export const encodeWsBinaryFrame = (data: Buffer) => {
   return Buffer.concat([encodeWsFrameHeader(WsOpcode.Binary, data.length), data]);
 };
 
-export const encodeWsCloseFrame = (code?: WsCloseCode) => {
+export const encodeWsCloseFrame = (code?: WsCode) => {
   if (code === undefined) {
     return Buffer.from([FIN_CODE | WsOpcode.Close, 0x00]);
   }
@@ -47,7 +47,7 @@ export const encodeWsPongFrame = (data: Buffer) => {
   return Buffer.concat([encodeWsFrameHeader(WsOpcode.Pong, data.length), data]);
 };
 
-export const decodeWsFrame = (buffer: Buffer) => {
+export const decodeWsFrame = (buffer: Buffer): WsFrame | undefined => {
   const headerFrame = decodeWsFrameHeader(buffer);
 
   if (!headerFrame) {

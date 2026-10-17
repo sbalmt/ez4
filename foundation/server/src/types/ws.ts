@@ -4,6 +4,11 @@ export const enum WsState {
   Disconnected = 0x02
 }
 
+export const enum WsCode {
+  ProtocolError = 1002,
+  MessageTooBig = 1009
+}
+
 export const enum WsOpcode {
   Continue = 0x00,
   Text = 0x01,
@@ -13,7 +18,9 @@ export const enum WsOpcode {
   Pong = 0x0a
 }
 
-export const enum WsCloseCode {
-  ProtocolError = 1002,
-  MessageTooBig = 1009
-}
+export type WsFrame = {
+  opcode: WsOpcode;
+  payload: Buffer;
+  length: number;
+  fin: boolean;
+};
