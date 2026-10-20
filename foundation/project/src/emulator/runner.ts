@@ -1,5 +1,6 @@
 import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from './service';
+import type { LinkedVariables } from '../types/service';
 
 import { getServiceName } from '../utils/service';
 import { EmulatorNotFoundError } from './errors';
@@ -14,6 +15,7 @@ type RunnerOptions = {
   prefix: string;
   projectName: string;
   branchName: string;
+  variables?: LinkedVariables;
 };
 
 export namespace Runner {

@@ -9,5 +9,6 @@ export type ProviderOptions<T extends AnyObject> = {
 export type ProviderContext = {
   notify: (event: string, payload: AnyObject) => void;
   request: (event: string, payload: AnyObject) => Promise<unknown>;
+  variables?: Readonly<Record<string, string | undefined>>;
   services: ServiceFactories;
 };

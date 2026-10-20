@@ -1,13 +1,13 @@
 import { isAnyString } from '@ez4/utils';
 
 export namespace VariablesClient {
-  export const make = () => {
+  export const make = (variables: Readonly<Record<string, string | undefined>> = process.env) => {
     return new Proxy<Record<string, string>>(
       {},
       {
         get: (_, property) => {
-          if (isAnyString(property) && property in process.env) {
-            return process.env[property];
+          if (isAnyString(property) && property in variables) {
+            return variables[property];
           }
 
           if (property !== 'then') {

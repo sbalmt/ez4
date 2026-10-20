@@ -1,69 +1,25 @@
-import type { ServiceEmulators } from '../src/emulator/service';
 import type { EmulateServiceContext } from '../src/emulator/types';
 
 import { equal, notEqual, ok, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isAnyObject } from '@ez4/utils';
 import { tryCreateTrigger } from '@ez4/project/library';
+import { isAnyObject } from '@ez4/utils';
 
 import { loadServiceClient } from '../src/emulator/client';
-import { getServiceEmulators, makeServiceReferences } from '../src/emulator/service';
+import { getServiceEmulators } from '../src/emulator/service';
 import { getServiceName } from '../src/utils/service';
 import { Tester } from '../src/emulator/tester';
 import { Runner } from '../src/emulator/runner';
-
-const options = {
-  prefix: 'test',
-  projectName: 'clients',
-  branchName: ''
-};
-
-const dependencies = {
-  dependency: {
-    reference: 'Service',
-    options: {
-      value: 'dependency'
-    }
-  }
-};
-
-const emulators: ServiceEmulators = {
-  [getServiceName('Service', options)]: {
-    identifier: getServiceName('Service', options),
-    name: 'Service',
-    type: '@service',
-    exportDescriptor: (options) => ({
-      file: 'test/files/service-client.ts',
-      name: 'makeServiceClient',
-      options
-    })
-  },
-  [getServiceName('Dependent', options)]: {
-    type: '@service',
-    name: 'Dependent',
-    identifier: getServiceName('Dependent', options),
-    exportDescriptor: () => ({
-      file: 'test/files/service-client.ts',
-      name: 'makeDependentService',
-      dependencies,
-      options: {
-        references: makeServiceReferences(dependencies, emulators, options)
-      }
-    })
-  }
-};
+import { emulators, options } from './common/emulator-clients';
 
 describe('descriptor-based service clients', () => {
-  Tester.configure(emulators, options);
-  Runner.configure(emulators, options);
-
   it('assert :: emulator context loads fresh descriptor clients with custom options', async () => {
     let context: EmulateServiceContext | undefined;
 
     tryCreateTrigger('Test:descriptor-context-client', {
       'emulator:getServices': (event) => {
-        if (event.options.projectName !== options.projectName) {
+        if (event.options.projectName !== options.projectName || event.service.name !== 'Service') {
           return null;
         }
 
@@ -205,7 +161,9 @@ describe('descriptor-based service clients', () => {
 
     await rejects(failing, /Service initialization failed/);
     const recovered = await next;
+
     ok(isAnyObject(recovered));
+
     equal(recovered.value, 'tester-recovered');
   });
 

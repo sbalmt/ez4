@@ -25,6 +25,7 @@ export const getEmulatorService = (event: EmulateServiceEvent): ServiceEmulator 
       return {
         name: 'makeService',
         module: '@ez4/factory/worker',
+        variables: service.variables,
         dependencies,
         options: {
           references,

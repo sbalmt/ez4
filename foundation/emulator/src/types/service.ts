@@ -13,6 +13,7 @@ export type AnyServiceDescriptor = FileServiceDescriptor | ModuleServiceDescript
 export type ServiceDescriptor = {
   name: string;
   provider?: string;
+  variables?: Record<string, string>;
   options?: AnyObject;
 };
 

@@ -1,4 +1,5 @@
 import type { TestService } from '../cases/circular-dependencies';
+import type { TestVariablesFirstClient } from '../cases/variables';
 
 type ContextA = {
   serviceA: TestService;
@@ -23,3 +24,10 @@ type ContextC = {
 export const invokeTestC = (_request: unknown, { testService }: ContextC) => {
   return testService.labelName();
 };
+
+export const invokeVariables = (_request: unknown, { factory }: { factory: TestVariablesFirstClient }) => ({
+  value: factory.read(),
+  alias: factory.readAlias(),
+  fallback: factory.readDefault(),
+  dependency: factory.readDependency()
+});

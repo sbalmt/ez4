@@ -1,10 +1,12 @@
 import type { EntryState, EntryStates } from '@ez4/state';
-import type { ContextSource, LinkedContext, LinkedServices, ServiceMetadata, ServiceStates } from '../types/service';
+import type { ContextSource, LinkedContext, LinkedServices, LinkedVariables, ServiceMetadata, ServiceStates } from '../types/service';
 import type { CommonOptions } from '../types/options';
 
 import { linkEntryConnection, tryLinkEntryDependency } from '@ez4/state';
+import { DuplicateVariablesError } from '@ez4/emulator';
 import { toKebabCase } from '@ez4/utils';
 
+import { MissingVariablesSupportError } from '../errors/variables';
 import { isServiceMetadata } from '../types/service';
 
 export type ServiceNameOptions = Pick<CommonOptions, 'prefix' | 'projectName' | 'branchName'> & {
@@ -26,6 +28,20 @@ export const getServiceName = (service: ServiceMetadata | string, options: Servi
   }
 
   return serviceName.join('-');
+};
+
+export const assignServiceVariables = (service: Pick<ServiceMetadata, 'name' | 'variables'>, variables: LinkedVariables) => {
+  if (!service.variables) {
+    throw new MissingVariablesSupportError(service.name);
+  }
+
+  for (const alias in variables) {
+    if (alias in service.variables && service.variables[alias] !== variables[alias]) {
+      throw new DuplicateVariablesError(alias, service.name);
+    }
+
+    service.variables[alias] = variables[alias];
+  }
 };
 
 export const tryGetServiceState = (services: ServiceStates, service: ServiceMetadata | string, options: ServiceNameOptions) => {

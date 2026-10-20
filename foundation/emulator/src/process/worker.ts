@@ -5,6 +5,7 @@ import { Worker } from 'node:worker_threads';
 
 import { WorkerSignal } from '../types/signal';
 import { dispatch } from '../process/dispatcher';
+import { getServiceVariables } from './variables';
 
 // __MODULE_PATH is defined by the package bundler.
 declare const __MODULE_URL: string;
@@ -14,13 +15,16 @@ const WORKER_URL = new URL('./worker.mjs', import.meta.url);
 export const createWorker = (options: WorkerOptions): WorkerInstance => {
   const { environment, invoker, handler, listener, services = {}, references = {} } = options;
 
+  const variables = getServiceVariables(handler.name, services);
+
   const worker = new Worker(WORKER_URL, {
     resourceLimits: {
       maxOldGenerationSizeMb: environment.memory
     },
     env: {
       ...process.env,
-      ...environment.variables
+      ...environment.variables,
+      ...variables
     }
   });
 

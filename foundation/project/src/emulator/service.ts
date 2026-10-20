@@ -1,6 +1,6 @@
-import type { ServiceDescriptors, ServiceReferences } from '@ez4/emulator';
+import type { ServiceReferences } from '@ez4/emulator';
 import type { AnyObject } from '@ez4/utils';
-import type { EmulatorLinkedServices, ServiceEmulator } from './types';
+import type { EmulatorLinkedServices, EmulatorServiceDescriptor, ServiceEmulator } from './types';
 import type { MetadataReflection } from '../types/metadata';
 import type { ServeOptions } from '../types/options';
 import type { ServiceNameOptions } from '../utils/service';
@@ -79,7 +79,7 @@ export const makeServiceDescriptors = (
   emulators: ServiceEmulators,
   options: ServiceNameOptions
 ) => {
-  const descriptors: ServiceDescriptors = {};
+  const descriptors: Record<string, EmulatorServiceDescriptor> = {};
 
   const buildContext = (linkedServices: EmulatorLinkedServices, linkedOptions?: AnyObject) => {
     for (const linkedName in linkedServices) {

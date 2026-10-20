@@ -26,3 +26,15 @@ export const makeDependentService = (options: { references: ServiceReferences },
     dependency: getLazyContext(context.services, options.references).dependency
   });
 };
+
+export const makeEnvironmentService = (_options: unknown, context: ProviderContext) => {
+  const { variables } = context;
+
+  if (!variables) {
+    throw new Error('Missing client environment.');
+  }
+
+  return () => ({
+    readVariable: (name: string) => variables[name]
+  });
+};

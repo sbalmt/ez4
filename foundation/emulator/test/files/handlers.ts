@@ -114,3 +114,15 @@ export const logging = () => {
   console.log('worker stdout message');
   console.error('worker stderr message');
 };
+
+/**
+ * Handler to test worker variables.
+ */
+export const environment = () => {
+  return {
+    value: process.env.EZ4_WORKER_VALUE,
+    nested: process.env.EZ4_WORKER_NESTED,
+    own: process.env.EZ4_WORKER_OWN,
+    path: process.env.PATH
+  };
+};

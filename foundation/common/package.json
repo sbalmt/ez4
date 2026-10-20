@@ -50,6 +50,7 @@
     "live:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
+    "@ez4/emulator": "^0.56.0",
     "@ez4/project": "^0.56.0",
     "@ez4/reflection": "^0.56.0",
     "@ez4/runtime": "^0.56.0",

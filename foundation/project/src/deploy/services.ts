@@ -1,13 +1,13 @@
 import type { EventContext } from '@ez4/project/library';
 import type { Complete } from '@ez4/utils';
-import type { LinkedContext, LinkedServices, LinkedVariables, ServiceMetadata } from '../types/service';
+import type { LinkedContext, LinkedServices, ServiceMetadata } from '../types/service';
 import type { MetadataReflection } from '../types/metadata';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 import { hashObject, isObjectWith } from '@ez4/utils';
 
-import { DuplicateVariablesError, MissingVariablesSupportError } from '../errors/variables';
+import { assignServiceVariables } from '../utils/service';
 
 type TargetServiceMetadata = ServiceMetadata & Complete<Pick<ServiceMetadata, 'services'>>;
 
@@ -86,18 +86,4 @@ const prepareLinkedContext = async (
   const linkedContexts = await buildLinkedContexts(target, target.services);
 
   Object.assign(target.context, linkedContexts);
-};
-
-const assignServiceVariables = (service: TargetServiceMetadata, variables: LinkedVariables) => {
-  if (!service.variables) {
-    throw new MissingVariablesSupportError(service.name);
-  }
-
-  for (const alias in variables) {
-    if (alias in service.variables && service.variables[alias] !== variables[alias]) {
-      throw new DuplicateVariablesError(alias, service.name);
-    }
-
-    service.variables[alias] = variables[alias];
-  }
 };

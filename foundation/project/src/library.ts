@@ -10,6 +10,7 @@ export * from './errors/reflection';
 export * from './errors/metadata';
 export * from './errors/resource';
 export * from './errors/provider';
+export * from './errors/variables';
 
 export * from './emulator/errors';
 export * from './emulator/tester';
