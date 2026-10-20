@@ -1,3 +1,4 @@
+import type { SemanticDiagnosticsBuilderProgram, WatchOfFilesAndCompilerOptions } from 'typescript';
 import type { ResolverOptions, ResolverEvents, ReflectionFiles } from './resolver';
 import type { CompilerOptions, CompilerEvents } from './compiler';
 import type { ReflectionTypes } from './types';
@@ -93,7 +94,10 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: WatchRef
   const onReflectionReady = compilerEvents?.onReflectionReady;
 
   return new Promise<WatchReflectionHandler>((resolve, reject) => {
-    const program = createWatchProgram({
+    let program: WatchOfFilesAndCompilerOptions<SemanticDiagnosticsBuilderProgram>;
+    let failed = false;
+
+    program = createWatchProgram({
       ...createWatchCompilerHost(compilerOptions, additionalPaths, compilerEvents),
       options: compilerOptions,
       rootFiles: fileNames,
@@ -105,15 +109,24 @@ export const watchReflectionFromFiles = (fileNames: string[], options?: WatchRef
 
           resolve(handler);
         } catch (error) {
-          program.close();
+          if (program) {
+            program.close();
+          } else {
+            failed = true;
+          }
+
           reject(error);
         }
       }
     });
 
+    if (failed) {
+      program.close();
+    }
+
     const handler = {
       stop: () => {
-        program.close();
+        program?.close();
       }
     };
   });
