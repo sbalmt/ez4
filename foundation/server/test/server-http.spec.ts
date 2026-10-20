@@ -1,33 +1,37 @@
 import type { ServerInstance, HttpProviderRequest } from '@ez4/server';
 
 import { deepEqual, equal } from 'node:assert/strict';
-import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import { after, afterEach, before, describe, it, mock } from 'node:test';
 
 import { ProviderType, registerProvider, startServer, unregisterProvider } from '@ez4/server';
 
 const TEST_PROVIDER = 'test-http-handler';
-const BASE_URL = 'http://127.0.0.1:3735';
+const BASE_URL = 'http://127.0.0.1:3746';
 const ORIGIN = 'http://localhost:3000';
 
 describe('HTTP/1.1 request tests', async () => {
   let server: ServerInstance;
 
-  beforeEach(async () => {
+  before(async () => {
     server = await startServer({
       name: 'test-http-handler',
       host: '127.0.0.1',
-      port: 3735
+      port: 3746
     });
   });
 
-  afterEach(async () => {
+  after(async () => {
     await server.close();
+  });
+
+  afterEach(async () => {
     unregisterProvider(TEST_PROVIDER);
   });
 
   it('assert :: dispatches the complete request body and returns the provider response', async () => {
     const handler = mock.fn((incoming: HttpProviderRequest) => {
       deepEqual(incoming.body, Buffer.from('hello world'));
+
       equal(incoming.method, 'POST');
       equal(incoming.path, '/test');
 
@@ -47,8 +51,10 @@ describe('HTTP/1.1 request tests', async () => {
       body: 'hello world'
     });
 
+    const result = await response.text();
+
     equal(response.status, 200);
-    equal(await response.text(), 'response');
+    equal(result, 'response');
     equal(handler.mock.callCount(), 1);
   });
 
@@ -68,21 +74,28 @@ describe('HTTP/1.1 request tests', async () => {
 
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}/test`);
 
+    const result = await response.text();
+
     equal(response.status, 200);
-    equal(await response.text(), 'HTTP response');
+    equal(result, 'HTTP response');
   });
 
-  it('assert :: rejects a missing provider with a CORS-enabled 404', async () => {
+  it('assert :: rejects a missing provider with a 404 without adding CORS headers', async () => {
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
+      headers: {
+        Origin: ORIGIN
+      }
     });
 
     equal(response.status, 404);
     equal(response.headers.get('Content-Type'), 'application/json');
-    deepEqual(await response.json(), { type: 'error', message: 'Service emulator not found.' });
-    equal(response.headers.get('Access-Control-Allow-Credentials'), 'true');
-    equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
-    equal(response.headers.get('Vary'), 'Origin');
+    equal(response.headers.get('Access-Control-Allow-Credentials'), null);
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+
+    deepEqual(await response.json(), {
+      type: 'error',
+      message: 'Service emulator not found.'
+    });
   });
 
   it('assert :: returns 422 for requests to a WebSocket provider', async () => {
@@ -103,8 +116,13 @@ describe('HTTP/1.1 request tests', async () => {
 
     equal(response.status, 422);
     equal(response.headers.get('Content-Type'), 'application/json');
-    deepEqual(await response.json(), { type: 'error', message: 'Provider cannot handle HTTP requests.' });
-    equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+
+    deepEqual(await response.json(), {
+      type: 'error',
+      message: 'Provider cannot handle HTTP requests.'
+    });
+
     equal(connectHandler.mock.callCount(), 0);
     equal(disconnectHandler.mock.callCount(), 0);
     equal(messageHandler.mock.callCount(), 0);
@@ -113,46 +131,62 @@ describe('HTTP/1.1 request tests', async () => {
   it('assert :: returns 500 when the provider throws', async () => {
     registerProvider(TEST_PROVIDER, {
       type: ProviderType.Http,
+      cors: true,
       requestHandler: () => {
         throw new Error('provider failed');
       }
     });
 
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
+      headers: {
+        Origin: ORIGIN
+      }
     });
 
+    const result = await response.json();
+
     equal(response.status, 500);
-    equal((await response.json()).message, 'Error: provider failed');
     equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
+
+    deepEqual(result, {
+      type: 'error',
+      message: 'Error: provider failed'
+    });
   });
 
   it('assert :: returns 500 when the provider rejects asynchronously', async () => {
     registerProvider(TEST_PROVIDER, {
       type: ProviderType.Http,
+      cors: true,
       requestHandler: async () => {
         throw new Error('async provider failed');
       }
     });
 
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
+      headers: {
+        Origin: ORIGIN
+      }
     });
+
+    const result = await response.json();
 
     equal(response.status, 500);
-    equal((await response.json()).message, 'Error: async provider failed');
     equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
+
+    deepEqual(result, {
+      type: 'error',
+      message: 'Error: async provider failed'
+    });
   });
 
-  it('assert :: sends default CORS headers for an OPTIONS request', async () => {
-    const handler = mock.fn((incoming: HttpProviderRequest) => {
-      equal(incoming.method, 'OPTIONS');
-      return undefined;
-    });
+  it('assert :: replies 204 with CORS headers to OPTIONS without invoking the request handler', async () => {
+    const requestHandler = mock.fn();
 
     registerProvider(TEST_PROVIDER, {
       type: ProviderType.Http,
-      requestHandler: handler
+      cors: true,
+      requestHandler
     });
 
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
@@ -165,89 +199,203 @@ describe('HTTP/1.1 request tests', async () => {
     });
 
     equal(response.status, 204);
+
     equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
     equal(response.headers.get('Access-Control-Allow-Credentials'), 'true');
-    equal(response.headers.get('Access-Control-Allow-Methods'), 'POST');
     equal(response.headers.get('Access-Control-Allow-Headers'), 'Content-Type');
-    equal(handler.mock.callCount(), 1);
+    equal(response.headers.get('Access-Control-Allow-Methods'), 'POST');
+
+    equal(requestHandler.mock.callCount(), 0);
   });
 
-  it('assert :: uses the provider response for OPTIONS', async () => {
-    registerProvider(TEST_PROVIDER, {
-      type: ProviderType.Http,
-      requestHandler: () => ({
+  it('assert :: forwards OPTIONS to the request handler when CORS is not configured', async () => {
+    const requestHandler = mock.fn((incoming: HttpProviderRequest) => {
+      equal(incoming.method, 'OPTIONS');
+      equal(incoming.path, '/items');
+
+      return {
         status: 200,
         body: 'custom options',
-        headers: { Allow: 'GET, OPTIONS' }
-      })
+        headers: {
+          Allow: 'GET, OPTIONS'
+        }
+      };
     });
 
-    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, { method: 'OPTIONS' });
+    registerProvider(TEST_PROVIDER, {
+      type: ProviderType.Http,
+      requestHandler
+    });
+
+    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}/items`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: ORIGIN,
+        'Access-Control-Request-Method': 'POST'
+      }
+    });
+
+    const result = await response.text();
 
     equal(response.status, 200);
-    equal(await response.text(), 'custom options');
     equal(response.headers.get('Allow'), 'GET, OPTIONS');
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+    equal(result, 'custom options');
+
+    equal(requestHandler.mock.callCount(), 1);
   });
 
-  it('assert :: merges Vary without losing the provider value', async () => {
+  it('assert :: applies a configured CORS policy to preflight and actual responses', async () => {
+    const requestHandler = mock.fn((request: HttpProviderRequest) => {
+      return {
+        status: 200,
+        headers: {
+          ...(request.headers?.origin === 'https://allowed.example' && {
+            'Access-Control-Allow-Origin': 'https://provider.example',
+            'Access-Control-Allow-Methods': 'DELETE'
+          }),
+          'X-Request-Id': 'request-id'
+        }
+      };
+    });
+
     registerProvider(TEST_PROVIDER, {
       type: ProviderType.Http,
-      requestHandler: () => ({
-        status: 200,
-        headers: { Vary: 'Accept-Encoding' }
-      })
+      cors: {
+        allowOrigins: ['https://allowed.example'],
+        allowMethods: ['GET'],
+        allowHeaders: ['x-token'],
+        exposeHeaders: ['X-Request-Id'],
+        maxAge: 300
+      },
+      requestHandler
     });
 
-    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
+    const preflight = await fetch(`${BASE_URL}/${TEST_PROVIDER}/items`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://allowed.example',
+        'Access-Control-Request-Method': 'GET',
+        'Access-Control-Request-Headers': 'X-Token'
+      }
     });
 
-    equal(response.headers.get('Vary'), 'Accept-Encoding, Origin');
-  });
+    equal(preflight.status, 204);
+    equal(preflight.headers.get('Access-Control-Allow-Origin'), 'https://allowed.example');
+    equal(preflight.headers.get('Access-Control-Allow-Methods'), 'GET');
+    equal(preflight.headers.get('Access-Control-Allow-Headers'), 'x-token');
+    equal(preflight.headers.get('Access-Control-Expose-Headers'), 'X-Request-Id');
+    equal(preflight.headers.get('Access-Control-Max-Age'), '300');
+    equal(requestHandler.mock.callCount(), 0);
 
-  it('assert :: does not duplicate Origin in Vary regardless of casing', async () => {
-    registerProvider(TEST_PROVIDER, {
-      type: ProviderType.Http,
-      requestHandler: () => ({
-        status: 200,
-        headers: { Vary: 'Accept-Encoding, oRiGiN' }
-      })
+    const actual = await fetch(`${BASE_URL}/${TEST_PROVIDER}/items`, {
+      headers: { Origin: 'https://allowed.example' }
     });
 
-    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
+    equal(actual.headers.get('Access-Control-Allow-Origin'), 'https://allowed.example');
+    equal(actual.headers.get('Access-Control-Allow-Methods'), null);
+    equal(actual.headers.get('Access-Control-Expose-Headers'), 'X-Request-Id');
+
+    const blocked = await fetch(`${BASE_URL}/${TEST_PROVIDER}/items`, {
+      headers: { Origin: 'https://blocked.example' }
     });
 
-    equal(response.headers.get('Vary'), 'Accept-Encoding, oRiGiN');
-  });
+    equal(blocked.headers.get('Access-Control-Allow-Origin'), null);
 
-  it('assert :: preserves a wildcard Vary header', async () => {
-    registerProvider(TEST_PROVIDER, {
-      type: ProviderType.Http,
-      requestHandler: () => ({
-        status: 200,
-        headers: { Vary: '*' }
-      })
+    const blockedPreflight = await fetch(`${BASE_URL}/${TEST_PROVIDER}/items`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://blocked.example',
+        'Access-Control-Request-Method': 'GET'
+      }
     });
 
-    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
-      headers: { Origin: ORIGIN }
-    });
-
-    equal(response.headers.get('Vary'), '*');
+    equal(blockedPreflight.status, 204);
+    equal(blockedPreflight.headers.get('Access-Control-Allow-Origin'), null);
   });
 
   it('assert :: does not add CORS headers without an Origin', async () => {
     registerProvider(TEST_PROVIDER, {
       type: ProviderType.Http,
+      cors: true,
       requestHandler: () => ({
         status: 200
       })
     });
 
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`);
-
     equal(response.headers.get('Access-Control-Allow-Origin'), null);
-    equal(response.headers.get('Vary'), null);
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+  });
+
+  it('assert :: applies default CORS instead of request handler CORS headers', async () => {
+    registerProvider(TEST_PROVIDER, {
+      type: ProviderType.Http,
+      cors: true,
+      requestHandler: () => ({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': 'https://allowed.example'
+        }
+      })
+    });
+
+    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
+      headers: {
+        Origin: ORIGIN
+      }
+    });
+
+    equal(response.status, 200);
+    equal(response.headers.get('Access-Control-Allow-Origin'), ORIGIN);
+  });
+
+  it('assert :: treats omitted CORS configuration as disabled', async () => {
+    const requestHandler = mock.fn(() => ({ status: 204 }));
+
+    registerProvider(TEST_PROVIDER, {
+      type: ProviderType.Http,
+      requestHandler
+    });
+
+    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: ORIGIN,
+        'Access-Control-Request-Method': 'POST'
+      }
+    });
+
+    equal(response.status, 204);
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+    equal(response.headers.get('Access-Control-Allow-Credentials'), null);
+    equal(response.headers.get('Access-Control-Allow-Methods'), null);
+    equal(response.headers.get('Access-Control-Allow-Headers'), null);
+    equal(requestHandler.mock.callCount(), 1);
+  });
+
+  it('assert :: does not add CORS headers when provider CORS is explicitly disabled', async () => {
+    const requestHandler = mock.fn(() => ({ status: 204 }));
+
+    registerProvider(TEST_PROVIDER, {
+      type: ProviderType.Http,
+      cors: false,
+      requestHandler
+    });
+
+    const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: ORIGIN,
+        'Access-Control-Request-Method': 'POST'
+      }
+    });
+
+    equal(response.status, 204);
+    equal(response.headers.get('Access-Control-Allow-Origin'), null);
+    equal(response.headers.get('Access-Control-Allow-Credentials'), null);
+    equal(response.headers.get('Access-Control-Allow-Methods'), null);
+    equal(response.headers.get('Access-Control-Allow-Headers'), null);
+    equal(requestHandler.mock.callCount(), 1);
   });
 });

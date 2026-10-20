@@ -1,4 +1,4 @@
-import type { ProviderOptions, HttpProviderRequest, WsProviderConnection, WsProviderMessage } from '../types/provider';
+import type { ProviderOptions, HttpProviderRequest, WsProviderConnection, WsProviderMessage, HttpProviderOptions } from '../types/provider';
 
 import { DuplicateProviderError, IncompatibleProviderError, MissingProviderError } from '../errors/provider';
 import { ProviderType } from '../types/provider';
@@ -35,6 +35,14 @@ export const notifyHttpRequest = async (name: string, request: HttpProviderReque
   const response = await requestHandler(request);
 
   return response;
+};
+
+export const getHttpProviderOptions = (name: string): Pick<HttpProviderOptions, 'cors'> | undefined => {
+  const { cors } = getProviderType(name, ProviderType.Http);
+
+  return {
+    cors
+  };
 };
 
 export const notifyWsConnect = async (name: string, connection: WsProviderConnection) => {

@@ -1,5 +1,18 @@
 export type ProviderOptions = HttpProviderOptions | WsProviderOptions;
 
+export type HttpProviderHandler = (request: HttpProviderRequest) => Promise<HttpProviderResponse | void> | HttpProviderResponse | void;
+
+export type HttpProviderCors = boolean | HttpProviderCorsOptions;
+
+export type HttpProviderCorsOptions = {
+  allowOrigins: string[];
+  allowMethods?: string[];
+  allowCredentials?: boolean;
+  exposeHeaders?: string[];
+  allowHeaders?: string[];
+  maxAge?: number;
+};
+
 export const enum ProviderType {
   Http = 'http',
   Ws = 'ws'
@@ -7,7 +20,8 @@ export const enum ProviderType {
 
 export type HttpProviderOptions = {
   type: ProviderType.Http;
-  requestHandler: (request: HttpProviderRequest) => Promise<HttpProviderResponse | void> | HttpProviderResponse | void;
+  requestHandler: HttpProviderHandler;
+  cors?: HttpProviderCors;
 };
 
 export type WsProviderOptions = {

@@ -1,12 +1,14 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { HttpProviderCors } from '../types/provider';
 import type { ServerOptions } from '../types/server';
 
 import { canSendReply } from '../utils/http/response';
+import { isHttpOptionsMethod } from '../utils/http/method';
 import { getIncomingRequest } from '../utils/incoming';
 import { logRequest, logError } from '../utils/logger';
 import { ProviderType } from '../types/provider';
 import { replyHttpFailure, replyHttpSuccess } from './http/response';
-import { notifyHttpRequest, providerRegistered } from './provider';
+import { getHttpProviderOptions, notifyHttpRequest, providerRegistered } from './provider';
 
 export const requestHandler = (request: IncomingMessage, stream: ServerResponse<IncomingMessage>, options: ServerOptions) => {
   logRequest(request.method, request.url);
@@ -15,9 +17,11 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
 
   const buffer: Buffer[] = [];
 
+  let cors: HttpProviderCors | undefined;
+
   const rejectRequest = (status: number, message: string) => {
     if (canSendReply(stream)) {
-      replyHttpFailure(stream, request, status, message);
+      replyHttpFailure(stream, request, cors, status, message);
     } else {
       stream.destroy();
     }
@@ -37,6 +41,8 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
     return rejectRequest(422, 'Provider cannot handle HTTP requests.');
   }
 
+  cors = getHttpProviderOptions(incoming.provider)?.cors;
+
   request.on('data', (chunk) => {
     buffer.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   });
@@ -53,18 +59,20 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
     try {
       const payload = buffer.length ? Buffer.concat(buffer) : undefined;
 
-      const response = await notifyHttpRequest(incoming.provider, {
-        ...incoming.request,
-        method: request.method ?? 'GET',
-        body: payload
-      });
+      const { method = 'GET' } = request;
+
+      const useCors = isHttpOptionsMethod(method) && cors;
+
+      const response = useCors
+        ? undefined
+        : await notifyHttpRequest(incoming.provider, {
+            ...incoming.request,
+            body: payload,
+            method
+          });
 
       if (canSendReply(stream)) {
-        if (!response) {
-          replyHttpSuccess(stream, request, { status: 204 });
-        } else {
-          replyHttpSuccess(stream, request, response);
-        }
+        replyHttpSuccess(stream, request, cors, response ?? { status: 204 });
       }
     } catch (error) {
       requestError(error);
