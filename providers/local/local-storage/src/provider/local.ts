@@ -1,10 +1,16 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { Bucket, Client as StorageClient } from '@ez4/storage';
-import type { AnyServiceDescriptor } from '@ez4/emulator';
 import type { BucketService } from '@ez4/storage/library';
+import type { HttpProviderRequest } from '@ez4/server';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
-import { loadService, notifyProvider, registerProvider, unregisterProvider } from '@ez4/emulator';
+import {
+  loadService,
+  notifyProvider,
+  registerProvider as registerEmulatorProvider,
+  unregisterProvider as unregisterEmulatorProvider
+} from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { BucketEventType } from '@ez4/storage';
 import { Logger } from '@ez4/logger';
 
@@ -32,8 +38,6 @@ export const registerLocalService = async (
     return null;
   }
 
-  const client = await makeService(descriptor);
-
   return {
     type: 'Storage',
     name: resourceName,
@@ -45,9 +49,11 @@ export const registerLocalService = async (
       } else {
         Logger.log(`📂 Local storage [${resourceName}] in use.`);
 
-        await mkdir(directory, { recursive: true });
+        await mkdir(directory, {
+          recursive: true
+        });
 
-        registerProvider(provider, {
+        registerEmulatorProvider(provider, {
           eventTypes: [ProviderEvent.CreateFile, ProviderEvent.DeleteFile],
           eventHandler: (_event: string, payload: Bucket.Incoming | undefined) => {
             if (!payload) {
@@ -57,15 +63,31 @@ export const registerLocalService = async (
             return handleStorageEvent(service, options, context, payload);
           }
         });
+
+        const makeClient = await loadService<() => StorageClient>({}, descriptor, (provider) => ({
+          notify: (event, payload) => {
+            notifyProvider(provider, event, payload).catch((error: unknown) => {
+              Logger.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
+            });
+          },
+          request: (event, payload) => {
+            return notifyProvider(provider, event, payload);
+          }
+        }));
+
+        registerServerProvider(identifier, {
+          type: ProviderType.Http,
+          requestHandler: (request) => {
+            return handleRequest(request, makeClient());
+          }
+        });
       }
     },
     shutdownHandler: () => {
       if (options.local) {
-        unregisterProvider(provider);
+        unregisterServerProvider(identifier);
+        unregisterEmulatorProvider(provider);
       }
-    },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleRequest(client, request);
     },
     exportDescriptor: () => descriptor,
     manifestHandler: () => {
@@ -76,7 +98,12 @@ export const registerLocalService = async (
 
 const getStorageDescriptor = (service: BucketService, options: ServeOptions) => {
   if (!options.local) {
-    return triggerAllAsync('emulator:serviceDescriptor', (handler) => handler({ service, options }));
+    return triggerAllAsync('emulator:serviceDescriptor', (handler) =>
+      handler({
+        service,
+        options
+      })
+    );
   }
 
   const identifier = getServiceName(service.name, options);
@@ -91,19 +118,6 @@ const getStorageDescriptor = (service: BucketService, options: ServeOptions) => 
       directory: join('.ez4', identifier)
     }
   };
-};
-
-const makeService = async (descriptor: AnyServiceDescriptor) => {
-  const factory = await loadService<() => StorageClient>({}, descriptor, (provider) => ({
-    notify: (event, payload) => {
-      notifyProvider(provider, event, payload).catch((error: unknown) => {
-        Logger.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
-      });
-    },
-    request: (event, payload) => notifyProvider(provider, event, payload)
-  }));
-
-  return factory();
 };
 
 const handleStorageEvent = async (
@@ -124,7 +138,7 @@ const handleStorageEvent = async (
   );
 };
 
-const handleRequest = async (client: StorageClient, request: EmulatorRequestEvent) => {
+const handleRequest = async (request: HttpProviderRequest, client: StorageClient) => {
   const { method, path, body } = request;
 
   if (!path || path === '/') {
@@ -166,7 +180,7 @@ const loadFile = async (client: StorageClient, path: string) => {
   };
 };
 
-const storeFile = async (client: StorageClient, path: string, buffer: Buffer) => {
+const storeFile = async (client: StorageClient, path: string, buffer: Buffer | string) => {
   await client.write(path, buffer);
 
   return {

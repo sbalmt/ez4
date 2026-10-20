@@ -1,21 +1,27 @@
-import type { EmulateServiceContext, EmulatorConnectionEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { WsService } from '@ez4/gateway/library';
+import type { WsProviderConnection } from '@ez4/server';
 import type { Ws } from '@ez4/gateway';
 
 import { RequestType } from '../../worker/invoker';
 import { invokeGatewayModule } from '../module';
 
+export const enum WsConnectionType {
+  Connect = 'connect',
+  Disconnect = 'disconnect'
+}
+
 export const processWsConnection = async (
   service: WsService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  event: EmulatorConnectionEvent,
+  type: WsConnectionType,
+  connection: WsProviderConnection,
   identity?: Ws.Identity
 ) => {
   const { services, connect, disconnect, defaults } = service;
-  const { connection } = event;
 
-  const target = connection.live ? connect : disconnect;
+  const target = type === WsConnectionType.Connect ? connect : disconnect;
 
   await invokeGatewayModule(
     options,
@@ -38,8 +44,8 @@ export const processWsConnection = async (
     },
     {
       connectionId: connection.id,
-      headers: event.headers,
-      query: event.query,
+      headers: connection.headers,
+      query: connection.query,
       identity
     }
   );

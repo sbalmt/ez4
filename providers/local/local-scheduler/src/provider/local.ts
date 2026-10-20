@@ -1,11 +1,13 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
+import type { HttpProviderRequest } from '@ez4/server';
 import type { Client } from '@ez4/scheduler';
 import type { ProviderSchedulerEvent } from '../types/events';
 
 import { getJsonEvent, MalformedEventError } from '@ez4/scheduler/utils';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
-import { registerProvider, unregisterProvider } from '@ez4/emulator';
+import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { isDynamicCronService } from '@ez4/scheduler/library';
 import { getServiceName } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
@@ -47,7 +49,7 @@ export const registerLocalService = (service: CronService, options: ServeOptions
 
       const client = schema ? createServiceClient(resourceName, schema) : undefined;
 
-      registerProvider(provider, {
+      registerEmulatorProvider(provider, {
         eventTypes: [
           ProviderEvent.GetEvent,
           ProviderEvent.SetEvent,
@@ -57,6 +59,13 @@ export const registerLocalService = (service: CronService, options: ServeOptions
         ],
         eventHandler: (event: string, payload: ProviderSchedulerEvent | undefined) => {
           return handleClientEvent(resourceName, client, event, payload);
+        }
+      });
+
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        requestHandler: (request) => {
+          return handleSchedulerRequest(service, options, context, request);
         }
       });
 
@@ -70,15 +79,13 @@ export const registerLocalService = (service: CronService, options: ServeOptions
 
       processTimerEvent(service, options, context);
     },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleSchedulerRequest(service, options, context, request);
-    },
     manifestHandler: () => {
       return CronManifest.build(service);
     },
     shutdownHandler: () => {
       InMemoryScheduler.deleteScheduler(resourceName);
-      unregisterProvider(provider);
+      unregisterServerProvider(identifier);
+      unregisterEmulatorProvider(provider);
 
       if (!options.suppress) {
         Logger.log(`⛔ Stopped scheduler [${resourceName}] events`);
@@ -122,7 +129,7 @@ const handleSchedulerRequest = async (
   service: CronService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorRequestEvent
+  request: HttpProviderRequest
 ) => {
   const { method, path, body } = request;
 
@@ -155,7 +162,12 @@ const handleSchedulerRequest = async (
   }
 };
 
-const handleSchedulerEvent = async (service: CronService, options: ServeOptions, context: EmulateServiceContext, body?: Buffer) => {
+const handleSchedulerEvent = async (
+  service: CronService,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  body?: Buffer | string
+) => {
   if (service.schema && body) {
     const jsonEvent = JSON.parse(body.toString());
     const safeEvent = await getJsonEvent(jsonEvent, service.schema);

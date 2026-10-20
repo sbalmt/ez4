@@ -17,6 +17,7 @@ export * from './emulator/runner';
 export * from './emulator/types';
 
 export * from './manifest/types';
+export * from './manifest/service';
 
 export * from './generator/errors';
 export * from './generator/events';

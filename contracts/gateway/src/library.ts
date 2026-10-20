@@ -3,6 +3,8 @@ export * from './triggers/register';
 export * from './client/authorization';
 export * from './client/operations';
 
+export * from './utils/cors';
+
 export * from './metadata/auth/types';
 export * from './metadata/http/service';
 export * from './metadata/http/import';

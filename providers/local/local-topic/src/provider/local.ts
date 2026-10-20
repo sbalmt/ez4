@@ -1,9 +1,11 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { TopicImport, TopicService } from '@ez4/topic/library';
+import type { HttpProviderRequest } from '@ez4/server';
 import type { AnyObject } from '@ez4/utils';
 import type { ProviderTopicEvent } from '../types/events';
 
-import { registerProvider, unregisterProvider } from '@ez4/emulator';
+import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
@@ -29,7 +31,7 @@ export const registerLocalService = (service: TopicService, options: ServeOption
     options: service.options,
     identifier,
     bootstrapHandler: () => {
-      registerProvider(provider, {
+      registerEmulatorProvider(provider, {
         eventTypes: [ProviderEvent.PublishEvent],
         eventHandler: (_event: string, payload: ProviderTopicEvent | undefined) => {
           if (!payload) {
@@ -39,9 +41,17 @@ export const registerLocalService = (service: TopicService, options: ServeOption
           return handleTopicEvent(service, options, context, payload.event);
         }
       });
+
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        requestHandler: (request) => {
+          return handleTopicRequest(service, options, context, request);
+        }
+      });
     },
     shutdownHandler: () => {
-      unregisterProvider(provider);
+      unregisterServerProvider(identifier);
+      unregisterEmulatorProvider(provider);
     },
     exportDescriptor: () => {
       return {
@@ -54,9 +64,6 @@ export const registerLocalService = (service: TopicService, options: ServeOption
         }
       };
     },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleTopicRequest(service, options, context, request);
-    },
     manifestHandler: () => {
       return TopicManifest.build(service);
     }
@@ -67,7 +74,7 @@ const handleTopicRequest = async (
   service: TopicService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorRequestEvent
+  request: HttpProviderRequest
 ) => {
   const { method, path, body } = request;
 

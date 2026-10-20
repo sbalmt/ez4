@@ -4,9 +4,9 @@ import type { EntryStates } from '@ez4/state';
 import type { GatewayState } from '../../gateway/types';
 
 import { getServiceName, isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/library';
+import { getCorsConfiguration, isHttpService } from '@ez4/gateway/library';
 import { createLogGroup, createLogPolicy } from '@ez4/aws-logs';
 import { getFunctionState } from '@ez4/aws-function';
-import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 
 import { createStage } from '../../stage/service';
@@ -18,7 +18,6 @@ import { getIntegrationRequestFunction } from '../integration';
 import { getAuthorizerFunction } from '../authorizer';
 import { RoleMissingError } from '../errors';
 import { prepareLinkedClient } from './client';
-import { getCorsConfiguration } from './cors';
 
 export const prepareHttpLinkedService = (event: ServiceEvent) => {
   const { service, options, context } = event;

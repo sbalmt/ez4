@@ -3,9 +3,9 @@ import type { ImportOptions } from '../library';
 
 import { dirname, join } from 'node:path';
 
+import { getServerAddress } from '@ez4/server';
 import { toKebabCase } from '@ez4/utils';
 
-import { getServiceHost } from '../utils/project';
 import { getServiceBranch, getServicePrefix } from '../utils/resource';
 import { getPathsFrom } from './tsconfig';
 import { loadProject } from './project';
@@ -23,11 +23,16 @@ export const loadReferences = async (projectOptions: ProjectOptions, workspacePa
     const projectOptions = await loadProject(projectFile, projectRoot);
     const projectPaths = await getPathsFrom(projectOptions, projectRoot);
 
+    const { serveOptions } = projectOptions;
+
     imports[alias] = {
       prefix: getServicePrefix(projectOptions.prefix),
-      projectName: toKebabCase(projectOptions.projectName),
       branchName: getServiceBranch(projectOptions.branchName),
-      serviceHost: getServiceHost(projectOptions.serveOptions)
+      projectName: toKebabCase(projectOptions.projectName),
+      serviceHost: getServerAddress({
+        host: serveOptions?.localHost,
+        port: serveOptions?.localPort
+      })
     };
 
     for (const prefix in projectPaths) {

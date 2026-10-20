@@ -55,6 +55,7 @@
     "@ez4/logger": "^0.56.0",
     "@ez4/project": "^0.56.0",
     "@ez4/schema": "^0.56.0",
+    "@ez4/server": "^0.56.0",
     "@ez4/utils": "^0.56.0",
     "@ez4/validator": "^0.56.0"
   }

@@ -1,8 +1,10 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { TopicImport } from '@ez4/topic/library';
+import type { HttpProviderRequest } from '@ez4/server';
 
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { Logger } from '@ez4/logger';
@@ -26,11 +28,13 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
     remoteName: resourceName
   };
 
+  const identifier = getServiceName(resourceName, options);
+
   return {
     type: 'Topic',
     name: resourceName,
     options: service.options,
-    identifier: getServiceName(resourceName, options),
+    identifier,
     exportDescriptor: () => ({
       name: 'makeRemoteService',
       module: '@ez4/local-topic/worker',
@@ -40,20 +44,25 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
         clientOptions
       }
     }),
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleTopicRequest(service, options, context, request);
-    },
     bootstrapHandler: async () => {
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        requestHandler: (request) => {
+          return handleTopicRequest(service, options, context, request);
+        }
+      });
+
       if (options.suppress) {
         return Logger.warn(`Topic [${resourceName}] subscription is suppressed`);
       }
 
-      const topicIdentifier = getServiceName(resourceName, options);
-      const topicHost = getTopicServiceHost(options.serviceHost, topicIdentifier);
+      const topicHost = getTopicServiceHost(options.serviceHost, identifier);
 
       await subscribeRemoteClient(referenceName, topicHost, clientOptions);
     },
     shutdownHandler: async () => {
+      unregisterServerProvider(identifier);
+
       if (!options.suppress) {
         await unsubscribeRemoteClient(referenceName, clientOptions);
       }
@@ -65,7 +74,7 @@ const handleTopicRequest = async (
   service: TopicImport,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorRequestEvent
+  request: HttpProviderRequest
 ) => {
   const { method, path, body } = request;
 

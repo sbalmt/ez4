@@ -1,4 +1,4 @@
-import type { HttpCors, HttpRoute } from '@ez4/gateway/library';
+import type { HttpCors, HttpRoute } from '../metadata/http/types';
 
 export const getCorsConfiguration = (routes: HttpRoute[], cors: HttpCors): HttpCors => {
   const allowHeaders = new Set<string>(cors.allowHeaders?.map((header) => header.toLowerCase()));

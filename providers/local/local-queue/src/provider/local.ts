@@ -1,9 +1,11 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { QueueImport, QueueService } from '@ez4/queue/library';
+import type { HttpProviderRequest } from '@ez4/server';
 import type { AnyObject } from '@ez4/utils';
 import type { ProviderMessageEvent } from '../types/events';
 
-import { registerProvider, unregisterProvider } from '@ez4/emulator';
+import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
 import { MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
@@ -25,7 +27,7 @@ export const registerLocalService = (service: QueueService, options: ServeOption
     options: service.options,
     identifier,
     bootstrapHandler: () => {
-      registerProvider(provider, {
+      registerEmulatorProvider(provider, {
         eventTypes: [ProviderEvent.PutMessage],
         eventHandler: (_event: string, payload: ProviderMessageEvent | undefined) => {
           if (!payload) {
@@ -37,9 +39,17 @@ export const registerLocalService = (service: QueueService, options: ServeOption
           setTimeout(() => handleQueueMessage(service, options, context, message), delay * 1000);
         }
       });
+
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        requestHandler: (request) => {
+          return handleQueueRequest(service, options, context, request);
+        }
+      });
     },
     shutdownHandler: () => {
-      unregisterProvider(provider);
+      unregisterServerProvider(identifier);
+      unregisterEmulatorProvider(provider);
     },
     exportDescriptor: () => {
       return {
@@ -53,9 +63,6 @@ export const registerLocalService = (service: QueueService, options: ServeOption
         }
       };
     },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleQueueRequest(service, options, context, request);
-    },
     manifestHandler: () => {
       return QueueManifest.build(service);
     }
@@ -66,7 +73,7 @@ const handleQueueRequest = async (
   service: QueueService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorRequestEvent
+  request: HttpProviderRequest
 ) => {
   const { method, path, body } = request;
 

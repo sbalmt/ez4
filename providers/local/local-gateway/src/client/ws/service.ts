@@ -1,9 +1,9 @@
-import type { EmulatorConnection } from '@ez4/project/library';
 import type { WsPreferences } from '@ez4/gateway/library';
 import type { Ws, WsClient } from '@ez4/gateway';
 import type { AnySchema } from '@ez4/schema';
 
 import { resolveResponseBody } from '@ez4/gateway/utils';
+import { getWsClient } from '@ez4/server';
 import { Logger } from '@ez4/logger';
 
 export type WsServiceClientOptions = {
@@ -13,7 +13,7 @@ export type WsServiceClientOptions = {
 
 export type WsServiceConnections = {
   sendMessage: (connectionId: string, payload: string) => void;
-  disconnect: (connectionId: string) => void;
+  disconnect: (connectionId: string) => Promise<void> | void;
 };
 
 export const createWsServiceClient = <T extends Ws.JsonBody = any>(
@@ -43,19 +43,19 @@ export const createWsServiceClient = <T extends Ws.JsonBody = any>(
   })();
 };
 
-export const createLocalConnections = (allConnections: Record<string, EmulatorConnection>): WsServiceConnections => {
+export const createLocalConnections = (): WsServiceConnections => {
   return {
     sendMessage: (connectionId, payload) => {
-      const connection = allConnections[connectionId];
+      const client = getWsClient(connectionId);
 
-      if (!connection) {
+      if (!client) {
         throw new Error('Connection not found.');
       }
 
-      connection.write(payload);
+      client.write(payload);
     },
     disconnect: (connectionId) => {
-      allConnections[connectionId]?.close();
+      return getWsClient(connectionId)?.close();
     }
   };
 };

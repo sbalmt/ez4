@@ -1,10 +1,13 @@
-import type { EmulateServiceContext, EmulatorConnection, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { HttpService, WsService } from '@ez4/gateway/library';
+import type { WsProviderClient } from '@ez4/server';
 import type { AnyObject } from '@ez4/utils';
 
 import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { after, before, describe, it, mock } from 'node:test';
-import { setTimeout } from 'node:timers/promises';
+import { once } from 'node:events';
+
+import { notifyHttpRequest, notifyWsConnect, notifyWsMessage, startServer } from '@ez4/server';
 
 import { registerHttpLocalService } from '../src/provider/http/local';
 import { registerWsLocalService } from '../src/provider/ws/local';
@@ -53,63 +56,124 @@ describe('worker gateway handlers', () => {
           response: {
             status: 200,
             body: objectSchema({
-              id: { type: 'string' },
-              page: { type: 'number' },
-              name: { type: 'string' },
-              user: { type: 'string' }
+              id: {
+                type: 'string'
+              },
+              page: {
+                type: 'number'
+              },
+              name: {
+                type: 'string'
+              },
+              user: {
+                type: 'string'
+              }
             })
           },
           request: {
-            identity: objectSchema({ user: { type: 'string' } }),
-            parameters: objectSchema({ id: { type: 'string' } }),
-            query: objectSchema({ page: { type: 'number' } }),
-            body: objectSchema({ name: { type: 'string' } })
+            identity: objectSchema({
+              user: {
+                type: 'string'
+              }
+            }),
+            parameters: objectSchema({
+              id: {
+                type: 'string'
+              }
+            }),
+            query: objectSchema({
+              page: {
+                type: 'number'
+              }
+            }),
+            body: objectSchema({
+              name: {
+                type: 'string'
+              }
+            })
           }
         }),
         authorizer: handler('authorizer', {
           request: {
-            headers: objectSchema({ authorization: { type: 'string' } })
+            headers: objectSchema({
+              authorization: {
+                type: 'string'
+              }
+            })
           }
         })
       },
       {
         path: 'GET /not-found',
-        handler: handler('notFound', { response: { status: 204 } })
+        handler: handler('notFound', {
+          response: {
+            status: 204
+          }
+        })
       },
       {
         path: 'GET /custom-error',
-        handler: handler('customError', { response: { status: 204 } }),
+        handler: handler('customError', {
+          response: {
+            status: 204
+          }
+        }),
         httpErrors: {
           CustomError: 422
         }
       },
       {
         path: 'GET /authorizer-error',
-        handler: handler('request', { response: { status: 200 } }),
+        handler: handler('request', {
+          response: {
+            status: 200
+          }
+        }),
         authorizer: handler('notFound')
       },
       {
         path: 'GET /authorizer-custom-error',
-        handler: handler('request', { response: { status: 200 } }),
+        handler: handler('request', {
+          response: {
+            status: 200
+          }
+        }),
         authorizer: handler('customError'),
-        httpErrors: { CustomError: 409 }
+        httpErrors: {
+          CustomError: 409
+        }
       },
       {
         path: 'GET /unexpected-error',
-        handler: handler('unexpectedError', { response: { status: 204 } })
+        handler: handler('unexpectedError', {
+          response: {
+            status: 204
+          }
+        })
       }
     ]
   } as unknown as HttpService;
 
   const httpEmulator = registerHttpLocalService(httpService, serveOptions, makeContext());
 
+  before(() => httpEmulator.bootstrapHandler!());
+  after(() => httpEmulator.shutdownHandler!());
+
   it('assert :: http request with authorizer', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'POST',
       path: '/items/123',
-      headers: { authorization: 'user-1' },
-      query: { page: '2' },
-      body: Buffer.from(JSON.stringify({ name: 'item' }))
+      headers: {
+        authorization: 'user-1'
+      },
+      query: {
+        page: '2'
+      },
+      body: Buffer.from(
+        JSON.stringify({
+          name: 'item'
+        })
+      )
     });
 
     equal(response?.status, 200);
@@ -123,18 +187,22 @@ describe('worker gateway handlers', () => {
   });
 
   it('assert :: http request validation error', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'POST',
       path: '/items/123',
-      headers: { authorization: 'user-1' },
-      query: { page: 'abc' }
+      headers: {
+        authorization: 'user-1'
+      },
+      query: {
+        page: 'abc'
+      }
     });
 
     equal(response?.status, 400);
   });
 
   it('assert :: http error from handler', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'GET',
       path: '/not-found',
       headers: {},
@@ -153,7 +221,7 @@ describe('worker gateway handlers', () => {
   });
 
   it('assert :: custom error mapped from handler', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'GET',
       path: '/custom-error',
       headers: {},
@@ -161,11 +229,14 @@ describe('worker gateway handlers', () => {
     });
 
     equal(response?.status, 422);
-    deepEqual(parseBody(response), { type: 'error', message: 'Custom failure.' });
+    deepEqual(parseBody(response), {
+      type: 'error',
+      message: 'Custom failure.'
+    });
   });
 
   it('assert :: HTTP errors from authorizers are mapped inside the worker', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'GET',
       path: '/authorizer-error',
       headers: {},
@@ -176,12 +247,14 @@ describe('worker gateway handlers', () => {
     deepEqual(parseBody(response), {
       type: 'error',
       message: 'Resource not found.',
-      context: { resource: 'test' }
+      context: {
+        resource: 'test'
+      }
     });
   });
 
   it('assert :: custom authorizer errors use route mappings inside the worker', async () => {
-    const response = await httpEmulator.requestHandler!({
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
       method: 'GET',
       path: '/authorizer-custom-error',
       headers: {},
@@ -189,18 +262,33 @@ describe('worker gateway handlers', () => {
     });
 
     equal(response?.status, 409);
-    deepEqual(parseBody(response), { type: 'error', message: 'Custom failure.' });
+    deepEqual(parseBody(response), {
+      type: 'error',
+      message: 'Custom failure.'
+    });
   });
 
   it('assert :: unmapped HTTP handler errors still reject', async () => {
     await rejects(
-      Promise.resolve(httpEmulator.requestHandler!({ method: 'GET', path: '/unexpected-error', headers: {}, query: {} })),
+      Promise.resolve(
+        notifyHttpRequest(httpEmulator.identifier, {
+          method: 'GET',
+          path: '/unexpected-error',
+          headers: {},
+          query: {}
+        })
+      ),
       /Unexpected failure/
     );
   });
 
   it('assert :: host-side missing routes remain HTTP errors', async () => {
-    const response = await httpEmulator.requestHandler!({ method: 'GET', path: '/missing', headers: {}, query: {} });
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
+      method: 'GET',
+      path: '/missing',
+      headers: {},
+      query: {}
+    });
 
     equal(response?.status, 404);
   });
@@ -210,18 +298,36 @@ describe('worker gateway handlers', () => {
       name: 'TestWs',
       variables: {},
       services: {
-        ws: { reference: 'TestWs' }
+        ws: {
+          reference: 'TestWs'
+        }
       },
-      schema: objectSchema({ echo: { type: 'string' } }),
-      connect: { handler: handler('connection') },
-      disconnect: { handler: handler('connection') },
+      schema: objectSchema({
+        echo: {
+          type: 'string'
+        }
+      }),
+      connect: {
+        handler: handler('connection')
+      },
+      disconnect: {
+        handler: handler('connection')
+      },
       message: {
         handler: handler('message', {
           request: {
-            body: objectSchema({ text: { type: 'string' } })
+            body: objectSchema({
+              text: {
+                type: 'string'
+              }
+            })
           },
           response: {
-            body: objectSchema({ text: { type: 'string' } })
+            body: objectSchema({
+              text: {
+                type: 'string'
+              }
+            })
           }
         })
       }
@@ -229,70 +335,173 @@ describe('worker gateway handlers', () => {
 
     let wsEmulator: ServiceEmulator;
 
-    const context = makeContext(() => ({ TestWs: wsEmulator.exportDescriptor!() }), { ws: 'TestWs' });
+    const context = makeContext(
+      () => ({
+        TestWs: wsEmulator.exportDescriptor!()
+      }),
+      {
+        ws: 'TestWs'
+      }
+    );
 
     wsEmulator = registerWsLocalService(wsService, serveOptions, context);
 
-    const write = mock.fn((_data: Buffer | string) => {});
-
-    const connection: EmulatorConnection = {
+    const client: WsProviderClient = {
       id: 'connection-1',
       live: true,
-      write,
-      close: mock.fn()
+      write: mock.fn(),
+      close: mock.fn(() => Promise.resolve())
     };
 
     before(() => wsEmulator.bootstrapHandler!());
     after(() => wsEmulator.shutdownHandler!());
 
     it('assert :: ws message with client', async () => {
-      await wsEmulator.connectHandler!({ connection, headers: {} });
-
-      const response = await wsEmulator.messageHandler!({
-        connection,
-        body: Buffer.from(JSON.stringify({ text: 'hello' }))
+      const server = await startServer({
+        name: 'test-gateway',
+        host: '127.0.0.1',
+        port: 3735
       });
 
-      await setTimeout(100);
+      try {
+        const socket = new WebSocket(`ws://127.0.0.1:3735/${wsEmulator.identifier}`);
 
-      equal(response, JSON.stringify({ text: 'hello' }));
+        const messages: string[] = [];
 
-      equal(write.mock.callCount(), 1);
-      deepEqual(write.mock.calls[0].arguments, [JSON.stringify({ echo: 'hello' })]);
+        const received = new Promise<void>((resolve) => {
+          socket.addEventListener('message', (event) => {
+            messages.push(String(event.data));
+
+            if (messages.length === 2) {
+              resolve();
+            }
+          });
+        });
+
+        await once(socket, 'open');
+
+        socket.send(
+          JSON.stringify({
+            text: 'hello'
+          })
+        );
+
+        await received;
+
+        // The handler pushes an echo through the WS client, then its response is written back.
+        deepEqual(messages, [
+          JSON.stringify({
+            echo: 'hello'
+          }),
+          JSON.stringify({
+            text: 'hello'
+          })
+        ]);
+
+        const closed = once(socket, 'close');
+
+        socket.close();
+
+        await closed;
+      } finally {
+        await server.close();
+      }
     });
 
     it('assert :: WS errors preserve their context when mapped inside the worker', async () => {
       const emulator = registerWsLocalService(
-        { ...wsService, name: 'ErrorWs', services: {}, message: { handler: handler('notFound') } } as unknown as WsService,
+        {
+          ...wsService,
+          name: 'ErrorWs',
+          services: {},
+          message: {
+            handler: handler('notFound')
+          }
+        } as unknown as WsService,
         serveOptions,
         makeContext()
       );
-      const response = await emulator.messageHandler!({ connection, body: Buffer.from('{}') });
 
-      deepEqual(JSON.parse(String(response)), {
-        type: 'error',
-        message: 'Resource not found.',
-        context: { resource: 'test' }
-      });
+      await emulator.bootstrapHandler!();
+
+      try {
+        const response = await notifyWsMessage(emulator.identifier, {
+          client,
+          body: Buffer.from('{}')
+        });
+
+        deepEqual(JSON.parse(String(response)), {
+          type: 'error',
+          message: 'Resource not found.',
+          context: {
+            resource: 'test'
+          }
+        });
+      } finally {
+        await emulator.shutdownHandler!();
+      }
     });
 
     it('assert :: WS validation errors are mapped inside the worker', async () => {
-      const response = await wsEmulator.messageHandler!({
-        connection,
-        body: Buffer.from(JSON.stringify({ text: 42 }))
+      await notifyWsConnect(wsEmulator.identifier, {
+        id: client.id,
+        headers: {}
+      });
+
+      const response = await notifyWsMessage(wsEmulator.identifier, {
+        client,
+        body: Buffer.from(
+          JSON.stringify({
+            text: 42
+          })
+        )
       });
 
       equal(JSON.parse(String(response)).type, 'error');
     });
 
+    it('assert :: oversized WS messages close the connection without invoking the handler', async () => {
+      const close = mock.fn(() => Promise.resolve());
+
+      const response = await notifyWsMessage(wsEmulator.identifier, {
+        client: {
+          ...client,
+          close
+        },
+        body: Buffer.alloc(128 * 1024 + 1, 0x61)
+      });
+
+      equal(response, undefined);
+      equal(close.mock.callCount(), 1);
+    });
+
     it('assert :: unmapped WS handler errors still reject', async () => {
       const emulator = registerWsLocalService(
-        { ...wsService, name: 'UnexpectedWs', services: {}, message: { handler: handler('unexpectedError') } } as unknown as WsService,
+        {
+          ...wsService,
+          name: 'UnexpectedWs',
+          services: {},
+          message: {
+            handler: handler('unexpectedError')
+          }
+        } as unknown as WsService,
         serveOptions,
         makeContext()
       );
 
-      await rejects(Promise.resolve(emulator.messageHandler!({ connection, body: Buffer.from('{}') })), /Unexpected failure/);
+      await emulator.bootstrapHandler!();
+
+      try {
+        await rejects(
+          notifyWsMessage(emulator.identifier, {
+            client,
+            body: Buffer.from('{}')
+          }),
+          /Unexpected failure/
+        );
+      } finally {
+        await emulator.shutdownHandler!();
+      }
     });
   });
 });

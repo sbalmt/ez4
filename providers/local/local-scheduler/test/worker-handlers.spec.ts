@@ -5,6 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 import { deepEqual, equal } from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 
+import { notifyHttpRequest } from '@ez4/server';
 import { createModule } from '@ez4/emulator';
 
 import { registerLocalService } from '../src/provider/local';
@@ -54,8 +55,12 @@ describe('worker scheduler handlers', () => {
 
   const makeContext = (): EmulateServiceContext => {
     return {
-      makeDescriptors: () => ({ scheduler: emulator.exportDescriptor!() }),
-      makeReferences: () => ({ scheduler: 'scheduler' }),
+      makeDescriptors: () => ({
+        scheduler: emulator.exportDescriptor!()
+      }),
+      makeReferences: () => ({
+        scheduler: 'scheduler'
+      }),
       makeService: async () => undefined
     } as unknown as EmulateServiceContext;
   };
@@ -83,14 +88,18 @@ describe('worker scheduler handlers', () => {
       }
     });
 
-    return module.invoke({ event });
+    return module.invoke({
+      event
+    });
   };
 
   before(() => emulator.bootstrapHandler!());
   after(() => emulator.shutdownHandler!());
 
   it('assert :: create and get event', async () => {
-    const result = await invokeHandler('createAndGet', { foo: 'foo' });
+    const result = await invokeHandler('createAndGet', {
+      foo: 'foo'
+    });
 
     deepEqual(result, {
       isDate: true,
@@ -125,12 +134,16 @@ describe('worker scheduler handlers', () => {
   });
 
   it('assert :: process scheduler event', async () => {
-    const response = await emulator.requestHandler!({
+    const response = await notifyHttpRequest(emulator.identifier, {
       method: 'POST',
       path: '/',
       headers: {},
       query: {},
-      body: Buffer.from(JSON.stringify({ foo: 'bar' }))
+      body: Buffer.from(
+        JSON.stringify({
+          foo: 'bar'
+        })
+      )
     });
 
     equal(response?.status, 201);
