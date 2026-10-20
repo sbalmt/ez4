@@ -57,6 +57,7 @@
     "@ez4/aws-logs": "^0.56.0",
     "@ez4/common": "^0.56.0",
     "@ez4/project": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/schema": "^0.56.0",
     "@ez4/scheduler": "^0.56.0",
     "@ez4/state": "^0.56.0",

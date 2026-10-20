@@ -6,7 +6,7 @@ import type { Queue } from '@ez4/queue';
 
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
 import { getRandomUUID } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 import { ProviderEvent } from '../types/events';
 

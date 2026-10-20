@@ -6,7 +6,7 @@ import type { AnyObject } from '@ez4/utils';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { validateSchema } from '@ez4/aws-dynamodb/runtime';
 import { createTransformContext, transform } from '@ez4/transform';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { StreamChangeType } from '@ez4/database';
 import { getRandomUUID } from '@ez4/utils';
 

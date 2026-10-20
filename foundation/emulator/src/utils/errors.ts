@@ -1,5 +1,5 @@
 import { isAnyArray } from '@ez4/utils';
-import { ServiceError } from '@ez4/common';
+import { ServiceError } from '@ez4/runtime';
 import { Logger } from '@ez4/logger';
 
 export const getErrorData = (error: unknown) => {

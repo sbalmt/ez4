@@ -1,7 +1,7 @@
 import type { Cron } from '@ez4/scheduler';
 import type { DynamicEvent } from './types';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 /**
  * Watch scheduler lifecycle events.

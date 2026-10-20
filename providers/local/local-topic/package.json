@@ -51,6 +51,7 @@
     "@ez4/emulator": "^0.56.0",
     "@ez4/logger": "^0.56.0",
     "@ez4/local-common": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/topic": "^0.56.0",
     "@ez4/server": "^0.56.0",
     "@ez4/project": "^0.56.0",

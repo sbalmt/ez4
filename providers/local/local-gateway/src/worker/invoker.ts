@@ -17,7 +17,7 @@ import type { IncomingRequest } from '../utils/request';
 
 import { resolveValidation } from '@ez4/gateway/utils';
 import { getRandomUUID } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 import { getHttpErrorResponse, getHttpSuccessResponse } from '../utils/http/response';
 import { getWsErrorResponse, getWsSuccessResponse } from '../utils/ws/response';

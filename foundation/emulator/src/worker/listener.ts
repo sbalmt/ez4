@@ -1,8 +1,8 @@
 import type { AnyObject } from '@ez4/utils';
-import type { Service } from '@ez4/common';
+import type { ServiceAnyEvent } from '@ez4/runtime';
 import type { FunctionCallback } from '../types/function';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 import { logErrorData } from '../utils/errors';
 
@@ -51,7 +51,7 @@ export const onEnd = async (listener: FunctionCallback | undefined, context: Any
   });
 };
 
-const invokeListener = async (listener: FunctionCallback | undefined, context: AnyObject, event: Service.AnyEvent<AnyObject>) => {
+const invokeListener = async (listener: FunctionCallback | undefined, context: AnyObject, event: ServiceAnyEvent<AnyObject>) => {
   try {
     await listener?.(event, context);
   } catch (error) {

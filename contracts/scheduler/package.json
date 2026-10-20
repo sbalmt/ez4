@@ -52,6 +52,7 @@
     "@ez4/common": "^0.56.0",
     "@ez4/project": "^0.56.0",
     "@ez4/reflection": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/schema": "^0.56.0",
     "@ez4/transform": "^0.56.0",
     "@ez4/utils": "^0.56.0",

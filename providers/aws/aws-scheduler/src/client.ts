@@ -15,7 +15,7 @@ import type {
 
 import { getRandomUUID, isAnyNumber } from '@ez4/utils';
 import { getJsonEvent } from '@ez4/scheduler/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 type SchedulerCache = {
   schedulerClient: SchedulerClient;

@@ -4,7 +4,7 @@ import type { ClientAuthorization, ClientOperation } from '@ez4/gateway/library'
 import { sendClientRequest } from '@ez4/gateway/utils';
 import { getRandomUUID, isAnyString } from '@ez4/utils';
 import { prepareRequestUrl } from '@ez4/http';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 export type ClientOperations = Record<string, ClientOperation>;
 

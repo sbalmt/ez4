@@ -2,7 +2,7 @@ import type { ModuleInvocation, ModuleInvoker } from '@ez4/emulator';
 import type { AnyObject } from '@ez4/utils';
 
 import { getRandomUUID } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 export type InvokerOptions = {};
 

@@ -1,6 +1,6 @@
 import type { Http } from '@ez4/gateway';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 /**
  * Watch API lifecycle events.

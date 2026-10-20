@@ -1,4 +1,4 @@
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 import { Logger } from '@ez4/logger';
 
 import Valkey from 'iovalkey';

@@ -5,7 +5,7 @@ import type { Queue } from '@ez4/queue';
 
 import { SQSClient, DeleteMessageCommand, ChangeMessageVisibilityCommand } from '@aws-sdk/client-sqs';
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { getRandomUUID, Wait } from '@ez4/utils';
 
 const client = new SQSClient({});

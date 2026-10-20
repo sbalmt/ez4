@@ -1,9 +1,9 @@
 import type { AnyObject } from '@ez4/utils';
-import type { Service } from '@ez4/common';
+import type { ServiceAnyEvent } from '@ez4/runtime';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
-export const defaultListener = (event: Service.AnyEvent<AnyObject>) => {
+export const defaultListener = (event: ServiceAnyEvent<AnyObject>) => {
   switch (event.type) {
     case ServiceEventType.Begin:
       console.log('Begin event.');
@@ -31,7 +31,7 @@ export const defaultListener = (event: Service.AnyEvent<AnyObject>) => {
   }
 };
 
-export const testListener = (event: Service.AnyEvent<AnyObject>) => {
+export const testListener = (event: ServiceAnyEvent<AnyObject>) => {
   switch (event.type) {
     case ServiceEventType.Begin:
       break;

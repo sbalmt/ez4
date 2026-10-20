@@ -3,7 +3,7 @@ import type { AnySchema } from '@ez4/schema';
 import type { Pool, PoolClient } from 'pg';
 
 import { DuplicateUniqueKeyError } from '@ez4/pgclient';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 import { randomUUID } from 'crypto';
 import { DatabaseError } from 'pg';

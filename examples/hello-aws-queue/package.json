@@ -28,6 +28,7 @@
     "@ez4/local-queue": "^0.56.0",
     "@ez4/queue": "^0.56.0",
     "@ez4/project": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/validation": "^0.56.0"
   }
 }

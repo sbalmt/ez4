@@ -64,6 +64,7 @@
     "@ez4/aws-logs": "^0.56.0",
     "@ez4/common": "^0.56.0",
     "@ez4/project": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/state": "^0.56.0",
     "@ez4/storage": "^0.56.0",
     "@ez4/utils": "^0.56.0",

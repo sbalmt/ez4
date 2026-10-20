@@ -18,6 +18,7 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
+    "@ez4/runtime": "^0.56.0",
     "hello-aws-topic": "^0.0.0",
     "@ez4/aws-topic": "^0.56.0",
     "@ez4/aws-queue": "^0.56.0",

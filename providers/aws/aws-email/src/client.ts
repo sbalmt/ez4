@@ -2,7 +2,7 @@ import type { EmailAttachment, Client as EmailClient, EmailHeaders, EmailMessage
 import type { Attachment, MessageHeader } from '@aws-sdk/client-sesv2';
 
 import { SendEmailCommand, SESv2Client } from '@aws-sdk/client-sesv2';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 export namespace Client {
   const client = new SESv2Client();

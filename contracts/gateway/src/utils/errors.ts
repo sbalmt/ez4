@@ -1,4 +1,4 @@
-import type { ServiceErrorContext } from '@ez4/common';
+import type { ServiceErrorContext } from '@ez4/runtime';
 
 import {
   HttpBadRequestError,

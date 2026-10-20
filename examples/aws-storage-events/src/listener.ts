@@ -1,6 +1,6 @@
 import type { Bucket } from '@ez4/storage';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 export function eventListener(event: Bucket.ServiceEvent) {
   switch (event.type) {

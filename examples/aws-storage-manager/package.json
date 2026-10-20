@@ -35,6 +35,7 @@
     "@ez4/local-gateway": "^0.56.0",
     "@ez4/local-storage": "^0.56.0",
     "@ez4/project": "^0.56.0",
+    "@ez4/runtime": "^0.56.0",
     "@ez4/schema": "^0.56.0",
     "@ez4/storage": "^0.56.0"
   }

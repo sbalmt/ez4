@@ -15,7 +15,7 @@ import {
 import { DatabaseResumingException } from '@aws-sdk/client-rds-data';
 import { DuplicateUniqueKeyError } from '@ez4/pgclient';
 import { parseRecords } from '@ez4/pgclient/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 import { Wait } from '@ez4/utils';
 
 import { detectFieldData, prepareFieldData, parseRecordsWithMetadata, parseRecordsWithColumns } from '../fields';

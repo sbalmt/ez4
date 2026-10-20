@@ -2,7 +2,7 @@ import type { S3Event, Context } from 'aws-lambda';
 import type { Bucket } from '@ez4/storage';
 
 import { BucketEventType } from '@ez4/storage';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_CONTEXT: object;
