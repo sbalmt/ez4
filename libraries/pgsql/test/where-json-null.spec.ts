@@ -13,6 +13,7 @@ describe('sql where json null tests', () => {
     properties: {
       json: {
         type: SchemaType.Object,
+        nullable: true,
         properties: {
           foo: {
             type: SchemaType.String,
@@ -28,7 +29,39 @@ describe('sql where json null tests', () => {
     sql = new SqlBuilder();
   });
 
-  it('assert :: where json is null (implicit)', ({ assert }) => {
+  it('assert :: where json column is null (operator)', ({ assert }) => {
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        json: {
+          isNull: true
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+    assert.equal(statement, `SELECT FROM "test" WHERE "json" IS null`);
+  });
+
+  it('assert :: where json column is not null (operator)', ({ assert }) => {
+    const query = sql
+      .select(schema)
+      .from('test')
+      .where({
+        json: {
+          isNull: false
+        }
+      });
+
+    const [statement, variables] = query.build();
+
+    assert.deepEqual(variables, []);
+    assert.equal(statement, `SELECT FROM "test" WHERE "json" IS NOT null`);
+  });
+
+  it('assert :: where json field is null (implicit)', ({ assert }) => {
     const query = sql
       .select(schema)
       .from('test')
@@ -45,7 +78,7 @@ describe('sql where json null tests', () => {
     assert.equal(statement, `SELECT FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
-  it('assert :: where json is null (explicit)', ({ assert }) => {
+  it('assert :: where json field is null (explicit)', ({ assert }) => {
     const query = sql
       .select(schema)
       .from('test')
@@ -64,7 +97,7 @@ describe('sql where json null tests', () => {
     assert.equal(statement, `SELECT FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
-  it('assert :: where json is null (operator)', ({ assert }) => {
+  it('assert :: where json field is null (operator)', ({ assert }) => {
     const query = sql
       .select(schema)
       .from('test')
@@ -83,7 +116,7 @@ describe('sql where json null tests', () => {
     assert.equal(statement, `SELECT FROM "test" WHERE "json"->>'foo' IS null`);
   });
 
-  it('assert :: where json is not null (explicit)', ({ assert }) => {
+  it('assert :: where json field is not null (explicit)', ({ assert }) => {
     const query = sql
       .select(schema)
       .from('test')
@@ -102,7 +135,7 @@ describe('sql where json null tests', () => {
     assert.equal(statement, `SELECT FROM "test" WHERE "json"->>'foo' IS NOT null`);
   });
 
-  it('assert :: where json is not null (operator)', ({ assert }) => {
+  it('assert :: where json field is not null (operator)', ({ assert }) => {
     const query = sql
       .select(schema)
       .from('test')

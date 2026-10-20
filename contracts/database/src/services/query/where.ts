@@ -72,7 +72,9 @@ type WhereOperations<V, E extends DatabaseEngine> =
   | WhereContains<V, E>;
 
 type WhereField<V, E extends DatabaseEngine> =
-  IsObject<V> extends true ? PreserveNull<V, WhereObjectField<NonNullable<V>, E>> : V | WhereOperations<V, E>;
+  IsObject<V> extends true
+    ? PreserveNull<V, WhereObjectField<NonNullable<V>, E>> | WhereIsNull | WhereIsMissing | WhereIsMissingOrNull
+    : V | WhereOperations<V, E>;
 
 type WhereObjectField<V extends AnyObject, E extends DatabaseEngine> = {
   [P in keyof V]?: WhereField<V[P], E>;
