@@ -164,7 +164,9 @@ const handleActionResults = setUpdatingFunction(({ success, status, time, result
   badges.responseStatus.classList.remove(success ? 'response-error' : 'response-success');
   badges.responseStatus.classList.add(success ? 'response-success' : 'response-error');
 
-  tabs.actionResponse.click();
+  if (results) {
+    tabs.actionResponse.click();
+  }
 
   setResponseEditorValue(editors.responseEditor, results);
 
