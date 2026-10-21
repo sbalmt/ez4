@@ -1,13 +1,13 @@
 import { deepEqual } from 'assert/strict';
 import { describe, it } from 'node:test';
 
-import { CacheTester } from '@ez4/local-cache/test';
+import { CacheTester } from '@ez4/local-cache/tester';
 
 import { setDataHandler } from '../src/endpoints/set';
 import { getDataHandler } from '../src/endpoints/get';
 
-describe('hello raw redis', () => {
-  const cacheService = CacheTester.getClient('CacheService');
+describe('hello raw redis', async () => {
+  const cacheService = await CacheTester.getClient('CacheService');
 
   it('set cache data', async () => {
     const response = await setDataHandler(
