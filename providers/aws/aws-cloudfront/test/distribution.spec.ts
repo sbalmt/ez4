@@ -53,7 +53,7 @@ describe('cloudfront :: distribution', { timeout: 3600000 }, () => {
   it('assert :: deploy', async () => {
     const localState: EntryStates = {};
 
-    const originBucketName = 'ez4-test-distribution-bucket';
+    const originBucketName = `ez4-test-bucket-${Date.now()}`;
 
     const bucketResource = createBucket(localState, {
       bucketName: originBucketName
