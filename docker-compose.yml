@@ -5,6 +5,15 @@ services:
     restart: always
     ports:
       - 6379:6379
+  redis-rest:
+    image: hiett/serverless-redis-http:0.0.10
+    restart: always
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: ez4
+      SRH_CONNECTION_STRING: redis://valkey:6379
+    ports:
+      - 8079:80
   dynamodb:
     image: amazon/dynamodb-local:3.3.0
     command: -jar DynamoDBLocal.jar -sharedDb

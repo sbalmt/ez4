@@ -67,6 +67,7 @@
     "providers/aws/aws-cloudfront",
     "providers/aws/aws-email",
     "providers/raw/raw-pg",
+    "providers/raw/raw-redis",
     "examples/*",
     "tests/*"
   ],
