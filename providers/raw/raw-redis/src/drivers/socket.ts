@@ -3,7 +3,7 @@ import type { CacheDriver } from './types';
 import { Runtime } from '@ez4/runtime';
 import { Logger } from '@ez4/logger';
 
-import Valkey from 'iovalkey';
+import Redis from 'ioredis';
 
 import { DRIVER_TIMEOUT } from './types';
 
@@ -11,7 +11,7 @@ import { DRIVER_TIMEOUT } from './types';
  * Redis protocol driver (TCP), `rediss://` enables TLS.
  */
 export const createSocketDriver = (url: string, debug?: boolean): CacheDriver => {
-  const client = new Valkey(url, {
+  const client = new Redis(url, {
     // Keep reconnecting in background, while the connection is down commands fail right away
     // instead of waiting in the offline queue.
     retryStrategy: (times) => Math.min(times * 200, DRIVER_TIMEOUT),
