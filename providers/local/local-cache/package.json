@@ -49,7 +49,6 @@
   "dependencies": {
     "@ez4/cache": "^0.56.0",
     "@ez4/logger": "^0.56.0",
-    "@ez4/project": "^0.56.0",
-    "@ez4/utils": "^0.56.0"
+    "@ez4/project": "^0.56.0"
   }
 }

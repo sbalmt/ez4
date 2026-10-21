@@ -33,8 +33,5 @@
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../.registry/@ez4/logger",
     "live:publish": "npm run build && npm publish --access public"
-  },
-  "dependencies": {
-    "@ez4/utils": "^0.56.0"
   }
 }

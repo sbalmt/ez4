@@ -46,7 +46,6 @@
     "@aws-sdk/client-acm": "^3.1127.0",
     "@ez4/aws-common": "^0.56.0",
     "@ez4/state": "^0.56.0",
-    "@ez4/utils": "^0.56.0",
-    "mime": "^3.0.0"
+    "@ez4/utils": "^0.56.0"
   }
 }

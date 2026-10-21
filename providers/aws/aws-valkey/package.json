@@ -50,9 +50,6 @@
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-valkey",
     "live:publish": "npm run build && npm publish --access public"
   },
-  "devDependencies": {
-    "@ez4/emulator": "^0.56.0"
-  },
   "dependencies": {
     "@aws-sdk/client-elasticache": "^3.1127.0",
     "@ez4/aws-common": "^0.56.0",

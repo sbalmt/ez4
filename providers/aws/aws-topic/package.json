@@ -63,7 +63,6 @@
     "@ez4/schema": "^0.56.0",
     "@ez4/state": "^0.56.0",
     "@ez4/topic": "^0.56.0",
-    "@ez4/transform": "^0.56.0",
     "@ez4/utils": "^0.56.0",
     "@ez4/validator": "^0.56.0"
   }
