@@ -1,10 +1,8 @@
 import type { HttpClient, Http, Ws, WsClient } from '@ez4/gateway';
 import type { ProviderContext } from '@ez4/emulator';
-import type { HttpServiceClientOptions } from '../client/http/service';
-import type { WsServiceClientOptions } from '../client/ws/service';
+import type { HttpServiceClientOptions, WsServiceClientOptions } from '@ez4/local-gateway/client';
 
-import { createHttpServiceClient } from '../client/http/service';
-import { createWsServiceClient } from '../client/ws/service';
+import { createHttpServiceClient, createWsServiceClient } from '@ez4/local-gateway/client';
 import { ProviderEvent } from '../types/events';
 
 export type HttpServiceOptions = HttpServiceClientOptions & {

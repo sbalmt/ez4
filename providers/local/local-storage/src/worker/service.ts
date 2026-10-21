@@ -1,7 +1,7 @@
 import type { ProviderContext } from '@ez4/emulator';
-import type { LocalClientOptions } from '../client/local';
+import type { LocalClientOptions } from '@ez4/local-storage/client';
 
-import { createLocalClient } from '../client/local';
+import { createLocalClient } from '@ez4/local-storage/client';
 
 export type ServiceOptions = LocalClientOptions;
 

@@ -1,7 +1,7 @@
 import type { ProviderContext } from '@ez4/emulator';
 import type { AnyObject } from '@ez4/utils';
 
-import { OptionsClient, VariablesClient } from '../client';
+import { OptionsClient, VariablesClient } from '@ez4/common/client';
 
 export const makeOptions = (options: AnyObject) => {
   return OptionsClient.make(options);

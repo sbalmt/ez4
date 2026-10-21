@@ -2,10 +2,9 @@ import type { ProviderContext } from '@ez4/emulator';
 import type { MessageSchema } from '@ez4/queue/utils';
 import type { Queue } from '@ez4/queue';
 
-import type { RemoteClientOptions } from '../client/remote';
+import type { RemoteClientOptions } from '@ez4/local-queue/client';
 
-import { createLocalClient } from '../client/local';
-import { createRemoteClient } from '../client/remote';
+import { createLocalClient, createRemoteClient } from '@ez4/local-queue/client';
 
 export type LocalServiceOptions = {
   identifier: string;

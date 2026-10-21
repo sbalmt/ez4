@@ -1,8 +1,9 @@
-import type { ClientContext } from '../client/service';
-import type { ClientInstanceOptions } from '../client/utils/instance';
+import type { ClientContext } from '@ez4/aws-dynamodb/client';
+import type { ClientInstanceOptions } from '../client/instance';
 
-import { getClientInstance } from '../client/utils/instance';
-import { Client } from '../client/service';
+import { Client } from '@ez4/aws-dynamodb/client';
+
+import { getClientInstance } from '../client/instance';
 
 export type ServiceOptions = Omit<ClientContext, 'client'> & {
   connection?: ClientInstanceOptions;

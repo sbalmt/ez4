@@ -1,13 +1,13 @@
 import type { ClientContext as LocalClientContext } from '@ez4/pgclient/driver';
 import type { PgTableRepository } from '@ez4/pgclient/library';
 import type { Arn } from '@ez4/aws-common';
-import type { ClientOptions } from '../client/types';
+import type { ClientOptions } from '@ez4/aws-aurora/client';
 
 import { Client as LocalClient } from '@ez4/pgclient/driver';
 
-import { Client as NativeClient } from '../client/providers/native';
-import { Client as ApiClient } from '../client/providers/api';
-import { ConnectionMode } from '../client/types';
+import { Client as NativeClient } from '@ez4/aws-aurora/client/native';
+import { Client as ApiClient } from '@ez4/aws-aurora/client/api';
+import { ConnectionMode } from '@ez4/aws-aurora/client';
 
 export type ServiceOptions =
   | {

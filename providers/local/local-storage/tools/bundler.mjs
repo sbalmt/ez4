@@ -11,3 +11,6 @@ bundlePackage('src/runner.ts', 'dist/runner.mjs');
 
 // Worker package.
 bundlePackage('src/worker.ts', 'dist/worker.mjs');
+
+// Client package.
+bundlePackage('src/client.ts', 'dist/client.mjs');

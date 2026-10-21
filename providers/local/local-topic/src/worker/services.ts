@@ -1,10 +1,9 @@
 import type { Client, Topic } from '@ez4/topic';
 import type { EventSchema } from '@ez4/topic/utils';
 import type { ProviderContext } from '@ez4/emulator';
-import type { RemoteClientOptions } from '../client/remote';
+import type { RemoteClientOptions } from '@ez4/local-topic/client';
 
-import { createLocalClient } from '../client/local';
-import { createRemoteClient } from '../client/remote';
+import { createLocalClient, createRemoteClient } from '@ez4/local-topic/client';
 
 export type LocalServiceOptions = {
   identifier: string;

@@ -1,4 +1,4 @@
-import { Client } from '../client';
+import { Client } from '@ez4/aws-bucket/client';
 
 export type ServiceOptions = {
   bucketName: string;
