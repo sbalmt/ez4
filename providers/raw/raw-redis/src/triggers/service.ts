@@ -48,7 +48,9 @@ export const prepareLinkedServices = (event: ServiceEvent) => {
       `})`,
     variables: {
       [envNames.url]: url,
-      ...(token && { [envNames.token]: token })
+      ...(token && {
+        [envNames.token]: token
+      })
     }
   };
 };
