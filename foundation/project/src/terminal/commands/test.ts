@@ -14,10 +14,10 @@ import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
 import { loadPaths } from '../../config/tsconfig';
 
-import { glob } from 'node:fs/promises';
 import { spec } from 'node:test/reporters';
+import { after, before, run } from 'node:test';
+import { glob } from 'node:fs/promises';
 import { join } from 'node:path';
-import { run } from 'node:test';
 
 export const testCommand = async (input: InputOptions) => {
   const project = await loadProject(input.project);
@@ -62,11 +62,10 @@ export const testCommand = async (input: InputOptions) => {
   const workingDirectory = process.cwd();
   const filePatterns = input.arguments;
 
-  const testFiles = await DynamicLogger.logExecution('🧪 Running tests', async () => {
+  const testFiles = await DynamicLogger.logExecution('🧪 Preparing tests', async () => {
     Tester.configure(emulators, options);
 
     await prepareServices(emulators);
-    await bootstrapServices(emulators);
 
     const testFiles: string[] = [];
 
@@ -95,14 +94,20 @@ export const testCommand = async (input: InputOptions) => {
     isolation: 'none',
     files: testFiles,
     forceExit: true,
-    timeout: 5000
+    timeout: 5000,
+    setup: () => {
+      before(async () => {
+        await bootstrapServices(emulators);
+      });
+      after(async () => {
+        await shutdownServices(emulators);
+      });
+    }
   });
 
   testRunner.compose(spec).pipe(process.stdout);
 
-  testRunner.on('test:summary', async ({ success }) => {
-    await shutdownServices(emulators);
-
+  testRunner.on('test:summary', ({ success }) => {
     if (!success) {
       process.exitCode = 1;
     }
