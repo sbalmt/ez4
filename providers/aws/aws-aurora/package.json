@@ -25,6 +25,10 @@
       "types": "./dist/main.d.ts",
       "default": "./dist/main.mjs"
     },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "default": "./dist/worker.mjs"
+    },
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.mjs"
@@ -36,10 +40,6 @@
     "./client/native": {
       "types": "./dist/client-native.d.ts",
       "default": "./dist/client-native.mjs"
-    },
-    "./worker": {
-      "types": "./dist/worker.d.ts",
-      "default": "./dist/worker.mjs"
     }
   },
   "sideEffects": [

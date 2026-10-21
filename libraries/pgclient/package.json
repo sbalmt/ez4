@@ -24,13 +24,13 @@
       "types": "./dist/main.d.ts",
       "default": "./dist/main.mjs"
     },
-    "./driver": {
-      "types": "./dist/driver.d.ts",
-      "default": "./dist/driver.mjs"
-    },
     "./library": {
       "types": "./dist/library.d.ts",
       "default": "./dist/library.mjs"
+    },
+    "./driver": {
+      "types": "./dist/driver.d.ts",
+      "default": "./dist/driver.mjs"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
