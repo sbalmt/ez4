@@ -1,12 +1,12 @@
 import type { EmulateDescriptorEvent, EmulateServiceEvent, EmulatorServiceDescriptor } from '@ez4/project/library';
 import type { CacheService } from '@ez4/cache/library';
-import type { ClientContext } from '../client/service';
+import type { ClientContext } from '@ez4/aws-valkey/client';
 
+import { Client } from '@ez4/aws-valkey/client';
 import { importCache } from '../cache/client';
 import { getConnectionOptions } from '../local/options';
 import { RemoteCacheNotFoundError } from '../cache/errors';
 import { deleteAllKeys } from '../local/keys';
-import { Client } from '../client';
 import { getCacheName, isValkeyService } from './utils';
 
 export const prepareEmulatorDescriptor = async (event: EmulateDescriptorEvent): Promise<EmulatorServiceDescriptor | null> => {

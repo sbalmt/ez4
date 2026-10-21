@@ -1,7 +1,8 @@
 import type { EmulateDescriptorEvent, EmulateServiceEvent, EmulatorServiceDescriptor } from '@ez4/project/library';
 
+import { Client } from '@ez4/raw-redis/client';
+
 import { getConnectionOptions } from '../local/options';
-import { Client } from '../client/service';
 import { getCacheName, getKeyPrefix, isRawRedisService } from './utils';
 
 export const prepareEmulatorDescriptor = (event: EmulateDescriptorEvent): EmulatorServiceDescriptor | null => {
@@ -31,8 +32,9 @@ export const resetEmulatorService = async (event: EmulateServiceEvent) => {
   }
 
   // Only the keys of this service are removed (see `flush`).
+  const identifier = `${getCacheName(service, options)}:reset`;
   const client = Client.make({
-    identifier: getCacheName(service, options),
+    identifier,
     prefix: getKeyPrefix(service, options),
     connection: getConnectionOptions(service, options),
     debug: options.debug
@@ -41,7 +43,7 @@ export const resetEmulatorService = async (event: EmulateServiceEvent) => {
   try {
     await client.flush();
   } finally {
-    Client.dispose(getCacheName(service, options));
+    Client.dispose(identifier);
   }
 };
 

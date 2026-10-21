@@ -1,8 +1,8 @@
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { CacheService } from '@ez4/cache/library';
-import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 
 import { equal, ok } from 'node:assert/strict';
-import { after, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 
 import { createModule } from '@ez4/emulator';
 import { ServiceType } from '@ez4/cache/library';
@@ -76,18 +76,10 @@ describe('cache emulator lifecycle (socket)', () => {
     connection
   });
 
-  after(async () => {
-    try {
-      await client.flush();
-      await otherClient.flush();
-    } finally {
-      Client.dispose(identifier);
-      Client.dispose(otherIdentifier);
-    }
-  });
+  let emulator: ServiceEmulator | null | undefined;
 
-  it('assert :: registers with local-cache, resets only its prefix and injects workers', async () => {
-    const emulator = await triggerAllAsync('emulator:getServices', (handler) =>
+  before(async () => {
+    emulator = await triggerAllAsync('emulator:getServices', (handler) =>
       handler({
         service,
         options: localOptions,
@@ -102,43 +94,52 @@ describe('cache emulator lifecycle (socket)', () => {
     await otherClient.set('preserved', 'other');
     await emulator.prepareHandler?.();
 
+    await emulator.bootstrapHandler?.();
+  });
+
+  after(async () => {
+    try {
+      await client.flush();
+      await otherClient.flush();
+    } finally {
+      await emulator?.shutdownHandler?.();
+      Client.dispose(otherIdentifier);
+    }
+  });
+
+  it('assert :: registers with local-cache, resets only its prefix and injects workers', async () => {
+    ok(emulator?.exportDescriptor);
+
     equal(await client.get('stale'), undefined);
     equal(await otherClient.get('preserved'), 'other');
 
-    await emulator.bootstrapHandler?.();
+    const module = createModule({
+      environment: {
+        timeout: 10,
+        memory: 64
+      },
+      handler: {
+        file: 'test/files/handlers.ts',
+        name: 'cacheHandler',
+        position: [1, 1]
+      },
+      invoker: {
+        file: 'test/files/handlers.ts',
+        name: 'makeInvoker'
+      },
+      services: {
+        cache: emulator.exportDescriptor()
+      },
+      references: {
+        cache: 'cache'
+      }
+    });
 
-    try {
-      const module = createModule({
-        environment: {
-          timeout: 10,
-          memory: 64
-        },
-        handler: {
-          file: 'test/files/handlers.ts',
-          name: 'cacheHandler',
-          position: [1, 1]
-        },
-        invoker: {
-          file: 'test/files/handlers.ts',
-          name: 'makeInvoker'
-        },
-        services: {
-          cache: emulator.exportDescriptor()
-        },
-        references: {
-          cache: 'cache'
-        }
-      });
+    const result = await module.invoke({
+      value: 'worker-value'
+    });
 
-      equal(
-        await module.invoke({
-          value: 'worker-value'
-        }),
-        'worker-value'
-      );
-      equal(await client.get('worker'), 'worker-value');
-    } finally {
-      await emulator.shutdownHandler?.();
-    }
+    equal(await client.get('worker'), 'worker-value');
+    equal(result, 'worker-value');
   });
 });

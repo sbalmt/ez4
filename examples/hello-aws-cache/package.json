@@ -17,7 +17,7 @@
     "destroy": "ez4 destroy -e local.env --force",
     "serve": "ez4 serve -e local.env",
     "output": "ez4 output -e local.env",
-    "test": "ez4 test -e local.env"
+    "test": "ez4 test -e local.env --local"
   },
   "dependencies": {
     "@ez4/aws-gateway": "^0.56.0",
