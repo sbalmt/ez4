@@ -10,8 +10,7 @@ import { assertConnection } from '../common/connection';
 
 const CACHE_DRIVERS: Record<string, CacheDriver> = {};
 
-// Keys deleted per round trip when flushing.
-const FLUSH_BATCH_SIZE = 500;
+const FLUSH_SCAN_COUNT = 500;
 
 export namespace Client {
   export const make = (context: ClientContext): CacheClient => {
@@ -87,13 +86,13 @@ export namespace Client {
         let cursor = '0';
 
         do {
-          const [nextCursor, keys] = (await driver.send(['SCAN', cursor, 'MATCH', pattern, 'COUNT', FLUSH_BATCH_SIZE])) as [
+          const [nextCursor, keys] = (await driver.send(['SCAN', cursor, 'MATCH', pattern, 'COUNT', FLUSH_SCAN_COUNT])) as [
             string,
             string[]
           ];
 
           if (keys.length) {
-            await driver.send(['DEL', ...keys]);
+            await driver.send(['UNLINK', ...keys]);
           }
 
           cursor = String(nextCursor);
