@@ -16,8 +16,7 @@ const options: ServeOptions = {
   branchName: 'dev',
   localOptions: {},
   testOptions: {},
-  serviceHost: 'localhost:3734',
-  version: 1
+  serviceHost: 'localhost:3734'
 };
 
 const emulators: Record<string, ServiceEmulator> = {

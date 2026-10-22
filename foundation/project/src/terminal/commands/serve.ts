@@ -83,8 +83,6 @@ export const serveCommand = async (input: InputOptions) => {
         Logger.log(`🚀 Project [${project.projectName}] reloaded`);
       }
 
-      options.version++;
-
       isRunning = true;
     }
   });
