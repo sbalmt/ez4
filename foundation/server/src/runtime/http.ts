@@ -2,12 +2,12 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { HttpProviderCors } from '../types/provider';
 import type { ServerOptions } from '../types/server';
 
-import { canSendReply } from '../utils/http/response';
+import { canSendHttpReply } from '../utils/http/stream';
 import { isHttpOptionsMethod } from '../utils/http/method';
 import { getIncomingRequest } from '../utils/incoming';
 import { logRequest, logError } from '../utils/logger';
 import { ProviderType } from '../types/provider';
-import { replyHttpFailure, replyHttpSuccess } from './http/response';
+import { replyHttpFailure, replyHttpSuccess } from './http/replies';
 import { getHttpProviderOptions, notifyHttpRequest, providerRegistered } from './provider';
 
 export const requestHandler = (request: IncomingMessage, stream: ServerResponse<IncomingMessage>, options: ServerOptions) => {
@@ -20,7 +20,7 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
   let cors: HttpProviderCors | undefined;
 
   const rejectRequest = (status: number, message: string) => {
-    if (canSendReply(stream)) {
+    if (canSendHttpReply(stream)) {
       replyHttpFailure(stream, request, cors, status, message);
     } else {
       stream.destroy();
@@ -52,7 +52,7 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
   });
 
   request.on('end', async () => {
-    if (!canSendReply(stream)) {
+    if (!canSendHttpReply(stream)) {
       return;
     }
 
@@ -71,7 +71,7 @@ export const requestHandler = (request: IncomingMessage, stream: ServerResponse<
             method
           });
 
-      if (canSendReply(stream)) {
+      if (canSendHttpReply(stream)) {
         replyHttpSuccess(stream, request, cors, response ?? { status: 204 });
       }
     } catch (error) {

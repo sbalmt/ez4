@@ -119,7 +119,6 @@ jobs:
       - name: Test local providers
         run: |
           npm test \
-          -w @ez4/local-common \
           -w @ez4/local-gateway \
           -w @ez4/local-database \
           -w @ez4/local-cache \

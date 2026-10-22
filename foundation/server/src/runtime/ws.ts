@@ -8,7 +8,7 @@ import { getHttpErrorStatus } from '../utils/http/errors';
 import { isWsKey, isWsUpgrade, isWsVersion } from '../utils/ws/handshake';
 import { logRequest, logError } from '../utils/logger';
 import { getIncomingRequest } from '../utils/incoming';
-import { replyWsError, replyWsSuccess } from './ws/response';
+import { replyWsError, replyWsSuccess } from './ws/replies';
 import { createWsConnection } from './ws/connection';
 import { consumeWsFrames } from './ws/frames';
 import { notifyWsConnect, providerRegistered } from './provider';

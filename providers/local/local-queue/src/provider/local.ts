@@ -5,8 +5,13 @@ import type { AnyObject } from '@ez4/utils';
 import type { ProviderMessageEvent } from '../types/events';
 
 import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
-import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
-import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
+import {
+  getErrorResponse,
+  getSuccessResponse,
+  ProviderType,
+  registerProvider as registerServerProvider,
+  unregisterProvider as unregisterServerProvider
+} from '@ez4/server';
 import { MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';

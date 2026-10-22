@@ -3,7 +3,7 @@ import type { HttpProviderCors, HttpProviderCorsOptions } from '../../types/prov
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { getSanitizedHeader, getSanitizedHeaders } from './headers';
+import { getSanitizedHeader, getSanitizedHeaders } from '../headers';
 
 export const getHttpCorsPreflightHeaders = (request: IncomingMessage, cors?: HttpProviderCors): Record<string, string> | undefined => {
   const { ['access-control-request-method']: method, ['access-control-request-headers']: headers, origin } = request.headers;

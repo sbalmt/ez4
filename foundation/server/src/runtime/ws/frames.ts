@@ -7,7 +7,7 @@ import { decodeWsFrame, encodeWsPongFrame } from '../../utils/ws/frame';
 import { WsUnexpectedFrameError, WsCloseError } from '../../errors/ws';
 import { WsOpcode } from '../../types/ws';
 import { notifyWsMessage } from '../provider';
-import { replyWsClose } from './response';
+import { replyWsClose } from './replies';
 
 export const consumeWsFrames = async (stream: Duplex, head: Buffer, provider: string, client: WsProviderClient) => {
   let buffer: Buffer = Buffer.alloc(0);

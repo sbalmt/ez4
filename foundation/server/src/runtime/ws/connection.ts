@@ -10,7 +10,7 @@ import { UnavailableConnectionError } from '../../errors/client';
 import { WsState } from '../../types/ws';
 import { notifyWsDisconnect } from '../provider';
 import { registerWsClient, unregisterWsClient } from './client';
-import { replyWsClose } from './response';
+import { replyWsClose } from './replies';
 
 export const createWsConnection = (stream: Duplex, provider: string, headers: WsProviderConnection['headers']) => {
   let state: WsState = WsState.Pending;

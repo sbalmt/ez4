@@ -38,7 +38,6 @@
     "libraries/pgclient",
     "libraries/pgmigration",
     "extensions/vscode",
-    "providers/local/local-common",
     "providers/local/local-scheduler",
     "providers/local/local-database",
     "providers/local/local-cache",

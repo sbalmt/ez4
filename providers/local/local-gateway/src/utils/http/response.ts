@@ -3,7 +3,7 @@ import type { AnyObject } from '@ez4/utils';
 import type { Http } from '@ez4/gateway';
 
 import { getJsonError, resolveResponseBody } from '@ez4/gateway/utils';
-import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
+import { getErrorResponse, getSuccessResponse } from '@ez4/server';
 import { isScalarSchema } from '@ez4/schema';
 import { HttpError } from '@ez4/gateway';
 
