@@ -62,14 +62,14 @@ export namespace ManifestService {
     const logger = LoggerService.get();
 
     try {
-      logger.debug(`Fetch project manifest:`, project);
+      logger.debug(`Fetch project manifest from:`, `${host}:${port}`);
 
       const response = await fetch(`http://${host}:${port}/${project}/manifest`, {
         method: 'GET'
       });
 
       if (!response.ok) {
-        logger.error(`Project ${project} unavailable:`, `status ${response.status}`);
+        logger.error(`Project ${project} manifest unavailable at ${host}:${port}:`, `status ${response.status}`);
       } else {
         const project = (await response.json()) as ProjectManifest<ObjectSchema>;
 
@@ -78,7 +78,7 @@ export namespace ManifestService {
         return project;
       }
     } catch (error) {
-      logger.warn(`Project ${project} unavailable:`, error);
+      logger.warn(`Project ${project} manifest unavailable at ${host}:${port}:`, error);
     }
 
     return undefined;

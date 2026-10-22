@@ -1,79 +1,42 @@
 import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
-import type { ValidationCustomContext } from '@ez4/validator';
 import type { AnyObject } from '@ez4/utils';
-import type { Queue } from '@ez4/queue';
 
-import { createModule, onBegin, onReady, onDone, onError, onEnd } from '@ez4/local-common';
-import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { getRandomUUID, pickObject } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { QueueDefaults } from '@ez4/queue/library';
+import { createModule } from '@ez4/emulator';
 
 export const processLambdaMessage = async (
   service: QueueService | QueueImport,
   options: ServeOptions,
   context: EmulateServiceContext,
   subscription: QueueSubscription,
-  message: AnyObject,
-  retry: (delay: number) => void
+  message: AnyObject
 ) => {
-  const { services } = service;
+  const references = context.makeReferences(service.services, subscription.handler.references);
+  const services = context.makeDescriptors(service.services);
 
-  const servicesInUse = subscription.handler.references ? pickObject(services, subscription.handler.references) : services;
-  const serviceClients = context.makeClients(servicesInUse);
-
-  const traceId = getRandomUUID();
-
-  const module = await createModule({
+  const module = createModule({
     listener: subscription.listener,
     handler: subscription.handler,
-    version: options.version,
-    variables: {
-      ...options.variables,
-      ...service.variables,
-      ...subscription.variables
+    references,
+    services,
+    invoker: {
+      name: 'makeInvoker',
+      module: '@ez4/local-queue/worker',
+      options: {
+        schema: service.schema
+      }
+    },
+    environment: {
+      memory: subscription.memory ?? QueueDefaults.Memory,
+      timeout: service.timeout ?? QueueDefaults.Timeout,
+      variables: {
+        ...options.variables,
+        ...service.variables,
+        ...subscription.variables
+      }
     }
   });
 
-  let currentRequest: Queue.Incoming<Queue.Message> | undefined;
-
-  const request = {
-    requestId: getRandomUUID()
-  };
-
-  const onCustomValidation = (value: unknown, context: ValidationCustomContext) => {
-    return resolveValidation(value, serviceClients, context.type);
-  };
-
-  try {
-    await onBegin(module, serviceClients, request);
-
-    currentRequest = {
-      ...request,
-      message: await getJsonMessage(message, service.schema, onCustomValidation),
-      maxAttempts: 1,
-      attempt: 1,
-      traceId,
-      retry: (options?: Queue.RetryOptions) => {
-        retry(options?.delay ?? service.backoff?.minDelay ?? 0);
-        return Promise.resolve();
-      }
-    };
-
-    Runtime.setScope({
-      traceId
-    });
-
-    await onReady(module, serviceClients, currentRequest);
-    await module.handler(currentRequest, serviceClients);
-    await onDone(module, serviceClients, currentRequest);
-    //
-  } catch (error) {
-    await onError(module, serviceClients, currentRequest ?? request, error);
-
-    throw error;
-    //
-  } finally {
-    await onEnd(module, serviceClients, request);
-  }
+  await module.invoke(message);
 };

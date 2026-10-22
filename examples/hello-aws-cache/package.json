@@ -17,18 +17,18 @@
     "destroy": "ez4 destroy -e local.env --force",
     "serve": "ez4 serve -e local.env",
     "output": "ez4 output -e local.env",
-    "test": "ez4 test -e local.env"
+    "test": "ez4 test -e local.env --local"
   },
   "dependencies": {
-    "@ez4/aws-gateway": "^0.55.0",
-    "@ez4/aws-valkey": "^0.55.0",
-    "@ez4/cache": "^0.55.0",
-    "@ez4/common": "^0.55.0",
-    "@ez4/local-cache": "^0.55.0",
-    "@ez4/local-gateway": "^0.55.0",
-    "@ez4/gateway": "^0.55.0",
-    "@ez4/project": "^0.55.0",
-    "@ez4/schema": "^0.55.0",
-    "@ez4/utils": "^0.55.0"
+    "@ez4/aws-gateway": "^0.56.0",
+    "@ez4/aws-valkey": "^0.56.0",
+    "@ez4/cache": "^0.56.0",
+    "@ez4/common": "^0.56.0",
+    "@ez4/local-cache": "^0.56.0",
+    "@ez4/local-gateway": "^0.56.0",
+    "@ez4/gateway": "^0.56.0",
+    "@ez4/project": "^0.56.0",
+    "@ez4/schema": "^0.56.0",
+    "@ez4/utils": "^0.56.0"
   }
 }

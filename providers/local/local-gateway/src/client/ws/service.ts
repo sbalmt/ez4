@@ -1,48 +1,61 @@
-import type { EmulatorConnection } from '@ez4/project/library';
 import type { WsPreferences } from '@ez4/gateway/library';
 import type { Ws, WsClient } from '@ez4/gateway';
 import type { AnySchema } from '@ez4/schema';
 
 import { resolveResponseBody } from '@ez4/gateway/utils';
+import { getWsClient } from '@ez4/server';
 import { Logger } from '@ez4/logger';
 
 export type WsServiceClientOptions = {
   preferences?: WsPreferences;
-  allConnections: Record<string, EmulatorConnection>;
   messageSchema: AnySchema;
 };
 
-export const createWsServiceClient = <T extends Ws.JsonBody = any>(resourceName: string, options: WsServiceClientOptions): WsClient<T> => {
-  const { allConnections, messageSchema, preferences } = options;
+export type WsServiceConnections = {
+  sendMessage: (connectionId: string, payload: string) => void;
+  disconnect: (connectionId: string) => Promise<void> | void;
+};
+
+export const createWsServiceClient = <T extends Ws.JsonBody = any>(
+  resourceName: string,
+  options: WsServiceClientOptions,
+  connections: WsServiceConnections
+): WsClient<T> => {
+  const { messageSchema, preferences } = options;
 
   return new (class {
     async sendMessage<T extends Ws.JsonBody>(connectionId: string, message: T) {
-      const connection = allConnections[connectionId];
-
-      if (!connection) {
-        throw new Error('Connection not found.');
-      }
-
       Logger.log(`✉️  Sending message to connection [${resourceName}]`);
 
       const content = await resolveResponseBody(message, messageSchema, preferences);
       const payload = JSON.stringify(content);
 
-      connection.write(payload);
-
-      return Promise.resolve();
+      connections.sendMessage(connectionId, payload);
     }
 
     disconnect(connectionId: string) {
-      const connection = allConnections[connectionId];
-
       Logger.log(`🟥 Closing connection [${resourceName}]`);
 
-      if (connection) {
-        connection.close();
-      }
+      connections.disconnect(connectionId);
 
       return Promise.resolve();
     }
   })();
+};
+
+export const createLocalConnections = (): WsServiceConnections => {
+  return {
+    sendMessage: (connectionId, payload) => {
+      const client = getWsClient(connectionId);
+
+      if (!client) {
+        throw new Error('Connection not found.');
+      }
+
+      client.write(payload);
+    },
+    disconnect: (connectionId) => {
+      return getWsClient(connectionId)?.close();
+    }
+  };
 };

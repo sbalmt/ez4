@@ -5,7 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { getJsonStringEvent, MissingEventGroupError } from '@ez4/topic/utils';
 import { getRandomUUID } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 type FifoParameters = Pick<PublishInput, 'MessageGroupId' | 'MessageDeduplicationId'>;
 

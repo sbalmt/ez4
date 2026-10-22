@@ -1,78 +1,117 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { HttpService } from '@ez4/gateway/library';
+import type { HttpProviderRequest } from '@ez4/server';
 import type { RouteData } from '../../utils/route';
 
-import { getClientOperations } from '@ez4/gateway/library';
 import { HttpForbiddenError, HttpNotFoundError } from '@ez4/gateway';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
+import { getClientOperations, getCorsConfiguration } from '@ez4/gateway/library';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 
 import { HttpManifest } from '../../service/manifest/http';
 import { processHttpRequest } from '../../handlers/http/request';
 import { processHttpAuthorization } from '../../handlers/http/authorizer';
-import { createHttpServiceClient } from '../../client/http/service';
 import { getHttpErrorResponse } from '../../utils/http/response';
 import { getMatchingRoute } from '../../utils/route';
 
-export const registerHttpLocalService = (service: HttpService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerHttpLocalService = (service: HttpService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName } = service;
 
+  const httpCors = service.cors && getCorsConfiguration(service.routes, service.cors);
   const httpRoutes = buildHttpRoutes(service);
+
+  const identifier = getServiceName(resourceName, options);
 
   const clientOptions = {
     operations: getClientOperations(service),
-    ...options
+    host: options.serviceHost,
+    identifier
+  };
+
+  const handleRequest = async (request: EmulatorRequestEvent) => {
+    const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
+    const currentRoute = getMatchingRoute(methodRoutes, request);
+
+    try {
+      if (!currentRoute) {
+        const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) => {
+          return handler({ request, service, options });
+        });
+
+        if (!fallback) {
+          throw new HttpNotFoundError();
+        }
+
+        return fallback;
+      }
+
+      if (!currentRoute.authorizer) {
+        return await processHttpRequest(service, options, context, currentRoute);
+      }
+
+      const authorization = await processHttpAuthorization(service, options, context, currentRoute);
+
+      if (authorization && 'status' in authorization) {
+        return authorization;
+      }
+
+      const identity = authorization?.identity;
+
+      if (identity) {
+        return await processHttpRequest(service, options, context, currentRoute, identity);
+      }
+
+      return getHttpErrorResponse(new HttpForbiddenError());
+      //
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      return getHttpErrorResponse(error);
+    }
   };
 
   return {
     type: 'Gateway',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createHttpServiceClient(resourceName, clientOptions);
-    },
+    options: service.options,
+    identifier,
     manifestHandler: () => {
       return HttpManifest.build(service);
     },
-    requestHandler: async (request: EmulatorRequestEvent) => {
-      const methodRoutes = { ...httpRoutes.ANY, ...httpRoutes[request.method] };
-      const currentRoute = getMatchingRoute(methodRoutes, request);
-
-      try {
-        if (!currentRoute) {
-          const fallback = await triggerAllAsync('emulator:fallbackRequest', (handler) => {
-            return handler({ request, service, options });
-          });
-
-          if (!fallback) {
-            throw new HttpNotFoundError();
-          }
-
-          return fallback;
+    exportDescriptor: () => {
+      return {
+        name: 'makeService',
+        module: '@ez4/local-gateway/worker',
+        options: {
+          ...clientOptions,
+          name: resourceName
         }
-
-        if (!currentRoute.authorizer) {
-          return await processHttpRequest(service, options, context, currentRoute);
-        }
-
-        const identity = await processHttpAuthorization(service, options, context, currentRoute);
-
-        if (identity) {
-          return await processHttpRequest(service, options, context, currentRoute, identity);
-        }
-
-        return getHttpErrorResponse(new HttpForbiddenError());
-        //
-      } catch (error) {
-        if (!(error instanceof Error)) {
-          throw error;
-        }
-
-        return getHttpErrorResponse(error, {
-          ...service.defaults?.httpErrors,
-          ...currentRoute?.httpErrors
-        });
-      }
+      };
+    },
+    bootstrapHandler: () => {
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        cors: httpCors,
+        requestHandler: async (request) => handleRequest(getRequestEvent(request))
+      });
+    },
+    shutdownHandler: () => {
+      unregisterServerProvider(identifier);
     }
+  };
+};
+
+const getRequestEvent = (request: HttpProviderRequest): EmulatorRequestEvent => {
+  const { method, path, headers = {}, query = {}, body } = request;
+
+  return {
+    method,
+    path,
+    headers,
+    query,
+    body: body === undefined || Buffer.isBuffer(body) ? body : Buffer.from(body)
   };
 };
 
@@ -96,7 +135,9 @@ const buildHttpRoutes = (service: HttpService) => {
       variables: route.variables,
       authorizer: route.authorizer,
       listener: route.listener,
-      handler: route.handler
+      handler: route.handler,
+      timeout: route.timeout,
+      memory: route.memory
     };
   }
 

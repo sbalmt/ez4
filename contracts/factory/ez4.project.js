@@ -4,7 +4,12 @@
 export default {
   prefix: 'ez4',
   projectName: 'factory',
-  sourceFiles: ['./test/cases/circular-dependencies.ts', './test/cases/options-isolation.ts', './test/cases/client-mock.ts'],
+  sourceFiles: [
+    './test/cases/circular-dependencies.ts',
+    './test/cases/options-isolation.ts',
+    './test/cases/client-mock.ts',
+    './test/cases/variables.ts'
+  ],
   stateFile: {
     path: 'ez4-state'
   }

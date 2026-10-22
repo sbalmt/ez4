@@ -3,7 +3,7 @@ import type { Topic } from '@ez4/topic';
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { TopicTester } from '@ez4/local-topic/test';
+import { TopicTester } from '@ez4/local-topic/tester';
 
 type TestMessage = {
   foo: string;

@@ -7,4 +7,7 @@ bundlePackage('src/main.ts', 'dist/main.mjs');
 bundlePackage('src/library.ts', 'dist/library.mjs');
 
 // Tester package.
-bundlePackage('src/test.ts', 'dist/test.mjs');
+bundlePackage('src/tester.ts', 'dist/tester.mjs');
+
+// Worker package.
+bundlePackage('src/worker.ts', 'dist/worker.mjs');

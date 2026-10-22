@@ -5,7 +5,7 @@ import type { Queue } from '@ez4/queue';
 
 import { SQSClient, DeleteMessageCommand, ChangeMessageVisibilityCommand } from '@aws-sdk/client-sqs';
 import { getJsonMessage, resolveValidation } from '@ez4/queue/utils';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { getRandomUUID, Wait } from '@ez4/utils';
 
 const client = new SQSClient({});
@@ -73,10 +73,14 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
         continue;
       }
 
+      const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
+
+      Runtime.setScope({
+        traceId
+      });
+
       const payload = JSON.parse(record.body);
       const message = await getJsonMessage(payload, schema, onCustomValidation);
-
-      const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
       const retry = async (options?: Queue.RetryOptions) => {
         await retryMessage(record, options?.delay);
@@ -96,10 +100,6 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
         retry
       };
 
-      Runtime.setScope({
-        traceId
-      });
-
       await onReady(currentRequest);
 
       await handle(currentRequest, __EZ4_CONTEXT);
@@ -118,6 +118,8 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
       }
 
       failedMessageIds.add(messageId);
+    } finally {
+      currentRequest = undefined;
     }
   }
 

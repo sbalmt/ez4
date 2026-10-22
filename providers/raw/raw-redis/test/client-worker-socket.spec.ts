@@ -1,0 +1,145 @@
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { CacheService } from '@ez4/cache/library';
+
+import { equal, ok } from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+
+import { createModule } from '@ez4/emulator';
+import { ServiceType } from '@ez4/cache/library';
+import { registerTriggers as registerLocalCache } from '@ez4/local-cache';
+import { triggerAllAsync } from '@ez4/project/library';
+import { registerTriggers } from '@ez4/raw-redis';
+import { Client } from '@ez4/raw-redis/client';
+
+const service: CacheService = {
+  type: ServiceType,
+  name: 'TestCache',
+  engine: {
+    name: 'raw-redis'
+  },
+  context: {},
+  variables: {},
+  services: {}
+};
+
+const options: ServeOptions = {
+  prefix: 'test',
+  projectName: 'raw-redis-emulator',
+  branchName: 'dev',
+  serviceHost: 'localhost',
+  version: 1,
+  local: true,
+  reset: true,
+  localOptions: {
+    test_cache: {
+      url: 'redis://127.0.0.1:6379'
+    }
+  },
+  testOptions: {}
+};
+
+const context: EmulateServiceContext = {
+  makeService: async () => undefined,
+  makeReferences: () => ({}),
+  makeDescriptors: () => ({})
+};
+
+describe('cache emulator lifecycle (socket)', () => {
+  registerLocalCache();
+  registerTriggers();
+
+  const connection = {
+    url: 'redis://127.0.0.1:6379'
+  };
+
+  const localOptions: ServeOptions = {
+    ...options,
+    projectName: 'raw-redis-emulator-socket',
+    localOptions: {
+      test_cache: connection
+    }
+  };
+
+  const identifier = 'test-raw-redis-emulator-socket-dev-test-cache';
+
+  const client = Client.make({
+    identifier,
+    prefix: `${identifier}:`,
+    connection
+  });
+
+  const otherIdentifier = `${identifier}-other`;
+
+  const otherClient = Client.make({
+    identifier: otherIdentifier,
+    prefix: `${otherIdentifier}:`,
+    connection
+  });
+
+  let emulator: ServiceEmulator | null | undefined;
+
+  before(async () => {
+    emulator = await triggerAllAsync('emulator:getServices', (handler) =>
+      handler({
+        service,
+        options: localOptions,
+        context
+      })
+    );
+
+    ok(emulator?.exportDescriptor);
+    equal(emulator.identifier, identifier);
+
+    await client.set('stale', 'stale');
+    await otherClient.set('preserved', 'other');
+    await emulator.prepareHandler?.();
+
+    await emulator.bootstrapHandler?.();
+  });
+
+  after(async () => {
+    try {
+      await client.flush();
+      await otherClient.flush();
+    } finally {
+      await emulator?.shutdownHandler?.();
+      Client.dispose(otherIdentifier);
+    }
+  });
+
+  it('assert :: registers with local-cache, resets only its prefix and injects workers', async () => {
+    ok(emulator?.exportDescriptor);
+
+    equal(await client.get('stale'), undefined);
+    equal(await otherClient.get('preserved'), 'other');
+
+    const module = createModule({
+      environment: {
+        timeout: 10,
+        memory: 64
+      },
+      handler: {
+        file: 'test/files/handlers.ts',
+        name: 'cacheHandler',
+        position: [1, 1]
+      },
+      invoker: {
+        file: 'test/files/handlers.ts',
+        name: 'makeInvoker'
+      },
+      services: {
+        cache: emulator.exportDescriptor()
+      },
+      references: {
+        cache: 'cache'
+      }
+    });
+
+    const result = await module.invoke({
+      value: 'worker-value'
+    });
+
+    equal(await client.get('worker'), 'worker-value');
+    equal(result, 'worker-value');
+  });
+});

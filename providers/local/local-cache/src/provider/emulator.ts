@@ -5,15 +5,16 @@ import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
 
 export const registerCacheEmulator = async (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
-  const clientFactory = await getCacheClient(service, options);
+  const descriptor = await getCacheDescriptor(service, options);
 
-  if (!clientFactory) {
+  if (!descriptor) {
     return null;
   }
 
   return {
     type: 'Cache',
     name: service.name,
+    options: service.options,
     identifier: getServiceName(service.name, options),
     prepareHandler: () => {
       return runCacheReset(service, options, context);
@@ -24,15 +25,13 @@ export const registerCacheEmulator = async (service: CacheService, options: Serv
     shutdownHandler: async () => {
       await runStopCache(service, options, context);
     },
-    exportHandler: () => {
-      return clientFactory.make();
-    }
+    exportDescriptor: () => descriptor
   };
 };
 
 const runCacheReset = async (service: CacheService, options: ServeOptions, context: EmulateServiceContext) => {
   if (options.local && options.reset) {
-    Logger.warn(`Cache service [${service.name} was reset.`);
+    Logger.warn(`Cache service [${service.name}] was reset.`);
 
     await triggerAllAsync('emulator:resetService', (handler) =>
       handler({
@@ -64,8 +63,8 @@ const runStopCache = (service: CacheService, options: ServeOptions, context: Emu
   );
 };
 
-const getCacheClient = (service: CacheService, options: ServeOptions) => {
-  return triggerAllAsync('emulator:clientFactory', (handler) =>
+const getCacheDescriptor = (service: CacheService, options: ServeOptions) => {
+  return triggerAllAsync('emulator:serviceDescriptor', (handler) =>
     handler({
       service,
       options

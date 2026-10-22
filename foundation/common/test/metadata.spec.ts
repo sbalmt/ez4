@@ -12,7 +12,7 @@ import {
   getPropertyString
 } from '@ez4/common/library';
 
-import { loadTestMember } from './common';
+import { loadTestMember } from './common/loader';
 
 describe('common metadata', () => {
   registerTriggers();

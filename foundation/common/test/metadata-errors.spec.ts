@@ -5,7 +5,7 @@ import { InvalidServiceError, MissingServiceProviderError, MissingServiceError, 
 
 import { registerTriggers, getLinkedVariablesObject, getLinkedServicesObject } from '@ez4/common/library';
 
-import { loadTestMember } from './common';
+import { loadTestMember } from './common/loader';
 
 describe('common metadata errors', () => {
   registerTriggers();

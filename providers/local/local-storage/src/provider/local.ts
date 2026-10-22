@@ -1,78 +1,158 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
-import type { Client as StorageClient } from '@ez4/storage';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { Bucket, Client as StorageClient } from '@ez4/storage';
 import type { BucketService } from '@ez4/storage/library';
+import type { HttpProviderRequest } from '@ez4/server';
 
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
+import {
+  loadService,
+  notifyProvider,
+  registerProvider as registerEmulatorProvider,
+  unregisterProvider as unregisterEmulatorProvider
+} from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
 import { BucketEventType } from '@ez4/storage';
 import { Logger } from '@ez4/logger';
 
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
 import { processLambdaEvent } from '../handlers/lambda';
 import { BucketManifest } from '../service/manifest';
-import { createLocalClient } from '../client/local';
+import { ProviderEvent } from '../types/events';
 
-export const registerLocalService = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
-  const client = await getStorageClient(service, options, context);
-
+export const registerLocalService = async (
+  service: BucketService,
+  options: ServeOptions,
+  context: EmulateServiceContext
+): Promise<ServiceEmulator | null> => {
   const { name: resourceName } = service;
+
+  const identifier = getServiceName(resourceName, options);
+  const directory = join('.ez4', identifier);
+  const provider = `storage:${identifier}`;
+
+  const descriptor = await getStorageDescriptor(service, options);
+
+  if (!descriptor) {
+    return null;
+  }
 
   return {
     type: 'Storage',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    bootstrapHandler: () => {
-      Logger.log(`📂 ${options.local ? 'Local' : 'Remote'} storage [${resourceName}] in use.`);
+    options: service.options,
+    identifier,
+    bootstrapHandler: async () => {
+      if (!options.local) {
+        Logger.log(`📂 Remote storage [${resourceName}] in use.`);
+      } else {
+        Logger.log(`📂 Local storage [${resourceName}] in use.`);
+
+        await mkdir(directory, {
+          recursive: true
+        });
+
+        registerEmulatorProvider(provider, {
+          eventTypes: [ProviderEvent.CreateFile, ProviderEvent.DeleteFile],
+          eventHandler: (_event: string, payload: Bucket.Incoming | undefined) => {
+            if (!payload) {
+              throw new Error('Missing storage event payload.');
+            }
+
+            return handleStorageEvent(service, options, context, payload);
+          }
+        });
+
+        const makeClient = await loadService<() => StorageClient>({}, descriptor, (provider) => ({
+          notify: (event, payload) => {
+            notifyProvider(provider, event, payload).catch((error: unknown) => {
+              Logger.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
+            });
+          },
+          request: (event, payload) => {
+            return notifyProvider(provider, event, payload);
+          }
+        }));
+
+        registerServerProvider(identifier, {
+          type: ProviderType.Http,
+          requestHandler: (request) => {
+            return handleRequest(request, makeClient());
+          }
+        });
+      }
     },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleRequest(client, request);
+    shutdownHandler: () => {
+      if (options.local) {
+        unregisterServerProvider(identifier);
+        unregisterEmulatorProvider(provider);
+      }
     },
-    exportHandler: () => {
-      return client;
-    },
+    exportDescriptor: () => descriptor,
     manifestHandler: () => {
       return BucketManifest.build(service);
     }
   };
 };
 
-const getStorageClient = async (service: BucketService, options: ServeOptions, context: EmulateServiceContext) => {
-  const clientFactory = await triggerAllAsync('emulator:clientFactory', (handler) => handler({ service, options }));
-
-  if (clientFactory) {
-    return clientFactory.make() as StorageClient;
+const getStorageDescriptor = (service: BucketService, options: ServeOptions) => {
+  if (!options.local) {
+    return triggerAllAsync('emulator:serviceDescriptor', (handler) =>
+      handler({
+        service,
+        options
+      })
+    );
   }
 
-  const { events } = service;
+  const identifier = getServiceName(service.name, options);
 
-  return createLocalClient(service.name, {
-    ...options,
-    events: events?.map((event) => {
-      const [prefix, suffix] = event.path.split('*', 2);
-
-      return {
-        prefix,
-        suffix,
-        triggers: event.triggers ?? [BucketEventType.Create, BucketEventType.Delete],
-        handler: (input) => {
-          return processLambdaEvent(service, options, context, event, input);
-        }
-      };
-    })
-  });
+  return {
+    name: 'makeService',
+    module: '@ez4/local-storage/worker',
+    provider: `storage:${identifier}`,
+    options: {
+      host: options.serviceHost,
+      identifier,
+      directory: join('.ez4', identifier)
+    }
+  };
 };
 
-const handleRequest = async (client: StorageClient, request: EmulatorRequestEvent) => {
+const handleStorageEvent = async (
+  service: BucketService,
+  options: ServeOptions,
+  context: EmulateServiceContext,
+  input: Bucket.ObjectEvent
+) => {
+  await Promise.all(
+    service.events
+      ?.filter((event) => {
+        const [prefix, suffix] = event.path.split('*', 2);
+        const triggers = event.triggers ?? [BucketEventType.Create, BucketEventType.Delete];
+
+        return triggers.includes(input.eventType) && input.objectKey.startsWith(prefix) && input.objectKey.endsWith(suffix);
+      })
+      .map((event) => processLambdaEvent(service, options, context, event, input)) ?? []
+  );
+};
+
+const handleRequest = async (request: HttpProviderRequest, client: StorageClient) => {
   const { method, path, body } = request;
 
   if (!path || path === '/') {
     throw new Error(`File path wasn't given.`);
   }
 
+  const key = path.startsWith('/') ? path.slice(1) : path;
+
   switch (method) {
     case 'HEAD':
-      return headFile(client, path);
+      return headFile(client, key);
 
     case 'GET':
-      return loadFile(client, path);
+      return loadFile(client, key);
 
     case 'POST':
     case 'PUT': {
@@ -80,7 +160,7 @@ const handleRequest = async (client: StorageClient, request: EmulatorRequestEven
         throw new Error("File content wasn't given.");
       }
 
-      return storeFile(client, path, body);
+      return storeFile(client, key, body);
     }
 
     default:
@@ -100,7 +180,7 @@ const loadFile = async (client: StorageClient, path: string) => {
   };
 };
 
-const storeFile = async (client: StorageClient, path: string, buffer: Buffer) => {
+const storeFile = async (client: StorageClient, path: string, buffer: Buffer | string) => {
   await client.write(path, buffer);
 
   return {

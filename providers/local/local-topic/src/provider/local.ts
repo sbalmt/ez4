@@ -1,8 +1,17 @@
-import type { EmulateServiceContext, EmulatorRequestEvent, ServeOptions } from '@ez4/project/library';
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
 import type { TopicImport, TopicService } from '@ez4/topic/library';
+import type { HttpProviderRequest } from '@ez4/server';
 import type { AnyObject } from '@ez4/utils';
+import type { ProviderTopicEvent } from '../types/events';
 
-import { getErrorResponse, getSuccessResponse } from '@ez4/local-common';
+import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
+import {
+  getErrorResponse,
+  getSuccessResponse,
+  ProviderType,
+  registerProvider as registerServerProvider,
+  unregisterProvider as unregisterServerProvider
+} from '@ez4/server';
 import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
 import { TopicSubscriptionType } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
@@ -11,29 +20,54 @@ import { TopicEmulatorSubscriptionType } from '../types/subscription';
 import { processRemoteEvent } from '../handlers/remote';
 import { processLambdaEvent } from '../handlers/lambda';
 import { processQueueEvent } from '../handlers/queue';
-import { createLocalClient } from '../client/local';
 import { TopicManifest } from '../service/manifest';
 import { InMemoryTopic } from '../service/topic';
+import { ProviderEvent } from '../types/events';
 
-export const registerLocalService = (service: TopicService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerLocalService = (service: TopicService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName, schema: eventSchema } = service;
 
-  const clientOptions = {
-    ...options,
-    handler: (event: AnyObject) => {
-      return handleTopicEvent(service, options, context, event);
-    }
-  };
+  const identifier = getServiceName(resourceName, options);
+  const provider = `topic:${identifier}`;
 
   return {
     type: 'Topic',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createLocalClient(resourceName, eventSchema, clientOptions);
+    options: service.options,
+    identifier,
+    bootstrapHandler: () => {
+      registerEmulatorProvider(provider, {
+        eventTypes: [ProviderEvent.PublishEvent],
+        eventHandler: (_event: string, payload: ProviderTopicEvent | undefined) => {
+          if (!payload) {
+            throw new Error('Missing topic event payload.');
+          }
+
+          return handleTopicEvent(service, options, context, payload.event);
+        }
+      });
+
+      registerServerProvider(identifier, {
+        type: ProviderType.Http,
+        requestHandler: (request) => {
+          return handleTopicRequest(service, options, context, request);
+        }
+      });
     },
-    requestHandler: (request: EmulatorRequestEvent) => {
-      return handleTopicRequest(service, options, context, request);
+    shutdownHandler: () => {
+      unregisterServerProvider(identifier);
+      unregisterEmulatorProvider(provider);
+    },
+    exportDescriptor: () => {
+      return {
+        name: 'makeLocalService',
+        module: '@ez4/local-topic/worker',
+        provider,
+        options: {
+          identifier,
+          schema: eventSchema
+        }
+      };
     },
     manifestHandler: () => {
       return TopicManifest.build(service);
@@ -45,7 +79,7 @@ const handleTopicRequest = async (
   service: TopicService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  request: EmulatorRequestEvent
+  request: HttpProviderRequest
 ) => {
   const { method, path, body } = request;
 

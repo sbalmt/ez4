@@ -60,8 +60,9 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'client':
-        case 'options':
+        case 'options': {
           break;
+        }
 
         case 'schema': {
           if ((service.schema = getTopicEventMetadata(member.value, declaration, reflection, errorList))) {

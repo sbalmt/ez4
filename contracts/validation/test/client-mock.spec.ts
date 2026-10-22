@@ -1,7 +1,7 @@
 import { equal } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { ValidationTester } from '@ez4/validation/test';
+import { ValidationTester } from '@ez4/validation/tester';
 
 import { rejects } from 'node:assert';
 
@@ -39,7 +39,7 @@ describe('validation client mock tests', () => {
       }
     });
 
-    const clientMock = ValidationTester.getClient('TestServiceValidation');
+    const clientMock = await ValidationTester.getClient('TestServiceValidation');
 
     equal(await clientMock.tryValidate('not-fail'), true);
     equal(await clientMock.tryValidate('fail'), false);
@@ -48,7 +48,7 @@ describe('validation client mock tests', () => {
 
     ValidationTester.restoreClient('TestServiceValidation');
 
-    const realClient = ValidationTester.getClient('TestServiceValidation');
+    const realClient = await ValidationTester.getClient('TestServiceValidation');
 
     equal(await realClient.tryValidate('not-fail'), true);
     equal(await realClient.tryValidate('fail'), true);

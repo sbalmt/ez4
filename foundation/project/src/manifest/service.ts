@@ -3,7 +3,30 @@ import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from '../emulator/service';
 import type { ServeOptions } from '../types/options';
 
+import { ProviderType, registerProvider } from '@ez4/server';
+
 import { getServiceName } from '../utils/service';
+
+export const registerManifestProvider = (projectName: string, getManifest: () => ProjectManifest<AnyObject>) => {
+  registerProvider(projectName, {
+    type: ProviderType.Http,
+    requestHandler: ({ method, path }) => {
+      if (method !== 'GET' || path !== '/manifest') {
+        return {
+          status: 404
+        };
+      }
+
+      return {
+        status: 200,
+        body: JSON.stringify(getManifest()),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+    }
+  });
+};
 
 export const getServicesManifest = (emulators: ServiceEmulators, options: ServeOptions) => {
   const services: Record<string, ServiceManifest<AnyObject>> = {};

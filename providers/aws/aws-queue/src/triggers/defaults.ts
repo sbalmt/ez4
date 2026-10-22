@@ -1,3 +1,4 @@
+import { QueueDefaults } from '@ez4/queue/library';
 import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
@@ -24,27 +25,27 @@ export namespace Defaults {
   /**
    * Default function memory.
    */
-  export const Memory = FunctionDefaults.Memory;
+  export const Memory = QueueDefaults.Memory;
 
   /**
    * Default queue timeout.
    */
-  export const Timeout = 150;
+  export const Timeout = QueueDefaults.Timeout;
 
   /**
    * Default max attempts.
    */
-  export const MaxAttempts = 3;
+  export const MaxAttempts = QueueDefaults.MaxAttempts;
 
   /**
    * Default min delay (in seconds) for backoff.
    */
-  export const MinBackoff = 5;
+  export const MinBackoff = QueueDefaults.MinBackoff;
 
   /**
    * Default max delay (in seconds) for backoff.
    */
-  export const MaxBackoff = 30;
+  export const MaxBackoff = QueueDefaults.MaxBackoff;
 
   /**
    * Default queue retention (14 days)
@@ -59,5 +60,5 @@ export namespace Defaults {
   /**
    * Default queue delay.
    */
-  export const Delay = 0;
+  export const Delay = QueueDefaults.Delay;
 }

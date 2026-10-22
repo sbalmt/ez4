@@ -1,11 +1,11 @@
 import { rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { QueueTester } from '@ez4/local-queue/test';
+import { QueueTester } from '@ez4/local-queue/tester';
 
 describe('hello aws queue', () => {
   it('send message with success', async () => {
-    const result = QueueTester.getClient('Sqs');
+    const result = await QueueTester.getClient('Sqs');
 
     // Ignore 'bar' since it's not in message schema.
     await result.sendMessage(
@@ -20,7 +20,7 @@ describe('hello aws queue', () => {
   });
 
   it('send message with failure', async () => {
-    const result = QueueTester.getClient('Sqs');
+    const result = await QueueTester.getClient('Sqs');
 
     // Rejects the message since it doesn't pass schema validation.
     await rejects(() =>
@@ -31,7 +31,7 @@ describe('hello aws queue', () => {
   });
 
   it('send message with success (fifo)', async () => {
-    const result = QueueTester.getClient('FifoSqs');
+    const result = await QueueTester.getClient('FifoSqs');
 
     // Ignore 'bar' since it's not in message schema.
     await result.sendMessage({
@@ -41,7 +41,7 @@ describe('hello aws queue', () => {
   });
 
   it('send message with failure (fifo)', async () => {
-    const result = QueueTester.getClient('FifoSqs');
+    const result = await QueueTester.getClient('FifoSqs');
 
     // Rejects the message since it doesn't pass schema validation.
     await rejects(() =>

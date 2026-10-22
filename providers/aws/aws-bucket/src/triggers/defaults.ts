@@ -1,3 +1,4 @@
+import { StorageDefaults } from '@ez4/storage/library';
 import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
@@ -24,10 +25,10 @@ export namespace Defaults {
   /**
    * Default function timeout.
    */
-  export const Timeout = FunctionDefaults.Timeout;
+  export const Timeout = StorageDefaults.Timeout;
 
   /**
    * Default function memory.
    */
-  export const Memory = FunctionDefaults.Memory;
+  export const Memory = StorageDefaults.Memory;
 }

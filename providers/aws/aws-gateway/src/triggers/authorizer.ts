@@ -49,13 +49,13 @@ export const getAuthorizerFunction = (
   } = target;
 
   const internalName = getInternalName(service, authorizer.name);
+  const authorizerName = getFunctionName(service, authorizer, options);
 
   let authorizerState = tryGetFunctionState(context, internalName, options);
 
   const { provider, request } = authorizer;
 
   if (!authorizerState) {
-    const authorizerName = getFunctionName(service, authorizer, options);
     const dependencies = context.getDependencyFiles(authorizer.file);
 
     const logGroupState = createLogGroup(state, {
@@ -117,7 +117,7 @@ export const getAuthorizerFunction = (
   return (
     getAuthorizer(state, gatewayState, authorizerState) ??
     createAuthorizer(state, gatewayState, authorizerState, {
-      name: authorizer.name,
+      name: authorizerName,
       headerNames: getIdentitySources(request?.headers),
       queryNames: getIdentitySources(request?.query),
       ...(isHttpService(service) && {

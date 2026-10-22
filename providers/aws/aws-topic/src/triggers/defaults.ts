@@ -1,3 +1,4 @@
+import { TopicDefaults } from '@ez4/topic/library';
 import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
@@ -24,10 +25,10 @@ export namespace Defaults {
   /**
    * Default function timeout.
    */
-  export const Timeout = FunctionDefaults.Timeout;
+  export const Timeout = TopicDefaults.Timeout;
 
   /**
    * Default function memory.
    */
-  export const Memory = FunctionDefaults.Memory;
+  export const Memory = TopicDefaults.Memory;
 }

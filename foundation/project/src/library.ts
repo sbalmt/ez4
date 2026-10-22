@@ -10,14 +10,15 @@ export * from './errors/reflection';
 export * from './errors/metadata';
 export * from './errors/resource';
 export * from './errors/provider';
+export * from './errors/variables';
 
 export * from './emulator/errors';
-export * from './emulator/module';
 export * from './emulator/tester';
 export * from './emulator/runner';
 export * from './emulator/types';
 
 export * from './manifest/types';
+export * from './manifest/service';
 
 export * from './generator/errors';
 export * from './generator/events';

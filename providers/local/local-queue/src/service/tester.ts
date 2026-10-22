@@ -18,7 +18,7 @@ export namespace QueueTester {
     : { fairMode: true };
 
   export const getClient = <T extends Queue.Service<any, Queue.Mode>>(resourceName: string) => {
-    return Tester.getServiceClient(resourceName) as Client<T['schema'], ClientMode<T>>;
+    return Tester.getServiceClient(resourceName) as Promise<Client<T['schema'], ClientMode<T>>>;
   };
 
   export const getClientMock = <T extends Queue.Service<any, Queue.Mode>>(resourceName: string) => {

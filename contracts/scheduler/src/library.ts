@@ -1,5 +1,7 @@
 export * from './triggers/register';
 
+export * from './runtime/constants';
+
 export * from './metadata/service';
 export * from './metadata/target';
 export * from './metadata/handler';

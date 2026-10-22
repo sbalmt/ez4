@@ -8,7 +8,7 @@ Database listeners observe the **lifecycle events** of table stream handler exec
 import type { Service } from '@ez4/common';
 import type { Database } from '@ez4/database';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 export function streamListener(event: Database.ServiceEvent<ItemSchema>, context: Service.Context<MyDb>) {
   switch (event.type) {

@@ -15,7 +15,6 @@
     "file": "test/input/output-service.ts",
     "description": "Test service factory.",
     "context": {},
-    "options": {},
     "variables": {
       "TEST_VAR": "test-var"
     },

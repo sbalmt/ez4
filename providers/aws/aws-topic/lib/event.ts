@@ -3,7 +3,7 @@ import type { EventSchema } from '@ez4/topic/utils';
 import type { Topic } from '@ez4/topic';
 
 import { getJsonEvent } from '@ez4/topic/utils';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 declare const __EZ4_SCHEMA: EventSchema | null;
@@ -33,20 +33,20 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     }
 
     for (const { Sns } of event.Records) {
+      const traceId = Sns.MessageAttributes['EZ4.TRACE_ID']?.Value ?? getRandomUUID();
+
+      Runtime.setScope({
+        traceId
+      });
+
       const payload = JSON.parse(Sns.Message);
       const event = await getJsonEvent(payload, __EZ4_SCHEMA);
-
-      const traceId = Sns.MessageAttributes['EZ4.TRACE_ID']?.Value ?? getRandomUUID();
 
       currentRequest = {
         ...request,
         traceId,
         event
       };
-
-      Runtime.setScope({
-        traceId
-      });
 
       await onReady(currentRequest);
       await handle(currentRequest, __EZ4_CONTEXT);

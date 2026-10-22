@@ -4,6 +4,10 @@ export const escapeSqlNames = (names: string[]) => {
   return names.map((name) => escapeSqlName(name)).join(', ');
 };
 
+export const escapeSqlPath = (path: string) => {
+  return `{"${path.replaceAll(/[\\"]/g, '\\$&')}"}`;
+};
+
 export const escapeSqlName = (name: string) => {
   return name === '*' ? name : `"${name.replaceAll('"', '""')}"`;
 };

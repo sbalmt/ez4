@@ -1,12 +1,13 @@
 import type { AnyObject } from '@ez4/utils';
 import type { ServiceEmulators } from './service';
-import type { EmulatorExportHandler } from './types';
+import type { LinkedVariables } from '../types/service';
 
 import { getServiceName } from '../utils/service';
-import { EmulatorClientNotFoundError, EmulatorNotFoundError } from './errors';
+import { EmulatorNotFoundError } from './errors';
+import { loadServiceClient } from './client';
 
 type TesterContext = {
-  mocks?: Record<string, EmulatorExportHandler | undefined>;
+  mocks?: Record<string, unknown>;
   emulators?: ServiceEmulators;
   options?: TesterOptions;
 };
@@ -15,6 +16,7 @@ type TesterOptions = {
   prefix: string;
   projectName: string;
   branchName: string;
+  variables?: LinkedVariables;
 };
 
 export namespace Tester {
@@ -22,6 +24,16 @@ export namespace Tester {
 
   const ensureContext = (context: TesterContext): context is Required<TesterContext> => {
     return !!context.options && !!context.emulators;
+  };
+
+  const getServiceEmulatorName = (context: Required<TesterContext>, resourceName: string) => {
+    const serviceName = getServiceName(resourceName, context.options);
+
+    if (!context.emulators[serviceName]) {
+      throw new EmulatorNotFoundError(resourceName);
+    }
+
+    return serviceName;
   };
 
   export type Options = TesterOptions;
@@ -38,29 +50,18 @@ export namespace Tester {
     });
   };
 
-  export const getServiceClient = (resourceName: string, resourceOptions?: AnyObject): unknown => {
+  export const getServiceClient = async (resourceName: string, resourceOptions?: AnyObject): Promise<unknown> => {
     if (!ensureContext(CONTEXT)) {
       throw new Error('Tester is not configured yet.');
     }
 
-    const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.emulators[serviceName];
+    const serviceName = getServiceEmulatorName(CONTEXT, resourceName);
 
-    if (!serviceEmulator) {
-      throw new EmulatorNotFoundError(resourceName);
+    if (serviceName in CONTEXT.mocks) {
+      return CONTEXT.mocks[serviceName];
     }
 
-    if (!serviceEmulator.exportHandler) {
-      throw new EmulatorClientNotFoundError(resourceName);
-    }
-
-    const serviceClient = serviceEmulator.exportHandler(resourceOptions ?? {});
-
-    if (serviceClient instanceof Function) {
-      return serviceClient();
-    }
-
-    return serviceClient;
+    return loadServiceClient(CONTEXT.emulators, CONTEXT.options, resourceName, resourceOptions);
   };
 
   export const mockServiceClient = (resourceName: string, client: unknown) => {
@@ -68,19 +69,9 @@ export namespace Tester {
       throw new Error('Tester is not configured yet.');
     }
 
-    const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.emulators[serviceName];
+    const serviceName = getServiceEmulatorName(CONTEXT, resourceName);
 
-    if (!serviceEmulator) {
-      throw new EmulatorNotFoundError(resourceName);
-    }
-
-    CONTEXT.mocks[serviceName] = serviceEmulator.exportHandler;
-
-    CONTEXT.emulators[serviceName] = {
-      ...serviceEmulator,
-      exportHandler: () => client
-    };
+    CONTEXT.mocks[serviceName] = client;
   };
 
   export const restoreServiceClient = (resourceName: string) => {
@@ -88,16 +79,8 @@ export namespace Tester {
       throw new Error('Tester is not configured yet.');
     }
 
-    const serviceName = getServiceName(resourceName, CONTEXT.options);
-    const serviceEmulator = CONTEXT.emulators[serviceName];
+    const serviceName = getServiceEmulatorName(CONTEXT, resourceName);
 
-    if (!serviceEmulator) {
-      throw new EmulatorNotFoundError(resourceName);
-    }
-
-    CONTEXT.emulators[serviceName] = {
-      ...serviceEmulator,
-      exportHandler: CONTEXT.mocks[serviceName]
-    };
+    delete CONTEXT.mocks[serviceName];
   };
 }

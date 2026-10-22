@@ -3,7 +3,6 @@ import type { ClientConnection, CacheOperator } from './client';
 
 import { isAnyNumber } from '@ez4/utils';
 
-import { CacheOperatorNotFoundError } from './errors';
 import { createCacheOperator } from './client';
 
 export type ClientContext = {
@@ -95,12 +94,9 @@ export namespace Client {
   export const dispose = (identifier: string) => {
     const operator = CACHE_OPERATORS[identifier];
 
-    if (!operator) {
-      throw new CacheOperatorNotFoundError(identifier);
+    if (operator) {
+      delete CACHE_OPERATORS[identifier];
+      operator.dispose();
     }
-
-    delete CACHE_OPERATORS[identifier];
-
-    operator.dispose();
   };
 }

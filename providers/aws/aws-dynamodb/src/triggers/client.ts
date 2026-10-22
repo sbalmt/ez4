@@ -1,11 +1,9 @@
-import type { DeployOptions, EmulateClientEvent, EventContext, ContextSource } from '@ez4/project/library';
+import type { DeployOptions, EmulateDescriptorEvent, EventContext, ContextSource } from '@ez4/project/library';
 import type { DatabaseService } from '@ez4/database/library';
 
-import { Client } from '../client';
 import { getTableState } from '../table/utils';
 import { getTableRepository } from '../utils/repository';
 import { getConnectionOptions } from '../local/options';
-import { getClientInstance } from '../client/utils/instance';
 import { getInternalName, isDynamoDbService } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: DatabaseService, options: DeployOptions): ContextSource => {
@@ -30,33 +28,24 @@ export const prepareLinkedClient = (context: EventContext, service: DatabaseServ
   };
 };
 
-export const prepareEmulatorClient = (event: EmulateClientEvent) => {
+export const prepareEmulatorDescriptor = (event: EmulateDescriptorEvent) => {
   const { service, options } = event;
 
   if (!isDynamoDbService(service)) {
     return null;
   }
 
-  if (options.local) {
-    const connection = getConnectionOptions(service, options);
-
-    const instance = Client.make({
-      repository: getTableRepository(service, options),
-      client: getClientInstance(connection),
-      debug: options.debug
-    });
-
-    return {
-      make: () => instance
-    };
-  }
-
-  const instance = Client.make({
-    repository: getTableRepository(service, options),
-    debug: options.debug
-  });
-
   return {
-    make: () => instance
+    name: 'makeService',
+    module: '@ez4/aws-dynamodb/worker',
+    options: getEmulatorOptions(service, options)
   };
 };
+
+const getEmulatorOptions = (service: DatabaseService, options: EmulateDescriptorEvent['options']) => ({
+  repository: getTableRepository(service, options),
+  debug: options.debug,
+  ...(options.local && {
+    connection: getConnectionOptions(service, options)
+  })
+});

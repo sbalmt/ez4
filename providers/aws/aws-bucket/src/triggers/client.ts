@@ -1,10 +1,9 @@
-import type { DeployOptions, EventContext, ContextSource, EmulateClientEvent } from '@ez4/project/library';
+import type { DeployOptions, EventContext, ContextSource, EmulateDescriptorEvent } from '@ez4/project/library';
 import type { BucketService } from '@ez4/storage/library';
 
 import { isBucketService } from '@ez4/storage/library';
 
 import { getBucketState } from '../bucket/utils';
-import { Client } from '../client';
 import { getBucketName } from './utils';
 
 export const prepareLinkedClient = (context: EventContext, service: BucketService, options: DeployOptions): ContextSource => {
@@ -20,7 +19,7 @@ export const prepareLinkedClient = (context: EventContext, service: BucketServic
   };
 };
 
-export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
+export const prepareEmulatorDescriptor = async (event: EmulateDescriptorEvent) => {
   const { service, options } = event;
 
   if (!isBucketService(service) || options.local) {
@@ -28,9 +27,11 @@ export const prepareEmulatorClient = async (event: EmulateClientEvent) => {
   }
 
   const bucketName = await getBucketName(service, options);
-  const instance = Client.make(bucketName);
-
   return {
-    make: () => instance
+    name: 'makeService',
+    module: '@ez4/aws-bucket/worker',
+    options: {
+      bucketName
+    }
   };
 };

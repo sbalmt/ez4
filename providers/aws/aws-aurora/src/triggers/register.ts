@@ -10,8 +10,8 @@ import { registerMigrationProvider } from '../migration/provider';
 import { registerIntegrityProvider } from '../integrity/provider';
 import { prepareDatabaseServices, prepareLinkedServices } from './service';
 import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
+import { prepareEmulatorDescriptor } from './client';
 import { prepareExecutionPolicy } from './policy';
-import { prepareEmulatorClient } from './client';
 
 export const registerTriggers = () => {
   registerAwsTriggers();
@@ -22,7 +22,7 @@ export const registerTriggers = () => {
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,
-    'emulator:clientFactory': prepareEmulatorClient,
+    'emulator:serviceDescriptor': prepareEmulatorDescriptor,
     'emulator:startService': prepareEmulatorStart,
     'emulator:resetService': prepareEmulatorReset
   });

@@ -1,6 +1,6 @@
 import type { Queue } from '@ez4/queue';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 /**
  * Watch queue lifecycle events.

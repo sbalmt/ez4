@@ -1,6 +1,13 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state';
 import type { EveryType, ReflectionTypes, TypeClass, TypeObject } from '@ez4/reflection';
-import type { ServiceEmulator, EmulateServiceEvent, EmulateClientEvent, EmulatorRequestEvent, EmulatorResponse } from '../emulator/types';
+import type {
+  ServiceEmulator,
+  EmulateServiceEvent,
+  EmulateDescriptorEvent,
+  EmulatorRequestEvent,
+  EmulatorResponse,
+  EmulatorServiceDescriptor
+} from '../emulator/types';
 import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/events';
 import type { ResourceOutput, ResourceOutputEvent } from '../deploy/output';
 import type { GeneratorUsageHelp } from '../generator/help';
@@ -32,7 +39,7 @@ export type SyncEvent = {
 
 export type AsyncEvent = {
   'generator:createResource': (event: GenerateResourceEvent) => AsyncEventResult<boolean>;
-  'emulator:clientFactory': (event: EmulateClientEvent) => AsyncEventResult<ClientFactory>;
+  'emulator:serviceDescriptor': (event: EmulateDescriptorEvent) => AsyncEventResult<EmulatorServiceDescriptor>;
   'emulator:getServices': (event: EmulateServiceEvent) => AsyncEventResult<ServiceEmulator>;
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
@@ -66,10 +73,6 @@ export type ServiceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   context: EventContext;
-};
-
-export type ClientFactory = {
-  make: (...options: any[]) => unknown;
 };
 
 export type LinkServiceEvent = ServiceEvent & {

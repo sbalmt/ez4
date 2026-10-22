@@ -1,4 +1,3 @@
-export * from './types/event';
 export * from './types/listener';
 
 export * from './errors/common';

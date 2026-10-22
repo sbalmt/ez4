@@ -13,7 +13,7 @@ import type {
 
 import { resolveHeaders, resolvePathParameters, resolveQueryStrings, resolveValidation } from '@ez4/gateway/utils';
 import { HttpForbiddenError, HttpUnauthorizedError } from '@ez4/gateway';
-import { ServiceEventType, Runtime } from '@ez4/common';
+import { ServiceEventType, Runtime } from '@ez4/runtime';
 import { getRandomUUID } from '@ez4/utils';
 
 type IncomingRequest = Http.Incoming<Http.AuthRequest> | Ws.Incoming<Ws.AuthRequest>;
@@ -43,6 +43,10 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
   const resourceArn = event.methodArn ?? event.routeArn;
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
+  Runtime.setScope({
+    traceId
+  });
+
   const request: Http.Incoming<Http.AuthRequest> = {
     timestamp: new Date(requestContext.timeEpoch),
     requestId: context.awsRequestId,
@@ -50,10 +54,6 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     path: requestContext.http?.path,
     traceId
   };
-
-  Runtime.setScope({
-    traceId
-  });
 
   try {
     await onBegin(request);

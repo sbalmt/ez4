@@ -1,7 +1,7 @@
 import type { Database } from '@ez4/database';
 import type { ExampleSchema } from './schema';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 /**
  * Watch stream lifecycle events.

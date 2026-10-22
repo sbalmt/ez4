@@ -3,11 +3,10 @@ import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
-
-import { createServer } from 'node:http';
+import { ProviderType, providerRegistered, startServer } from '@ez4/server';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
-import { getServiceAddress, getServicePort } from '../../utils/project';
+import { getServicesManifest, registerManifestProvider } from '../../manifest/service';
 import { bootstrapServices, prepareServices, shutdownServices } from '../../emulator/utils/hooks';
 import { getServiceEmulators } from '../../emulator/service';
 import { getServeOptions } from '../../emulator/options';
@@ -17,8 +16,6 @@ import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
 import { loadPaths } from '../../config/tsconfig';
 import { watchMetadata } from '../../library/metadata';
-import { upgradeHandler } from '../../serve/upgrade';
-import { requestHandler } from '../../serve/request';
 
 export const serveCommand = async (input: InputOptions) => {
   const project = await loadProject(input.project);
@@ -51,7 +48,17 @@ export const serveCommand = async (input: InputOptions) => {
 
   options.imports = references.imports;
 
-  const sourceWatcher = await watchMetadata(project.sourceFiles, {
+  await startServer({
+    name: project.projectName,
+    host: project.serveOptions?.localHost,
+    port: project.serveOptions?.localPort
+  });
+
+  registerManifestProvider(project.projectName, () => {
+    return getServicesManifest(emulators, options);
+  });
+
+  await watchMetadata(project.sourceFiles, {
     additionalPaths: [namespacePath, ...additionalPaths],
     aliasPaths: { ...references.paths, ...paths },
     onMetadataReady: async (metadata) => {
@@ -64,13 +71,13 @@ export const serveCommand = async (input: InputOptions) => {
         return getServiceEmulators(metadata, options);
       });
 
-      displayServices(emulators, options);
-
       if (!isRunning) {
         await prepareServices(emulators);
       }
 
       await bootstrapServices(emulators);
+
+      displayServices(emulators, options);
 
       if (isRunning) {
         Logger.log(`🚀 Project [${project.projectName}] reloaded`);
@@ -81,40 +88,17 @@ export const serveCommand = async (input: InputOptions) => {
       isRunning = true;
     }
   });
-
-  const server = createServer();
-
-  const bindHost = getServiceAddress(project.serveOptions);
-  const bindPort = getServicePort(project.serveOptions);
-
-  server.on('request', (request, stream) => {
-    return requestHandler(request, stream, emulators, options);
-  });
-
-  server.on('upgrade', (request, socket) => {
-    return upgradeHandler(request, socket, emulators, options);
-  });
-
-  server.on('error', async () => {
-    Logger.error(`Unable to serve project [${project.projectName}] at http://${options.serviceHost}`);
-    await shutdownServices(emulators);
-    sourceWatcher.stop();
-  });
-
-  server.listen(bindPort, bindHost, () => {
-    Logger.log(`🚀 Project [${project.projectName}] up and running`);
-  });
 };
 
 const displayServices = (emulators: ServiceEmulators, options: ServeOptions) => {
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 
-    if (emulator.requestHandler) {
+    if (providerRegistered(identifier, ProviderType.Http)) {
       Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
     }
 
-    if (emulator.connectHandler) {
+    if (providerRegistered(identifier, ProviderType.Ws)) {
       Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at ws://${options.serviceHost}/${identifier}`);
     }
   }

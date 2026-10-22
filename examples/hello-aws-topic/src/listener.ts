@@ -1,6 +1,6 @@
 import type { Topic } from '@ez4/topic';
 
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 
 /**
  * Watch topic lifecycle events.

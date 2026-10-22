@@ -1,82 +1,128 @@
+import type { EmulateServiceContext, ServeOptions, ServiceEmulator } from '@ez4/project/library';
+import type { WsProviderConnection, WsProviderMessage } from '@ez4/server';
 import type { WsService } from '@ez4/gateway/library';
 import type { AnyObject } from '@ez4/utils';
+import type { ProviderConnectionEvent } from '../../types/events';
 
-import type {
-  EmulateServiceContext,
-  EmulatorConnectionEvent,
-  EmulatorMessageEvent,
-  EmulatorConnection,
-  ServeOptions
-} from '@ez4/project/library';
-
+import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
+import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
+import { GatewayDefaults } from '@ez4/gateway/library';
 import { getServiceName } from '@ez4/project/library';
-import { HttpError } from '@ez4/gateway';
+import { HttpForbiddenError } from '@ez4/gateway';
+import { Logger } from '@ez4/logger';
 
-import { createWsServiceClient } from '../../client/ws/service';
+import { createLocalConnections } from '../../client/ws/service';
 import { processWsAuthorization } from '../../handlers/ws/authorizer';
-import { processWsConnection } from '../../handlers/ws/connection';
+import { processWsConnection, WsConnectionType } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
-import { getWsErrorResponse } from '../../utils/ws/response';
+import { ProviderEvent } from '../../types/events';
 
-export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext) => {
+export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName, defaults, connect, message } = service;
 
-  const allConnections: Record<string, EmulatorConnection> = {};
   const identities: Record<string, AnyObject> = {};
+
+  const localConnections = createLocalConnections();
+
+  const identifier = getServiceName(resourceName, options);
+  const provider = `gateway:${identifier}`;
 
   const clientOptions = {
     messageSchema: service.schema,
-    preferences: message.preferences ?? defaults?.preferences,
-    allConnections
+    preferences: message.preferences ?? defaults?.preferences
+  };
+
+  const connectHandler = async (connection: WsProviderConnection) => {
+    if (!connect.authorizer) {
+      return processWsConnection(service, options, context, WsConnectionType.Connect, connection);
+    }
+
+    const identity = await processWsAuthorization(service, options, context, connection);
+
+    if (!identity) {
+      throw new HttpForbiddenError();
+    }
+
+    await processWsConnection(service, options, context, WsConnectionType.Connect, connection, identity);
+
+    identities[connection.id] = identity;
+  };
+
+  const disconnectHandler = async (connection: WsProviderConnection) => {
+    const identity = identities[connection.id];
+
+    delete identities[connection.id];
+
+    return processWsConnection(service, options, context, WsConnectionType.Disconnect, connection, identity);
+  };
+
+  const messageHandler = async (message: WsProviderMessage) => {
+    const { client, body } = message;
+
+    if (body.length > GatewayDefaults.MaxMessageSize) {
+      Logger.warn(`Message for connection [${resourceName}] exceeds ${GatewayDefaults.MaxMessageSize} bytes, closing connection.`);
+
+      await client.close();
+      return;
+    }
+
+    const identity = identities[client.id];
+
+    return processWsMessage(service, options, context, message, identity);
   };
 
   return {
     type: 'Gateway',
     name: resourceName,
-    identifier: getServiceName(resourceName, options),
-    exportHandler: () => {
-      return createWsServiceClient(resourceName, clientOptions);
-    },
-    connectHandler: async (event: EmulatorConnectionEvent) => {
-      const { connection } = event;
+    options: service.options,
+    identifier,
+    bootstrapHandler: () => {
+      registerEmulatorProvider(provider, {
+        eventTypes: [ProviderEvent.SendMessage, ProviderEvent.Disconnect],
+        eventHandler: (event: string, payload: ProviderConnectionEvent | undefined) => {
+          if (!payload) {
+            throw new Error('Missing connection event payload.');
+          }
 
-      if (!connect.authorizer) {
-        await processWsConnection(service, options, context, event);
-      } else {
-        const identity = await processWsAuthorization(service, options, context, event);
+          const { connectionId } = payload;
 
-        if (identity) {
-          await processWsConnection(service, options, context, event, identity);
-          identities[connection.id] = identity;
+          if (event === ProviderEvent.Disconnect) {
+            return localConnections.disconnect(connectionId);
+          }
+
+          if (!payload.payload) {
+            throw new Error('Missing connection message payload.');
+          }
+
+          try {
+            localConnections.sendMessage(connectionId, payload.payload);
+          } catch (error) {
+            Logger.warn(`Unable to send message to connection [${resourceName}]: ${error}`);
+          }
         }
-      }
+      });
 
-      allConnections[connection.id] = connection;
+      registerServerProvider(identifier, {
+        type: ProviderType.Ws,
+        connectHandler,
+        disconnectHandler,
+        messageHandler
+      });
     },
-    disconnectHandler: async (event: EmulatorConnectionEvent) => {
-      const { connection } = event;
-
-      const identity = identities[connection.id];
-
-      delete allConnections[connection.id];
-
-      return processWsConnection(service, options, context, event, identity);
+    shutdownHandler: () => {
+      unregisterServerProvider(identifier);
+      unregisterEmulatorProvider(provider);
     },
-    messageHandler: async (message: EmulatorMessageEvent) => {
-      const { connection } = message;
-
-      try {
-        const identity = identities[connection.id];
-
-        return await processWsMessage(service, options, context, message, identity);
-        //
-      } catch (error) {
-        if (error instanceof HttpError) {
-          return getWsErrorResponse(error);
+    exportDescriptor: () => {
+      return {
+        name: 'makeWsService',
+        module: '@ez4/local-gateway/worker',
+        provider,
+        options: {
+          ...clientOptions,
+          name: resourceName
         }
-
-        throw error;
-      }
+      };
     }
   };
 };

@@ -1,6 +1,6 @@
 import type { ErrorDetails } from '@ez4/validator';
 
-import { ServiceError } from '@ez4/common';
+import { ServiceError } from '@ez4/runtime';
 
 export class MalformedMessageError extends ServiceError {
   constructor(details: ErrorDetails[]) {

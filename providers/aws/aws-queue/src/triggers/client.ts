@@ -16,7 +16,7 @@ export const prepareLinkedClient = (context: EventContext, service: QueueService
 
   const mode = JSON.stringify({
     fifoMode: service.fifoMode,
-    fairMode: service.fifoMode
+    fairMode: service.fairMode
   });
 
   return {

@@ -4,6 +4,6 @@ import { Runner } from '@ez4/project/library';
 
 export namespace BucketRunner {
   export const getClient = (resourceName: string) => {
-    return Runner.getServiceClient(resourceName) as Client;
+    return Runner.getServiceClient(resourceName) as Promise<Client>;
   };
 }

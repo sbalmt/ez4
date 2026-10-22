@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 
 import { arrayUnique, hashObject, isNullish, toKebabCase, toSnakeCase } from '@ez4/utils';
 import { getTemporaryPath } from '@ez4/project/library';
-import { ServiceEventType } from '@ez4/common';
+import { ServiceEventType } from '@ez4/runtime';
 import { Logger } from '@ez4/logger';
 
 import { SourceFileError } from '../errors/bundler';

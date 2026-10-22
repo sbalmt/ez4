@@ -6,5 +6,8 @@ bundlePackage('src/main.ts', 'dist/main.mjs');
 // Runtime package.
 bundlePackage('src/runtime.ts', 'dist/runtime.mjs');
 
+// Worker package.
+bundlePackage('src/worker.ts', 'dist/worker.mjs');
+
 // Client package.
 bundlePackage('src/client.ts', 'dist/client.mjs');

@@ -2,6 +2,8 @@ import type { Cron, ScheduleEvent } from '@ez4/scheduler';
 
 import { deepClone, deepMerge } from '@ez4/utils';
 
+import { EventNotFoundError, EventTooOldError } from '../errors/scheduler';
+
 type InMemorySchedulerData<T extends Cron.Event> = InMemoryScheduler.SchedulerParameters & {
   events: Record<string, ScheduleEvent<T>>;
   timers: Record<string, NodeJS.Timeout>;
@@ -75,7 +77,7 @@ export namespace InMemoryScheduler {
     const interval = input.date.getTime() - Date.now();
 
     if (interval < 0) {
-      throw new Error(`Event for scheduler ${schedulerName} is too old.`);
+      throw new EventTooOldError(schedulerName);
     }
 
     clearTimeout(instance.timers[identifier]);
@@ -89,7 +91,7 @@ export namespace InMemoryScheduler {
     const interval = input.date.getTime() - Date.now();
 
     if (interval < 0) {
-      throw new Error(`Event for scheduler ${schedulerName} is too old.`);
+      throw new EventTooOldError(schedulerName);
     }
 
     instance.timers[identifier] = setTimeout(() => instance.handler(input.event), interval);
@@ -100,7 +102,7 @@ export namespace InMemoryScheduler {
     const previousEvent = deleteEvent(schedulerName, identifier);
 
     if (!previousEvent) {
-      throw new Error(`Event ${identifier} not found on scheduler ${schedulerName}.`);
+      throw new EventNotFoundError(schedulerName, identifier);
     }
 
     const currentEvent = deepMerge(previousEvent, input);

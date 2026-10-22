@@ -1,34 +1,30 @@
-import type { ServeOptions } from '@ez4/project/library';
-import type { Bucket, Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { Client, Content, ObjectEntry, SignReadOptions, SignWriteOptions } from '@ez4/storage';
+import type { ProviderContext } from '@ez4/emulator';
 
+import { dirname, join, relative } from 'node:path';
 import { copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
 import { fileTypeFromFile } from 'file-type';
 
-import { isAnyObject, toKebabCase } from '@ez4/utils';
-import { getServiceName } from '@ez4/project/library';
 import { BucketEventType } from '@ez4/storage';
+import { isAnyObject } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
 
-export type LocalClientOptions = ServeOptions & {
-  events?: {
-    handler: (event: Bucket.ObjectEvent) => Promise<void>;
-    triggers: BucketEventType[];
-    prefix: string;
-    suffix: string;
-  }[];
+import { ProviderEvent } from '../types/events';
+
+export type LocalClientOptions = {
+  host: string;
+  identifier: string;
+  directory: string;
 };
 
-export const createLocalClient = (resourceName: string, options: LocalClientOptions): Client => {
-  const storageIdentifier = getServiceName(resourceName, options);
-  const storageDirectory = join('.ez4', toKebabCase(resourceName));
-  const storageEvents = options.events;
+export const createLocalClient = (options: LocalClientOptions, context: Pick<ProviderContext, 'notify'>): Client => {
+  const { identifier, directory, host } = options;
 
-  return new (class {
-    async stat(key: string) {
-      const filePath = join(storageDirectory, key);
+  return {
+    stat: async (key: string) => {
+      const filePath = join(directory, key);
 
       try {
         const type = await fileTypeFromFile(filePath);
@@ -45,100 +41,97 @@ export const createLocalClient = (resourceName: string, options: LocalClientOpti
 
         return undefined;
       }
-    }
-
-    async exists(key: string) {
-      const filePath = join(storageDirectory, key);
+    },
+    exists: (key: string) => {
+      const filePath = join(directory, key);
 
       return Promise.resolve(existsSync(filePath));
-    }
-
-    async write(key: string, contents: Content) {
-      const filePath = join(storageDirectory, key);
+    },
+    write: async (key: string, contents: Content) => {
+      const filePath = join(directory, key);
 
       await mkdir(dirname(filePath), { recursive: true });
       await writeFile(filePath, contents);
 
       Logger.log(`⬆️  File ${key} uploaded.`);
 
-      storageEvents?.forEach(async ({ prefix, suffix, triggers, handler }) => {
-        if (triggers.includes(BucketEventType.Create) && key.startsWith(prefix) && key.endsWith(suffix)) {
-          const stats = await stat(filePath);
+      const stats = await stat(filePath);
 
-          await handler({
-            eventType: BucketEventType.Create,
-            bucketName: storageIdentifier,
-            objectSize: stats.size,
-            objectKey: key
-          });
-        }
+      context.notify(ProviderEvent.CreateFile, {
+        eventType: BucketEventType.Create,
+        bucketName: identifier,
+        objectSize: stats.size,
+        objectKey: key
       });
-    }
-
-    async read(key: string): Promise<Buffer> {
-      const filePath = join(storageDirectory, key);
+    },
+    read: async (key: string) => {
+      const filePath = join(directory, key);
       const fileContent = await readFile(filePath);
 
       Logger.log(`⬇️  File ${key} downloaded.`);
 
       return fileContent;
-    }
-
-    async delete(key: string) {
-      const filePath = join(storageDirectory, key);
+    },
+    delete: async (key: string) => {
+      const filePath = join(directory, key);
 
       await unlink(filePath);
 
       Logger.log(`ℹ️  File ${key} deleted.`);
 
-      storageEvents?.forEach(async ({ prefix, suffix, triggers, handler }) => {
-        if (triggers.includes(BucketEventType.Delete) && key.startsWith(prefix) && key.endsWith(suffix)) {
-          await handler({
-            eventType: BucketEventType.Delete,
-            bucketName: storageIdentifier,
-            objectKey: key
-          });
-        }
+      context.notify(ProviderEvent.DeleteFile, {
+        eventType: BucketEventType.Delete,
+        bucketName: identifier,
+        objectKey: key
       });
-    }
-
-    async copy(sourceKey: string, targetKey: string) {
-      const sourcePath = join(storageDirectory, sourceKey);
-      const targetPath = join(storageDirectory, targetKey);
+    },
+    copy: async (sourceKey: string, targetKey: string) => {
+      const sourcePath = join(directory, sourceKey);
+      const targetPath = join(directory, targetKey);
 
       await copyFile(sourcePath, targetPath);
 
       Logger.log(`ℹ️  File ${sourceKey} copied.`);
-    }
 
-    async *scan(keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
-      const basePath = keyPrefix ? join(storageDirectory, keyPrefix) : storageDirectory;
+      const stats = await stat(targetPath);
 
-      const allFiles = await readdir(basePath, {
+      context.notify(ProviderEvent.CreateFile, {
+        eventType: BucketEventType.Create,
+        bucketName: identifier,
+        objectSize: stats.size,
+        objectKey: targetKey
+      });
+    },
+    scan: async function* (keyPrefix?: string): AsyncGenerator<ObjectEntry, void> {
+      const allEntries = await readdir(directory, {
+        withFileTypes: true,
         recursive: true
       });
 
-      for (const filePath of allFiles) {
-        const { size, mtime } = await stat(join(basePath, filePath));
+      const allMatching = allEntries
+        .filter((entry) => entry.isFile())
+        .map(({ parentPath, name }) => join(parentPath, name))
+        .filter((path) => !keyPrefix || path.startsWith(keyPrefix, directory.length + 1))
+        .sort();
+
+      for (const filePath of allMatching) {
+        const { size, mtime } = await stat(filePath);
 
         yield {
-          key: filePath,
+          key: relative(directory, filePath),
           modifiedAt: mtime,
           size
         };
       }
+    },
+    getStatUrl: (key: string, _options: SignReadOptions) => {
+      return Promise.resolve(`http://${host}/${identifier}/${key}`);
+    },
+    getWriteUrl: (key: string, _options: SignWriteOptions) => {
+      return Promise.resolve(`http://${host}/${identifier}/${key}`);
+    },
+    getReadUrl: (key: string, _options: SignReadOptions) => {
+      return Promise.resolve(`http://${host}/${identifier}/${key}`);
     }
-
-    async getStatUrl(key: string, _options: SignReadOptions) {
-      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
-    }
-
-    async getWriteUrl(key: string, _options: SignWriteOptions) {
-      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
-    }
-
-    async getReadUrl(key: string, _options: SignReadOptions) {
-      return Promise.resolve(`http://${options.serviceHost}/${storageIdentifier}/${key}`);
-    }
-  })();
+  };
 };

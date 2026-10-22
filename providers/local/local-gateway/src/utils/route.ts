@@ -9,6 +9,8 @@ export type RouteData = {
   authorizer?: AuthHandler | null;
   listener?: ServiceListener | null;
   handler: HttpHandler;
+  timeout?: number;
+  memory?: number;
 };
 
 export type MatchingRoute = RouteData & EmulatorRequestEvent & { parameters?: Record<string, string> };

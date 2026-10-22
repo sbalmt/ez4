@@ -1,13 +1,13 @@
 import type { EventContext } from '@ez4/project/library';
 import type { Complete } from '@ez4/utils';
-import type { LinkedContext, LinkedServices, LinkedVariables, ServiceMetadata } from '../types/service';
+import type { LinkedContext, LinkedServices, ServiceMetadata } from '../types/service';
 import type { MetadataReflection } from '../types/metadata';
 import type { DeployOptions } from '../types/options';
 
 import { triggerAllAsync } from '@ez4/project/library';
 import { hashObject, isObjectWith } from '@ez4/utils';
 
-import { DuplicateVariablesError, MissingVariablesSupportError } from '../errors/variables';
+import { assignServiceVariables } from '../utils/service';
 
 type TargetServiceMetadata = ServiceMetadata & Complete<Pick<ServiceMetadata, 'services'>>;
 
@@ -16,8 +16,8 @@ type LinkedContextCache = Record<string, LinkedContext>;
 export const prepareLinkedServices = async (metadata: MetadataReflection, context: EventContext, options: DeployOptions) => {
   const operations = [];
 
-  for (const serviceName in metadata) {
-    const target = metadata[serviceName];
+  for (const resourceName in metadata) {
+    const target = metadata[resourceName];
 
     if (isObjectWith(target, ['services'])) {
       operations.push(prepareLinkedContext(target, metadata, options, context));
@@ -39,15 +39,15 @@ const prepareLinkedContext = async (
     const linkedContexts: Record<string, LinkedContext> = {};
 
     for (const linkedName in linkedServices) {
-      const { reference: serviceName, options: serviceOptions } = linkedServices[linkedName];
+      const { reference: resourceName, options: resourceOptions } = linkedServices[linkedName];
 
-      const baseService = metadata[serviceName];
+      const baseService = metadata[resourceName];
 
-      const linkedService = {
+      const linkedService: ServiceMetadata = {
         ...baseService,
         options: {
           ...baseService.options,
-          ...serviceOptions
+          ...resourceOptions
         }
       };
 
@@ -60,7 +60,7 @@ const prepareLinkedContext = async (
 
         linkedContexts[linkedName] = remaining;
 
-        const linkedKey = hashObject({ serviceName, serviceOptions: remaining.options });
+        const linkedKey = hashObject({ resourceName, resourceOptions: remaining.options });
 
         if (contextCache[linkedKey]) {
           linkedContexts[linkedName].context = contextCache[linkedKey].context;
@@ -86,18 +86,4 @@ const prepareLinkedContext = async (
   const linkedContexts = await buildLinkedContexts(target, target.services);
 
   Object.assign(target.context, linkedContexts);
-};
-
-const assignServiceVariables = (service: TargetServiceMetadata, variables: LinkedVariables) => {
-  if (!service.variables) {
-    throw new MissingVariablesSupportError(service.name);
-  }
-
-  for (const alias in variables) {
-    if (alias in service.variables && service.variables[alias] !== variables[alias]) {
-      throw new DuplicateVariablesError(alias, service.name);
-    }
-
-    service.variables[alias] = variables[alias];
-  }
 };

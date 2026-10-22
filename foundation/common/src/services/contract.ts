@@ -1,5 +1,4 @@
 import type { Service as RichService } from '../richtypes/service';
-import type { ServiceRequest } from './request';
 
 import type {
   ServiceAnyEvent,
@@ -8,8 +7,9 @@ import type {
   ServiceEndEvent,
   ServiceErrorEvent,
   ServiceReadyEvent,
-  ServiceTimeoutEvent
-} from './event';
+  ServiceTimeoutEvent,
+  ServiceRequest
+} from '@ez4/runtime';
 
 export namespace Service {
   export type AnyEvent<T extends ServiceRequest> = ServiceAnyEvent<T>;

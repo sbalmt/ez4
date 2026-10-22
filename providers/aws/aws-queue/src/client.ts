@@ -5,7 +5,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { MissingMessageGroupError, getJsonMessage, getJsonStringMessage } from '@ez4/queue/utils';
 import { getRandomUUID } from '@ez4/utils';
-import { Runtime } from '@ez4/common';
+import { Runtime } from '@ez4/runtime';
 
 type SqsCache = {
   sqsClient: SQSClient;
