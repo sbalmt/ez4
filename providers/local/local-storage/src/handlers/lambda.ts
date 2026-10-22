@@ -2,6 +2,7 @@ import type { BucketEvent, BucketService } from '@ez4/storage/library';
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { Bucket } from '@ez4/storage';
 
+import { StorageDefaults } from '@ez4/storage/library';
 import { createModule } from '@ez4/emulator';
 
 export const processLambdaEvent = async (
@@ -24,8 +25,8 @@ export const processLambdaEvent = async (
       module: '@ez4/local-storage/worker'
     },
     environment: {
-      memory: event.memory ?? 128,
-      timeout: event.timeout ?? 900,
+      memory: event.memory ?? StorageDefaults.Memory,
+      timeout: event.timeout ?? StorageDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,

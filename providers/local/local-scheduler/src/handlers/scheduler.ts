@@ -2,6 +2,7 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { Cron } from '@ez4/scheduler';
 
+import { SchedulerDefaults } from '@ez4/scheduler/library';
 import { createModule } from '@ez4/emulator';
 
 export const processSchedulerEvent = async (
@@ -28,8 +29,8 @@ export const processSchedulerEvent = async (
       }
     },
     environment: {
-      memory: target.memory ?? 192,
-      timeout: target.timeout ?? 90,
+      memory: target.memory ?? SchedulerDefaults.Memory,
+      timeout: target.timeout ?? SchedulerDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,

@@ -3,6 +3,7 @@ import type { HttpClientRequest, HttpClientResponse } from '../services/http/cli
 
 import { prepareRequestBody, prepareResponseBody } from '@ez4/http';
 
+import { GatewayDefaults } from '../runtime/constants';
 import { getHttpException } from './errors';
 
 export type RequestAuthorization = {
@@ -18,7 +19,7 @@ export type ClientRequestInput = HttpClientRequest & {
 };
 
 export const sendClientRequest = async (url: string, method: string, request: ClientRequestInput): Promise<HttpClientResponse> => {
-  const { authorization, headers, body, bodySchema, responseSchema, namingStyle, timeout = 20 } = request;
+  const { authorization, headers, body, bodySchema, responseSchema, namingStyle, timeout = GatewayDefaults.ClientTimeout } = request;
 
   const payload = body ? prepareRequestBody(body, bodySchema, namingStyle) : undefined;
 

@@ -7,6 +7,8 @@ import {
   NotFoundException
 } from '@aws-sdk/client-apigatewayv2';
 
+import { GatewayDefaults } from '@ez4/gateway/library';
+
 import { getApiGatewayV2Client } from '../utils/deploy';
 
 export type CreateRequest = {
@@ -37,7 +39,7 @@ export const createIntegration = async (logger: OperationLogLine, apiId: string,
       IntegrationMethod: 'POST',
       PayloadFormatVersion: http ? '2.0' : undefined,
       ConnectionType: vpcId ? 'VPC_LINK' : 'INTERNET',
-      TimeoutInMillis: (timeout ?? 30) * 1000,
+      TimeoutInMillis: (timeout ?? GatewayDefaults.Timeout) * 1000,
       ConnectionId: vpcId
     })
   );
@@ -60,7 +62,7 @@ export const updateIntegration = async (logger: OperationLogLine, apiId: string,
       IntegrationUri: functionArn,
       PayloadFormatVersion: http ? '2.0' : undefined,
       ConnectionType: vpcId !== undefined ? (vpcId ? 'VPC_LINK' : 'INTERNET') : undefined,
-      TimeoutInMillis: timeout !== undefined ? (timeout ?? 30) * 1000 : undefined,
+      TimeoutInMillis: timeout !== undefined ? (timeout ?? GatewayDefaults.Timeout) * 1000 : undefined,
       ConnectionId: vpcId
     })
   );

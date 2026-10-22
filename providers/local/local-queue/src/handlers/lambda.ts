@@ -2,6 +2,7 @@ import type { QueueImport, QueueService, QueueSubscription } from '@ez4/queue/li
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
+import { QueueDefaults } from '@ez4/queue/library';
 import { createModule } from '@ez4/emulator';
 
 export const processLambdaMessage = async (
@@ -27,8 +28,8 @@ export const processLambdaMessage = async (
       }
     },
     environment: {
-      memory: subscription.memory ?? 128,
-      timeout: service.timeout ?? 900,
+      memory: subscription.memory ?? QueueDefaults.Memory,
+      timeout: service.timeout ?? QueueDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,

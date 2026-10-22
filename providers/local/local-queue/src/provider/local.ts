@@ -12,6 +12,7 @@ import {
   registerProvider as registerServerProvider,
   unregisterProvider as unregisterServerProvider
 } from '@ez4/server';
+import { QueueDefaults } from '@ez4/queue/library';
 import { MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';
@@ -39,7 +40,7 @@ export const registerLocalService = (service: QueueService, options: ServeOption
             throw new Error('Missing queue event payload.');
           }
 
-          const { message, delay = service.backoff?.minDelay ?? 0 } = payload;
+          const { message, delay = service.backoff?.minDelay ?? QueueDefaults.Delay } = payload;
 
           setTimeout(() => handleQueueMessage(service, options, context, message), delay * 1000);
         }
@@ -62,7 +63,7 @@ export const registerLocalService = (service: QueueService, options: ServeOption
         module: '@ez4/local-queue/worker',
         provider,
         options: {
-          delay: service.delay ?? 0,
+          delay: service.delay ?? QueueDefaults.Delay,
           identifier,
           schema
         }

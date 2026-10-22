@@ -6,6 +6,7 @@ import type { ProviderConnectionEvent } from '../../types/events';
 
 import { registerProvider as registerEmulatorProvider, unregisterProvider as unregisterEmulatorProvider } from '@ez4/emulator';
 import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
+import { GatewayDefaults } from '@ez4/gateway/library';
 import { getServiceName } from '@ez4/project/library';
 import { HttpForbiddenError } from '@ez4/gateway';
 import { Logger } from '@ez4/logger';
@@ -15,8 +16,6 @@ import { processWsAuthorization } from '../../handlers/ws/authorizer';
 import { processWsConnection, WsConnectionType } from '../../handlers/ws/connection';
 import { processWsMessage } from '../../handlers/ws/message';
 import { ProviderEvent } from '../../types/events';
-
-const MAX_MESSAGE_SIZE = 128 * 1024;
 
 export const registerWsLocalService = (service: WsService, options: ServeOptions, context: EmulateServiceContext): ServiceEmulator => {
   const { name: resourceName, defaults, connect, message } = service;
@@ -60,8 +59,8 @@ export const registerWsLocalService = (service: WsService, options: ServeOptions
   const messageHandler = async (message: WsProviderMessage) => {
     const { client, body } = message;
 
-    if (body.length > MAX_MESSAGE_SIZE) {
-      Logger.warn(`Message for connection [${resourceName}] exceeds ${MAX_MESSAGE_SIZE} bytes, closing connection.`);
+    if (body.length > GatewayDefaults.MaxMessageSize) {
+      Logger.warn(`Message for connection [${resourceName}] exceeds ${GatewayDefaults.MaxMessageSize} bytes, closing connection.`);
 
       await client.close();
       return;

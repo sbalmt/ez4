@@ -2,6 +2,7 @@ import type { TopicImport, TopicLambdaSubscription, TopicService } from '@ez4/to
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
+import { TopicDefaults } from '@ez4/topic/library';
 import { createModule } from '@ez4/emulator';
 
 export const processLambdaEvent = async (
@@ -27,8 +28,8 @@ export const processLambdaEvent = async (
       }
     },
     environment: {
-      memory: subscription.memory ?? 128,
-      timeout: subscription.timeout ?? 900,
+      memory: subscription.memory ?? TopicDefaults.Memory,
+      timeout: subscription.timeout ?? TopicDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,

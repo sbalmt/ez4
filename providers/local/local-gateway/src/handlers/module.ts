@@ -2,6 +2,7 @@ import type { EmulateServiceContext, EmulatorLinkedServices, LinkedVariables, Se
 import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
 import type { InvokerIncoming, InvokerOptions } from '../worker/invoker';
 
+import { GatewayDefaults } from '@ez4/gateway/library';
 import { createModule } from '@ez4/emulator';
 
 export type GatewayModuleOptions = {
@@ -33,8 +34,8 @@ export const invokeGatewayModule = <T>(
       options: invoker
     },
     environment: {
-      memory: memory ?? 192,
-      timeout: timeout ?? 30,
+      memory: memory ?? GatewayDefaults.Memory,
+      timeout: timeout ?? GatewayDefaults.Timeout,
       variables: {
         ...options.variables,
         ...variables

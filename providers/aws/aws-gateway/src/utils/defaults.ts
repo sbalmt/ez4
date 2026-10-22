@@ -1,3 +1,4 @@
+import { GatewayDefaults } from '@ez4/gateway/library';
 import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
@@ -9,12 +10,12 @@ export namespace Defaults {
   /**
    * Default function and route timeout.
    */
-  export const Timeout = 30;
+  export const Timeout = GatewayDefaults.Timeout;
 
   /**
    * Default function memory.
    */
-  export const Memory = FunctionDefaults.Memory;
+  export const Memory = GatewayDefaults.Memory;
 
   /**
    * Default function log level.

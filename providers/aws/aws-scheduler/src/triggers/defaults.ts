@@ -1,3 +1,4 @@
+import { SchedulerDefaults } from '@ez4/scheduler/library';
 import { FunctionDefaults } from '@ez4/aws-function';
 
 export namespace Defaults {
@@ -24,10 +25,10 @@ export namespace Defaults {
   /**
    * Default function timeout.
    */
-  export const Timeout = FunctionDefaults.Timeout;
+  export const Timeout = SchedulerDefaults.Timeout;
 
   /**
    * Default function memory.
    */
-  export const Memory = FunctionDefaults.Memory;
+  export const Memory = SchedulerDefaults.Memory;
 }
