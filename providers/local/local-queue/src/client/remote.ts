@@ -24,7 +24,7 @@ export const createRemoteClient = <T extends Queue.Message = any, U extends Queu
 
       const payload = await getJsonStringMessage(message, messageSchema);
 
-      setImmediate(() => forwardQueueMessage(resourceName, queueHost, payload));
+      await forwardQueueMessage(resourceName, queueHost, payload);
     }
 
     receiveMessage(): Promise<T[]> {
@@ -48,7 +48,7 @@ const forwardQueueMessage = async (resourceName: string, serviceHost: string, pa
 
       throw new Error(message);
     }
-  } catch {
-    Logger.warn(`Remote queue [${resourceName}] at ${serviceHost} isn't available.`);
+  } catch (error) {
+    throw new Error(`Unable to send message to remote queue [${resourceName}] at ${serviceHost}: ${error}`, { cause: error });
   }
 };

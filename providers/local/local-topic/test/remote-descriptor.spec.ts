@@ -5,8 +5,9 @@ import type { ServiceFactory } from '@ez4/emulator';
 import { deepEqual, equal, notEqual, rejects } from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 
+import { ImportType, TopicSubscriptionType } from '@ez4/topic/library';
+import { notifyHttpRequest } from '@ez4/server';
 import { loadService } from '@ez4/emulator';
-import { ImportType } from '@ez4/topic/library';
 import { SchemaType } from '@ez4/schema';
 
 import { registerRemoteService } from '../src/provider/remote';
@@ -111,6 +112,85 @@ describe('remote topic descriptors', () => {
       equal(fetchMock.mock.callCount(), 0);
     } finally {
       fetchMock.mock.restore();
+    }
+  });
+
+  it('assert :: rejects publishing when the receiving project is unavailable', async () => {
+    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), () => ({
+      notify: () => {},
+      request: async () => undefined
+    }));
+    const fetchMock = mock.method(globalThis, 'fetch', async () => {
+      throw new Error('Connection refused');
+    });
+
+    try {
+      await rejects(factory().publishEvent({ value: 'remote' }), /OriginalTopic.*Connection refused/);
+    } finally {
+      fetchMock.mock.restore();
+    }
+  });
+
+  it('assert :: rejects publishing when the receiving topic rejects the request', async () => {
+    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), () => ({
+      notify: () => {},
+      request: async () => undefined
+    }));
+    const fetchMock = mock.method(globalThis, 'fetch', async () => {
+      return Response.json({ message: 'Invalid event' }, { status: 400 });
+    });
+
+    try {
+      await rejects(factory().publishEvent({ value: 'remote' }), /OriginalTopic.*Invalid event/);
+    } finally {
+      fetchMock.mock.restore();
+    }
+  });
+
+  it('assert :: acknowledges imported deliveries without endpoint schema validation before processing', async () => {
+    const started = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    const finished = Promise.withResolvers<void>();
+    let processingFinished = false;
+    const received: unknown[] = [];
+    const imported = registerRemoteService(
+      {
+        ...service,
+        subscriptions: [{ type: TopicSubscriptionType.Queue, service: 'Queue' }]
+      },
+      { ...options, suppress: true },
+      {
+        ...context,
+        makeService: async () => ({
+          sendMessage: async (event: unknown) => {
+            received.push(event);
+            started.resolve();
+            await release.promise;
+            processingFinished = true;
+            finished.resolve();
+          }
+        })
+      }
+    );
+    await imported.bootstrapHandler();
+
+    try {
+      const response = await notifyHttpRequest(imported.identifier, {
+        method: 'POST',
+        path: '/',
+        body: '{}'
+      });
+
+      equal(response?.status, 201);
+      equal(received.length, 0);
+      await started.promise;
+      deepEqual(received, [{}]);
+      equal(processingFinished, false);
+      release.resolve();
+      await finished.promise;
+    } finally {
+      release.resolve();
+      await imported.shutdownHandler();
     }
   });
 });

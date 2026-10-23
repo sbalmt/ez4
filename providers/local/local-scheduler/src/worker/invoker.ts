@@ -2,6 +2,7 @@ import type { ModuleInvocation, ModuleInvoker } from '@ez4/emulator';
 import type { EventSchema } from '@ez4/scheduler/utils';
 import type { AnyObject } from '@ez4/utils';
 
+import { getJsonEvent } from '@ez4/scheduler/utils';
 import { getRandomUUID } from '@ez4/utils';
 import { Runtime } from '@ez4/runtime';
 
@@ -30,7 +31,7 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
 
       if (schema) {
         Object.assign(request, {
-          event: invocation.request.event
+          event: await getJsonEvent(invocation.request.event, schema)
         });
       }
 
