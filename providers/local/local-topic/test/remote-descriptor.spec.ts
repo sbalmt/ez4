@@ -30,7 +30,6 @@ const options: ServeOptions = {
   projectName: 'forwarding',
   branchName: '',
   serviceHost: 'localhost',
-  version: 1,
   localOptions: {},
   testOptions: {},
   imports: {
