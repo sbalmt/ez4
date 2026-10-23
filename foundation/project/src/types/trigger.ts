@@ -1,18 +1,11 @@
 import type { ApplyResult, EntryState, EntryStates, StepState } from '@ez4/state';
 import type { EveryType, ReflectionTypes, TypeClass, TypeObject } from '@ez4/reflection';
-import type {
-  ServiceEmulator,
-  EmulateServiceEvent,
-  EmulateDescriptorEvent,
-  EmulatorRequestEvent,
-  EmulatorResponse,
-  EmulatorServiceDescriptor
-} from '../emulator/types';
+import type { ServiceEmulator, EmulateServiceEvent, EmulateDescriptorEvent, EmulatorServiceDescriptor } from '../emulator/types';
 import type { GenerateHelpEvent, GenerateResourceEvent } from '../generator/events';
 import type { ResourceOutput, ResourceOutputEvent } from '../deploy/output';
 import type { GeneratorUsageHelp } from '../generator/help';
 import type { IdentityAccount, IdentityGrant } from './identity';
-import type { DeployOptions, DestroyOptions, ServeOptions } from './options';
+import type { DeployOptions, DestroyOptions } from './options';
 import type { ServiceMetadata, ContextSource } from './service';
 import type { MetadataServiceResult } from './metadata';
 
@@ -44,7 +37,6 @@ export type AsyncEvent = {
   'emulator:startService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:resetService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
   'emulator:stopService': (event: EmulateServiceEvent) => AsyncEventResult<void>;
-  'emulator:fallbackRequest': (event: EmulatorFallbackRequestEvent) => AsyncEventResult<EmulatorResponse>;
   'deploy:prepareLinkedService': (event: LinkServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
@@ -110,12 +102,6 @@ export type ConnectResourceEvent = {
   service: ServiceMetadata;
   options: DeployOptions;
   context: EventContext;
-};
-
-export type EmulatorFallbackRequestEvent = {
-  request: EmulatorRequestEvent;
-  service: ServiceMetadata;
-  options: ServeOptions;
 };
 
 export type DeployEvent = {

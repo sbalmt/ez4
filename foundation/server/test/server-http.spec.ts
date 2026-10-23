@@ -80,6 +80,52 @@ describe('HTTP/1.1 request tests', async () => {
     equal(result, 'HTTP response');
   });
 
+  it('assert :: routes to the longest registered provider on segment boundaries', async () => {
+    const nested = `${TEST_PROVIDER}/nested`;
+
+    registerProvider(TEST_PROVIDER, {
+      type: ProviderType.Http,
+      requestHandler: ({ path }) => {
+        return {
+          status: 200,
+          body: `parent:${path}`
+        };
+      }
+    });
+
+    registerProvider(nested, {
+      type: ProviderType.Http,
+      requestHandler: ({ path, query }) => {
+        return {
+          status: 200,
+          body: `nested:${path}:${query?.value ?? ''}`
+        };
+      }
+    });
+
+    try {
+      for (const [path, expected] of [
+        [`/${nested}?value=example`, 'nested:/:example'],
+        [`/${nested}/resource`, 'nested:/resource:'],
+        [`/${nested}-other`, 'parent:/nested-other'],
+        [`/${TEST_PROVIDER}/other`, 'parent:/other']
+      ]) {
+        const response = await fetch(`${BASE_URL}${path}`);
+
+        equal(await response.text(), expected);
+        equal(response.status, 200);
+      }
+
+      unregisterProvider(nested);
+
+      const response = await fetch(`${BASE_URL}/${nested}`);
+
+      equal(await response.text(), 'parent:/nested');
+    } finally {
+      unregisterProvider(nested);
+    }
+  });
+
   it('assert :: rejects a missing provider with a 404 without adding CORS headers', async () => {
     const response = await fetch(`${BASE_URL}/${TEST_PROVIDER}`, {
       headers: {
