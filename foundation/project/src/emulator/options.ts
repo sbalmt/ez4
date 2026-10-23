@@ -23,7 +23,6 @@ export const getServeOptions = (input: InputOptions, project: ProjectOptions): S
     reset: input.reset ?? project.resetMode,
     local: input.local ?? project.localMode,
     variables: project.variables,
-    suppress: input.suppress,
-    version: 0
+    suppress: input.suppress
   };
 };

@@ -27,7 +27,6 @@ const options: ServeOptions = {
   projectName: 'raw-redis-emulator',
   branchName: 'dev',
   serviceHost: 'localhost',
-  version: 1,
   local: true,
   reset: true,
   localOptions: {

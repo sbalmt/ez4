@@ -1,7 +1,7 @@
 {
   "name": "@ez4/logger",
   "description": "EZ4: Structured and dynamic logging",
-  "version": "0.56.0",
+  "version": "0.57.0",
   "author": "Silas B.",
   "license": "MIT",
   "type": "module",

@@ -4,6 +4,8 @@ import type { ServerOptions } from '../types/server';
 
 import { isAnyArray } from '@ez4/utils';
 
+import { providerRegistered } from '../runtime/provider';
+
 export const getIncomingRequest = (request: IncomingMessage, options: ServerOptions): IncomingRequest | undefined => {
   if (!request.url) {
     return undefined;
@@ -11,19 +13,42 @@ export const getIncomingRequest = (request: IncomingMessage, options: ServerOpti
 
   try {
     const { pathname, searchParams } = new URL(request.url, `ez4://${options.host}`);
-    const [, provider, ...path] = pathname.split('/');
+    const { provider, path } = getIncomingProvider(pathname);
 
     return {
       provider,
       request: {
-        path: provider ? `/${path.join('/')}` : pathname,
         headers: getDistinctHeaders(request.headers),
-        query: getQueryParameters(searchParams)
+        query: getQueryParameters(searchParams),
+        path
       }
     };
   } catch {
     return undefined;
   }
+};
+
+const getIncomingProvider = (pathname: string) => {
+  const segments = pathname.split('/').slice(1);
+
+  let [provider] = segments;
+
+  let position = 1;
+
+  for (let length = segments.length; length > 1; length--) {
+    const candidate = segments.slice(0, length).join('/');
+
+    if (providerRegistered(candidate)) {
+      provider = candidate;
+      position = length;
+      break;
+    }
+  }
+
+  return {
+    path: provider ? `/${segments.slice(position).join('/')}` : pathname,
+    provider
+  };
 };
 
 const getQueryParameters = (allParameters: URLSearchParams) => {

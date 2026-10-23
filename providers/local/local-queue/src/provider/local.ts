@@ -13,9 +13,10 @@ import {
   unregisterProvider as unregisterServerProvider
 } from '@ez4/server';
 import { QueueDefaults } from '@ez4/queue/library';
-import { MalformedMessageError } from '@ez4/queue/utils';
+import { getJsonMessage, MalformedMessageError } from '@ez4/queue/utils';
 import { getServiceName } from '@ez4/project/library';
 import { getRandomInteger } from '@ez4/utils';
+import { Logger } from '@ez4/logger';
 
 import { processLambdaMessage } from '../handlers/lambda';
 import { QueueManifest } from '../service/manifest';
@@ -89,8 +90,9 @@ const handleQueueRequest = async (
 
   try {
     const jsonMessage = JSON.parse(body.toString());
+    const safeMessage = await getJsonMessage(jsonMessage, service.schema);
 
-    await handleQueueMessage(service, options, context, jsonMessage);
+    setImmediate(() => handleQueueMessage(service, options, context, safeMessage));
 
     return getSuccessResponse(201);
     //
@@ -116,6 +118,11 @@ const handleQueueMessage = async (
   const queueSubscription = service.subscriptions[subscriptionIndex];
 
   if (queueSubscription) {
-    await processLambdaMessage(service, options, context, queueSubscription, message);
+    try {
+      await processLambdaMessage(service, options, context, queueSubscription, message);
+    } catch (error) {
+      Logger.error(`Queue [${service.name}] failed to process message:`);
+      Logger.error(`  ${error}`);
+    }
   }
 };

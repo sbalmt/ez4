@@ -26,14 +26,11 @@ export const createRemoteClient = <T extends Topic.Event = any>(
 
       const payload = await getJsonStringEvent(event, eventSchema);
 
-      setImmediate(async () => {
-        try {
-          await sendTopicServiceRequest(topicHost, payload);
-        } catch (error) {
-          Logger.error(`Remote topic [${resourceName}] at ${topicHost} isn't available.`);
-          Logger.error(`    ${error}`);
-        }
-      });
+      try {
+        await sendTopicServiceRequest(topicHost, payload);
+      } catch (error) {
+        throw new Error(`Unable to publish event to remote topic [${resourceName}] at ${topicHost}: ${error}`, { cause: error });
+      }
     }
   })();
 };

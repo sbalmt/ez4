@@ -31,24 +31,12 @@ registerHooks({
       return defaultResolve(specifier, context);
     }
 
-    if (isTemporaryParentModule(context)) {
-      return defaultResolve(getTemporaryModulePath(modulePath), context);
-    }
-
     return defaultResolve(modulePath, context);
   }
 });
 
 const isGlobalParentModule = ({ parentURL }: ResolveHookContext) => {
   return parentURL?.includes('/node_modules/');
-};
-
-const isTemporaryParentModule = ({ parentURL }: ResolveHookContext) => {
-  return parentURL?.includes('v=');
-};
-
-const getTemporaryModulePath = (modulePath: string) => {
-  return `${modulePath}?v=${Date.now()}`;
 };
 
 const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
