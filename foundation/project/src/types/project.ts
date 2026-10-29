@@ -192,7 +192,7 @@ export type ProjectServeOptions = {
 
 export type ProjectWatchOptions = {
   /**
-   * Specify additional paths to watch.
+   * Glob patterns allowing additional paths to be watched, relative to the project workspace.
    */
   additionalPaths: string[];
 };

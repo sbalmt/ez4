@@ -61,7 +61,7 @@ export default {
 
   // Configure the watch mode for when serving the project
   watchOptions: {
-    additionalPaths: ['./test'] // Additional paths to watch during development.
+    additionalPaths: ['./node_modules/@my-org/**'] // Glob patterns allowing package paths to be watched.
   },
 
   // Configure the local development options for the providers

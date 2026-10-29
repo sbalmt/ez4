@@ -9,7 +9,9 @@ import type {
   FileWatcher
 } from 'typescript';
 
-import { getCanonicalFileName } from './utils/compiler';
+import { matchesGlob } from 'node:path';
+
+import { getCanonicalFileName, normalizePath } from './utils/compiler';
 
 import {
   sys,
@@ -107,6 +109,7 @@ export const createWatchCompilerHost = (
   events?: CompilerEvents
 ): WatchCompilerHost<SemanticDiagnosticsBuilderProgram> => {
   const onResolveFileName = events?.onResolveFileName;
+  const additionalPatterns = additionalPaths?.map(normalizePath);
 
   return {
     fileExists: sys.fileExists,
@@ -119,14 +122,14 @@ export const createWatchCompilerHost = (
     clearTimeout: sys.clearTimeout,
     setTimeout: sys.setTimeout,
     watchFile: (path, callback, pollingInterval, options) => {
-      if (isWatchablePath(path, additionalPaths)) {
+      if (isWatchablePath(path, additionalPatterns)) {
         return sys.watchFile!(path, callback, pollingInterval, options);
       }
 
       return EMPTY_WATCHER;
     },
     watchDirectory: (path, callback, recursive, options) => {
-      if (isWatchablePath(path, additionalPaths)) {
+      if (isWatchablePath(path, additionalPatterns)) {
         return sys.watchDirectory!(path, callback, recursive, options);
       }
 
@@ -156,11 +159,12 @@ export const createWatchCompilerHost = (
   };
 };
 
-const isWatchablePath = (path: string, additionalPaths?: string[]) => {
-  const isPackagePath = path.includes('node_modules');
+const isWatchablePath = (path: string, additionalPatterns?: string[]) => {
+  const normalizedPath = normalizePath(path);
+  const isPackagesPath = normalizedPath.split('/').includes('node_modules');
 
-  if (isPackagePath) {
-    return !!additionalPaths?.find((current) => current && path.includes(current));
+  if (isPackagesPath) {
+    return !!additionalPatterns?.some((pattern) => matchesGlob(normalizedPath, pattern));
   }
 
   return true;
