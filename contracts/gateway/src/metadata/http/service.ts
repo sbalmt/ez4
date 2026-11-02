@@ -32,14 +32,14 @@ export const isHttpServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Service'));
 };
 
-export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
+export const getHttpServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, HttpService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isHttpServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isHttpServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -60,7 +60,7 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'routes': {
-          if ((service.routes = getHttpLocalRoutes(declaration, member, reflection, errorList))) {
+          if ((service.routes = getHttpLocalRoutes(declaration, member, reflection, errorList, workspacePath))) {
             properties.delete(member.name);
           }
           break;
@@ -97,7 +97,7 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServicesObject(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           break;
         }
       }
@@ -113,7 +113,7 @@ export const getHttpServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachLinkedServices(service, reflection, errorList, fileName);
+    attachLinkedServices(service, reflection, errorList, fileName, workspacePath);
 
     allServices[declaration.name] = service;
   }
@@ -128,12 +128,18 @@ const isCompleteService = (type: Incomplete<HttpService>): type is HttpService =
   return isObjectWith(type, ['routes', 'variables', 'services']);
 };
 
-const attachLinkedServices = (service: HttpService, reflection: ReflectionTypes, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (
+  service: HttpService,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  fileName?: string,
+  workspacePath?: string
+) => {
   for (const route of service.routes) {
-    attachProviderLinkedServices(route.handler, service.services, reflection, errorList, fileName);
+    attachProviderLinkedServices(route.handler, service.services, reflection, errorList, fileName, workspacePath);
 
     if (route.authorizer) {
-      attachProviderLinkedServices(route.authorizer, service.services, reflection, errorList, fileName);
+      attachProviderLinkedServices(route.authorizer, service.services, reflection, errorList, fileName, workspacePath);
     }
   }
 };

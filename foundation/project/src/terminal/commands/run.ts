@@ -12,12 +12,15 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
-import { loadPaths } from '../../config/tsconfig';
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const runCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
@@ -25,13 +28,9 @@ export const runCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [paths, references] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
+  const [{ main }] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadReferences(project), loadProviders(project)]);
   });
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
 
   warnUnsupportedFlags(input, {
     reset: options.local,
@@ -41,15 +40,13 @@ export const runCommand = async (input: InputOptions) => {
     local: true
   });
 
-  options.imports = references.imports;
+  options.imports = main.imports;
   options.suppress = true;
 
   const emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
-      aliasPaths: {
-        ...references.paths,
-        ...paths
-      }
+      workspacePath: project.workspacePath,
+      aliasPaths: main.paths
     });
 
     return getServiceEmulators(metadata, options);

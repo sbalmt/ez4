@@ -29,14 +29,14 @@ export const isCdnServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Cdn.Service');
 };
 
-export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
+export const getCdnServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, CdnService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isCdnServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isCdnServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -57,7 +57,7 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'defaultOrigin': {
-          if ((service.defaultOrigin = getCdnOriginMetadata(member.value, declaration, reflection, errorList))) {
+          if ((service.defaultOrigin = getCdnOriginMetadata(member.value, declaration, reflection, errorList, workspacePath))) {
             properties.delete(member.name);
           }
           break;
@@ -79,7 +79,7 @@ export const getCdnServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'origins': {
-          service.origins = getCdnOriginsMetadata(member.value, declaration, reflection, errorList);
+          service.origins = getCdnOriginsMetadata(member.value, declaration, reflection, errorList, workspacePath);
           break;
         }
 

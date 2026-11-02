@@ -41,7 +41,8 @@ export const getTopicSubscriptionsMetadata = (
   member: ModelProperty,
   parent: TypeModel,
   reflection: ReflectionTypes,
-  errorList: Error[]
+  errorList: Error[],
+  workspacePath?: string
 ) => {
   const subscriptionItems = getPropertyTuple(member);
   const resultList: TopicSubscription[] = [];
@@ -52,7 +53,7 @@ export const getTopicSubscriptionsMetadata = (
   }
 
   for (const subscription of subscriptionItems) {
-    const result = getTopicSubscription(subscription, parent, reflection, errorList);
+    const result = getTopicSubscription(subscription, parent, reflection, errorList, workspacePath);
 
     if (result) {
       resultList.push(result);
@@ -62,15 +63,21 @@ export const getTopicSubscriptionsMetadata = (
   return resultList;
 };
 
-const getTopicSubscription = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getTopicSubscription = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   if (!isTypeReference(type)) {
-    return getSubscriptionType(type, parent, reflection, errorList);
+    return getSubscriptionType(type, parent, reflection, errorList, workspacePath);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getSubscriptionType(declaration, parent, reflection, errorList);
+    return getSubscriptionType(declaration, parent, reflection, errorList, workspacePath);
   }
 
   return undefined;
@@ -88,9 +95,9 @@ const isCompleteSubscription = (type: Incomplete<TopicSubscription>): type is To
   return false;
 };
 
-const getSubscriptionType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getSubscriptionType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], workspacePath?: string) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, workspacePath);
   }
 
   if (!isModelDeclaration(type)) {
@@ -103,7 +110,7 @@ const getSubscriptionType = (type: AllType, parent: TypeModel, reflection: Refle
     return undefined;
   }
 
-  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList, workspacePath);
 };
 
 const getTypeFromMembers = (
@@ -111,7 +118,8 @@ const getTypeFromMembers = (
   parent: TypeModel,
   members: MemberType[],
   reflection: ReflectionTypes,
-  errorList: Error[]
+  errorList: Error[],
+  workspacePath?: string
 ) => {
   const allLambdaErrors: Error[] = [];
   const allQueueErrors: Error[] = [];
@@ -123,7 +131,7 @@ const getTypeFromMembers = (
     return subscription;
   }
 
-  if ((subscription = getQueueSubscription(type, parent, members, reflection, allQueueErrors))) {
+  if ((subscription = getQueueSubscription(type, parent, members, reflection, allQueueErrors, workspacePath))) {
     errorList.push(...allQueueErrors);
     return subscription;
   }
@@ -222,7 +230,8 @@ const getQueueSubscription = (
   parent: TypeModel,
   members: MemberType[],
   reflection: ReflectionTypes,
-  errorList: Error[]
+  errorList: Error[],
+  workspacePath?: string
 ) => {
   const subscription: Incomplete<TopicSubscription> = {
     type: TopicSubscriptionType.Queue
@@ -242,7 +251,7 @@ const getQueueSubscription = (
       }
 
       case 'service': {
-        if ((subscription.service = getLinkedServiceObject(member, reflection, errorList)?.reference)) {
+        if ((subscription.service = getLinkedServiceObject(member, reflection, errorList, workspacePath)?.reference)) {
           properties.delete(member.name);
         }
         break;

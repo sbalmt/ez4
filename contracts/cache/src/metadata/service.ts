@@ -25,14 +25,14 @@ export const isCacheServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Cache.Service');
 };
 
-export const getCacheServicesMetadata = (reflection: ReflectionTypes) => {
+export const getCacheServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, CacheService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isCacheServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isCacheServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -68,7 +68,7 @@ export const getCacheServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServicesObject(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           break;
         }
       }

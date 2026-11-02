@@ -9,7 +9,7 @@ import type {
   FileWatcher
 } from 'typescript';
 
-import { matchesGlob } from 'node:path';
+import { matchesGlob, resolve } from 'node:path';
 
 import { getCanonicalFileName, normalizePath } from './utils/compiler';
 
@@ -60,7 +60,8 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
   return compilerOptions;
 };
 
-export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
+export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents, workspacePath?: string): CompilerHost => {
+  const currentDirectory = resolve(workspacePath ?? sys.getCurrentDirectory());
   const onResolveFileName = events?.onResolveFileName;
   const sourceFilesCache = new Map<string, SourceFile>();
 
@@ -69,7 +70,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     readFile: sys.readFile,
     writeFile: sys.writeFile,
     getNewLine: () => sys.newLine,
-    getCurrentDirectory: sys.getCurrentDirectory,
+    getCurrentDirectory: () => currentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     getCanonicalFileName: getCanonicalFileName,
@@ -106,17 +107,19 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
 export const createWatchCompilerHost = (
   options: CompilerOptions,
   additionalPaths?: string[],
-  events?: CompilerEvents
+  events?: CompilerEvents,
+  workspacePath?: string
 ): WatchCompilerHost<SemanticDiagnosticsBuilderProgram> => {
-  const onResolveFileName = events?.onResolveFileName;
+  const currentDirectory = resolve(workspacePath ?? sys.getCurrentDirectory());
   const additionalPatterns = additionalPaths?.map(normalizePath);
+  const onResolveFileName = events?.onResolveFileName;
 
   return {
     fileExists: sys.fileExists,
     readFile: sys.readFile,
     readDirectory: sys.readDirectory,
     getNewLine: () => sys.newLine,
-    getCurrentDirectory: sys.getCurrentDirectory,
+    getCurrentDirectory: () => currentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     clearTimeout: sys.clearTimeout,

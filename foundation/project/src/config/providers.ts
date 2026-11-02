@@ -1,4 +1,4 @@
-import type { ProjectOptions } from '../types/project';
+import type { LoadedProjectOptions } from './project';
 import type { AnyObject } from '@ez4/utils';
 
 import { isAnyObject } from '@ez4/utils';
@@ -8,9 +8,9 @@ import { join } from 'node:path';
 
 import { ProviderVersionMismatchError } from '../errors/provider';
 
-export const loadProviders = async (options: ProjectOptions, workspacePath?: string) => {
+export const loadProviders = async (options: LoadedProjectOptions) => {
   const packageFile = options.packageFile ?? 'package.json';
-  const packagePath = join(workspacePath ?? process.cwd(), packageFile);
+  const packagePath = join(options.workspacePath, packageFile);
 
   const { namespace, providers } = await fetchAllProviderPackages(packagePath);
 

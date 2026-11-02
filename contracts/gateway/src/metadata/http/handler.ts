@@ -21,7 +21,8 @@ export const getHttpHandlerMetadata = (
   parent: TypeModel,
   reflection: ReflectionTypes,
   errorList: Error[],
-  external: boolean
+  external: boolean,
+  workspacePath?: string
 ) => {
   if (!isHttpHandlerDeclaration(type)) {
     return undefined;
@@ -48,7 +49,7 @@ export const getHttpHandlerMetadata = (
       }
 
       if (!external) {
-        handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType);
+        handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, HttpNamespaceType, workspacePath);
         handler.isolated = true;
       }
     }

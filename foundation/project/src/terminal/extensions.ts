@@ -1,22 +1,16 @@
 import type { ResolveHookContext } from 'node:module';
 
 import { registerHooks } from 'node:module';
-import { dirname, extname, join } from 'node:path';
+import { dirname, extname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 
-import { tryLoadProject } from '../config/project';
 import { tryLoadReferences } from '../config/references';
-import { tryLoadPaths } from '../config/tsconfig';
+import { tryLoadProject } from '../config/project';
 
-const options = await tryLoadProject(process.env.EZ4_PROJECT_FILE, undefined, true);
-const references = await tryLoadReferences(options);
-const paths = await tryLoadPaths(options);
-
-const aliasPaths = {
-  ...references.paths,
-  ...paths
-};
+const project = await tryLoadProject(process.env.EZ4_PROJECT_FILE, undefined, true);
+const references = await tryLoadReferences(project);
+const aliasPaths = references.main?.paths ?? {};
 
 registerHooks({
   resolve: (specifier, context, defaultResolve) => {
@@ -65,7 +59,7 @@ const resolveModulePath = (specifier: string, parentPath: string) => {
     return undefined;
   }
 
-  if (specifier.startsWith('.') && !extname(specifier)) {
+  if ((specifier.startsWith('.') || isAbsolute(specifier)) && !extname(specifier)) {
     return resolveSpecifier(specifier, parentPath, 'js') ?? resolveSpecifier(specifier, parentPath, 'ts');
   }
 
@@ -78,7 +72,7 @@ const resolveModulePath = (specifier: string, parentPath: string) => {
 
 const resolveSpecifier = (specifier: string, parentPath: string, extension: string) => {
   const filePath = `${specifier}.${extension}`;
-  const fullPath = join(parentPath, filePath);
+  const fullPath = resolve(parentPath, filePath);
 
   if (existsSync(fullPath)) {
     return fullPath;

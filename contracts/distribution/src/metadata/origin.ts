@@ -35,12 +35,18 @@ export const isCdnOriginDeclaration = (type: TypeModel) => {
   );
 };
 
-export const getCdnOriginsMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getCdnOriginsMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   const originItems = getLiteralTuple(type) ?? [];
   const resultList: CdnOrigin[] = [];
 
   for (const origin of originItems) {
-    const result = getCdnOriginMetadata(origin, parent, reflection, errorList);
+    const result = getCdnOriginMetadata(origin, parent, reflection, errorList, workspacePath);
 
     if (result) {
       resultList.push(result);
@@ -50,15 +56,21 @@ export const getCdnOriginsMetadata = (type: AllType, parent: TypeModel, reflecti
   return resultList;
 };
 
-export const getCdnOriginMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getCdnOriginMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   if (!isTypeReference(type)) {
-    return getOriginType(type, parent, reflection, errorList);
+    return getOriginType(type, parent, reflection, errorList, workspacePath);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getOriginType(declaration, parent, reflection, errorList);
+    return getOriginType(declaration, parent, reflection, errorList, workspacePath);
   }
 
   return undefined;
@@ -68,9 +80,9 @@ const isCompleteOrigin = (type: Incomplete<CdnRegularOrigin & CdnBucketOrigin>):
   return isObjectWith(type, ['type', 'domain']) || isObjectWith(type, ['type', 'bucket']);
 };
 
-const getOriginType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getOriginType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], workspacePath?: string) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, getObjectMembers(type), parent, reflection, errorList);
+    return getTypeFromMembers(type, getObjectMembers(type), parent, reflection, errorList, workspacePath);
   }
 
   if (!isModelDeclaration(type)) {
@@ -83,7 +95,7 @@ const getOriginType = (type: AllType, parent: TypeModel, reflection: ReflectionT
     return undefined;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), parent, reflection, errorList);
+  return getTypeFromMembers(type, getModelMembers(type), parent, reflection, errorList, workspacePath);
 };
 
 const getTypeFromMembers = (
@@ -91,7 +103,8 @@ const getTypeFromMembers = (
   members: MemberType[],
   parent: TypeModel,
   reflection: ReflectionTypes,
-  errorList: Error[]
+  errorList: Error[],
+  workspacePath?: string
 ) => {
   const origin: Incomplete<CdnRegularOrigin & CdnBucketOrigin> = {};
   const properties = new Set(['domain', 'bucket']);
@@ -108,7 +121,7 @@ const getTypeFromMembers = (
       }
 
       case 'bucket': {
-        if ((origin.bucket = getLinkedServiceObject(member, reflection, errorList)?.reference)) {
+        if ((origin.bucket = getLinkedServiceObject(member, reflection, errorList, workspacePath)?.reference)) {
           origin.type = CdnOriginType.Bucket;
           properties.delete(member.name);
         }

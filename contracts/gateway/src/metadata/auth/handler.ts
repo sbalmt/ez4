@@ -21,7 +21,8 @@ export const getAuthHandlerMetadata = (
   reflection: ReflectionTypes,
   errorList: Error[],
   external: boolean,
-  namespace: string
+  namespace: string,
+  workspacePath?: string
 ) => {
   if (!isAuthHandlerDeclaration(type)) {
     return undefined;
@@ -48,7 +49,7 @@ export const getAuthHandlerMetadata = (
       }
 
       if (!external) {
-        handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, namespace);
+        handler.provider = getWebProviderMetadata(contextType.value, parent, reflection, errorList, namespace, workspacePath);
         handler.isolated = true;
       }
     }

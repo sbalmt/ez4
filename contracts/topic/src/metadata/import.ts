@@ -30,14 +30,14 @@ export const isTopicImportDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Import');
 };
 
-export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
+export const getTopicImportsMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allImports: Record<string, TopicImport> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isTopicImportDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isTopicImportDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -94,7 +94,7 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'subscriptions': {
           if (!member.inherited) {
-            service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList);
+            service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList, workspacePath);
           } else {
             service.subscriptions = [];
           }
@@ -110,7 +110,7 @@ export const getTopicImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }

@@ -1,9 +1,11 @@
 import type { ServiceEmulators } from '../../emulator/service';
-import type { ServeOptions } from '../../types/options';
 import type { InputOptions } from '../options';
 
+import { isAbsolute, resolve } from 'node:path';
+
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
-import { ProviderType, providerRegistered, startServer } from '@ez4/server';
+import { ProviderType, getServerAddress, providerRegistered, startServer } from '@ez4/server';
+import { arrayUnique } from '@ez4/utils';
 
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { getServicesManifest, registerManifestProvider } from '../../manifest/service';
@@ -14,24 +16,39 @@ import { loadReferences } from '../../config/references';
 import { loadEnvironment } from '../../config/environment';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
-import { loadPaths } from '../../config/tsconfig';
 import { watchMetadata } from '../../library/metadata';
 
 export const serveCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
+
+  const serverAddress = getServerAddress({
+    host: project.serveOptions?.localHost,
+    port: project.serveOptions?.localPort
+  });
 
   if (options.debug) {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [paths, references, namespacePath] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
-  });
+  const references = await DynamicLogger.logExecution('⚡ Initializing', async () => {
+    const { list } = await loadReferences(project, serverAddress);
 
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
+    const operarions = list.map(async (reference) => {
+      const namespace = await loadProviders(reference.project);
+
+      return {
+        namespacePath: namespace ? `**/node_modules/${namespace}/**` : undefined,
+        ...reference
+      };
+    });
+
+    return Promise.all(operarions);
+  });
 
   warnUnsupportedFlags(input, {
     reset: options.local,
@@ -41,63 +58,73 @@ export const serveCommand = async (input: InputOptions) => {
     local: true
   });
 
-  let emulators: ServiceEmulators = {};
-  let isRunning = false;
-
-  const additionalPaths = project.watchOptions?.additionalPaths ?? [];
-
-  options.imports = references.imports;
-
   await startServer({
     name: project.projectName,
     host: project.serveOptions?.localHost,
     port: project.serveOptions?.localPort
   });
 
-  registerManifestProvider(project.projectName, () => {
-    return getServicesManifest(emulators, options);
-  });
+  for (const reference of references) {
+    const projectOptions = getServeOptions(input, reference.project);
 
-  await watchMetadata(project.sourceFiles, {
-    additionalPaths: [namespacePath, ...additionalPaths],
-    aliasPaths: { ...references.paths, ...paths },
-    onMetadataReady: async (metadata) => {
-      if (isRunning) {
-        await shutdownServices(emulators);
-        Logger.space();
+    let emulators: ServiceEmulators = {};
+    let isRunning = false;
+
+    projectOptions.serviceHost = serverAddress;
+    projectOptions.imports = reference.imports;
+
+    registerManifestProvider(reference.project.projectName, () => {
+      return getServicesManifest(emulators, projectOptions);
+    });
+
+    const sourceFiles = reference.project.sourceFiles.map((sourceFile) => resolve(reference.project.workspacePath, sourceFile));
+
+    const additionalPaths = (reference.project.watchOptions?.additionalPaths ?? []).map((pattern) =>
+      isAbsolute(pattern) ? pattern : `${reference.project.workspacePath}/${pattern}`
+    );
+
+    await watchMetadata(sourceFiles, {
+      workspacePath: reference.project.workspacePath,
+      additionalPaths: arrayUnique(reference.namespacePath, additionalPaths),
+      aliasPaths: reference.paths,
+      onMetadataReady: async (metadata) => {
+        if (isRunning) {
+          await shutdownServices(emulators);
+          Logger.space();
+        }
+
+        emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
+          return getServiceEmulators(metadata, projectOptions);
+        });
+
+        if (!isRunning) {
+          await prepareServices(emulators);
+        }
+
+        await bootstrapServices(emulators);
+
+        displayServices(emulators, serverAddress);
+
+        if (isRunning) {
+          Logger.log(`🚀 Project [${projectOptions.projectName}] reloaded`);
+        }
+
+        isRunning = true;
       }
-
-      emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
-        return getServiceEmulators(metadata, options);
-      });
-
-      if (!isRunning) {
-        await prepareServices(emulators);
-      }
-
-      await bootstrapServices(emulators);
-
-      displayServices(emulators, options);
-
-      if (isRunning) {
-        Logger.log(`🚀 Project [${project.projectName}] reloaded`);
-      }
-
-      isRunning = true;
-    }
-  });
+    });
+  }
 };
 
-const displayServices = (emulators: ServiceEmulators, options: ServeOptions) => {
+const displayServices = (emulators: ServiceEmulators, address: string) => {
   for (const identifier in emulators) {
     const emulator = emulators[identifier];
 
     if (providerRegistered(identifier, ProviderType.Http)) {
-      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${options.serviceHost}/${identifier}`);
+      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at http://${address}/${identifier}`);
     }
 
     if (providerRegistered(identifier, ProviderType.Ws)) {
-      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at ws://${options.serviceHost}/${identifier}`);
+      Logger.log(`🌐 Serving ${emulator.type} [${emulator.name}] at ws://${address}/${identifier}`);
     }
   }
 };

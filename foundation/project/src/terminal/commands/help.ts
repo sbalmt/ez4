@@ -1,4 +1,4 @@
-import type { ProjectOptions } from '../../types/project';
+import type { LoadedProjectOptions } from '../../config/project';
 import type { InputOptions } from '../options';
 
 import { getGeneratorOptions } from '../../generator/options';
@@ -50,7 +50,7 @@ export const helpCommand = async (input: InputOptions) => {
   }
 };
 
-const generatorsHelp = async (input: InputOptions, project: ProjectOptions) => {
+const generatorsHelp = async (input: InputOptions, project: LoadedProjectOptions) => {
   await loadProviders(project);
 
   const options = getGeneratorOptions(input, project);

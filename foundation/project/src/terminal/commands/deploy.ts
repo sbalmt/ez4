@@ -17,7 +17,6 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
-import { loadPaths } from '../../config/tsconfig';
 import { buildMetadata } from '../../library/metadata';
 import { warnUnsupportedFlags } from '../../utils/flags';
 import { waitConfirmation } from '../../utils/prompt';
@@ -25,6 +24,10 @@ import { exposeAllWarnings } from '../../utils/warnings';
 import { assertNoErrors } from '../../utils/errors';
 
 export const deployCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
@@ -32,16 +35,12 @@ export const deployCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [paths, references] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
+  const [{ main }] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadReferences(project), loadProviders(project)]);
   });
 
   if (options.force) {
     Logger.log('❗ Force option is enabled');
-  }
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
   }
 
   warnUnsupportedFlags(input, {
@@ -49,16 +48,14 @@ export const deployCommand = async (input: InputOptions) => {
     force: true
   });
 
-  options.imports = references.imports;
+  options.imports = main.imports;
 
   const [oldState, { metadata, dependencies }] = await DynamicLogger.logExecution('🔄️ Loading metadata and state', () => {
     return Promise.all([
       loadState(project.stateFile, options),
       buildMetadata(project.sourceFiles, {
-        aliasPaths: {
-          ...references.paths,
-          ...paths
-        }
+        workspacePath: project.workspacePath,
+        aliasPaths: main.paths
       })
     ]);
   });

@@ -29,14 +29,14 @@ export const isCronServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Cron.Service');
 };
 
-export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
+export const getCronServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, CronService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isCronServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isCronServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -128,7 +128,7 @@ export const getCronServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }

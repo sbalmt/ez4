@@ -17,6 +17,10 @@ import { exposeAllWarnings } from '../../utils/warnings';
 import { assertNoErrors } from '../../utils/errors';
 
 export const destroyCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
@@ -30,10 +34,6 @@ export const destroyCommand = async (input: InputOptions) => {
 
   if (options.force) {
     Logger.log('❗ Force option is enabled');
-  }
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
   }
 
   warnUnsupportedFlags(input, {

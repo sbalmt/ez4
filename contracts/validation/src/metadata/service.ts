@@ -26,14 +26,14 @@ export const isValidationServiceDeclaration = (type: AllType): type is TypeClass
   return isClassDeclaration(type) && hasHeritageType(type, 'Validation.Service');
 };
 
-export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
+export const getValidationServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, ValidationService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isValidationServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isValidationServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -81,7 +81,7 @@ export const getValidationServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }

@@ -113,9 +113,9 @@ const getStorageDescriptor = (service: BucketService, options: ServeOptions) => 
     module: '@ez4/local-storage/worker',
     provider: `storage:${identifier}`,
     options: {
-      host: options.serviceHost,
       identifier,
-      directory: join('.ez4', identifier)
+      directory: join('.ez4', identifier),
+      host: options.serviceHost
     }
   };
 };

@@ -16,6 +16,7 @@ export type MetadataResult = {
 
 export type BuildMetadataOptions = {
   aliasPaths?: Record<string, string[]>;
+  workspacePath?: string;
 };
 
 export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOptions): MetadataResult => {
@@ -24,7 +25,7 @@ export const buildMetadata = (sourceFiles: string[], options?: BuildMetadataOpti
   const metadata: MetadataReflection = {};
 
   triggerAllSync('metadata:getServices', (handler) => {
-    const result = handler(reflection);
+    const result = handler(reflection, options?.workspacePath);
 
     if (result) {
       assertNoErrors(result.errors);
@@ -44,19 +45,21 @@ export type WatchMetadataOptions = {
   onMetadataReady: MetadataReadyListener;
   aliasPaths?: Record<string, string[]>;
   additionalPaths?: string[];
+  workspacePath?: string;
 };
 
 export const watchMetadata = (sourceFiles: string[], options: WatchMetadataOptions) => {
-  const { additionalPaths, aliasPaths, onMetadataReady } = options;
+  const { aliasPaths, additionalPaths, workspacePath, onMetadataReady } = options;
 
   return watchReflection(sourceFiles, {
-    additionalPaths,
     aliasPaths,
+    additionalPaths,
+    workspacePath,
     onReflectionReady: async (reflectionTypes) => {
       const metadata: MetadataReflection = {};
 
       triggerAllSync('metadata:getServices', (handler) => {
-        const result = handler(reflectionTypes);
+        const result = handler(reflectionTypes, workspacePath);
 
         if (result) {
           if (!result.errors.length) {

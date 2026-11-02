@@ -30,14 +30,14 @@ export const isDatabaseServiceDeclaration = (type: AllType): type is TypeClass =
   return isClassDeclaration(type) && hasHeritageType(type, 'Database.Service');
 };
 
-export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
+export const getDatabaseServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, DatabaseService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isDatabaseServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isDatabaseServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -94,7 +94,7 @@ export const getDatabaseServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }

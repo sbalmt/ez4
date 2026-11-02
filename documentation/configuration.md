@@ -97,6 +97,8 @@ export default {
 
 With the configuration file in place, EZ4 knows how to build, deploy, and serve your project.
 
+When running `ez4 serve`, referenced projects are also served locally, including their nested references. Their services share the root project's host and port, while each referenced project retains its own service naming, variables, local options, providers, and watch paths. References between these projects are routed through the shared local server.
+
 ## Examples
 
 - [Storage manager](../examples/aws-storage-manager)
