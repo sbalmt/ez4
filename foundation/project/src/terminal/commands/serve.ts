@@ -1,8 +1,6 @@
 import type { ServiceEmulators } from '../../emulator/service';
 import type { InputOptions } from '../options';
 
-import { isAbsolute, resolve } from 'node:path';
-
 import { Logger, DynamicLogger, LogLevel } from '@ez4/logger';
 import { ProviderType, getServerAddress, providerRegistered, startServer } from '@ez4/server';
 import { arrayUnique } from '@ez4/utils';
@@ -77,15 +75,9 @@ export const serveCommand = async (input: InputOptions) => {
       return getServicesManifest(emulators, projectOptions);
     });
 
-    const sourceFiles = reference.project.sourceFiles.map((sourceFile) => resolve(reference.project.workspacePath, sourceFile));
-
-    const additionalPaths = (reference.project.watchOptions?.additionalPaths ?? []).map((pattern) =>
-      isAbsolute(pattern) ? pattern : `${reference.project.workspacePath}/${pattern}`
-    );
-
-    await watchMetadata(sourceFiles, {
+    await watchMetadata(reference.project.sourceFiles, {
       workspacePath: reference.project.workspacePath,
-      additionalPaths: arrayUnique(reference.namespacePath, additionalPaths),
+      additionalPaths: arrayUnique(reference.namespacePath, reference.project.watchOptions?.additionalPaths),
       aliasPaths: reference.paths,
       onMetadataReady: async (metadata) => {
         if (isRunning) {

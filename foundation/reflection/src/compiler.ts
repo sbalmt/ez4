@@ -111,7 +111,7 @@ export const createWatchCompilerHost = (
   workspacePath?: string
 ): WatchCompilerHost<SemanticDiagnosticsBuilderProgram> => {
   const currentDirectory = resolve(workspacePath ?? sys.getCurrentDirectory());
-  const additionalPatterns = additionalPaths?.map(normalizePath);
+  const additionalPatterns = getWatchPatterns(currentDirectory, additionalPaths);
   const onResolveFileName = events?.onResolveFileName;
 
   return {
@@ -160,6 +160,18 @@ export const createWatchCompilerHost = (
       );
     }
   };
+};
+
+const getWatchPatterns = (currentDirectory: string, additionalPaths?: string[]) => {
+  return additionalPaths?.map((path) => {
+    const pattern = normalizePath(path);
+
+    if (!pattern.startsWith('**/')) {
+      return normalizePath(resolve(currentDirectory, pattern));
+    }
+
+    return pattern;
+  });
 };
 
 const isWatchablePath = (path: string, additionalPatterns?: string[]) => {
