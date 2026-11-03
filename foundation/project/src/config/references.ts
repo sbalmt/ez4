@@ -18,24 +18,23 @@ export type ProjectReference = {
 };
 
 export const loadReferences = async (project: LoadedProjectOptions, serviceAddress?: string) => {
-  const projectsCache = new Map<string, ProjectReference>();
+  const projectsCache = new Set<string>();
   const allReferences: ProjectReference[] = [];
 
   const getReferences = async (project: LoadedProjectOptions) => {
     const projectPath = resolve(project.projectPath);
-    const cacheResult = projectsCache.get(projectPath);
 
-    if (cacheResult) {
-      return cacheResult;
+    if (projectsCache.has(projectPath)) {
+      return;
     }
+
+    projectsCache.add(projectPath);
 
     const reference: ProjectReference = {
       paths: await getPathsFrom(project),
       imports: {},
       project
     };
-
-    projectsCache.set(projectPath, reference);
 
     const { references = {} } = project;
 
@@ -58,11 +57,9 @@ export const loadReferences = async (project: LoadedProjectOptions, serviceAddre
     }
 
     allReferences.push(reference);
-
-    return reference;
   };
 
-  const main = await getReferences(project);
+  await getReferences(project);
 
   const list = allReferences.map((reference) => {
     const paths: AliasPaths = {};
@@ -84,7 +81,7 @@ export const loadReferences = async (project: LoadedProjectOptions, serviceAddre
   });
 
   return {
-    main,
+    main: list.find((reference) => reference.project === project)!,
     list
   };
 };
@@ -101,8 +98,8 @@ const getImportOptions = (project: LoadedProjectOptions, serviceHost: string): I
 const getReferencePaths = (source: AliasPaths, referencePath: string, workspacePath: string): AliasPaths => {
   const paths: AliasPaths = {};
 
-  for (const prefix in source) {
-    paths[prefix] = source[prefix].map((path) => {
+  for (const alias in source) {
+    paths[alias] = source[alias].map((path) => {
       return `./${relative(workspacePath, resolve(referencePath, path))}`;
     });
   }
