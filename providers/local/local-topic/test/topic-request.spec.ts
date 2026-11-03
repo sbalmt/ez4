@@ -29,9 +29,9 @@ const service: TopicService = {
 
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'receiving',
   branchName: '',
-  serviceHost: 'localhost',
+  projectName: 'receiving',
+  serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {}
 };
@@ -98,7 +98,7 @@ describe('topic HTTP requests', () => {
             options: {
               resourceName: service.name,
               schema: service.schema,
-              clientOptions: { ...options, serviceHost: `127.0.0.1:${address.port}` }
+              clientOptions: { ...options, serviceAddress: `127.0.0.1:${address.port}` }
             }
           }
         },

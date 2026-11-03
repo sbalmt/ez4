@@ -48,7 +48,7 @@ const generateHtml = (service: HttpService, options: ServeOptions): string => {
   const template = scalarTemplate;
   const prefix = getServiceName(service.name, options);
 
-  spec.servers = [{ url: `http://${options.serviceHost}/${prefix}` }];
+  spec.servers = [{ url: `http://${options.serviceAddress}/${prefix}` }];
 
   const title = `${service.name} API`;
 

@@ -9,7 +9,7 @@ import { Logger } from '@ez4/logger';
 import { getTopicServiceHost, sendTopicServiceRequest, subscribeToTopicService, unsubscribeFromTopicService } from '../utils/topic';
 
 export type RemoteClientOptions = CommonOptions & {
-  serviceHost: string;
+  serviceAddress: string;
 };
 
 export const createRemoteClient = <T extends Topic.Event = any>(
@@ -18,7 +18,7 @@ export const createRemoteClient = <T extends Topic.Event = any>(
   clientOptions: RemoteClientOptions
 ): Client<T> => {
   const topicIdentifier = getServiceName(resourceName, clientOptions);
-  const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
+  const topicHost = getTopicServiceHost(clientOptions.serviceAddress, topicIdentifier);
 
   return new (class {
     async publishEvent(event: T) {
@@ -37,7 +37,7 @@ export const createRemoteClient = <T extends Topic.Event = any>(
 
 export const unsubscribeRemoteClient = async (resourceName: string, clientOptions: RemoteClientOptions) => {
   const topicIdentifier = getServiceName(resourceName, clientOptions);
-  const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
+  const topicHost = getTopicServiceHost(clientOptions.serviceAddress, topicIdentifier);
 
   try {
     await unsubscribeFromTopicService(topicHost, {
@@ -53,7 +53,7 @@ export const unsubscribeRemoteClient = async (resourceName: string, clientOption
 
 export const subscribeRemoteClient = async (resourceName: string, remoteHost: string, clientOptions: RemoteClientOptions) => {
   const topicIdentifier = getServiceName(resourceName, clientOptions);
-  const topicHost = getTopicServiceHost(clientOptions.serviceHost, topicIdentifier);
+  const topicHost = getTopicServiceHost(clientOptions.serviceAddress, topicIdentifier);
 
   try {
     await subscribeToTopicService(topicHost, {

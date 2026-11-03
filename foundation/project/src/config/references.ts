@@ -89,7 +89,7 @@ const getImportOptions = (project: LoadedProjectOptions, overwrites?: ReferenceO
     prefix: getServicePrefix(project.prefix),
     branchName: getServiceBranch(overwrites?.branchName ?? project.branchName),
     projectName: toKebabCase(project.projectName),
-    serviceHost:
+    serviceAddress:
       overwrites?.serverAddress ??
       getServerAddress({
         host: project.serveOptions?.localHost,

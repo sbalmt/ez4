@@ -45,7 +45,7 @@ describe('descriptor-based service clients', () => {
       },
       {
         ...options,
-        serviceHost: 'localhost',
+        serviceAddress: 'localhost',
         localOptions: {},
         testOptions: {}
       }

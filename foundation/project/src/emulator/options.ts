@@ -16,7 +16,7 @@ export const getServeOptions = (input: InputOptions, project: ProjectOptions): S
     prefix: getServicePrefix(project.prefix),
     projectName: toKebabCase(project.projectName),
     branchName: getServiceBranch(input.branch ?? project.branchName),
-    serviceHost: `${serviceHost}:${servicePort}`,
+    serviceAddress: `${serviceHost}:${servicePort}`,
     localOptions: project.localOptions ?? {},
     testOptions: project.testOptions ?? {},
     debug: input.debug ?? project.debugMode,

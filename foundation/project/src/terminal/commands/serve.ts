@@ -71,7 +71,7 @@ export const serveCommand = async (input: InputOptions) => {
     let emulators: ServiceEmulators = {};
     let isRunning = false;
 
-    projectOptions.serviceHost = serverAddress;
+    projectOptions.serviceAddress = serverAddress;
     projectOptions.imports = reference.imports;
 
     registerManifestProvider(reference.project.projectName, () => {

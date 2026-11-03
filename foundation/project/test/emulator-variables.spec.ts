@@ -45,7 +45,7 @@ describe('project emulator variables', () => {
       },
       {
         ...options,
-        serviceHost: 'localhost',
+        serviceAddress: 'localhost',
         localOptions: {},
         testOptions: {}
       }

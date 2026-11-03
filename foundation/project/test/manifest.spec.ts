@@ -12,11 +12,11 @@ const PROJECT_NAME = 'sample';
 
 const options: ServeOptions = {
   prefix: 'ez4',
-  projectName: 'sample',
   branchName: 'dev',
+  projectName: 'sample',
+  serviceAddress: 'localhost:3734',
   localOptions: {},
-  testOptions: {},
-  serviceHost: 'localhost:3734'
+  testOptions: {}
 };
 
 const emulators: Record<string, ServiceEmulator> = {

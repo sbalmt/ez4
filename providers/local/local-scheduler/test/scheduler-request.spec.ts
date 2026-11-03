@@ -23,9 +23,9 @@ const service: CronService = {
 };
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'receiving',
   branchName: '',
-  serviceHost: 'localhost',
+  projectName: 'receiving',
+  serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
   suppress: true

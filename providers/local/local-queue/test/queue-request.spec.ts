@@ -36,9 +36,9 @@ const service: QueueService = {
 };
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'receiving',
   branchName: '',
-  serviceHost: 'localhost',
+  projectName: 'receiving',
+  serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {}
 };
@@ -97,7 +97,7 @@ describe('queue HTTP requests', () => {
     await once(server, 'listening');
     const address = server.address();
     ok(address && typeof address !== 'string');
-    const receiverOptions = { ...options, serviceHost: `127.0.0.1:${address.port}` };
+    const receiverOptions = { ...options, serviceAddress: `127.0.0.1:${address.port}` };
 
     await emulator.bootstrapHandler?.();
 

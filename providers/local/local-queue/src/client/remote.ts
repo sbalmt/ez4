@@ -7,7 +7,7 @@ import { getJsonStringMessage } from '@ez4/queue/utils';
 import { Logger } from '@ez4/logger';
 
 export type RemoteClientOptions = CommonOptions & {
-  serviceHost: string;
+  serviceAddress: string;
 };
 
 export const createRemoteClient = <T extends Queue.Message = any, U extends Queue.Mode = any>(
@@ -16,7 +16,7 @@ export const createRemoteClient = <T extends Queue.Message = any, U extends Queu
   clientOptions: RemoteClientOptions
 ): Client<T, U> => {
   const queueIdentifier = getServiceName(resourceName, clientOptions);
-  const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
+  const queueHost = `http://${clientOptions.serviceAddress}/${queueIdentifier}`;
 
   return new (class {
     async sendMessage(message: T, _options?: SendOptions<U>) {

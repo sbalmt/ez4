@@ -24,7 +24,7 @@ export const registerHttpLocalService = (service: HttpService, options: ServeOpt
 
   const clientOptions = {
     operations: getClientOperations(service),
-    host: options.serviceHost,
+    host: options.serviceAddress,
     identifier
   };
 

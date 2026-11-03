@@ -11,7 +11,7 @@ export type CommonOptions = {
 };
 
 export type ImportOptions = CommonOptions & {
-  serviceHost: string;
+  serviceAddress: string;
 };
 
 export type DeployOptions = CommonOptions & {
@@ -33,7 +33,7 @@ export type ServeOptions = CommonOptions & {
   localOptions: Record<string, AnyObject>;
   testOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
-  serviceHost: string;
+  serviceAddress: string;
   suppress?: boolean;
   reset?: boolean;
   local?: boolean;

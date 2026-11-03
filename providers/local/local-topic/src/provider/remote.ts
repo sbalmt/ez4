@@ -25,7 +25,7 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
 
   const clientOptions = {
     ...imports[project],
-    remoteHost: options.serviceHost,
+    remoteHost: options.serviceAddress,
     remoteName: resourceName
   };
 
@@ -57,7 +57,7 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
         return Logger.warn(`Topic [${resourceName}] subscription is suppressed`);
       }
 
-      const topicHost = getTopicServiceHost(options.serviceHost, identifier);
+      const topicHost = getTopicServiceHost(options.serviceAddress, identifier);
 
       await subscribeRemoteClient(referenceName, topicHost, clientOptions);
     },

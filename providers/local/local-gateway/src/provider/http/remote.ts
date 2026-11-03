@@ -18,7 +18,7 @@ export const registerHttpRemoteService = (service: HttpImport, options: ServeOpt
     authorization: getClientAuthorization(service),
     operations: getClientOperations(service),
     identifier: getServiceName(referenceName, importOptions),
-    host: importOptions.serviceHost
+    host: importOptions.serviceAddress
   };
 
   return {

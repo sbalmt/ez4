@@ -29,9 +29,9 @@ const service: QueueImport = {
 };
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'forwarding',
   branchName: '',
-  serviceHost: 'localhost',
+  projectName: 'forwarding',
+  serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
   imports: {
@@ -39,7 +39,7 @@ const options: ServeOptions = {
       prefix: 'imported',
       projectName: 'queues',
       branchName: 'dev',
-      serviceHost: 'remote.test:4321'
+      serviceAddress: 'remote.test:4321'
     }
   }
 };

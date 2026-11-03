@@ -15,9 +15,9 @@ import { registerTriggers } from '../src/provider/register';
 
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'docs-ui',
   branchName: 'dev',
-  serviceHost: '127.0.0.1:3759',
+  projectName: 'docs-ui',
+  serviceAddress: '127.0.0.1:3759',
   localOptions: {},
   testOptions: {}
 };
@@ -103,7 +103,7 @@ describe('gateway documentation provider', () => {
       [firstIdentifier, service.name],
       [secondIdentifier, second.name]
     ]) {
-      const response = await fetch(`http://${options.serviceHost}/${identifier}/docs`);
+      const response = await fetch(`http://${options.serviceAddress}/${identifier}/docs`);
 
       equal(response.status, 200);
       match(response.headers.get('content-type') ?? '', /text\/html/);
@@ -112,8 +112,8 @@ describe('gateway documentation provider', () => {
 
       match(html, new RegExp(`<title>${name} API</title>`));
 
-      equal(html.includes(JSON.stringify({ url: `http://${options.serviceHost}/${identifier}` })), true);
-      equal(html.includes(JSON.stringify({ url: `http://${options.serviceHost}/${identifier}/docs` })), false);
+      equal(html.includes(JSON.stringify({ url: `http://${options.serviceAddress}/${identifier}` })), true);
+      equal(html.includes(JSON.stringify({ url: `http://${options.serviceAddress}/${identifier}/docs` })), false);
     }
   });
 
@@ -125,7 +125,7 @@ describe('gateway documentation provider', () => {
       [`/${firstIdentifier}/docs`, 'POST'],
       [`/docs/${firstIdentifier}`, 'GET']
     ]) {
-      const response = await fetch(`http://${options.serviceHost}${path}`, { method });
+      const response = await fetch(`http://${options.serviceAddress}${path}`, { method });
       equal(response.status, 404);
       await response.text();
     }
@@ -143,11 +143,11 @@ describe('gateway documentation provider', () => {
     });
 
     try {
-      const api = await fetch(`http://${options.serviceHost}/${firstIdentifier}/items`);
+      const api = await fetch(`http://${options.serviceAddress}/${firstIdentifier}/items`);
 
       equal(await api.text(), 'gateway:/items');
 
-      const docs = await fetch(`http://${options.serviceHost}/${firstIdentifier}/docs`);
+      const docs = await fetch(`http://${options.serviceAddress}/${firstIdentifier}/docs`);
 
       match(await docs.text(), /<title>FirstGateway API<\/title>/);
       equal(docs.status, 200);
@@ -182,7 +182,7 @@ describe('gateway documentation provider', () => {
 
     await emulator.bootstrapHandler?.();
 
-    const removed = await fetch(`http://${options.serviceHost}/${firstIdentifier}/docs`);
+    const removed = await fetch(`http://${options.serviceAddress}/${firstIdentifier}/docs`);
 
     equal(removed.status, 404);
 

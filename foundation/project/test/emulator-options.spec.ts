@@ -107,9 +107,9 @@ describe('project emulator options', async () => {
     },
     {
       prefix: 'test',
-      projectName: 'emulator',
-      serviceHost: 'localhost',
       branchName: '',
+      projectName: 'emulator',
+      serviceAddress: 'localhost',
       localOptions: {},
       testOptions: {}
     }

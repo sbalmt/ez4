@@ -19,13 +19,14 @@ const handler = (name: string) => ({
   name
 });
 
-const serveOptions = {
-  projectName: 'local-scheduler',
+const serveOptions: ServeOptions = {
   prefix: 'ez4',
-  serviceHost: 'localhost:3734',
   branchName: 'test',
-  version: 1
-} as unknown as ServeOptions;
+  projectName: 'local-scheduler',
+  serviceAddress: 'localhost:3734',
+  localOptions: {},
+  testOptions: {}
+};
 
 describe('worker scheduler handlers', () => {
   const schema = {

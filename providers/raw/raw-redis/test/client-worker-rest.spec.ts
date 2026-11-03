@@ -24,9 +24,9 @@ const service: CacheService = {
 
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'raw-redis-emulator',
   branchName: 'dev',
-  serviceHost: 'localhost',
+  projectName: 'raw-redis-emulator',
+  serviceAddress: 'localhost',
   local: true,
   reset: true,
   localOptions: {

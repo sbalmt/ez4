@@ -115,7 +115,7 @@ const getStorageDescriptor = (service: BucketService, options: ServeOptions) => 
     options: {
       identifier,
       directory: join('.ez4', identifier),
-      host: options.serviceHost
+      host: options.serviceAddress
     }
   };
 };

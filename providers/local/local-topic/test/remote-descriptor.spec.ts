@@ -28,9 +28,9 @@ const service: TopicImport = {
 };
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'forwarding',
   branchName: '',
-  serviceHost: 'localhost',
+  projectName: 'forwarding',
+  serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
   imports: {
@@ -38,7 +38,7 @@ const options: ServeOptions = {
       prefix: 'imported',
       projectName: 'topics',
       branchName: 'dev',
-      serviceHost: 'remote.test:4321'
+      serviceAddress: 'remote.test:4321'
     }
   }
 };
@@ -58,7 +58,7 @@ describe('remote topic descriptors', () => {
     equal(descriptor.options.resourceName, 'OriginalTopic');
     deepEqual(descriptor.options.clientOptions, {
       ...options.imports?.remote,
-      remoteHost: options.serviceHost,
+      remoteHost: options.serviceAddress,
       remoteName: service.name
     });
   });

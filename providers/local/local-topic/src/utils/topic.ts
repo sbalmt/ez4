@@ -15,8 +15,8 @@ export const unsubscribeFromTopicService = (topicHost: string, request: TopicSer
   return sendTopicServiceRequest(`${topicHost}/unsubscribe`, JSON.stringify(request));
 };
 
-export const getTopicServiceHost = (serviceHost: string, topicIdentifier: string) => {
-  return `http://${serviceHost}/${topicIdentifier}`;
+export const getTopicServiceHost = (serviceAddress: string, topicIdentifier: string) => {
+  return `http://${serviceAddress}/${topicIdentifier}`;
 };
 
 export const sendTopicServiceRequest = async (serviceHost: string, request: string) => {
