@@ -34,7 +34,10 @@ export const serveCommand = async (input: InputOptions) => {
   }
 
   const references = await DynamicLogger.logExecution('⚡ Initializing', async () => {
-    const { list } = await loadReferences(project, serverAddress);
+    const { list } = await loadReferences(project, {
+      branchName: input.branch,
+      serverAddress
+    });
 
     const operarions = list.map(async (reference) => {
       const namespace = await loadProviders(reference.project);

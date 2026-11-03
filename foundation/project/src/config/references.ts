@@ -11,18 +11,23 @@ import { getServiceBranch, getServicePrefix } from '../utils/resource';
 import { getPathsFrom } from './tsconfig';
 import { loadProject } from './project';
 
-export type ProjectReference = {
+export type ReferenceProject = {
   project: LoadedProjectOptions;
   imports: Record<string, ImportOptions>;
   paths: AliasPaths;
 };
 
-export const loadReferences = async (project: LoadedProjectOptions, serviceAddress?: string) => {
-  const projectsCache = new Set<string>();
-  const allReferences: ProjectReference[] = [];
+export type ReferenceOverwrites = {
+  serverAddress?: string;
+  branchName?: string;
+};
 
-  const getReferences = async (project: LoadedProjectOptions) => {
-    const projectPath = resolve(project.projectPath);
+export const loadReferences = async (project: LoadedProjectOptions, overwrites?: ReferenceOverwrites) => {
+  const allReferences: ReferenceProject[] = [];
+  const projectsCache = new Set<string>();
+
+  const buildReferences = async (current: LoadedProjectOptions) => {
+    const projectPath = resolve(current.projectPath);
 
     if (projectsCache.has(projectPath)) {
       return;
@@ -30,36 +35,29 @@ export const loadReferences = async (project: LoadedProjectOptions, serviceAddre
 
     projectsCache.add(projectPath);
 
-    const reference: ProjectReference = {
-      paths: await getPathsFrom(project),
-      imports: {},
-      project
+    const reference: ReferenceProject = {
+      paths: await getPathsFrom(current),
+      project: current,
+      imports: {}
     };
 
-    const { references = {} } = project;
+    const { references = {} } = current;
 
     for (const alias in references) {
       const { projectFile: referenceFile } = references[alias];
 
-      const workspacePath = dirname(resolve(project.workspacePath, referenceFile));
-      const referenceOptions = await loadProject(basename(referenceFile), workspacePath);
+      const workspacePath = dirname(resolve(current.workspacePath, referenceFile));
+      const referenceProject = await loadProject(basename(referenceFile), workspacePath);
 
-      reference.imports[alias] = getImportOptions(
-        referenceOptions,
-        serviceAddress ??
-          getServerAddress({
-            host: referenceOptions.serveOptions?.localHost,
-            port: referenceOptions.serveOptions?.localPort
-          })
-      );
+      reference.imports[alias] = getImportOptions(referenceProject, overwrites);
 
-      await getReferences(referenceOptions);
+      await buildReferences(referenceProject);
     }
 
     allReferences.push(reference);
   };
 
-  await getReferences(project);
+  await buildReferences(project);
 
   const list = allReferences.map((reference) => {
     const paths: AliasPaths = {};
@@ -86,12 +84,17 @@ export const loadReferences = async (project: LoadedProjectOptions, serviceAddre
   };
 };
 
-const getImportOptions = (project: LoadedProjectOptions, serviceHost: string): ImportOptions => {
+const getImportOptions = (project: LoadedProjectOptions, overwrites?: ReferenceOverwrites): ImportOptions => {
   return {
     prefix: getServicePrefix(project.prefix),
-    branchName: getServiceBranch(project.branchName),
+    branchName: getServiceBranch(overwrites?.branchName ?? project.branchName),
     projectName: toKebabCase(project.projectName),
-    serviceHost
+    serviceHost:
+      overwrites?.serverAddress ??
+      getServerAddress({
+        host: project.serveOptions?.localHost,
+        port: project.serveOptions?.localPort
+      })
   };
 };
 
