@@ -21,6 +21,7 @@ export type WorkerSignals =
 
 export type StartWorkerSignal = {
   signal: WorkerSignal.Start;
+  workspacePath: string;
   services: ServiceDescriptors;
   references: ServiceReferences;
   invoker: AnyServiceDescriptor;

@@ -16,6 +16,7 @@
     ".": "./src/export.ts"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "deploy": "tsc && ez4 deploy -e local.env",
     "destroy": "ez4 destroy -e local.env",
     "serve": "ez4 serve -e local.env --debug",

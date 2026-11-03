@@ -15,13 +15,14 @@ export type ImportOptions = CommonOptions & {
 };
 
 export type DeployOptions = CommonOptions & {
+  lockId: string;
+  concurrency?: number;
+  workspacePath: string;
   imports?: Record<string, ImportOptions>;
   release?: ProjectDeployReleaseOptions;
   defaults?: ProjectDefaultOptions;
   variables?: LinkedVariables;
   tags?: Record<string, string>;
-  concurrency?: number;
-  lockId: string;
 };
 
 export type DestroyOptions = CommonOptions & {
@@ -29,11 +30,12 @@ export type DestroyOptions = CommonOptions & {
 };
 
 export type ServeOptions = CommonOptions & {
+  workspacePath: string;
+  serviceAddress: string;
   imports?: Record<string, ImportOptions>;
   localOptions: Record<string, AnyObject>;
   testOptions: Record<string, AnyObject>;
   variables?: LinkedVariables;
-  serviceAddress: string;
   suppress?: boolean;
   reset?: boolean;
   local?: boolean;

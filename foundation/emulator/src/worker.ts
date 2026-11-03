@@ -38,17 +38,19 @@ hostWorker.on('message', async (message: string) => {
 
     switch (signal.signal) {
       case WorkerSignal.Start: {
+        const { workspacePath } = signal;
+
         Object.assign(references, signal.references);
 
         for (const identifier in signal.services) {
           const service = signal.services[identifier];
 
-          services[identifier] = await loadLocalService(hostWorker, services, service);
+          services[identifier] = await loadLocalService(hostWorker, services, service, workspacePath);
         }
 
-        invoker = await loadLocalService(hostWorker, services, signal.invoker);
-        listener = signal.listener && (await loadLocalFunction(signal.listener));
-        handler = await loadLocalFunction(signal.handler);
+        invoker = await loadLocalService(hostWorker, services, signal.invoker, workspacePath);
+        listener = signal.listener && (await loadLocalFunction(signal.listener, workspacePath));
+        handler = await loadLocalFunction(signal.handler, workspacePath);
 
         timeout = signal.timeout * 1000;
 

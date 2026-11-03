@@ -27,9 +27,10 @@ export const tryModelReference = (node: Node, context: Context) => {
     return undefined;
   }
 
-  const internal = isInternalType(node);
   const namespace = getAccessNamespace(node);
-  const identity = getNodeIdentity(node, internal);
+
+  const internal = isInternalType(node, context.workspacePath);
+  const identity = getNodeIdentity(node, internal, context.workspacePath);
 
   const result = createReference(identity, internal, namespace);
   const event = context.events.onTypeReference;

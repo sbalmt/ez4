@@ -57,6 +57,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     eventSchema: service.schema,
     variables: [options.variables, service.variables, variables],
     references: handler.references,
+    workspacePath: options.workspacePath,
     context: service.context,
     handler: {
       sourceFile: handler.file,

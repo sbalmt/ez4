@@ -6,7 +6,7 @@ import { triggerAllAsync } from '@ez4/project/library';
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { basename } from 'node:path';
+import { basename, join } from 'node:path';
 
 export const mergeState = (newState: EntryStates, oldState: EntryStates) => {
   for (const entityId in newState) {
@@ -20,7 +20,7 @@ export const loadState = async (stateOptions: ProjectStateOptions, deployOptions
   const { projectName, branchName } = deployOptions;
 
   if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path, branchName);
+    const path = getPath(deployOptions.workspacePath, stateOptions.path, branchName);
 
     if (existsSync(path)) {
       return unpackState(await readFile(path));
@@ -48,7 +48,7 @@ export const saveState = async (stateOptions: ProjectStateOptions, deployOptions
   const data = packState(state);
 
   if (!stateOptions.remote) {
-    const path = getPath('.', stateOptions.path, branchName);
+    const path = getPath(deployOptions.workspacePath, stateOptions.path, branchName);
 
     return writeFile(path, data);
   }
@@ -65,7 +65,7 @@ export const saveState = async (stateOptions: ProjectStateOptions, deployOptions
 };
 
 const getPath = (baseDirectory: string, filePath: string, branchName: string) => {
-  return `${baseDirectory}/${basename(filePath)}${branchName ? `-${branchName}` : ``}.ezstate`;
+  return join(baseDirectory, `${basename(filePath)}${branchName ? `-${branchName}` : ``}.ezstate`);
 };
 
 const packState = (state: EntryStates) => {

@@ -14,7 +14,7 @@ export const createAllTables = async (connection: ClientConnection, repository: 
   const { database } = connection;
 
   const freshCreation = options.force || options.reset;
-  const oldRepository = freshCreation ? {} : await loadRepositoryState(database);
+  const oldRepository = freshCreation ? {} : await loadRepositoryState(database, options.workspacePath);
 
   const steps = getUpdateStepQueries(repository, oldRepository);
   const client = getClient(connection);
@@ -24,16 +24,16 @@ export const createAllTables = async (connection: ClientConnection, repository: 
     await runAllValidations(client, queries.validations);
   }
 
-  await saveRepositoryState(database, repository);
+  await saveRepositoryState(database, repository, options.workspacePath);
 };
 
-export const deleteAllTables = async (connection: ClientConnection, repository: PgTableRepository) => {
+export const deleteAllTables = async (connection: ClientConnection, repository: PgTableRepository, workspacePath: string) => {
   const queries = getDeleteQueries(repository);
   const client = getClient(connection);
 
   await runAllStatements(client, queries.tables);
 
-  await saveRepositoryState(connection.database, {});
+  await saveRepositoryState(connection.database, {}, workspacePath);
 };
 
 const runAllStatements = async (client: DbClient<Database.Service<any>>, statements: PgMigrationStatement[]) => {

@@ -31,6 +31,7 @@ const options: ServeOptions = {
   prefix: 'test',
   branchName: '',
   projectName: 'forwarding',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
@@ -56,7 +57,7 @@ describe('remote queue descriptors', () => {
   });
 
   it('assert :: loads fresh clients and forwards to the imported resource', async () => {
-    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), () => ({
+    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), process.cwd(), () => ({
       notify: () => {
         throw new Error('Remote queue must not notify a local provider.');
       },
@@ -64,8 +65,10 @@ describe('remote queue descriptors', () => {
         throw new Error('Remote queue must not request a local provider.');
       }
     }));
+
     const first = factory();
     const second = factory();
+
     notEqual(first, second);
 
     const forwarded = Promise.withResolvers<void>();
@@ -93,7 +96,7 @@ describe('remote queue descriptors', () => {
   });
 
   it('assert :: validates messages before forwarding them', async () => {
-    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), () => ({
+    const factory = await loadService<ServiceFactory>({}, emulator.exportDescriptor(), process.cwd(), () => ({
       notify: () => {},
       request: async () => undefined
     }));

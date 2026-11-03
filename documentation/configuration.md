@@ -99,6 +99,8 @@ With the configuration file in place, EZ4 knows how to build, deploy, and serve 
 
 When running `ez4 serve`, referenced projects are also served locally, including their nested references. Their services share the root project's host and port, while each referenced project retains its own service naming, variables, local options, providers, and watch paths. References between these projects are routed through the shared local server.
 
+When running `ez4 deploy`, referenced projects are also deployed, including nested references, before the project that references them. EZ4 prepares and displays the change sets for all projects before asking for confirmation, and loads/saves each project's state in its own workspace. Deployments then run sequentially in dependency order and stop at the first failure. Already completed deployments are not rolled back.
+
 ## Examples
 
 - [Storage manager](../examples/aws-storage-manager)

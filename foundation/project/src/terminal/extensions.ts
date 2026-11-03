@@ -9,6 +9,8 @@ import { tryLoadReferences } from '../config/references';
 import { tryLoadProject } from '../config/project';
 
 const project = await tryLoadProject(process.env.EZ4_PROJECT_FILE, undefined, true);
+const workspacePath = project.workspacePath;
+
 const references = await tryLoadReferences(project);
 const aliasPaths = references.main?.paths ?? {};
 
@@ -19,7 +21,7 @@ registerHooks({
     }
 
     const parentFile = context.parentURL ? fileURLToPath(context.parentURL) : '.';
-    const modulePath = resolveImportPath(specifier, parentFile, aliasPaths);
+    const modulePath = resolveImportPath(specifier, workspacePath, parentFile, aliasPaths);
 
     if (!modulePath) {
       return defaultResolve(specifier, context);
@@ -33,7 +35,7 @@ const isGlobalParentModule = ({ parentURL }: ResolveHookContext) => {
   return parentURL?.includes('/node_modules/');
 };
 
-const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
+const resolveImportPath = (specifier: string, workspacePath: string, parentFile: string, aliasPaths: Record<string, string[]>) => {
   for (const prefix in aliasPaths) {
     const prefixPattern = prefix.substring(0, prefix.length - 1);
 
@@ -43,7 +45,7 @@ const resolveImportPath = (specifier: string, parentFile: string, aliasPaths: Re
 
     for (const globPath of aliasPaths[prefix]) {
       const mergedPath = globPath.substring(0, globPath.length - 1) + specifier.substring(prefix.length - 1);
-      const modulePath = resolveModulePath(mergedPath, process.cwd());
+      const modulePath = resolveModulePath(mergedPath, workspacePath);
 
       if (modulePath) {
         return modulePath;

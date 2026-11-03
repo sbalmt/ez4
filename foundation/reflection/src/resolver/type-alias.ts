@@ -38,7 +38,7 @@ export const tryTypeAlias = (node: Node, types: TypeArguments | undefined, conte
 };
 
 export const tryNativeTypeAlias = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
-  if (!isTypeAlias(node) || !isInternalType(node) || !types?.length) {
+  if (!isTypeAlias(node) || !isInternalType(node, context.workspacePath) || !types?.length) {
     return undefined;
   }
 

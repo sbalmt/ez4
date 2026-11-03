@@ -38,6 +38,7 @@ const options: ServeOptions = {
   prefix: 'test',
   branchName: '',
   projectName: 'receiving',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {}

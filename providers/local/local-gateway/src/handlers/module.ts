@@ -24,10 +24,11 @@ export const invokeGatewayModule = <T>(
   const { handler, listener, services = {}, variables, invoker, timeout, memory } = module;
 
   const instance = createModule<T>({
-    handler,
-    listener: listener ?? undefined,
+    workspacePath: options.workspacePath,
     references: context.makeReferences(services, handler.references),
     services: context.makeDescriptors(services),
+    listener: listener ?? undefined,
+    handler,
     invoker: {
       name: 'makeInvoker',
       module: '@ez4/local-gateway/worker',

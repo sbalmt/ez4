@@ -44,13 +44,13 @@ export type ProjectOptions = {
   resetMode?: boolean;
 
   /**
-   * Set a custom `package.json` location relative to the current working directory.
+   * Set a custom `package.json` location relative to the project workspace.
    * All providers are automatically loaded from this custom package location.
    */
   packageFile?: string;
 
   /**
-   * Set a custom `tsconfig.json` location relative to the current working directory.
+   * Set a custom `tsconfig.json` location relative to the project workspace.
    */
   tsconfigFile?: string;
 

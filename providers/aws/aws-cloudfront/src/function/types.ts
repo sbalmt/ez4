@@ -9,8 +9,9 @@ export type GetFunctionBundle = (context: StepContext) => Promise<string> | stri
 export type GetFunctionHash = () => Promise<string | undefined> | string | undefined;
 
 export type FunctionParameters = Omit<CreateRequest, 'functionCode'> & {
-  getFunctionBundle: GetFunctionBundle;
   getFunctionHash: GetFunctionHash;
+  getFunctionBundle: GetFunctionBundle;
+  workspacePath: string;
 };
 
 export type FunctionResult = ImportOrCreateResponse & {

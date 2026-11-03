@@ -90,7 +90,7 @@ export const connectCdnServices = async (event: ConnectResourceEvent) => {
     const { localPath } = bucketState.parameters;
 
     if (localPath) {
-      const contentHash = await getContentVersion(localPath);
+      const contentHash = await getContentVersion(localPath, options.workspacePath);
 
       allContentVersions.push(contentHash);
     }

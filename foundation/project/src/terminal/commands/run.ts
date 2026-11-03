@@ -53,7 +53,6 @@ export const runCommand = async (input: InputOptions) => {
   });
 
   const scriptFiles = input.arguments ?? [];
-  const workingDirectory = process.cwd();
 
   if (!scriptFiles.length) {
     Logger.warn(`One or more script files need to be specified.`);
@@ -70,7 +69,7 @@ export const runCommand = async (input: InputOptions) => {
     const scripts = [];
 
     for (const scriptFile of scriptFiles) {
-      const scriptPath = join(workingDirectory, scriptFile);
+      const scriptPath = join(project.workspacePath, scriptFile);
 
       if (!existsSync(scriptPath)) {
         Logger.error(`Script file '${scriptFile}' not found.`);

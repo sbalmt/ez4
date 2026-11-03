@@ -2,9 +2,9 @@ import type { LinkedContext } from '@ez4/project/library';
 import type { AnyObject } from '@ez4/utils';
 
 import { build, formatMessages } from 'esbuild';
-import { join, parse, relative } from 'node:path';
+import { dirname, isAbsolute, parse, relative, resolve } from 'node:path';
 import { availableParallelism } from 'node:os';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
@@ -29,6 +29,7 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   resourceName: string;
+  workspacePath: string;
   handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
@@ -37,21 +38,22 @@ export type BundlerOptions = {
   target?: string;
 };
 
-export const createBundleHash = async (allSourceFiles: string[]) => {
+export const createBundleHash = async (allSourceFiles: string[], workspacePath: string) => {
   const fileSignatures = createHash('sha256');
 
   const pathHashes = await Promise.all(
     allSourceFiles.map(async (filePath) => {
-      const relativePath = relative(process.cwd(), filePath);
+      const absolutePath = isAbsolute(filePath) ? filePath : resolve(workspacePath, filePath);
+      const relativePath = relative(workspacePath, absolutePath);
 
-      let contentHash = pathCache.get(relativePath);
+      let contentHash = pathCache.get(absolutePath);
 
       if (!contentHash) {
-        const contentData = await readFile(filePath);
+        const contentData = await readFile(absolutePath);
 
         contentHash = createHash('sha256').update(contentData).digest('hex');
 
-        pathCache.set(relativePath, contentHash);
+        pathCache.set(absolutePath, contentHash);
       }
 
       return {
@@ -71,11 +73,11 @@ export const createBundleHash = async (allSourceFiles: string[]) => {
   return fileSignatures.digest('hex');
 };
 
-export const getBundleHash = async (cacheKey: string, sourceFiles: string[]) => {
+export const getBundleHash = async (cacheKey: string, sourceFiles: string[], workspacePath: string) => {
   let bundleHash = hashCache.get(cacheKey);
 
   if (!bundleHash) {
-    bundleHash = await createBundleHash(arrayUnique(sourceFiles));
+    bundleHash = await createBundleHash(arrayUnique(sourceFiles), workspacePath);
 
     hashCache.set(cacheKey, bundleHash);
   }
@@ -129,9 +131,11 @@ export const getFunctionBundle = async (provider: string, options: BundlerOption
 };
 
 export const buildFunctionBundle = async (provider: string, options: BundlerOptions) => {
+  const workspacePath = resolve(options.workspacePath);
+
   const { sourceFile, functionName } = options.handler;
 
-  const cacheKey = `${sourceFile}:${functionName}`;
+  const cacheKey = `${workspacePath}:${sourceFile}:${functionName}`;
   const cacheFile = fileCache.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
@@ -143,8 +147,10 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
 
   const handlerName = toKebabCase(functionName);
 
-  const targetFile = join(targetPath, `${filePrefix}.${targetName}.${handlerName}.mjs`);
-  const outputFile = getTemporaryPath(targetFile);
+  const targetFile = resolve(workspacePath, targetPath, `${filePrefix}.${targetName}.${handlerName}.mjs`);
+  const outputFile = getTemporaryPath(workspacePath, relative(workspacePath, targetFile));
+
+  await mkdir(dirname(outputFile), { recursive: true });
 
   const result = await build({
     outfile: outputFile,
@@ -165,7 +171,7 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },
     stdin: {
-      resolveDir: process.cwd(),
+      resolveDir: workspacePath,
       contents: await getEntrypointCode(options),
       sourcefile: 'main.ts',
       loader: 'ts'

@@ -26,6 +26,7 @@ const options: ServeOptions = {
   prefix: 'test',
   branchName: 'dev',
   projectName: 'raw-redis-emulator',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost',
   local: true,
   reset: true,

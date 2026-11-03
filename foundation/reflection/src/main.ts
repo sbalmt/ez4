@@ -4,7 +4,7 @@ import type { CompilerOptions, CompilerEvents } from './compiler';
 import type { ReflectionTypes } from './types';
 
 import { createProgram, createWatchProgram } from 'typescript';
-import { relative, resolve } from 'node:path';
+import { resolve } from 'node:path';
 
 import { getReflectionFileNames } from './utils/reflection';
 import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
@@ -75,10 +75,7 @@ export const getReflectionFromFiles = (fileNames: string[], options?: Reflection
     };
   }
 
-  const reflectionFiles = getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile).map((fileName) =>
-    options.workspacePath ? relative(compilerHost.getCurrentDirectory(), resolve(fileName)) : fileName
-  );
-
+  const reflectionFiles = getReflectionFileNames(reflection, options.compilerEvents?.onReflectionFile);
   const dependencies = resolveReflectionFiles(program, compilerOptions, compilerHost, reflectionFiles);
 
   return {

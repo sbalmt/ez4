@@ -33,7 +33,6 @@ const createTestModule = (value: string, conflict = false) => {
         EZ4_WORKER_OWN: 'handler-value'
       }
     },
-    services,
     handler: {
       file: 'test/files/handlers.ts',
       name: 'environment',
@@ -42,7 +41,8 @@ const createTestModule = (value: string, conflict = false) => {
     invoker: {
       file: 'test/files/invoker.ts',
       name: 'makeDefaultInvoker'
-    }
+    },
+    services
   });
 };
 

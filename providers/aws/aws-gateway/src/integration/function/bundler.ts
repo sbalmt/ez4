@@ -31,6 +31,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     listener,
     preferences,
     functionName,
+    workspacePath,
     headersSchema,
     parametersSchema,
     querySchema,
@@ -50,6 +51,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     templateFile: getBundleTemplateFile(IntegrationFunctionType.HttpRequest),
     resourceName: functionName,
     filePrefix: 'api',
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
@@ -68,8 +70,19 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 };
 
 export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, preferences, functionName, headersSchema, querySchema, identitySchema, context, references, debug } =
-    parameters;
+  const {
+    handler,
+    listener,
+    preferences,
+    workspacePath,
+    functionName,
+    headersSchema,
+    querySchema,
+    identitySchema,
+    context,
+    references,
+    debug
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -78,6 +91,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsConnection),
     resourceName: functionName,
     filePrefix: 'api',
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',
@@ -92,8 +106,19 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
 };
 
 export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, preferences, functionName, bodySchema, identitySchema, responseSchema, context, references, debug } =
-    parameters;
+  const {
+    handler,
+    listener,
+    preferences,
+    functionName,
+    workspacePath,
+    bodySchema,
+    identitySchema,
+    responseSchema,
+    context,
+    references,
+    debug
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -102,6 +127,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsMessage),
     resourceName: functionName,
     filePrefix: 'api',
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_BODY_SCHEMA: bodySchema ? JSON.stringify(bodySchema) : 'undefined',

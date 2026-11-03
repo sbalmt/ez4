@@ -33,7 +33,7 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
 
   const declaration = getNodeTypeDeclaration(node.expression, context.checker);
 
-  if (!declaration || isInternalType(declaration)) {
+  if (!declaration || isInternalType(declaration, context.workspacePath)) {
     return undefined;
   }
 
@@ -41,7 +41,7 @@ export const tryHeritageMember = (node: Node, context: Context, state: State) =>
     context.pending.add(declaration);
   }
 
-  const identity = getNodeIdentity(declaration);
+  const identity = getNodeIdentity(declaration, undefined, context.workspacePath);
   const namespace = getAccessNamespace(node.expression);
   const types = node.typeArguments;
 

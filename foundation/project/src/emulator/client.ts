@@ -12,7 +12,7 @@ import { makeServiceDescriptors, makeServiceReferences } from './service';
 
 export const loadServiceClient = async (
   emulators: ServiceEmulators,
-  options: ServiceNameOptions & Pick<ServeOptions, 'variables'>,
+  options: ServiceNameOptions & Pick<ServeOptions, 'variables' | 'workspacePath'>,
   resourceName: string,
   resourceOptions?: AnyObject
 ): Promise<unknown> => {
@@ -23,10 +23,10 @@ export const loadServiceClient = async (
     }
   };
 
-  const descriptors = makeServiceDescriptors(linkedServices, emulators, options);
   const references = makeServiceReferences(linkedServices, emulators, options);
+  const descriptors = makeServiceDescriptors(linkedServices, emulators, options);
 
-  const services = await loadServices(descriptors, {
+  const services = await loadServices(descriptors, options.workspacePath, {
     ...process.env,
     ...options.variables,
     ...getServiceVariables(resourceName, descriptors)
@@ -35,13 +35,17 @@ export const loadServiceClient = async (
   return getLazyContext(services, references).client;
 };
 
-const loadServices = async (descriptors: ServiceDescriptors, variables: Readonly<Partial<LinkedVariables>>): Promise<ServiceFactories> => {
+const loadServices = async (
+  descriptors: ServiceDescriptors,
+  workspacePath: string,
+  variables: Readonly<Partial<LinkedVariables>>
+): Promise<ServiceFactories> => {
   const services: ServiceFactories = {};
 
   for (const identifier in descriptors) {
     const descriptor = descriptors[identifier];
 
-    services[identifier] = await loadService(services, descriptor, (provider) => ({
+    services[identifier] = await loadService(services, descriptor, workspacePath, (provider) => ({
       variables,
       notify: (event: string, payload: AnyObject) => {
         notifyProvider(provider, event, payload).catch((error) => {

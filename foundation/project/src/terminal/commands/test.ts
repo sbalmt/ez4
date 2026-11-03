@@ -56,7 +56,6 @@ export const testCommand = async (input: InputOptions) => {
     return getServiceEmulators(metadata, options);
   });
 
-  const workingDirectory = process.cwd();
   const filePatterns = input.arguments;
 
   const testFiles = await DynamicLogger.logExecution('🧪 Preparing tests', async () => {
@@ -68,12 +67,12 @@ export const testCommand = async (input: InputOptions) => {
 
     const allFiles = glob('**/*.{spec,test}.{js,ts}', {
       exclude: ['**/node_modules/**'],
-      cwd: workingDirectory
+      cwd: project.workspacePath
     });
 
     for await (const file of allFiles) {
       if (!filePatterns || filePatterns.some((filePattern) => file.includes(filePattern))) {
-        testFiles.push(join(workingDirectory, file));
+        testFiles.push(join(project.workspacePath, file));
       }
     }
 
@@ -87,7 +86,7 @@ export const testCommand = async (input: InputOptions) => {
 
   const testRunner = run({
     coverage: input.coverage,
-    coverageIncludeGlobs: [`${workingDirectory}/**/*`],
+    coverageIncludeGlobs: [`${project.workspacePath}/**/*`],
     isolation: 'none',
     files: testFiles,
     forceExit: true,

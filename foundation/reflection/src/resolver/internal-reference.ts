@@ -8,12 +8,12 @@ import { tryTypes } from './types';
 
 export type TypeArguments = NodeArray<TypeNode>;
 
-export const isInternalReference = (node: Node): node is InterfaceDeclaration => {
-  return isTypeInterface(node) && isInternalType(node);
+export const isInternalReference = (node: Node, workspacePath: string): node is InterfaceDeclaration => {
+  return isTypeInterface(node) && isInternalType(node, workspacePath);
 };
 
 export const tryInternalReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
-  if (!types || !isInternalReference(node)) {
+  if (!types || !isInternalReference(node, context.workspacePath)) {
     return undefined;
   }
 

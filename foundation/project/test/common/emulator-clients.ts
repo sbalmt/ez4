@@ -9,6 +9,7 @@ export const options = {
   prefix: 'test',
   projectName: 'clients',
   branchName: '',
+  workspacePath: process.cwd(),
   variables: {
     EZ4_CLIENT_PROJECT: 'project',
     EZ4_CLIENT_VALUE: 'project-value'

@@ -32,6 +32,7 @@ export type ModuleEntrypoint = {
 };
 
 export type ModuleOptions = {
+  workspacePath?: string;
   environment: ModuleEnvironment;
   services?: ServiceDescriptors;
   references?: ServiceReferences;

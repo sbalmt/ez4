@@ -31,6 +31,7 @@ const options: ServeOptions = {
   prefix: 'test',
   branchName: '',
   projectName: 'receiving',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {}
@@ -85,11 +86,21 @@ describe('topic HTTP requests', () => {
       const address = server.address();
       ok(address && typeof address !== 'string');
       const module = createModule({
-        handler: { file: 'test/files/publish.ts', name: 'publish', position: [1, 1] },
+        environment: {
+          memory: 64,
+          timeout: 3
+        },
+        handler: {
+          file: 'test/files/publish.ts',
+          name: 'publish',
+          position: [1, 1]
+        },
         invoker: {
           module: '@ez4/local-topic/worker',
           name: 'makeInvoker',
-          options: { schema: service.schema }
+          options: {
+            schema: service.schema
+          }
         },
         services: {
           Topic: {
@@ -98,12 +109,16 @@ describe('topic HTTP requests', () => {
             options: {
               resourceName: service.name,
               schema: service.schema,
-              clientOptions: { ...options, serviceAddress: `127.0.0.1:${address.port}` }
+              clientOptions: {
+                ...options,
+                serviceAddress: `127.0.0.1:${address.port}`
+              }
             }
           }
         },
-        references: { topic: 'Topic' },
-        environment: { memory: 64, timeout: 3 }
+        references: {
+          topic: 'Topic'
+        }
       });
 
       await module.invoke({ value: 'accepted' });

@@ -14,6 +14,7 @@ const options: ServeOptions = {
   prefix: 'ez4',
   branchName: 'dev',
   projectName: 'sample',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost:3734',
   localOptions: {},
   testOptions: {}

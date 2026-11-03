@@ -74,6 +74,7 @@ export const getAuthorizerFunction = (
       timeout: Math.max(5, timeout - 1),
       variables: [options.variables, service.variables],
       references: authorizer.references ?? (provider?.services && Object.keys(provider.services)),
+      workspacePath: options.workspacePath,
       context: service.context,
       release: options.release,
       tags: options.tags,

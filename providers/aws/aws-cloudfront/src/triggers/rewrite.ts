@@ -22,9 +22,11 @@ export const prepareRewrites = (state: EntryStates, service: CdnService, options
 
   return createViewerFunction(state, {
     description: 'URL rewrite handler (EZ4 built-in)',
+    workspacePath: options.workspacePath,
     functionName,
     getFunctionBundle: () => {
       return bundleViewerFunction({
+        workspacePath: options.workspacePath,
         functionName,
         define: {
           __EZ4_REWRITE_RULES: JSON.stringify(rewriteRules)

@@ -19,7 +19,7 @@ export const isGenericReference = (node: Node): node is ClassNodes | InterfaceNo
 };
 
 export const tryGenericReference = (node: Node, types: TypeArguments | undefined, context: Context, state: State) => {
-  if (!types || !isGenericReference(node) || isInternalType(node)) {
+  if (!types || !isGenericReference(node) || isInternalType(node, context.workspacePath)) {
     return undefined;
   }
 
@@ -27,7 +27,7 @@ export const tryGenericReference = (node: Node, types: TypeArguments | undefined
     return context.cache.get(types) as TypeObject;
   }
 
-  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node, context.workspacePath) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
 
   const reflectedType = createObject(file, position);

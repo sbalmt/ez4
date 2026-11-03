@@ -28,6 +28,7 @@ const serveOptions: ServeOptions = {
   prefix: 'ez4',
   branchName: 'test',
   projectName: 'local-gateway',
+  workspacePath: process.cwd(),
   serviceAddress: 'localhost:3734',
   localOptions: {},
   testOptions: {}

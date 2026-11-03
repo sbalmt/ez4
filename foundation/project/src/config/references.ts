@@ -23,8 +23,8 @@ export type ReferenceOverwrites = {
 };
 
 export const loadReferences = async (project: LoadedProjectOptions, overwrites?: ReferenceOverwrites) => {
-  const allReferences: ReferenceProject[] = [];
   const projectsCache = new Set<string>();
+  const allReferences: ReferenceProject[] = [];
 
   const buildReferences = async (current: LoadedProjectOptions) => {
     const projectPath = resolve(current.projectPath);

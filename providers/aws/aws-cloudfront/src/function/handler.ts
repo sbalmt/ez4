@@ -33,6 +33,11 @@ const previewResource = (candidate: FunctionState, current: FunctionState) => {
     {
       ...source,
       valuesHash: current.result?.valuesHash
+    },
+    {
+      exclude: {
+        workspacePath: true
+      }
     }
   );
 

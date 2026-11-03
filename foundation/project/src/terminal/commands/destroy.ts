@@ -41,8 +41,11 @@ export const destroyCommand = async (input: InputOptions) => {
     force: true
   });
 
-  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => loadState(project.stateFile, options));
   const newState: EntryStates = {};
+
+  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
+    return loadState(project.stateFile, options);
+  });
 
   const hasChanges = await reportResourceChanges(newState, oldState, options);
 

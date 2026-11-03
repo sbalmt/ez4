@@ -23,8 +23,9 @@ export type FunctionParameters = Omit<CreateRequest, 'logGroup' | 'roleArn' | 'p
   getFunctionVariables: GetFunctionVariables;
   getFunctionBundle: GetFunctionBundle;
   getFunctionHash: GetFunctionHash;
-  release?: FunctionRelease;
+  workspacePath: string;
   dependencies?: string[];
+  release?: FunctionRelease;
 };
 
 export type FunctionResult = CreateResponse & {

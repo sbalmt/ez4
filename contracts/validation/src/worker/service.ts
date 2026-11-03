@@ -14,7 +14,7 @@ export const makeService = async (options: ServiceOptions, context: ProviderCont
   const { handler, references, schema } = options;
   const { services } = context;
 
-  const { callback } = await loadFunction(handler);
+  const { callback } = await loadFunction(handler, context.workspacePath);
 
   if (!callback) {
     throw new EntrypointNotFoundError(handler.name, handler.file);

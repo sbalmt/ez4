@@ -5,6 +5,7 @@ import type { AllType, EveryType } from '../types';
 export type Context = {
   events: ResolverEvents;
   options: ResolverOptions;
+  workspacePath: string;
   checker: TypeChecker;
   pending: Set<Node>;
   cache: WeakMap<Node | NodeArray<Node>, AllType>;

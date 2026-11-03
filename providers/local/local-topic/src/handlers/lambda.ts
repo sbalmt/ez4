@@ -16,6 +16,7 @@ export const processLambdaEvent = async (
   const services = context.makeDescriptors(service.services);
 
   const module = createModule({
+    workspacePath: options.workspacePath,
     listener: subscription.listener,
     handler: subscription.handler,
     references,

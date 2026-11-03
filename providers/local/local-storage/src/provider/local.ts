@@ -15,7 +15,7 @@ import { BucketEventType } from '@ez4/storage';
 import { Logger } from '@ez4/logger';
 
 import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 
 import { processLambdaEvent } from '../handlers/lambda';
 import { BucketManifest } from '../service/manifest';
@@ -29,10 +29,10 @@ export const registerLocalService = async (
   const { name: resourceName } = service;
 
   const identifier = getServiceName(resourceName, options);
-  const directory = join('.ez4', identifier);
+  const directory = resolve(options.workspacePath, '.ez4', identifier);
   const provider = `storage:${identifier}`;
 
-  const descriptor = await getStorageDescriptor(service, options);
+  const descriptor = await getStorageDescriptor(service, options, directory);
 
   if (!descriptor) {
     return null;
@@ -64,7 +64,7 @@ export const registerLocalService = async (
           }
         });
 
-        const makeClient = await loadService<() => StorageClient>({}, descriptor, (provider) => ({
+        const makeClient = await loadService<() => StorageClient>({}, descriptor, options.workspacePath, (provider) => ({
           notify: (event, payload) => {
             notifyProvider(provider, event, payload).catch((error: unknown) => {
               Logger.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
@@ -96,7 +96,7 @@ export const registerLocalService = async (
   };
 };
 
-const getStorageDescriptor = (service: BucketService, options: ServeOptions) => {
+const getStorageDescriptor = (service: BucketService, options: ServeOptions, directory: string) => {
   if (!options.local) {
     return triggerAllAsync('emulator:serviceDescriptor', (handler) =>
       handler({
@@ -114,7 +114,7 @@ const getStorageDescriptor = (service: BucketService, options: ServeOptions) => 
     provider: `storage:${identifier}`,
     options: {
       identifier,
-      directory: join('.ez4', identifier),
+      directory,
       host: options.serviceAddress
     }
   };

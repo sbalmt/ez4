@@ -1,8 +1,8 @@
 import type { OperationLogLine } from '@ez4/aws-common';
 import type { ACMClient } from '@aws-sdk/client-acm';
 
+import { getTemporaryPath, saveTemporaryFile } from '@ez4/project/library';
 import { DescribeCertificateCommand } from '@aws-sdk/client-acm';
-import { mkdir, writeFile } from 'node:fs/promises';
 
 const PollIntervalMs = 2000;
 const PollAttempts = 30;
@@ -60,12 +60,13 @@ export const announceValidationRecord = async (logger: OperationLogLine, client:
     return;
   }
 
-  const file = `.ez4/certificate-validation-${domainName}.txt`;
+  const workspacePath = process.cwd();
+  const temporaryFile = `certificate-validation-${domainName}.txt`;
+  const file = getTemporaryPath(workspacePath, temporaryFile);
 
-  await mkdir('.ez4', { recursive: true });
-
-  await writeFile(
-    file,
+  await saveTemporaryFile(
+    workspacePath,
+    temporaryFile,
     [
       `Certificate for ${domainName} waits for this DNS record (keep it: renewals use it too):`,
       '',

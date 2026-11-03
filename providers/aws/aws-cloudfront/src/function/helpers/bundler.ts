@@ -1,7 +1,7 @@
 import { build, formatMessages } from 'esbuild';
 
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 import { getTemporaryPath } from '@ez4/project/library';
 import { Logger } from '@ez4/logger';
@@ -11,6 +11,7 @@ declare const __MODULE_PATH: string;
 
 export type ViewerFunctionParameter = {
   functionName: string;
+  workspacePath: string;
   define?: Record<string, string>;
 };
 
@@ -19,11 +20,13 @@ const getBundleTemplateFile = () => {
 };
 
 export const bundleViewerFunction = async (parameters: ViewerFunctionParameter) => {
-  const { functionName, define } = parameters;
+  const { functionName, define, workspacePath } = parameters;
 
   const templateData = await readFile(getBundleTemplateFile());
 
-  const outputFile = getTemporaryPath(`cf.${functionName}.mjs`);
+  const outputFile = getTemporaryPath(workspacePath, `cf.${functionName}.mjs`);
+
+  await mkdir(dirname(outputFile), { recursive: true });
 
   const result = await build({
     outfile: outputFile,
@@ -36,7 +39,7 @@ export const bundleViewerFunction = async (parameters: ViewerFunctionParameter) 
     bundle: true,
     define,
     stdin: {
-      resolveDir: process.cwd(),
+      resolveDir: workspacePath,
       contents: templateData,
       sourcefile: 'main.ts',
       loader: 'ts'
