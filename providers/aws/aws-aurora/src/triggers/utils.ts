@@ -18,3 +18,7 @@ export const getInstanceName = (service: DatabaseService, options: CommonOptions
 export const isAuroraService = (service: ServiceMetadata): service is DatabaseService => {
   return isDatabaseService(service) && service.engine.name === 'aurora';
 };
+
+export const hasAuroraService = (services: ServiceMetadata[]) => {
+  return services.some((service) => isAuroraService(service));
+};

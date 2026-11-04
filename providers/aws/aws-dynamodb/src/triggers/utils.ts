@@ -21,6 +21,10 @@ export const isDynamoDbService = (service: ServiceMetadata): service is Database
   return isDatabaseService(service) && service.engine.name === 'dynamodb';
 };
 
+export const hasDynamoDbService = (services: ServiceMetadata[]) => {
+  return services.some((service) => isDynamoDbService(service));
+};
+
 export const hasDynamoDbStreams = (services: ServiceMetadata[]) => {
   return services.some((service) => isDynamoDbService(service) && service.tables.some((table) => !!table.stream));
 };

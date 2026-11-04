@@ -6,12 +6,12 @@ import { createPolicy, tryGetPolicy } from '@ez4/aws-identity';
 import { getServiceName } from '@ez4/project/library';
 
 import { getPolicyDocument } from '../utils/policy';
-import { hasDynamoDbStreams } from './utils';
+import { hasDynamoDbService, hasDynamoDbStreams } from './utils';
 
 export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
   const { state, serviceType, services, options } = event;
 
-  if (serviceType !== ServiceType) {
+  if (serviceType !== ServiceType || !hasDynamoDbService(services)) {
     return null;
   }
 
