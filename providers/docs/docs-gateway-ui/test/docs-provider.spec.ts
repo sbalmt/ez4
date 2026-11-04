@@ -17,6 +17,7 @@ const options: ServeOptions = {
   prefix: 'test',
   branchName: 'dev',
   projectName: 'docs-ui',
+  workspacePath: process.cwd(),
   serviceAddress: '127.0.0.1:3759',
   localOptions: {},
   testOptions: {}
