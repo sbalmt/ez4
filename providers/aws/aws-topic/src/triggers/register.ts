@@ -11,6 +11,7 @@ import { registerTopicProvider } from '../topic/provider';
 import { registerSubscriptionProvider } from '../subscription/provider';
 import { connectServices, prepareLinkedServices, prepareServices } from './service';
 import { connectImports, prepareImports, prepareLinkedImports } from './import';
+import { prepareIdentityAccount } from './identity';
 import { prepareExecutionPolicy } from './policy';
 
 export const registerTriggers = () => {
@@ -21,6 +22,7 @@ export const registerTriggers = () => {
   registerTopicTriggers();
 
   tryCreateTrigger('@ez4/aws-topic', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareQueueResources,

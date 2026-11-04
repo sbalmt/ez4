@@ -1,7 +1,9 @@
 import type { BucketService } from '@ez4/storage/library';
+import type { ServiceMetadata } from '@ez4/project/library';
 import type { CommonOptions } from '@ez4/project/library';
 
 import { getServiceName } from '@ez4/project/library';
+import { isBucketService } from '@ez4/storage/library';
 import { getRandomName } from '@ez4/aws-common';
 import { toKebabCase } from '@ez4/utils';
 
@@ -22,4 +24,8 @@ export const getInternalName = (service: BucketService, suffixName: string) => {
 
 export const getFunctionName = (service: BucketService, handlerName: string, options: CommonOptions) => {
   return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
+};
+
+export const hasBucketEvents = (services: ServiceMetadata[]) => {
+  return services.some((service) => isBucketService(service) && !!service.events?.length);
 };

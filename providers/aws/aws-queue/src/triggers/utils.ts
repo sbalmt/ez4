@@ -1,7 +1,7 @@
 import type { QueueImport, QueueService } from '@ez4/queue/library';
-import type { CommonOptions } from '@ez4/project/library';
+import type { CommonOptions, ServiceMetadata } from '@ez4/project/library';
 
-import { isQueueImport } from '@ez4/queue/library';
+import { isQueueImport, isQueueService } from '@ez4/queue/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
@@ -23,4 +23,10 @@ export const getInternalName = (service: QueueService | QueueImport, suffixName:
 
 export const getFunctionName = (service: QueueService | QueueImport, handlerName: string, options: CommonOptions) => {
   return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
+};
+
+export const hasQueueLambdaSubscriptions = (services: ServiceMetadata[]) => {
+  return services.some((service) => {
+    return (isQueueService(service) || isQueueImport(service)) && service.subscriptions.length > 0;
+  });
 };

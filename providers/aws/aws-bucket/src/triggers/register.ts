@@ -11,6 +11,7 @@ import { registerPolicyProvider } from '../policy/provider';
 import { registerObjectProvider } from '../object/provider';
 import { connectBucketServices, prepareBucketServices, prepareLinkedServices } from './service';
 import { prepareEmulatorDescriptor } from './client';
+import { prepareIdentityAccount } from './identity';
 import { prepareExecutionPolicy } from './policy';
 
 export const registerTriggers = () => {
@@ -20,6 +21,7 @@ export const registerTriggers = () => {
   registerStorageTriggers();
 
   tryCreateTrigger('@ez4/aws-bucket', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareBucketServices,

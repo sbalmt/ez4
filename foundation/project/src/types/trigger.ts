@@ -40,7 +40,7 @@ export type AsyncEvent = {
   'deploy:prepareLinkedService': (event: LinkServiceEvent) => AsyncEventResult<ContextSource>;
   'deploy:prepareIdentityAccount': (event: IdentityEvent) => AsyncEventResult<IdentityAccount[]>;
   'deploy:prepareIdentityGrant': (event: IdentityEvent) => AsyncEventResult<IdentityGrant>;
-  'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState>;
+  'deploy:prepareExecutionPolicy': (event: PolicyResourceEvent) => AsyncEventResult<EntryState[]>;
   'deploy:prepareExecutionRole': (event: RoleResourceEvent) => AsyncEventResult<EntryState>;
   'deploy:prepareResources': (event: PrepareResourceEvent) => AsyncEventResult<boolean>;
   'deploy:connectResources': (event: ConnectResourceEvent) => AsyncEventResult<void>;
@@ -73,12 +73,14 @@ export type LinkServiceEvent = ServiceEvent & {
 
 export type IdentityEvent = {
   serviceType: string;
+  services: ServiceMetadata[];
   options: DeployOptions;
 };
 
 export type PolicyResourceEvent = {
   state: EntryStates;
   serviceType: string;
+  services: ServiceMetadata[];
   options: DeployOptions;
 };
 

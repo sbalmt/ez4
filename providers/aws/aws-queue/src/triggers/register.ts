@@ -10,6 +10,7 @@ import { registerQueueProvider } from '../queue/provider';
 import { registerPolicyProvider } from '../policy/provider';
 import { prepareLinkedServices, prepareServices, connectServices } from './service';
 import { prepareLinkedImports, prepareImports, connectImports } from './import';
+import { prepareIdentityAccount } from './identity';
 import { prepareExecutionPolicy } from './policy';
 
 export const registerTriggers = () => {
@@ -19,6 +20,7 @@ export const registerTriggers = () => {
   registerQueueTriggers();
 
   tryCreateTrigger('@ez4/aws-queue', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareQueueResources,

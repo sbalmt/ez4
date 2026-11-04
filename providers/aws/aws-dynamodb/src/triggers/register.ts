@@ -9,6 +9,7 @@ import { registerTableProvider } from '../table/provider';
 import { connectDatabaseServices, prepareDatabaseServices, prepareLinkedServices } from './service';
 import { prepareEmulatorStart, prepareEmulatorReset } from './migration';
 import { prepareEmulatorDescriptor } from './client';
+import { prepareIdentityAccount } from './identity';
 import { prepareExecutionPolicy } from './policy';
 
 export const registerTriggers = () => {
@@ -18,6 +19,7 @@ export const registerTriggers = () => {
   registerDatabaseTriggers();
 
   tryCreateTrigger('@ez4/aws-dynamodb', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedServices,
     'deploy:prepareResources': prepareDatabaseServices,

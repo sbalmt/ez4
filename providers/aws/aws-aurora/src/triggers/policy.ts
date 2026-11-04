@@ -21,12 +21,12 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
     ...options
   });
 
-  return (
+  return [
     tryGetPolicy(state, policyName) ??
-    createPolicy(state, {
-      tags: options.tags,
-      policyDocument: await getPolicyDocument(resourcePrefix),
-      policyName
-    })
-  );
+      createPolicy(state, {
+        tags: options.tags,
+        policyDocument: await getPolicyDocument(resourcePrefix),
+        policyName
+      })
+  ];
 };

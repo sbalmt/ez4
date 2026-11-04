@@ -20,3 +20,7 @@ export const getStreamName = (service: DatabaseService, table: DatabaseTable, ha
 export const isDynamoDbService = (service: ServiceMetadata): service is DatabaseService => {
   return isDatabaseService(service) && service.engine.name === 'dynamodb';
 };
+
+export const hasDynamoDbStreams = (services: ServiceMetadata[]) => {
+  return services.some((service) => isDynamoDbService(service) && service.tables.some((table) => !!table.stream));
+};

@@ -1,5 +1,6 @@
 import type { IdentityEvent } from '@ez4/project/library';
 
+import { getIdentityAccount } from '@ez4/aws-function';
 import { ServiceType } from '@ez4/scheduler/library';
 
 export const prepareIdentityAccount = (event: IdentityEvent) => {
@@ -10,6 +11,7 @@ export const prepareIdentityAccount = (event: IdentityEvent) => {
   }
 
   return [
+    getIdentityAccount(),
     {
       account: 'scheduler.amazonaws.com'
     }
