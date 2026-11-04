@@ -109,7 +109,7 @@ export const deployCommand = async (input: InputOptions) => {
     const deployState = await performDeploy(plan.options, async () => {
       const { result, errors, warnings } = await applyDeploy(plan.newState, plan.oldState, plan.options);
 
-      await DynamicLogger.logExecution(`✅ [${plan.project.projectName}] Saving state`, () => {
+      await DynamicLogger.logExecution(`✅ Saving state`, () => {
         return saveState(plan.project.stateFile, plan.options, result);
       });
 
