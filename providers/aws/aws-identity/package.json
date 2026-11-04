@@ -35,8 +35,9 @@
   "scripts": {
     "lint": "eslint --cache",
     "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
-    "build": "tsc -p tsconfig.pack.json && node tools/bundler.mjs",
-    "test": "npm run build && tsc -p tsconfig.test.json --noEmit && ez4 test -e ../../../local.env",
+    "check": "tsc -p tsconfig.pack.json && tsc -p tsconfig.test.json --noEmit",
+    "build": "npm run check && node tools/bundler.mjs",
+    "test": "npm run build && ez4 test -e ../../../local.env",
     "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
     "clean:registry": "rm -rf ../../../.registry/@ez4/aws-identity",
     "live:publish": "npm run build && npm publish --access public"
