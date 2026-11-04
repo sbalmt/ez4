@@ -46,6 +46,7 @@
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1127.0",
     "@ez4/aws-common": "^0.57.0",
+    "@ez4/project": "^0.57.0",
     "@ez4/state": "^0.57.0",
     "@ez4/utils": "^0.57.0"
   }
