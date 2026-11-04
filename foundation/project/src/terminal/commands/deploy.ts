@@ -47,7 +47,18 @@ export const deployCommand = async (input: InputOptions) => {
   }
 
   const list = await DynamicLogger.logExecution('⚡ Initializing', async () => {
-    const { list } = await loadReferences(project);
+    const { list: references } = await loadReferences(project);
+
+    const list = references.filter(({ project }) => {
+      const { projectName, deployOptions } = project;
+
+      if (deployOptions?.disabled) {
+        Logger.log(`⏭️ [${projectName}] Deployment disabled`);
+        return false;
+      }
+
+      return true;
+    });
 
     const operations = list.map(({ project }) => {
       return loadProviders(project);
@@ -66,6 +77,10 @@ export const deployCommand = async (input: InputOptions) => {
     environment: true,
     force: true
   });
+
+  if (!list.length) {
+    return Logger.log('ℹ️  No projects enabled for deployment');
+  }
 
   const plans: DeploymentPlan[] = [];
 

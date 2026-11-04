@@ -34,9 +34,20 @@ export const serveCommand = async (input: InputOptions) => {
   }
 
   const references = await DynamicLogger.logExecution('⚡ Initializing', async () => {
-    const { list } = await loadReferences(project, {
+    const { list: references } = await loadReferences(project, {
       branchName: input.branch,
       serverAddress
+    });
+
+    const list = references.filter(({ project }) => {
+      const { projectName, serveOptions } = project;
+
+      if (serveOptions?.disabled) {
+        Logger.log(`⏭️ [${projectName}] Serving disabled`);
+        return false;
+      }
+
+      return true;
     });
 
     const operarions = list.map(async (reference) => {
@@ -58,6 +69,10 @@ export const serveCommand = async (input: InputOptions) => {
     inspect: true,
     local: true
   });
+
+  if (!references.length) {
+    return Logger.log('ℹ️  No projects enabled for serving');
+  }
 
   await startServer({
     name: project.projectName,

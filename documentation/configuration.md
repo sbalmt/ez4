@@ -43,6 +43,7 @@ export default {
 
   // Configure the deployment options for all resources
   deployOptions: {
+    disabled: false, // Skip this project when deploying it or its references
     maxConcurrency: 10, // Maximum number of resource changes processed concurrently.
 
     // Configure the deployment release
@@ -55,6 +56,7 @@ export default {
 
   // Configure how to serve the project locally
   serveOptions: {
+    disabled: false, // Skip this project when serving it or its references
     localHost: 'localhost', // Host name/address when serving the project
     localPort: 3734 // Port when serving the project
   },

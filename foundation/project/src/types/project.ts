@@ -148,6 +148,11 @@ export type ProjectCustomProviders = {
 
 export type ProjectDeployOptions = {
   /**
+   * Determines whether this project is skipped during deployment.
+   */
+  disabled?: boolean;
+
+  /**
    * Determines the maximum amount of resources changes at the same time.
    * Default is: `25`
    */
@@ -177,6 +182,11 @@ export type ProjectDeployReleaseOptions = {
 };
 
 export type ProjectServeOptions = {
+  /**
+   * Determines whether this project is skipped during serve.
+   */
+  disabled?: boolean;
+
   /**
    * Port to run the local development service.
    * Default is: `3734`
