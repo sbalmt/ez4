@@ -76,7 +76,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "check": "npm run check --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present && npm run check",
     "test": "npm run test --workspaces --if-present",
     "generate:topology": "npm run generate:topology --workspaces --if-present",
     "generate:oas": "npm run generate:oas --workspaces --if-present",
