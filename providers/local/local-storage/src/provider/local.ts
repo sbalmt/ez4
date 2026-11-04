@@ -45,9 +45,9 @@ export const registerLocalService = async (
     identifier,
     bootstrapHandler: async () => {
       if (!options.local) {
-        Logger.log(`📂 Remote storage [${resourceName}] in use.`);
+        Logger.log(`📂 Remote storage [${resourceName}] in use`);
       } else {
-        Logger.log(`📂 Local storage [${resourceName}] in use.`);
+        Logger.log(`📂 Local storage [${resourceName}] in use`);
 
         await mkdir(directory, {
           recursive: true

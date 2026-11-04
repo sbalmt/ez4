@@ -80,7 +80,7 @@ export const testCommand = async (input: InputOptions) => {
   });
 
   if (!testFiles.length) {
-    Logger.warn(`One or more test files need to be specified.`);
+    Logger.warn(`One or more test files need to be specified`);
     return;
   }
 

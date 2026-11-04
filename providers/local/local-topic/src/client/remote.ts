@@ -22,7 +22,7 @@ export const createRemoteClient = <T extends Topic.Event = any>(
 
   return new (class {
     async publishEvent(event: T) {
-      Logger.log(`✉️  Publishing event to topic [${resourceName}] at ${topicHost}.`);
+      Logger.log(`✉️  Publishing event to topic [${resourceName}] at ${topicHost}`);
 
       const payload = await getJsonStringEvent(event, eventSchema);
 
@@ -64,6 +64,6 @@ export const subscribeRemoteClient = async (resourceName: string, remoteHost: st
     Logger.log(`✉️  Subscribed to topic [${resourceName}] at ${topicHost}`);
     //
   } catch {
-    Logger.warn(`Remote topic [${resourceName}] at ${topicHost} isn't available.`);
+    Logger.warn(`Remote topic [${resourceName}] at ${topicHost} isn't available`);
   }
 };

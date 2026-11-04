@@ -80,7 +80,7 @@ const deleteResource = async (current: CacheState, context: StepContext) => {
   if (result) {
     return OperationLogger.logExecution(CacheServiceName, name, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
-        context.addWarning(`Deletion of cache '${name}' is denied.`);
+        context.addWarning(`Deletion of cache '${name}' is denied`);
         return;
       }
 

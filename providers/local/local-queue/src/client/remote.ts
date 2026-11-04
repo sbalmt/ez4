@@ -20,7 +20,7 @@ export const createRemoteClient = <T extends Queue.Message = any, U extends Queu
 
   return new (class {
     async sendMessage(message: T, _options?: SendOptions<U>) {
-      Logger.log(`✉️  Sending message to queue [${resourceName}] at ${queueHost}.`);
+      Logger.log(`✉️  Sending message to queue [${resourceName}] at ${queueHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 

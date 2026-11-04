@@ -57,7 +57,7 @@ const runDatabaseReset = async (service: DatabaseService, options: ServeOptions,
   if (options.local && options.reset) {
     await triggerAllAsync('emulator:resetService', (handler) => handler({ service, options, context }));
 
-    Logger.warn(`Database service ${service.name} was reset.`);
+    Logger.warn(`Database service ${service.name} was reset`);
   }
 };
 

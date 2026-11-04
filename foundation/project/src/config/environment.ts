@@ -11,6 +11,6 @@ export const loadEnvironment = (fileName?: string) => {
       throw error;
     }
 
-    Logger.warn(`Environment file '${fileName}' wasn't found.`);
+    Logger.warn(`Environment file '${fileName}' wasn't found`);
   }
 };

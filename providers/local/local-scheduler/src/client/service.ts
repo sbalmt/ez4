@@ -48,16 +48,16 @@ export const createServiceClient = (serviceName: string, eventSchema: EventSchem
         event
       });
 
-      Logger.log(`⌚ Event ${identifier} updated.`);
+      Logger.log(`⌚ Event ${identifier} updated`);
     }
 
     async deleteEvent(identifier: string) {
       const previousEvent = InMemoryScheduler.deleteEvent(serviceName, identifier);
 
       if (previousEvent) {
-        Logger.log(`ℹ️  Event ${identifier} deleted.`);
+        Logger.log(`ℹ️  Event ${identifier} deleted`);
       } else {
-        Logger.warn(`Event ${identifier} not found.`);
+        Logger.warn(`Event ${identifier} not found`);
       }
 
       return Promise.resolve(!!previousEvent);

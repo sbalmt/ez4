@@ -90,7 +90,7 @@ const deleteResource = async (current: ClusterState, context: StepContext) => {
       }
 
       if (!allowDeletion && !context.force) {
-        context.addWarning(`Deletion of cluster '${clusterName}' is denied.`);
+        context.addWarning(`Deletion of cluster '${clusterName}' is denied`);
         return;
       }
 

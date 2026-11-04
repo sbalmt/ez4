@@ -160,7 +160,7 @@ const prepareDeploymentPlan = async (reference: ReferenceProject, input: InputOp
   const hasChanges = await reportResourceChanges(newState, oldState, options);
 
   if (!hasChanges && !options.force) {
-    Logger.log(`ℹ️  [${project.projectName}] No changes found.`);
+    Logger.log(`ℹ️  [${project.projectName}] No changes found`);
     reportResourcesOutput(newState);
   }
 

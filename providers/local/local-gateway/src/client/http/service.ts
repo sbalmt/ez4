@@ -59,7 +59,7 @@ export const createHttpServiceClient = <T extends Http.Service>(
             //
           } catch (error) {
             if (!(error instanceof HttpError)) {
-              Logger.warn(`Remote gateway [${resourceName}] at ${host} isn't available.`);
+              Logger.warn(`Remote gateway [${resourceName}] at ${host} isn't available`);
             }
 
             throw error;

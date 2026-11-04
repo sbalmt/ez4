@@ -161,7 +161,7 @@ const deleteResource = async (current: MigrationState, context: StepContext) => 
   if (result) {
     return OperationLogger.logExecution(MigrationServiceName, database, 'deletion', async (logger) => {
       if (!allowDeletion && !context.force) {
-        context.addWarning(`Deletion of database '${database}' is denied.`);
+        context.addWarning(`Deletion of database '${database}' is denied`);
         return;
       }
 
