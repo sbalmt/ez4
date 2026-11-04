@@ -53,7 +53,7 @@ export const deployCommand = async (input: InputOptions) => {
       const { projectName, deployOptions } = project;
 
       if (deployOptions?.disabled) {
-        Logger.log(`⏭️ [${projectName}] Deployment disabled`);
+        Logger.log(`ℹ️  [${projectName}] Deployment disabled`);
         return false;
       }
 
@@ -156,8 +156,6 @@ const prepareDeploymentPlan = async (reference: ReferenceProject, input: InputOp
   await connectDeployResources(newState, metadata, context, options);
 
   mergeState(newState, oldState);
-
-  Logger.log(`📦 [${project.projectName}] Changes:`);
 
   const hasChanges = await reportResourceChanges(newState, oldState, options);
 

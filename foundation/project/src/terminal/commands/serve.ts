@@ -43,7 +43,7 @@ export const serveCommand = async (input: InputOptions) => {
       const { projectName, serveOptions } = project;
 
       if (serveOptions?.disabled) {
-        Logger.log(`⏭️ [${projectName}] Serving disabled`);
+        Logger.log(`ℹ️  [${projectName}] Serving disabled`);
         return false;
       }
 
