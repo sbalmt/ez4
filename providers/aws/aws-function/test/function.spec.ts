@@ -2,7 +2,7 @@ import type { EntryState, EntryStates } from '@ez4/state';
 
 import { ok, equal, notEqual } from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import { join } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
@@ -34,6 +34,7 @@ const assertDeploy = async <E extends EntryState>(resourceId: string, newState: 
 };
 
 describe('function', { timeout: 60000 }, () => {
+  const workspacePath = resolve('test');
   const baseDir = 'test/files';
 
   let lastState: EntryStates | undefined;
@@ -58,9 +59,10 @@ describe('function', { timeout: 60000 }, () => {
       retention: 14
     });
 
-    const sourceFile = join(baseDir, 'lambda-1.js');
+    const sourceFile = join('files', 'lambda-1.js');
 
     const resource = createFunction(localState, roleResource, logGroupResource, {
+      workspacePath,
       runtime: RuntimeType.Node24,
       architecture: ArchitectureType.Arm,
       functionName: 'ez4-test-lambda-function',
@@ -80,12 +82,14 @@ describe('function', { timeout: 60000 }, () => {
         return [sourceFile];
       },
       getFunctionBundle: () => {
-        return sourceFile;
+        return resolve(workspacePath, sourceFile);
       },
       getFunctionHash: () => {
         return undefined;
       }
     });
+
+    equal(resource.parameters.sourceFile, sourceFile);
 
     functionId = resource.entryId;
 
@@ -126,12 +130,12 @@ describe('function', { timeout: 60000 }, () => {
     ok(lastResource && isFunctionState(lastResource));
     ok(resource && isFunctionState(resource));
 
-    const sourceFile = join(baseDir, 'lambda-2.js');
+    const sourceFile = relative(workspacePath, resolve(baseDir, 'lambda-2.js'));
 
     resource.parameters.sourceFile = sourceFile;
 
     resource.parameters.getFunctionBundle = () => {
-      return sourceFile;
+      return resolve(workspacePath, sourceFile);
     };
 
     resource.parameters.getFunctionFiles = () => {

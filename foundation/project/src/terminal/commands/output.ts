@@ -11,6 +11,10 @@ import { warnUnsupportedFlags } from '../../utils/flags';
 import { loadState } from '../../utils/state';
 
 export const outputCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
@@ -21,10 +25,6 @@ export const outputCommand = async (input: InputOptions) => {
   await DynamicLogger.logExecution('⚡ Initializing', () => {
     return loadProviders(project);
   });
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
 
   warnUnsupportedFlags(input, {
     environment: true

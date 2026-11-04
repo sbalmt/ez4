@@ -20,6 +20,7 @@ export type WorkerEntrypoint = {
 };
 
 export type WorkerOptions = {
+  workspacePath?: string;
   environment: WorkerEnvironment;
   services?: ServiceDescriptors;
   references?: ServiceReferences;

@@ -16,7 +16,7 @@ export const getBundleTemplateFile = () => {
 };
 
 export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, eventSchema, context, references, debug } = parameters;
+  const { handler, listener, functionName, workspacePath, eventSchema, context, references, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -25,6 +25,7 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'scheduler',
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'

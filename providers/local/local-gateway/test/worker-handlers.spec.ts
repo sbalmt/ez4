@@ -24,13 +24,15 @@ const handler = (name: string, extra?: AnyObject) => ({
   ...extra
 });
 
-const serveOptions = {
-  projectName: 'local-gateway',
+const serveOptions: ServeOptions = {
   prefix: 'ez4',
-  serviceHost: 'localhost:3734',
   branchName: 'test',
-  version: 1
-} as unknown as ServeOptions;
+  projectName: 'local-gateway',
+  workspacePath: process.cwd(),
+  serviceAddress: 'localhost:3734',
+  localOptions: {},
+  testOptions: {}
+};
 
 const makeContext = (descriptors: () => AnyObject = () => ({}), references: AnyObject = {}) => {
   return {

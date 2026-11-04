@@ -25,14 +25,14 @@ export const isEmailServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Email.Service');
 };
 
-export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
+export const getEmailServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, EmailService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isEmailServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isEmailServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -68,7 +68,7 @@ export const getEmailServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServicesObject(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           break;
         }
       }

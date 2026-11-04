@@ -8,17 +8,15 @@ import { hash } from 'node:crypto';
 import { isTypeDeclaration } from './declaration';
 import { getAccessName } from './identifier';
 
-export const isInternalType = (node: Node) => {
-  return !!getNodeFilePath(node)?.includes('/typescript/lib/');
+export const isInternalType = (node: Node, workspacePath: string) => {
+  return !!getNodeFilePath(node, workspacePath)?.includes('/typescript/lib/');
 };
 
-export const getNodeFilePath = (node: Node) => {
-  const sourceFile = node.getSourceFile();
+export const getNodeFilePath = (node: Node, workspacePath?: string) => {
+  const currentDirectory = workspacePath ?? process.cwd();
+  const currentSource = node.getSourceFile();
 
-  const basePath = process.cwd();
-  const filePath = sourceFile.fileName;
-
-  return relative(basePath, filePath);
+  return relative(currentDirectory, currentSource.fileName);
 };
 
 export const getNodeFilePosition = (node: Node) => {
@@ -32,8 +30,8 @@ export const getNodeFilePosition = (node: Node) => {
   };
 };
 
-export const getNodeIdentity = (node: Node, internal?: boolean) => {
-  const sourcePath = getNodeFilePath(node);
+export const getNodeIdentity = (node: Node, internal?: boolean, workspacePath?: string) => {
+  const sourcePath = getNodeFilePath(node, workspacePath);
 
   if (!sourcePath) {
     throw new Error(`Source path for node wasn't set.`);

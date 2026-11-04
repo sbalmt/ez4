@@ -130,7 +130,7 @@ describe('migration :: primary column tests', () => {
         constraints: [
           {
             check: `SELECT 1 FROM "pg_constraint" WHERE "conname" = 'table_renamed_id_pk'`,
-            query: 'ALTER TABLE IF EXISTS "table" RENAME CONSTRAINT "table_id_pk" TO "table_renamed_id_pk"'
+            query: 'ALTER TABLE IF EXISTS "table" ADD CONSTRAINT "table_renamed_id_pk" PRIMARY KEY ("renamed_id")'
           }
         ],
         validations: [],
@@ -139,7 +139,11 @@ describe('migration :: primary column tests', () => {
       },
       cleanup: {
         tables: [],
-        constraints: [],
+        constraints: [
+          {
+            query: 'ALTER TABLE IF EXISTS "table" DROP CONSTRAINT IF EXISTS "table_id_pk"'
+          }
+        ],
         validations: [],
         relations: [],
         indexes: []

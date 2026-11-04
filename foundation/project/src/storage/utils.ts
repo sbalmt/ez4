@@ -1,27 +1,26 @@
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
-import { normalize, join, sep, parse } from 'node:path';
+import { dirname, normalize, resolve, sep, parse } from 'node:path';
 import { existsSync } from 'node:fs';
 
 const TemporaryFolder = '.ez4';
 
-export const getTemporaryPath = (file: string) => {
-  const { dir, base } = parse(file);
+export const getTemporaryPath = (workspacePath: string, filePath: string) => {
+  const { dir, base } = parse(filePath);
 
   const path = normalize(dir).replaceAll(`..${sep}`, '');
 
-  return join(TemporaryFolder, path, base);
+  return resolve(workspacePath, TemporaryFolder, path, base);
 };
 
-export const saveTemporaryFile = async (file: string, content: string | Buffer) => {
-  await mkdir(TemporaryFolder, { recursive: true });
+export const saveTemporaryFile = async (workspacePath: string, filePath: string, content: string | Buffer) => {
+  const path = getTemporaryPath(workspacePath, filePath);
 
-  const path = getTemporaryPath(file);
-
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, content);
 };
 
-export const readTemporaryFile = async (file: string) => {
-  const path = getTemporaryPath(file);
+export const readTemporaryFile = async (workspacePath: string, filePath: string) => {
+  const path = getTemporaryPath(workspacePath, filePath);
 
   if (!existsSync(path)) {
     return undefined;

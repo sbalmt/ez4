@@ -15,6 +15,7 @@ type RunnerOptions = {
   prefix: string;
   projectName: string;
   branchName: string;
+  workspacePath: string;
   variables?: LinkedVariables;
 };
 

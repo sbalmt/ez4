@@ -3,24 +3,37 @@ import type { ProjectOptions } from '../types/project';
 
 import { isAnyArray, isAnyObject, isObjectWith } from '@ez4/utils';
 
-import { basename, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 
 import { MissingProjectExportError, MissingProjectFileError, MalformedProjectFileError } from '../errors/project';
 
 const DEFAULT_PROJECT_FILE = 'ez4.project.js';
 
-export const loadProject = async (fileName?: string, workspacePath?: string): Promise<ProjectOptions> => {
-  return getProjectFrom(getProjectPath(fileName, workspacePath));
+export type LoadedProjectOptions = ProjectOptions & {
+  workspacePath: string;
+  projectPath: string;
 };
 
-export const tryLoadProject = async (fileName?: string, workspacePath?: string, suppress?: boolean): Promise<ProjectOptions> => {
-  const path = getProjectPath(fileName, workspacePath);
+type ProjectLocation = {
+  projectFile: string;
+  projectPath: string;
+  workspacePath: string;
+};
 
-  if (existsSync(path)) {
+export const loadProject = async (fileName?: string, workspacePath?: string): Promise<LoadedProjectOptions> => {
+  const location = getProjectLocation(fileName, workspacePath);
+
+  return getProjectFrom(location);
+};
+
+export const tryLoadProject = async (fileName?: string, workspacePath?: string, suppress?: boolean): Promise<LoadedProjectOptions> => {
+  const location = getProjectLocation(fileName, workspacePath);
+
+  if (existsSync(location.projectPath)) {
     try {
-      return await getProjectFrom(path);
+      return await getProjectFrom(location);
     } catch (error) {
       if (!suppress) {
         throw error;
@@ -29,6 +42,7 @@ export const tryLoadProject = async (fileName?: string, workspacePath?: string, 
   }
 
   return {
+    ...location,
     projectName: 'unnamed',
     sourceFiles: [],
     stateFile: {
@@ -37,20 +51,24 @@ export const tryLoadProject = async (fileName?: string, workspacePath?: string, 
   };
 };
 
-export const getProjectFrom = async (path: string): Promise<ProjectOptions> => {
-  const projectUrl = pathToFileURL(path).href;
-  const projectFile = basename(path);
+export const getProjectFrom = async (location: ProjectLocation): Promise<LoadedProjectOptions> => {
+  const { projectPath, projectFile } = location;
+
+  const projectUrl = pathToFileURL(projectPath).href;
 
   try {
-    const { default: projectData } = await import(projectUrl);
+    const { default: options } = await import(projectUrl);
 
-    if (!projectData) {
+    if (!options) {
       throw new MissingProjectExportError(projectFile);
     }
 
-    validateProject(projectFile, projectData);
+    validateProject(projectFile, options);
 
-    return projectData;
+    return {
+      ...options,
+      ...location
+    };
   } catch (error) {
     if (isAnyObject(error) && error.code === 'ERR_MODULE_NOT_FOUND') {
       throw new MissingProjectFileError(projectFile);
@@ -60,8 +78,15 @@ export const getProjectFrom = async (path: string): Promise<ProjectOptions> => {
   }
 };
 
-const getProjectPath = (fileName?: string, workspacePath?: string) => {
-  return join(workspacePath ?? process.cwd(), fileName || DEFAULT_PROJECT_FILE);
+const getProjectLocation = (fileName?: string, workspacePath?: string): ProjectLocation => {
+  const currentWorkspacePath = workspacePath || process.cwd();
+  const currentProjectFile = fileName || DEFAULT_PROJECT_FILE;
+
+  return {
+    projectFile: currentProjectFile,
+    projectPath: join(currentWorkspacePath, currentProjectFile),
+    workspacePath: currentWorkspacePath
+  };
 };
 
 const validateProject = (projectFile: string, projectData: AnyObject) => {

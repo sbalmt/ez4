@@ -1,7 +1,7 @@
 import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { HttpProviderRequest } from '@ez4/server';
-import type { Client } from '@ez4/scheduler';
+import type { Client, Cron } from '@ez4/scheduler';
 import type { ProviderSchedulerEvent } from '../types/events';
 
 import { getJsonEvent, MalformedEventError } from '@ez4/scheduler/utils';
@@ -151,7 +151,9 @@ const handleSchedulerRequest = async (
       throw new Error('Event body is not required.');
     }
 
-    await handleSchedulerEvent(service, options, context, body);
+    const event = service.schema && body ? await getJsonEvent(JSON.parse(body.toString()), service.schema) : null;
+
+    setImmediate(() => handleSchedulerEvent(service, options, context, event));
 
     return getSuccessResponse(201);
     //
@@ -171,14 +173,12 @@ const handleSchedulerEvent = async (
   service: CronService,
   options: ServeOptions,
   context: EmulateServiceContext,
-  body?: Buffer | string
+  event: Cron.Event | null
 ) => {
-  if (service.schema && body) {
-    const jsonEvent = JSON.parse(body.toString());
-    const safeEvent = await getJsonEvent(jsonEvent, service.schema);
-
-    return processSchedulerEvent(service, options, context, safeEvent);
+  try {
+    await processSchedulerEvent(service, options, context, event);
+  } catch (error) {
+    Logger.error(`Scheduler [${service.name}] failed to process event:`);
+    Logger.error(`  ${error}`);
   }
-
-  await processSchedulerEvent(service, options, context, null);
 };

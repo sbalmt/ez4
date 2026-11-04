@@ -16,12 +16,12 @@ export const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
   const policyPrefix = getServiceName('', options);
   const policyName = `${policyPrefix}-email-policy`;
 
-  return (
+  return [
     tryGetPolicy(state, policyName) ??
-    createPolicy(state, {
-      tags: options.tags,
-      policyDocument: getPolicyDocument(),
-      policyName
-    })
-  );
+      createPolicy(state, {
+        tags: options.tags,
+        policyDocument: getPolicyDocument(),
+        policyName
+      })
+  ];
 };

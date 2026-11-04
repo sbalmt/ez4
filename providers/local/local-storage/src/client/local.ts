@@ -53,7 +53,7 @@ export const createLocalClient = (options: LocalClientOptions, context: Pick<Pro
       await mkdir(dirname(filePath), { recursive: true });
       await writeFile(filePath, contents);
 
-      Logger.log(`⬆️  File ${key} uploaded.`);
+      Logger.log(`⬆️  File ${key} uploaded`);
 
       const stats = await stat(filePath);
 
@@ -68,7 +68,7 @@ export const createLocalClient = (options: LocalClientOptions, context: Pick<Pro
       const filePath = join(directory, key);
       const fileContent = await readFile(filePath);
 
-      Logger.log(`⬇️  File ${key} downloaded.`);
+      Logger.log(`⬇️  File ${key} downloaded`);
 
       return fileContent;
     },
@@ -77,7 +77,7 @@ export const createLocalClient = (options: LocalClientOptions, context: Pick<Pro
 
       await unlink(filePath);
 
-      Logger.log(`ℹ️  File ${key} deleted.`);
+      Logger.log(`ℹ️  File ${key} deleted`);
 
       context.notify(ProviderEvent.DeleteFile, {
         eventType: BucketEventType.Delete,
@@ -91,7 +91,7 @@ export const createLocalClient = (options: LocalClientOptions, context: Pick<Pro
 
       await copyFile(sourcePath, targetPath);
 
-      Logger.log(`ℹ️  File ${sourceKey} copied.`);
+      Logger.log(`ℹ️  File ${sourceKey} copied`);
 
       const stats = await stat(targetPath);
 

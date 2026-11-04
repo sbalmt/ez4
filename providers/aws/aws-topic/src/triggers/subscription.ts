@@ -77,6 +77,7 @@ export const prepareSubscriptions = (
             variables: [options.variables, service.variables, subscription.variables],
             references: subscription.handler.references,
             dependencies: [topicState.entryId],
+            workspacePath: options.workspacePath,
             context: service.context,
             handler: {
               sourceFile: handler.file,

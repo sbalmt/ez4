@@ -8,7 +8,7 @@ export class UnsupportedFieldTypeError extends Error {
 }
 
 export class DuplicateUniqueKeyError extends Error {
-  constructor() {
-    super(`Duplicate key for table was detected.`);
+  constructor(cause?: Error) {
+    super(cause?.message ?? `Duplicate key for table was detected.`, { cause });
   }
 }

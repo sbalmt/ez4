@@ -17,6 +17,10 @@ import { exposeAllWarnings } from '../../utils/warnings';
 import { assertNoErrors } from '../../utils/errors';
 
 export const destroyCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getDeployOptions(input, project);
 
@@ -32,17 +36,16 @@ export const destroyCommand = async (input: InputOptions) => {
     Logger.log('❗ Force option is enabled');
   }
 
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
-
   warnUnsupportedFlags(input, {
     environment: true,
     force: true
   });
 
-  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => loadState(project.stateFile, options));
   const newState: EntryStates = {};
+
+  const oldState = await DynamicLogger.logExecution('🔄️ Loading state', () => {
+    return loadState(project.stateFile, options);
+  });
 
   const hasChanges = await reportResourceChanges(newState, oldState, options);
 

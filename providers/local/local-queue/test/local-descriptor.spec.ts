@@ -39,13 +39,16 @@ describe('local queue descriptors', () => {
 
   it('assert :: creates fresh local clients using context notify and default delay', async () => {
     const notifications: unknown[] = [];
-    const factory = await loadService<ServiceFactory>({}, descriptor, () => ({
+
+    const factory = await loadService<ServiceFactory>({}, descriptor, process.cwd(), () => ({
       notify: (event, payload) => {
         notifications.push({ event, payload });
       },
       request: async () => undefined
     }));
+
     const first = factory();
+
     notEqual(first, factory());
 
     await first.sendMessage({ value: 'local' });
@@ -63,7 +66,7 @@ describe('local queue descriptors', () => {
 
   it('assert :: preserves per-message delay overrides including zero', async () => {
     const notifications: unknown[] = [];
-    const factory = await loadService<ServiceFactory>({}, descriptor, () => ({
+    const factory = await loadService<ServiceFactory>({}, descriptor, process.cwd(), () => ({
       notify: (_event, payload) => {
         notifications.push(payload);
       },
@@ -82,6 +85,10 @@ describe('local queue descriptors', () => {
 
   it('assert :: notifies the provider before the sending worker completes', async () => {
     const module = createModule({
+      environment: {
+        memory: 64,
+        timeout: 3
+      },
       handler: {
         file: 'test/files/send.ts',
         name: 'send',
@@ -92,9 +99,12 @@ describe('local queue descriptors', () => {
         name: 'makeInvoker',
         options: { schema }
       },
-      services: { Queue: descriptor },
-      references: { queue: 'Queue' },
-      environment: { memory: 64, timeout: 3 }
+      services: {
+        Queue: descriptor
+      },
+      references: {
+        queue: 'Queue'
+      }
     });
 
     await module.invoke({ value: 'worker' });

@@ -1,0 +1,20 @@
+import type { IdentityEvent } from '@ez4/project/library';
+
+import { getIdentityAccount } from '@ez4/aws-function';
+import { ImportType, ServiceType } from '@ez4/queue/library';
+
+import { hasQueueLambdaSubscriptions } from './utils';
+
+export const prepareIdentityAccount = (event: IdentityEvent) => {
+  const { serviceType, services } = event;
+
+  if (serviceType !== ServiceType && serviceType !== ImportType) {
+    return null;
+  }
+
+  if (!hasQueueLambdaSubscriptions(services)) {
+    return null;
+  }
+
+  return [getIdentityAccount()];
+};

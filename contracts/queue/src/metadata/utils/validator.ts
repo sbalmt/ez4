@@ -12,12 +12,13 @@ export const attachValidatorLinkedServices = (
   schema: AnySchema,
   services: LinkedServices,
   subscriptions: QueueSubscription[],
-  reflection: ReflectionTypes
+  reflection: ReflectionTypes,
+  workspacePath?: string
 ) => {
   const validatorTypes = getSchemaCustomValidation(schema);
 
   for (const validatorType of validatorTypes) {
-    if (isExternalLinkedService(validatorType, reflection)) {
+    if (isExternalLinkedService(validatorType, reflection, workspacePath)) {
       continue;
     }
 

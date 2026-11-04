@@ -26,10 +26,10 @@ const service: CacheService = {
 
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'raw-redis-emulator',
   branchName: 'dev',
-  serviceHost: 'localhost',
-  version: 1,
+  projectName: 'raw-redis-emulator',
+  workspacePath: process.cwd(),
+  serviceAddress: 'localhost',
   local: true,
   reset: true,
   localOptions: {
@@ -147,7 +147,7 @@ describe('cache emulator descriptors', () => {
 
     ok(descriptor);
 
-    const factory = await loadService<() => CacheClient>({}, descriptor, () => ({
+    const factory = await loadService<() => CacheClient>({}, descriptor, process.cwd(), () => ({
       notify: () => {},
       request: async () => undefined
     }));

@@ -13,7 +13,8 @@ export const attachProviderLinkedServices = (
   services: LinkedServices,
   reflection: ReflectionTypes,
   errorList: Error[],
-  fileName?: string
+  fileName?: string,
+  workspacePath?: string
 ) => {
   const { provider, request } = handler;
 
@@ -22,7 +23,7 @@ export const attachProviderLinkedServices = (
   }
 
   if (request) {
-    attachValidatorLinkedServices(handler, provider.services, reflection);
+    attachValidatorLinkedServices(handler, provider.services, reflection, workspacePath);
   }
 
   for (const serviceName in provider.services) {

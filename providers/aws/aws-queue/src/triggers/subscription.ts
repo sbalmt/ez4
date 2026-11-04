@@ -66,6 +66,7 @@ export const prepareSubscriptions = (
         references: subscription.handler.references,
         context: service.context,
         dependencies: [queueState.entryId],
+        workspacePath: options.workspacePath,
         timeout: service.timeout ?? Defaults.Timeout,
         backoff: {
           attempts: deadLetter?.maxAttempts ?? Defaults.MaxAttempts,

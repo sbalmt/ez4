@@ -5,14 +5,14 @@ import { toKebabCase } from '@ez4/utils';
 
 const STATE_PREFIX = 'raw-pg';
 
-export const saveRepositoryState = async (database: string, repository: PgTableRepository) => {
+export const saveRepositoryState = async (database: string, repository: PgTableRepository, workspacePath: string) => {
   const content = JSON.stringify(repository);
 
-  await saveTemporaryFile(`${STATE_PREFIX}-${toKebabCase(database)}`, content);
+  await saveTemporaryFile(workspacePath, `${STATE_PREFIX}-${toKebabCase(database)}`, content);
 };
 
-export const loadRepositoryState = async (database: string): Promise<PgTableRepository> => {
-  const content = await readTemporaryFile(`${STATE_PREFIX}-${toKebabCase(database)}`);
+export const loadRepositoryState = async (database: string, workspacePath: string): Promise<PgTableRepository> => {
+  const content = await readTemporaryFile(workspacePath, `${STATE_PREFIX}-${toKebabCase(database)}`);
 
   if (content) {
     return JSON.parse(content.toString());

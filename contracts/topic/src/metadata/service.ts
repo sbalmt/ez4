@@ -30,14 +30,14 @@ export const isTopicServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Topic.Service', 'Topic.Ordered', 'Topic.Unordered');
 };
 
-export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
+export const getTopicServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, TopicService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isTopicServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isTopicServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -79,7 +79,10 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'subscriptions': {
-          if (!member.inherited && (service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList))) {
+          if (
+            !member.inherited &&
+            (service.subscriptions = getTopicSubscriptionsMetadata(member, declaration, reflection, errorList, workspacePath))
+          ) {
             properties.delete(member.name);
           }
           break;
@@ -101,7 +104,7 @@ export const getTopicServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }

@@ -22,9 +22,8 @@ export const getOriginAccessName = (service: CdnService, options: DeployOptions)
   return `${getServiceName(service, options)}-access`;
 };
 
-export const getContentVersion = async (localPath: string) => {
-  const basePath = process.cwd();
-  const fullPath = join(basePath, localPath);
+export const getContentVersion = async (localPath: string, workspacePath: string) => {
+  const fullPath = join(workspacePath, localPath);
 
   const contentHash = createHash('sha256');
 

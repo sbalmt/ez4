@@ -13,38 +13,45 @@ import { getValidatorName } from '../../utils/validation';
 export const attachValidatorLinkedServices = (
   handler: HttpHandler | AuthHandler | WsHandler,
   services: LinkedServices,
-  reflection: ReflectionTypes
+  reflection: ReflectionTypes,
+  workspacePath?: string
 ) => {
   const { request, references } = handler;
 
   if (request) {
     if ('headers' in request && request.headers) {
-      attachSchemaValidatorServices(request.headers, services, reflection, references);
+      attachSchemaValidatorServices(request.headers, services, reflection, references, workspacePath);
     }
 
     if ('query' in request && request.query) {
-      attachSchemaValidatorServices(request.query, services, reflection, references);
+      attachSchemaValidatorServices(request.query, services, reflection, references, workspacePath);
     }
 
     if ('identity' in request && request.identity) {
-      attachSchemaValidatorServices(request.identity, services, reflection, references);
+      attachSchemaValidatorServices(request.identity, services, reflection, references, workspacePath);
     }
 
     if ('parameters' in request && request.parameters) {
-      attachSchemaValidatorServices(request.parameters, services, reflection, references);
+      attachSchemaValidatorServices(request.parameters, services, reflection, references, workspacePath);
     }
 
     if ('body' in request && request.body) {
-      attachSchemaValidatorServices(request.body, services, reflection, references);
+      attachSchemaValidatorServices(request.body, services, reflection, references, workspacePath);
     }
   }
 };
 
-const attachSchemaValidatorServices = (schema: AnySchema, services: LinkedServices, reflection: ReflectionTypes, references?: string[]) => {
+const attachSchemaValidatorServices = (
+  schema: AnySchema,
+  services: LinkedServices,
+  reflection: ReflectionTypes,
+  references?: string[],
+  workspacePath?: string
+) => {
   const validatorTypes = getSchemaCustomValidation(schema);
 
   for (const validatorType of validatorTypes) {
-    if (isExternalLinkedService(validatorType, reflection)) {
+    if (isExternalLinkedService(validatorType, reflection, workspacePath)) {
       continue;
     }
 

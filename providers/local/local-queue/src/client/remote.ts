@@ -7,7 +7,7 @@ import { getJsonStringMessage } from '@ez4/queue/utils';
 import { Logger } from '@ez4/logger';
 
 export type RemoteClientOptions = CommonOptions & {
-  serviceHost: string;
+  serviceAddress: string;
 };
 
 export const createRemoteClient = <T extends Queue.Message = any, U extends Queue.Mode = any>(
@@ -16,15 +16,15 @@ export const createRemoteClient = <T extends Queue.Message = any, U extends Queu
   clientOptions: RemoteClientOptions
 ): Client<T, U> => {
   const queueIdentifier = getServiceName(resourceName, clientOptions);
-  const queueHost = `http://${clientOptions.serviceHost}/${queueIdentifier}`;
+  const queueHost = `http://${clientOptions.serviceAddress}/${queueIdentifier}`;
 
   return new (class {
     async sendMessage(message: T, _options?: SendOptions<U>) {
-      Logger.log(`✉️  Sending message to queue [${resourceName}] at ${queueHost}.`);
+      Logger.log(`✉️  Sending message to queue [${resourceName}] at ${queueHost}`);
 
       const payload = await getJsonStringMessage(message, messageSchema);
 
-      setImmediate(() => forwardQueueMessage(resourceName, queueHost, payload));
+      await forwardQueueMessage(resourceName, queueHost, payload);
     }
 
     receiveMessage(): Promise<T[]> {
@@ -48,7 +48,7 @@ const forwardQueueMessage = async (resourceName: string, serviceHost: string, pa
 
       throw new Error(message);
     }
-  } catch {
-    Logger.warn(`Remote queue [${resourceName}] at ${serviceHost} isn't available.`);
+  } catch (error) {
+    throw new Error(`Unable to send message to remote queue [${resourceName}] at ${serviceHost}: ${error}`, { cause: error });
   }
 };

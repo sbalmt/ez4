@@ -95,7 +95,7 @@ const deleteResource = async (current: InstanceState, context: StepContext) => {
       }
 
       if (!allowDeletion && !context.force) {
-        context.addWarning(`Deletion of instance '${instanceName}' is denied.`);
+        context.addWarning(`Deletion of instance '${instanceName}' is denied`);
         return;
       }
 

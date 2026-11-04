@@ -25,14 +25,14 @@ export const isFactoryServiceDeclaration = (type: AllType): type is TypeClass =>
   return isClassDeclaration(type) && hasHeritageType(type, 'Factory.Service');
 };
 
-export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
+export const getFactoryServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, FactoryService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isFactoryServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isFactoryServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -69,7 +69,7 @@ export const getFactoryServicesMetadata = (reflection: ReflectionTypes) => {
         }
 
         case 'services': {
-          service.services = getLinkedServicesObject(member, reflection, errorList);
+          service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           break;
         }
       }

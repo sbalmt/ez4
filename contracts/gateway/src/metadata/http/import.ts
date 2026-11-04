@@ -28,14 +28,14 @@ export const isHttpImportDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(HttpNamespaceType, 'Import'));
 };
 
-export const getHttpImportsMetadata = (reflection: ReflectionTypes) => {
+export const getHttpImportsMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allImports: Record<string, HttpImport> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isHttpImportDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isHttpImportDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 

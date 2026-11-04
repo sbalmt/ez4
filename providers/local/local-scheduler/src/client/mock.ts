@@ -49,7 +49,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
         ...input
       };
 
-      Logger.log(`⌚ Event ${identifier} updated.`);
+      Logger.log(`⌚ Event ${identifier} updated`);
 
       return Promise.resolve();
     }
@@ -57,7 +57,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
     async deleteEvent(identifier: string) {
       if (!schedulerMemory[identifier]) {
         if (!options?.default) {
-          Logger.warn(`Event ${identifier} not found.`);
+          Logger.warn(`Event ${identifier} not found`);
           return Promise.resolve(false);
         }
 
@@ -66,7 +66,7 @@ export const createClientMock = (_serviceName: string, options?: ClientMockOptio
 
       delete schedulerMemory[identifier];
 
-      Logger.log(`ℹ️  Event ${identifier} deleted.`);
+      Logger.log(`ℹ️  Event ${identifier} deleted`);
 
       return Promise.resolve(true);
     }

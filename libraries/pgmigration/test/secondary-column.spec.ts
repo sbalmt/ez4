@@ -160,11 +160,17 @@ describe('migration :: secondary column tests', () => {
           }
         ],
         constraints: [],
-        validations: [],
+        validations: [
+          {
+            check: `SELECT 1 FROM "pg_index" WHERE "indexrelid" = 'table_renamed_secondary_sk'::regclass AND ("indisvalid" = false OR "indisready" = false)`,
+            retry: `SELECT 1 FROM "pg_stat_activity" WHERE "state" = 'active' AND ("query" LIKE 'ALTER TABLE' || '%' AND "query" LIKE '%' || '"table_renamed_secondary_sk"' || '%') LIMIT 1`,
+            name: 'table_renamed_secondary_sk'
+          }
+        ],
         relations: [],
         indexes: [
           {
-            query: 'ALTER INDEX IF EXISTS "table_secondary_sk" RENAME TO "table_renamed_secondary_sk"'
+            query: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "table_renamed_secondary_sk" ON "table" USING BTREE ("renamed_secondary")'
           }
         ]
       },
@@ -173,7 +179,11 @@ describe('migration :: secondary column tests', () => {
         constraints: [],
         validations: [],
         relations: [],
-        indexes: []
+        indexes: [
+          {
+            query: 'DROP INDEX CONCURRENTLY IF EXISTS "table_secondary_sk"'
+          }
+        ]
       }
     });
   });

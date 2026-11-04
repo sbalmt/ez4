@@ -12,7 +12,6 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
-import { loadPaths } from '../../config/tsconfig';
 
 import { spec } from 'node:test/reporters';
 import { after, before, run } from 'node:test';
@@ -20,6 +19,10 @@ import { glob } from 'node:fs/promises';
 import { join } from 'node:path';
 
 export const testCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getServeOptions(input, project);
 
@@ -27,13 +30,9 @@ export const testCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [paths, projectReferences] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
+  const [{ main }] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadReferences(project), loadProviders(project)]);
   });
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
 
   warnUnsupportedFlags(input, {
     reset: options.local,
@@ -44,22 +43,19 @@ export const testCommand = async (input: InputOptions) => {
     local: true
   });
 
-  options.imports = projectReferences.imports;
+  options.imports = main.imports;
   options.suppress = true;
   options.test = true;
 
   const emulators = await DynamicLogger.logExecution('🔄️ Loading emulators', () => {
     const { metadata } = buildMetadata(project.sourceFiles, {
-      aliasPaths: {
-        ...projectReferences.paths,
-        ...paths
-      }
+      workspacePath: project.workspacePath,
+      aliasPaths: main.paths
     });
 
     return getServiceEmulators(metadata, options);
   });
 
-  const workingDirectory = process.cwd();
   const filePatterns = input.arguments;
 
   const testFiles = await DynamicLogger.logExecution('🧪 Preparing tests', async () => {
@@ -71,12 +67,12 @@ export const testCommand = async (input: InputOptions) => {
 
     const allFiles = glob('**/*.{spec,test}.{js,ts}', {
       exclude: ['**/node_modules/**'],
-      cwd: workingDirectory
+      cwd: project.workspacePath
     });
 
     for await (const file of allFiles) {
       if (!filePatterns || filePatterns.some((filePattern) => file.includes(filePattern))) {
-        testFiles.push(join(workingDirectory, file));
+        testFiles.push(join(project.workspacePath, file));
       }
     }
 
@@ -84,13 +80,13 @@ export const testCommand = async (input: InputOptions) => {
   });
 
   if (!testFiles.length) {
-    Logger.warn(`One or more test files need to be specified.`);
+    Logger.warn(`One or more test files need to be specified`);
     return;
   }
 
   const testRunner = run({
     coverage: input.coverage,
-    coverageIncludeGlobs: [`${workingDirectory}/**/*`],
+    coverageIncludeGlobs: [`${project.workspacePath}/**/*`],
     isolation: 'none',
     files: testFiles,
     forceExit: true,

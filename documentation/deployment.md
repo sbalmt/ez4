@@ -22,6 +22,8 @@ If you use a project script, it is typically defined like this:
 
 This command will build the project, resolve the declared infrastructure, compare it with the last deployed state, and apply the required changes.
 
+If the project declares references, `ez4 deploy` also plans and deploys those projects, including nested references. All project change sets are shown before a single confirmation prompt. After confirmation, projects deploy one at a time in dependency order, each using its own state file. If a deployment fails, later projects are not deployed; successful earlier deployments are not rolled back.
+
 ## What happens during deployment
 
 EZ4 follows a predictable deployment lifecycle:

@@ -1,10 +1,17 @@
 import type { ServeOptions } from '@ez4/project/library';
 import type { QueueImport } from '@ez4/queue/library';
 import type { HttpProviderRequest } from '@ez4/server';
+import type { AnyObject } from '@ez4/utils';
 import type { RemoteClientOptions } from '../client/remote';
 
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
-import { ProviderType, registerProvider as registerServerProvider, unregisterProvider as unregisterServerProvider } from '@ez4/server';
+import {
+  getSuccessResponse,
+  ProviderType,
+  registerProvider as registerServerProvider,
+  unregisterProvider as unregisterServerProvider
+} from '@ez4/server';
+import { Logger } from '@ez4/logger';
 
 import { createRemoteClient } from '../client/remote';
 
@@ -40,7 +47,7 @@ export const registerRemoteService = (service: QueueImport, options: ServeOption
       registerServerProvider(identifier, {
         type: ProviderType.Http,
         requestHandler: (request) => {
-          return handleQueueForward(service, clientOptions, request);
+          return handleQueueRequest(service, clientOptions, request);
         }
       });
     },
@@ -50,10 +57,29 @@ export const registerRemoteService = (service: QueueImport, options: ServeOption
   };
 };
 
-const handleQueueForward = (service: QueueImport, options: RemoteClientOptions, request: HttpProviderRequest) => {
+const handleQueueRequest = (service: QueueImport, options: RemoteClientOptions, request: HttpProviderRequest) => {
+  const { method, path, body } = request;
+
+  if (method !== 'POST' || path !== '/' || !body) {
+    throw new Error('Unsupported queue request.');
+  }
+
+  const jsonMessage = JSON.parse(body.toString());
+
+  setImmediate(() => handleQueueForward(service, options, jsonMessage));
+
+  return getSuccessResponse(201);
+};
+
+const handleQueueForward = async (service: QueueImport, options: RemoteClientOptions, message: AnyObject) => {
   const { reference: referenceName, schema: messageSchema } = service;
 
-  const client = createRemoteClient(referenceName, messageSchema, options);
+  try {
+    const client = createRemoteClient(referenceName, messageSchema, options);
 
-  return client.sendMessage(JSON.parse(request.body!.toString()));
+    await client.sendMessage(message);
+  } catch (error) {
+    Logger.error(`Queue [${service.name}] failed to forward message:`);
+    Logger.error(`  ${error}`);
+  }
 };

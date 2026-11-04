@@ -70,6 +70,7 @@ export const prepareTableStream = (
       references: handler.references,
       context: service.context,
       dependencies: [tableState.entryId],
+      workspacePath: options.workspacePath,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,

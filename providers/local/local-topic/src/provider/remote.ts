@@ -4,19 +4,15 @@ import type { HttpProviderRequest } from '@ez4/server';
 
 import { getServiceName, MissingImportedProjectError } from '@ez4/project/library';
 import {
-  getErrorResponse,
   getSuccessResponse,
   ProviderType,
   registerProvider as registerServerProvider,
   unregisterProvider as unregisterServerProvider
 } from '@ez4/server';
-import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
-import { TopicSubscriptionType } from '@ez4/topic/library';
 import { Logger } from '@ez4/logger';
 
 import { subscribeRemoteClient, unsubscribeRemoteClient } from '../client/remote';
-import { processLambdaEvent } from '../handlers/lambda';
-import { processQueueEvent } from '../handlers/queue';
+import { processTopicEvent } from '../handlers/event';
 import { getTopicServiceHost } from '../utils/topic';
 
 export const registerRemoteService = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext) => {
@@ -29,7 +25,7 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
 
   const clientOptions = {
     ...imports[project],
-    remoteHost: options.serviceHost,
+    remoteHost: options.serviceAddress,
     remoteName: resourceName
   };
 
@@ -61,7 +57,7 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
         return Logger.warn(`Topic [${resourceName}] subscription is suppressed`);
       }
 
-      const topicHost = getTopicServiceHost(options.serviceHost, identifier);
+      const topicHost = getTopicServiceHost(options.serviceAddress, identifier);
 
       await subscribeRemoteClient(referenceName, topicHost, clientOptions);
     },
@@ -75,44 +71,16 @@ export const registerRemoteService = (service: TopicImport, options: ServeOption
   };
 };
 
-const handleTopicRequest = async (
-  service: TopicImport,
-  options: ServeOptions,
-  context: EmulateServiceContext,
-  request: HttpProviderRequest
-) => {
+const handleTopicRequest = (service: TopicImport, options: ServeOptions, context: EmulateServiceContext, request: HttpProviderRequest) => {
   const { method, path, body } = request;
 
   if (method !== 'POST' || path !== '/' || !body) {
     throw new Error('Unsupported topic request.');
   }
 
-  try {
-    const jsonEvent = JSON.parse(body.toString());
-    const safeEvent = await getJsonEvent(jsonEvent, service.schema);
+  const jsonEvent = JSON.parse(body.toString());
 
-    const allSubscriptions = service.subscriptions.map((subscription) => {
-      switch (subscription.type) {
-        case TopicSubscriptionType.Lambda:
-          return processLambdaEvent(service, options, context, subscription, safeEvent);
+  setImmediate(() => processTopicEvent(service, options, context, jsonEvent));
 
-        case TopicSubscriptionType.Queue:
-          return processQueueEvent(context, subscription, safeEvent);
-      }
-    });
-
-    await Promise.all(allSubscriptions);
-
-    return getSuccessResponse(201);
-    //
-  } catch (error) {
-    if (!(error instanceof MalformedEventError)) {
-      throw error;
-    }
-
-    return getErrorResponse(400, {
-      message: error.message,
-      context: error.context
-    });
-  }
+  return getSuccessResponse(201);
 };

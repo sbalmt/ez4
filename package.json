@@ -75,6 +75,7 @@
     "prettify": "npx prettier 'foundation/**/*.ts' 'contracts/**/*.ts' 'libraries/**/*.ts' 'providers/**/*.ts' --write",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "generate:topology": "npm run generate:topology --workspaces --if-present",

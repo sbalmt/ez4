@@ -35,7 +35,7 @@ export const tryTypeIntersection = (node: Node, context: Context, state: State) 
     return undefined;
   }
 
-  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node, context.workspacePath) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
   const event = context.events.onTypeIntersection;
 

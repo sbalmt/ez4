@@ -10,9 +10,9 @@ import { MissingActionProviderError } from '../errors/provider';
 export const prepareExecutionRole = async (state: EntryStates, metadata: MetadataReflection, options: DeployOptions) => {
   const serviceTypes = getAllServiceTypes(metadata);
 
-  const grantsList = await prepareIdentityGrantList(serviceTypes, options);
-  const accountList = await prepareIdentityAccountList(serviceTypes, options);
-  const policyList = await prepareExecutionPolicyList(state, serviceTypes, options);
+  const grantsList = await prepareIdentityGrantList(serviceTypes, metadata, options);
+  const accountList = await prepareIdentityAccountList(serviceTypes, metadata, options);
+  const policyList = await prepareExecutionPolicyList(state, serviceTypes, metadata, options);
 
   const role = await triggerAllAsync('deploy:prepareExecutionRole', (handler) =>
     handler({
@@ -43,12 +43,14 @@ const getAllServiceTypes = (metadata: MetadataReflection) => {
   return [...serviceTypes.values()];
 };
 
-const prepareIdentityGrantList = async (serviceTypes: string[], options: DeployOptions) => {
+const prepareIdentityGrantList = async (serviceTypes: string[], metadata: MetadataReflection, options: DeployOptions) => {
+  const allServices = Object.values(metadata);
   const grantsList: IdentityGrant[] = [];
 
   for (const serviceType of serviceTypes) {
     await triggerAllAsync('deploy:prepareIdentityGrant', async (handler) => {
-      const grants = await handler({ serviceType, options });
+      const services = allServices.filter((service) => service.type === serviceType);
+      const grants = await handler({ serviceType, services, options });
 
       if (grants) {
         grantsList.push(grants);
@@ -61,12 +63,14 @@ const prepareIdentityGrantList = async (serviceTypes: string[], options: DeployO
   return grantsList;
 };
 
-const prepareIdentityAccountList = async (serviceTypes: string[], options: DeployOptions) => {
+const prepareIdentityAccountList = async (serviceTypes: string[], metadata: MetadataReflection, options: DeployOptions) => {
+  const allServices = Object.values(metadata);
   const accountList: IdentityAccount[] = [];
 
   for (const serviceType of serviceTypes) {
     await triggerAllAsync('deploy:prepareIdentityAccount', async (handler) => {
-      const accounts = await handler({ serviceType, options });
+      const services = allServices.filter((service) => service.type === serviceType);
+      const accounts = await handler({ serviceType, services, options });
 
       if (accounts) {
         accountList.push(...accounts);
@@ -76,23 +80,30 @@ const prepareIdentityAccountList = async (serviceTypes: string[], options: Deplo
     });
   }
 
-  return accountList;
+  return [...new Map(accountList.map((account) => [account.account, account])).values()];
 };
 
-const prepareExecutionPolicyList = async (state: EntryStates, serviceTypes: string[], options: DeployOptions) => {
+const prepareExecutionPolicyList = async (
+  state: EntryStates,
+  serviceTypes: string[],
+  metadata: MetadataReflection,
+  options: DeployOptions
+) => {
+  const allServices = Object.values(metadata);
   const policyList: EntryState[] = [];
 
   for (const serviceType of serviceTypes) {
     await triggerAllAsync('deploy:prepareExecutionPolicy', async (handler) => {
-      const policy = await handler({ state, serviceType, options });
+      const services = allServices.filter((service) => service.type === serviceType);
+      const policies = await handler({ state, serviceType, services, options });
 
-      if (policy) {
-        policyList.push(policy);
+      if (policies) {
+        policyList.push(...policies);
       }
 
       return null;
     });
   }
 
-  return policyList;
+  return [...new Map(policyList.map((policy) => [policy.entryId, policy])).values()];
 };

@@ -1,9 +1,9 @@
 import { sys } from 'typescript';
 
 export const getCanonicalFileName = (fileName: string) => {
-  if (!sys.useCaseSensitiveFileNames) {
-    return fileName.toLowerCase();
-  }
+  return sys.useCaseSensitiveFileNames ? fileName : fileName.toLowerCase();
+};
 
-  return fileName;
+export const normalizePath = (path: string) => {
+  return path.replaceAll('\\', '/');
 };

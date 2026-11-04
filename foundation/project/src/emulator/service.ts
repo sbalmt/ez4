@@ -8,7 +8,7 @@ import type { ServiceNameOptions } from '../utils/service';
 import { getServiceName, triggerAllAsync } from '@ez4/project/library';
 import { hashObject, toSnakeCase } from '@ez4/utils';
 
-import { MissingEmulatorProvider } from './errors';
+import { DuplicateEmulatorProviderError, MissingEmulatorProvider } from './errors';
 import { loadServiceClient } from './client';
 
 export type ServiceEmulators = Record<string, ServiceEmulator>;
@@ -31,20 +31,29 @@ export const getServiceEmulators = async (metadata: MetadataReflection, options:
   for (const identity in metadata) {
     const service = metadata[identity];
 
-    const result = await triggerAllAsync('emulator:getServices', (handler) =>
-      handler({
+    let registered = false;
+
+    await triggerAllAsync('emulator:getServices', async (handler) => {
+      const result = await handler({
         service,
         options,
         context
-      })
-    );
+      });
 
-    if (!result) {
+      if (result) {
+        if (emulators[result.identifier]) {
+          throw new DuplicateEmulatorProviderError(result.identifier);
+        }
+
+        emulators[result.identifier] = result;
+        registered = true;
+      }
+
+      return null;
+    });
+
+    if (!registered) {
       throw new MissingEmulatorProvider(service.name);
-    }
-
-    if (result) {
-      emulators[result.identifier] = result;
     }
   }
 

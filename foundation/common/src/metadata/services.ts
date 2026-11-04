@@ -17,11 +17,11 @@ export const isLinkedService = (member: ModelProperty, reflection: ReflectionTyp
   return !!(referencePath && reflection[referencePath]);
 };
 
-export const isExternalLinkedService = (serviceName: string, reflection: ReflectionTypes) => {
+export const isExternalLinkedService = (serviceName: string, reflection: ReflectionTypes, workspacePath?: string) => {
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (declaration.name === serviceName && !isExternalDeclaration(declaration)) {
+    if (declaration.name === serviceName && !isExternalDeclaration(declaration, workspacePath)) {
       return false;
     }
   }
@@ -29,7 +29,7 @@ export const isExternalLinkedService = (serviceName: string, reflection: Reflect
   return true;
 };
 
-export const getLinkedServicesObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getLinkedServicesObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[], workspacePath?: string) => {
   const object = getPropertyObject(member);
 
   if (!object) {
@@ -44,7 +44,7 @@ export const getLinkedServicesObject = (member: ModelProperty, reflection: Refle
       continue;
     }
 
-    const service = getLinkedServiceObject(member, reflection, errorList);
+    const service = getLinkedServiceObject(member, reflection, errorList, workspacePath);
 
     if (!service) {
       errorList.push(new MissingServiceError(member.name, object.file));
@@ -57,7 +57,7 @@ export const getLinkedServicesObject = (member: ModelProperty, reflection: Refle
   return services;
 };
 
-export const getLinkedServiceObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getLinkedServiceObject = (member: ModelProperty, reflection: ReflectionTypes, errorList: Error[], workspacePath?: string) => {
   const object = getPropertyObject(member);
   const members = object?.members;
 
@@ -72,7 +72,7 @@ export const getLinkedServiceObject = (member: ModelProperty, reflection: Reflec
     return undefined;
   }
 
-  const reference = getObjectServiceName(referenceMember, object, reflection, errorList);
+  const reference = getObjectServiceName(referenceMember, object, reflection, errorList, workspacePath);
 
   if (!reference) {
     return undefined;
@@ -88,7 +88,13 @@ export const getLinkedServiceObject = (member: ModelProperty, reflection: Reflec
   };
 };
 
-const getObjectServiceName = (member: ModelProperty, parent: TypeObject | TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getObjectServiceName = (
+  member: ModelProperty,
+  parent: TypeObject | TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   const referencePath = getPropertyString(member);
 
   if (referencePath?.startsWith('@')) {
@@ -102,7 +108,7 @@ const getObjectServiceName = (member: ModelProperty, parent: TypeObject | TypeMo
     return undefined;
   }
 
-  if (isExternalDeclaration(declaration)) {
+  if (isExternalDeclaration(declaration, workspacePath)) {
     errorList.push(new ExternalReferenceError(declaration.name, parent.file));
     return undefined;
   }

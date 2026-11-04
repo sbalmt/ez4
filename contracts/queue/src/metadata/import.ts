@@ -35,14 +35,14 @@ export const isQueueImportDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, 'Queue.Import');
 };
 
-export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
+export const getQueueImportsMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const queueImports: Record<string, QueueImport> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isQueueImportDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isQueueImportDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -151,7 +151,7 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           }
           break;
         }
@@ -168,7 +168,7 @@ export const getQueueImportsMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions, reflection);
+    attachValidatorLinkedServices(service.schema, service.services, service.subscriptions, reflection, workspacePath);
 
     queueImports[declaration.name] = service;
   }

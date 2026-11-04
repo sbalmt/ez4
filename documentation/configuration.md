@@ -43,6 +43,7 @@ export default {
 
   // Configure the deployment options for all resources
   deployOptions: {
+    disabled: false, // Skip this project when deploying it or its references
     maxConcurrency: 10, // Maximum number of resource changes processed concurrently.
 
     // Configure the deployment release
@@ -55,13 +56,14 @@ export default {
 
   // Configure how to serve the project locally
   serveOptions: {
+    disabled: false, // Skip this project when serving it or its references
     localHost: 'localhost', // Host name/address when serving the project
     localPort: 3734 // Port when serving the project
   },
 
   // Configure the watch mode for when serving the project
   watchOptions: {
-    additionalPaths: ['./test'] // Additional paths to watch during development.
+    additionalPaths: ['./node_modules/@my-org/**'] // Glob patterns allowing package paths to be watched.
   },
 
   // Configure the local development options for the providers
@@ -96,6 +98,10 @@ export default {
 ```
 
 With the configuration file in place, EZ4 knows how to build, deploy, and serve your project.
+
+When running `ez4 serve`, referenced projects are also served locally, including their nested references. Their services share the root project's host and port, while each referenced project retains its own service naming, variables, local options, providers, and watch paths. References between these projects are routed through the shared local server.
+
+When running `ez4 deploy`, referenced projects are also deployed, including nested references, before the project that references them. EZ4 prepares and displays the change sets for all projects before asking for confirmation, and loads/saves each project's state in its own workspace. Deployments then run sequentially in dependency order and stop at the first failure. Already completed deployments are not rolled back.
 
 ## Examples
 

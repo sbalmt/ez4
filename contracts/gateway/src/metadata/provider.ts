@@ -29,16 +29,17 @@ export const getWebProviderMetadata = (
   parent: TypeModel,
   reflection: ReflectionTypes,
   errorList: Error[],
-  namespace: string
+  namespace: string,
+  workspacePath?: string
 ) => {
   if (!isTypeReference(type)) {
-    return getProviderType(type, parent, reflection, errorList, namespace);
+    return getProviderType(type, parent, reflection, errorList, namespace, workspacePath);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getProviderType(declaration, parent, reflection, errorList, namespace);
+    return getProviderType(declaration, parent, reflection, errorList, namespace, workspacePath);
   }
 
   return undefined;
@@ -48,16 +49,29 @@ const isCompleteProvider = (type: Incomplete<WebProvider>): type is WebProvider 
   return isObjectWith(type, ['name', 'services']);
 };
 
-const getProviderType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], namespace: string) => {
+const getProviderType = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  namespace: string,
+  workspacePath?: string
+) => {
   if (!isModelDeclaration(type)) {
     errorList.push(new InvalidProviderTypeError(getFullTypeName(namespace, BASE_TYPE), parent.file));
     return undefined;
   }
 
-  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList);
+  return getTypeFromMembers(type, getModelMembers(type), reflection, errorList, workspacePath);
 };
 
-const getTypeFromMembers = (type: TypeModel, members: MemberType[], reflection: ReflectionTypes, errorList: Error[]) => {
+const getTypeFromMembers = (
+  type: TypeModel,
+  members: MemberType[],
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   const provider: WebProvider = { name: type.name, file: type.file };
   const properties = new Set(['services']);
 
@@ -73,7 +87,7 @@ const getTypeFromMembers = (type: TypeModel, members: MemberType[], reflection: 
       }
 
       case 'services': {
-        if ((provider.services = getLinkedServicesObject(member, reflection, errorList))) {
+        if ((provider.services = getLinkedServicesObject(member, reflection, errorList, workspacePath))) {
           properties.delete(member.name);
         }
         break;

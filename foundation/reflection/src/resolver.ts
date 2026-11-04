@@ -171,6 +171,7 @@ export const resolveReflectionMetadata = (program: Program, options?: Reflection
 
   const sourceContext = {
     checker: program.getTypeChecker(),
+    workspacePath: program.getCurrentDirectory(),
     events: options?.resolverEvents ?? {},
     options: options?.resolverOptions ?? {},
     cache: new WeakMap<Node, AllType>(),

@@ -1,4 +1,4 @@
-import type { ConnectResourceEvent, PolicyResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
+import type { ConnectResourceEvent, PrepareResourceEvent, ServiceEvent } from '@ez4/project/library';
 
 import { registerTriggers as registerAwsTriggers } from '@ez4/aws-common';
 import { registerTriggers as registerAwsFunctionTriggers } from '@ez4/aws-function';
@@ -16,7 +16,8 @@ import { registerStageProvider } from '../stage/provider';
 import { prepareHttpImports, prepareHttpLinkedImport } from './http/import';
 import { connectHttpServices, prepareHttpLinkedService, prepareHttpServices } from './http/service';
 import { connectWsServices, prepareWsLinkedService, prepareWsServices } from './ws/service';
-import { prepareWsExecutionPolicy } from './ws/policy';
+import { prepareIdentityAccount } from './identity';
+import { prepareExecutionPolicy } from './policy';
 import { resourceOutput } from './output';
 
 export const registerTriggers = () => {
@@ -26,6 +27,7 @@ export const registerTriggers = () => {
   registerGatewayTriggers();
 
   tryCreateTrigger('@ez4/aws-gateway', {
+    'deploy:prepareIdentityAccount': prepareIdentityAccount,
     'deploy:prepareExecutionPolicy': prepareExecutionPolicy,
     'deploy:prepareLinkedService': prepareLinkedService,
     'deploy:prepareResources': prepareServices,
@@ -39,10 +41,6 @@ export const registerTriggers = () => {
   registerResponseProvider();
   registerStageProvider();
   registerRouteProvider();
-};
-
-const prepareExecutionPolicy = (event: PolicyResourceEvent) => {
-  return prepareWsExecutionPolicy(event);
 };
 
 const prepareLinkedService = (event: ServiceEvent) => {

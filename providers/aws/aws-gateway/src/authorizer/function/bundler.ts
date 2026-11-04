@@ -17,8 +17,19 @@ export const getBundleTemplateFile = () => {
 };
 
 export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
-  const { authorizer, listener, functionName, headersSchema, parametersSchema, querySchema, preferences, context, references, debug } =
-    parameters;
+  const {
+    authorizer,
+    listener,
+    functionName,
+    workspacePath,
+    headersSchema,
+    parametersSchema,
+    querySchema,
+    preferences,
+    context,
+    references,
+    debug
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -28,6 +39,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     resourceName: functionName,
     filePrefix: 'auth',
     handler: authorizer,
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_HEADERS_SCHEMA: headersSchema ? JSON.stringify(headersSchema) : 'undefined',

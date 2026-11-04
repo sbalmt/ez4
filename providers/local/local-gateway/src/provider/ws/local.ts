@@ -60,7 +60,7 @@ export const registerWsLocalService = (service: WsService, options: ServeOptions
     const { client, body } = message;
 
     if (body.length > GatewayDefaults.MaxMessageSize) {
-      Logger.warn(`Message for connection [${resourceName}] exceeds ${GatewayDefaults.MaxMessageSize} bytes, closing connection.`);
+      Logger.warn(`Message for connection [${resourceName}] exceeds ${GatewayDefaults.MaxMessageSize} bytes, closing connection`);
 
       await client.close();
       return;

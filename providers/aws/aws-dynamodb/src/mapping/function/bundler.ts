@@ -16,7 +16,7 @@ export const getBundleTemplateFile = () => {
 };
 
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, tableSchema, context, references, debug } = parameters;
+  const { handler, listener, functionName, workspacePath, tableSchema, context, references, debug } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -25,6 +25,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'db',
+    workspacePath,
     define: {
       ...definitions,
       __EZ4_SCHEMA: tableSchema ? JSON.stringify(tableSchema) : 'undefined'

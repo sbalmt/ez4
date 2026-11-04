@@ -48,7 +48,7 @@ export const tryTypeEnum = (node: Node, context: Context) => {
   }
 
   const name = node.name.getText();
-  const file = context.options.includeLocation ? getNodeFilePath(node) : undefined;
+  const file = context.options.includeLocation ? getNodeFilePath(node, context.workspacePath) : undefined;
   const position = context.options.includeLocation ? getNodeFilePosition(node) : undefined;
   const documentation = getNodeDocumentation(node.name, context.checker);
 

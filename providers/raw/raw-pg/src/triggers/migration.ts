@@ -29,5 +29,5 @@ export const prepareEmulatorReset = async (event: EmulateServiceEvent) => {
   const connection = getConnectionOptions(service, options);
   const repository = getTableRepository(service.tables);
 
-  await deleteAllTables(connection, repository);
+  await deleteAllTables(connection, repository, options.workspacePath);
 };

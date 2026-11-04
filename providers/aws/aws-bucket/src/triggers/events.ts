@@ -73,6 +73,7 @@ export const prepareBucketEvents = (
         references: handler.references,
         context: service.context,
         dependencies: [bucketState.entryId],
+        workspacePath: options.workspacePath,
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,

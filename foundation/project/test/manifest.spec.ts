@@ -12,12 +12,12 @@ const PROJECT_NAME = 'sample';
 
 const options: ServeOptions = {
   prefix: 'ez4',
-  projectName: 'sample',
   branchName: 'dev',
+  projectName: 'sample',
+  workspacePath: process.cwd(),
+  serviceAddress: 'localhost:3734',
   localOptions: {},
-  testOptions: {},
-  serviceHost: 'localhost:3734',
-  version: 1
+  testOptions: {}
 };
 
 const emulators: Record<string, ServiceEmulator> = {

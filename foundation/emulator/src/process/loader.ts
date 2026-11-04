@@ -3,12 +3,12 @@ import type { AnyServiceDescriptor, ServiceFactories } from '../types/service';
 import type { ProviderContext } from '../types/provider';
 
 import { pathToFileURL } from 'node:url';
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 
 import { ServiceNotFoundError } from '../errors/handler';
 
-export const loadFunction = async (source: FunctionSource) => {
-  const specifier = 'module' in source ? source.module : pathToFileURL(join(process.cwd(), source.file)).href;
+export const loadFunction = async (source: FunctionSource, workspacePath: string) => {
+  const specifier = getSpecifier(source, workspacePath);
 
   const { [source.name]: callback } = await import(specifier);
 
@@ -21,9 +21,10 @@ export const loadFunction = async (source: FunctionSource) => {
 export const loadService = async <T>(
   services: ServiceFactories,
   descriptor: AnyServiceDescriptor,
-  makeContext: (provider: string) => Omit<ProviderContext, 'services'>
+  workspacePath: string,
+  makeContext: (provider: string) => Omit<ProviderContext, 'services' | 'workspacePath'>
 ) => {
-  const { specifier, callback } = await loadFunction(descriptor);
+  const { specifier, callback } = await loadFunction(descriptor, workspacePath);
 
   if (typeof callback !== 'function') {
     throw new ServiceNotFoundError(descriptor.name, descriptor);
@@ -33,6 +34,18 @@ export const loadService = async <T>(
 
   return callback<T>(descriptor.options, {
     ...makeContext(provider),
+    workspacePath,
     services
   });
+};
+
+const getSpecifier = (source: FunctionSource, workspacePath: string) => {
+  if ('module' in source) {
+    return source.module;
+  }
+
+  const path = resolve(workspacePath, source.file);
+  const url = pathToFileURL(path);
+
+  return url.href;
 };

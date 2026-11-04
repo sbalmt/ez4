@@ -24,10 +24,10 @@ const service: CacheService = {
 
 const options: ServeOptions = {
   prefix: 'test',
-  projectName: 'raw-redis-emulator',
   branchName: 'dev',
-  serviceHost: 'localhost',
-  version: 1,
+  projectName: 'raw-redis-emulator',
+  workspacePath: process.cwd(),
+  serviceAddress: 'localhost',
   local: true,
   reset: true,
   localOptions: {

@@ -18,3 +18,5 @@ export * from './utils/arn';
 export * from './utils/defaults';
 export * from './utils/architecture';
 export * from './utils/runtime';
+export * from './utils/identity';
+export * from './utils/policy';

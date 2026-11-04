@@ -2,32 +2,38 @@ import type { AnyObject } from '@ez4/utils';
 
 import { deepEqual, equal, ok, rejects } from 'node:assert/strict';
 import { after, before, beforeEach, describe, it, mock } from 'node:test';
+import { resolve } from 'node:path';
 
 import { createModule, registerProvider, unregisterProvider } from '@ez4/emulator';
 
 const TEST_PROVIDER = 'test-provider';
 
-const createTestModule = (handlerName: string, listener?: boolean) => {
+const createTestModule = (handlerName: string, listener?: boolean, workspacePath?: string) => {
+  const file = (name: string) => (workspacePath ? name : `test/files/${name}`);
+
   return createModule({
+    ...(workspacePath && {
+      workspacePath
+    }),
     environment: {
       timeout: 3,
       memory: 32
     },
     handler: {
-      file: 'test/files/handlers.ts',
+      file: file('handlers.ts'),
       name: handlerName,
       position: [1, 1]
     },
     ...(listener && {
       listener: {
-        file: 'test/files/listener.ts',
+        file: file('listener.ts'),
         name: 'testListener',
         position: [1, 1]
       }
     }),
     invoker: {
       provider: TEST_PROVIDER,
-      file: 'test/files/invoker.ts',
+      file: file('invoker.ts'),
       name: 'makeTestInvoker',
       options: {
         marker: 'invoker-fixture'
@@ -36,7 +42,7 @@ const createTestModule = (handlerName: string, listener?: boolean) => {
     services: {
       LazyService: {
         provider: TEST_PROVIDER,
-        file: 'test/files/service.ts',
+        file: file('service.ts'),
         name: 'makeLazyService',
         options: {
           value: 10
@@ -44,12 +50,12 @@ const createTestModule = (handlerName: string, listener?: boolean) => {
       },
       MathService: {
         provider: TEST_PROVIDER,
-        file: 'test/files/service.ts',
+        file: file('service.ts'),
         name: 'makeMathService'
       },
       EventService: {
         provider: TEST_PROVIDER,
-        file: 'test/files/service.ts',
+        file: file('service.ts'),
         name: 'makeEventService'
       }
     },
@@ -104,6 +110,19 @@ describe('worker tests', { timeout: 10000 }, () => {
 
     deepEqual(result, {
       value: 'worker result'
+    });
+  });
+
+  it('assert :: loads entrypoints relative to the configured workspace', async () => {
+    const workspacePath = resolve(process.cwd(), 'test/files');
+    const module = createTestModule('echo', false, workspacePath);
+
+    const result = await module.invoke({
+      value: 'workspace result'
+    });
+
+    deepEqual(result, {
+      value: 'workspace result'
     });
   });
 

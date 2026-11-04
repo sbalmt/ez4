@@ -49,7 +49,7 @@ export const getServicesManifest = (emulators: ServiceEmulators, options: ServeO
 
   return {
     identifier: namePrefix,
-    host: options.serviceHost,
+    host: options.serviceAddress,
     settings: {
       prefix: options.prefix,
       name: options.projectName,

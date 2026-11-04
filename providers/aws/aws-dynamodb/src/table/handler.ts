@@ -117,7 +117,7 @@ const deleteResource = async (current: TableState, context: StepContext) => {
       const { allowDeletion } = parameters;
 
       if (!allowDeletion && !context.force) {
-        context.addWarning(`Deletion of table '${tableName}' is denied.`);
+        context.addWarning(`Deletion of table '${tableName}' is denied`);
         return;
       }
 

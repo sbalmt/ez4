@@ -1,6 +1,7 @@
 import type { TopicService, TopicImport } from '@ez4/topic/library';
-import type { DeployOptions } from '@ez4/project/library';
+import type { DeployOptions, ServiceMetadata } from '@ez4/project/library';
 
+import { isTopicImport, isTopicService, TopicSubscriptionType } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
 import { toKebabCase } from '@ez4/utils';
 
@@ -10,4 +11,12 @@ export const getInternalName = (service: TopicService | TopicImport, suffixName:
 
 export const getFunctionName = (service: TopicService | TopicImport, handlerName: string, options: DeployOptions) => {
   return `${getServiceName(service, options)}-${toKebabCase(handlerName)}`;
+};
+
+export const hasTopicLambdaSubscriptions = (services: ServiceMetadata[]) => {
+  return services.some((service) => {
+    return (
+      (isTopicService(service) || isTopicImport(service)) && service.subscriptions.some(({ type }) => type === TopicSubscriptionType.Lambda)
+    );
+  });
 };

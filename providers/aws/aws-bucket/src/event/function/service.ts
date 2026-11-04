@@ -24,6 +24,7 @@ export const createBucketEventFunction = <E extends EntryState>(
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
+    workspacePath: parameters.workspacePath,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,

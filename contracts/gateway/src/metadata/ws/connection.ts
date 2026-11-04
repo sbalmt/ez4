@@ -38,15 +38,21 @@ export const isWsConnectionDeclaration = (type: AllType): type is TypeClass => {
   return isModelDeclaration(type) && (hasHeritageType(type, FULL_BASE_CONNECT_TYPE) || hasHeritageType(type, FULL_BASE_DISCONNECT_TYPE));
 };
 
-export const getWsConnectionMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+export const getWsConnectionMetadata = (
+  type: AllType,
+  parent: TypeModel,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  workspacePath?: string
+) => {
   if (!isTypeReference(type)) {
-    return getConnectionType(type, parent, reflection, errorList);
+    return getConnectionType(type, parent, reflection, errorList, workspacePath);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getConnectionType(declaration, parent, reflection, errorList);
+    return getConnectionType(declaration, parent, reflection, errorList, workspacePath);
   }
 
   return undefined;
@@ -56,13 +62,13 @@ const isCompleteWsConnection = (type: Incomplete<WsConnection>): type is WsConne
   return isObjectWith(type, ['handler']);
 };
 
-const getConnectionType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
+const getConnectionType = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[], workspacePath?: string) => {
   if (isWsConnectionDeclaration(type)) {
-    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList, workspacePath);
   }
 
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList, workspacePath);
   }
 
   return undefined;
@@ -73,7 +79,8 @@ const getTypeFromMembers = (
   parent: TypeModel,
   members: MemberType[],
   reflection: ReflectionTypes,
-  errorList: Error[]
+  errorList: Error[],
+  workspacePath?: string
 ) => {
   const target: Incomplete<WsConnection> = {};
   const properties = new Set(['handler']);
@@ -97,7 +104,7 @@ const getTypeFromMembers = (
       }
 
       case 'authorizer': {
-        target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, false, WsNamespaceType);
+        target.authorizer = getAuthHandlerMetadata(member.value, parent, reflection, errorList, false, WsNamespaceType, workspacePath);
         break;
       }
 

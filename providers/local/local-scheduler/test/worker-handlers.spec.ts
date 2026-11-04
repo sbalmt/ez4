@@ -2,11 +2,13 @@ import type { EmulateServiceContext, ServeOptions } from '@ez4/project/library';
 import type { CronService } from '@ez4/scheduler/library';
 import type { AnyObject } from '@ez4/utils';
 
-import { deepEqual, equal } from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { deepEqual, equal, rejects } from 'node:assert/strict';
+import { after, before, describe, it, mock } from 'node:test';
 
 import { notifyHttpRequest } from '@ez4/server';
 import { createModule } from '@ez4/emulator';
+import { Logger } from '@ez4/logger';
+import { SchemaType } from '@ez4/schema';
 
 import { registerLocalService } from '../src/provider/local';
 import { InMemoryScheduler } from '../src/service/scheduler';
@@ -17,20 +19,22 @@ const handler = (name: string) => ({
   name
 });
 
-const serveOptions = {
-  projectName: 'local-scheduler',
+const serveOptions: ServeOptions = {
   prefix: 'ez4',
-  serviceHost: 'localhost:3734',
   branchName: 'test',
-  version: 1
-} as unknown as ServeOptions;
+  projectName: 'local-scheduler',
+  workspacePath: process.cwd(),
+  serviceAddress: 'localhost:3734',
+  localOptions: {},
+  testOptions: {}
+};
 
 describe('worker scheduler handlers', () => {
   const schema = {
-    type: 'object',
+    type: SchemaType.Object,
     properties: {
       foo: {
-        type: 'string'
+        type: SchemaType.String
       }
     }
   };
@@ -67,7 +71,7 @@ describe('worker scheduler handlers', () => {
 
   const emulator = registerLocalService(makeService('processEvent'), serveOptions, makeContext());
 
-  const invokeHandler = async (handlerName: string, event: AnyObject | null = null) => {
+  const invokeHandler = async (handlerName: string, event: AnyObject | null = { foo: 'default' }) => {
     const context = makeContext();
 
     const module = createModule<AnyObject>({
@@ -134,24 +138,48 @@ describe('worker scheduler handlers', () => {
   });
 
   it('assert :: process scheduler event', async () => {
+    const completed = Promise.withResolvers<void>();
+    const successMock = mock.method(Logger, 'success', () => completed.resolve());
+
+    try {
+      const response = await notifyHttpRequest(emulator.identifier, {
+        method: 'POST',
+        path: '/',
+        headers: {},
+        query: {},
+        body: Buffer.from(
+          JSON.stringify({
+            foo: 'bar'
+          })
+        )
+      });
+
+      equal(response?.status, 201);
+      equal(InMemoryScheduler.getEvent('TestScheduler', 'processed'), undefined);
+      await completed.promise;
+
+      const event = InMemoryScheduler.getEvent('TestScheduler', 'processed');
+
+      deepEqual(event?.event, {
+        foo: 'bar'
+      });
+    } finally {
+      successMock.mock.restore();
+    }
+  });
+
+  it('assert :: rejects invalid events in the worker before the target runs', async () => {
+    await rejects(invokeHandler('processEvent', {}), /Malformed scheduler event/);
+    await rejects(invokeHandler('processEvent', null), /Malformed scheduler event/);
+  });
+
+  it('assert :: rejects invalid HTTP events before acknowledgement', async () => {
     const response = await notifyHttpRequest(emulator.identifier, {
       method: 'POST',
       path: '/',
-      headers: {},
-      query: {},
-      body: Buffer.from(
-        JSON.stringify({
-          foo: 'bar'
-        })
-      )
+      body: '{}'
     });
 
-    equal(response?.status, 201);
-
-    const event = InMemoryScheduler.getEvent('TestScheduler', 'processed');
-
-    deepEqual(event?.event, {
-      foo: 'bar'
-    });
+    equal(response?.status, 400);
   });
 });

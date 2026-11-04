@@ -44,13 +44,13 @@ export type ProjectOptions = {
   resetMode?: boolean;
 
   /**
-   * Set a custom `package.json` location relative to the current working directory.
+   * Set a custom `package.json` location relative to the project workspace.
    * All providers are automatically loaded from this custom package location.
    */
   packageFile?: string;
 
   /**
-   * Set a custom `tsconfig.json` location relative to the current working directory.
+   * Set a custom `tsconfig.json` location relative to the project workspace.
    */
   tsconfigFile?: string;
 
@@ -148,6 +148,11 @@ export type ProjectCustomProviders = {
 
 export type ProjectDeployOptions = {
   /**
+   * Determines whether this project is skipped during deployment.
+   */
+  disabled?: boolean;
+
+  /**
    * Determines the maximum amount of resources changes at the same time.
    * Default is: `25`
    */
@@ -178,6 +183,11 @@ export type ProjectDeployReleaseOptions = {
 
 export type ProjectServeOptions = {
   /**
+   * Determines whether this project is skipped during serve.
+   */
+  disabled?: boolean;
+
+  /**
    * Port to run the local development service.
    * Default is: `3734`
    */
@@ -192,7 +202,7 @@ export type ProjectServeOptions = {
 
 export type ProjectWatchOptions = {
   /**
-   * Specify additional paths to watch.
+   * Glob patterns allowing additional paths to be watched, relative to the project workspace.
    */
   additionalPaths: string[];
 };

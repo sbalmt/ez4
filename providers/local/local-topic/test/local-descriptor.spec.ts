@@ -38,13 +38,16 @@ describe('local topic descriptors', () => {
 
   it('assert :: creates fresh local clients using context notify', async () => {
     const notifications: unknown[] = [];
-    const factory = await loadService<ServiceFactory>({}, descriptor, () => ({
+
+    const factory = await loadService<ServiceFactory>({}, descriptor, process.cwd(), () => ({
       notify: (event, payload) => {
         notifications.push({ event, payload });
       },
       request: async () => undefined
     }));
+
     const first = factory();
+
     notEqual(first, factory());
 
     await first.publishEvent({ value: 'local' });
@@ -61,6 +64,10 @@ describe('local topic descriptors', () => {
 
   it('assert :: notifies the provider before the publishing worker completes', async () => {
     const module = createModule({
+      environment: {
+        memory: 64,
+        timeout: 3
+      },
       handler: {
         file: 'test/files/publish.ts',
         name: 'publish',
@@ -71,9 +78,12 @@ describe('local topic descriptors', () => {
         name: 'makeInvoker',
         options: { schema }
       },
-      services: { Topic: descriptor },
-      references: { topic: 'Topic' },
-      environment: { memory: 64, timeout: 3 }
+      services: {
+        Topic: descriptor
+      },
+      references: {
+        topic: 'Topic'
+      }
     });
 
     await module.invoke({ value: 'worker' });

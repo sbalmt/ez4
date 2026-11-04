@@ -107,12 +107,12 @@ describe('project emulator options', async () => {
     },
     {
       prefix: 'test',
-      projectName: 'emulator',
-      serviceHost: 'localhost',
       branchName: '',
+      projectName: 'emulator',
+      workspacePath: process.cwd(),
+      serviceAddress: 'localhost',
       localOptions: {},
-      testOptions: {},
-      version: 1
+      testOptions: {}
     }
   );
 

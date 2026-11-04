@@ -5,11 +5,12 @@ import { createPolicy, tryGetPolicy } from '@ez4/aws-identity';
 import { getServiceName } from '@ez4/project/library';
 
 import { getPolicyDocument } from '../utils/policy';
+import { hasAuroraService } from './utils';
 
 export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
-  const { state, serviceType, options } = event;
+  const { state, serviceType, services, options } = event;
 
-  if (serviceType !== ServiceType) {
+  if (serviceType !== ServiceType || !hasAuroraService(services)) {
     return null;
   }
 
@@ -21,12 +22,12 @@ export const prepareExecutionPolicy = async (event: PolicyResourceEvent) => {
     ...options
   });
 
-  return (
+  return [
     tryGetPolicy(state, policyName) ??
-    createPolicy(state, {
-      tags: options.tags,
-      policyDocument: await getPolicyDocument(resourcePrefix),
-      policyName
-    })
-  );
+      createPolicy(state, {
+        tags: options.tags,
+        policyDocument: await getPolicyDocument(resourcePrefix),
+        policyName
+      })
+  ];
 };

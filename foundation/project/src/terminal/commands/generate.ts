@@ -10,9 +10,12 @@ import { loadEnvironment } from '../../config/environment';
 import { loadReferences } from '../../config/references';
 import { loadProviders } from '../../config/providers';
 import { loadProject } from '../../config/project';
-import { loadPaths } from '../../config/tsconfig';
 
 export const generateCommand = async (input: InputOptions) => {
+  if (input.environment) {
+    loadEnvironment(input.environment);
+  }
+
   const project = await loadProject(input.project);
   const options = getGeneratorOptions(input, project);
 
@@ -20,13 +23,9 @@ export const generateCommand = async (input: InputOptions) => {
     Logger.setLevel(LogLevel.Debug);
   }
 
-  const [paths, references] = await DynamicLogger.logExecution('⚡ Initializing', () => {
-    return Promise.all([loadPaths(project), loadReferences(project), loadProviders(project)]);
+  const [{ main }] = await DynamicLogger.logExecution('⚡ Initializing', () => {
+    return Promise.all([loadReferences(project), loadProviders(project)]);
   });
-
-  if (input.environment) {
-    loadEnvironment(input.environment);
-  }
 
   warnUnsupportedFlags(input, {
     environment: true,
@@ -35,10 +34,8 @@ export const generateCommand = async (input: InputOptions) => {
 
   const { metadata } = await DynamicLogger.logExecution('🔄️ Loading metadata', () => {
     return buildMetadata(project.sourceFiles, {
-      aliasPaths: {
-        ...references.paths,
-        ...paths
-      }
+      workspacePath: project.workspacePath,
+      aliasPaths: main.paths
     });
   });
 

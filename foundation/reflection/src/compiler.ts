@@ -9,7 +9,9 @@ import type {
   FileWatcher
 } from 'typescript';
 
-import { getCanonicalFileName } from './utils/compiler';
+import { matchesGlob, resolve } from 'node:path';
+
+import { getCanonicalFileName, normalizePath } from './utils/compiler';
 
 import {
   sys,
@@ -58,7 +60,8 @@ export const createCompilerOptions = (options?: CompilerOptions): BaseCompilerOp
   return compilerOptions;
 };
 
-export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents): CompilerHost => {
+export const createCompilerHost = (options: CompilerOptions, events?: CompilerEvents, workspacePath?: string): CompilerHost => {
+  const currentDirectory = resolve(workspacePath ?? sys.getCurrentDirectory());
   const onResolveFileName = events?.onResolveFileName;
   const sourceFilesCache = new Map<string, SourceFile>();
 
@@ -67,7 +70,7 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
     readFile: sys.readFile,
     writeFile: sys.writeFile,
     getNewLine: () => sys.newLine,
-    getCurrentDirectory: sys.getCurrentDirectory,
+    getCurrentDirectory: () => currentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     getCanonicalFileName: getCanonicalFileName,
@@ -104,8 +107,11 @@ export const createCompilerHost = (options: CompilerOptions, events?: CompilerEv
 export const createWatchCompilerHost = (
   options: CompilerOptions,
   additionalPaths?: string[],
-  events?: CompilerEvents
+  events?: CompilerEvents,
+  workspacePath?: string
 ): WatchCompilerHost<SemanticDiagnosticsBuilderProgram> => {
+  const currentDirectory = resolve(workspacePath ?? sys.getCurrentDirectory());
+  const additionalPatterns = getWatchPatterns(currentDirectory, additionalPaths);
   const onResolveFileName = events?.onResolveFileName;
 
   return {
@@ -113,20 +119,20 @@ export const createWatchCompilerHost = (
     readFile: sys.readFile,
     readDirectory: sys.readDirectory,
     getNewLine: () => sys.newLine,
-    getCurrentDirectory: sys.getCurrentDirectory,
+    getCurrentDirectory: () => currentDirectory,
     getDefaultLibFileName: () => getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     clearTimeout: sys.clearTimeout,
     setTimeout: sys.setTimeout,
     watchFile: (path, callback, pollingInterval, options) => {
-      if (isWatchablePath(path, additionalPaths)) {
+      if (isWatchablePath(path, additionalPatterns)) {
         return sys.watchFile!(path, callback, pollingInterval, options);
       }
 
       return EMPTY_WATCHER;
     },
     watchDirectory: (path, callback, recursive, options) => {
-      if (isWatchablePath(path, additionalPaths)) {
+      if (isWatchablePath(path, additionalPatterns)) {
         return sys.watchDirectory!(path, callback, recursive, options);
       }
 
@@ -156,11 +162,24 @@ export const createWatchCompilerHost = (
   };
 };
 
-const isWatchablePath = (path: string, additionalPaths?: string[]) => {
-  const isPackagePath = path.includes('node_modules');
+const getWatchPatterns = (currentDirectory: string, additionalPaths?: string[]) => {
+  return additionalPaths?.map((path) => {
+    const pattern = normalizePath(path);
 
-  if (isPackagePath) {
-    return !!additionalPaths?.find((current) => current && path.includes(current));
+    if (!pattern.startsWith('**/')) {
+      return normalizePath(resolve(currentDirectory, pattern));
+    }
+
+    return pattern;
+  });
+};
+
+const isWatchablePath = (path: string, additionalPatterns?: string[]) => {
+  const normalizedPath = normalizePath(path);
+  const isPackagesPath = normalizedPath.split('/').includes('node_modules');
+
+  if (isPackagesPath) {
+    return !!additionalPatterns?.some((pattern) => matchesGlob(normalizedPath, pattern));
   }
 
   return true;

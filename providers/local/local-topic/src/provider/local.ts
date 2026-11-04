@@ -13,13 +13,9 @@ import {
   unregisterProvider as unregisterServerProvider
 } from '@ez4/server';
 import { getJsonEvent, MalformedEventError } from '@ez4/topic/utils';
-import { TopicSubscriptionType } from '@ez4/topic/library';
 import { getServiceName } from '@ez4/project/library';
 
-import { TopicEmulatorSubscriptionType } from '../types/subscription';
-import { processRemoteEvent } from '../handlers/remote';
-import { processLambdaEvent } from '../handlers/lambda';
-import { processQueueEvent } from '../handlers/queue';
+import { processTopicEvent } from '../handlers/event';
 import { TopicManifest } from '../service/manifest';
 import { InMemoryTopic } from '../service/topic';
 import { ProviderEvent } from '../types/events';
@@ -107,7 +103,7 @@ const handleEventRequest = async (service: TopicService, options: ServeOptions, 
     const jsonEvent = JSON.parse(body.toString());
     const safeEvent = await getJsonEvent(jsonEvent, service.schema);
 
-    await handleTopicEvent(service, options, context, safeEvent);
+    setImmediate(() => handleTopicEvent(service, options, context, safeEvent));
 
     return getSuccessResponse(201);
     //
@@ -148,18 +144,5 @@ const handleTopicEvent = async (
   context: EmulateServiceContext,
   event: AnyObject
 ) => {
-  const allSubscriptions = [...InMemoryTopic.getSubscriptions(service.name), ...service.subscriptions].map((subscription) => {
-    switch (subscription.type) {
-      case TopicSubscriptionType.Lambda:
-        return processLambdaEvent(service, options, context, subscription, event);
-
-      case TopicSubscriptionType.Queue:
-        return processQueueEvent(context, subscription, event);
-
-      case TopicEmulatorSubscriptionType.Remote:
-        return processRemoteEvent(subscription, event);
-    }
-  });
-
-  await Promise.allSettled(allSubscriptions);
+  await processTopicEvent(service, options, context, event, [...InMemoryTopic.getSubscriptions(service.name), ...service.subscriptions]);
 };

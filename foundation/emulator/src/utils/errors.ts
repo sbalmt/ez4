@@ -1,4 +1,3 @@
-import { isAnyArray } from '@ez4/utils';
 import { ServiceError } from '@ez4/runtime';
 import { Logger } from '@ez4/logger';
 
@@ -22,17 +21,14 @@ export const getErrorData = (error: unknown) => {
 };
 
 export const logErrorData = (error: unknown) => {
-  if (error instanceof Error) {
-    error.stack?.split('\n').forEach((line) => Logger.error(`${line}`));
-  } else {
-    Logger.error(`${error}`);
-  }
+  const context = error instanceof ServiceError ? error.context : undefined;
+  const message = String(error);
 
-  if (error instanceof ServiceError && isAnyArray(error.context?.details)) {
-    Logger.error(`Details:`);
+  message.split('\n').forEach((line) => Logger.error(`${line}`));
 
-    error.context.details.forEach((detail: string) => {
-      Logger.error(`\t${detail}`);
-    });
+  if (context) {
+    const lines = JSON.stringify(context, undefined, 2).split('\n');
+
+    lines.forEach((line) => Logger.error(`${line}`));
   }
 };

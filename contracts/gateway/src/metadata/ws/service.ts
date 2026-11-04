@@ -32,14 +32,14 @@ export const isWsServiceDeclaration = (type: AllType): type is TypeClass => {
   return isClassDeclaration(type) && hasHeritageType(type, getFullTypeName(WsNamespaceType, 'Service'));
 };
 
-export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
+export const getWsServicesMetadata = (reflection: ReflectionTypes, workspacePath?: string) => {
   const allServices: Record<string, WsService> = {};
   const errorList: Error[] = [];
 
   for (const identity in reflection) {
     const declaration = reflection[identity];
 
-    if (!isWsServiceDeclaration(declaration) || isExternalDeclaration(declaration)) {
+    if (!isWsServiceDeclaration(declaration) || isExternalDeclaration(declaration, workspacePath)) {
       continue;
     }
 
@@ -94,7 +94,10 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'connect':
         case 'disconnect': {
-          if (!member.inherited && (service[member.name] = getWsConnectionMetadata(member.value, declaration, reflection, errorList))) {
+          if (
+            !member.inherited &&
+            (service[member.name] = getWsConnectionMetadata(member.value, declaration, reflection, errorList, workspacePath))
+          ) {
             properties.delete(member.name);
           }
           break;
@@ -118,7 +121,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
 
         case 'services': {
           if (!member.inherited) {
-            service.services = getLinkedServicesObject(member, reflection, errorList);
+            service.services = getLinkedServicesObject(member, reflection, errorList, workspacePath);
           } else {
             service.services = {};
           }
@@ -137,7 +140,7 @@ export const getWsServicesMetadata = (reflection: ReflectionTypes) => {
       continue;
     }
 
-    attachLinkedServices(service, reflection, errorList, fileName);
+    attachLinkedServices(service, reflection, errorList, fileName, workspacePath);
 
     allServices[declaration.name] = service;
   }
@@ -152,14 +155,20 @@ const isCompleteService = (type: Incomplete<WsService>): type is WsService => {
   return isObjectWith(type, ['schema', 'connect', 'disconnect', 'message', 'variables', 'services']);
 };
 
-const attachLinkedServices = (service: WsService, reflection: ReflectionTypes, errorList: Error[], fileName?: string) => {
+const attachLinkedServices = (
+  service: WsService,
+  reflection: ReflectionTypes,
+  errorList: Error[],
+  fileName?: string,
+  workspacePath?: string
+) => {
   const { connect, disconnect, message } = service;
 
-  attachValidatorLinkedServices(connect.handler, service.services, reflection);
-  attachValidatorLinkedServices(disconnect.handler, service.services, reflection);
-  attachValidatorLinkedServices(message.handler, service.services, reflection);
+  attachValidatorLinkedServices(connect.handler, service.services, reflection, workspacePath);
+  attachValidatorLinkedServices(disconnect.handler, service.services, reflection, workspacePath);
+  attachValidatorLinkedServices(message.handler, service.services, reflection, workspacePath);
 
   if (connect.authorizer) {
-    attachProviderLinkedServices(connect.authorizer, service.services, reflection, errorList, fileName);
+    attachProviderLinkedServices(connect.authorizer, service.services, reflection, errorList, fileName, workspacePath);
   }
 };

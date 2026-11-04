@@ -61,7 +61,7 @@ const reportResourceCreate = (entryId: string, newState: EntryStates) => {
   const target = candidate.parameters as AnyObject;
   const changes = deepCompare(target, {});
 
-  return printResourceChanges(entryId, candidate.type, changes, candidate, 'will be created');
+  return printResourceChanges(candidate.type, changes, candidate, 'will be created');
 };
 
 const reportResourceUpdate = (entryId: string, comparison: ObjectComparison, newState: EntryStates, oldState: EntryStates) => {
@@ -82,7 +82,7 @@ const reportResourceUpdate = (entryId: string, comparison: ObjectComparison, new
     dependencies: current.dependencies
   };
 
-  return printResourceChanges(entryId, candidate.type, comparison, values, 'will be updated');
+  return printResourceChanges(candidate.type, comparison, values, 'will be updated');
 };
 
 const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
@@ -94,10 +94,10 @@ const reportResourceDelete = (entryId: string, oldState: EntryStates) => {
 
   const changes = deepCompare({}, current.parameters as AnyObject);
 
-  return printResourceChanges(entryId, current.type, changes, current, 'will be deleted');
+  return printResourceChanges(current.type, changes, current, 'will be deleted');
 };
 
-const printResourceChanges = (entryId: string, type: string, changes: ObjectComparison, values: AnyObject, action: string) => {
+const printResourceChanges = (type: string, changes: ObjectComparison, values: AnyObject, action: string) => {
   const output = formatReportChanges(changes, values);
 
   if (output.length > 0) {
@@ -105,7 +105,7 @@ const printResourceChanges = (entryId: string, type: string, changes: ObjectComp
 
     Logger.space();
 
-    console.group(`# ${LogFormat.toBold(type)} ${LogFormat.toColor(LogColor.BrightBlack, `(${entryId} / ${name})`)} ${action}`);
+    console.group(`# ${LogFormat.toBold(type)} ${LogFormat.toColor(LogColor.BrightBlack, `(${name})`)} ${action}`);
     console.log(output.join('\n'));
     console.groupEnd();
   }

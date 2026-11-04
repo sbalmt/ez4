@@ -59,7 +59,7 @@ const getRepositoryChanges = (target: PgTableRepository, source: PgTableReposito
       }
 
       if (isTableIndex(targetValue) && isTableIndex(sourceValue)) {
-        return canRenameBasedOnIndexColumns(targetKey, sourceKey, targetValue, sourceValue);
+        return canRenameBasedOnIndexColumns(targetValue, sourceValue);
       }
 
       if (isAnySchema(targetValue) && isAnySchema(sourceValue)) {
@@ -71,13 +71,9 @@ const getRepositoryChanges = (target: PgTableRepository, source: PgTableReposito
   });
 };
 
-const canRenameBasedOnIndexColumns = (targetKey: string, sourceKey: string, targetValue: PgTableIndex, sourceValue: PgTableIndex) => {
+const canRenameBasedOnIndexColumns = (targetValue: PgTableIndex, sourceValue: PgTableIndex) => {
   if (targetValue.type === sourceValue.type) {
-    if (!deepEqual(targetValue.columns, sourceValue.columns)) {
-      return targetValue.columns.length === sourceValue.columns.length && canRenameBasedOnName(targetKey, sourceKey);
-    }
-
-    return true;
+    return deepEqual(targetValue.columns, sourceValue.columns);
   }
 
   return false;

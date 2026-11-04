@@ -24,7 +24,7 @@ export const trySource = (node: SourceFile, context: Context) => {
       tryTypeFunction(node, context, state);
 
     if (resultType) {
-      const identity = getNodeIdentity(node);
+      const identity = getNodeIdentity(node, undefined, context.workspacePath);
       const current = reflection[identity];
 
       if (!current) {

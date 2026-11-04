@@ -21,7 +21,7 @@ export const processRemoteEvent = async (subscription: TopicRemoteSubscription, 
       throw new Error(message);
     }
   } catch (error) {
-    Logger.error(`Remote subscription [${resourceName}] at ${serviceHost} isn't available.`);
+    Logger.error(`Remote subscription [${resourceName}] at ${serviceHost} isn't available`);
     Logger.error(`    ${error}`);
   }
 };

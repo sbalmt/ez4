@@ -17,6 +17,7 @@ export const processSchedulerEvent = async (
   const services = context.makeDescriptors(service.services);
 
   const module = createModule({
+    workspacePath: options.workspacePath,
     listener: target.listener,
     handler: target.handler,
     references,

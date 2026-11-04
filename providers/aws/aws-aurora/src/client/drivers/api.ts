@@ -102,7 +102,7 @@ export class ApiClientDriver implements PgClientDriver {
       }
 
       if (isDuplicateUniqueKeyException(error)) {
-        throw new DuplicateUniqueKeyError();
+        throw new DuplicateUniqueKeyError(error);
       }
 
       throw error;

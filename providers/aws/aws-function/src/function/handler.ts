@@ -53,8 +53,8 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
       connections: candidate.connections,
       dependencies: candidate.dependencies,
       variables: protectVariables(await target.getFunctionVariables()),
-      filesHash: target.files && (await getExtraFilesHash(target.functionName, target.files)),
-      sourceHash: await getSourceCodeHash(target.functionName, target.getFunctionFiles()),
+      filesHash: target.files && (await getExtraFilesHash(target.functionName, target.files, target.workspacePath)),
+      sourceHash: await getSourceCodeHash(target.functionName, target.getFunctionFiles(), target.workspacePath),
       valuesHash: await target.getFunctionHash()
     },
     {
@@ -69,7 +69,9 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     },
     {
       exclude: {
-        release: true
+        workspacePath: true,
+        release: true,
+        files: true
       }
     }
   );
@@ -93,15 +95,15 @@ const replaceResource = async (candidate: FunctionState, current: FunctionState,
 };
 
 const createResource = (candidate: FunctionState, context: StepContext): Promise<FunctionResult> => {
-  const { functionName, release, ...parameters } = candidate.parameters;
+  const { functionName, release, workspacePath, ...parameters } = candidate.parameters;
 
   return OperationLogger.logExecution(FunctionServiceName, functionName, 'creation', async (logger) => {
     const logGroup = getLogGroupName(FunctionServiceName, functionName, context);
     const roleArn = getRoleArn(FunctionServiceName, functionName, context);
 
     const [sourceHash, filesHash, sourceFile, valuesHash, variables] = await Promise.all([
-      getSourceCodeHash(functionName, parameters.getFunctionFiles()),
-      parameters.files && getExtraFilesHash(functionName, parameters.files),
+      getSourceCodeHash(functionName, parameters.getFunctionFiles(), workspacePath),
+      parameters.files && getExtraFilesHash(functionName, parameters.files, workspacePath),
       parameters.getFunctionBundle(context),
       parameters.getFunctionHash(),
       parameters.getFunctionVariables()
@@ -274,6 +276,7 @@ const checkConfigurationUpdates = async (
     exclude: {
       sourceFile: true,
       functionName: true,
+      workspacePath: true,
       architecture: true,
       release: true,
       tags: true
@@ -333,8 +336,8 @@ const checkSourceCodeUpdates = async (
   context: StepContext
 ) => {
   const [newSourceHash, newFilesHash, newValuesHash] = await Promise.all([
-    getSourceCodeHash(functionName, candidate.getFunctionFiles()),
-    candidate.files && getExtraFilesHash(functionName, candidate.files),
+    getSourceCodeHash(functionName, candidate.getFunctionFiles(), candidate.workspacePath),
+    candidate.files && getExtraFilesHash(functionName, candidate.files, candidate.workspacePath),
     candidate.getFunctionHash()
   ]);
 

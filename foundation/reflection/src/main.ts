@@ -4,6 +4,7 @@ import type { CompilerOptions, CompilerEvents } from './compiler';
 import type { ReflectionTypes } from './types';
 
 import { createProgram, createWatchProgram } from 'typescript';
+import { resolve } from 'node:path';
 
 import { getReflectionFileNames } from './utils/reflection';
 import { createCompilerHost, createCompilerOptions, createWatchCompilerHost } from './compiler';
@@ -15,6 +16,11 @@ export * from './resolver';
 export * from './utils';
 
 export type ReflectionOptions = {
+  /**
+   * Working directory for the compiler and relative source paths.
+   */
+  workspacePath?: string;
+
   /**
    * TypeScript compiler options.
    */
@@ -48,12 +54,16 @@ export type ReflectionOutput = {
 
 export const getReflectionFromFiles = (fileNames: string[], options?: ReflectionOptions): ReflectionOutput => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
-  const compilerHost = createCompilerHost(compilerOptions, options?.compilerEvents);
+  const compilerHost = createCompilerHost(compilerOptions, options?.compilerEvents, options?.workspacePath);
+
+  const sourceFiles = options?.workspacePath
+    ? fileNames.map((fileName) => resolve(compilerHost.getCurrentDirectory(), fileName))
+    : fileNames;
 
   const program = createProgram({
     host: compilerHost,
     options: compilerOptions,
-    rootNames: fileNames
+    rootNames: sourceFiles
   });
 
   const reflection = resolveReflectionMetadata(program, options);
@@ -88,26 +98,30 @@ export type WatchReflectionOptions = ReflectionOptions & {
 export const watchReflectionFromFiles = (fileNames: string[], options?: WatchReflectionOptions) => {
   const compilerOptions = createCompilerOptions(options?.compilerOptions);
 
+  const workspacePath = options?.workspacePath;
   const additionalPaths = options?.additionalPaths;
   const compilerEvents = options?.compilerEvents;
 
   const onReflectionReady = compilerEvents?.onReflectionReady;
 
-  return new Promise<WatchReflectionHandler>((resolve, reject) => {
+  return new Promise<WatchReflectionHandler>((success, reject) => {
     let program: WatchOfFilesAndCompilerOptions<SemanticDiagnosticsBuilderProgram>;
     let failed = false;
 
+    const compilerHost = createWatchCompilerHost(compilerOptions, additionalPaths, compilerEvents, workspacePath);
+    const sourceFiles = workspacePath ? fileNames.map((fileName) => resolve(compilerHost.getCurrentDirectory(), fileName)) : fileNames;
+
     program = createWatchProgram({
-      ...createWatchCompilerHost(compilerOptions, additionalPaths, compilerEvents),
+      ...compilerHost,
       options: compilerOptions,
-      rootFiles: fileNames,
+      rootFiles: sourceFiles,
       afterProgramCreate: async (event) => {
         try {
           const reflection = resolveReflectionMetadata(event.getProgram(), options);
 
           await onReflectionReady?.(reflection);
 
-          resolve(handler);
+          success(handler);
         } catch (error) {
           if (program) {
             program.close();
