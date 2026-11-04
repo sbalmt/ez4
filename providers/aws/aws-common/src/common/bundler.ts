@@ -29,7 +29,7 @@ export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
   resourceName: string;
-  workspacePath: string;
+  workspacePath?: string;
   handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
@@ -131,7 +131,7 @@ export const getFunctionBundle = async (provider: string, options: BundlerOption
 };
 
 export const buildFunctionBundle = async (provider: string, options: BundlerOptions) => {
-  const workspacePath = resolve(options.workspacePath);
+  const workspacePath = resolve(options.workspacePath ?? process.cwd());
 
   const { sourceFile, functionName } = options.handler;
 

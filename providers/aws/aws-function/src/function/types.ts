@@ -23,7 +23,7 @@ export type FunctionParameters = Omit<CreateRequest, 'logGroup' | 'roleArn' | 'p
   getFunctionVariables: GetFunctionVariables;
   getFunctionBundle: GetFunctionBundle;
   getFunctionHash: GetFunctionHash;
-  workspacePath: string;
+  workspacePath?: string;
   dependencies?: string[];
   release?: FunctionRelease;
 };
