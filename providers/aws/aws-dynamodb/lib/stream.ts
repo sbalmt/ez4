@@ -22,6 +22,8 @@ declare function handle(changes: Database.Incoming<Database.Schema>, context: ob
 export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
   let currentRequest: Database.Incoming<Database.Schema> | undefined;
 
+  Runtime.initialize();
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 

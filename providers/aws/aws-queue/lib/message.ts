@@ -31,6 +31,8 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 
   currentRequest = undefined;
 
+  Runtime.initialize();
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 

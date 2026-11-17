@@ -18,6 +18,8 @@ declare function handle(event: Topic.Incoming<Topic.Event>, context: object): Pr
 export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<void> {
   let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
+  Runtime.initialize();
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 

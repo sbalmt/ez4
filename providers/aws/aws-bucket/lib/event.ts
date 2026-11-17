@@ -16,6 +16,8 @@ declare function handle(event: Bucket.Request, context: object): Promise<any>;
 export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
   let currentRequest: Bucket.Incoming | undefined;
 
+  Runtime.initialize();
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 

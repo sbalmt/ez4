@@ -17,10 +17,16 @@ declare const EZ4_IS_REMOTE_RUNTIME: boolean;
 declare const EZ4_RESOURCE_NAME: string;
 
 /**
+ * Hold the cold start flag for the runtime context.
+ */
+let IS_COLD_START = true;
+
+/**
  * Access to the current runtime settings.
  */
 export namespace Runtime {
   let globalScope: Scope | undefined;
+  let coldStartFlag = false;
 
   export type Scope = {
     traceId: string;
@@ -38,12 +44,30 @@ export namespace Runtime {
   };
 
   /**
+   * Initialize runtime state for the current invocation.
+   * Call once at the beginning of each invocation.
+   */
+  export const initialize = () => {
+    coldStartFlag = IS_COLD_START;
+    IS_COLD_START = false;
+  };
+
+  /**
    * Get the current common runtime scope.
    *
    * @returns Returns the current common runtime scope.
    */
   export const getScope = () => {
     return globalScope;
+  };
+
+  /**
+   * Check whether the cold start happened for the current invocation.
+   *
+   * @returns Return `true` when the cold start happened, `false` otherwise.
+   */
+  export const isColdStart = () => {
+    return coldStartFlag;
   };
 
   /**

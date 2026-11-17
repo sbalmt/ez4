@@ -60,6 +60,8 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
   return async (invocation: ModuleInvocation) => {
     const original = invocation.request as InvokerIncoming;
 
+    Runtime.initialize();
+
     const traceId = getRandomUUID();
 
     Runtime.setScope({

@@ -17,10 +17,12 @@ declare function handle(request: Cron.Incoming<Cron.Event | null>, context: obje
  * Entrypoint to handle EventBridge scheduler events.
  */
 export async function eventEntryPoint(payload: AnyObject | null, context: Context): Promise<void> {
-  const traceId = payload?.traceId ?? getRandomUUID();
+  Runtime.initialize();
 
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
+  const traceId = payload?.traceId ?? getRandomUUID();
 
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: context.awsRequestId,
