@@ -27,9 +27,7 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
     try {
       await invocation.begin(request);
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       currentRequest = {
         ...request,

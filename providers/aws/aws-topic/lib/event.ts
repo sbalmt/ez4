@@ -37,9 +37,7 @@ export async function snsEntryPoint(event: SNSEvent, context: Context): Promise<
     for (const { Sns } of event.Records) {
       const traceId = Sns.MessageAttributes['EZ4.TRACE_ID']?.Value ?? getRandomUUID();
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       const payload = JSON.parse(Sns.Message);
       const event = await getJsonEvent(payload, __EZ4_SCHEMA);
@@ -94,7 +92,7 @@ const onDone = (request: Partial<Topic.Incoming<Topic.Event>>) => {
 };
 
 const onTimeout = (request: Partial<Topic.Incoming<Topic.Event>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -106,7 +104,7 @@ const onTimeout = (request: Partial<Topic.Incoming<Topic.Event>>, timeoutAfter: 
 };
 
 const onError = (error: unknown, request: Partial<Topic.Request | Topic.Incoming<Topic.Event>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

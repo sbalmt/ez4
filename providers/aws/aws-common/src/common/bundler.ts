@@ -248,7 +248,7 @@ const dispatch = async (event, context) => {
     }
 
     console.error({
-      ...Runtime.getScope(),
+      traceId: Runtime.getTraceId(),
       error
     });
   }

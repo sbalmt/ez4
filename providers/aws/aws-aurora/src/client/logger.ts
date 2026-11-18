@@ -9,8 +9,8 @@ export const logQuerySuccess = (statement: PgExecuteStatement, transactionId?: s
 
   console.debug({
     type: 'PgSQL',
-    ...Runtime.getScope(),
     query: statement.query,
+    traceId: Runtime.getTraceId(),
     ...(transaction && {
       transaction
     }),
@@ -26,8 +26,8 @@ export const logQueryError = (statement: PgExecuteStatement, transactionId?: str
 
   console.error({
     type: 'PgSQL',
-    ...Runtime.getScope(),
     query: statement.query,
+    traceId: Runtime.getTraceId(),
     ...(transaction && {
       transaction
     }),

@@ -99,7 +99,7 @@ const logQuerySuccess = (input: ExecuteStatementCommandInput, consumption: Consu
 
   console.debug({
     type: 'PartiQL',
-    ...Runtime.getScope(),
+    traceId: Runtime.getTraceId(),
     consumption: consumption?.CapacityUnits,
     query: input.Statement,
     ...(transaction && {
@@ -116,7 +116,7 @@ const logQueryError = (input: ExecuteStatementCommandInput, transaction?: boolea
 
   console.error({
     type: 'PartiQL',
-    ...Runtime.getScope(),
+    traceId: Runtime.getTraceId(),
     query: input.Statement,
     ...(parameters && {
       parameters

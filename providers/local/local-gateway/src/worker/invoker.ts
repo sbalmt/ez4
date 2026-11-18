@@ -64,9 +64,7 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
 
     const traceId = getRandomUUID();
 
-    Runtime.setScope({
-      traceId
-    });
+    Runtime.setTraceId(traceId);
 
     const request: AnyObject = {
       ...getMinimalRequest(type, original),

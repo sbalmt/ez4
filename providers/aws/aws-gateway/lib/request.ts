@@ -60,9 +60,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     traceId
   };
 
-  Runtime.setScope({
-    traceId
-  });
+  Runtime.setTraceId(traceId);
 
   try {
     await onBegin(request);
@@ -186,7 +184,7 @@ const getOutgoingResponseBody = (body: Http.JsonBody | Http.RawBody, headers?: A
 
 const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody, headers?: Http.Headers) => {
   const response = body ? getOutgoingResponseBody(body, headers) : undefined;
-  const scope = Runtime.getScope();
+  const traceId = Runtime.getTraceId();
 
   return {
     statusCode: status,
@@ -196,8 +194,8 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
       ...(response && {
         ['content-type']: response.type
       }),
-      ...(scope && {
-        ['x-trace-id']: scope.traceId
+      ...(traceId && {
+        ['x-trace-id']: traceId
       })
     },
     ...(response && {
@@ -208,15 +206,15 @@ const getSuccessResponse = (status: number, body?: Http.JsonBody | Http.RawBody,
 
 const getDefaultErrorResponse = (error?: HttpError) => {
   const response = getJsonError(error ?? new HttpInternalServerError());
-  const scope = Runtime.getScope();
+  const traceId = Runtime.getTraceId();
 
   return {
     statusCode: response.status,
     body: JSON.stringify(response.body),
     headers: {
       ['content-type']: 'application/json',
-      ...(scope && {
-        ['x-trace-id']: scope.traceId
+      ...(traceId && {
+        ['x-trace-id']: traceId
       })
     }
   };
@@ -282,7 +280,7 @@ const onDone = (request: Partial<Http.Incoming<Http.Request>>) => {
 };
 
 const onTimeout = (request: Partial<Http.Incoming<Http.Request>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -294,7 +292,7 @@ const onTimeout = (request: Partial<Http.Incoming<Http.Request>>, timeoutAfter: 
 };
 
 const onError = (error: unknown, request: Partial<Http.Incoming<Http.Request>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

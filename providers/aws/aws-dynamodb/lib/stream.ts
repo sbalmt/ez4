@@ -41,9 +41,7 @@ export async function dbStreamEntryPoint(event: DynamoDBStreamEvent, context: Co
     for (const record of event.Records) {
       const traceId = getRandomUUID();
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       const change = await getRecordChange(record, __EZ4_SCHEMA);
 
@@ -174,7 +172,7 @@ const onDone = (request: Partial<Database.Incoming<Database.Schema>>) => {
 };
 
 const onTimeout = (request: Partial<Database.Incoming<Database.Schema>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -186,7 +184,7 @@ const onTimeout = (request: Partial<Database.Incoming<Database.Schema>>, timeout
 };
 
 const onError = (error: unknown, request: Partial<Database.Request | Database.Incoming<Database.Schema>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

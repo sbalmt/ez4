@@ -30,9 +30,7 @@ export async function eventEntryPoint(payload: AnyObject | null, context: Contex
     traceId
   };
 
-  Runtime.setScope({
-    traceId
-  });
+  Runtime.setTraceId(traceId);
 
   try {
     await onBegin(request);
@@ -84,7 +82,7 @@ const onDone = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
 };
 
 const onTimeout = (request: Partial<Cron.Incoming<Cron.Event | null>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -96,7 +94,7 @@ const onTimeout = (request: Partial<Cron.Incoming<Cron.Event | null>>, timeoutAf
 };
 
 const onError = (error: unknown, request: Partial<Cron.Incoming<Cron.Event | null>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

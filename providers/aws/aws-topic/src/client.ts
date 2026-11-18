@@ -22,7 +22,7 @@ export namespace Client {
       async publishEvent(event: T) {
         const [payload, { snsClient, PublishCommand }] = await Promise.all([getJsonStringEvent(event, eventSchema), getSnsClient()]);
 
-        const scope = Runtime.getScope();
+        const traceId = Runtime.getTraceId();
 
         await snsClient.send(
           new PublishCommand({
@@ -33,7 +33,7 @@ export namespace Client {
             }),
             MessageAttributes: {
               ['EZ4.TRACE_ID']: {
-                StringValue: scope?.traceId ?? getRandomUUID(),
+                StringValue: traceId ?? getRandomUUID(),
                 DataType: 'String'
               }
             }

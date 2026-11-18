@@ -215,10 +215,10 @@ export namespace Client {
   };
 
   const prepareEventData = <T extends Cron.Event>(data: T) => {
-    const scope = Runtime.getScope();
+    const traceId = Runtime.getTraceId();
 
     return JSON.stringify({
-      traceId: scope?.traceId ?? getRandomUUID(),
+      traceId: traceId ?? getRandomUUID(),
       event: data
     });
   };

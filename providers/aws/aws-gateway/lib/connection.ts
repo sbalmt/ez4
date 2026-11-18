@@ -49,9 +49,7 @@ export async function apiEntryPoint(event: RequestEvent, context: Context): Prom
     traceId
   };
 
-  Runtime.setScope({
-    traceId
-  });
+  Runtime.setTraceId(traceId);
 
   try {
     await onBegin(request);
@@ -154,7 +152,7 @@ const onDone = (request: Partial<Ws.Incoming<Ws.Event>>) => {
 };
 
 const onTimeout = (request: Partial<Ws.Incoming<Ws.Event>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -166,7 +164,7 @@ const onTimeout = (request: Partial<Ws.Incoming<Ws.Event>>, timeoutAfter: number
 };
 
 const onError = (error: unknown, request: Partial<Ws.Incoming<Ws.Event>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

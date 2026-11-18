@@ -15,15 +15,11 @@ describe('runtime', () => {
 
     equal(Runtime.isColdStart(), true);
 
-    Runtime.setScope({
-      traceId: 'first'
-    });
+    Runtime.setTraceId('first');
 
     equal(Runtime.isColdStart(), true);
 
-    Runtime.setScope({
-      traceId: 'second'
-    });
+    Runtime.setTraceId('second');
 
     equal(Runtime.isColdStart(), true);
 

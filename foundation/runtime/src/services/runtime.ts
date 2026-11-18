@@ -43,23 +43,17 @@ let IS_COLD_START = true;
  * Access to the current runtime settings.
  */
 export namespace Runtime {
-  let globalScope: Scope | undefined;
+  let globalTraceId: string | undefined;
   let globalResourceId = 'unknown';
   let coldStartFlag = false;
 
-  export type Scope = {
-    traceId: string;
-  };
-
   /**
-   * Set the new common runtime scope.
+   * Set the current trace ID.
    *
-   * @param scope New scope object.
+   * @param traceId Current trace ID.
    */
-  export const setScope = (scope: Scope) => {
-    globalScope = Object.seal({
-      ...scope
-    });
+  export const setTraceId = (traceId: string) => {
+    globalTraceId = traceId;
   };
 
   /**
@@ -68,17 +62,18 @@ export namespace Runtime {
    */
   export const initialize = (resourceId: string) => {
     globalResourceId = resourceId;
+    globalTraceId = undefined;
     coldStartFlag = IS_COLD_START;
     IS_COLD_START = false;
   };
 
   /**
-   * Get the current common runtime scope.
+   * Get the current trace ID.
    *
-   * @returns Returns the current common runtime scope.
+   * @returns Returns the current trace ID.
    */
-  export const getScope = () => {
-    return globalScope;
+  export const getTraceId = () => {
+    return globalTraceId;
   };
 
   /**

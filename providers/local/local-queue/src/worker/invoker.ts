@@ -36,9 +36,7 @@ export const makeInvoker = (options: InvokerOptions, context: ProviderContext): 
     try {
       await invocation.begin(request);
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       const message = await getJsonMessage(invocation.request, schema, onCustomValidation);
 
