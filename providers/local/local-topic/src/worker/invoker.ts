@@ -14,7 +14,7 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
   const { schema } = options;
 
   return async (invocation: ModuleInvocation) => {
-    Runtime.initialize();
+    Runtime.initialize('unknown');
 
     const traceId = getRandomUUID();
 

@@ -8,7 +8,7 @@ export type InvokerOptions = {};
 
 export const makeInvoker = (_options: InvokerOptions): ModuleInvoker => {
   return async (invocation: ModuleInvocation) => {
-    Runtime.initialize();
+    Runtime.initialize('unknown');
 
     const traceId = getRandomUUID();
 

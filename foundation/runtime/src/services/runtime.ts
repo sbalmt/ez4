@@ -44,6 +44,7 @@ let IS_COLD_START = true;
  */
 export namespace Runtime {
   let globalScope: Scope | undefined;
+  let globalResourceId = 'unknown';
   let coldStartFlag = false;
 
   export type Scope = {
@@ -65,7 +66,8 @@ export namespace Runtime {
    * Initialize runtime state for the current invocation.
    * Call once at the beginning of each invocation.
    */
-  export const initialize = () => {
+  export const initialize = (resourceId: string) => {
+    globalResourceId = resourceId;
     coldStartFlag = IS_COLD_START;
     IS_COLD_START = false;
   };
@@ -95,6 +97,15 @@ export namespace Runtime {
    */
   export const getResourceName = () => {
     return typeof EZ4_RESOURCE_NAME === 'string' ? EZ4_RESOURCE_NAME : 'unknown';
+  };
+
+  /**
+   * Get the runtime resource ID.
+   *
+   * @returns Returns the resource ID.
+   */
+  export const getResourceId = () => {
+    return globalResourceId;
   };
 
   /**

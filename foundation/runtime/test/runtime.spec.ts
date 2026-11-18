@@ -11,7 +11,7 @@ describe('runtime', () => {
   });
 
   it('assert :: tracks cold start per invocation', () => {
-    Runtime.initialize();
+    Runtime.initialize('unknown');
 
     equal(Runtime.isColdStart(), true);
 
@@ -27,8 +27,14 @@ describe('runtime', () => {
 
     equal(Runtime.isColdStart(), true);
 
-    Runtime.initialize();
+    Runtime.initialize('unknown');
 
     equal(Runtime.isColdStart(), false);
+  });
+
+  it('assert :: exposes resource ID', () => {
+    Runtime.initialize('arn:aws:lambda:us-east-1:123456789012:function:test');
+
+    equal(Runtime.getResourceId(), 'arn:aws:lambda:us-east-1:123456789012:function:test');
   });
 });

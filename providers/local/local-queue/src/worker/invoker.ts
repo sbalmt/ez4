@@ -19,7 +19,7 @@ export const makeInvoker = (options: InvokerOptions, context: ProviderContext): 
   const { notify } = context;
 
   return async (invocation: ModuleInvocation) => {
-    Runtime.initialize();
+    Runtime.initialize('unknown');
 
     const traceId = getRandomUUID();
 

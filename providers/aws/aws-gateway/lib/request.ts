@@ -43,7 +43,7 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
-  Runtime.initialize();
+  Runtime.initialize(context.invokedFunctionArn);
 
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
