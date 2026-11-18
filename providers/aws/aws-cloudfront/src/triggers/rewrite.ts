@@ -21,9 +21,9 @@ export const prepareRewrites = (state: EntryStates, service: CdnService, options
   const functionName = `${distributionName}-rewrite`;
 
   return createViewerFunction(state, {
+    functionName,
     description: 'URL rewrite handler (EZ4 built-in)',
     workspacePath: options.workspacePath,
-    functionName,
     getFunctionBundle: () => {
       return bundleViewerFunction({
         workspacePath: options.workspacePath,

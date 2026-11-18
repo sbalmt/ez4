@@ -67,6 +67,9 @@ describe('queue mapping', { timeout: 90000 }, () => {
 
     const functionResource = createQueueFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-queue-mapping-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

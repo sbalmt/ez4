@@ -6,9 +6,9 @@ import { join, relative, resolve } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
+import { clearBundleCache, deploy } from '@ez4/aws-common';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
-import { clearBundleCache, deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -63,6 +63,9 @@ describe('function', { timeout: 60000 }, () => {
 
     const resource = createFunction(localState, roleResource, logGroupResource, {
       workspacePath,
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       runtime: RuntimeType.Node24,
       architecture: ArchitectureType.Arm,
       functionName: 'ez4-test-lambda-function',

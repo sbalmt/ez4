@@ -64,6 +64,9 @@ describe('topic subscription', { timeout: 90000 }, () => {
 
     const functionResource = createSubscriptionFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-topic-subscription-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

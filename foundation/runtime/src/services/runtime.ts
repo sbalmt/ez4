@@ -17,6 +17,24 @@ declare const EZ4_IS_REMOTE_RUNTIME: boolean;
 declare const EZ4_RESOURCE_NAME: string;
 
 /**
+ * Hold the project name.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_NAME: string;
+
+/**
+ * Hold the project branch name.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_BRANCH: string;
+
+/**
+ * Hold the project prefix.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_PREFIX: string;
+
+/**
  * Hold the cold start flag for the runtime context.
  */
 let IS_COLD_START = true;
@@ -77,6 +95,33 @@ export namespace Runtime {
    */
   export const getResourceName = () => {
     return typeof EZ4_RESOURCE_NAME === 'string' ? EZ4_RESOURCE_NAME : 'unknown';
+  };
+
+  /**
+   * Get the project name.
+   *
+   * @returns Returns the project name.
+   */
+  export const getProjectName = () => {
+    return typeof EZ4_PROJECT_NAME === 'string' ? EZ4_PROJECT_NAME : 'unknown';
+  };
+
+  /**
+   * Get the project branch.
+   *
+   * @returns Returns the project branch.
+   */
+  export const getProjectBranch = () => {
+    return typeof EZ4_PROJECT_BRANCH === 'string' ? EZ4_PROJECT_BRANCH : 'unknown';
+  };
+
+  /**
+   * Get the project prefix.
+   *
+   * @returns Returns the project prefix.
+   */
+  export const getProjectPrefix = () => {
+    return typeof EZ4_PROJECT_PREFIX === 'string' ? EZ4_PROJECT_PREFIX : 'unknown';
   };
 
   /**

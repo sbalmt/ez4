@@ -78,6 +78,9 @@ export const prepareSubscriptions = (
             references: subscription.handler.references,
             dependencies: [topicState.entryId],
             workspacePath: options.workspacePath,
+            projectPrefix: options.prefix,
+            projectBranch: options.branchName,
+            projectName: options.projectName,
             context: service.context,
             handler: {
               sourceFile: handler.file,

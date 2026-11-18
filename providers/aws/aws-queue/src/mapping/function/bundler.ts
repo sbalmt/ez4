@@ -18,7 +18,20 @@ export const getBundleTemplateFile = () => {
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
 export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, workspacePath, messageSchema, backoff, context, references, debug } = parameters;
+  const {
+    handler,
+    listener,
+    functionName,
+    messageSchema,
+    backoff,
+    references,
+    context,
+    debug,
+    workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -28,6 +41,9 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     resourceName: functionName,
     filePrefix: 'sqs',
     workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName,
     define: {
       ...definitions,
       __EZ4_SCHEMA: messageSchema ? JSON.stringify(messageSchema) : 'undefined',

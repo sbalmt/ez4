@@ -115,6 +115,9 @@ const getIntegrationFunction = (
       context: service.context,
       dependencies: [gatewayState.entryId],
       workspacePath: options.workspacePath,
+      projectPrefix: options.prefix,
+      projectBranch: options.branchName,
+      projectName: options.projectName,
       errorsMap: {
         ...('httpErrors' in defaults && isAnyObject(defaults.httpErrors) && defaults.httpErrors),
         ...('httpErrors' in target && isAnyObject(target.httpErrors) && target.httpErrors)

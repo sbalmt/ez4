@@ -76,6 +76,9 @@ describe('gateway route', { timeout: 60000 }, () => {
 
     const integrationLambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-route-integration-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       type: IntegrationFunctionType.HttpRequest,
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
@@ -96,6 +99,9 @@ describe('gateway route', { timeout: 60000 }, () => {
 
     const authorizerLambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-route-authorizer-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

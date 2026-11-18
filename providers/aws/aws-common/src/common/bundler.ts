@@ -30,6 +30,9 @@ export type BundlerOptions = {
   templateFile: string;
   resourceName: string;
   workspacePath?: string;
+  projectPrefix: string;
+  projectBranch: string;
+  projectName: string;
   handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
@@ -143,6 +146,7 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
   }
 
   const { dir: targetPath, name: targetName } = parse(sourceFile);
+  const { projectName, projectPrefix, projectBranch } = options;
   const { resourceName, filePrefix, target, debug } = options;
 
   const handlerName = toKebabCase(functionName);
@@ -167,6 +171,9 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
     define: {
       ...options.define,
       EZ4_RESOURCE_NAME: `'${resourceName}'`,
+      EZ4_PROJECT_BRANCH: JSON.stringify(projectBranch),
+      EZ4_PROJECT_PREFIX: JSON.stringify(projectPrefix),
+      EZ4_PROJECT_NAME: JSON.stringify(projectName),
       EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },

@@ -77,6 +77,9 @@ describe('dynamodb mapping', { timeout: 60000 }, () => {
 
     const functionResource = createStreamFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-table-mapping-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

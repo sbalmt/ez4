@@ -16,7 +16,19 @@ export const getBundleTemplateFile = () => {
 };
 
 export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, workspacePath, eventSchema, context, references, debug } = parameters;
+  const {
+    handler,
+    listener,
+    functionName,
+    eventSchema,
+    references,
+    context,
+    debug,
+    workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -26,6 +38,9 @@ export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctio
     resourceName: functionName,
     filePrefix: 'sns',
     workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName,
     define: {
       ...definitions,
       __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'

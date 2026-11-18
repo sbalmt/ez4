@@ -4,6 +4,12 @@ import { describe, it } from 'node:test';
 import { Runtime } from '../src/services/runtime';
 
 describe('runtime', () => {
+  it('assert :: exposes project metadata', () => {
+    equal(Runtime.getProjectBranch(), 'unknown');
+    equal(Runtime.getProjectPrefix(), 'unknown');
+    equal(Runtime.getProjectName(), 'unknown');
+  });
+
   it('assert :: tracks cold start per invocation', () => {
     Runtime.initialize();
 
