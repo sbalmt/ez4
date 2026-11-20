@@ -113,8 +113,11 @@ When running `ez4 deploy`, referenced projects are also deployed, including nest
 
 ## What's next
 
+- [Quick start](./quick-start.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
+- [Listener overview](./listener.md)
+- [Middleware overview](./middleware.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

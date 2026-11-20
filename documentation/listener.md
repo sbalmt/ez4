@@ -51,6 +51,34 @@ Listener event types are shared across contracts:
 
 Events contain the partially prepared request available at that lifecycle stage.
 
+```mermaid
+sequenceDiagram
+    participant Runtime
+    participant Listener
+    participant Middleware
+    participant Handler
+
+    Runtime->>Listener: Begin
+    Runtime->>Runtime: Parse and validate
+    alt Validation succeeds
+        Runtime->>Listener: Ready
+        Runtime->>Middleware: Invoke
+        Middleware->>Handler: next(request, context)
+        alt Handler succeeds
+            Handler-->>Middleware: Complete
+            Middleware-->>Runtime: Complete
+            Runtime->>Listener: Done
+        else Handler or middleware throws
+            Handler-->>Middleware: Throw
+            Middleware-->>Runtime: Propagate error
+            Runtime->>Listener: Error
+        end
+    else Validation throws
+        Runtime->>Listener: Error
+    end
+    Runtime->>Listener: End
+```
+
 ## Failure behavior
 
 - `Begin` and `Ready` are fail-fast. Listener errors stop the current execution.
@@ -61,6 +89,16 @@ Events contain the partially prepared request available at that lifecycle stage.
 Listeners observe execution; middleware participates in handler execution. Use middleware to wrap or short-circuit a user handler. Use listeners for lifecycle logging, metrics, and tracing annotations.
 
 Because listeners run around validation and handler execution, they can observe failures that happen before middleware is reached.
+
+## What's next
+
+- [Quick start](./quick-start.md)
+- [Configuration](./configuration.md)
+- [Deployment overview](./deployment.md)
+- [Contracts overview](./contracts.md)
+- [Middleware overview](./middleware.md)
+- [Architecture overview](./architecture.md)
+- [Philosophy](./philosophy.md)
 
 ## License
 

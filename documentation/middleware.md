@@ -28,12 +28,19 @@ middlewares: [typeof traceHandler, typeof collectMetrics];
 
 Middleware is composed in declaration order. The first middleware is outermost:
 
-```text
-first: before
-  second: before
-    handler
-  second: after
-first: after
+```mermaid
+sequenceDiagram
+    participant Runtime
+    participant First as First middleware
+    participant Second as Second middleware
+    participant Handler
+
+    Runtime->>First: request, context
+    First->>Second: next(request, context)
+    Second->>Handler: next(request, context)
+    Handler-->>Second: complete or throw
+    Second-->>First: complete or throw
+    First-->>Runtime: complete or throw
 ```
 
 Calling `next(request, context)` continues the chain with the same request and context. Middleware may deliberately replace those values before continuing.
@@ -61,6 +68,34 @@ The result of a short-circuited handler depends on the contract's normal success
 Middleware runs after contract validation and transformation. Middleware errors are handled like user-handler errors by the surrounding contract.
 
 Use middleware to wrap user-handler execution. Use a lifecycle listener to observe earlier failures, such as request parsing or validation, and later lifecycle transitions.
+
+```mermaid
+sequenceDiagram
+    participant Runtime
+    participant Listener
+    participant Middleware
+    participant Handler
+
+    Runtime->>Listener: Begin
+    Runtime->>Runtime: Parse and validate
+    Runtime->>Listener: Ready
+    Runtime->>Middleware: Invoke
+    Middleware->>Handler: next(request, context)
+    Handler-->>Middleware: Complete or throw
+    Middleware-->>Runtime: Complete or throw
+    Runtime->>Listener: Done or Error
+    Runtime->>Listener: End
+```
+
+## What's next
+
+- [Quick start](./quick-start.md)
+- [Configuration](./configuration.md)
+- [Deployment overview](./deployment.md)
+- [Contracts overview](./contracts.md)
+- [Listener overview](./listener.md)
+- [Architecture overview](./architecture.md)
+- [Philosophy](./philosophy.md)
 
 ## License
 

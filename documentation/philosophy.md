@@ -20,6 +20,8 @@ Infrastructure should accelerate product development, not slow it down. EZ4 embr
 - [Configuration](./configuration.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
+- [Listener overview](./listener.md)
+- [Middleware overview](./middleware.md)
 - [Architecture overview](./architecture.md)
 
 ## License
