@@ -38,5 +38,6 @@ export type ModuleOptions = {
   references?: ServiceReferences;
   invoker: AnyServiceDescriptor;
   listener?: ModuleEntrypoint;
+  middlewares?: ModuleEntrypoint[];
   handler: ModuleEntrypoint;
 };
