@@ -10,7 +10,7 @@ import { appendTypeUnionElements, removeTypeUnionElements, isTypeUnion } from '.
 import { isTypeObject } from '../types/type-object';
 import { isTypeString } from '../types/type-string';
 import { isTypeNumber } from '../types/type-number';
-import { getTypeArguments } from './type-parameter';
+import { getTypeArguments } from './type-arguments';
 import { createUndefined } from './type-undefined';
 import { TypeName } from '../types/common';
 import { getNewState } from './common';

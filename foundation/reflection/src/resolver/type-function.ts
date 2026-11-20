@@ -4,13 +4,14 @@ import type { Context, State } from './common';
 
 import { isFunctionDeclaration } from 'typescript';
 
-import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { getNodeDocumentation } from '../helpers/documentation';
+import { getNodeFilePosition, getNodeFilePath } from '../helpers/node';
 import { getNodeModifiers } from '../helpers/modifier';
 import { getPathModule } from '../utils/module';
 import { TypeName } from '../types';
 import { tryCallableParameters } from './callable-parameters';
 import { tryCallableReturns } from './callable-returns';
+import { getTypeParameters } from './type-parameter';
 
 export type FunctionNodes = FunctionDeclaration;
 
@@ -45,7 +46,7 @@ export const isTypeFunction = (node: Node): node is FunctionNodes => {
 };
 
 export const tryTypeFunction = (node: Node, context: Context, state: State) => {
-  if (context.options.ignoreFunction || !isTypeFunction(node) || !node.name || node.typeParameters) {
+  if (context.options.ignoreFunction || !isTypeFunction(node) || !node.name) {
     return undefined;
   }
 
@@ -63,8 +64,9 @@ export const tryTypeFunction = (node: Node, context: Context, state: State) => {
 
   context.cache.set(node, reflectedType);
 
-  const parameterTypes = tryCallableParameters(node, context, state);
-  const returnType = tryCallableReturns(node, context, state);
+  const callableState = node.typeParameters ? getTypeParameters(node.typeParameters, context, state) : state;
+  const parameterTypes = tryCallableParameters(node, context, callableState);
+  const returnType = tryCallableReturns(node, context, callableState);
 
   if (parameterTypes?.length) {
     reflectedType.parameters = parameterTypes;
