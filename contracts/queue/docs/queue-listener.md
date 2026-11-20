@@ -66,6 +66,7 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
+- [Queue middleware](./queue-middleware.md)
 - [Queue client](./queue-client.md)
 
 ## License

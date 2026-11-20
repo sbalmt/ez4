@@ -1,0 +1,59 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestQueue": {
+    "type": "@ez4/queue",
+    "name": "TestQueue",
+    "context": {},
+    "file": "test/input/output-middleware.ts",
+    "variables": {},
+    "services": {},
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "identity": 1
+    },
+    "subscriptions": [
+      {
+        "middlewares": [
+          {
+            "name": "firstMiddleware",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              16,
+              1
+            ]
+          },
+          {
+            "name": "secondMiddleware",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              20,
+              1
+            ]
+          }
+        ],
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-middleware.ts",
+          "position": [
+            24,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

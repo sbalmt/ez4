@@ -10,6 +10,7 @@ Declare subscriptions using the `Queue.UseSubscription` helper on the service.
 subscriptions: [
   Queue.UseSubscription<{
     listener: typeof queueListener;
+    middlewares: [typeof traceHandler, typeof authorizeHandler];
     handler: typeof processMessage;
     concurrency: 4;
     timeout: 120;
@@ -48,6 +49,20 @@ listener: typeof queueListener;
 ```
 
 > Use `typeof` because the subscription listener is referenced by type. See the queue [listener](./queue-listener.md) for more details.
+
+#### Middlewares (optional)
+
+Ordered middleware functions that wrap the subscription handler.
+
+- Run after the message has been validated and transformed.
+- A middleware may run code before and after the next function.
+- The first middleware executes outermost.
+
+```ts
+middlewares: [typeof traceHandler];
+```
+
+Lifecycle listeners are not middleware: listeners observe events, while middleware participates in handler execution. See the queue [middleware](./queue-middleware.md) documentation for implementation and ordering details.
 
 #### Variables (optional)
 
@@ -172,6 +187,7 @@ vpc: true;
 - [Queue service](./queue-service.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
+- [Queue middleware](./queue-middleware.md)
 - [Queue listeners](./queue-listener.md)
 - [Queue client](./queue-client.md)
 
