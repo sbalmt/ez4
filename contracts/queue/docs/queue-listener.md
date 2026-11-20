@@ -1,6 +1,6 @@
 # EZ4: Queue Listener
 
-Listeners let you observe the **lifecycle events** of subscription handler execution. Listeners run alongside handlers and receive typed execution events and contextual information about the queue environment. Listeners do **not** modify the request, they only observe execution flow.
+Listeners observe the lifecycle of queue subscription execution. They receive typed events and queue service context and follow the shared EZ4 [listener behavior](../../../documentation/listener.md).
 
 ## Listener implementation
 
@@ -51,14 +51,9 @@ Listeners receive one or more of the following event types during the lifecycle 
 
 > A handler-requested retry still counts as a successful handler completion and does not imply message acknowledgement.
 
-## Listener failures
+## Queue-specific behavior
 
-Listener failures follow the event's role in the execution lifecycle:
-
-- `Begin` and `Ready` are fail-fast. If either listener event fails, the affected queue processing fails and the message or batch can be retried.
-- `Done`, `Timeout`, `Error`, and `End` are best-effort notifications. A failure in one of these listener events is logged and does not change message processing or acknowledgement.
-
-Listeners should keep best-effort events focused on observability, such as logging, metrics, and tracing. They should not perform required message processing in those events.
+A handler-requested retry still counts as successful handler completion. Listener failures are handled according to the queue's normal retry and acknowledgement semantics.
 
 ## What's next
 
@@ -68,6 +63,7 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [Queue handlers](./queue-handler.md)
 - [Queue middleware](./queue-middleware.md)
 - [Queue client](./queue-client.md)
+- [Listener overview](../../../documentation/listener.md)
 
 ## License
 

@@ -1,6 +1,6 @@
 # EZ4: Queue Middleware
 
-Queue middleware wraps subscription handler execution. A middleware receives the next handler and returns a handler responsible for continuing the chain. Middleware runs after message validation and transformation, immediately before the user handler.
+Queue middleware wraps subscription handler execution after message validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
 
 ## Middleware implementation
 
@@ -30,47 +30,9 @@ Queue.UseSubscription<{
 
 Use `typeof` because middleware functions are referenced by type.
 
-## Middleware order
-
-Middleware is composed in declaration order. The first entry is the outermost wrapper.
-
-```ts
-middlewares: [typeof first, typeof second];
-```
-
-Execution proceeds as follows:
-
-```text
-first: before
-  second: before
-    handler
-  second: after
-first: after
-```
-
-## Short-circuiting
-
-A middleware controls whether the next function runs. It can intentionally skip the remaining middleware and user handler by returning without calling `next`.
-
-```ts
-export function rejectDuplicates(next: Queue.Handler<MyMessage>): Queue.Handler<MyMessage> {
-  return async (request, context) => {
-    if (await isDuplicate(request.message, context)) {
-      return;
-    }
-
-    await next(request, context);
-  };
-}
-```
-
-A short-circuited invocation is treated as a successful handler completion and follows the queue acknowledgement rules.
-
 ## Errors and lifecycle
 
-Middleware errors are handled like handler errors and can cause the message to be retried.
-
-Use a lifecycle listener for validation errors or other failures that occur before middleware execution. Listener events observe execution; middleware participates in and can change execution.
+Middleware errors are handled like handler errors and can cause the message to be retried. A short-circuited invocation is treated as a successful handler completion and follows queue acknowledgement rules. Use a lifecycle listener for failures that occur before middleware execution.
 
 ## What's next
 
@@ -80,6 +42,7 @@ Use a lifecycle listener for validation errors or other failures that occur befo
 - [Queue handlers](./queue-handler.md)
 - [Queue listeners](./queue-listener.md)
 - [Queue client](./queue-client.md)
+- [Middleware overview](../../../documentation/middleware.md)
 
 ## License
 
