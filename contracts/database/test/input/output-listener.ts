@@ -12,8 +12,8 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
       schema: TestSchema;
       indexes: {};
       stream: {
-        listener: typeof streamListener;
         handler: typeof streamHandler;
+        listener: typeof streamListener;
       };
     }>
   ];

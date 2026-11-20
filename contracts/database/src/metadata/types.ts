@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema } from '@ez4/schema';
@@ -78,8 +78,9 @@ export type DatabaseTable = {
 
 export type TableStream = {
   triggers?: StreamChangeType[];
-  listener?: ServiceListener;
   handler: StreamHandler;
+  middlewares?: ServiceMiddleware[];
+  listener?: ServiceListener;
   variables?: LinkedVariables;
   architecture?: ArchitectureType;
   runtime?: RuntimeType;

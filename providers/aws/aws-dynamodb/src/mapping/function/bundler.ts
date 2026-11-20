@@ -18,6 +18,7 @@ export const getBundleTemplateFile = () => {
 export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     functionName,
     tableSchema,
@@ -46,6 +47,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
       __EZ4_SCHEMA: tableSchema ? JSON.stringify(tableSchema) : 'undefined'
     },
     handler,
+    middlewares,
     listener,
     debug
   });

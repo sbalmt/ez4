@@ -31,6 +31,14 @@ export function streamHandler(request: Database.Incoming<ItemSchema>, context: S
 
 > Database stream handlers use the database service as their context provider. Declare `services` and `variables` on the database service to make them available to the handler.
 
+## Handler middleware
+
+Database streams can wrap handlers with ordered [middleware](./database-middleware.md). Middleware runs after validation and immediately before the user handler.
+
+## Handler listener
+
+Database streams can attach a lifecycle [listener](./database-listener.md) to observe validation and execution events. Listeners observe execution, while middleware participates in handler execution.
+
 #### Request fields
 
 Handlers receive a typed request object generated from the declared table schema.
@@ -62,6 +70,7 @@ All fields are typed from the declared schema and stream contract.
 - [Database engine](./database-engine.md)
 - [Database streams](./database-streams.md)
 - [Database listener](./database-listener.md)
+- [Database middleware](./database-middleware.md)
 - [Database client](./database-client.md)
 - [Database queries](./database-queries.md)
 

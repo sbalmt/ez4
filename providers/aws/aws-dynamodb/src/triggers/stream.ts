@@ -6,6 +6,7 @@ import type { TableState } from '../table/types';
 import { tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
+import { arrayUnique } from '@ez4/utils';
 
 import { createMapping } from '../mapping/service';
 import { createStreamFunction } from '../mapping/function/service';
@@ -41,8 +42,9 @@ export const prepareTableStream = (
     debug = options.debug,
     variables,
     triggers,
-    listener,
     handler,
+    middlewares = [],
+    listener,
     files,
     vpc
   } = table.stream;
@@ -53,7 +55,11 @@ export const prepareTableStream = (
 
   if (!handlerState) {
     const streamName = getStreamName(service, table, handler.name, options);
-    const dependencies = context.getDependencyFiles(handler.file);
+
+    const dependencies = arrayUnique([
+      ...context.getDependencyFiles(handler.file),
+      ...middlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+    ]);
 
     const logGroupState = createLogGroup(state, {
       dependencies: [tableState.entryId],
@@ -80,6 +86,11 @@ export const prepareTableStream = (
         module: handler.module,
         dependencies
       },
+      middlewares: middlewares.map((middleware) => ({
+        functionName: middleware.name,
+        sourceFile: middleware.file,
+        module: middleware.module
+      })),
       listener: listener && {
         functionName: listener.name,
         sourceFile: listener.file,
