@@ -2,6 +2,7 @@ import type { AuthHandler } from '../auth/handler';
 import type { AuthRequest } from '../auth/request';
 import type { WebTarget } from '../target';
 import type { HttpListener } from './listener';
+import type { HttpMiddleware } from './middleware';
 import type { HttpRequest } from './request';
 import type { HttpHandler } from './handler';
 import type { HttpErrors } from './errors';
@@ -33,15 +34,6 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
   readonly path: HttpPath;
 
   /**
-   * Optional life‑cycle listener for the route.
-   *
-   * - Runs inside the same cloud resource as the handler and authorizer.
-   * - Receives events such as request begin, request end, and internal transitions.
-   * - Useful for logging, tracing, metrics, and instrumentation.
-   */
-  readonly listener?: HttpListener<T>;
-
-  /**
    * Optional entry‑point authorizer for the route.
    *
    * - Runs in a separate cloud resource isolated from the route handler.
@@ -57,6 +49,16 @@ export interface HttpRoute<T extends HttpRequest, U extends AuthRequest> extends
    * - Invoked only after the authorizer (if defined) succeeds.
    */
   readonly handler: HttpHandler<T>;
+
+  /**
+   * Middleware functions wrapping the route handler.
+   */
+  readonly middlewares?: HttpMiddleware<T>[];
+
+  /**
+   * Optional life‑cycle listener for the route.
+   */
+  readonly listener?: HttpListener<T>;
 
   /**
    * Maps known exceptions to HTTP status codes.

@@ -13,6 +13,7 @@ export declare class MyServer extends Http.Service {
     logLevel: LogLevel.Debug;
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
+    middlewares: [typeof globalMiddleware];
     listener: typeof globalListener;
     preferences: {
       namingStyle: NamingStyle.SnakeCase;
@@ -39,6 +40,7 @@ export declare class MyServer extends Ws.Service<WsMessages> {
     logLevel: LogLevel.Debug;
     architecture: ArchitectureType.Arm;
     runtime: RuntimeType.Node24;
+    middlewares: [typeof globalMiddleware];
     listener: typeof globalListener;
     preferences: {
       namingStyle: NamingStyle.CamelCase;
@@ -50,6 +52,16 @@ export declare class MyServer extends Ws.Service<WsMessages> {
 > The defaults type is always an extension of the base `Ws.Defaults` interface.
 
 ## Defaults fields
+
+#### Middlewares (optional)
+
+Ordered middleware functions wrapping every HTTP or WebSocket handler. Default middleware executes before route-specific middleware.
+
+```ts
+middlewares: [typeof globalMiddleware];
+```
+
+See [Gateway middleware](./gateway-middleware.md) for composition and authorizer boundaries.
 
 #### Listener (optional)
 
@@ -186,6 +198,7 @@ debug: true;
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
 - [Gateway listeners](./gateway-listener.md)
+- [Gateway middleware](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 
 ## License

@@ -25,7 +25,7 @@ export const createIntegrationFunction = <E extends EntryState>(
   parameters: IntegrationFunctionParameters
 ) => {
   const { headersSchema, parametersSchema, querySchema, bodySchema, identitySchema, responseSchema } = parameters;
-  const { type, handler, variables, debug, architecture, preferences, errorsMap } = parameters;
+  const { type, handler, middlewares = [], variables, debug, architecture, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'apiEntryPoint',
@@ -53,7 +53,7 @@ export const createIntegrationFunction = <E extends EntryState>(
       return bundleFunctions[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(type), ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(type), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
     },
     getFunctionHash: () => {
       return hashObject({
@@ -66,6 +66,7 @@ export const createIntegrationFunction = <E extends EntryState>(
         responseSchema,
         preferences,
         errorsMap,
+        middlewares,
         debug
       });
     }

@@ -15,19 +15,22 @@ Each route is declared using the corresponding `Ws.UseConnect`, `Ws.UseMessage`,
 ```ts
 export declare class MyServer extends Ws.Service<MyMessages> {
   connect: Ws.UseConnect<{
-    listener: typeof serverListener;
     authorizer: typeof authorizeHandler;
     handler: typeof connectHandler;
+    middlewares: [typeof connectMiddleware];
+    listener: typeof serverListener;
   }>;
 
   disconnect: Ws.UseDisconnect<{
-    listener: typeof serverListener;
     handler: typeof disconnectHandler;
+    middlewares: [typeof disconnectMiddleware];
+    listener: typeof serverListener;
   }>;
 
   message: Ws.UseMessage<{
-    listener: typeof serverListener;
     handler: typeof messageHandler;
+    middlewares: [typeof messageMiddleware];
+    listener: typeof serverListener;
   }>;
 }
 ```
@@ -52,6 +55,16 @@ handler: typeof routeHandler;
 ```
  
 > Use `typeof` because the route handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
+
+#### Middlewares (optional)
+
+Ordered middleware functions wrapping the connect, message, or disconnect handler. Service defaults execute before route middleware.
+
+```ts
+middlewares: [typeof routeMiddleware];
+```
+
+See [Gateway middleware](./gateway-middleware.md) for implementation and composition details.
 
 #### Authorizer (optional, connect only)
 
@@ -216,6 +229,7 @@ vpc: true;
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
 - [Gateway listeners](./gateway-listener.md)
+- [Gateway middleware](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

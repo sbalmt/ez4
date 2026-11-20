@@ -14,6 +14,7 @@ import type { WsDisconnect } from './disconnect';
 import type { WsDefaults } from './defaults';
 import type { WsIncoming } from './incoming';
 import type { WsListener } from './listener';
+import type { WsMiddleware } from './middleware';
 import type { WsResponse } from './response';
 import type { WsRequest } from './request';
 import type { WsHandler } from './handler';
@@ -46,8 +47,9 @@ export namespace Ws {
   export type AuthIncoming<T extends AuthRequest> = WsAuthIncoming<T>;
   export type Incoming<T extends Request | Event> = WsIncoming<T>;
 
-  export type Listener<T extends Request | Event> = WsListener<T>;
   export type Handler<T extends Request | Event, U extends Response | void> = WsHandler<T, U>;
+  export type Middleware<T extends Request | Event, U extends Response | void> = WsMiddleware<T, U>;
+  export type Listener<T extends Request | Event> = WsListener<T>;
 
   export type Connect<T extends Event = Event, U extends AuthRequest = AuthRequest> = WsConnect<T, U>;
   export type Disconnect<T extends Event = Event> = WsDisconnect<T>;

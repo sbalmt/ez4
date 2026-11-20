@@ -17,6 +17,7 @@ import {
   getPropertyStringList,
   getPropertyBoolean,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -143,6 +144,11 @@ const getTypeFromMembers = (
 
       case 'files': {
         target[member.name] = getPropertyStringList(member);
+        break;
+      }
+
+      case 'middlewares': {
+        target.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

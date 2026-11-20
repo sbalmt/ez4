@@ -4,7 +4,7 @@ import type { EntryStates } from '@ez4/state';
 import type { GatewayState } from '../gateway/types';
 
 import { tryGetFunctionState } from '@ez4/aws-function';
-import { deepMerge, isAnyObject } from '@ez4/utils';
+import { arrayUnique, deepMerge, isAnyObject } from '@ez4/utils';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 
@@ -71,8 +71,9 @@ const getIntegrationFunction = (
     timeout = defaults.timeout ?? Defaults.Timeout,
     memory = defaults.memory ?? Defaults.Memory,
     debug = defaults.debug ?? options.debug,
-    listener = defaults.listener,
     handler,
+    middlewares = [],
+    listener = defaults.listener,
     files,
     vpc
   } = target;
@@ -89,7 +90,12 @@ const getIntegrationFunction = (
   if (!handlerState) {
     const { release, tags } = options;
 
-    const dependencies = context.getDependencyFiles(handler.file);
+    const allMiddlewares = [...(defaults.middlewares ?? []), ...middlewares];
+
+    const dependencies = arrayUnique([
+      ...context.getDependencyFiles(handler.file),
+      ...allMiddlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+    ]);
 
     const logGroupState = createLogGroup(state, {
       dependencies: [gatewayState.entryId],
@@ -128,6 +134,11 @@ const getIntegrationFunction = (
         module: handler.module,
         dependencies
       },
+      middlewares: allMiddlewares.map((middleware) => ({
+        functionName: middleware.name,
+        sourceFile: middleware.file,
+        module: middleware.module
+      })),
       listener: listener && {
         functionName: listener.name,
         sourceFile: listener.file,

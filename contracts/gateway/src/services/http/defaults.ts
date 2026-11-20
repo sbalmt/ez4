@@ -1,5 +1,6 @@
 import type { WebDefaults } from '../defaults';
 import type { HttpListener } from './listener';
+import type { HttpMiddleware } from './middleware';
 import type { HttpRequest } from './request';
 import type { HttpErrors } from './errors';
 
@@ -7,6 +8,11 @@ import type { HttpErrors } from './errors';
  * Default HTTP service parameters.
  */
 export interface HttpDefaults<T extends HttpRequest> extends WebDefaults {
+  /**
+   * Default middleware functions wrapping all route handlers.
+   */
+  readonly middlewares?: HttpMiddleware<T>[];
+
   /**
    * Default life‑cycle listener for all routes.
    *

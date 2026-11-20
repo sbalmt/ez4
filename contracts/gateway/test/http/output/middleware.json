@@ -1,0 +1,58 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestService": {
+    "type": "@ez4/http",
+    "name": "TestService",
+    "context": {},
+    "file": "test/http/input/output-middleware.ts",
+    "variables": {},
+    "services": {},
+    "defaults": {
+      "middlewares": [
+        {
+          "name": "defaultMiddleware",
+          "file": "test/http/input/output-middleware.ts",
+          "position": [
+            17,
+            1
+          ]
+        }
+      ]
+    },
+    "routes": [
+      {
+        "path": "ANY /test-route",
+        "handler": {
+          "name": "testHandler",
+          "file": "test/http/input/output-middleware.ts",
+          "position": [
+            25,
+            1
+          ],
+          "response": {
+            "status": 204
+          }
+        },
+        "middlewares": [
+          {
+            "name": "routeMiddleware",
+            "file": "test/http/input/output-middleware.ts",
+            "position": [
+              21,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

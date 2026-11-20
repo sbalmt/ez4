@@ -1,5 +1,5 @@
 import type { ArraySchema, NamingStyle, ObjectSchema, ScalarSchema, UnionSchema } from '@ez4/schema';
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { AuthHandler } from '../auth/types';
@@ -27,14 +27,16 @@ export type WsService = Omit<ServiceMetadata, 'variables' | 'services'> &
   };
 
 export type WsConnection = WsDefaults & {
-  handler: WsHandler;
   authorizer?: AuthHandler;
+  handler: WsHandler;
+  middlewares?: ServiceMiddleware[];
   variables?: LinkedVariables;
   vpc?: boolean;
 };
 
 export type WsMessage = WsDefaults & {
   handler: WsHandler;
+  middlewares?: ServiceMiddleware[];
   variables?: LinkedVariables;
   vpc?: boolean;
 };
@@ -65,6 +67,7 @@ export type WsPreferences = {
 };
 
 export type WsDefaults = {
+  middlewares?: ServiceMiddleware[];
   listener?: ServiceListener;
   preferences?: WsPreferences;
   architecture?: ArchitectureType;

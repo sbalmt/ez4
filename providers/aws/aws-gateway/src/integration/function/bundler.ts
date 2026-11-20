@@ -28,6 +28,7 @@ export type BundleFunction = (parameters: IntegrationFunctionParameters, connect
 export const bundleRequestFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     preferences,
     functionName,
@@ -70,6 +71,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
       __EZ4_ERRORS_MAP: errorsMap ? JSON.stringify(errorsMap) : 'undefined'
     },
     handler,
+    middlewares,
     listener,
     debug
   });
@@ -78,6 +80,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
 export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     preferences,
     functionName,
@@ -112,6 +115,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
       __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
     handler,
+    middlewares,
     listener,
     debug
   });
@@ -120,6 +124,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
 export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     preferences,
     functionName,
@@ -154,6 +159,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
       __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
     handler,
+    middlewares,
     listener,
     debug
   });

@@ -23,11 +23,17 @@ export const processWsConnection = async (
 
   const target = type === WsConnectionType.Connect ? connect : disconnect;
 
+  const { handler } = target;
+
+  const targetMiddlewares = [...(defaults?.middlewares ?? []), ...(target.middlewares ?? [])];
+  const targetPreferences = target.preferences ?? defaults?.preferences;
+
   await invokeGatewayModule(
     options,
     context,
     {
-      handler: target.handler,
+      handler,
+      middlewares: targetMiddlewares,
       listener: target.listener ?? defaults?.listener,
       timeout: target.timeout ?? defaults?.timeout,
       memory: target.memory ?? defaults?.memory,
@@ -38,8 +44,8 @@ export const processWsConnection = async (
       },
       invoker: {
         type: RequestType.WsConnection,
-        request: target.handler.request,
-        preferences: target.preferences ?? defaults?.preferences
+        preferences: targetPreferences,
+        request: handler.request
       }
     },
     {

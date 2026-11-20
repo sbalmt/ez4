@@ -20,6 +20,7 @@ import {
   getReferenceType,
   getPropertyTuple,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -234,6 +235,11 @@ const getTypeFromMembers = (
 
       case 'files': {
         route[member.name] = getPropertyStringList(member);
+        break;
+      }
+
+      case 'middlewares': {
+        route.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

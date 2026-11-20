@@ -14,13 +14,17 @@ export const processWsMessage = async (
   identity?: Ws.Identity
 ) => {
   const { message: route, defaults, services } = service;
-  const { handler, preferences = defaults?.preferences } = route;
+  const { handler } = route;
+
+  const targetMiddlewares = [...(defaults?.middlewares ?? []), ...(route.middlewares ?? [])];
+  const targetPreferences = route.preferences ?? defaults?.preferences;
 
   return invokeGatewayModule<string | undefined>(
     options,
     context,
     {
       handler,
+      middlewares: targetMiddlewares,
       listener: route.listener ?? defaults?.listener,
       timeout: route.timeout ?? defaults?.timeout,
       memory: route.memory ?? defaults?.memory,
@@ -31,9 +35,9 @@ export const processWsMessage = async (
       },
       invoker: {
         type: RequestType.WsMessage,
-        request: handler.request,
+        preferences: targetPreferences,
         response: handler.response,
-        preferences
+        request: handler.request
       }
     },
     {
