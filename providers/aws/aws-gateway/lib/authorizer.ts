@@ -37,15 +37,15 @@ declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
 export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
+  Runtime.initialize(context.invokedFunctionArn);
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
 
   const resourceArn = event.methodArn ?? event.routeArn;
   const traceId = event.headers['x-trace-id'] ?? getRandomUUID();
 
-  Runtime.setScope({
-    traceId
-  });
+  Runtime.setTraceId(traceId);
 
   const request: Http.Incoming<Http.AuthRequest> = {
     timestamp: new Date(requestContext.timeEpoch),
@@ -173,7 +173,7 @@ const onDone = (request: Partial<IncomingRequest>) => {
 };
 
 const onTimeout = (request: Partial<IncomingRequest>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -185,7 +185,7 @@ const onTimeout = (request: Partial<IncomingRequest>, timeoutAfter: number) => {
 };
 
 const onError = (error: unknown, request: Partial<IncomingRequest>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

@@ -1,6 +1,7 @@
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { QueueSubscriptionListener } from './listener';
+import type { QueueSubscriptionMiddleware } from './middleware';
 import type { QueueSubscriptionHandler } from './handler';
 import type { QueueMessage } from './message';
 
@@ -17,6 +18,14 @@ export interface QueueSubscription<T extends QueueMessage> {
    * Entry-point handler function for the subscription.
    */
   readonly handler: QueueSubscriptionHandler<T>;
+
+  /**
+   * Middleware functions wrapping the subscription handler.
+   *
+   * The middleware array is applied in declaration order, with the first
+   * middleware executing outermost.
+   */
+  readonly middlewares?: QueueSubscriptionMiddleware<T>[];
 
   /**
    * Maximum number of messages per handler invocation.

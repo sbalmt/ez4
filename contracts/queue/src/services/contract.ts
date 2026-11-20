@@ -1,6 +1,7 @@
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Service as CommonService } from '@ez4/common';
 import type { QueueSubscriptionListener } from './listener';
+import type { QueueSubscriptionMiddleware } from './middleware';
 import type { QueueSubscriptionHandler } from './handler';
 import type { QueueSubscription } from './subscription';
 import type { QueueDeadLetter } from './deadletter';
@@ -30,6 +31,7 @@ export namespace Queue {
   export type Incoming<T extends Message> = QueueIncoming<T>;
 
   export type Listener<T extends Message> = QueueSubscriptionListener<T>;
+  export type Middleware<T extends Message> = QueueSubscriptionMiddleware<T>;
   export type Handler<T extends Message> = QueueSubscriptionHandler<T>;
 
   export type Subscription<T extends Message> = QueueSubscription<T>;

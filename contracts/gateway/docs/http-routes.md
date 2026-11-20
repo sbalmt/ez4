@@ -12,9 +12,10 @@ export declare class MyServer extends Http.Service {
     Http.UseRoute<{
       name: 'getUser';
       path: 'GET /users/{id}';
-      listener: typeof serverListener;
       authorizer: typeof authorizeHandler;
       handler: typeof routeHandler;
+      middlewares: [typeof routeMiddleware];
+      listener: typeof serverListener;
       disabled: false;
       cors: true;
       httpErrors: {
@@ -67,6 +68,16 @@ handler: typeof routeHandler;
 ```
  
 > Use `typeof` because the route handler is referenced by type. See the gateway [handler](./gateway-handler.md) for more details.
+
+#### Middlewares (optional)
+
+Ordered middleware functions wrapping the route handler. Service defaults execute before route middleware.
+
+```ts
+middlewares: [typeof routeMiddleware];
+```
+
+See [Gateway middlewares](./gateway-middleware.md) for implementation and composition details.
 
 #### Authorizer (optional)
 
@@ -265,7 +276,8 @@ vpc: true;
 - [HTTP responses](./http-responses.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
+- [Gateway listener](./gateway-listener.md)
+- [Gateway middlewares](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

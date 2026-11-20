@@ -19,6 +19,7 @@ export type IntegrationFunctionParameters = Omit<
 > & {
   type: IntegrationFunctionType;
   handler: IntegrationEntryPoint;
+  middlewares?: IntegrationFunction[];
   listener?: IntegrationFunction;
   preferences?: HttpPreferences;
   headersSchema?: ObjectSchema;

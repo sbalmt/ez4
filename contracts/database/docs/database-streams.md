@@ -25,6 +25,7 @@ export declare class MyDb extends Database.Service<DynamoDbEngine> {
       stream: Database.UseTableStream<{
         triggers: [StreamChangeType.Insert, StreamChangeType.Update];
         handler: typeof streamHandler;
+        middlewares: [typeof traceHandler];
         listener: typeof streamListener;
       }>;
     }>
@@ -47,6 +48,16 @@ Function invoked for each matching table change.
 ```ts
 handler: typeof streamHandler;
 ```
+
+#### Middlewares (optional)
+
+Ordered middleware functions wrapping the stream handler. The first middleware executes outermost.
+
+```ts
+middlewares: [typeof traceHandler];
+```
+
+See [database middlewares](./database-middleware.md) for implementation and shared behavior.
 
 #### Triggers (optional)
 
@@ -157,6 +168,7 @@ vpc: true;
 - [Database engine](./database-engine.md)
 - [Database handler](./database-handler.md)
 - [Database listener](./database-listener.md)
+- [Database middlewares](./database-middleware.md)
 - [Database client](./database-client.md)
 - [Database queries](./database-queries.md)
 

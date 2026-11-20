@@ -1,7 +1,7 @@
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { Sqs, FifoSqs } from './queue/service';
-import type { eventHandlerA, eventHandlerB } from './lambda/handlers';
+import type { eventHandlerA, eventHandlerB, topicMiddleware } from './lambda/handlers';
 import type { topicListener } from './listener';
 import type { EventRequest } from './types';
 
@@ -21,11 +21,13 @@ export declare class Sns extends Topic.Unordered<EventRequest> {
    */
   subscriptions: [
     Topic.UseSubscription<{
-      listener: typeof topicListener;
       handler: typeof eventHandlerA;
+      middlewares: [typeof topicMiddleware];
+      listener: typeof topicListener;
     }>,
     Topic.UseSubscription<{
       handler: typeof eventHandlerB;
+      middlewares: [typeof topicMiddleware];
     }>,
     Topic.UseSubscription<{
       service: Environment.Service<Sqs>;

@@ -9,6 +9,7 @@ import { notifyData } from './notifier';
 export const invokeHandler = async (
   worker: MessagePort,
   handler: FunctionCallback,
+  middlewares: FunctionCallback[],
   listener: FunctionCallback | undefined,
   invoker: ModuleInvoker,
   context: AnyObject,
@@ -20,13 +21,15 @@ export const invokeHandler = async (
   const milliseconds = Math.max(0, timeout - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(listener, context, currentRequest), milliseconds);
 
+  const wrappedHandler = middlewares.reduceRight((next, middleware) => middleware(next), handler);
+
   try {
     const response = await invoker({
       request,
       context,
       begin: (request: AnyObject) => ((currentRequest = request), onBegin(listener, context, request)),
       ready: (request: AnyObject) => ((currentRequest = request), onReady(listener, context, request)),
-      invoke: (request: AnyObject) => ((currentRequest = request), handler(request, context)),
+      invoke: (request: AnyObject) => ((currentRequest = request), wrappedHandler(request, context)),
       done: (request: AnyObject) => ((currentRequest = request), onDone(listener, context, request)),
       error: (error: unknown, request: AnyObject) => ((currentRequest = request), onError(listener, context, error, request)),
       end: (request: AnyObject) => ((currentRequest = request), onEnd(listener, context, request))

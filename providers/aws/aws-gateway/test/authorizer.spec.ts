@@ -70,6 +70,9 @@ describe('gateway authorizer', { timeout: 60000 }, () => {
 
     const lambdaResource = createAuthorizerFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-authorizer-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

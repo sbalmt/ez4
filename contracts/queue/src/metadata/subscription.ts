@@ -15,6 +15,7 @@ import {
   getPropertyTuple,
   getReferenceType,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -151,6 +152,11 @@ const getTypeFromMembers = (
 
       case 'listener': {
         subscription.listener = getServiceListener(member.value, errorList);
+        break;
+      }
+
+      case 'middlewares': {
+        subscription.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

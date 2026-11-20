@@ -1,0 +1,75 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestDatabase": {
+    "type": "@ez4/database",
+    "name": "TestDatabase",
+    "context": {},
+    "file": "test/input/output-middleware.ts",
+    "variables": {},
+    "services": {},
+    "engine": {
+      "parametersMode": "index",
+      "transactionMode": "static",
+      "insensitiveMode": "unsupported",
+      "undefinedMode": "supported",
+      "paginationMode": "offset",
+      "relationMode": "supported",
+      "streamMode": "supported",
+      "orderMode": "any",
+      "lockMode": "unsupported",
+      "name": "test"
+    },
+    "tables": [
+      {
+        "name": "inlineTestTable",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          },
+          "identity": 1
+        },
+        "indexes": [],
+        "stream": {
+          "handler": {
+            "name": "streamHandler",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              32,
+              1
+            ]
+          },
+          "middlewares": [
+            {
+              "name": "firstMiddleware",
+              "file": "test/input/output-middleware.ts",
+              "position": [
+                24,
+                1
+              ]
+            },
+            {
+              "name": "secondMiddleware",
+              "file": "test/input/output-middleware.ts",
+              "position": [
+                28,
+                1
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { Queue } from '@ez4/queue';
 import type { TopicSubscriptionListener } from './listener';
+import type { TopicSubscriptionMiddleware } from './middleware';
 import type { TopicSubscriptionHandler } from './handler';
 import type { TopicEvent } from './event';
 
@@ -30,6 +31,14 @@ export interface TopicLambdaSubscription<T extends TopicEvent> {
    * Entry-point handler function for the subscription.
    */
   readonly handler: TopicSubscriptionHandler<T>;
+
+  /**
+   * Middleware functions wrapping the subscription handler.
+   *
+   * The middleware array is applied in declaration order, with the first
+   * middleware executing outermost.
+   */
+  readonly middlewares?: TopicSubscriptionMiddleware<T>[];
 
   /**
    * Environment variables associated to the subscription.

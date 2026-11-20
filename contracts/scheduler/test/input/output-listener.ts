@@ -12,6 +12,6 @@ export declare class TestScheduler extends Cron.Service {
   }>;
 }
 
-function targetListener(): void {}
+function targetListener<T extends Cron.Event | null>(_event: Cron.ServiceEvent<T>): void {}
 
 function targetHandler() {}

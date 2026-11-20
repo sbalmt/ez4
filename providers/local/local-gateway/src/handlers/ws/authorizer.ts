@@ -21,6 +21,8 @@ export const processWsAuthorization = async (
 
   const { provider } = authorizer;
 
+  const targetPreferences = connect.preferences ?? defaults?.preferences;
+
   const response = await invokeGatewayModule<Ws.AuthResponse>(
     options,
     context,
@@ -37,8 +39,8 @@ export const processWsAuthorization = async (
       },
       invoker: {
         type: RequestType.WsAuthorizer,
-        request: authorizer.request,
-        preferences: connect.preferences ?? defaults?.preferences
+        preferences: targetPreferences,
+        request: authorizer.request
       }
     },
     {

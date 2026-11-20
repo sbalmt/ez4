@@ -8,7 +8,7 @@ import { getNodeTypeDeclaration } from '../helpers/declaration';
 import { getAccessNamespace } from '../helpers/identifier';
 import { hasModifierExport } from '../helpers/modifier';
 import { tryModelMembers } from './model-members';
-import { getTypeArguments } from './type-parameter';
+import { getTypeArguments } from './type-arguments';
 import { isTypeInterface } from './type-interface';
 import { isTypeAlias } from './type-alias';
 import { isTypeClass } from './type-class';

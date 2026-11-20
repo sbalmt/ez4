@@ -31,6 +31,8 @@ export async function sqsEntryPoint(event: SQSEvent, context: Context): Promise<
 
   currentRequest = undefined;
 
+  Runtime.initialize(context.invokedFunctionArn);
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 
@@ -75,9 +77,7 @@ const processAllRecords = async (request: Queue.Request, schema: MessageSchema, 
 
       const traceId = record.messageAttributes['EZ4.TRACE_ID']?.stringValue ?? getRandomUUID();
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       const payload = JSON.parse(record.body);
       const message = await getJsonMessage(payload, schema, onCustomValidation);
@@ -217,7 +217,7 @@ const onDone = async (request: Partial<Queue.Incoming<Queue.Message>>) => {
 };
 
 const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -229,7 +229,7 @@ const onTimeout = async (request: Partial<Queue.Incoming<Queue.Message>>, timeou
 };
 
 const onError = (error: unknown, request: Partial<Queue.Request | Queue.Incoming<Queue.Message>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

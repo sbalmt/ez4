@@ -1,7 +1,7 @@
 import type { Bucket, BucketEventType } from '@ez4/storage';
 import type { Environment } from '@ez4/common';
 import type { eventListener } from './listener';
-import type { eventHandler } from './events';
+import type { eventHandler, storageMiddleware } from './events';
 
 /**
  * Example of AWS S3 event triggers deployed with EZ4.
@@ -11,19 +11,22 @@ export declare class Storage extends Bucket.Service {
     Bucket.UseEvent<{
       path: 'created/*';
       triggers: [BucketEventType.Create];
-      listener: typeof eventListener;
       handler: typeof eventHandler;
+      middlewares: [typeof storageMiddleware];
+      listener: typeof eventListener;
     }>,
     Bucket.UseEvent<{
       path: 'deleted/*';
       triggers: [BucketEventType.Delete];
-      listener: typeof eventListener;
       handler: typeof eventHandler;
+      middlewares: [typeof storageMiddleware];
+      listener: typeof eventListener;
     }>,
     Bucket.UseEvent<{
       path: 'all/*';
-      listener: typeof eventListener;
       handler: typeof eventHandler;
+      middlewares: [typeof storageMiddleware];
+      listener: typeof eventListener;
     }>
   ];
 

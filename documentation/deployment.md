@@ -99,6 +99,8 @@ The process is intentionally transparent: you review the plan, confirm the chang
 - [Quick start](./quick-start.md)
 - [Configuration](./configuration.md)
 - [Contracts overview](./contracts.md)
+- [Listeners overview](./listeners.md)
+- [Middlewares overview](./middlewares.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

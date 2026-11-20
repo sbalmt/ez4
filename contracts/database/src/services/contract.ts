@@ -2,6 +2,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { DatabaseScalability } from './scalability';
 import type { TableStreamIncoming } from './incoming';
 import type { TableStreamListener } from './listener';
+import type { TableStreamMiddleware } from './middleware';
 import type { TableStreamHandler } from './handler';
 import type { TableStreamRequest } from './request';
 import type { TableRelations } from './relations';
@@ -24,6 +25,7 @@ export namespace Database {
   export type Request = TableStreamRequest;
 
   export type Listener<T extends Schema> = TableStreamListener<T>;
+  export type Middleware<T extends Schema> = TableStreamMiddleware<T>;
   export type Handler<T extends Schema> = TableStreamHandler<T>;
 
   export type Stream<T extends Schema = Schema> = TableStream<T>;

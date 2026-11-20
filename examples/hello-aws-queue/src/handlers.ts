@@ -3,6 +3,21 @@ import type { Queue } from '@ez4/queue';
 import type { MessageRequest } from './types';
 import type { Sqs } from './service';
 
+/**
+ * Wrap queue handler execution.
+ */
+export function queueMiddleware(next: Queue.Handler<MessageRequest>): Queue.Handler<MessageRequest> {
+  return async (request, context) => {
+    console.log('Queue middleware before', request.requestId);
+
+    try {
+      return await next(request, context);
+    } finally {
+      console.log('Queue middleware after', request.requestId);
+    }
+  };
+}
+
 export function messageHandlerA(request: Queue.Incoming<MessageRequest>, { selfVariables }: Service.Context<Sqs>): void {
   const { message } = request;
 

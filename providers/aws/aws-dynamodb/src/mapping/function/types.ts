@@ -17,6 +17,7 @@ export type StreamFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: StreamEntryPoint;
+  middlewares?: StreamFunction[];
   listener?: StreamFunction;
   tableSchema?: ObjectSchema;
   context?: Record<string, ContextSource>;

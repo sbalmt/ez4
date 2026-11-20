@@ -2,6 +2,7 @@ import type { AuthHandler } from '../auth/handler';
 import type { AuthRequest } from '../auth/request';
 import type { WebTarget } from '../target';
 import type { WsListener } from './listener';
+import type { WsMiddleware } from './middleware';
 import type { WsHandler } from './handler';
 import type { WsEvent } from './event';
 
@@ -9,15 +10,6 @@ import type { WsEvent } from './event';
  * WS connect event.
  */
 export interface WsConnect<T extends WsEvent, U extends AuthRequest> extends WebTarget {
-  /**
-   * Optional life‑cycle listener for the connect handler.
-   *
-   * - Runs inside the same cloud resource as the connect and authorizer handler.
-   * - Receives events such as request begin, request end, and internal transitions.
-   * - Useful for logging, tracing, metrics, and instrumentation.
-   */
-  readonly listener?: WsListener<T>;
-
   /**
    * Optional entry‑point authorizer for the connect handler.
    *
@@ -34,6 +26,16 @@ export interface WsConnect<T extends WsEvent, U extends AuthRequest> extends Web
    * - Invoked only when a new connection is opened.
    */
   readonly handler: WsHandler<T, void>;
+
+  /**
+   * Middleware functions wrapping the connect handler.
+   */
+  readonly middlewares?: WsMiddleware<T, void>[];
+
+  /**
+   * Optional life-cycle listener for the connect handler.
+   */
+  readonly listener?: WsListener<T>;
 
   /**
    * Enables VPC access for the connect handler.

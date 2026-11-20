@@ -30,8 +30,12 @@ export type BundlerOptions = {
   templateFile: string;
   resourceName: string;
   workspacePath?: string;
-  handler: BundlerEntrypoint;
+  projectPrefix: string;
+  projectBranch: string;
+  projectName: string;
   listener?: BundlerEntrypoint;
+  middlewares?: BundlerEntrypoint[];
+  handler: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -135,7 +139,8 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
 
   const { sourceFile, functionName } = options.handler;
 
-  const cacheKey = `${workspacePath}:${sourceFile}:${functionName}`;
+  const cacheKey = getBundleCacheKey(workspacePath, options);
+
   const cacheFile = fileCache.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
@@ -143,6 +148,7 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
   }
 
   const { dir: targetPath, name: targetName } = parse(sourceFile);
+  const { projectName, projectPrefix, projectBranch } = options;
   const { resourceName, filePrefix, target, debug } = options;
 
   const handlerName = toKebabCase(functionName);
@@ -167,6 +173,9 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
     define: {
       ...options.define,
       EZ4_RESOURCE_NAME: `'${resourceName}'`,
+      EZ4_PROJECT_BRANCH: JSON.stringify(projectBranch),
+      EZ4_PROJECT_PREFIX: JSON.stringify(projectPrefix),
+      EZ4_PROJECT_NAME: JSON.stringify(projectName),
       EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
     },
@@ -222,15 +231,25 @@ const __dirname = __EZ4_DIRNAME(__filename);
 `;
 };
 
+const getBundleCacheKey = (workspacePath: string, options: BundlerOptions) => {
+  return JSON.stringify({
+    workspacePath,
+    handler: options.handler,
+    middlewares: options.middlewares,
+    listener: options.listener
+  });
+};
+
 const getEntrypointCode = async (options: BundlerOptions) => {
   const template = await readFile(options.templateFile);
   const context = buildServiceContext(options.context ?? {});
 
-  const { handler, listener } = options;
+  const { handler, listener, middlewares = [] } = options;
+
+  const handlerImports = getHandlerImports(handler, listener, middlewares);
 
   return `
-import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
-${listener ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}'` : `const __EZ4_DISPATCH = null`};
+${handlerImports}
 
 const dispatch = async (event, context) => {
   try {
@@ -241,7 +260,7 @@ const dispatch = async (event, context) => {
     }
 
     console.error({
-      ...Runtime.getScope(),
+      traceId: Runtime.getTraceId(),
       error
     });
   }
@@ -273,6 +292,52 @@ ${template}
 
 const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
   return entrypoint.module ?? `./${entrypoint.sourceFile}`;
+};
+
+const getMiddlewareImports = (middlewares: BundlerEntrypoint[]) => {
+  const imports: string[] = [];
+  const names: string[] = [];
+
+  middlewares.forEach((entrypoint, index) => {
+    const name = `__EZ4_MIDDLEWARE_${index}`;
+
+    imports.push(`import { ${entrypoint.functionName} as ${name} } from '${getEntrypointImport(entrypoint)}';`);
+    names.push(name);
+  });
+
+  return {
+    imports: imports.join('\n'),
+    names
+  };
+};
+
+const getHandlerImports = (handler: BundlerEntrypoint, listener: BundlerEntrypoint | undefined, middlewares: BundlerEntrypoint[]) => {
+  const imports = [];
+
+  const listenerImport = listener
+    ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}';`
+    : `const __EZ4_DISPATCH = null;`;
+
+  imports.push(listenerImport);
+
+  if (!middlewares.length) {
+    imports.push(`import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';`);
+
+    return imports.join('\n');
+  }
+
+  const middlewareImports = getMiddlewareImports(middlewares);
+
+  imports.push(`import { ${handler.functionName} as __EZ4_HANDLER } from '${getEntrypointImport(handler)}';`);
+  imports.push(middlewareImports.imports);
+
+  return `
+${imports.join('\n')}
+
+const handle = [${middlewareImports.names.join(', ')}].reduceRight(
+  (next, middleware) => middleware(next),
+  __EZ4_HANDLER
+);`;
 };
 
 const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {

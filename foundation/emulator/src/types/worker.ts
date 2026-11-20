@@ -26,5 +26,6 @@ export type WorkerOptions = {
   references?: ServiceReferences;
   invoker: AnyServiceDescriptor;
   listener?: WorkerEntrypoint;
+  middlewares?: WorkerEntrypoint[];
   handler: WorkerEntrypoint;
 };

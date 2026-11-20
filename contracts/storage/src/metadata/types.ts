@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { Service } from '@ez4/common';
@@ -34,8 +34,9 @@ export type EventHandler = FunctionSignature;
 export type BucketEvent = {
   path: string;
   triggers?: BucketEventType[];
-  listener?: ServiceListener;
   handler: EventHandler;
+  middlewares?: ServiceMiddleware[];
+  listener?: ServiceListener;
   variables?: LinkedVariables;
   architecture?: ArchitectureType;
   runtime?: RuntimeType;

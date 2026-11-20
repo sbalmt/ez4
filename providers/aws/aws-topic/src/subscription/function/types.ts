@@ -17,6 +17,7 @@ export type SubscriptionFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: SubscriptionEntryPoint;
+  middlewares?: SubscriptionFunction[];
   listener?: SubscriptionFunction;
   eventSchema?: TopicEventSchema;
   context?: Record<string, ContextSource>;

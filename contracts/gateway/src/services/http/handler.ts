@@ -9,6 +9,6 @@ import type { Http } from './contract';
  * HTTP request handler.
  */
 export type HttpHandler<T extends HttpRequest> = (
-  request: HttpIncoming<T> | T,
+  request: HttpIncoming<T>,
   context: Service.Context<Http.Service | HttpProvider>
 ) => Promise<HttpResponse> | HttpResponse;

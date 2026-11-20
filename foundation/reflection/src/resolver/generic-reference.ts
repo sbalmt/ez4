@@ -7,7 +7,7 @@ import type { ClassNodes } from './type-class';
 import { getNodeFilePosition, getNodeFilePath, isInternalType } from '../helpers/node';
 import { tryModelMembers } from './model-members';
 import { isTypeInterface } from './type-interface';
-import { getTypeArguments } from './type-parameter';
+import { getTypeArguments } from './type-arguments';
 import { createObject } from './type-object';
 import { isTypeClass } from './type-class';
 import { getNewState } from './common';

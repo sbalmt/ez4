@@ -164,6 +164,8 @@ All done.
 - [Configuration](./configuration.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
+- [Listeners overview](./listeners.md)
+- [Middlewares overview](./middlewares.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

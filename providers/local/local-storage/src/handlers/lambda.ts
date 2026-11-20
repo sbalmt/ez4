@@ -17,8 +17,9 @@ export const processLambdaEvent = async (
 
   const module = createModule({
     workspacePath: options.workspacePath,
-    listener: event.listener,
     handler: event.handler,
+    middlewares: event.middlewares,
+    listener: event.listener,
     references,
     services,
     invoker: {

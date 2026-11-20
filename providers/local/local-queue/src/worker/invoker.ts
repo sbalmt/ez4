@@ -19,6 +19,8 @@ export const makeInvoker = (options: InvokerOptions, context: ProviderContext): 
   const { notify } = context;
 
   return async (invocation: ModuleInvocation) => {
+    Runtime.initialize('unknown');
+
     const traceId = getRandomUUID();
 
     const request = {
@@ -34,9 +36,7 @@ export const makeInvoker = (options: InvokerOptions, context: ProviderContext): 
     try {
       await invocation.begin(request);
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       const message = await getJsonMessage(invocation.request, schema, onCustomValidation);
 

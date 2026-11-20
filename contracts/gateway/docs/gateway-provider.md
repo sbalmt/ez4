@@ -92,7 +92,7 @@ variables: {
 - [WebSocket routes](./ws-routes.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
+- [Gateway listener](./gateway-listener.md)
 - [Gateway defaults](./gateway-defaults.md)
 
 ## License

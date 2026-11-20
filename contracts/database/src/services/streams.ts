@@ -1,5 +1,6 @@
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { TableStreamMiddleware } from './middleware';
 import type { TableStreamListener } from './listener';
 import type { TableStreamHandler } from './handler';
 import type { TableSchema } from './schemas';
@@ -14,14 +15,19 @@ export interface TableStream<T extends TableSchema> {
   readonly triggers?: StreamChangeType[];
 
   /**
-   * Life-cycle listener function for the stream.
-   */
-  readonly listener?: TableStreamListener<T>;
-
-  /**
    * Entry-point handler function for the stream.
    */
   readonly handler: TableStreamHandler<T>;
+
+  /**
+   * Middleware functions wrapping the stream handler.
+   */
+  readonly middlewares?: TableStreamMiddleware<T>[];
+
+  /**
+   * Life-cycle listener function for the stream.
+   */
+  readonly listener?: TableStreamListener<T>;
 
   /**
    * Variables associated to the handler.

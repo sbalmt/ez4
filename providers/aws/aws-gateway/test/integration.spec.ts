@@ -71,6 +71,9 @@ describe('gateway integration', { timeout: 60000 }, () => {
 
     const lambdaResource = createIntegrationFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-gateway-integration-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       type: IntegrationFunctionType.HttpRequest,
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,

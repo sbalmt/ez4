@@ -17,10 +17,12 @@ declare function handle(request: Cron.Incoming<Cron.Event | null>, context: obje
  * Entrypoint to handle EventBridge scheduler events.
  */
 export async function eventEntryPoint(payload: AnyObject | null, context: Context): Promise<void> {
-  const traceId = payload?.traceId ?? getRandomUUID();
+  Runtime.initialize(context.invokedFunctionArn);
 
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(request, milliseconds), milliseconds);
+
+  const traceId = payload?.traceId ?? getRandomUUID();
 
   const request: Cron.Incoming<Cron.Event | null> = {
     requestId: context.awsRequestId,
@@ -28,9 +30,7 @@ export async function eventEntryPoint(payload: AnyObject | null, context: Contex
     traceId
   };
 
-  Runtime.setScope({
-    traceId
-  });
+  Runtime.setTraceId(traceId);
 
   try {
     await onBegin(request);
@@ -82,7 +82,7 @@ const onDone = (request: Partial<Cron.Incoming<Cron.Event | null>>) => {
 };
 
 const onTimeout = (request: Partial<Cron.Incoming<Cron.Event | null>>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -94,7 +94,7 @@ const onTimeout = (request: Partial<Cron.Incoming<Cron.Event | null>>, timeoutAf
 };
 
 const onError = (error: unknown, request: Partial<Cron.Incoming<Cron.Event | null>>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

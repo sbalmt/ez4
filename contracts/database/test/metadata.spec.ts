@@ -34,4 +34,5 @@ describe('database service metadata', () => {
   it('assert :: stream dependencies', () => testFile('dependencies'));
   it('assert :: stream empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: stream listener', () => testFile('listener'));
+  it('assert :: stream middleware', () => testFile('middleware'));
 });

@@ -2,6 +2,7 @@ import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { BucketEventType } from '../types/event';
 import type { BucketObjectEvent } from './object';
+import type { BucketMiddleware } from './middleware';
 import type { BucketListener } from './listener';
 import type { BucketHandler } from './handler';
 
@@ -20,14 +21,19 @@ export interface BucketEvent {
   readonly triggers?: BucketEventType[];
 
   /**
-   * Life-cycle listener function for the event.
-   */
-  readonly listener?: BucketListener<BucketObjectEvent>;
-
-  /**
    * Entry-point handler function for the event.
    */
   readonly handler: BucketHandler<BucketObjectEvent>;
+
+  /**
+   * Middleware functions wrapping the event handler.
+   */
+  readonly middlewares?: BucketMiddleware[];
+
+  /**
+   * Life-cycle listener function for the event.
+   */
+  readonly listener?: BucketListener<BucketObjectEvent>;
 
   /**
    * Variables associated to the handler.

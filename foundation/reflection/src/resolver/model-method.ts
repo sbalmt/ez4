@@ -8,6 +8,7 @@ import { getNodeModifiers } from '../helpers/modifier';
 import { getNodeDocumentation } from '../helpers/documentation';
 import { tryCallableParameters } from './callable-parameters';
 import { tryCallableReturns } from './callable-returns';
+import { getTypeParameters } from './type-parameter';
 
 export type MethodNodes = MethodDeclaration | MethodSignature;
 
@@ -35,12 +36,13 @@ export const isModelMethod = (node: Node): node is MethodNodes => {
 };
 
 export const tryModelMethod = (node: Node, context: Context, state: State) => {
-  if (context.options.ignoreMethod || !isModelMethod(node) || node.typeParameters) {
+  if (context.options.ignoreMethod || !isModelMethod(node)) {
     return undefined;
   }
 
-  const returnType = tryCallableReturns(node, context, state);
-  const parameterTypes = tryCallableParameters(node, context, state);
+  const callableState = node.typeParameters ? getTypeParameters(node.typeParameters, context, state) : state;
+  const parameterTypes = tryCallableParameters(node, context, callableState);
+  const returnType = tryCallableReturns(node, context, callableState);
 
   if (!parameterTypes?.length && !returnType) {
     return undefined;

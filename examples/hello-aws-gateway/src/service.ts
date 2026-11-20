@@ -1,6 +1,6 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
-import type { apiListener } from './listener';
+import type { apiListener, apiMiddleware } from './listener';
 import type { AllRoutes } from './routes';
 
 /**
@@ -16,6 +16,8 @@ export declare class Api extends Http.Service {
    * Default API settings.
    */
   defaults: Http.UseDefaults<{
+    middlewares: [typeof apiMiddleware];
+
     /**
      * Set the default listener for the request life-cycle events.
      */

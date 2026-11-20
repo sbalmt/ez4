@@ -16,6 +16,7 @@ import type { HttpAuthorization } from './authorization';
 import type { HttpDefaults } from './defaults';
 import type { HttpProvider } from './provider';
 import type { HttpListener } from './listener';
+import type { HttpMiddleware } from './middleware';
 import type { HttpIncoming } from './incoming';
 import type { HttpResponse } from './response';
 import type { HttpRequest } from './request';
@@ -58,8 +59,9 @@ export namespace Http {
   export type AuthIncoming<T extends AuthRequest> = HttpAuthIncoming<T>;
   export type Incoming<T extends Request> = HttpIncoming<T>;
 
-  export type Listener<T extends Request> = HttpListener<T>;
   export type Handler<T extends Request> = HttpHandler<T>;
+  export type Middleware<T extends Request> = HttpMiddleware<T>;
+  export type Listener<T extends Request> = HttpListener<T>;
 
   export type Route<T extends Request = Request, U extends AuthRequest = AuthRequest> = HttpRoute<T, U>;
 

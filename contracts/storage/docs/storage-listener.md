@@ -1,6 +1,6 @@
 # EZ4: Storage Listener
 
-Storage listeners observe the lifecycle of object-event processing. They run alongside the event handler and are useful for logging, metrics, tracing, and operational notifications.
+Storage listeners observe object-event processing and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -77,7 +77,9 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [Storage service](./storage-service.md)
 - [Storage events](./storage-events.md)
 - [Storage handlers](./storage-handlers.md)
+- [Storage middlewares](./storage-middleware.md)
 - [Storage client](./storage-client.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

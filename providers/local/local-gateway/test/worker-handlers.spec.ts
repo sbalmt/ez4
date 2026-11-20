@@ -51,7 +51,27 @@ describe('worker gateway handlers', () => {
     name: 'TestHttp',
     variables: {},
     services: {},
+    defaults: {
+      middlewares: [handler('defaultMiddleware')]
+    },
     routes: [
+      {
+        path: 'GET /middleware',
+        handler: handler('middlewareResult', {
+          response: {
+            status: 200,
+            body: objectSchema({
+              order: {
+                type: 'array',
+                element: {
+                  type: 'string'
+                }
+              }
+            })
+          }
+        }),
+        middlewares: [handler('routeMiddleware')]
+      },
       {
         path: 'POST /items/{id}',
         handler: handler('request', {
@@ -160,6 +180,17 @@ describe('worker gateway handlers', () => {
 
   before(() => httpEmulator.bootstrapHandler!());
   after(() => httpEmulator.shutdownHandler!());
+
+  it('assert :: composes default middleware outside route middleware', async () => {
+    const response = await notifyHttpRequest(httpEmulator.identifier, {
+      method: 'GET',
+      path: '/middleware'
+    });
+
+    deepEqual(parseBody(response), {
+      order: ['default:before', 'route:before', 'handler', 'route:after', 'default:after']
+    });
+  });
 
   it('assert :: http request with authorizer', async () => {
     const response = await notifyHttpRequest(httpEmulator.identifier, {

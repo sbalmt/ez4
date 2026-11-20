@@ -13,7 +13,7 @@ declare const __MODULE_URL: string;
 const WORKER_URL = new URL('./worker.mjs', import.meta.url);
 
 export const createWorker = (options: WorkerOptions): WorkerInstance => {
-  const { environment, invoker, handler, listener, services = {}, references = {}, workspacePath = process.cwd() } = options;
+  const { environment, invoker, handler, listener, middlewares, services = {}, references = {}, workspacePath = process.cwd() } = options;
 
   const variables = getServiceVariables(handler.name, services);
 
@@ -36,6 +36,7 @@ export const createWorker = (options: WorkerOptions): WorkerInstance => {
       references,
       workspacePath,
       listener,
+      middlewares,
       handler,
       invoker
     });

@@ -1,5 +1,5 @@
 import type { EmulateServiceContext, EmulatorLinkedServices, LinkedVariables, ServeOptions } from '@ez4/project/library';
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 import type { InvokerIncoming, InvokerOptions } from '../worker/invoker';
 
 import { GatewayDefaults } from '@ez4/gateway/library';
@@ -7,6 +7,7 @@ import { createModule } from '@ez4/emulator';
 
 export type GatewayModuleOptions = {
   handler: FunctionSignature;
+  middlewares?: ServiceMiddleware[];
   listener?: ServiceListener | null;
   services?: EmulatorLinkedServices;
   variables?: LinkedVariables | undefined;
@@ -21,14 +22,15 @@ export const invokeGatewayModule = <T>(
   module: GatewayModuleOptions,
   request: InvokerIncoming
 ) => {
-  const { handler, listener, services = {}, variables, invoker, timeout, memory } = module;
+  const { handler, middlewares, listener, services = {}, variables, invoker, timeout, memory } = module;
 
   const instance = createModule<T>({
     workspacePath: options.workspacePath,
     references: context.makeReferences(services, handler.references),
     services: context.makeDescriptors(services),
-    listener: listener ?? undefined,
     handler,
+    middlewares,
+    listener: listener ?? undefined,
     invoker: {
       name: 'makeInvoker',
       module: '@ez4/local-gateway/worker',

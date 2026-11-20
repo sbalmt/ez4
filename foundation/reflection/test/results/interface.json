@@ -20,9 +20,9 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:Interface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "Interface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 34,
       "character": 1
@@ -115,6 +115,54 @@
         }
       },
       {
+        "type": "method",
+        "name": "generic1",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "input",
+            "value": {
+              "type": "string"
+            }
+          }
+        ],
+        "return": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "method",
+        "name": "generic2",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "input",
+            "value": {
+              "type": "unknown"
+            }
+          }
+        ],
+        "return": {
+          "type": "unknown"
+        }
+      },
+      {
+        "type": "method",
+        "name": "generic3",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "input",
+            "value": {
+              "type": "number"
+            }
+          }
+        ],
+        "return": {
+          "type": "number"
+        }
+      },
+      {
         "type": "property",
         "name": "template1",
         "value": {
@@ -134,8 +182,8 @@
         "type": "property",
         "name": "template3",
         "value": {
-          "file": "test/types/interface.ts",
           "type": "object",
+          "file": "test/types/interface.ts",
           "position": {
             "line": 14,
             "character": 1
@@ -191,12 +239,12 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:InterfaceWithDestructingParameters": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "InterfaceWithDestructingParameters",
+    "file": "test/types/interface.ts",
     "position": {
-      "character": 1,
-      "line": 57
+      "line": 62,
+      "character": 1
     },
     "modifiers": {
       "export": true
@@ -283,18 +331,18 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "EmptyInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 3,
       "character": 1
     }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:DeclareInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "DeclareInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 6,
       "character": 1
@@ -304,9 +352,9 @@
     }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:HeritageInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "HeritageInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 8,
       "character": 1
@@ -321,9 +369,9 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:ConcreteInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "ConcreteInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 22,
       "character": 1
@@ -370,18 +418,18 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:EmptyInterface2": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "EmptyInterface2",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 4,
       "character": 1
     }
   },
   "1fde277bbe30d908b1d5721b183bbe7a:TemplateInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "TemplateInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 14,
       "character": 1
@@ -402,9 +450,9 @@
     ]
   },
   "1fde277bbe30d908b1d5721b183bbe7a:BaseInterface": {
-    "file": "test/types/interface.ts",
     "type": "interface",
     "name": "BaseInterface",
+    "file": "test/types/interface.ts",
     "position": {
       "line": 10,
       "character": 1

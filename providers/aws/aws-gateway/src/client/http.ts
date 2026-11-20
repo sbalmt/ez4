@@ -28,7 +28,7 @@ export namespace HttpClient {
 
             const { authorize, method, path, namingStyle, querySchema, bodySchema, responseSchema } = operations[property];
 
-            const scope = Runtime.getScope();
+            const traceId = Runtime.getTraceId();
 
             const requestUrl = prepareRequestUrl(gatewayUrl, path, {
               ...request,
@@ -42,7 +42,7 @@ export namespace HttpClient {
               responseSchema,
               namingStyle,
               headers: {
-                ['X-Trace-Id']: scope?.traceId ?? getRandomUUID(),
+                ['X-Trace-Id']: traceId ?? getRandomUUID(),
                 ...request.headers
               },
               ...(authorize && {

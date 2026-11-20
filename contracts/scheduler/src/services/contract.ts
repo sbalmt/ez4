@@ -2,6 +2,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { LinkedVariables } from '@ez4/project/library';
 import type { CronIncoming } from './incoming';
 import type { CronListener } from './listener';
+import type { CronMiddleware } from './middleware';
 import type { CronHandler } from './handler';
 import type { CronRequest } from './request';
 import type { CronTarget } from './target';
@@ -18,6 +19,7 @@ export namespace Cron {
   export type Incoming<T extends Event | null> = CronIncoming<T>;
 
   export type Listener<T extends Event | null> = CronListener<T>;
+  export type Middleware<T extends Event | null> = CronMiddleware<T>;
   export type Handler<T extends Event | null> = CronHandler<T>;
 
   export type Target<T extends Event | null> = CronTarget<T>;

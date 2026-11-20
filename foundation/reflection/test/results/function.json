@@ -1,8 +1,8 @@
 {
   "988d986b8b2854d11263a148a23e201b:regular1": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular1",
+    "file": "test/types/function.ts",
     "position": {
       "line": 2,
       "character": 1
@@ -13,9 +13,9 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:regular2": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular2",
+    "file": "test/types/function.ts",
     "position": {
       "line": 4,
       "character": 1
@@ -29,9 +29,9 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:regular3": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular3",
+    "file": "test/types/function.ts",
     "position": {
       "line": 7,
       "character": 1
@@ -51,9 +51,9 @@
     ]
   },
   "988d986b8b2854d11263a148a23e201b:regular4": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular4",
+    "file": "test/types/function.ts",
     "position": {
       "line": 9,
       "character": 1
@@ -83,9 +83,9 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:regular5": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular5",
+    "file": "test/types/function.ts",
     "position": {
       "line": 11,
       "character": 1
@@ -119,9 +119,9 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:regular6": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular6",
+    "file": "test/types/function.ts",
     "position": {
       "line": 13,
       "character": 1
@@ -144,9 +144,9 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:regular7": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "regular7",
+    "file": "test/types/function.ts",
     "position": {
       "line": 15,
       "character": 1
@@ -159,12 +159,87 @@
       "type": "void"
     }
   },
-  "988d986b8b2854d11263a148a23e201b:destructing1": {
-    "file": "test/types/function.ts",
+  "988d986b8b2854d11263a148a23e201b:generic1": {
     "type": "function",
-    "name": "destructing1",
+    "name": "generic1",
+    "file": "test/types/function.ts",
     "position": {
       "line": 17,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "input",
+        "value": {
+          "type": "string"
+        }
+      }
+    ],
+    "return": {
+      "type": "string"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:generic2": {
+    "type": "function",
+    "name": "generic2",
+    "file": "test/types/function.ts",
+    "position": {
+      "line": 19,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "input",
+        "value": {
+          "type": "unknown"
+        }
+      }
+    ],
+    "return": {
+      "type": "unknown"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:generic3": {
+    "type": "function",
+    "name": "generic3",
+    "file": "test/types/function.ts",
+    "position": {
+      "line": 21,
+      "character": 1
+    },
+    "modifiers": {
+      "export": true,
+      "declare": true
+    },
+    "parameters": [
+      {
+        "type": "parameter",
+        "name": "input",
+        "value": {
+          "type": "number"
+        }
+      }
+    ],
+    "return": {
+      "type": "number"
+    }
+  },
+  "988d986b8b2854d11263a148a23e201b:destructing1": {
+    "type": "function",
+    "name": "destructing1",
+    "file": "test/types/function.ts",
+    "position": {
+      "line": 23,
       "character": 1
     },
     "modifiers": {
@@ -193,11 +268,11 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:destructing2": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "destructing2",
+    "file": "test/types/function.ts",
     "position": {
-      "line": 19,
+      "line": 25,
       "character": 1
     },
     "modifiers": {
@@ -227,11 +302,11 @@
     }
   },
   "988d986b8b2854d11263a148a23e201b:destructing3": {
-    "file": "test/types/function.ts",
     "type": "function",
     "name": "destructing3",
+    "file": "test/types/function.ts",
     "position": {
-      "line": 22,
+      "line": 28,
       "character": 1
     },
     "modifiers": {

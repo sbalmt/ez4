@@ -49,6 +49,58 @@ export const unexpectedError = () => {
 };
 
 /**
+ * Handler to assert middleware execution order.
+ */
+export const middlewareResult = () => {
+  return {
+    status: 200,
+    body: {
+      order: ['handler']
+    }
+  };
+};
+
+type GatewayHandler = (request: AnyObject, context: AnyObject) => unknown;
+
+/**
+ * Default middleware used to assert outer execution ordering.
+ */
+export const defaultMiddleware = (next: GatewayHandler): GatewayHandler => {
+  return async (request, context) => {
+    const response = (await next(request, context)) as AnyObject;
+
+    if (!Array.isArray(response.body?.order)) {
+      return response;
+    }
+
+    return {
+      ...response,
+      body: {
+        ...response.body,
+        order: ['default:before', ...response.body.order, 'default:after']
+      }
+    };
+  };
+};
+
+/**
+ * Route middleware used to assert inner execution ordering.
+ */
+export const routeMiddleware = (next: GatewayHandler): GatewayHandler => {
+  return async (request, context) => {
+    const response = (await next(request, context)) as AnyObject;
+
+    return {
+      ...response,
+      body: {
+        ...response.body,
+        order: ['route:before', ...response.body.order, 'route:after']
+      }
+    };
+  };
+};
+
+/**
  * Handler to test the WS connection.
  */
 export const connection = () => {};

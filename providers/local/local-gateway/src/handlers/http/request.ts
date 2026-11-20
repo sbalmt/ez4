@@ -16,11 +16,14 @@ export const processHttpRequest = async (
   const { handler, preferences } = route;
   const { provider } = handler;
 
+  const targetMiddlewares = [...(service.defaults?.middlewares ?? []), ...(route.middlewares ?? [])];
+
   return invokeGatewayModule<EmulatorResponse>(
     options,
     context,
     {
       handler,
+      middlewares: targetMiddlewares,
       listener: route.listener ?? service.defaults?.listener,
       services: provider?.services,
       timeout: route.timeout ?? service.defaults?.timeout,

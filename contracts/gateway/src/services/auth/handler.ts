@@ -8,6 +8,6 @@ import type { AuthProvider } from './provider';
  * Authorization handler.
  */
 export type AuthHandler<T extends AuthRequest> = (
-  request: AuthIncoming<T> | T,
+  request: AuthIncoming<T>,
   context: Service.Context<AuthProvider>
 ) => Promise<AuthResponse> | AuthResponse;

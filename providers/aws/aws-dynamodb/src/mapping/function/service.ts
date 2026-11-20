@@ -16,7 +16,7 @@ export const createStreamFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: StreamFunctionParameters
 ) => {
-  const { handler, variables, debug, architecture, tableSchema } = parameters;
+  const { handler, middlewares = [], variables, debug, architecture, tableSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'dbStreamEntryPoint',
@@ -25,6 +25,9 @@ export const createStreamFunction = <E extends EntryState>(
     functionName: parameters.functionName,
     description: parameters.description,
     workspacePath: parameters.workspacePath,
+    projectPrefix: parameters.projectPrefix,
+    projectBranch: parameters.projectBranch,
+    projectName: parameters.projectName,
     logLevel: debug ? LogLevel.Debug : parameters.logLevel,
     architecture: parameters.architecture,
     runtime: parameters.runtime,
@@ -41,12 +44,13 @@ export const createStreamFunction = <E extends EntryState>(
       return bundleStreamFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
         tableSchema,
+        middlewares,
         debug
       });
     }

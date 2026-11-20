@@ -191,7 +191,7 @@ tags: Queue.UseTags<{
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
-- [Queue listeners](./queue-listener.md)
+- [Queue listener](./queue-listener.md)
 - [Queue client](./queue-client.md)
 
 ## Examples
