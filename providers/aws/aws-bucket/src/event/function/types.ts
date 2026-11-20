@@ -16,6 +16,7 @@ export type BucketEventFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: BucketEventEntryPoint;
+  middlewares?: BucketEventFunction[];
   listener?: BucketEventFunction;
   context?: Record<string, ContextSource>;
   variables: (LinkedVariables | undefined)[];

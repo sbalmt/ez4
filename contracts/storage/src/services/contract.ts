@@ -3,6 +3,7 @@ import type { LinkedVariables } from '@ez4/project/library';
 import type { BucketObjectEvent } from './object';
 import type { BucketIncoming } from './incoming';
 import type { BucketListener } from './listener';
+import type { BucketMiddleware } from './middleware';
 import type { BucketRequest } from './request';
 import type { BucketHandler } from './handler';
 import type { BucketEvent } from './event';
@@ -21,6 +22,7 @@ export namespace Bucket {
   export type Request = BucketRequest;
 
   export type Listener = BucketListener<ObjectEvent>;
+  export type Middleware = BucketMiddleware;
   export type Handler = BucketHandler<ObjectEvent>;
 
   export type Event = BucketEvent;

@@ -16,7 +16,7 @@ export const createBucketEventFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: BucketEventFunctionParameters
 ) => {
-  const { handler, variables, debug, architecture } = parameters;
+  const { handler, middlewares = [], variables, debug, architecture } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 's3EntryPoint',
@@ -43,11 +43,12 @@ export const createBucketEventFunction = <E extends EntryState>(
       return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
+        middlewares,
         debug
       });
     }

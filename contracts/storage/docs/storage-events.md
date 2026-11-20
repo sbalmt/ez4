@@ -11,6 +11,7 @@ events: [
   Bucket.UseEvent<{
     path: 'uploads/*.ext';
     handler: typeof eventHandler;
+    middlewares: [typeof traceHandler];
     listener: typeof eventListener;
   }>
 ];
@@ -50,6 +51,16 @@ handler: typeof eventHandler;
 ```
 
 > Use `typeof` because the event handler is referenced by type. See [Storage handlers](./storage-handlers.md) for the handler implementation.
+
+#### Middlewares (optional)
+
+Ordered middleware functions wrapping the event handler. The first middleware executes outermost.
+
+```ts
+middlewares: [typeof traceHandler];
+```
+
+See [Storage middleware](./storage-middleware.md) for implementation and shared behavior.
 
 #### Listener (optional)
 
@@ -185,6 +196,7 @@ timeout: 120;
 
 - [Storage service](./storage-service.md)
 - [Storage handlers](./storage-handlers.md)
+- [Storage middleware](./storage-middleware.md)
 - [Storage client](./storage-client.md)
 - [Storage listener](./storage-listener.md)
 
