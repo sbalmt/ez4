@@ -7,14 +7,12 @@ import { ServiceEventType } from '@ez4/runtime';
  */
 export function apiMiddleware(next: Http.Handler<Http.Request>): Http.Handler<Http.Request> {
   return async (request, context) => {
-    const requestId = 'requestId' in request ? request.requestId : undefined;
-
-    console.log('API middleware before', requestId);
+    console.log('API middleware before', request.requestId);
 
     try {
       return await next(request, context);
     } finally {
-      console.log('API middleware after', requestId);
+      console.log('API middleware after', request.requestId);
     }
   };
 }
