@@ -18,6 +18,7 @@ export const getBundleTemplateFile = () => {
 export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     functionName,
     eventSchema,
@@ -47,6 +48,7 @@ export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctio
     },
     handler,
     listener,
+    middlewares,
     debug
   });
 };

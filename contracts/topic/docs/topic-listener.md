@@ -1,6 +1,6 @@
 # EZ4: Topic Listener
 
-Topic listeners let you observe the **lifecycle events** of subscription execution. Listeners run alongside handlers and receive typed execution events and contextual information about the topic environment. Listeners do **not** modify the request, they only observe execution flow.
+Topic listeners observe the lifecycle of function subscription execution. They receive typed events and topic service context and follow the shared EZ4 [listener behavior](../../../documentation/listener.md).
 
 ## Listener implementation
 
@@ -49,14 +49,9 @@ Listeners receive one or more of the following event types during the lifecycle 
 - **Error** - emitted when validation or handler execution throws an exception.
 - **End** - emitted at the end of processing, regardless of success or failure.
 
-## Listener failures
+## Topic-specific behavior
 
-Listener failures follow the event's role in the execution lifecycle:
-
-- `Begin` and `Ready` are fail-fast. If either listener event fails, topic event processing fails and the delivery can be retried.
-- `Done`, `Timeout`, `Error`, and `End` are best-effort notifications. A failure in one of these listener events is logged and does not change event processing or delivery outcome.
-
-Listeners should keep best-effort events focused on observability, such as logging, metrics, and tracing. They should not perform required event processing in those events.
+Fail-fast listener errors stop topic processing and allow the delivery to be retried. Best-effort listener errors do not change the topic delivery outcome.
 
 ## What's next
 
@@ -64,7 +59,9 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
+- [Topic middleware](./topic-middleware.md)
 - [Topic client](./topic-client.md)
+- [Listener overview](../../../documentation/listener.md)
 
 ## License
 

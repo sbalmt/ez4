@@ -10,6 +10,7 @@ import { InvalidParameterError } from '@ez4/aws-common';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
 import { getQueueState } from '@ez4/aws-queue';
+import { arrayUnique } from '@ez4/utils';
 
 import { SubscriptionServiceName } from '../subscription/types';
 import { createSubscriptionFunction } from '../subscription/function/service';
@@ -39,7 +40,7 @@ export const prepareSubscriptions = (
           throw new InvalidParameterError(SubscriptionServiceName, `lambda subscription not supported for FIFO topics.`);
         }
 
-        const { handler, listener } = subscription;
+        const { handler, middlewares = [], listener } = subscription;
 
         const internalName = getInternalName(service, handler.name);
 
@@ -49,7 +50,11 @@ export const prepareSubscriptions = (
           const { defaults, release, tags } = options;
 
           const subscriptionName = getFunctionName(service, handler.name, options);
-          const dependencies = context.getDependencyFiles(handler.file);
+
+          const dependencies = arrayUnique([
+            ...context.getDependencyFiles(handler.file),
+            ...middlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+          ]);
 
           const {
             runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -88,6 +93,11 @@ export const prepareSubscriptions = (
               module: handler.module,
               dependencies
             },
+            middlewares: middlewares.map((middleware) => ({
+              functionName: middleware.name,
+              sourceFile: middleware.file,
+              module: middleware.module
+            })),
             listener: listener && {
               functionName: listener.name,
               sourceFile: listener.file,

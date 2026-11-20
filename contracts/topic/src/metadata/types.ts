@@ -1,4 +1,4 @@
-import type { FunctionSignature, ServiceListener } from '@ez4/common/library';
+import type { FunctionSignature, ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 import type { LinkedVariables, ServiceMetadata } from '@ez4/project/library';
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { ObjectSchema, UnionSchema } from '@ez4/schema';
@@ -47,8 +47,9 @@ export enum TopicSubscriptionType {
 
 export type TopicLambdaSubscription = {
   type: TopicSubscriptionType.Lambda;
-  listener?: ServiceListener;
   handler: TopicSubscriptionHandler;
+  middlewares?: ServiceMiddleware[];
+  listener?: ServiceListener;
   variables?: LinkedVariables;
   architecture?: ArchitectureType;
   runtime?: RuntimeType;

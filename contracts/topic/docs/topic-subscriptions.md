@@ -12,8 +12,9 @@ A direct function subscription invokes a handler whenever the topic receives a m
 
 ```ts
 Topic.UseSubscription<{
-  handler: typeof processEvent;
   listener: typeof topicListener;
+  middlewares: [typeof traceHandler];
+  handler: typeof processEvent;
 }>;
 ```
 
@@ -74,6 +75,16 @@ listener: typeof topicListener;
 ```
 
 > Use `typeof` because the subscription listener is referenced by type. See the topic [listener](./topic-listener.md) for more details.
+
+#### Middlewares (optional)
+
+Ordered middleware functions that wrap the function subscription handler. Middleware runs after validation, and the first middleware executes outermost.
+
+```ts
+middlewares: [typeof traceHandler];
+```
+
+See the topic [middleware](./topic-middleware.md) documentation for implementation, ordering, and short-circuiting.
 
 #### Variables (optional)
 
@@ -190,6 +201,7 @@ vpc: true;
 - [Topic service](./topic-service.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
+- [Topic middleware](./topic-middleware.md)
 - [Topic listeners](./topic-listener.md)
 - [Topic client](./topic-client.md)
 
