@@ -33,8 +33,9 @@ export type BundlerOptions = {
   projectPrefix: string;
   projectBranch: string;
   projectName: string;
-  handler: BundlerEntrypoint;
   listener?: BundlerEntrypoint;
+  middlewares?: BundlerEntrypoint[];
+  handler: BundlerEntrypoint;
   context?: Record<string, LinkedContext>;
   define?: Record<string, string>;
   debug?: boolean;
@@ -138,7 +139,8 @@ export const buildFunctionBundle = async (provider: string, options: BundlerOpti
 
   const { sourceFile, functionName } = options.handler;
 
-  const cacheKey = `${workspacePath}:${sourceFile}:${functionName}`;
+  const cacheKey = getBundleCacheKey(workspacePath, options);
+
   const cacheFile = fileCache.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
@@ -229,15 +231,25 @@ const __dirname = __EZ4_DIRNAME(__filename);
 `;
 };
 
+const getBundleCacheKey = (workspacePath: string, options: BundlerOptions) => {
+  return JSON.stringify({
+    workspacePath,
+    handler: options.handler,
+    middlewares: options.middlewares,
+    listener: options.listener
+  });
+};
+
 const getEntrypointCode = async (options: BundlerOptions) => {
   const template = await readFile(options.templateFile);
   const context = buildServiceContext(options.context ?? {});
 
-  const { handler, listener } = options;
+  const { handler, listener, middlewares = [] } = options;
+
+  const handlerImports = getHandlerImports(handler, listener, middlewares);
 
   return `
-import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';
-${listener ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}'` : `const __EZ4_DISPATCH = null`};
+${handlerImports}
 
 const dispatch = async (event, context) => {
   try {
@@ -280,6 +292,52 @@ ${template}
 
 const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {
   return entrypoint.module ?? `./${entrypoint.sourceFile}`;
+};
+
+const getMiddlewareImports = (middlewares: BundlerEntrypoint[]) => {
+  const imports: string[] = [];
+  const names: string[] = [];
+
+  middlewares.forEach((entrypoint, index) => {
+    const name = `__EZ4_MIDDLEWARE_${index}`;
+
+    imports.push(`import { ${entrypoint.functionName} as ${name} } from '${getEntrypointImport(entrypoint)}';`);
+    names.push(name);
+  });
+
+  return {
+    imports: imports.join('\n'),
+    names
+  };
+};
+
+const getHandlerImports = (handler: BundlerEntrypoint, listener: BundlerEntrypoint | undefined, middlewares: BundlerEntrypoint[]) => {
+  const imports = [];
+
+  const listenerImport = listener
+    ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}';`
+    : `const __EZ4_DISPATCH = null;`;
+
+  imports.push(listenerImport);
+
+  if (!middlewares.length) {
+    imports.push(`import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';`);
+
+    return imports.join('\n');
+  }
+
+  const middlewareImports = getMiddlewareImports(middlewares);
+
+  imports.push(`import { ${handler.functionName} as __EZ4_HANDLER } from '${getEntrypointImport(handler)}';`);
+  imports.push(middlewareImports.imports);
+
+  return `
+${imports.join('\n')}
+
+const handle = [${middlewareImports.names.join(', ')}].reduceRight(
+  (next, middleware) => middleware(next),
+  __EZ4_HANDLER
+);`;
 };
 
 const buildServiceContext = (linkedContext: Record<string, LinkedContext>) => {
