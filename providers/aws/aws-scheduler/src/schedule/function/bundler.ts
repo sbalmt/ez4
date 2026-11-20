@@ -18,6 +18,7 @@ export const getBundleTemplateFile = () => {
 export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     functionName,
     workspacePath,
@@ -46,6 +47,7 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
       __EZ4_SCHEMA: eventSchema ? JSON.stringify(eventSchema) : 'undefined'
     },
     handler,
+    middlewares,
     listener,
     debug
   });

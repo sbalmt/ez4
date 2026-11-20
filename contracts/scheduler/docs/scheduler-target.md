@@ -9,6 +9,7 @@ A scheduler target is declared using `Cron.UseTarget` inside the scheduler servi
 ```ts
 target: Cron.UseTarget<{
   handler: typeof eventHandler;
+  middlewares: [typeof traceHandler];
   listener: typeof schedulerListener;
   timeout: 30;
 }>;
@@ -26,6 +27,16 @@ Defines the entry-point function for scheduled events.
 ```ts
 handler: typeof eventHandler;
 ```
+
+#### Middlewares (optional)
+
+Ordered middleware functions that wrap the target handler. The first middleware executes outermost.
+
+```ts
+middlewares: [typeof traceHandler];
+```
+
+See the scheduler [middleware](./scheduler-middleware.md) documentation for shared implementation and ordering details.
 
 #### Listener (optional)
 
@@ -146,6 +157,7 @@ vpc: true;
 - [Scheduler service](./scheduler-service.md)
 - [Scheduler requests](./scheduler-requests.md)
 - [Scheduler listener](./scheduler-listener.md)
+- [Scheduler middleware](./scheduler-middleware.md)
 - [Scheduler client](./scheduler-client.md)
 
 ## License

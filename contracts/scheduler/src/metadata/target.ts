@@ -14,6 +14,7 @@ import {
   getPropertyBoolean,
   getReferenceType,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -128,6 +129,11 @@ const getTypeFromMembers = (
 
       case 'listener': {
         target.listener = getServiceListener(member.value, errorList);
+        break;
+      }
+
+      case 'middlewares': {
+        target.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

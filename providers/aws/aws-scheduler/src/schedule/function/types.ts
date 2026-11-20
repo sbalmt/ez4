@@ -17,6 +17,7 @@ export type TargetFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: TargetEntryPoint;
+  middlewares?: TargetFunction[];
   listener?: TargetFunction;
   eventSchema?: CronEventSchema;
   context?: Record<string, ContextSource>;

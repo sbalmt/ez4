@@ -16,7 +16,7 @@ export const createTargetFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: TargetFunctionParameters
 ) => {
-  const { handler, variables, debug, architecture, eventSchema } = parameters;
+  const { handler, middlewares = [], variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'eventEntryPoint',
@@ -43,12 +43,13 @@ export const createTargetFunction = <E extends EntryState>(
       return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
         eventSchema,
+        middlewares,
         debug
       });
     }

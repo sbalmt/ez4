@@ -1,5 +1,6 @@
 import type { ArchitectureType, LogLevel, RuntimeType } from '@ez4/project';
 import type { LinkedVariables } from '@ez4/project/library';
+import type { CronMiddleware } from './middleware';
 import type { CronListener } from './listener';
 import type { CronHandler } from './handler';
 import type { CronEvent } from './event';
@@ -9,14 +10,19 @@ import type { CronEvent } from './event';
  */
 export interface CronTarget<T extends CronEvent | null> {
   /**
-   * Target listener.
-   */
-  readonly listener?: CronListener<T>;
-
-  /**
    * Target handler.
    */
   readonly handler: CronHandler<T>;
+
+  /**
+   * Middleware functions wrapping the target handler.
+   */
+  readonly middlewares?: CronMiddleware<T>[];
+
+  /**
+   * Target listener.
+   */
+  readonly listener?: CronListener<T>;
 
   /**
    * Variables associated to the target.

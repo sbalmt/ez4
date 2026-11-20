@@ -6,6 +6,7 @@ import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/lib
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
+import { arrayUnique } from '@ez4/utils';
 
 import { createTargetFunction } from '../schedule/function/service';
 import { getInternalName, getTargetName } from './utils';
@@ -28,8 +29,9 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     timeout = Defaults.Timeout,
     debug = options.debug,
     variables,
-    listener,
     handler,
+    middlewares = [],
+    listener,
     files,
     vpc
   } = service.target;
@@ -43,7 +45,11 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
   }
 
   const targetName = getTargetName(service, handler.name, options);
-  const dependencies = context.getDependencyFiles(handler.file);
+
+  const dependencies = arrayUnique([
+    ...context.getDependencyFiles(handler.file),
+    ...middlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+  ]);
 
   const logGroupState = createLogGroup(state, {
     retention: logRetention,
@@ -68,6 +74,11 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
       module: handler.module,
       dependencies
     },
+    middlewares: middlewares.map((middleware) => ({
+      functionName: middleware.name,
+      sourceFile: middleware.file,
+      module: middleware.module
+    })),
     listener: listener && {
       functionName: listener.name,
       sourceFile: listener.file,
