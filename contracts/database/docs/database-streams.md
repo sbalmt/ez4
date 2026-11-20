@@ -57,7 +57,7 @@ Ordered middleware functions wrapping the stream handler. The first middleware e
 middlewares: [typeof traceHandler];
 ```
 
-See [database middleware](./database-middleware.md) for implementation and shared behavior.
+See [database middlewares](./database-middleware.md) for implementation and shared behavior.
 
 #### Triggers (optional)
 
@@ -168,7 +168,7 @@ vpc: true;
 - [Database engine](./database-engine.md)
 - [Database handler](./database-handler.md)
 - [Database listener](./database-listener.md)
-- [Database middleware](./database-middleware.md)
+- [Database middlewares](./database-middleware.md)
 - [Database client](./database-client.md)
 - [Database queries](./database-queries.md)
 

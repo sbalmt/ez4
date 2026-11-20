@@ -1,6 +1,6 @@
-# EZ4: Gateway Middleware
+# EZ4: Gateway Middlewares
 
-Gateway middleware wraps HTTP and WebSocket handlers. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Gateway middleware wraps HTTP and WebSocket handlers. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -44,8 +44,8 @@ Gateway authorizers execute in separate resources. Route middleware wraps only t
 - [WebSocket routes](./ws-routes.md)
 - [Gateway defaults](./gateway-defaults.md)
 - [Gateway handlers](./gateway-handler.md)
-- [Gateway listeners](./gateway-listener.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Gateway listener](./gateway-listener.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 

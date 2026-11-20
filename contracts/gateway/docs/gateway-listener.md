@@ -1,6 +1,6 @@
 # EZ4: Gateway Listener
 
-Gateway listeners observe HTTP/WS lifecycle events and follow the shared EZ4 [listener behavior](../../../documentation/listener.md).
+Gateway listeners observe HTTP/WS lifecycle events and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -64,10 +64,10 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [WebSocket routes](./ws-routes.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway middleware](./gateway-middleware.md)
+- [Gateway middlewares](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
-- [Listener overview](../../../documentation/listener.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

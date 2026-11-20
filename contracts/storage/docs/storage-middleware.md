@@ -1,6 +1,6 @@
-# EZ4: Storage Middleware
+# EZ4: Storage Middlewares
 
-Storage middleware wraps object-event handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Storage middleware wraps object-event handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -39,7 +39,7 @@ Middleware errors are handled like event handler errors. Middleware runs only af
 - [Storage handlers](./storage-handlers.md)
 - [Storage listener](./storage-listener.md)
 - [Storage client](./storage-client.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 

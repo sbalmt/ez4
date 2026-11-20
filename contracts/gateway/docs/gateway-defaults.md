@@ -61,7 +61,7 @@ Ordered middleware functions wrapping every HTTP or WebSocket handler. Default m
 middlewares: [typeof globalMiddleware];
 ```
 
-See [Gateway middleware](./gateway-middleware.md) for composition and authorizer boundaries.
+See [Gateway middlewares](./gateway-middleware.md) for composition and authorizer boundaries.
 
 #### Listener (optional)
 
@@ -197,8 +197,8 @@ debug: true;
 - [WebSocket routes](./ws-routes.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
-- [Gateway middleware](./gateway-middleware.md)
+- [Gateway listener](./gateway-listener.md)
+- [Gateway middlewares](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 
 ## License

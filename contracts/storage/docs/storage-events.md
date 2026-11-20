@@ -60,7 +60,7 @@ Ordered middleware functions wrapping the event handler. The first middleware ex
 middlewares: [typeof traceHandler];
 ```
 
-See [Storage middleware](./storage-middleware.md) for implementation and shared behavior.
+See [Storage middlewares](./storage-middleware.md) for implementation and shared behavior.
 
 #### Listener (optional)
 
@@ -196,7 +196,7 @@ timeout: 120;
 
 - [Storage service](./storage-service.md)
 - [Storage handlers](./storage-handlers.md)
-- [Storage middleware](./storage-middleware.md)
+- [Storage middlewares](./storage-middleware.md)
 - [Storage client](./storage-client.md)
 - [Storage listener](./storage-listener.md)
 

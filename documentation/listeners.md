@@ -96,7 +96,7 @@ Because listeners run around validation and handler execution, they can observe 
 - [Configuration](./configuration.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
-- [Middleware overview](./middleware.md)
+- [Middlewares overview](./middlewares.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

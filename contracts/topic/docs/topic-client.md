@@ -25,7 +25,7 @@ export async function anotherHandler(_request: any, { myTopic }: Service.Context
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic listener](./topic-listener.md)
 
 ## License
 

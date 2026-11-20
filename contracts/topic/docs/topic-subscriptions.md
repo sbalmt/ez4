@@ -84,7 +84,7 @@ Ordered middleware functions that wrap the function subscription handler. Middle
 middlewares: [typeof traceHandler];
 ```
 
-See the topic [middleware](./topic-middleware.md) documentation for implementation, ordering, and short-circuiting.
+See the topic [middlewares](./topic-middleware.md) documentation for implementation, ordering, and short-circuiting.
 
 #### Variables (optional)
 
@@ -201,8 +201,8 @@ vpc: true;
 - [Topic service](./topic-service.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic middleware](./topic-middleware.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic middlewares](./topic-middleware.md)
+- [Topic listener](./topic-listener.md)
 - [Topic client](./topic-client.md)
 
 ## License

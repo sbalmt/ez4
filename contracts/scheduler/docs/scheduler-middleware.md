@@ -1,6 +1,6 @@
-# EZ4: Scheduler Middleware
+# EZ4: Scheduler Middlewares
 
-Scheduler middleware wraps target handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Scheduler middleware wraps target handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -38,7 +38,7 @@ Middleware errors are handled like target handler errors. Middleware runs only a
 - [Scheduler requests](./scheduler-requests.md)
 - [Scheduler listener](./scheduler-listener.md)
 - [Scheduler client](./scheduler-client.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 

@@ -104,8 +104,8 @@ A well‑structured EZ4 project keeps global infrastructure in root‑level cont
 - [Configuration](./configuration.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
-- [Listener overview](./listener.md)
-- [Middleware overview](./middleware.md)
+- [Listeners overview](./listeners.md)
+- [Middlewares overview](./middlewares.md)
 - [Philosophy](./philosophy.md)
 
 ## License

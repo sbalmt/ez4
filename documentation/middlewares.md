@@ -1,4 +1,4 @@
-# EZ4: Middleware
+# EZ4: Middlewares
 
 Middleware wraps a user handler while preserving the handler's request and context contract. Contracts that support middleware expose an ordered `middlewares` tuple.
 
@@ -93,7 +93,7 @@ sequenceDiagram
 - [Configuration](./configuration.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
-- [Listener overview](./listener.md)
+- [Listeners overview](./listeners.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

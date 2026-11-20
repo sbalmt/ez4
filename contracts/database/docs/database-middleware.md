@@ -1,6 +1,6 @@
-# EZ4: Database Middleware
+# EZ4: Database Middlewares
 
-Database middleware wraps table stream handler execution after stream request validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Database middleware wraps table stream handler execution after stream request validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -37,7 +37,7 @@ Middleware errors follow the stream handler retry behavior of the selected datab
 - [Database handler](./database-handler.md)
 - [Database listener](./database-listener.md)
 - [Database client](./database-client.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 

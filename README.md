@@ -76,8 +76,8 @@ Read the [quick start](./documentation/quick-start.md) guide and explore the exa
 - [Configuration](./documentation/configuration.md)
 - [Deployment overview](./documentation/deployment.md)
 - [Contracts overview](./documentation/contracts.md)
-- [Middleware overview](./documentation/middleware.md)
-- [Listener overview](./documentation/listener.md)
+- [Middlewares overview](./documentation/middlewares.md)
+- [Listeners overview](./documentation/listeners.md)
 - [Architecture overview](./documentation/architecture.md)
 - [Philosophy](./documentation/philosophy.md)
 

@@ -1,6 +1,6 @@
 # EZ4: Topic Listener
 
-Topic listeners observe the lifecycle of function subscription execution. They receive typed events and topic service context and follow the shared EZ4 [listener behavior](../../../documentation/listener.md).
+Topic listeners observe the lifecycle of function subscription execution. They receive typed events and topic service context and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -59,9 +59,9 @@ Fail-fast listener errors stop topic processing and allow the delivery to be ret
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic middleware](./topic-middleware.md)
+- [Topic middlewares](./topic-middleware.md)
 - [Topic client](./topic-client.md)
-- [Listener overview](../../../documentation/listener.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

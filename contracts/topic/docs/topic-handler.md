@@ -12,7 +12,7 @@ export function myHandler(request: Topic.Incoming<MyTopicEvent>, context: Servic
 
 > Topic handlers use the topic service as their context provider.
 
-## Handler middleware
+## Handler middlewares
 
 Function subscriptions can wrap their handler with ordered [middleware](./topic-middleware.md). Middleware runs after validation and immediately before the next middleware or user handler.
 
@@ -46,8 +46,8 @@ All fields are validated and transformed according to the declared topic service
 - [Topic service](./topic-service.md)
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
-- [Topic middleware](./topic-middleware.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic middlewares](./topic-middleware.md)
+- [Topic listener](./topic-listener.md)
 - [Topic client](./topic-client.md)
 
 ## License

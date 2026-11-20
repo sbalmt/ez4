@@ -1,6 +1,6 @@
 # EZ4: Queue Listener
 
-Listeners observe the lifecycle of queue subscription execution. They receive typed events and queue service context and follow the shared EZ4 [listener behavior](../../../documentation/listener.md).
+Listeners observe the lifecycle of queue subscription execution. They receive typed events and queue service context and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -61,9 +61,9 @@ A handler-requested retry still counts as successful handler completion. Listene
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
-- [Queue middleware](./queue-middleware.md)
+- [Queue middlewares](./queue-middleware.md)
 - [Queue client](./queue-client.md)
-- [Listener overview](../../../documentation/listener.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

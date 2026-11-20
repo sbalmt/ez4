@@ -12,7 +12,7 @@ export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.C
 
 > Queue handlers use the queue service as its context, check queue [service](./queue-service.md) for more details.
 
-## Handler middleware
+## Handler middlewares
 
 Subscriptions can wrap their handler with ordered [middleware](./queue-middleware.md). Middleware runs after validation and immediately before the next middleware or user handler. It can observe handler execution, short-circuit it, and catch or modify its result.
 
@@ -56,7 +56,7 @@ All fields are validated and transformed according to the declared queue service
 - [Queue service](./queue-service.md)
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
-- [Queue middleware](./queue-middleware.md)
+- [Queue middlewares](./queue-middleware.md)
 - [Queue listener](./queue-listener.md)
 - [Queue client](./queue-client.md)
 

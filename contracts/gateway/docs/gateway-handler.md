@@ -19,7 +19,7 @@ export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Co
 
 > For better context isolation and shared configuration, use gateway [providers](./gateway-provider.md).
 
-## Handler middleware
+## Handler middlewares
 
 HTTP and WebSocket handlers can be wrapped with ordered [middleware](./gateway-middleware.md). Gateway default middleware executes before route-specific middleware.
 
@@ -134,8 +134,8 @@ Exceptions are automatically captured:
 - [HTTP routes](./http-routes.md)
 - [WebSocket routes](./ws-routes.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
-- [Gateway middleware](./gateway-middleware.md)
+- [Gateway listener](./gateway-listener.md)
+- [Gateway middlewares](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

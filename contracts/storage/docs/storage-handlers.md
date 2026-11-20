@@ -12,7 +12,7 @@ export function eventHandler(request: Bucket.Incoming, context: Service.Context<
 
 > Storage handlers use the storage service as their context provider. See [Storage events](./storage-events.md) for the handler declaration and execution options.
 
-## Handler middleware
+## Handler middlewares
 
 Storage events can wrap handlers with ordered [middleware](./storage-middleware.md). Middleware runs after validation and immediately before the user handler.
 
@@ -45,7 +45,7 @@ Handlers receive a `Bucket.Incoming` value containing the object event and reque
 
 - [Storage service](./storage-service.md)
 - [Storage events](./storage-events.md)
-- [Storage middleware](./storage-middleware.md)
+- [Storage middlewares](./storage-middleware.md)
 - [Storage listener](./storage-listener.md)
 - [Storage client](./storage-client.md)
 

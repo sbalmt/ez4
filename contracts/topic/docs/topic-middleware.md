@@ -1,6 +1,6 @@
-# EZ4: Topic Middleware
+# EZ4: Topic Middlewares
 
-Topic middleware wraps function subscription handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Topic middleware wraps function subscription handler execution after event validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -37,9 +37,9 @@ Middleware errors are handled like handler errors. Returning without calling `ne
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic listener](./topic-listener.md)
 - [Topic client](./topic-client.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 

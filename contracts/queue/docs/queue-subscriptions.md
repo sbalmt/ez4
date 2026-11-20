@@ -62,7 +62,7 @@ Ordered middleware functions that wrap the subscription handler.
 middlewares: [typeof traceHandler];
 ```
 
-Lifecycle listeners are not middleware: listeners observe events, while middleware participates in handler execution. See the queue [middleware](./queue-middleware.md) documentation for implementation and ordering details.
+Lifecycle listeners are not middleware: listeners observe events, while middleware participates in handler execution. See the queue [middlewares](./queue-middleware.md) documentation for implementation and ordering details.
 
 #### Variables (optional)
 
@@ -187,8 +187,8 @@ vpc: true;
 - [Queue service](./queue-service.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
-- [Queue middleware](./queue-middleware.md)
-- [Queue listeners](./queue-listener.md)
+- [Queue middlewares](./queue-middleware.md)
+- [Queue listener](./queue-listener.md)
 - [Queue client](./queue-client.md)
 
 ## License

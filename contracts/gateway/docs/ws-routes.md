@@ -64,7 +64,7 @@ Ordered middleware functions wrapping the connect, message, or disconnect handle
 middlewares: [typeof routeMiddleware];
 ```
 
-See [Gateway middleware](./gateway-middleware.md) for implementation and composition details.
+See [Gateway middlewares](./gateway-middleware.md) for implementation and composition details.
 
 #### Authorizer (optional, connect only)
 
@@ -228,8 +228,8 @@ vpc: true;
 - [WebSocket responses](./ws-responses.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
-- [Gateway middleware](./gateway-middleware.md)
+- [Gateway listener](./gateway-listener.md)
+- [Gateway middlewares](./gateway-middleware.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

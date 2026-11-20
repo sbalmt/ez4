@@ -1,6 +1,6 @@
-# EZ4: Queue Middleware
+# EZ4: Queue Middlewares
 
-Queue middleware wraps subscription handler execution after message validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middleware.md).
+Queue middleware wraps subscription handler execution after message validation and transformation. It follows the shared EZ4 [middleware behavior](../../../documentation/middlewares.md).
 
 ## Middleware implementation
 
@@ -40,9 +40,9 @@ Middleware errors are handled like handler errors and can cause the message to b
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
 - [Queue handlers](./queue-handler.md)
-- [Queue listeners](./queue-listener.md)
+- [Queue listener](./queue-listener.md)
 - [Queue client](./queue-client.md)
-- [Middleware overview](../../../documentation/middleware.md)
+- [Middlewares overview](../../../documentation/middlewares.md)
 
 ## License
 
