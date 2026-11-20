@@ -1,7 +1,7 @@
 import type { Environment } from '@ez4/common';
 import type { Cron } from '@ez4/scheduler';
 import type { schedulerListener } from './listener';
-import type { dynamicTargetHandler, staticTargetHandler } from './handlers';
+import type { dynamicTargetHandler, schedulerMiddleware, staticTargetHandler } from './handlers';
 import type { DynamicEvent } from './types';
 
 /**
@@ -39,8 +39,9 @@ export declare class RateEvent extends Cron.Service {
    * Event target.
    */
   target: Cron.UseTarget<{
-    listener: typeof schedulerListener;
     handler: typeof staticTargetHandler;
+    middlewares: [typeof schedulerMiddleware];
+    listener: typeof schedulerListener;
   }>;
 }
 
@@ -79,8 +80,9 @@ export declare class CronEvent extends Cron.Service {
    * Event target.
    */
   target: Cron.UseTarget<{
-    listener: typeof schedulerListener;
     handler: typeof staticTargetHandler;
+    middlewares: [typeof schedulerMiddleware];
+    listener: typeof schedulerListener;
   }>;
 }
 
@@ -107,8 +109,9 @@ export declare class DynamicCron extends Cron.Service<DynamicEvent> {
    * Event target.
    */
   target: Cron.UseTarget<{
-    listener: typeof schedulerListener;
     handler: typeof dynamicTargetHandler;
+    middlewares: [typeof schedulerMiddleware];
+    listener: typeof schedulerListener;
   }>;
 
   /**
