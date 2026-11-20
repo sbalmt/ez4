@@ -10,11 +10,13 @@ export declare class TestStorage extends Bucket.Service {
   ];
 }
 
-export function firstMiddleware(next: Bucket.Handler): Bucket.Handler {
+export function firstMiddleware<T extends Bucket.ObjectEvent>(next: Bucket.Handler): Bucket.Handler {
+  void (0 as unknown as T);
   return (request, context) => next(request, context);
 }
 
-export function secondMiddleware(next: Bucket.Handler): Bucket.Handler {
+export function secondMiddleware<T extends Bucket.ObjectEvent>(next: Bucket.Handler): Bucket.Handler {
+  void (0 as unknown as T);
   return (request, context) => next(request, context);
 }
 

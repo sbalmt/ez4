@@ -21,11 +21,11 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
   client: Client<TestDatabase>;
 }
 
-export function firstMiddleware(next: Database.Handler<TestSchema>): Database.Handler<TestSchema> {
+export function firstMiddleware<T extends Database.Schema>(next: Database.Handler<T>): Database.Handler<T> {
   return (request, context) => next(request, context);
 }
 
-export function secondMiddleware(next: Database.Handler<TestSchema>): Database.Handler<TestSchema> {
+export function secondMiddleware<T extends Database.Schema>(next: Database.Handler<T>): Database.Handler<T> {
   return (request, context) => next(request, context);
 }
 

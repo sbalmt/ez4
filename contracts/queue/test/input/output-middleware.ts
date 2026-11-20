@@ -7,18 +7,21 @@ interface TestMessage extends Queue.Message {
 export declare class TestQueue extends Queue.Unordered<TestMessage> {
   subscriptions: [
     Queue.UseSubscription<{
+      listener: typeof testListener;
       middlewares: [typeof firstMiddleware, typeof secondMiddleware];
       handler: typeof testHandler;
     }>
   ];
 }
 
-export function firstMiddleware(next: Queue.Handler<TestMessage>): Queue.Handler<TestMessage> {
+export function firstMiddleware<T extends Queue.Message>(next: Queue.Handler<T>): Queue.Handler<T> {
   return (request, context) => next(request, context);
 }
 
-export function secondMiddleware(next: Queue.Handler<TestMessage>): Queue.Handler<TestMessage> {
+export function secondMiddleware<T extends Queue.Message>(next: Queue.Handler<T>): Queue.Handler<T> {
   return (request, context) => next(request, context);
 }
+
+export function testListener<T extends Queue.Message>(_event: Queue.ServiceEvent<T>) {}
 
 export function testHandler(_request: Queue.Incoming<TestMessage>) {}

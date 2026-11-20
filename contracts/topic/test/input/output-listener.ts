@@ -16,6 +16,6 @@ export declare class TestTopic extends Topic.Unordered<TestEvent> {
   ];
 }
 
-export function testListener(): void {}
+export function testListener<T extends Topic.Event>(_event: Topic.ServiceEvent<T>): void {}
 
 export function testHandler(_request: Topic.Incoming<TestEvent>) {}

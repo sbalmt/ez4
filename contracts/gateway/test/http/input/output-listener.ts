@@ -13,7 +13,7 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-function testListener(): void {}
+function testListener<T extends Http.Request>(_event: Http.ServiceEvent<T>): void {}
 
 function testHandler(): Http.SuccessEmptyResponse {
   return {

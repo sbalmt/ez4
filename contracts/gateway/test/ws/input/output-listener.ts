@@ -23,4 +23,4 @@ function disconnectHandler() {}
 
 function messageHandler() {}
 
-function testListener() {}
+function testListener<T extends Ws.Request | Ws.Event>(_event: Ws.ServiceEvent<T>) {}

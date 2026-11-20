@@ -21,6 +21,6 @@ export declare class TestDatabase extends Database.Service<TestEngine> {
   client: Client<TestDatabase>;
 }
 
-async function streamListener() {}
+async function streamListener<T extends Database.Schema>(_event: Database.ServiceEvent<T>) {}
 
 async function streamHandler(_change: StreamAnyChange<TestSchema>) {}

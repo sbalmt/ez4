@@ -9,11 +9,11 @@ export declare class TestScheduler extends Cron.Service {
   }>;
 }
 
-export function firstMiddleware(next: Cron.Handler<null>): Cron.Handler<null> {
+export function firstMiddleware<T extends Cron.Event | null>(next: Cron.Handler<T>): Cron.Handler<T> {
   return (request, context) => next(request, context);
 }
 
-export function secondMiddleware(next: Cron.Handler<null>): Cron.Handler<null> {
+export function secondMiddleware<T extends Cron.Event | null>(next: Cron.Handler<T>): Cron.Handler<T> {
   return (request, context) => next(request, context);
 }
 

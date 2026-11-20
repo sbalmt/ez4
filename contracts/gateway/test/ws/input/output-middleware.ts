@@ -19,13 +19,11 @@ export declare class TestService extends Ws.Service<{}> {
   }>;
 }
 
-export function defaultMiddleware(
-  next: Ws.Handler<Ws.Request | Ws.Event, Ws.Response | void>
-): Ws.Handler<Ws.Request | Ws.Event, Ws.Response | void> {
+export function defaultMiddleware<T extends Ws.Request | Ws.Event, U extends Ws.Response | void>(next: Ws.Handler<T, U>): Ws.Handler<T, U> {
   return (request, context) => next(request, context);
 }
 
-export function connectMiddleware(next: Ws.Handler<Ws.Event, void>): Ws.Handler<Ws.Event, void> {
+export function connectMiddleware<T extends Ws.Event>(next: Ws.Handler<T, void>): Ws.Handler<T, void> {
   return (request, context) => next(request, context);
 }
 

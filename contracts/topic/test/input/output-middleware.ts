@@ -13,11 +13,11 @@ export declare class TestTopic extends Topic.Unordered<TestEvent> {
   ];
 }
 
-export function firstMiddleware(next: Topic.Handler<TestEvent>): Topic.Handler<TestEvent> {
+export function firstMiddleware<T extends Topic.Event>(next: Topic.Handler<T>): Topic.Handler<T> {
   return (request, context) => next(request, context);
 }
 
-export function secondMiddleware(next: Topic.Handler<TestEvent>): Topic.Handler<TestEvent> {
+export function secondMiddleware<T extends Topic.Event>(next: Topic.Handler<T>): Topic.Handler<T> {
   return (request, context) => next(request, context);
 }
 

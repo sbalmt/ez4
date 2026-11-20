@@ -14,11 +14,11 @@ export declare class TestService extends Http.Service {
   ];
 }
 
-export function defaultMiddleware(next: Http.Handler<Http.Request>): Http.Handler<Http.Request> {
+export function defaultMiddleware<T extends Http.Request>(next: Http.Handler<T>): Http.Handler<T> {
   return (request, context) => next(request, context);
 }
 
-export function routeMiddleware(next: Http.Handler<Http.Request>): Http.Handler<Http.Request> {
+export function routeMiddleware<T extends Http.Request>(next: Http.Handler<T>): Http.Handler<T> {
   return (request, context) => next(request, context);
 }
 
