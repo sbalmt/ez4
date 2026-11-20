@@ -23,6 +23,7 @@ export type QueueFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   handler: QueueEntryPoint;
+  middlewares?: QueueFunction[];
   listener?: QueueFunction;
   messageSchema?: QueueMessageSchema;
   context?: Record<string, ContextSource>;

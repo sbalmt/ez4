@@ -20,6 +20,7 @@ export type BundleQueueFunctionParameters = QueueFunctionParameters;
 export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
+    middlewares,
     listener,
     functionName,
     messageSchema,
@@ -53,6 +54,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     },
     handler,
     listener,
+    middlewares,
     debug
   });
 };

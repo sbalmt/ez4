@@ -16,7 +16,7 @@ export const createQueueFunction = <E extends EntryState>(
   logGroupState: LogGroupState,
   parameters: QueueFunctionParameters
 ) => {
-  const { handler, variables, debug, architecture, backoff, messageSchema } = parameters;
+  const { handler, middlewares = [], variables, debug, architecture, backoff, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
     handlerName: 'sqsEntryPoint',
@@ -44,12 +44,13 @@ export const createQueueFunction = <E extends EntryState>(
       return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies];
+      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
     },
     getFunctionHash: () => {
       return hashObject({
         architecture,
         messageSchema,
+        middlewares,
         backoff,
         debug
       });
