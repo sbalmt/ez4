@@ -23,7 +23,7 @@
           "name": "eventHandler",
           "file": "test/input/output-middleware.ts",
           "position": [
-            21,
+            23,
             1
           ]
         },
@@ -40,7 +40,7 @@
             "name": "secondMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              17,
+              18,
               1
             ]
           }
