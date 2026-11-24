@@ -17,33 +17,72 @@ declare const EZ4_IS_REMOTE_RUNTIME: boolean;
 declare const EZ4_RESOURCE_NAME: string;
 
 /**
+ * Hold the project name.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_NAME: string;
+
+/**
+ * Hold the project branch name.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_BRANCH: string;
+
+/**
+ * Hold the project prefix.
+ * !! IT MUST BE DEFINED BY THE BUNDLER !!
+ */
+declare const EZ4_PROJECT_PREFIX: string;
+
+/**
+ * Hold the cold start flag for the runtime context.
+ */
+let IS_COLD_START = true;
+
+/**
  * Access to the current runtime settings.
  */
 export namespace Runtime {
-  let globalScope: Scope | undefined;
+  let globalTraceId: string | undefined;
+  let globalResourceId = 'unknown';
+  let coldStartFlag = false;
 
-  export type Scope = {
-    traceId: string;
+  /**
+   * Set the current trace ID.
+   *
+   * @param traceId Current trace ID.
+   */
+  export const setTraceId = (traceId: string) => {
+    globalTraceId = traceId;
   };
 
   /**
-   * Set the new common runtime scope.
-   *
-   * @param scope New scope object.
+   * Initialize runtime state for the current invocation.
+   * Call once at the beginning of each invocation.
    */
-  export const setScope = (scope: Scope) => {
-    globalScope = Object.seal({
-      ...scope
-    });
+  export const initialize = (resourceId: string) => {
+    globalResourceId = resourceId;
+    globalTraceId = undefined;
+    coldStartFlag = IS_COLD_START;
+    IS_COLD_START = false;
   };
 
   /**
-   * Get the current common runtime scope.
+   * Get the current trace ID.
    *
-   * @returns Returns the current common runtime scope.
+   * @returns Returns the current trace ID.
    */
-  export const getScope = () => {
-    return globalScope;
+  export const getTraceId = () => {
+    return globalTraceId;
+  };
+
+  /**
+   * Check whether the cold start happened for the current invocation.
+   *
+   * @returns Return `true` when the cold start happened, `false` otherwise.
+   */
+  export const isColdStart = () => {
+    return coldStartFlag;
   };
 
   /**
@@ -53,6 +92,42 @@ export namespace Runtime {
    */
   export const getResourceName = () => {
     return typeof EZ4_RESOURCE_NAME === 'string' ? EZ4_RESOURCE_NAME : 'unknown';
+  };
+
+  /**
+   * Get the runtime resource ID.
+   *
+   * @returns Returns the resource ID.
+   */
+  export const getResourceId = () => {
+    return globalResourceId;
+  };
+
+  /**
+   * Get the project name.
+   *
+   * @returns Returns the project name.
+   */
+  export const getProjectName = () => {
+    return typeof EZ4_PROJECT_NAME === 'string' ? EZ4_PROJECT_NAME : 'unknown';
+  };
+
+  /**
+   * Get the project branch.
+   *
+   * @returns Returns the project branch.
+   */
+  export const getProjectBranch = () => {
+    return typeof EZ4_PROJECT_BRANCH === 'string' ? EZ4_PROJECT_BRANCH : 'unknown';
+  };
+
+  /**
+   * Get the project prefix.
+   *
+   * @returns Returns the project prefix.
+   */
+  export const getProjectPrefix = () => {
+    return typeof EZ4_PROJECT_PREFIX === 'string' ? EZ4_PROJECT_PREFIX : 'unknown';
   };
 
   /**

@@ -33,6 +33,7 @@ describe('queue metadata', () => {
   it('assert :: subscription empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: subscription validation', () => testFile('validation'));
   it('assert :: subscription listener', () => testFile('listener'));
+  it('assert :: subscription middleware', () => testFile('middleware'));
   it('assert :: subscription vpc', () => testFile('vpc'));
   it('assert :: queue message', () => testFile('message'));
   it('assert :: import queue', () => testFile('import'));

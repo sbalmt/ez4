@@ -8,6 +8,7 @@ import type { connectHandler } from './events/connect';
 import type { disconnectHandler } from './events/disconnect';
 import type { messageHandler } from './events/message';
 import type { AllMessages } from './types/messages';
+import type { wsMiddleware } from './middleware';
 
 /**
  * Example of AWS WebSocket API deployed with EZ4.
@@ -27,6 +28,8 @@ export declare class WsApi extends Ws.Service<AllMessages> {
    * Default options for all handlers.
    */
   defaults: Ws.UseDefaults<{
+    middlewares: [typeof wsMiddleware];
+
     /**
      * Use ARM64 architecture.
      */

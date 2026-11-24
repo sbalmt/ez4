@@ -34,7 +34,8 @@ const options: ServeOptions = {
   workspacePath: process.cwd(),
   serviceAddress: 'localhost',
   localOptions: {},
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 describe('topic HTTP requests', () => {

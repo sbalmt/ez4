@@ -112,7 +112,8 @@ describe('project emulator options', async () => {
       workspacePath: process.cwd(),
       serviceAddress: 'localhost',
       localOptions: {},
-      testOptions: {}
+      testOptions: {},
+      variables: {}
     }
   );
 

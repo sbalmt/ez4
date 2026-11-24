@@ -20,8 +20,9 @@ const references: ServiceReferences = {};
 const services: ServiceFactories = {};
 
 let invoker: ModuleInvoker;
-let listener: FunctionCallback | undefined;
 let handler: FunctionCallback | undefined;
+let listener: FunctionCallback | undefined;
+let middlewares: FunctionCallback[] = [];
 
 let timeout: number;
 
@@ -48,9 +49,12 @@ hostWorker.on('message', async (message: string) => {
           services[identifier] = await loadLocalService(hostWorker, services, service, workspacePath);
         }
 
-        invoker = await loadLocalService(hostWorker, services, signal.invoker, workspacePath);
-        listener = signal.listener && (await loadLocalFunction(signal.listener, workspacePath));
-        handler = await loadLocalFunction(signal.handler, workspacePath);
+        [invoker, listener, handler, ...middlewares] = await Promise.all([
+          loadLocalService<ModuleInvoker>(hostWorker, services, signal.invoker, workspacePath),
+          signal.listener && loadLocalFunction(signal.listener, workspacePath),
+          loadLocalFunction(signal.handler, workspacePath),
+          ...(signal.middlewares ?? []).map((entrypoint) => loadLocalFunction(entrypoint, workspacePath))
+        ]);
 
         timeout = signal.timeout * 1000;
 
@@ -65,7 +69,7 @@ hostWorker.on('message', async (message: string) => {
 
         const context = getLazyContext(services, references);
 
-        await invokeHandler(hostWorker, handler, listener, invoker, context, signal.request, timeout);
+        await invokeHandler(hostWorker, handler, middlewares, listener, invoker, context, signal.request, timeout);
         break;
       }
 

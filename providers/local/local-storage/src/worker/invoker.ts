@@ -8,6 +8,8 @@ export type InvokerOptions = {};
 
 export const makeInvoker = (_options: InvokerOptions): ModuleInvoker => {
   return async (invocation: ModuleInvocation) => {
+    Runtime.initialize('unknown');
+
     const traceId = getRandomUUID();
 
     const request = {
@@ -19,9 +21,7 @@ export const makeInvoker = (_options: InvokerOptions): ModuleInvoker => {
     try {
       await invocation.begin(request);
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       currentRequest = {
         ...request,

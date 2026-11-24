@@ -12,6 +12,16 @@ export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.C
 
 > Queue handlers use the queue service as its context, check queue [service](./queue-service.md) for more details.
 
+## Handler middlewares
+
+Subscriptions can wrap their handler with ordered [middleware](./queue-middleware.md). Middleware runs after validation and immediately before the next middleware or user handler. It can observe handler execution, short-circuit it, and catch or modify its result.
+
+## Handler listener
+
+Subscriptions can attach a lifecycle [listener](./queue-listener.md) to observe the complete processing flow. A listener receives `Begin`, `Ready`, `Done`, `Timeout`, `Error`, and `End` events, including failures that happen during message parsing or validation before middleware and the handler execute.
+
+Listeners observe execution and should not call the handler or control its result. Use middleware to instrument the user-handler span and a listener to annotate the surrounding lifecycle trace, especially with parsing or validation failures that occur before middleware runs.
+
 #### Request fields
 
 Handlers receive a typed request object generated from the declared queue message type.
@@ -46,6 +56,7 @@ All fields are validated and transformed according to the declared queue service
 - [Queue service](./queue-service.md)
 - [Queue subscriptions](./queue-subscriptions.md)
 - [Queue requests](./queue-requests.md)
+- [Queue middlewares](./queue-middleware.md)
 - [Queue listener](./queue-listener.md)
 - [Queue client](./queue-client.md)
 

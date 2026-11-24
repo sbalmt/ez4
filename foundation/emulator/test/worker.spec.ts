@@ -8,7 +8,7 @@ import { createModule, registerProvider, unregisterProvider } from '@ez4/emulato
 
 const TEST_PROVIDER = 'test-provider';
 
-const createTestModule = (handlerName: string, listener?: boolean, workspacePath?: string) => {
+const createTestModule = (handlerName: string, listener?: boolean, workspacePath?: string, middlewares?: string[]) => {
   const file = (name: string) => (workspacePath ? name : `test/files/${name}`);
 
   return createModule({
@@ -24,6 +24,13 @@ const createTestModule = (handlerName: string, listener?: boolean, workspacePath
       name: handlerName,
       position: [1, 1]
     },
+    ...(middlewares && {
+      middlewares: middlewares.map((middlewareName) => ({
+        file: file('middleware.ts'),
+        name: middlewareName,
+        position: [1, 1]
+      }))
+    }),
     ...(listener && {
       listener: {
         file: file('listener.ts'),
@@ -123,6 +130,27 @@ describe('worker tests', { timeout: 10000 }, () => {
 
     deepEqual(result, {
       value: 'workspace result'
+    });
+  });
+
+  it('assert :: wraps handler execution with ordered middlewares', async () => {
+    const module = createTestModule('echo', false, undefined, ['firstMiddleware', 'secondMiddleware']);
+
+    const result = await module.invoke({
+      value: 'middleware result'
+    });
+
+    deepEqual(result, {
+      value: 'middleware result',
+      order: ['first:before', 'second:before', 'second:after', 'first:after']
+    });
+  });
+
+  it('assert :: allows a middleware to skip the handler', async () => {
+    const module = createTestModule('exception', false, undefined, ['shortCircuitMiddleware']);
+
+    deepEqual(await module.invoke({}), {
+      intercepted: true
     });
   });
 

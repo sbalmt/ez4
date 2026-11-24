@@ -1,15 +1,10 @@
-import type { Node, NodeArray, TypeAliasDeclaration, TypeNode, TypeParameterDeclaration } from 'typescript';
-import type { Context, State, TypeMap } from './common';
-import type { InterfaceNodes } from './type-interface';
-import type { ClassNodes } from './type-class';
+import type { NodeArray, Node, TypeParameterDeclaration } from 'typescript';
+import type { Context, State } from './common';
 
 import { isTypeParameterDeclaration } from 'typescript';
 
+import { createUnknown } from './type-unknown';
 import { tryTypes } from './types';
-
-export type NodeWithTypeParameters = ClassNodes | InterfaceNodes | TypeAliasDeclaration;
-
-export type TypeArguments = NodeArray<TypeNode>;
 
 export const isTypeParameter = (node: Node): node is TypeParameterDeclaration => {
   return isTypeParameterDeclaration(node);
@@ -30,19 +25,16 @@ export const tryTypeParameter = (node: Node, context: Context, state: State) => 
   return type;
 };
 
-export const getTypeArguments = (node: NodeWithTypeParameters, types: TypeArguments, context: Context, state: State) => {
-  const newTypes: TypeMap = {};
+export const getTypeParameters = (parameters: NodeArray<TypeParameterDeclaration>, context: Context, state: State) => {
+  const newState = { ...state, types: { ...state.types } };
 
-  node.typeParameters?.forEach((parameter, index) => {
-    const type = types?.at(index);
+  parameters.forEach((parameter) => {
+    const name = parameter.name.getText();
+    const source = parameter.default ?? parameter.constraint;
+    const type = source && tryTypes(source, context, newState);
 
-    if (type) {
-      const parameterName = parameter.name.getText();
-      const parameterType = tryTypes(type, context, state);
-
-      newTypes[parameterName] = parameterType;
-    }
+    newState.types[name] = type ?? createUnknown();
   });
 
-  return newTypes;
+  return newState;
 };

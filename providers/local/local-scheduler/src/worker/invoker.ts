@@ -14,11 +14,11 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
   const { schema } = options;
 
   return async (invocation: ModuleInvocation) => {
+    Runtime.initialize('unknown');
+
     const traceId = getRandomUUID();
 
-    Runtime.setScope({
-      traceId
-    });
+    Runtime.setTraceId(traceId);
 
     const request: AnyObject = {
       requestId: getRandomUUID(),

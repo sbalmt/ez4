@@ -56,6 +56,9 @@ describe('scheduler', { timeout: 60000 }, () => {
 
     const lambdaResource = createTargetFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-scheduler-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

@@ -89,6 +89,10 @@ Circular linked services are supported. EZ4 resolves linked contexts lazily and 
 ## What's next
 
 - [Quick start](./quick-start.md)
+- [Configuration](./configuration.md)
+- [Deployment overview](./deployment.md)
+- [Listeners overview](./listeners.md)
+- [Middlewares overview](./middlewares.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

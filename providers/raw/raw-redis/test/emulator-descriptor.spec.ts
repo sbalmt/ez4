@@ -37,7 +37,8 @@ const options: ServeOptions = {
       url: 'redis://127.0.0.1:6379'
     }
   },
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 const context: EmulateServiceContext = {

@@ -44,6 +44,11 @@ export interface Interface {
   method2(param: any): void;
   method3(...param: any[]): void;
 
+  // Generic method
+  generic1<T extends string>(input: T): T;
+  generic2<T>(input: T): T;
+  generic3<T = number>(input: T): T;
+
   // Template
   template1: Type<EmptyInterface>;
   template2: Type<HeritageInterface>;

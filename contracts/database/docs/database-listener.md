@@ -1,6 +1,6 @@
 # EZ4: Database Listener
 
-Database listeners observe the **lifecycle events** of table stream handler execution. Listeners run alongside handlers and receive typed execution events and contextual information about the database service. Listeners do **not** modify the request, they only observe execution flow.
+Database listeners observe table stream handler lifecycle events and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -69,8 +69,10 @@ Listeners should focus on observability, such as logging, metrics, and tracing. 
 - [Database engine](./database-engine.md)
 - [Database streams](./database-streams.md)
 - [Database handler](./database-handler.md)
+- [Database middlewares](./database-middleware.md)
 - [Database client](./database-client.md)
 - [Database queries](./database-queries.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

@@ -1,0 +1,51 @@
+{
+  "@variables": {
+    "type": "@ez4/common",
+    "name": "@variables",
+    "context": {}
+  },
+  "@options": {
+    "type": "@ez4/common",
+    "name": "@options",
+    "context": {}
+  },
+  "TestStorage": {
+    "type": "@ez4/bucket",
+    "name": "TestStorage",
+    "context": {},
+    "file": "test/input/output-middleware.ts",
+    "variables": {},
+    "services": {},
+    "events": [
+      {
+        "path": "*",
+        "handler": {
+          "name": "eventHandler",
+          "file": "test/input/output-middleware.ts",
+          "position": [
+            23,
+            1
+          ]
+        },
+        "middlewares": [
+          {
+            "name": "firstMiddleware",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              13,
+              1
+            ]
+          },
+          {
+            "name": "secondMiddleware",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              18,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

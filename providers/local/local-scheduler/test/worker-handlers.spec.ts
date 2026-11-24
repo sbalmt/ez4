@@ -26,7 +26,8 @@ const serveOptions: ServeOptions = {
   workspacePath: process.cwd(),
   serviceAddress: 'localhost:3734',
   localOptions: {},
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 describe('worker scheduler handlers', () => {

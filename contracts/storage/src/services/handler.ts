@@ -7,6 +7,6 @@ import type { Bucket } from './contract';
  * Bucket event handler.
  */
 export type BucketHandler<T extends BucketObjectEvent> = (
-  request: BucketIncoming<T> | T,
+  request: BucketIncoming<T>,
   context: Service.Context<Bucket.Service>
 ) => Promise<void> | void;

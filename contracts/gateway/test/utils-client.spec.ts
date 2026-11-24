@@ -5,8 +5,8 @@ import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { getClientAuthorization, getClientOperations } from '@ez4/gateway/library';
+import { AuthorizationType, HttpRequestTimeoutError, HttpError } from '@ez4/gateway';
 import { sendClientRequest } from '@ez4/gateway/utils';
-import { AuthorizationType, HttpError } from '@ez4/gateway';
 import { NamingStyle, SchemaType } from '@ez4/schema';
 
 describe('gateway client utils', () => {
@@ -309,10 +309,7 @@ describe('gateway client utils', () => {
     };
 
     try {
-      await rejects(
-        () => sendClientRequest('https://ez4.test', 'GET', { timeout: 0 }),
-        (error: unknown) => error === 'Request timed out'
-      );
+      await rejects(() => sendClientRequest('https://ez4.test', 'GET', { timeout: 0 }), HttpRequestTimeoutError);
     } finally {
       globalThis.fetch = originalFetch;
     }

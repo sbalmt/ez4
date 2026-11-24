@@ -14,11 +14,11 @@ export const getServiceListener = (type: AllType, errorList: Error[]) => {
     return undefined;
   }
 
-  const handler = getFunctionSignature(type);
+  const listener = getFunctionSignature(type);
 
-  if (!handler) {
+  if (!listener) {
     errorList.push(new IncompleteListenerError(type.file));
   }
 
-  return handler;
+  return listener;
 };

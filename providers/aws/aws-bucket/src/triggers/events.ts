@@ -8,6 +8,7 @@ import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/lib
 import { isRoleState } from '@ez4/aws-identity';
 import { BucketEventType } from '@ez4/storage';
 import { createLogGroup } from '@ez4/aws-logs';
+import { arrayUnique } from '@ez4/utils';
 
 import { attachBucketEvent } from '../event/service';
 import { getBucketEventFunctionAliasArn } from '../event/utils';
@@ -44,8 +45,9 @@ export const prepareBucketEvents = (
       debug = options.debug,
       triggers = [],
       variables,
-      listener,
       handler,
+      middlewares = [],
+      listener,
       files,
       path,
       vpc
@@ -57,7 +59,11 @@ export const prepareBucketEvents = (
 
     if (!handlerState) {
       const eventName = getFunctionName(service, handler.name, options);
-      const dependencies = context.getDependencyFiles(handler.file);
+
+      const dependencies = arrayUnique([
+        ...context.getDependencyFiles(handler.file),
+        ...middlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+      ]);
 
       const logGroupState = createLogGroup(state, {
         dependencies: [bucketState.entryId],
@@ -74,12 +80,20 @@ export const prepareBucketEvents = (
         context: service.context,
         dependencies: [bucketState.entryId],
         workspacePath: options.workspacePath,
+        projectPrefix: options.prefix,
+        projectBranch: options.branchName,
+        projectName: options.projectName,
         handler: {
           sourceFile: handler.file,
           functionName: handler.name,
           module: handler.module,
           dependencies
         },
+        middlewares: middlewares.map((middleware) => ({
+          functionName: middleware.name,
+          sourceFile: middleware.file,
+          module: middleware.module
+        })),
         listener: listener && {
           functionName: listener.name,
           sourceFile: listener.file,

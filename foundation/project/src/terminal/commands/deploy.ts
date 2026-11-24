@@ -47,7 +47,9 @@ export const deployCommand = async (input: InputOptions) => {
   }
 
   const list = await DynamicLogger.logExecution('⚡ Initializing', async () => {
-    const { list: references } = await loadReferences(project);
+    const { list: references } = await loadReferences(project, {
+      branchName: input.branch
+    });
 
     const list = references.filter(({ project }) => {
       const { projectName, deployOptions } = project;

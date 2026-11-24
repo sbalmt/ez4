@@ -1,8 +1,8 @@
 {
   "88eaca00b03b98e66f21ede684ab4095:Callback": {
-    "file": "test/types/callback.ts",
     "type": "interface",
     "name": "Callback",
+    "file": "test/types/callback.ts",
     "position": {
       "line": 3,
       "character": 1
@@ -15,8 +15,8 @@
         "type": "property",
         "name": "regular1",
         "value": {
-          "file": "test/types/callback.ts",
           "type": "callback",
+          "file": "test/types/callback.ts",
           "position": {
             "line": 5,
             "character": 13
@@ -30,8 +30,8 @@
         "type": "property",
         "name": "regular2",
         "value": {
-          "file": "test/types/callback.ts",
           "type": "callback",
+          "file": "test/types/callback.ts",
           "position": {
             "line": 6,
             "character": 13
@@ -54,8 +54,8 @@
         "type": "property",
         "name": "regular3",
         "value": {
-          "file": "test/types/callback.ts",
           "type": "callback",
+          "file": "test/types/callback.ts",
           "position": {
             "line": 7,
             "character": 13
@@ -87,12 +87,84 @@
       },
       {
         "type": "property",
-        "name": "template",
+        "name": "generic1",
         "value": {
-          "file": "test/types/callback.ts",
           "type": "callback",
+          "file": "test/types/callback.ts",
           "position": {
             "line": 10,
+            "character": 13
+          },
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "input",
+              "value": {
+                "type": "string"
+              }
+            }
+          ],
+          "return": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic2",
+        "value": {
+          "type": "callback",
+          "file": "test/types/callback.ts",
+          "position": {
+            "line": 11,
+            "character": 13
+          },
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "input",
+              "value": {
+                "type": "unknown"
+              }
+            }
+          ],
+          "return": {
+            "type": "unknown"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "generic3",
+        "value": {
+          "type": "callback",
+          "file": "test/types/callback.ts",
+          "position": {
+            "line": 12,
+            "character": 13
+          },
+          "parameters": [
+            {
+              "type": "parameter",
+              "name": "input",
+              "value": {
+                "type": "number"
+              }
+            }
+          ],
+          "return": {
+            "type": "number"
+          }
+        }
+      },
+      {
+        "type": "property",
+        "name": "template",
+        "value": {
+          "type": "callback",
+          "file": "test/types/callback.ts",
+          "position": {
+            "line": 15,
             "character": 18
           },
           "parameters": [

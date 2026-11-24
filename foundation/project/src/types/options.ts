@@ -21,7 +21,7 @@ export type DeployOptions = CommonOptions & {
   imports?: Record<string, ImportOptions>;
   release?: ProjectDeployReleaseOptions;
   defaults?: ProjectDefaultOptions;
-  variables?: LinkedVariables;
+  variables: LinkedVariables;
   tags?: Record<string, string>;
 };
 
@@ -35,7 +35,7 @@ export type ServeOptions = CommonOptions & {
   imports?: Record<string, ImportOptions>;
   localOptions: Record<string, AnyObject>;
   testOptions: Record<string, AnyObject>;
-  variables?: LinkedVariables;
+  variables: LinkedVariables;
   suppress?: boolean;
   reset?: boolean;
   local?: boolean;

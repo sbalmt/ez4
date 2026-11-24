@@ -10,7 +10,7 @@ export namespace Client {
   export const make = (): EmailClient => {
     return new (class {
       async send(message: EmailMessage): Promise<EmailMessageResponse> {
-        const scope = Runtime.getScope();
+        const traceId = Runtime.getTraceId();
 
         const response = await client.send(
           new SendEmailCommand({
@@ -26,10 +26,7 @@ export namespace Client {
                 Subject: {
                   Data: message.subject
                 },
-                Headers: [
-                  ...(scope?.traceId ? [{ Name: 'X-Trace-Id', Value: scope?.traceId }] : []),
-                  ...buildHeaders(message.headers ?? {})
-                ],
+                Headers: [...(traceId ? [{ Name: 'X-Trace-Id', Value: traceId }] : []), ...buildHeaders(message.headers ?? {})],
                 Attachments: buildAttachments(message.attachments ?? []),
                 Body: {
                   ...('html' in message.body && {

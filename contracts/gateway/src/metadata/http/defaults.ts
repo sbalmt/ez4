@@ -11,6 +11,7 @@ import {
   getObjectMembers,
   getModelMembers,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -117,6 +118,11 @@ const getTypeFromMembers = (parent: TypeModel, members: MemberType[], reflection
 
       case 'debug': {
         defaults[member.name] = getPropertyBoolean(member);
+        break;
+      }
+
+      case 'middlewares': {
+        defaults.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

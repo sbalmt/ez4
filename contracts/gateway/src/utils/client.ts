@@ -2,6 +2,7 @@ import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema, NamingStyle 
 import type { HttpClientRequest, HttpClientResponse } from '../services/http/client';
 
 import { prepareRequestBody, prepareResponseBody } from '@ez4/http';
+import { HttpRequestTimeoutError } from '@ez4/gateway';
 
 import { GatewayDefaults } from '../runtime/constants';
 import { getHttpException } from './errors';
@@ -23,25 +24,32 @@ export const sendClientRequest = async (url: string, method: string, request: Cl
 
   const payload = body ? prepareRequestBody(body, bodySchema, namingStyle) : undefined;
 
-  const controller = new AbortController();
-  const timerId = setTimeout(() => controller.abort('Request timed out'), timeout * 1000);
+  const signal = AbortSignal.timeout(timeout * 1000);
 
-  const result = await fetch(url, {
-    signal: controller.signal,
-    body: payload?.body,
-    method,
-    headers: {
-      ...headers,
-      ...(authorization && {
-        [authorization.header]: authorization.value
-      }),
-      ...(payload?.json && {
-        ['content-type']: 'application/json'
-      })
+  let result: Response;
+
+  try {
+    result = await fetch(url, {
+      signal,
+      body: payload?.body,
+      method,
+      headers: {
+        ...headers,
+        ...(authorization && {
+          [authorization.header]: authorization.value
+        }),
+        ...(payload?.json && {
+          ['content-type']: 'application/json'
+        })
+      }
+    });
+  } catch (error) {
+    if (signal.aborted) {
+      throw new HttpRequestTimeoutError();
     }
-  });
 
-  clearTimeout(timerId);
+    throw error;
+  }
 
   if (!result.ok) {
     const error = await result.json();

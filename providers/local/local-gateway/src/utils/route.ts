@@ -1,12 +1,13 @@
 import type { AuthHandler, HttpHandler, HttpErrors, HttpPreferences } from '@ez4/gateway/library';
 import type { EmulatorRequestEvent, LinkedVariables } from '@ez4/project/library';
-import type { ServiceListener } from '@ez4/common/library';
+import type { ServiceListener, ServiceMiddleware } from '@ez4/common/library';
 
 export type RouteData = {
   httpErrors?: HttpErrors | null;
   preferences?: HttpPreferences;
   variables?: LinkedVariables | null;
   authorizer?: AuthHandler | null;
+  middlewares?: ServiceMiddleware[];
   listener?: ServiceListener | null;
   handler: HttpHandler;
   timeout?: number;

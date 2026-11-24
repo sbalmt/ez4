@@ -16,7 +16,19 @@ export const getBundleTemplateFile = () => {
 };
 
 export const bundleBucketEventFunction = async (parameters: BucketEventFunctionParameters, connections: EntryState[]) => {
-  const { handler, listener, functionName, workspacePath, context, references, debug } = parameters;
+  const {
+    handler,
+    middlewares,
+    listener,
+    functionName,
+    context,
+    references,
+    debug,
+    workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName
+  } = parameters;
 
   const definitions = getDefinitionsObject(connections);
 
@@ -27,7 +39,11 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     define: definitions,
     filePrefix: 's3',
     workspacePath,
+    projectPrefix,
+    projectBranch,
+    projectName,
     handler,
+    middlewares,
     listener,
     debug
   });

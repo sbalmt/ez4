@@ -3,6 +3,7 @@ import type { Service as CommonService } from '@ez4/common';
 import type { Exclusive } from '@ez4/utils';
 import type { TopicLambdaSubscription, TopicQueueSubscription } from './subscription';
 import type { TopicSubscriptionListener } from './listener';
+import type { TopicSubscriptionMiddleware } from './middleware';
 import type { TopicSubscriptionHandler } from './handler';
 import type { TopicIncoming } from './incoming';
 import type { TopicRequest } from './request';
@@ -22,6 +23,7 @@ export namespace Topic {
   export type Incoming<T extends Event> = TopicIncoming<T>;
 
   export type Listener<T extends Event> = TopicSubscriptionListener<T>;
+  export type Middleware<T extends Event> = TopicSubscriptionMiddleware<T>;
   export type Handler<T extends Event> = TopicSubscriptionHandler<T>;
 
   export type LambdaSubscription<T extends Event> = TopicLambdaSubscription<T>;

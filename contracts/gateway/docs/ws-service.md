@@ -164,7 +164,7 @@ variables: {
 - [WebSocket responses](./ws-responses.md)
 - [Gateway handlers](./gateway-handler.md)
 - [Gateway authorizers](./gateway-authorizer.md)
-- [Gateway listeners](./gateway-listener.md)
+- [Gateway listener](./gateway-listener.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

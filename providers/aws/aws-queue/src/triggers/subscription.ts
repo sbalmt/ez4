@@ -7,6 +7,7 @@ import { isLinkedContextVpcRequired, linkServiceContext } from '@ez4/project/lib
 import { getFunctionState, tryGetFunctionState } from '@ez4/aws-function';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
+import { arrayUnique } from '@ez4/utils';
 
 import { createMapping } from '../mapping/service';
 import { createQueueFunction } from '../mapping/function/service';
@@ -28,7 +29,7 @@ export const prepareSubscriptions = (
   const { deadLetter, backoff, subscriptions } = service;
 
   for (const subscription of subscriptions) {
-    const { handler, listener } = subscription;
+    const { handler, listener, middlewares = [] } = subscription;
 
     const internalName = getInternalName(service, handler.name);
 
@@ -38,7 +39,11 @@ export const prepareSubscriptions = (
       const { defaults, release, tags } = options;
 
       const subscriptionName = getFunctionName(service, handler.name, options);
-      const dependencies = context.getDependencyFiles(handler.file);
+
+      const dependencies = arrayUnique([
+        ...context.getDependencyFiles(handler.file),
+        ...middlewares.flatMap(({ file }) => context.getDependencyFiles(file))
+      ]);
 
       const {
         runtime = defaults?.runtime ?? Defaults.Runtime,
@@ -63,10 +68,13 @@ export const prepareSubscriptions = (
         messageSchema: service.schema,
         description: handler.summary ?? handler.description,
         variables: [options.variables, service.variables, subscription.variables],
-        references: subscription.handler.references,
+        references: handler.references,
         context: service.context,
         dependencies: [queueState.entryId],
         workspacePath: options.workspacePath,
+        projectPrefix: options.prefix,
+        projectBranch: options.branchName,
+        projectName: options.projectName,
         timeout: service.timeout ?? Defaults.Timeout,
         backoff: {
           attempts: deadLetter?.maxAttempts ?? Defaults.MaxAttempts,
@@ -79,6 +87,11 @@ export const prepareSubscriptions = (
           module: handler.module,
           dependencies
         },
+        middlewares: middlewares.map((middleware) => ({
+          functionName: middleware.name,
+          sourceFile: middleware.file,
+          module: middleware.module
+        })),
         listener: listener && {
           functionName: listener.name,
           sourceFile: listener.file,

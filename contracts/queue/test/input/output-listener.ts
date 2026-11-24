@@ -16,6 +16,6 @@ export declare class TestQueue extends Queue.Unordered<TestMessage> {
   ];
 }
 
-export function testListener(): void {}
+export function testListener<T extends Queue.Message>(_event: Queue.ServiceEvent<T>): void {}
 
 export function testHandler(_request: Queue.Incoming<TestMessage>) {}

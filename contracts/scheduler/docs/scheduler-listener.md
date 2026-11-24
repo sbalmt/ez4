@@ -1,6 +1,6 @@
 # EZ4: Scheduler Listener
 
-Scheduler listeners let you observe the **lifecycle events** of scheduled execution without modifying the request. They receive typed scheduler service events and the same context available to the handler.
+Scheduler listeners observe scheduled execution without modifying the request. They receive typed scheduler events and follow the shared EZ4 [listener behavior](../../../documentation/listeners.md).
 
 ## Listener implementation
 
@@ -64,6 +64,7 @@ Listeners should keep best-effort events focused on observability, such as loggi
 - [Scheduler target](./scheduler-target.md)
 - [Scheduler requests](./scheduler-requests.md)
 - [Scheduler client](./scheduler-client.md)
+- [Listeners overview](../../../documentation/listeners.md)
 
 ## License
 

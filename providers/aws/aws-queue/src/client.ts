@@ -33,7 +33,7 @@ export namespace Client {
           getSqsClient()
         ]);
 
-        const scope = Runtime.getScope();
+        const traceId = Runtime.getTraceId();
 
         await sqsClient.send(
           new SendMessageCommand({
@@ -44,7 +44,7 @@ export namespace Client {
             ...(parameters?.fairMode && getFairParameters(message, parameters.fairMode)),
             MessageAttributes: {
               ['EZ4.TRACE_ID']: {
-                StringValue: scope?.traceId ?? getRandomUUID(),
+                StringValue: traceId ?? getRandomUUID(),
                 DataType: 'String'
               }
             }

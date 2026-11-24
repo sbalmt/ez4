@@ -84,7 +84,7 @@ export function authorizerHandler(
 - [HTTP routes](./http-routes.md)
 - [WebSocket routes](./ws-routes.md)
 - [Gateway handlers](./gateway-handler.md)
-- [Gateway listeners](./gateway-listener.md)
+- [Gateway listener](./gateway-listener.md)
 - [Gateway providers](./gateway-provider.md)
 - [Gateway defaults](./gateway-defaults.md)
 

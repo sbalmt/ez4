@@ -126,6 +126,7 @@ const buildHttpRoutes = (service: HttpService) => {
       preferences: route.preferences ?? defaultPreferences,
       variables: route.variables,
       authorizer: route.authorizer,
+      middlewares: route.middlewares,
       listener: route.listener,
       handler: route.handler,
       timeout: route.timeout,

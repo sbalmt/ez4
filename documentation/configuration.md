@@ -46,6 +46,11 @@ export default {
     disabled: false, // Skip this project when deploying it or its references
     maxConcurrency: 10, // Maximum number of resource changes processed concurrently.
 
+    // Variables active during deployment
+    variables: {
+      DEPLOY_API_KEY: 'deploy-key'
+    },
+
     // Configure the deployment release
     release: {
       tagName: 'Version', // Name of the tag to hold the release version
@@ -58,7 +63,12 @@ export default {
   serveOptions: {
     disabled: false, // Skip this project when serving it or its references
     localHost: 'localhost', // Host name/address when serving the project
-    localPort: 3734 // Port when serving the project
+    localPort: 3734, // Port when serving the project
+
+    // Variables active when serving the project
+    variables: {
+      SERVE_API_KEY: 'serve-key'
+    }
   },
 
   // Configure the watch mode for when serving the project
@@ -113,8 +123,11 @@ When running `ez4 deploy`, referenced projects are also deployed, including nest
 
 ## What's next
 
+- [Quick start](./quick-start.md)
 - [Deployment overview](./deployment.md)
 - [Contracts overview](./contracts.md)
+- [Listeners overview](./listeners.md)
+- [Middlewares overview](./middlewares.md)
 - [Architecture overview](./architecture.md)
 - [Philosophy](./philosophy.md)
 

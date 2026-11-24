@@ -8,6 +8,6 @@ import type { Ws } from './contract';
  * WS request listener.
  */
 export type WsListener<T extends WsRequest | WsEvent> = (
-  event: Service.AnyEvent<WsIncoming<T> | T>,
+  event: Service.AnyEvent<WsIncoming<T>>,
   context: Service.Context<Ws.Service<any>>
 ) => Promise<void> | void;

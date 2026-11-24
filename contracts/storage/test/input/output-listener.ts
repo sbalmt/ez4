@@ -4,12 +4,14 @@ export declare class TestStorage extends Bucket.Service {
   events: [
     Bucket.UseEvent<{
       path: '*';
-      listener: typeof eventListener;
       handler: typeof eventHandler;
+      listener: typeof eventListener;
     }>
   ];
 }
 
-export function eventListener(_event: Bucket.ServiceEvent) {}
+export function eventListener<T extends Bucket.ObjectEvent = Bucket.ObjectEvent>(_event: Bucket.ServiceEvent) {
+  void (undefined as T | undefined);
+}
 
 export function eventHandler(_event: Bucket.ObjectEvent) {}

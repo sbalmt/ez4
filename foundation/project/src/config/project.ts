@@ -1,7 +1,7 @@
 import type { AnyObject } from '@ez4/utils';
 import type { ProjectOptions } from '../types/project';
 
-import { isAnyArray, isAnyObject, isObjectWith } from '@ez4/utils';
+import { isAnyArray, isAnyObject, isAnyString, isObjectWith } from '@ez4/utils';
 
 import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -63,7 +63,7 @@ export const getProjectFrom = async (location: ProjectLocation): Promise<LoadedP
       throw new MissingProjectExportError(projectFile);
     }
 
-    validateProject(projectFile, options);
+    validateProjectFile(projectFile, options);
 
     return {
       ...options,
@@ -89,22 +89,52 @@ const getProjectLocation = (fileName?: string, workspacePath?: string): ProjectL
   };
 };
 
-const validateProject = (projectFile: string, projectData: AnyObject) => {
-  const invalidProperties = [];
+const validateProjectFile = (projectFile: string, projectData: AnyObject) => {
+  const invalidProperties: string[] = [];
 
-  if (!projectData.projectName) {
-    invalidProperties.push('projectName');
-  }
-
-  if (!isAnyObject(projectData.stateFile) || !isObjectWith(projectData.stateFile, ['path'])) {
-    invalidProperties.push('stateFile');
-  }
-
-  if (!isAnyArray(projectData.sourceFiles)) {
-    invalidProperties.push('sourceFiles');
-  }
+  assertProjectName(projectData, invalidProperties);
+  assertStateFile(projectData, invalidProperties);
+  assertSourceFiles(projectData, invalidProperties);
+  assertVariables(projectData.variables, 'variables', invalidProperties);
+  assertVariables(projectData.deployOptions?.variables, 'deployOptions.variables', invalidProperties);
+  assertVariables(projectData.serveOptions?.variables, 'serveOptions.variables', invalidProperties);
 
   if (invalidProperties.length) {
     throw new MalformedProjectFileError(projectFile, invalidProperties);
+  }
+};
+
+const assertProjectName = (projectData: AnyObject, invalidProperties: string[]) => {
+  if (!projectData.projectName) {
+    invalidProperties.push('projectName');
+  }
+};
+
+const assertStateFile = (projectData: AnyObject, invalidProperties: string[]) => {
+  if (!isAnyObject(projectData.stateFile) || !isObjectWith(projectData.stateFile, ['path'])) {
+    invalidProperties.push('stateFile');
+  }
+};
+
+const assertSourceFiles = (projectData: AnyObject, invalidProperties: string[]) => {
+  if (!isAnyArray(projectData.sourceFiles)) {
+    invalidProperties.push('sourceFiles');
+  }
+};
+
+const assertVariables = (variables: unknown, propertyName: string, invalidProperties: string[]) => {
+  if (variables === undefined) {
+    return;
+  }
+
+  if (!isAnyObject(variables)) {
+    invalidProperties.push(propertyName);
+    return;
+  }
+
+  for (const [name, value] of Object.entries(variables)) {
+    if (!isAnyString(value)) {
+      invalidProperties.push(`${propertyName}.${name}`);
+    }
   }
 };

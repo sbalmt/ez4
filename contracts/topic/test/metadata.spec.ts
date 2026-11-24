@@ -31,6 +31,7 @@ describe('topic metadata', () => {
   it('assert :: subscription dependencies', () => testFile('dependencies'));
   it('assert :: subscription empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: subscription listener', () => testFile('listener'));
+  it('assert :: subscription middleware', () => testFile('middleware'));
   it('assert :: subscription vpc', () => testFile('vpc'));
   it('assert :: import topic', () => testFile('import'));
 });

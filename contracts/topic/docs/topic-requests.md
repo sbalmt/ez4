@@ -58,7 +58,7 @@ Learn more about schemas:
 - [Topic service](./topic-service.md)
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic listener](./topic-listener.md)
 - [Topic client](./topic-client.md)
 
 ## License

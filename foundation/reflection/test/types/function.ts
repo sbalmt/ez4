@@ -14,6 +14,12 @@ export function regular6(_param = null): void {}
 
 export async function regular7(): Promise<void> {}
 
+export declare function generic1<T extends string>(input: T): T;
+
+export declare function generic2<T>(input: T): T;
+
+export declare function generic3<T = number>(input: T): T;
+
 export declare function destructing1({ param1, param2 }: any): void;
 
 export declare function destructing2({ param1, ...params }: any): void;

@@ -1,6 +1,6 @@
 import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
-import type { messageHandlerA, messageHandlerB, messageHandlerC } from './handlers';
+import type { messageHandlerA, messageHandlerB, messageHandlerC, queueMiddleware } from './handlers';
 import type { MessageRequest } from './types';
 import type { queueListener } from './listener';
 
@@ -66,14 +66,15 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
   subscriptions: [
     Queue.UseSubscription<{
       /**
-       * Invocation life-cycle function.
-       */
-      listener: typeof queueListener;
-
-      /**
        * Message handler.
        */
       handler: typeof messageHandlerA;
+      middlewares: [typeof queueMiddleware];
+
+      /**
+       * Invocation life-cycle function.
+       */
+      listener: typeof queueListener;
 
       /**
        * Allow up to 2 lambdas concurrently.
@@ -81,8 +82,9 @@ export declare class Sqs extends Queue.Unordered<MessageRequest> {
       concurrency: 2;
     }>,
     Queue.UseSubscription<{
-      listener: typeof queueListener;
       handler: typeof messageHandlerB;
+      middlewares: [typeof queueMiddleware];
+      listener: typeof queueListener;
 
       /**
        * Allow up to 5 messages per handler invocation.
@@ -153,8 +155,9 @@ export declare class FifoSqs extends Queue.Ordered<MessageRequest> {
    */
   subscriptions: [
     Queue.UseSubscription<{
-      listener: typeof queueListener;
       handler: typeof messageHandlerC;
+      middlewares: [typeof queueMiddleware];
+      listener: typeof queueListener;
     }>
   ];
 

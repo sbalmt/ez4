@@ -18,8 +18,9 @@ export const processSchedulerEvent = async (
 
   const module = createModule({
     workspacePath: options.workspacePath,
-    listener: target.listener,
     handler: target.handler,
+    middlewares: target.middlewares,
+    listener: target.listener,
     references,
     services,
     invoker: {

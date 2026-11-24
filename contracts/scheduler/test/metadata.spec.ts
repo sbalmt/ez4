@@ -31,5 +31,6 @@ describe('scheduler metadata', () => {
   it('assert :: target dependencies', () => testFile('dependencies'));
   it('assert :: target empty dependencies', () => testFile('empty-dependencies'));
   it('assert :: target listener', () => testFile('listener'));
+  it('assert :: target middleware', () => testFile('middleware'));
   it('assert :: target vpc', () => testFile('vpc'));
 });

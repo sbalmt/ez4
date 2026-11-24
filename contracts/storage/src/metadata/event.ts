@@ -16,6 +16,7 @@ import {
   getPropertyStringListIn,
   getPropertyBoolean,
   getServiceListener,
+  getServiceMiddlewares,
   getServiceArchitecture,
   getServiceLogLevel,
   getServiceRuntime,
@@ -51,13 +52,13 @@ export const getBucketEventsMetadata = (member: ModelProperty, parent: TypeModel
 
 const getBucketEventMetadata = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (!isTypeReference(type)) {
-    return getTypeEvent(type, parent, errorList);
+    return getTypeEvent(type, parent, reflection, errorList);
   }
 
   const declaration = getReferenceType(type, reflection);
 
   if (declaration) {
-    return getTypeEvent(declaration, parent, errorList);
+    return getTypeEvent(declaration, parent, reflection, errorList);
   }
 
   return undefined;
@@ -67,9 +68,9 @@ const isCompleteEvent = (type: Incomplete<BucketEvent>): type is BucketEvent => 
   return isObjectWith(type, ['path', 'handler']) && !!type.path;
 };
 
-const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {
+const getTypeEvent = (type: AllType, parent: TypeModel, reflection: ReflectionTypes, errorList: Error[]) => {
   if (isTypeObject(type)) {
-    return getTypeFromMembers(type, parent, getObjectMembers(type), errorList);
+    return getTypeFromMembers(type, parent, getObjectMembers(type), reflection, errorList);
   }
 
   if (!isModelDeclaration(type)) {
@@ -82,10 +83,16 @@ const getTypeEvent = (type: AllType, parent: TypeModel, errorList: Error[]) => {
     return undefined;
   }
 
-  return getTypeFromMembers(type, parent, getModelMembers(type), errorList);
+  return getTypeFromMembers(type, parent, getModelMembers(type), reflection, errorList);
 };
 
-const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, members: MemberType[], errorList: Error[]) => {
+const getTypeFromMembers = (
+  type: TypeObject | TypeModel,
+  parent: TypeModel,
+  members: MemberType[],
+  reflection: ReflectionTypes,
+  errorList: Error[]
+) => {
   const event: Incomplete<BucketEvent> = {};
   const properties = new Set(['handler']);
 
@@ -150,6 +157,11 @@ const getTypeFromMembers = (type: TypeObject | TypeModel, parent: TypeModel, mem
 
       case 'listener': {
         event.listener = getServiceListener(member.value, errorList);
+        break;
+      }
+
+      case 'middlewares': {
+        event.middlewares = getServiceMiddlewares(member, reflection, errorList);
         break;
       }
 

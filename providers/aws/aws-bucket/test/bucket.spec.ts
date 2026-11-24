@@ -62,6 +62,9 @@ describe('bucket resources', { timeout: 60000 }, () => {
 
     const lambdaResource = createBucketEventFunction(localState, roleResource, logGroupResource, {
       functionName: 'ez4-test-bucket-event-lambda',
+      projectName: 'ez4-test',
+      projectPrefix: 'ez4',
+      projectBranch: '',
       architecture: ArchitectureType.Arm,
       runtime: RuntimeType.Node24,
       variables: [],

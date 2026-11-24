@@ -70,6 +70,9 @@ const previewResource = async (candidate: FunctionState, current: FunctionState)
     {
       exclude: {
         workspacePath: true,
+        projectPrefix: true,
+        projectBranch: true,
+        projectName: true,
         release: true,
         files: true
       }
@@ -277,7 +280,10 @@ const checkConfigurationUpdates = async (
       sourceFile: true,
       functionName: true,
       workspacePath: true,
+      projectPrefix: true,
+      projectBranch: true,
       architecture: true,
+      projectName: true,
       release: true,
       tags: true
     }

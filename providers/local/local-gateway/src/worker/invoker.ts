@@ -60,11 +60,11 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
   return async (invocation: ModuleInvocation) => {
     const original = invocation.request as InvokerIncoming;
 
+    Runtime.initialize('unknown');
+
     const traceId = getRandomUUID();
 
-    Runtime.setScope({
-      traceId
-    });
+    Runtime.setTraceId(traceId);
 
     const request: AnyObject = {
       ...getMinimalRequest(type, original),

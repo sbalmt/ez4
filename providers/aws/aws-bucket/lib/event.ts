@@ -16,6 +16,8 @@ declare function handle(event: Bucket.Request, context: object): Promise<any>;
 export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
   let currentRequest: Bucket.Incoming | undefined;
 
+  Runtime.initialize(context.invokedFunctionArn);
+
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(currentRequest ?? request, milliseconds), milliseconds);
 
@@ -32,9 +34,7 @@ export async function s3EntryPoint(event: S3Event, context: Context): Promise<vo
       const eventType = getKnownEventType(record.eventName);
       const traceId = getRandomUUID();
 
-      Runtime.setScope({
-        traceId
-      });
+      Runtime.setTraceId(traceId);
 
       currentRequest = {
         ...request,
@@ -101,7 +101,7 @@ const onDone = (request: Partial<Bucket.Incoming>) => {
 };
 
 const onTimeout = (request: Partial<Bucket.Incoming>, timeoutAfter: number) => {
-  console.warn({ ...Runtime.getScope(), timeoutAfter });
+  console.warn({ traceId: Runtime.getTraceId(), timeoutAfter });
 
   return dispatch(
     {
@@ -113,7 +113,7 @@ const onTimeout = (request: Partial<Bucket.Incoming>, timeoutAfter: number) => {
 };
 
 const onError = (error: unknown, request: Partial<Bucket.Request | Bucket.Incoming>) => {
-  console.error({ ...Runtime.getScope(), error });
+  console.error({ traceId: Runtime.getTraceId(), error });
 
   return dispatch(
     {

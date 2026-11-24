@@ -119,7 +119,7 @@ services: {
 - [Topic subscriptions](./topic-subscriptions.md)
 - [Topic requests](./topic-requests.md)
 - [Topic handlers](./topic-handler.md)
-- [Topic listeners](./topic-listener.md)
+- [Topic listener](./topic-listener.md)
 - [Topic client](./topic-client.md)
 
 ## Examples

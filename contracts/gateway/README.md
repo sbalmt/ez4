@@ -110,7 +110,7 @@ export function postHandler(request: Http.Incoming<MyRequest>, { otherService, v
 - [WebSocket service](./docs/ws-service.md)
 - [Gateway handlers](./docs/gateway-handler.md)
 - [Gateway authorizers](./docs/gateway-authorizer.md)
-- [Gateway listeners](./docs/gateway-listener.md)
+- [Gateway listener](./docs/gateway-listener.md)
 - [Gateway providers](./docs/gateway-provider.md)
 - [Gateway defaults](./docs/gateway-defaults.md)
 
