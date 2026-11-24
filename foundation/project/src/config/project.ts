@@ -95,7 +95,9 @@ const validateProjectFile = (projectFile: string, projectData: AnyObject) => {
   assertProjectName(projectData, invalidProperties);
   assertStateFile(projectData, invalidProperties);
   assertSourceFiles(projectData, invalidProperties);
-  assertVariables(projectData, invalidProperties);
+  assertVariables(projectData.variables, 'variables', invalidProperties);
+  assertVariables(projectData.deployOptions?.variables, 'deployOptions.variables', invalidProperties);
+  assertVariables(projectData.serveOptions?.variables, 'serveOptions.variables', invalidProperties);
 
   if (invalidProperties.length) {
     throw new MalformedProjectFileError(projectFile, invalidProperties);
@@ -120,21 +122,19 @@ const assertSourceFiles = (projectData: AnyObject, invalidProperties: string[]) 
   }
 };
 
-const assertVariables = (projectData: AnyObject, invalidProperties: string[]) => {
-  const variables = projectData.variables;
-
+const assertVariables = (variables: unknown, propertyName: string, invalidProperties: string[]) => {
   if (variables === undefined) {
     return;
   }
 
   if (!isAnyObject(variables)) {
-    invalidProperties.push('variables');
+    invalidProperties.push(propertyName);
     return;
   }
 
   for (const [name, value] of Object.entries(variables)) {
     if (!isAnyString(value)) {
-      invalidProperties.push(`variables.${name}`);
+      invalidProperties.push(`${propertyName}.${name}`);
     }
   }
 };

@@ -22,8 +22,11 @@ export const getServeOptions = (input: InputOptions, project: LoadedProjectOptio
     debug: input.debug ?? project.debugMode,
     reset: input.reset ?? project.resetMode,
     local: input.local ?? project.localMode,
-    variables: project.variables,
     suppress: input.suppress,
-    workspacePath
+    workspacePath,
+    variables: {
+      ...project.variables,
+      ...serveOptions?.variables
+    }
   };
 };

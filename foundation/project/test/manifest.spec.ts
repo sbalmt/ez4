@@ -17,7 +17,8 @@ const options: ServeOptions = {
   workspacePath: process.cwd(),
   serviceAddress: 'localhost:3734',
   localOptions: {},
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 const emulators: Record<string, ServiceEmulator> = {

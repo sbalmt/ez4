@@ -16,7 +16,7 @@ type RunnerOptions = {
   projectName: string;
   branchName: string;
   workspacePath: string;
-  variables?: LinkedVariables;
+  variables: LinkedVariables;
 };
 
 export namespace Runner {

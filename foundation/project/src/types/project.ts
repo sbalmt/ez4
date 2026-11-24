@@ -159,6 +159,11 @@ export type ProjectDeployOptions = {
   maxConcurrency?: number;
 
   /**
+   * Variables associated to resources durng deployment.
+   */
+  variables?: LinkedVariables;
+
+  /**
    * Specify the deployment release.
    */
   release?: ProjectDeployReleaseOptions;
@@ -198,6 +203,11 @@ export type ProjectServeOptions = {
    * Default is: `localhost`
    */
   localHost?: string;
+
+  /**
+   * Variables active when serving the project.
+   */
+  variables?: LinkedVariables;
 };
 
 export type ProjectWatchOptions = {
