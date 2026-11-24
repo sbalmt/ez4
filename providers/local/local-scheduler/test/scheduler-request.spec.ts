@@ -29,6 +29,7 @@ const options: ServeOptions = {
   serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
+  variables: {},
   suppress: true
 };
 

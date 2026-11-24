@@ -34,6 +34,7 @@ const options: ServeOptions = {
   serviceAddress: 'localhost',
   localOptions: {},
   testOptions: {},
+  variables: {},
   imports: {
     remote: {
       prefix: 'imported',

@@ -31,7 +31,8 @@ const serveOptions: ServeOptions = {
   workspacePath: process.cwd(),
   serviceAddress: 'localhost:3734',
   localOptions: {},
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 const makeContext = (descriptors: () => AnyObject = () => ({}), references: AnyObject = {}) => {

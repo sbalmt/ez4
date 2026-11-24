@@ -2,9 +2,9 @@ import type { ArraySchema, ObjectSchema, ScalarSchema, UnionSchema, NamingStyle 
 import type { HttpClientRequest, HttpClientResponse } from '../services/http/client';
 
 import { prepareRequestBody, prepareResponseBody } from '@ez4/http';
+import { HttpRequestTimeoutError } from '@ez4/gateway';
 
 import { GatewayDefaults } from '../runtime/constants';
-import { HttpRequestTimeoutError } from '../runtime/errors';
 import { getHttpException } from './errors';
 
 export type RequestAuthorization = {

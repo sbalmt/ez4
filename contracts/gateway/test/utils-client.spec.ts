@@ -5,8 +5,8 @@ import { deepEqual, equal, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { getClientAuthorization, getClientOperations } from '@ez4/gateway/library';
-import { sendClientRequest } from '@ez4/gateway/utils';
 import { AuthorizationType, HttpRequestTimeoutError, HttpError } from '@ez4/gateway';
+import { sendClientRequest } from '@ez4/gateway/utils';
 import { NamingStyle, SchemaType } from '@ez4/schema';
 
 describe('gateway client utils', () => {

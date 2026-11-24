@@ -20,7 +20,8 @@ const options: ServeOptions = {
   workspacePath: process.cwd(),
   serviceAddress: '127.0.0.1:3759',
   localOptions: {},
-  testOptions: {}
+  testOptions: {},
+  variables: {}
 };
 
 const service: HttpService = {
