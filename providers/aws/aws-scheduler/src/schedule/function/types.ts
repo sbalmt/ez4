@@ -8,7 +8,7 @@ export type TargetFunction = {
   module?: string;
 };
 
-export type TargetEntryPoint = TargetFunction & {
+export type TargetEntrypoint = TargetFunction & {
   dependencies: string[];
 };
 
@@ -16,7 +16,7 @@ export type TargetFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  handler: TargetEntryPoint;
+  handler: TargetEntrypoint;
   middlewares?: TargetFunction[];
   listener?: TargetFunction;
   eventSchema?: CronEventSchema;

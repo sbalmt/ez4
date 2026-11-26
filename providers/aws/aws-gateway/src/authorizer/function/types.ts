@@ -9,7 +9,7 @@ export type AuthorizerFunction = {
   module?: string;
 };
 
-export type AuthorizerEntryPoint = AuthorizerFunction & {
+export type AuthorizerEntrypoint = AuthorizerFunction & {
   dependencies: string[];
 };
 
@@ -17,7 +17,7 @@ export type AuthorizerFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  authorizer: AuthorizerEntryPoint;
+  authorizer: AuthorizerEntrypoint;
   listener?: AuthorizerFunction;
   preferences?: HttpPreferences;
   headersSchema?: ObjectSchema;

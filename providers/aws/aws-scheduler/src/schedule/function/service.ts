@@ -19,7 +19,7 @@ export const createTargetFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'eventEntryPoint',
+    handlerName: 'eventEntrypoint',
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,

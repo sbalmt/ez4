@@ -8,7 +8,7 @@ export type StreamFunction = {
   module?: string;
 };
 
-export type StreamEntryPoint = StreamFunction & {
+export type StreamEntrypoint = StreamFunction & {
   dependencies: string[];
 };
 
@@ -16,7 +16,7 @@ export type StreamFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  handler: StreamEntryPoint;
+  handler: StreamEntrypoint;
   middlewares?: StreamFunction[];
   listener?: StreamFunction;
   tableSchema?: ObjectSchema;

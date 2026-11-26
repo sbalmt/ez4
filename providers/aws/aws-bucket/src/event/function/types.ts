@@ -7,7 +7,7 @@ export type BucketEventFunction = {
   module?: string;
 };
 
-export type BucketEventEntryPoint = BucketEventFunction & {
+export type BucketEventEntrypoint = BucketEventFunction & {
   dependencies: string[];
 };
 
@@ -15,7 +15,7 @@ export type BucketEventFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  handler: BucketEventEntryPoint;
+  handler: BucketEventEntrypoint;
   middlewares?: BucketEventFunction[];
   listener?: BucketEventFunction;
   context?: Record<string, ContextSource>;

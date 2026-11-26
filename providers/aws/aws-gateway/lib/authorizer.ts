@@ -34,7 +34,7 @@ declare function dispatch(event: ServiceEvent, context: object): Promise<void>;
 /**
  * Entrypoint to handle API Gateway authorizations.
  */
-export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+export async function apiEntrypoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
   Runtime.initialize(context.invokedFunctionArn);

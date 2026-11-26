@@ -8,7 +8,7 @@ export type QueueFunction = {
   module?: string;
 };
 
-export type QueueEntryPoint = QueueFunction & {
+export type QueueEntrypoint = QueueFunction & {
   dependencies: string[];
 };
 
@@ -22,7 +22,7 @@ export type QueueFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  handler: QueueEntryPoint;
+  handler: QueueEntrypoint;
   middlewares?: QueueFunction[];
   listener?: QueueFunction;
   messageSchema?: QueueMessageSchema;

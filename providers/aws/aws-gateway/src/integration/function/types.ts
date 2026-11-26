@@ -9,7 +9,7 @@ export type IntegrationFunction = {
   module?: string;
 };
 
-export type IntegrationEntryPoint = IntegrationFunction & {
+export type IntegrationEntrypoint = IntegrationFunction & {
   dependencies: string[];
 };
 
@@ -18,7 +18,7 @@ export type IntegrationFunctionParameters = Omit<
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
   type: IntegrationFunctionType;
-  handler: IntegrationEntryPoint;
+  handler: IntegrationEntrypoint;
   middlewares?: IntegrationFunction[];
   listener?: IntegrationFunction;
   preferences?: HttpPreferences;

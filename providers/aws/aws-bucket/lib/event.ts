@@ -13,7 +13,7 @@ declare function handle(event: Bucket.Request, context: object): Promise<any>;
 /**
  * Entrypoint to handle S3 events.
  */
-export async function s3EntryPoint(event: S3Event, context: Context): Promise<void> {
+export async function s3Entrypoint(event: S3Event, context: Context): Promise<void> {
   let currentRequest: Bucket.Incoming | undefined;
 
   Runtime.initialize(context.invokedFunctionArn);
