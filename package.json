@@ -18,6 +18,7 @@
     "foundation/emulator",
     "foundation/server",
     "foundation/project",
+    "foundation/bundler",
     "foundation/common",
     "foundation/schema",
     "foundation/validator",

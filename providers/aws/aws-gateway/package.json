@@ -61,6 +61,7 @@
     "@ez4/aws-function": "^0.58.0",
     "@ez4/aws-identity": "^0.58.0",
     "@ez4/aws-logs": "^0.58.0",
+    "@ez4/bundler": "^0.58.0",
     "@ez4/common": "^0.58.0",
     "@ez4/http": "^0.58.0",
     "@ez4/gateway": "^0.58.0",

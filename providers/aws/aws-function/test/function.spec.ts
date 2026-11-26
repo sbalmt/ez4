@@ -6,9 +6,10 @@ import { join, relative, resolve } from 'node:path';
 
 import { createFunction, isFunctionState, registerTriggers } from '@ez4/aws-function';
 import { ArchitectureType, RuntimeType } from '@ez4/project';
-import { clearBundleCache, deploy } from '@ez4/aws-common';
+import { clearBundleCache, clearHashCache } from '@ez4/bundler';
 import { createLogGroup } from '@ez4/aws-logs';
 import { createRole } from '@ez4/aws-identity';
+import { deploy } from '@ez4/aws-common';
 import { deepClone } from '@ez4/utils';
 
 import { getRoleDocument } from './common/role';
@@ -44,6 +45,7 @@ describe('function', { timeout: 60000 }, () => {
 
   beforeEach(() => {
     clearBundleCache();
+    clearHashCache();
   });
 
   it('assert :: deploy', async () => {

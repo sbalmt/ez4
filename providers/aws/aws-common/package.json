@@ -47,9 +47,7 @@
     "@ez4/common": "^0.58.0",
     "@ez4/logger": "^0.58.0",
     "@ez4/project": "^0.58.0",
-    "@ez4/runtime": "^0.58.0",
     "@ez4/state": "^0.58.0",
-    "@ez4/utils": "^0.58.0",
-    "esbuild": "^0.28.2"
+    "@ez4/utils": "^0.58.0"
   }
 }
