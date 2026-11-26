@@ -29,6 +29,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     context,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -42,6 +43,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     resourceName: functionName,
     filePrefix: 'sqs',
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,

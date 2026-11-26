@@ -29,6 +29,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -43,6 +44,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     filePrefix: 'auth',
     handler: authorizer,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,

@@ -21,14 +21,15 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     middlewares,
     listener,
     functionName,
-    workspacePath,
     eventSchema,
     references,
     context,
     debug,
-    projectName,
+    workspacePath,
+    entrypointFile,
     projectPrefix,
-    projectBranch
+    projectBranch,
+    projectName
   } = parameters;
 
   const definitions = getDefinitionsObject(connections);
@@ -39,6 +40,7 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     resourceName: functionName,
     filePrefix: 'scheduler',
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,

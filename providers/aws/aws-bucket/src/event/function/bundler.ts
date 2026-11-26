@@ -25,6 +25,7 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -39,6 +40,7 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     define: definitions,
     filePrefix: 's3',
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,

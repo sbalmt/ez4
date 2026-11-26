@@ -26,6 +26,7 @@ export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctio
     context,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -39,6 +40,7 @@ export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctio
     resourceName: functionName,
     filePrefix: 'sns',
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,

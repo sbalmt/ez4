@@ -1,3 +1,4 @@
+import type { Plugin } from 'esbuild';
 import type { BundlerEntrypoint, BundlerOptions } from '../types/bundler';
 
 import { readFile } from 'node:fs/promises';
@@ -5,6 +6,8 @@ import { readFile } from 'node:fs/promises';
 import { ServiceEventType } from '@ez4/runtime';
 
 import { buildServiceContext } from './context';
+
+const ENTRYPOINT_MODULE = 'ez4:entrypoint';
 
 export const getCompatibilityCode = () => {
   return `
@@ -67,6 +70,26 @@ const __EZ4_CONTEXT = ${context.services};
 
 ${template}
 `;
+};
+
+export const getEntrypointPlugin = async (options: BundlerOptions, workspacePath: string): Promise<Plugin> => {
+  const contents = await getEntrypointCode(options);
+
+  return {
+    name: 'ez4-entrypoint',
+    setup(build) {
+      build.onResolve({ filter: /^ez4:entrypoint$/ }, () => ({
+        path: ENTRYPOINT_MODULE,
+        namespace: 'ez4'
+      }));
+
+      build.onLoad({ filter: /.*/, namespace: 'ez4' }, () => ({
+        resolveDir: workspacePath,
+        loader: 'ts',
+        contents
+      }));
+    }
+  };
 };
 
 const getEntrypointImport = (entrypoint: BundlerEntrypoint) => {

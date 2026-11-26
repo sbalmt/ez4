@@ -1,4 +1,4 @@
-import type { BundlerOptions } from '../types/bundler';
+import type { BundlerEntrypoint, BundlerOptions } from '../types/bundler';
 
 import { dirname, parse, relative, resolve } from 'node:path';
 import { availableParallelism } from 'node:os';
@@ -11,7 +11,7 @@ import { getTemporaryPath } from '@ez4/project/library';
 import { Tasks, toKebabCase } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
 
-import { getCompatibilityCode, getEntrypointCode } from '../utils/entrypoint';
+import { getCompatibilityCode, getEntrypointCode, getEntrypointPlugin } from '../utils/entrypoint';
 import { SourceFileError } from '../errors/bundler';
 
 const AVAILABLE_CPUS = Math.max(1, Math.floor(availableParallelism() / 2));
@@ -30,8 +30,22 @@ export const getFunctionBundle = (provider: string, options: BundlerOptions) => 
   return BUNDLE_QUEUE.run(() => getBundleFile(provider, options));
 };
 
-const getCacheKey = (workspacePath: string, { handler, middlewares, listener }: BundlerOptions) => {
-  return JSON.stringify({ workspacePath, middlewares, listener, handler });
+const getEntrypointKey = ({ sourceFile, functionName, module }: BundlerEntrypoint) => {
+  return {
+    sourceFile,
+    functionName,
+    module
+  };
+};
+
+const getCacheKey = (workspacePath: string, { entrypointFile, handler, middlewares, listener }: BundlerOptions) => {
+  return JSON.stringify({
+    handler: getEntrypointKey(handler),
+    middlewares: middlewares?.map(getEntrypointKey),
+    listener: listener && getEntrypointKey(listener),
+    entrypointFile,
+    workspacePath
+  });
 };
 
 const getBundleFile = async (provider: string, options: BundlerOptions) => {
@@ -58,6 +72,8 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
 
   await mkdir(dirname(outputFile), { recursive: true });
 
+  const entrypointFile = options.entrypointFile && resolve(workspacePath, options.entrypointFile);
+
   const result = await build({
     outfile: outputFile,
     treeShaking: !debug,
@@ -70,6 +86,22 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
     external: ['@aws-sdk/*'],
     format: 'esm',
     target,
+    banner: {
+      js: getCompatibilityCode()
+    },
+    ...(entrypointFile
+      ? {
+          entryPoints: [entrypointFile],
+          plugins: [await getEntrypointPlugin(options, workspacePath)]
+        }
+      : {
+          stdin: {
+            resolveDir: workspacePath,
+            contents: await getEntrypointCode(options),
+            sourcefile: 'main.ts',
+            loader: 'ts'
+          }
+        }),
     define: {
       ...options.define,
       EZ4_RESOURCE_NAME: `'${resourceName}'`,
@@ -78,15 +110,6 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
       EZ4_PROJECT_NAME: JSON.stringify(projectName),
       EZ4_IS_DEBUG_RUNTIME: `${!!debug}`,
       EZ4_IS_REMOTE_RUNTIME: 'true'
-    },
-    stdin: {
-      resolveDir: workspacePath,
-      contents: await getEntrypointCode(options),
-      sourcefile: 'main.ts',
-      loader: 'ts'
-    },
-    banner: {
-      js: getCompatibilityCode()
     }
   });
 

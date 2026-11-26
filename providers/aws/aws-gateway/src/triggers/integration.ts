@@ -121,6 +121,7 @@ const getIntegrationFunction = (
       context: service.context,
       dependencies: [gatewayState.entryId],
       workspacePath: options.workspacePath,
+      entrypointFile: options.bundle?.entrypointFile,
       projectPrefix: options.prefix,
       projectBranch: options.branchName,
       projectName: options.projectName,

@@ -76,6 +76,11 @@ export type ProjectOptions = {
   customProviders?: ProjectCustomProviders;
 
   /**
+   * Options for bundling deployment artifacts.
+   */
+  bundleOptions?: ProjectBundleOptions;
+
+  /**
    * Options for deployment and releases.
    */
   deployOptions?: ProjectDeployOptions;
@@ -114,6 +119,25 @@ export type ProjectOptions = {
    * Tags associated to all services.
    */
   tags?: Record<string, string>;
+};
+
+export type ProjectBundleOptions = {
+  /**
+   * Custom file to use as the wrapper of bundled function entrypoints.
+   * The generated provider entrypoint is available through `ez4:entrypoint`.
+   *
+   * @example
+   * ```ts
+   * export const providerEntrypoint = async (...args: unknown[]) => {
+   *   const { providerEntrypoint } = await import('ez4:entrypoint');
+   *
+   *   // Custom code ...
+   *
+   *   return providerEntrypoint(...args);
+   * };
+   * ```
+   */
+  entrypointFile?: string;
 };
 
 /**

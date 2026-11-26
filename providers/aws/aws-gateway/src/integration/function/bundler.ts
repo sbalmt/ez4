@@ -43,6 +43,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -56,6 +57,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName,
@@ -91,6 +93,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -101,6 +104,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsConnection),
+    entrypointFile,
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
@@ -135,6 +139,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -145,6 +150,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsMessage),
+    entrypointFile,
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,

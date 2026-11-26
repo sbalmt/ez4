@@ -80,6 +80,7 @@ export const prepareBucketEvents = (
         context: service.context,
         dependencies: [bucketState.entryId],
         workspacePath: options.workspacePath,
+        entrypointFile: options.bundle?.entrypointFile,
         projectPrefix: options.prefix,
         projectBranch: options.branchName,
         projectName: options.projectName,

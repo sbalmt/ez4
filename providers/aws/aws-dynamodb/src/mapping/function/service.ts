@@ -25,6 +25,7 @@ export const createStreamFunction = <E extends EntryState>(
     functionName: parameters.functionName,
     description: parameters.description,
     workspacePath: parameters.workspacePath,
+    entrypointFile: parameters.entrypointFile,
     projectPrefix: parameters.projectPrefix,
     projectBranch: parameters.projectBranch,
     projectName: parameters.projectName,

@@ -75,6 +75,7 @@ export const getAuthorizerFunction = (
       variables: [options.variables, service.variables],
       references: authorizer.references ?? (provider?.services && Object.keys(provider.services)),
       workspacePath: options.workspacePath,
+      entrypointFile: options.bundle?.entrypointFile,
       projectPrefix: options.prefix,
       projectBranch: options.branchName,
       projectName: options.projectName,

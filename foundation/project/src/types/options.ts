@@ -1,4 +1,4 @@
-import type { ProjectDefaultOptions, ProjectDeployReleaseOptions } from '@ez4/project';
+import type { ProjectBundleOptions, ProjectDefaultOptions, ProjectDeployReleaseOptions } from '@ez4/project';
 import type { AnyObject } from '@ez4/utils';
 import type { LinkedVariables } from './service';
 
@@ -21,6 +21,7 @@ export type DeployOptions = CommonOptions & {
   imports?: Record<string, ImportOptions>;
   release?: ProjectDeployReleaseOptions;
   defaults?: ProjectDefaultOptions;
+  bundle?: ProjectBundleOptions;
   variables: LinkedVariables;
   tags?: Record<string, string>;
 };
