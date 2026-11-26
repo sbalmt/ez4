@@ -174,7 +174,7 @@ components:
                 minLength: 1
                 maxLength: 32
               type:
-                enum: 
+                enum:
                   - 'regular'
                   - 'hidden'
             required:
@@ -229,7 +229,7 @@ components:
                 minLength: 1
                 maxLength: 32
               type:
-                enum: 
+                enum:
                   - 'regular'
                   - 'hidden'
             required:
@@ -281,7 +281,7 @@ components:
                 type: string
                 description: "Item tag label."
               type:
-                enum: 
+                enum:
                   - 'regular'
                   - 'hidden'
             required:

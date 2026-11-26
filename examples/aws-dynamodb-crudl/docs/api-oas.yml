@@ -106,7 +106,7 @@ paths:
           in: query
           required: true
           schema:
-            enum: 
+            enum:
               - 'type-a'
               - 'type-b'
       responses:
@@ -132,7 +132,7 @@ components:
           minLength: 1
           maxLength: 128
         type:
-          enum: 
+          enum:
             - 'type-a'
             - 'type-b'
       required:
@@ -151,7 +151,7 @@ components:
           minLength: 1
           maxLength: 128
         type:
-          enum: 
+          enum:
             - 'type-a'
             - 'type-b'
 
@@ -173,7 +173,7 @@ components:
         description:
           type: string
         type:
-          enum: 
+          enum:
             - 'type-a'
             - 'type-b'
       required:
@@ -188,7 +188,7 @@ components:
         description:
           type: string
         type:
-          enum: 
+          enum:
             - 'type-a'
             - 'type-b'
       required:
@@ -203,7 +203,7 @@ components:
         description:
           type: string
         type:
-          enum: 
+          enum:
             - 'type-a'
             - 'type-b'
       required:
@@ -226,7 +226,7 @@ components:
               description:
                 type: string
               type:
-                enum: 
+                enum:
                   - 'type-a'
                   - 'type-b'
             required:
