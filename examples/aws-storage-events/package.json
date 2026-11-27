@@ -18,11 +18,11 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/aws-bucket": "^0.58.0",
-    "@ez4/common": "^0.58.0",
-    "@ez4/local-storage": "^0.58.0",
-    "@ez4/project": "^0.58.0",
-    "@ez4/runtime": "^0.58.0",
-    "@ez4/storage": "^0.58.0"
+    "@ez4/aws-bucket": "^0.59.0",
+    "@ez4/common": "^0.59.0",
+    "@ez4/local-storage": "^0.59.0",
+    "@ez4/project": "^0.59.0",
+    "@ez4/runtime": "^0.59.0",
+    "@ez4/storage": "^0.59.0"
   }
 }

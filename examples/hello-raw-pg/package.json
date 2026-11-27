@@ -15,8 +15,8 @@
     "serve": "ez4 serve -e local.env"
   },
   "dependencies": {
-    "@ez4/database": "^0.58.0",
-    "@ez4/project": "^0.58.0",
-    "@ez4/raw-pg": "^0.58.0"
+    "@ez4/database": "^0.59.0",
+    "@ez4/project": "^0.59.0",
+    "@ez4/raw-pg": "^0.59.0"
   }
 }
