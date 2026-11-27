@@ -129,6 +129,7 @@ export type ProjectBundleOptions = {
    * @example
    * ```ts
    * export const providerEntrypoint = async (...args: unknown[]) => {
+   *   // @ts-expect-error EZ4 provides this virtual module during deployment bundling.
    *   const { providerEntrypoint } = await import('ez4:entrypoint');
    *
    *   // Custom code ...
