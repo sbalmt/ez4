@@ -9,8 +9,9 @@ export type BundlerEntrypoint = {
 export type BundlerOptions = {
   filePrefix: string;
   templateFile: string;
-  entrypointFile?: string;
   workspacePath?: string;
+  entrypointFile?: string;
+  exportName: string;
   resourceName: string;
   projectPrefix: string;
   projectBranch: string;

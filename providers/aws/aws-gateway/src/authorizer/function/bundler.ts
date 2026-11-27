@@ -16,7 +16,7 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/authorizer.ts');
 };
 
-export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
+export const bundleApiFunction = async (exportName: string, parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
   const {
     authorizer,
     listener,
@@ -42,9 +42,9 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'auth',
-    handler: authorizer,
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -55,6 +55,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
       __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
+    handler: authorizer,
     listener,
     debug
   });

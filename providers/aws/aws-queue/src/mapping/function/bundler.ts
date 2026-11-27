@@ -17,7 +17,7 @@ export const getBundleTemplateFile = () => {
 
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
-export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
+export const bundleQueueFunction = async (exportName: string, parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -44,6 +44,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     filePrefix: 'sqs',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

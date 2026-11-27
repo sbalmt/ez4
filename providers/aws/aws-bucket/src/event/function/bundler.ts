@@ -15,7 +15,11 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/event.ts');
 };
 
-export const bundleBucketEventFunction = async (parameters: BucketEventFunctionParameters, connections: EntryState[]) => {
+export const bundleBucketEventFunction = async (
+  exportName: string,
+  parameters: BucketEventFunctionParameters,
+  connections: EntryState[]
+) => {
   const {
     handler,
     middlewares,
@@ -41,6 +45,7 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     filePrefix: 's3',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

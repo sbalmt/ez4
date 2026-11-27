@@ -23,9 +23,9 @@ export const getBundleTemplateFile = (type: IntegrationFunctionType) => {
   return join(__MODULE_PATH, '../lib', bundleTemplateFiles[type]);
 };
 
-export type BundleFunction = (parameters: IntegrationFunctionParameters, connections: EntryState[]) => Promise<string>;
+export type BundleFunction = (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => Promise<string>;
 
-export const bundleRequestFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleRequestFunction = async (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -58,6 +58,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     filePrefix: 'api',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -79,7 +80,11 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
   });
 };
 
-export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleConnectionFunction = async (
+  exportName: string,
+  parameters: IntegrationFunctionParameters,
+  connections: EntryState[]
+) => {
   const {
     handler,
     middlewares,
@@ -104,10 +109,11 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsConnection),
-    entrypointFile,
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -125,7 +131,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
   });
 };
 
-export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleMessageFunction = async (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -150,10 +156,11 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
   return getFunctionBundle(IntegrationServiceName, {
     context: context && references ? pickObject(context, references) : context,
     templateFile: getBundleTemplateFile(IntegrationFunctionType.WsMessage),
-    entrypointFile,
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

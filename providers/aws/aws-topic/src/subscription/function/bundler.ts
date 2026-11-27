@@ -15,7 +15,11 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/event.ts');
 };
 
-export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctionParameters, connections: EntryState[]) => {
+export const bundleSubscriptionFunction = async (
+  exportName: string,
+  parameters: SubscriptionFunctionParameters,
+  connections: EntryState[]
+) => {
   const {
     handler,
     middlewares,
@@ -41,6 +45,7 @@ export const bundleSubscriptionFunction = async (parameters: SubscriptionFunctio
     filePrefix: 'sns',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

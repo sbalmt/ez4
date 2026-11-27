@@ -12,7 +12,7 @@ import { Tasks, toKebabCase } from '@ez4/utils';
 import { Logger } from '@ez4/logger';
 
 import { getCompatibilityCode, getEntrypointCode, getEntrypointPlugin } from '../utils/entrypoint';
-import { SourceFileError } from '../errors/bundler';
+import { MissingEntrypointError, SourceFileError } from '../errors/bundler';
 
 const AVAILABLE_CPUS = Math.max(1, Math.floor(availableParallelism() / 2));
 
@@ -38,13 +38,14 @@ const getEntrypointKey = ({ sourceFile, functionName, module }: BundlerEntrypoin
   };
 };
 
-const getCacheKey = (workspacePath: string, { entrypointFile, handler, middlewares, listener }: BundlerOptions) => {
+const getCacheKey = (workspacePath: string, { entrypointFile, exportName, handler, middlewares, listener }: BundlerOptions) => {
   return JSON.stringify({
     handler: getEntrypointKey(handler),
     middlewares: middlewares?.map(getEntrypointKey),
     listener: listener && getEntrypointKey(listener),
+    workspacePath,
     entrypointFile,
-    workspacePath
+    exportName
   });
 };
 
@@ -54,7 +55,6 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
   const { sourceFile, functionName } = options.handler;
 
   const cacheKey = getCacheKey(workspacePath, options);
-
   const cacheFile = FILES_CACHE.get(cacheKey);
 
   if (cacheFile && existsSync(cacheFile)) {
@@ -72,7 +72,7 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
 
   await mkdir(dirname(outputFile), { recursive: true });
 
-  const entrypointFile = options.entrypointFile && resolve(workspacePath, options.entrypointFile);
+  const wrapperFile = options.entrypointFile && resolve(workspacePath, options.entrypointFile);
 
   const result = await build({
     outfile: outputFile,
@@ -80,6 +80,7 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
     minifyWhitespace: true,
     minifySyntax: true,
     keepNames: true,
+    metafile: true,
     bundle: true,
     platform: 'node',
     packages: 'bundle',
@@ -89,9 +90,9 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
     banner: {
       js: getCompatibilityCode()
     },
-    ...(entrypointFile
+    ...(wrapperFile
       ? {
-          entryPoints: [entrypointFile],
+          entryPoints: [wrapperFile],
           plugins: [await getEntrypointPlugin(options, workspacePath)]
         }
       : {
@@ -124,16 +125,20 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
     })
   ]);
 
-  warnings.forEach((message) => {
-    Logger.warn(`[${provider}]: ${message}`);
-  });
-
-  errors.forEach((message) => {
-    Logger.error(`[${provider}]: ${message}`);
-  });
+  warnings.forEach((message) => Logger.warn(`[${provider}]: ${message}`));
+  errors.forEach((message) => Logger.error(`[${provider}]: ${message}`));
 
   if (errors.length) {
     throw new SourceFileError(sourceFile);
+  }
+
+  const outputs = result.metafile?.outputs ?? {};
+  const exports = Object.values(outputs).flatMap(({ exports }) => exports);
+
+  if (!exports.includes(options.exportName)) {
+    const entrypointFile = wrapperFile ?? options.templateFile;
+
+    throw new MissingEntrypointError(entrypointFile, options.exportName);
   }
 
   FILES_CACHE.set(cacheKey, outputFile);

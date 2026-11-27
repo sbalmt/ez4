@@ -10,6 +10,8 @@ import { LogLevel } from '@ez4/project';
 
 import { bundleTargetFunction, getBundleTemplateFile } from './bundler';
 
+const HANDLER_NAME = 'cronEventEntrypoint';
+
 export const createTargetFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
@@ -19,7 +21,7 @@ export const createTargetFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'cronEventEntrypoint',
+    handlerName: HANDLER_NAME,
     sourceFile: handler.sourceFile,
     functionName: parameters.functionName,
     description: parameters.description,
@@ -41,10 +43,16 @@ export const createTargetFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleTargetFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return bundleTargetFunction(HANDLER_NAME, parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
+      return [
+        handler.sourceFile,
+        getBundleTemplateFile(),
+        ...handler.dependencies,
+        ...middlewares.map(({ sourceFile }) => sourceFile),
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({

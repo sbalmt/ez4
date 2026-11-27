@@ -15,7 +15,7 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/stream.ts');
 };
 
-export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
+export const bundleStreamFunction = async (exportName: string, parameters: StreamFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -41,6 +41,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     filePrefix: 'db',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

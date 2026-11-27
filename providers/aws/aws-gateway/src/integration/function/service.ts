@@ -56,10 +56,16 @@ export const createIntegrationFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return BUNDLE_FUNCTIONS[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return BUNDLE_FUNCTIONS[type](HANDLER_NAMES[type], parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(type), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
+      return [
+        handler.sourceFile,
+        getBundleTemplateFile(type),
+        ...handler.dependencies,
+        ...middlewares.map(({ sourceFile }) => sourceFile),
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({

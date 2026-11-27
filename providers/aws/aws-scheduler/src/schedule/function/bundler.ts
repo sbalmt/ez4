@@ -15,7 +15,7 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/event.ts');
 };
 
-export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
+export const bundleTargetFunction = async (exportName: string, parameters: TargetFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -41,6 +41,7 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     filePrefix: 'scheduler',
     workspacePath,
     entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

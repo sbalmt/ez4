@@ -10,6 +10,8 @@ import { LogLevel } from '@ez4/project';
 
 import { bundleQueueFunction, getBundleTemplateFile } from './bundler';
 
+const HANDLER_NAME = 'sqsEventEntrypoint';
+
 export const createQueueFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
@@ -19,7 +21,7 @@ export const createQueueFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, backoff, messageSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'sqsEventEntrypoint',
+    handlerName: HANDLER_NAME,
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
@@ -42,10 +44,16 @@ export const createQueueFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleQueueFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return bundleQueueFunction(HANDLER_NAME, parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
+      return [
+        handler.sourceFile,
+        getBundleTemplateFile(),
+        ...handler.dependencies,
+        ...middlewares.map(({ sourceFile }) => sourceFile),
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({
