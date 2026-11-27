@@ -15,5 +15,5 @@ export const getEnumSchemaOutput = (schema: EnumSchema) => {
     }
   }
 
-  return ['enum: ', ...getIndentedOutput(optionsOutput)];
+  return ['enum:', ...getIndentedOutput(optionsOutput)];
 };

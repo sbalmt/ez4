@@ -104,6 +104,10 @@ const getIntegrationFunction = (
       tags
     });
 
+    const references = handler.references
+      ? arrayUnique(handler.references, ...allMiddlewares.map(({ references }) => references), listener?.references)
+      : provider?.services && Object.keys(provider.services);
+
     handlerState = createIntegrationFunction(state, context.role, logGroupState, {
       functionName: integrationName,
       description: handler.summary ?? handler.description,
@@ -117,10 +121,10 @@ const getIntegrationFunction = (
       responseSchema: response?.body,
       timeout: Math.max(5, timeout - 1),
       variables: [options.variables, service.variables],
-      references: handler.references ?? (provider?.services && Object.keys(provider.services)),
       context: service.context,
       dependencies: [gatewayState.entryId],
       workspacePath: options.workspacePath,
+      entrypointFile: options.bundle?.entrypointFile,
       projectPrefix: options.prefix,
       projectBranch: options.branchName,
       projectName: options.projectName,
@@ -148,6 +152,7 @@ const getIntegrationFunction = (
         ...defaults.preferences,
         ...target.preferences
       },
+      references,
       architecture,
       logLevel,
       runtime,

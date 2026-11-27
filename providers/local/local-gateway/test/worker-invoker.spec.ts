@@ -1,9 +1,10 @@
 import type { ModuleInvocation } from '@ez4/emulator';
 
-import { deepEqual, equal, rejects } from 'node:assert/strict';
+import { deepEqual, equal, notEqual, rejects } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { HttpNotFoundError } from '@ez4/gateway';
+import { Runtime } from '@ez4/runtime';
 
 import { makeInvoker, RequestType } from '../src/worker/invoker';
 
@@ -41,6 +42,41 @@ const makeInvocation = (handler: () => unknown) => {
 };
 
 describe('gateway worker response mapping', () => {
+  it('assert :: propagates the incoming trace ID', async () => {
+    const { invocation } = makeInvocation(() => ({ status: 204 }));
+    const invoke = makeInvoker({ type: RequestType.HttpRequest, response: { status: 204 } });
+
+    const traceId = 'incoming-trace-id';
+
+    invocation.request = {
+      headers: {
+        'x-trace-id': traceId
+      }
+    };
+
+    await invoke(invocation);
+
+    equal(Runtime.getTraceId(), traceId);
+  });
+
+  it('assert :: generates a trace ID for websocket messages', async () => {
+    const { invocation } = makeInvocation(() => undefined);
+
+    const traceId = 'incoming-trace-id';
+
+    invocation.request = {
+      headers: {
+        'x-trace-id': traceId
+      }
+    };
+
+    const invoke = makeInvoker({ type: RequestType.WsMessage });
+
+    await invoke(invocation);
+
+    notEqual(Runtime.getTraceId(), traceId);
+  });
+
   it('assert :: formats successful HTTP responses inside the invoker', async () => {
     const { invocation, phases } = makeInvocation(() => ({ status: 204 }));
     const invoke = makeInvoker({ type: RequestType.HttpRequest, response: { status: 204 } });
@@ -61,6 +97,7 @@ describe('gateway worker response mapping', () => {
       body: JSON.stringify({ type: 'error', message: 'Not found.', context: { resource: 'item' } }),
       headers: { 'content-type': 'application/json' }
     });
+
     equal(getReportedError(), error);
     deepEqual(phases, ['begin', 'ready', 'invoke', 'error', 'end']);
   });
@@ -69,7 +106,11 @@ describe('gateway worker response mapping', () => {
     const { invocation } = makeInvocation(() => {
       throw new CustomError('Denied.');
     });
-    const invoke = makeInvoker({ type: RequestType.HttpAuthorizer, httpErrors: { CustomError: 409 } });
+
+    const invoke = makeInvoker({
+      type: RequestType.HttpAuthorizer,
+      httpErrors: { CustomError: 409 }
+    });
 
     deepEqual(await invoke(invocation), {
       status: 409,
@@ -81,7 +122,9 @@ describe('gateway worker response mapping', () => {
   it('assert :: leaves successful authorizer identities distinguishable from errors', async () => {
     const { invocation } = makeInvocation(() => ({ identity: { user: 'test' } }));
 
-    deepEqual(await makeInvoker({ type: RequestType.HttpAuthorizer })(invocation), {
+    const invoke = makeInvoker({ type: RequestType.HttpAuthorizer });
+
+    deepEqual(await invoke(invocation), {
       identity: { user: 'test' }
     });
   });
@@ -91,20 +134,23 @@ describe('gateway worker response mapping', () => {
       throw new HttpNotFoundError('Missing.', { resource: 'ws' });
     });
 
-    equal(
-      await makeInvoker({ type: RequestType.WsMessage })(invocation),
-      JSON.stringify({ type: 'error', message: 'Missing.', context: { resource: 'ws' } })
-    );
+    const invoke = makeInvoker({ type: RequestType.WsMessage });
+
+    equal(await invoke(invocation), JSON.stringify({ type: 'error', message: 'Missing.', context: { resource: 'ws' } }));
+
     deepEqual(phases, ['begin', 'ready', 'invoke', 'error', 'end']);
   });
 
   it('assert :: propagates unmapped errors after emitting error and end', async () => {
     const error = new CustomError('Unmapped.');
+
     const { invocation, phases } = makeInvocation(() => {
       throw error;
     });
 
-    await rejects(makeInvoker({ type: RequestType.HttpRequest, response: { status: 204 } })(invocation), error);
+    const invoke = makeInvoker({ type: RequestType.HttpRequest, response: { status: 204 } });
+
+    await rejects(invoke(invocation), error);
     deepEqual(phases, ['begin', 'ready', 'invoke', 'error', 'end']);
   });
 });

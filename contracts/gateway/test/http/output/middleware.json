@@ -22,8 +22,11 @@
           "name": "defaultMiddleware",
           "file": "test/http/input/output-middleware.ts",
           "position": [
-            17,
+            24,
             1
+          ],
+          "references": [
+            "defaultMiddlewareClient"
           ]
         }
       ]
@@ -35,7 +38,7 @@
           "name": "testHandler",
           "file": "test/http/input/output-middleware.ts",
           "position": [
-            25,
+            18,
             1
           ],
           "response": {
@@ -47,11 +50,25 @@
             "name": "routeMiddleware",
             "file": "test/http/input/output-middleware.ts",
             "position": [
-              21,
+              30,
               1
+            ],
+            "references": [
+              "routeMiddlewareClient"
             ]
           }
-        ]
+        ],
+        "listener": {
+          "name": "routeListener",
+          "file": "test/http/input/output-middleware.ts",
+          "position": [
+            36,
+            1
+          ],
+          "references": [
+            "routeListenerClient"
+          ]
+        }
       }
     ]
   }

@@ -4,6 +4,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { QueueDefaults } from '@ez4/queue/library';
 import { createModule } from '@ez4/emulator';
+import { arrayUnique } from '@ez4/utils';
 
 export const processLambdaMessage = async (
   service: QueueService | QueueImport,
@@ -12,30 +13,34 @@ export const processLambdaMessage = async (
   subscription: QueueSubscription,
   message: AnyObject
 ) => {
-  const references = context.makeReferences(service.services, subscription.handler.references);
-  const services = context.makeDescriptors(service.services);
+  const { handler, middlewares = [], listener, memory, variables } = subscription;
+  const { schema, services } = service;
+
+  const references = handler.references
+    ? arrayUnique(handler.references, ...middlewares.map(({ references }) => references), listener?.references)
+    : undefined;
 
   const module = createModule({
+    services: context.makeDescriptors(services),
+    references: context.makeReferences(services, references),
     workspacePath: options.workspacePath,
-    listener: subscription.listener,
-    middlewares: subscription.middlewares,
-    handler: subscription.handler,
-    references,
-    services,
+    handler,
+    middlewares,
+    listener,
     invoker: {
       name: 'makeInvoker',
       module: '@ez4/local-queue/worker',
       options: {
-        schema: service.schema
+        schema
       }
     },
     environment: {
-      memory: subscription.memory ?? QueueDefaults.Memory,
+      memory: memory ?? QueueDefaults.Memory,
       timeout: service.timeout ?? QueueDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,
-        ...subscription.variables
+        ...variables
       }
     }
   });

@@ -18,30 +18,47 @@
     "services": {},
     "expression": "rate(1 minute)",
     "target": {
+      "handler": {
+        "name": "targetHandler",
+        "file": "test/input/output-middleware.ts",
+        "position": [
+          13,
+          1
+        ]
+      },
       "middlewares": [
         {
           "name": "firstMiddleware",
           "file": "test/input/output-middleware.ts",
           "position": [
-            12,
+            15,
             1
+          ],
+          "references": [
+            "firstMiddlewareClient"
           ]
         },
         {
           "name": "secondMiddleware",
           "file": "test/input/output-middleware.ts",
           "position": [
-            16,
+            21,
             1
+          ],
+          "references": [
+            "secondMiddlewareClient"
           ]
         }
       ],
-      "handler": {
-        "name": "targetHandler",
+      "listener": {
+        "name": "targetListener",
         "file": "test/input/output-middleware.ts",
         "position": [
-          20,
+          27,
           1
+        ],
+        "references": [
+          "targetListenerClient"
         ]
       }
     }

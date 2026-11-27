@@ -1,0 +1,46 @@
+{
+  "name": "@ez4/bundler",
+  "description": "EZ4: Shared bundler API for deployment artifacts",
+  "version": "0.59.0",
+  "author": "Silas B.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "ez4",
+    "bundler"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbalmt/ez4.git",
+    "directory": "foundation/bundler"
+  },
+  "engines": {
+    "node": ">=24.21"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "default": "./dist/main.mjs"
+    }
+  },
+  "sideEffects": false,
+  "workspaces": [
+    "foundation/*"
+  ],
+  "scripts": {
+    "lint": "eslint --cache",
+    "clean": "rm -rf dist/* *.tsbuildinfo .eslintcache",
+    "check": "tsc -p tsconfig.pack.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "build": "tsc -p tsconfig.pack.json && node tools/bundler.mjs",
+    "local:publish": "npm run build && npm run clean:registry && npm publish --registry http://localhost:4873",
+    "clean:registry": "rm -rf ../../.registry/@ez4/bundler",
+    "live:publish": "npm run build && npm publish --access public"
+  },
+  "dependencies": {
+    "@ez4/logger": "^0.59.0",
+    "@ez4/project": "^0.59.0",
+    "@ez4/runtime": "^0.59.0",
+    "@ez4/utils": "^0.59.0",
+    "esbuild": "^0.28.2"
+  }
+}

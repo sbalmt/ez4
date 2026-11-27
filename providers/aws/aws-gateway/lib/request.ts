@@ -40,7 +40,7 @@ declare function dispatch(event: Http.ServiceEvent<Http.Request>, context: objec
 /**
  * Entrypoint to handle API Gateway requests.
  */
-export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+export async function httpRequestEntrypoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
   Runtime.initialize(context.invokedFunctionArn);

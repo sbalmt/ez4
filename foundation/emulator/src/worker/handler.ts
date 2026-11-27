@@ -21,7 +21,7 @@ export const invokeHandler = async (
   const milliseconds = Math.max(0, timeout - 1000);
   const timeoutEvent = setTimeout(() => onTimeout(listener, context, currentRequest), milliseconds);
 
-  const wrappedHandler = middlewares.reduceRight((next, middleware) => middleware(next), handler);
+  const wrappedHandler = middlewares.reduceRight((next, middleware) => middleware(next, context), handler);
 
   try {
     const response = await invoker({

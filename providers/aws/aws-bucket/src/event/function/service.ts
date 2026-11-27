@@ -10,6 +10,8 @@ import { LogLevel } from '@ez4/project';
 
 import { bundleBucketEventFunction, getBundleTemplateFile } from './bundler';
 
+const HANDLER_NAME = 's3EventEntrypoint';
+
 export const createBucketEventFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
@@ -19,12 +21,13 @@ export const createBucketEventFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 's3EntryPoint',
+    handlerName: HANDLER_NAME,
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     workspacePath: parameters.workspacePath,
+    entrypointFile: parameters.entrypointFile,
     projectPrefix: parameters.projectPrefix,
     projectBranch: parameters.projectBranch,
     projectName: parameters.projectName,
@@ -40,10 +43,16 @@ export const createBucketEventFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleBucketEventFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return bundleBucketEventFunction(HANDLER_NAME, parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
+      return [
+        handler.sourceFile,
+        getBundleTemplateFile(),
+        ...handler.dependencies,
+        ...middlewares.map(({ sourceFile }) => sourceFile),
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({

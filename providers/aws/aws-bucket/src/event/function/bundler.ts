@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 import { MappingServiceName } from '@ez4/aws-function';
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 // __MODULE_PATH is defined by the package bundler.
@@ -15,7 +15,11 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/event.ts');
 };
 
-export const bundleBucketEventFunction = async (parameters: BucketEventFunctionParameters, connections: EntryState[]) => {
+export const bundleBucketEventFunction = async (
+  exportName: string,
+  parameters: BucketEventFunctionParameters,
+  connections: EntryState[]
+) => {
   const {
     handler,
     middlewares,
@@ -25,6 +29,7 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -39,6 +44,8 @@ export const bundleBucketEventFunction = async (parameters: BucketEventFunctionP
     define: definitions,
     filePrefix: 's3',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

@@ -12,7 +12,11 @@ import type { Database } from '@ez4/database';
 
 import { StreamChangeType } from '@ez4/database';
 
-export function streamHandler(request: Database.Incoming<ItemSchema>, context: Service.Context<MyDb>): void {
+export function streamHandler(request: Database.Incoming<ItemSchema>, { myClient, myVariables }: Service.Context<MyDb>): void {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
+
   switch (request.type) {
     case StreamChangeType.Insert:
       // Handle inserted records from request.record.
@@ -29,11 +33,15 @@ export function streamHandler(request: Database.Incoming<ItemSchema>, context: S
 }
 ```
 
-> Database stream handlers use the database service as their context provider. Declare `services` and `variables` on the database service to make them available to the handler.
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
+
+> Database streams receive `Service.Context<MyDb>`. Declare linked `services` and `variables` on the [database service](./database-service.md) before using them in the handler, middleware, or listener.
 
 ## Handler middlewares
 
 Database streams can wrap handlers with ordered [middleware](./database-middleware.md). Middleware runs after validation and immediately before the user handler.
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 ## Handler listener
 

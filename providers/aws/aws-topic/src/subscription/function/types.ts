@@ -8,7 +8,7 @@ export type SubscriptionFunction = {
   module?: string;
 };
 
-export type SubscriptionEntryPoint = SubscriptionFunction & {
+export type SubscriptionEntrypoint = SubscriptionFunction & {
   dependencies: string[];
 };
 
@@ -16,7 +16,7 @@ export type SubscriptionFunctionParameters = Omit<
   FunctionParameters,
   'getFunctionFiles' | 'getFunctionBundle' | 'getFunctionHash' | 'getFunctionVariables' | 'sourceFile' | 'handlerName'
 > & {
-  handler: SubscriptionEntryPoint;
+  handler: SubscriptionEntrypoint;
   middlewares?: SubscriptionFunction[];
   listener?: SubscriptionFunction;
   eventSchema?: TopicEventSchema;

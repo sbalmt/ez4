@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 import { MappingServiceName } from '@ez4/aws-function';
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 // __MODULE_PATH is defined by the package bundler.
@@ -15,20 +15,21 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/event.ts');
 };
 
-export const bundleTargetFunction = async (parameters: TargetFunctionParameters, connections: EntryState[]) => {
+export const bundleTargetFunction = async (exportName: string, parameters: TargetFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
     listener,
     functionName,
-    workspacePath,
     eventSchema,
     references,
     context,
     debug,
-    projectName,
+    workspacePath,
+    entrypointFile,
     projectPrefix,
-    projectBranch
+    projectBranch,
+    projectName
   } = parameters;
 
   const definitions = getDefinitionsObject(connections);
@@ -39,6 +40,8 @@ export const bundleTargetFunction = async (parameters: TargetFunctionParameters,
     resourceName: functionName,
     filePrefix: 'scheduler',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

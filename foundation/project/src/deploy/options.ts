@@ -22,6 +22,7 @@ export const getDeployOptions = (input: InputOptions, project: LoadedProjectOpti
     release: project.deployOptions?.release,
     debug: input.debug ?? project.debugMode,
     defaults: project.defaultOptions,
+    bundle: project.bundleOptions,
     force: input.force,
     tags: project.tags,
     variables: {

@@ -1,6 +1,7 @@
 import type { NamingStyle } from '@ez4/schema';
 import type { Http } from '@ez4/gateway';
-import type { apiListener, apiMiddleware } from './listener';
+import type { apiListener } from './listener';
+import type { apiMiddleware } from './middleware';
 import type { AllRoutes } from './routes';
 
 /**

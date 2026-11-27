@@ -1,8 +1,9 @@
 import type { Environment } from '@ez4/common';
 import type { Queue } from '@ez4/queue';
-import type { messageHandlerA, messageHandlerB, messageHandlerC, queueMiddleware } from './handlers';
-import type { MessageRequest } from './types';
+import type { messageHandlerA, messageHandlerB, messageHandlerC } from './handlers';
+import type { queueMiddleware } from './middleware';
 import type { queueListener } from './listener';
+import type { MessageRequest } from './types';
 
 /**
  * Example of AWS SQS deployed with EZ4.

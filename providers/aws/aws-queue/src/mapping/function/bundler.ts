@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 import { MappingServiceName } from '@ez4/aws-function';
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 // __MODULE_PATH is defined by the package bundler.
@@ -17,7 +17,7 @@ export const getBundleTemplateFile = () => {
 
 export type BundleQueueFunctionParameters = QueueFunctionParameters;
 
-export const bundleQueueFunction = async (parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
+export const bundleQueueFunction = async (exportName: string, parameters: BundleQueueFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -29,6 +29,7 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     context,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -42,6 +43,8 @@ export const bundleQueueFunction = async (parameters: BundleQueueFunctionParamet
     resourceName: functionName,
     filePrefix: 'sqs',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

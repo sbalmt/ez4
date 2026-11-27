@@ -34,7 +34,7 @@ declare function handle(request: Ws.Incoming<Ws.Request>, context: object): Prom
 /**
  * Entrypoint to handle API Gateway WS messages.
  */
-export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+export async function wsMessageEntrypoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
   Runtime.initialize(context.invokedFunctionArn);

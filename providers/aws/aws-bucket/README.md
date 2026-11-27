@@ -10,43 +10,23 @@ It provides all the components to manage buckets and objects on AWS.
 npm install @ez4/aws-bucket -D
 ```
 
-#### Permission
+#### Permissions
 
-Ensure the user performing deployments has the permissions below:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "StorageManagement",
-      "Effect": "Allow",
-      "Action": [
-        "s3:CreateBucket",
-        "s3:DeleteBucket",
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:ListBucket",
-        "s3:DeleteObject",
-        "s3:PutBucketCORS",
-        "s3:PutLifecycleConfiguration",
-        "s3:PutBucketNotification",
-        "s3:PutBucketPolicy",
-        "s3:DeleteBucketPolicy",
-        "s3:PutBucketTagging",
-        "s3:PutObjectTagging"
-      ],
-      "Resource": ["arn:aws:s3:::{prefix}-*"]
-    }
-  ]
-}
-```
+See the [required deployment permissions](docs/permission.md).
 
 ## Deletion behavior
 
 A bucket is deleted only after it is empty. Managed objects, event
 notifications, policies, CORS, and lifecycle configuration are removed as
 separate resources.
+
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
+## Contract
+
+- [@ez4/storage](../../../contracts/storage/README.md)
 
 ## License
 

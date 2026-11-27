@@ -4,10 +4,12 @@ Topic middleware wraps function subscription handler execution after event valid
 
 ## Middleware implementation
 
-A middleware receives a typed `Topic.Handler<T>` and returns another handler with the same contract.
+A middleware receives the next typed `Topic.Handler<T>` and the linked service context, then returns another handler with the same contract.
 
 ```ts
-export function traceHandler(next: Topic.Handler<MyEvent>): Topic.Handler<MyEvent> {
+export function traceHandler(next: Topic.Handler<MyEvent>, { myClient }: Service.Context<MyTopic>): Topic.Handler<MyEvent> {
+  myClient.doSomething();
+
   return async (request, context) => {
     try {
       return await next(request, context);
@@ -26,6 +28,8 @@ Topic.UseSubscription<{
   handler: typeof processEvent;
 }>;
 ```
+
+> Context destructuring in the middleware factory determines which linked services are retained. Keep the services used by middleware explicit even when the user handler does not use them.
 
 ## Errors and lifecycle
 

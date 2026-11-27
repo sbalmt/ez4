@@ -4,11 +4,11 @@ import type { EntryStates } from '@ez4/state';
 import type { ObjectSchema } from '@ez4/schema';
 import type { GatewayState } from '../gateway/types';
 
+import { arrayUnique, deepMerge } from '@ez4/utils';
 import { tryGetFunctionState } from '@ez4/aws-function';
 import { isHttpService } from '@ez4/gateway/library';
 import { isRoleState } from '@ez4/aws-identity';
 import { createLogGroup } from '@ez4/aws-logs';
-import { deepMerge } from '@ez4/utils';
 
 import { Defaults } from '../utils/defaults';
 import { getAuthorizer, createAuthorizer } from '../authorizer/service';
@@ -65,6 +65,10 @@ export const getAuthorizerFunction = (
       tags: options.tags
     });
 
+    const references = authorizer.references
+      ? arrayUnique(authorizer.references, listener?.references)
+      : provider?.services && Object.keys(provider.services);
+
     authorizerState = createAuthorizerFunction(state, context.role, logGroupState, {
       functionName: authorizerName,
       headersSchema: request?.headers,
@@ -73,14 +77,15 @@ export const getAuthorizerFunction = (
       description: authorizer.summary ?? authorizer.description,
       timeout: Math.max(5, timeout - 1),
       variables: [options.variables, service.variables],
-      references: authorizer.references ?? (provider?.services && Object.keys(provider.services)),
       workspacePath: options.workspacePath,
+      entrypointFile: options.bundle?.entrypointFile,
       projectPrefix: options.prefix,
       projectBranch: options.branchName,
       projectName: options.projectName,
       context: service.context,
       release: options.release,
       tags: options.tags,
+      references,
       architecture,
       logLevel,
       runtime,

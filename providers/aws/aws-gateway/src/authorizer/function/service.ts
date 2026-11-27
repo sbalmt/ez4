@@ -10,6 +10,8 @@ import { LogLevel } from '@ez4/project';
 
 import { bundleApiFunction, getBundleTemplateFile } from './bundler';
 
+const HANDLER_NAME = 'authorizerEntrypoint';
+
 export const createAuthorizerFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
@@ -20,12 +22,13 @@ export const createAuthorizerFunction = <E extends EntryState>(
   const { headersSchema, parametersSchema, querySchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'apiEntryPoint',
+    handlerName: HANDLER_NAME,
     sourceFile: authorizer.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     workspacePath: parameters.workspacePath,
+    entrypointFile: parameters.entrypointFile,
     projectPrefix: parameters.projectPrefix,
     projectBranch: parameters.projectBranch,
     projectName: parameters.projectName,
@@ -42,10 +45,15 @@ export const createAuthorizerFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleApiFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return bundleApiFunction(HANDLER_NAME, parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [authorizer.sourceFile, getBundleTemplateFile(), ...authorizer.dependencies];
+      return [
+        authorizer.sourceFile,
+        getBundleTemplateFile(),
+        ...authorizer.dependencies,
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({

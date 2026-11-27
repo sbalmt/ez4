@@ -5,6 +5,9 @@ export default {
   prefix: 'ez4',
   debugMode: true,
   projectName: 'hello-cache',
+  bundleOptions: {
+    entrypointFile: './src/entrypoint.ts'
+  },
   sourceFiles: ['./src/api.ts'],
   stateFile: {
     path: 'ez4-deploy'

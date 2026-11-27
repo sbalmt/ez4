@@ -4,17 +4,25 @@ Queue handlers define the **business logic** executed when a subscription receiv
 
 ## Message handler
 
+Use `Queue.Incoming<T>` to access the validated message and delivery metadata.
+
 ```ts
-export function myHandler(request: Queue.Incoming<MyMessage>, context: Service.Context<MyQueue>): void {
-  // Business logic here.
+export function myHandler(request: Queue.Incoming<MyMessage>, { myClient, myVariables }: Service.Context<MyQueue>): void {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 }
 ```
 
-> Queue handlers use the queue service as its context, check queue [service](./queue-service.md) for more details.
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
+
+> Queue handlers use the [queue service](./queue-service.md) context to access linked services and variables.
 
 ## Handler middlewares
 
 Subscriptions can wrap their handler with ordered [middleware](./queue-middleware.md). Middleware runs after validation and immediately before the next middleware or user handler. It can observe handler execution, short-circuit it, and catch or modify its result.
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 ## Handler listener
 

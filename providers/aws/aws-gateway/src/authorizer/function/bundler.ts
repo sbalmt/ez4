@@ -4,7 +4,7 @@ import type { AuthorizerFunctionParameters } from './types';
 import { join } from 'node:path';
 
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 import { AuthorizerServiceName } from '../types';
@@ -16,7 +16,7 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/authorizer.ts');
 };
 
-export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
+export const bundleApiFunction = async (exportName: string, parameters: AuthorizerFunctionParameters, connections: EntryState[]) => {
   const {
     authorizer,
     listener,
@@ -29,6 +29,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -41,8 +42,9 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
     templateFile: getBundleTemplateFile(),
     resourceName: functionName,
     filePrefix: 'auth',
-    handler: authorizer,
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -53,6 +55,7 @@ export const bundleApiFunction = async (parameters: AuthorizerFunctionParameters
       __EZ4_QUERY_SCHEMA: querySchema ? JSON.stringify(querySchema) : 'undefined',
       __EZ4_PREFERENCES: preferences ? JSON.stringify(preferences) : 'undefined'
     },
+    handler: authorizer,
     listener,
     debug
   });

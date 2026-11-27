@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 import { MappingServiceName } from '@ez4/aws-function';
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 // __MODULE_PATH is defined by the package bundler.
@@ -15,7 +15,7 @@ export const getBundleTemplateFile = () => {
   return join(__MODULE_PATH, '../lib/stream.ts');
 };
 
-export const bundleStreamFunction = async (parameters: StreamFunctionParameters, connections: EntryState[]) => {
+export const bundleStreamFunction = async (exportName: string, parameters: StreamFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -26,6 +26,7 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     context,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -39,6 +40,8 @@ export const bundleStreamFunction = async (parameters: StreamFunctionParameters,
     resourceName: functionName,
     filePrefix: 'db',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

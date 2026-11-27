@@ -41,6 +41,13 @@ export default {
     memory: 192 // Default amount of memory available (in megabytes) for all handlers
   },
 
+  // Configure how deployment artifacts are bundled
+  bundleOptions: {
+    // Dynamically import 'ez4:entrypoint' after initializing
+    // instrumentation, then call and export the provider's handler name
+    entrypointFile: './src/entrypoint.ts'
+  },
+
   // Configure the deployment options for all resources
   deployOptions: {
     disabled: false, // Skip this project when deploying it or its references

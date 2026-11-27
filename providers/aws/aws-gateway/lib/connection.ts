@@ -32,7 +32,7 @@ declare function handle(request: Ws.Incoming<Ws.Event>, context: object): Promis
 /**
  * Entrypoint to handle API Gateway WS connections.
  */
-export async function apiEntryPoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
+export async function wsConnectionEntrypoint(event: RequestEvent, context: Context): Promise<ResponseEvent> {
   const { requestContext } = event;
 
   Runtime.initialize(context.invokedFunctionArn);

@@ -10,6 +10,8 @@ import { LogLevel } from '@ez4/project';
 
 import { bundleSubscriptionFunction, getBundleTemplateFile } from './bundler';
 
+const HANDLER_NAME = 'snsEventEntrypoint';
+
 export const createSubscriptionFunction = <E extends EntryState>(
   state: EntryStates<E>,
   roleState: RoleState,
@@ -19,12 +21,13 @@ export const createSubscriptionFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'snsEntryPoint',
+    handlerName: HANDLER_NAME,
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
     workspacePath: parameters.workspacePath,
+    entrypointFile: parameters.entrypointFile,
     projectPrefix: parameters.projectPrefix,
     projectBranch: parameters.projectBranch,
     projectName: parameters.projectName,
@@ -41,10 +44,16 @@ export const createSubscriptionFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleSubscriptionFunction(parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return bundleSubscriptionFunction(HANDLER_NAME, parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
-      return [handler.sourceFile, getBundleTemplateFile(), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
+      return [
+        handler.sourceFile,
+        getBundleTemplateFile(),
+        ...handler.dependencies,
+        ...middlewares.map(({ sourceFile }) => sourceFile),
+        ...(parameters.entrypointFile ? [parameters.entrypointFile] : [])
+      ];
     },
     getFunctionHash: () => {
       return hashObject({

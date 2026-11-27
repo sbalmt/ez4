@@ -24,6 +24,7 @@ export type FunctionParameters = Omit<CreateRequest, 'logGroup' | 'roleArn' | 'p
   getFunctionBundle: GetFunctionBundle;
   getFunctionHash: GetFunctionHash;
   workspacePath?: string;
+  entrypointFile?: string;
   projectPrefix: string;
   projectBranch: string;
   projectName: string;

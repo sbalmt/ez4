@@ -75,18 +75,23 @@ export const prepareSubscriptions = (
             tags
           });
 
+          const references = handler.references
+            ? arrayUnique(handler.references, ...middlewares.map(({ references }) => references), listener?.references)
+            : undefined;
+
           handlerState = createSubscriptionFunction(state, context.role, logGroupState, {
             functionName: subscriptionName,
             eventSchema: service.schema,
             description: handler.summary ?? handler.description,
             variables: [options.variables, service.variables, subscription.variables],
-            references: subscription.handler.references,
             dependencies: [topicState.entryId],
             workspacePath: options.workspacePath,
+            entrypointFile: options.bundle?.entrypointFile,
             projectPrefix: options.prefix,
             projectBranch: options.branchName,
             projectName: options.projectName,
             context: service.context,
+            references,
             handler: {
               sourceFile: handler.file,
               functionName: handler.name,

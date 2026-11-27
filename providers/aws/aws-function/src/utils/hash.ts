@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 
-import { getBundleHash } from '@ez4/aws-common';
+import { getBundleHash } from '@ez4/bundler';
 
 export const getSourceCodeHash = (functionName: string, sourceFiles: string[], workspacePath?: string) => {
   const currentDirectory = resolve(workspacePath ?? process.cwd());

@@ -4,7 +4,7 @@ import type { IntegrationFunctionParameters } from './types';
 import { join } from 'node:path';
 
 import { getDefinitionsObject } from '@ez4/project/library';
-import { getFunctionBundle } from '@ez4/aws-common';
+import { getFunctionBundle } from '@ez4/bundler';
 import { pickObject } from '@ez4/utils';
 
 import { IntegrationServiceName } from '../types';
@@ -23,9 +23,9 @@ export const getBundleTemplateFile = (type: IntegrationFunctionType) => {
   return join(__MODULE_PATH, '../lib', bundleTemplateFiles[type]);
 };
 
-export type BundleFunction = (parameters: IntegrationFunctionParameters, connections: EntryState[]) => Promise<string>;
+export type BundleFunction = (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => Promise<string>;
 
-export const bundleRequestFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleRequestFunction = async (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -43,6 +43,7 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -56,6 +57,8 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -77,7 +80,11 @@ export const bundleRequestFunction = async (parameters: IntegrationFunctionParam
   });
 };
 
-export const bundleConnectionFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleConnectionFunction = async (
+  exportName: string,
+  parameters: IntegrationFunctionParameters,
+  connections: EntryState[]
+) => {
   const {
     handler,
     middlewares,
@@ -91,6 +98,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -104,6 +112,8 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,
@@ -121,7 +131,7 @@ export const bundleConnectionFunction = async (parameters: IntegrationFunctionPa
   });
 };
 
-export const bundleMessageFunction = async (parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
+export const bundleMessageFunction = async (exportName: string, parameters: IntegrationFunctionParameters, connections: EntryState[]) => {
   const {
     handler,
     middlewares,
@@ -135,6 +145,7 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
     references,
     debug,
     workspacePath,
+    entrypointFile,
     projectPrefix,
     projectBranch,
     projectName
@@ -148,6 +159,8 @@ export const bundleMessageFunction = async (parameters: IntegrationFunctionParam
     resourceName: functionName,
     filePrefix: 'api',
     workspacePath,
+    entrypointFile,
+    exportName,
     projectPrefix,
     projectBranch,
     projectName,

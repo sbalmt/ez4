@@ -107,7 +107,7 @@ components:
       additionalProperties: false
       properties:
         contentType:
-          enum: 
+          enum:
             - 'image/jpeg'
             - 'image/png'
         maxCacheAge:
@@ -172,7 +172,7 @@ components:
               id:
                 type: string
               status:
-                enum: 
+                enum:
                   - 'pending'
                   - 'completed'
               created_at:

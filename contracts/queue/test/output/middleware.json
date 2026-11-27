@@ -27,11 +27,11 @@
     },
     "subscriptions": [
       {
-        "listener": {
-          "name": "testListener",
+        "handler": {
+          "name": "testHandler",
           "file": "test/input/output-middleware.ts",
           "position": [
-            25,
+            17,
             1
           ]
         },
@@ -40,25 +40,34 @@
             "name": "firstMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              17,
+              19,
               1
+            ],
+            "references": [
+              "firstMiddlewareClient"
             ]
           },
           {
             "name": "secondMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              21,
+              25,
               1
+            ],
+            "references": [
+              "secondMiddlewareClient"
             ]
           }
         ],
-        "handler": {
-          "name": "testHandler",
+        "listener": {
+          "name": "testListener",
           "file": "test/input/output-middleware.ts",
           "position": [
-            27,
+            31,
             1
+          ],
+          "references": [
+            "listenerClient"
           ]
         }
       }

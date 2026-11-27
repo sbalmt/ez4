@@ -1,4 +1,9 @@
 /**
+ * Default task concurrency.
+ */
+const DEFAULT_CONCURRENCY = 4;
+
+/**
  * Task execution status.
  */
 export const enum TaskStatus {
@@ -92,7 +97,7 @@ export namespace Tasks {
   export const safeRun = async <T>(tasks: Task<T>[], options?: Options) => {
     const results: Result<T>[] = Array.from({ length: tasks.length });
 
-    const concurrency = options?.concurrency ?? 4;
+    const concurrency = options?.concurrency ?? DEFAULT_CONCURRENCY;
     const onProgress = options?.onProgress;
 
     const totalTasks = tasks.length;
@@ -124,4 +129,90 @@ export namespace Tasks {
 
     return results;
   };
+
+  /**
+   * A queue to run tasks with limited concurrency allowing to push more tasks dynamically.
+   */
+  export class Queue {
+    /**
+     * Task queue.
+     */
+    private readonly queue: (() => void)[] = [];
+
+    /**
+     * Count the number of completed tasks.
+     */
+    private completedTasks = 0;
+
+    /**
+     * Count the number of active tasks.
+     */
+    private activeTasks = 0;
+
+    /**
+     * Count the number of tasks.
+     */
+    private totalTasks = 0;
+
+    /**
+     * Construct a new tasks queue with the given options.
+     *
+     * @param options Task queue options.
+     */
+    constructor(public options?: Tasks.Options) {}
+
+    /**
+     * Schedule a new task to run. If there's available slot the task runs immediatelly, otherwise it's queued to run in the next batch.
+     *
+     * @param task Task function.
+     * @returns Return a promise that resolves when the task is finished.
+     */
+    run<T>(task: Tasks.Task<T>): Promise<T> {
+      const concurrency = this.options?.concurrency ?? DEFAULT_CONCURRENCY;
+      const onProgress = this.options?.onProgress;
+
+      return new Promise((resolve, reject) => {
+        this.totalTasks++;
+
+        const runTask = async (task: Tasks.Task<T>) => {
+          this.activeTasks++;
+
+          try {
+            resolve(await task());
+          } catch (error) {
+            reject(error);
+          } finally {
+            this.activeTasks--;
+
+            onProgress?.(++this.completedTasks, this.totalTasks);
+
+            this.nextTask();
+          }
+        };
+
+        if (this.activeTasks >= concurrency) {
+          this.queue.push(() => runTask(task));
+        } else {
+          runTask(task);
+        }
+      });
+    }
+
+    /**
+     * Run the next task from the queue.
+     */
+    private nextTask() {
+      const concurrency = this.options?.concurrency ?? DEFAULT_CONCURRENCY;
+
+      while (this.activeTasks < concurrency) {
+        const next = this.queue.shift();
+
+        if (!next) {
+          return;
+        }
+
+        next();
+      }
+    }
+  }
 }

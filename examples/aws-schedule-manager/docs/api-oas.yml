@@ -177,7 +177,7 @@ components:
                 type: string
                 format: date-time
               status:
-                enum: 
+                enum:
                   - 'pending'
                   - 'completed'
               created_at:

@@ -4,17 +4,25 @@ Storage handlers define the business logic executed when a bucket receives an ob
 
 ## Handler implementation
 
+Use `Bucket.Incoming` to access the validated object event.
+
 ```ts
-export function eventHandler(request: Bucket.Incoming, context: Service.Context<MyStorage>): void {
-  // Business logic here.
+export function eventHandler(request: Bucket.Incoming, { myClient, myVariables }: Service.Context<MyStorage>): void {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 }
 ```
 
-> Storage handlers use the storage service as their context provider. See [Storage events](./storage-events.md) for the handler declaration and execution options.
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
+
+> Storage handlers use the [storage service](./storage-service.md) context to access linked services and variables.
 
 ## Handler middlewares
 
 Storage events can wrap handlers with ordered [middleware](./storage-middleware.md). Middleware runs after validation and immediately before the user handler.
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 ## Handler listener
 
