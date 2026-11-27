@@ -62,7 +62,7 @@ export const makeInvoker = (options: InvokerOptions): ModuleInvoker => {
 
     Runtime.initialize('unknown');
 
-    const traceId = getRandomUUID();
+    const traceId = (type !== RequestType.WsMessage ? original.headers?.['x-trace-id'] : undefined) ?? getRandomUUID();
 
     Runtime.setTraceId(traceId);
 

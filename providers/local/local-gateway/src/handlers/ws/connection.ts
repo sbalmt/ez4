@@ -50,8 +50,10 @@ export const processWsConnection = async (
     },
     {
       connectionId: connection.id,
-      headers: connection.headers,
-      query: connection.query,
+      ...(type === WsConnectionType.Connect && {
+        headers: connection.headers,
+        query: connection.query
+      }),
       identity
     }
   );
