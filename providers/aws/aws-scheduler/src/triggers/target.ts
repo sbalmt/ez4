@@ -57,12 +57,15 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
     tags
   });
 
+  const references = handler.references
+    ? arrayUnique(handler.references, ...middlewares.map(({ references }) => references), listener?.references)
+    : undefined;
+
   handlerState = createTargetFunction(state, context.role, logGroupState, {
     functionName: targetName,
     description: handler.summary ?? handler.description,
     eventSchema: service.schema,
     variables: [options.variables, service.variables, variables],
-    references: handler.references,
     workspacePath: options.workspacePath,
     entrypointFile: options.bundle?.entrypointFile,
     projectPrefix: options.prefix,
@@ -85,6 +88,7 @@ export const prepareScheduleTarget = (state: EntryStates, service: CronService, 
       sourceFile: listener.file,
       module: listener.module
     },
+    references,
     architecture,
     logLevel,
     runtime,

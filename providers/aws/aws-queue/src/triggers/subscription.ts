@@ -63,20 +63,23 @@ export const prepareSubscriptions = (
         tags
       });
 
+      const references = handler.references
+        ? arrayUnique(handler.references, ...middlewares.map(({ references }) => references), listener?.references)
+        : undefined;
+
       handlerState = createQueueFunction(state, context.role, logGroupState, {
         functionName: subscriptionName,
         messageSchema: service.schema,
         description: handler.summary ?? handler.description,
         variables: [options.variables, service.variables, subscription.variables],
-        references: handler.references,
-        context: service.context,
+        timeout: service.timeout ?? Defaults.Timeout,
         dependencies: [queueState.entryId],
         workspacePath: options.workspacePath,
         entrypointFile: options.bundle?.entrypointFile,
         projectPrefix: options.prefix,
         projectBranch: options.branchName,
         projectName: options.projectName,
-        timeout: service.timeout ?? Defaults.Timeout,
+        context: service.context,
         backoff: {
           attempts: deadLetter?.maxAttempts ?? Defaults.MaxAttempts,
           minDelay: backoff?.minDelay ?? Defaults.MinBackoff,
@@ -98,6 +101,7 @@ export const prepareSubscriptions = (
           sourceFile: listener.file,
           module: listener.module
         },
+        references,
         architecture,
         logLevel,
         runtime,

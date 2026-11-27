@@ -4,6 +4,7 @@ import type { Bucket } from '@ez4/storage';
 
 import { StorageDefaults } from '@ez4/storage/library';
 import { createModule } from '@ez4/emulator';
+import { arrayUnique } from '@ez4/utils';
 
 export const processLambdaEvent = async (
   service: BucketService,
@@ -12,27 +13,31 @@ export const processLambdaEvent = async (
   event: BucketEvent,
   input: Bucket.ObjectEvent
 ) => {
-  const references = context.makeReferences(service.services, event.handler.references);
-  const services = context.makeDescriptors(service.services);
+  const { handler, middlewares = [], listener, memory, timeout, variables } = event;
+  const { services } = service;
+
+  const references = handler.references
+    ? arrayUnique(handler.references, ...middlewares.map((current) => current.references), listener?.references)
+    : undefined;
 
   const module = createModule({
+    services: context.makeDescriptors(services),
+    references: context.makeReferences(services, references),
     workspacePath: options.workspacePath,
-    handler: event.handler,
-    middlewares: event.middlewares,
-    listener: event.listener,
-    references,
-    services,
+    handler,
+    middlewares,
+    listener,
     invoker: {
       name: 'makeInvoker',
       module: '@ez4/local-storage/worker'
     },
     environment: {
-      memory: event.memory ?? StorageDefaults.Memory,
-      timeout: event.timeout ?? StorageDefaults.Timeout,
+      memory: memory ?? StorageDefaults.Memory,
+      timeout: timeout ?? StorageDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,
-        ...event.variables
+        ...variables
       }
     }
   });

@@ -4,6 +4,7 @@ import type { AnyObject } from '@ez4/utils';
 
 import { TopicDefaults } from '@ez4/topic/library';
 import { createModule } from '@ez4/emulator';
+import { arrayUnique } from '@ez4/utils';
 
 export const processLambdaEvent = async (
   service: TopicService | TopicImport,
@@ -12,30 +13,34 @@ export const processLambdaEvent = async (
   subscription: TopicLambdaSubscription,
   event: AnyObject
 ) => {
-  const references = context.makeReferences(service.services, subscription.handler.references);
-  const services = context.makeDescriptors(service.services);
+  const { handler, listener, middlewares = [], memory, timeout, variables } = subscription;
+  const { services, schema } = service;
+
+  const references = handler.references
+    ? arrayUnique(handler.references, ...middlewares.map((current) => current.references), listener?.references)
+    : undefined;
 
   const module = createModule({
+    services: context.makeDescriptors(services),
+    references: context.makeReferences(services, references),
     workspacePath: options.workspacePath,
-    listener: subscription.listener,
-    middlewares: subscription.middlewares,
-    handler: subscription.handler,
-    references,
-    services,
+    handler,
+    middlewares,
+    listener,
     invoker: {
       name: 'makeInvoker',
       module: '@ez4/local-topic/worker',
       options: {
-        schema: service.schema
+        schema
       }
     },
     environment: {
-      memory: subscription.memory ?? TopicDefaults.Memory,
-      timeout: subscription.timeout ?? TopicDefaults.Timeout,
+      memory: memory ?? TopicDefaults.Memory,
+      timeout: timeout ?? TopicDefaults.Timeout,
       variables: {
         ...options.variables,
         ...service.variables,
-        ...subscription.variables
+        ...variables
       }
     }
   });

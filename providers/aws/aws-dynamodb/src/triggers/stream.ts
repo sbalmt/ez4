@@ -68,19 +68,22 @@ export const prepareTableStream = (
       tags
     });
 
+    const references = handler.references
+      ? arrayUnique(handler.references, ...middlewares.map(({ references }) => references), listener?.references)
+      : undefined;
+
     handlerState = createStreamFunction(state, context.role, logGroupState, {
       functionName: streamName,
       tableSchema: table.schema,
       description: handler.summary ?? handler.description,
       variables: [options.variables, service.variables, variables],
-      references: handler.references,
-      context: service.context,
       dependencies: [tableState.entryId],
       workspacePath: options.workspacePath,
       entrypointFile: options.bundle?.entrypointFile,
       projectPrefix: options.prefix,
       projectBranch: options.branchName,
       projectName: options.projectName,
+      context: service.context,
       handler: {
         sourceFile: handler.file,
         functionName: handler.name,
@@ -97,6 +100,7 @@ export const prepareTableStream = (
         sourceFile: listener.file,
         module: listener.module
       },
+      references,
       architecture,
       logLevel,
       runtime,

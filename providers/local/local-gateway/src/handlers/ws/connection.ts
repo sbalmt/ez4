@@ -49,12 +49,12 @@ export const processWsConnection = async (
       }
     },
     {
+      identity,
       connectionId: connection.id,
       ...(type === WsConnectionType.Connect && {
         headers: connection.headers,
         query: connection.query
-      }),
-      identity
+      })
     }
   );
 };
