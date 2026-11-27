@@ -19,7 +19,7 @@ declare function handle(changes: Database.Incoming<Database.Schema>, context: ob
 /**
  * Entrypoint to handle DynamoDB stream events.
  */
-export async function dbStreamEntrypoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
+export async function dbEventEntrypoint(event: DynamoDBStreamEvent, context: Context): Promise<void> {
   let currentRequest: Database.Incoming<Database.Schema> | undefined;
 
   Runtime.initialize(context.invokedFunctionArn);

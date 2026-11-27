@@ -19,7 +19,7 @@ export const createStreamFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, tableSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'dbStreamEntrypoint',
+    handlerName: 'dbEventEntrypoint',
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,

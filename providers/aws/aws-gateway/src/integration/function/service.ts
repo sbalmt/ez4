@@ -19,9 +19,9 @@ const BUNDLE_FUNCTIONS: Record<IntegrationFunctionType, BundleFunction> = {
 };
 
 const HANDLER_NAMES: Record<IntegrationFunctionType, string> = {
-  [IntegrationFunctionType.HttpRequest]: 'requestEntrypoint',
-  [IntegrationFunctionType.WsConnection]: 'connectionEntrypoint',
-  [IntegrationFunctionType.WsMessage]: 'messageEntrypoint'
+  [IntegrationFunctionType.HttpRequest]: 'httpRequestEntrypoint',
+  [IntegrationFunctionType.WsConnection]: 'wsConnectionEntrypoint',
+  [IntegrationFunctionType.WsMessage]: 'wsMessageEntrypoint'
 };
 
 export const createIntegrationFunction = <E extends EntryState>(

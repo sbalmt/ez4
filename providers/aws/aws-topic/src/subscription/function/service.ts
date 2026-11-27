@@ -19,7 +19,7 @@ export const createSubscriptionFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture, eventSchema } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'snsEntrypoint',
+    handlerName: 'snsEventEntrypoint',
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,

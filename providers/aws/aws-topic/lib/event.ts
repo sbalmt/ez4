@@ -15,7 +15,7 @@ declare function handle(event: Topic.Incoming<Topic.Event>, context: object): Pr
 /**
  * Entrypoint to handle SNS events.
  */
-export async function snsEntrypoint(event: SNSEvent, context: Context): Promise<void> {
+export async function snsEventEntrypoint(event: SNSEvent, context: Context): Promise<void> {
   let currentRequest: Topic.Incoming<Topic.Event> | undefined;
 
   Runtime.initialize(context.invokedFunctionArn);

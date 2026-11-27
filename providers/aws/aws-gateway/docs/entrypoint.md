@@ -1,6 +1,6 @@
 # EZ4: Custom gateway entrypoint
 
-This provider generates API Gateway entrypoints exported as `requestEntrypoint`, `messageEntrypoint`, `connectionEntrypoint`, and `authorizerEntrypoint`.
+This provider generates API Gateway entrypoints exported as `httpRequestEntrypoint`, `wsMessageEntrypoint`, `wsConnectionEntrypoint`, and `authorizerEntrypoint`.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,22 +22,22 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const requestEntrypoint = async (...args) => {
-  const { requestEntrypoint } = await loadEntrypoint();
+export const httpRequestEntrypoint = async (...args) => {
+  const { httpRequestEntrypoint } = await loadEntrypoint();
 
-  return requestEntrypoint(...args);
+  return httpRequestEntrypoint(...args);
 };
 
-export const messageEntrypoint = async (...args) => {
-  const { messageEntrypoint } = await loadEntrypoint();
+export const wsMessageEntrypoint = async (...args) => {
+  const { wsMessageEntrypoint } = await loadEntrypoint();
 
-  return messageEntrypoint(...args);
+  return wsMessageEntrypoint(...args);
 };
 
-export const connectionEntrypoint = async (...args) => {
-  const { connectionEntrypoint } = await loadEntrypoint();
+export const wsConnectionEntrypoint = async (...args) => {
+  const { wsConnectionEntrypoint } = await loadEntrypoint();
 
-  return connectionEntrypoint(...args);
+  return wsConnectionEntrypoint(...args);
 };
 
 export const authorizerEntrypoint = async (...args) => {

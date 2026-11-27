@@ -1,6 +1,6 @@
 # EZ4: Custom scheduler entrypoint
 
-This provider generates the EventBridge Scheduler events entrypoint exported as eventEntrypoint.
+This provider generates the EventBridge Scheduler events entrypoint exported as cronEventEntrypoint.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,10 +22,10 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const eventEntrypoint = async (...args) => {
-  const { eventEntrypoint } = await loadEntrypoint();
+export const cronEventEntrypoint = async (...args) => {
+  const { cronEventEntrypoint } = await loadEntrypoint();
 
-  return eventEntrypoint(...args);
+  return cronEventEntrypoint(...args);
 };
 ```
 

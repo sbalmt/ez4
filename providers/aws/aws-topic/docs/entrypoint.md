@@ -1,6 +1,6 @@
 # EZ4: Custom topic entrypoint
 
-This provider generates the SNS messages entrypoint exported as snsEntrypoint.
+This provider generates the SNS messages entrypoint exported as snsEventEntrypoint.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,10 +22,10 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const snsEntrypoint = async (...args) => {
-  const { snsEntrypoint } = await loadEntrypoint();
+export const snsEventEntrypoint = async (...args) => {
+  const { snsEventEntrypoint } = await loadEntrypoint();
 
-  return snsEntrypoint(...args);
+  return snsEventEntrypoint(...args);
 };
 ```
 

@@ -1,6 +1,6 @@
 # EZ4: Custom queue entrypoint
 
-This provider generates the SQS messages entrypoint exported as sqsEntrypoint.
+This provider generates the SQS messages entrypoint exported as sqsEventEntrypoint.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,10 +22,10 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const sqsEntrypoint = async (...args) => {
-  const { sqsEntrypoint } = await loadEntrypoint();
+export const sqsEventEntrypoint = async (...args) => {
+  const { sqsEventEntrypoint } = await loadEntrypoint();
 
-  return sqsEntrypoint(...args);
+  return sqsEventEntrypoint(...args);
 };
 ```
 

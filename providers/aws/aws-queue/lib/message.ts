@@ -24,7 +24,7 @@ let currentRequest: Queue.Incoming<Queue.Message> | undefined;
 /**
  * Entrypoint to handle SQS events.
  */
-export async function sqsEntrypoint(event: SQSEvent, context: Context): Promise<SQSBatchResponse | void> {
+export async function sqsEventEntrypoint(event: SQSEvent, context: Context): Promise<SQSBatchResponse | void> {
   if (!__EZ4_SCHEMA) {
     throw new Error('Validation schema for SQS message not found.');
   }

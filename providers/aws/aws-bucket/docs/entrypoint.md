@@ -1,6 +1,6 @@
 # EZ4: Custom bucket entrypoint
 
-This provider generates the S3 events entrypoint exported as s3Entrypoint.
+This provider generates the S3 events entrypoint exported as s3EventEntrypoint.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,10 +22,10 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const s3Entrypoint = async (...args) => {
-  const { s3Entrypoint } = await loadEntrypoint();
+export const s3EventEntrypoint = async (...args) => {
+  const { s3EventEntrypoint } = await loadEntrypoint();
 
-  return s3Entrypoint(...args);
+  return s3EventEntrypoint(...args);
 };
 ```
 

@@ -19,7 +19,7 @@ export const createBucketEventFunction = <E extends EntryState>(
   const { handler, middlewares = [], variables, debug, architecture } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 's3Entrypoint',
+    handlerName: 's3EventEntrypoint',
     sourceFile: handler.sourceFile,
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,

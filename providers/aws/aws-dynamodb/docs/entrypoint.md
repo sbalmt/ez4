@@ -1,6 +1,6 @@
 # EZ4: Custom DynamoDB entrypoint
 
-This provider generates the DynamoDB streams entrypoint exported as dbStreamEntrypoint.
+This provider generates the DynamoDB streams entrypoint exported as dbEventEntrypoint.
 
 > Custom entrypoint wrappers should be reserved for code that must initialize before any provider or application code, such as observability instrumentation. For most lifecycle or request processing, prefer [listeners](../../../../documentation/listeners.md) and [middlewares](../../../../documentation/middlewares.md).
 
@@ -22,10 +22,10 @@ import './observability.ts';
 
 const loadEntrypoint = () => import('ez4:entrypoint');
 
-export const dbStreamEntrypoint = async (...args) => {
-  const { dbStreamEntrypoint } = await loadEntrypoint();
+export const dbEventEntrypoint = async (...args) => {
+  const { dbEventEntrypoint } = await loadEntrypoint();
 
-  return dbStreamEntrypoint(...args);
+  return dbEventEntrypoint(...args);
 };
 ```
 

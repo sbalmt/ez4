@@ -16,7 +16,7 @@ declare function handle(request: Cron.Incoming<Cron.Event | null>, context: obje
 /**
  * Entrypoint to handle EventBridge scheduler events.
  */
-export async function eventEntrypoint(payload: AnyObject | null, context: Context): Promise<void> {
+export async function cronEventEntrypoint(payload: AnyObject | null, context: Context): Promise<void> {
   Runtime.initialize(context.invokedFunctionArn);
 
   const milliseconds = Math.max(0, context.getRemainingTimeInMillis() - 1000);
