@@ -4,10 +4,12 @@ Storage middleware wraps object-event handler execution after event validation a
 
 ## Middleware implementation
 
-A middleware receives a typed `Bucket.Handler` and returns another handler with the same contract.
+A middleware receives the next typed `Bucket.Handler` and the linked service context, then returns another handler with the same contract.
 
 ```ts
-export function traceHandler(next: Bucket.Handler): Bucket.Handler {
+export function traceHandler(next: Bucket.Handler, { myClient }: Service.Context<MyStorage>): Bucket.Handler {
+  myClient.doSomething();
+
   return async (request, context) => {
     try {
       return await next(request, context);
@@ -27,6 +29,8 @@ Bucket.UseEvent<{
   middlewares: [typeof traceHandler];
 }>;
 ```
+
+> Context destructuring in the middleware factory determines which linked services are retained. Keep the services used by middleware explicit even when the user handler does not use them.
 
 ## Storage behavior
 

@@ -4,10 +4,12 @@ Database middleware wraps table stream handler execution after stream request va
 
 ## Middleware implementation
 
-A middleware receives a typed `Database.Handler<T>` and returns another handler with the same contract.
+A middleware receives the next typed `Database.Handler<T>` and the linked service context, then returns another handler with the same contract.
 
 ```ts
-export function traceHandler(next: Database.Handler<ItemSchema>): Database.Handler<ItemSchema> {
+export function traceHandler(next: Database.Handler<ItemSchema>, { myClient }: Service.Context<MyDatabase>): Database.Handler<ItemSchema> {
+  myClient.doSomething();
+
   return async (request, context) => {
     try {
       return await next(request, context);
@@ -26,6 +28,8 @@ stream: Database.UseTableStream<{
   middlewares: [typeof traceHandler];
 }>;
 ```
+
+> Context destructuring in the middleware factory determines which linked services are retained. Keep the services used by middleware explicit even when the user handler does not use them.
 
 ## Database behavior
 

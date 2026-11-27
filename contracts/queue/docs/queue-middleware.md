@@ -4,10 +4,12 @@ Queue middleware wraps subscription handler execution after message validation a
 
 ## Middleware implementation
 
-A middleware receives a typed `Queue.Handler<T>` and returns another handler with the same contract.
+A middleware receives the next typed `Queue.Handler<T>` and the linked service context, then returns another handler with the same contract.
 
 ```ts
-export function traceHandler(next: Queue.Handler<MyMessage>): Queue.Handler<MyMessage> {
+export function traceHandler(next: Queue.Handler<MyMessage>, { myClient }: Service.Context<MyQueue>): Queue.Handler<MyMessage> {
+  myClient.doSomething();
+
   return async (request, context) => {
     try {
       // Runs before the next middleware or handler.
@@ -29,6 +31,8 @@ Queue.UseSubscription<{
 ```
 
 Use `typeof` because middleware functions are referenced by type.
+
+> Context destructuring in the middleware factory determines which linked services are retained. Keep the services used by middleware explicit even when the user handler does not use them.
 
 ## Errors and lifecycle
 

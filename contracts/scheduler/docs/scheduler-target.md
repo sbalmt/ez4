@@ -15,6 +15,8 @@ target: Cron.UseTarget<{
 }>;
 ```
 
+> Scheduler targets receive `Service.Context<MyScheduler>`. Declare linked `services` and `variables` on the [scheduler service](./scheduler-service.md) before using them in the handler, middleware, or listener.
+
 ## Target fields
 
 #### Handler
@@ -25,8 +27,13 @@ Defines the entry-point function for scheduled events.
 - Runs in its own cloud resource.
 
 ```ts
-handler: typeof eventHandler;
+export function eventHandler(request: Cron.Incoming<MyEvent>, { myClient, myVariables }: Service.Context<MyScheduler>): void {
+  myClient.doSomething();
+  myVariables.myVariable;
+}
 ```
+
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
 
 #### Middlewares (optional)
 
@@ -35,6 +42,8 @@ Ordered middleware functions that wrap the target handler. The first middleware 
 ```ts
 middlewares: [typeof traceHandler];
 ```
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 See the scheduler [middlewares](./scheduler-middleware.md) documentation for shared implementation and ordering details.
 

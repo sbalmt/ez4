@@ -4,17 +4,25 @@ Topic handlers define the **business logic** executed when a function subscripti
 
 ## Event handler
 
+Use `Topic.Incoming<T>` to access the validated event and delivery metadata.
+
 ```ts
-export function myHandler(request: Topic.Incoming<MyTopicEvent>, context: Service.Context<MyTopic>): void {
-  // Business logic here.
+export function myHandler(request: Topic.Incoming<MyTopicEvent>, { myClient, myVariables }: Service.Context<MyTopic>): void {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 }
 ```
 
-> Topic handlers use the topic service as their context provider.
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
+
+> Topic handlers use the [topic service](./topic-service.md) context to access linked services and variables.
 
 ## Handler middlewares
 
 Function subscriptions can wrap their handler with ordered [middleware](./topic-middleware.md). Middleware runs after validation and immediately before the next middleware or user handler.
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 ## Handler listener
 

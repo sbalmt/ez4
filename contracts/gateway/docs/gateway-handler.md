@@ -4,9 +4,13 @@ Gateway handlers define the **business logic** executed when a route is invoked.
 
 ## HTTP implementation
 
+Use `Http.Incoming<T>` for validated route input and return a response matching the route declaration.
+
 ```ts
-export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Context<MyProvider>): MyResponse {
-  // Business logic here.
+export function myHandler(request: Http.Incoming<MyRequest>, { myClient, myVariables }: Service.Context<MyProvider>): MyResponse {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 
   return {
     status: 200,
@@ -17,11 +21,15 @@ export function myHandler(request: Http.Incoming<MyRequest>, context: Service.Co
 }
 ```
 
-> For better context isolation and shared configuration, use gateway [providers](./gateway-provider.md).
+> Parameter destructuring is recommended because EZ4 uses the named bindings to retain only the linked services needed by the handler. Passing an entire context object or spreading it keeps all linked services available.
+
+> Gateway handlers use the context declared by their [HTTP service](./http-service.md), [WebSocket service](./ws-service.md), or [provider](./gateway-provider.md).
 
 ## Handler middlewares
 
 HTTP and WebSocket handlers can be wrapped with ordered [middleware](./gateway-middleware.md). Gateway default middleware executes before route-specific middleware.
+
+> Context references are inferred from parameter destructuring. Destructuring keeps only the named services; accepting the context without destructuring or using a spread keeps all linked services available. Services used only by a [middleware](../../../documentation/middlewares.md) or lifecycle listener must be destructured there as well; otherwise, when they are absent from the handler destructuring, they can be omitted from the bundle.
 
 ## Handler listener
 
@@ -67,8 +75,10 @@ WebSocket services have two types of handlers.
 Used for **message** requests.
 
 ```ts
-export function myHandler(request: Ws.Incoming<MyMessage>, context: Service.Context<MyServer>): MyResponse {
-  // Business logic here.
+export function myHandler(request: Ws.Incoming<MyMessage>, { myClient, myVariables }: Service.Context<MyServer>): MyResponse {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 
   return {
     body: {
@@ -78,19 +88,17 @@ export function myHandler(request: Ws.Incoming<MyMessage>, context: Service.Cont
 }
 ```
 
-> Message handlers use the gateway service itself as the context provider.
-
 #### Connection handlers
 
 Used for **connect** and **disconnect** events.
 
 ```ts
-export function connectionHandler(request: Ws.Incoming<MyEvent>, context: Service.Context<MyServer>) {
-  // Business logic here.
+export function connectionHandler(request: Ws.Incoming<MyEvent>, { myClient, myVariables }: Service.Context<MyServer>) {
+  // Access only the linked context services declared here.
+  myClient.doSomething();
+  myVariables.myVariable;
 }
 ```
-
-> Connection handlers use the gateway service itself as the context provider.
 
 #### WS Request fields (message handlers)
 

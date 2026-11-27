@@ -8,7 +8,7 @@ A listener receives a contract-specific service event and context:
 
 ```ts
 export function myListener(event: Queue.ServiceEvent<MyMessage>, { serviceClient }: Service.Context<MyQueue>) {
-  serviceClient.do_something();
+  serviceClient.doSomething();
 
   switch (event.type) {
     case ServiceEventType.Begin:

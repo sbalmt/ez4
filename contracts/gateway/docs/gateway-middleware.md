@@ -7,7 +7,9 @@ Gateway middleware wraps HTTP and WebSocket handlers. It follows the shared EZ4 
 HTTP middleware wraps `Http.Handler<T>`:
 
 ```ts
-export function traceHttp(next: Http.Handler<MyRequest>): Http.Handler<MyRequest> {
+export function traceHttp(next: Http.Handler<MyRequest>, { myClient }: Service.Context<MyProvider>): Http.Handler<MyRequest> {
+  myClient.doSomething();
+
   return async (request, context) => {
     try {
       return await next(request, context);
@@ -21,10 +23,14 @@ export function traceHttp(next: Http.Handler<MyRequest>): Http.Handler<MyRequest
 WebSocket middleware wraps the matching handler type:
 
 ```ts
-export function traceMessage(next: Ws.Handler<Ws.Request, Ws.Response | void>) {
+export function traceMessage(next: Ws.Handler<Ws.Request, Ws.Response | void>, { myClient }: Service.Context<MyProvider>) {
+  myClient.doSomething();
+
   return async (request, context) => next(request, context);
 }
 ```
+
+> Context destructuring in the middleware factory determines which linked services are retained. Keep the services used by middleware explicit even when the user handler does not use them.
 
 ## Defaults and route middleware
 

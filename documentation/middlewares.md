@@ -8,7 +8,7 @@ A middleware receives the next handler and service context, then returns another
 
 ```ts
 export function traceHandler(next: Queue.Handler<MyMessage>, { serviceClient }: Service.Context<MyQueue>): Queue.Handler<MyMessage> {
-  serviceClient.do_something();
+  serviceClient.doSomething();
 
   return async (request, context) => {
     try {
