@@ -51,11 +51,11 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
 
     const importedStage = await importStage(logger, apiId, stageName);
 
-    if (logGroupArn) {
-      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
-    }
-
     if (importedStage) {
+      if (logGroupArn) {
+        await enableAccessLogs(logger, apiId, importedStage.stageName, logGroupArn);
+      }
+
       return {
         stageName: importedStage.stageName,
         logGroupArn,
@@ -67,6 +67,10 @@ const createResource = (candidate: StageState, context: StepContext): Promise<St
       ...parameters,
       stageName
     });
+
+    if (logGroupArn) {
+      await enableAccessLogs(logger, apiId, stageName, logGroupArn);
+    }
 
     return {
       stageName: createdStage.stageName,
