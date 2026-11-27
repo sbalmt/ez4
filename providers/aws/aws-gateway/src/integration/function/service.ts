@@ -12,10 +12,16 @@ import { LogLevel } from '@ez4/project';
 import { bundleConnectionFunction, bundleMessageFunction, bundleRequestFunction, getBundleTemplateFile } from './bundler';
 import { IntegrationFunctionType } from './types';
 
-const bundleFunctions: Record<IntegrationFunctionType, BundleFunction> = {
+const BUNDLE_FUNCTIONS: Record<IntegrationFunctionType, BundleFunction> = {
   [IntegrationFunctionType.HttpRequest]: bundleRequestFunction,
   [IntegrationFunctionType.WsConnection]: bundleConnectionFunction,
   [IntegrationFunctionType.WsMessage]: bundleMessageFunction
+};
+
+const HANDLER_NAMES: Record<IntegrationFunctionType, string> = {
+  [IntegrationFunctionType.HttpRequest]: 'requestEntrypoint',
+  [IntegrationFunctionType.WsConnection]: 'connectionEntrypoint',
+  [IntegrationFunctionType.WsMessage]: 'messageEntrypoint'
 };
 
 export const createIntegrationFunction = <E extends EntryState>(
@@ -28,8 +34,8 @@ export const createIntegrationFunction = <E extends EntryState>(
   const { type, handler, middlewares = [], variables, debug, architecture, preferences, errorsMap } = parameters;
 
   return createFunction(state, roleState, logGroupState, {
-    handlerName: 'apiEntrypoint',
     sourceFile: handler.sourceFile,
+    handlerName: HANDLER_NAMES[type],
     dependencies: parameters.dependencies,
     functionName: parameters.functionName,
     description: parameters.description,
@@ -50,7 +56,7 @@ export const createIntegrationFunction = <E extends EntryState>(
       return variables.reduce<LinkedVariables>((variables, current) => ({ ...variables, ...current }), {});
     },
     getFunctionBundle: (context) => {
-      return bundleFunctions[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
+      return BUNDLE_FUNCTIONS[type](parameters, [...context.getDependencies(), ...context.getConnections()]);
     },
     getFunctionFiles: () => {
       return [handler.sourceFile, getBundleTemplateFile(type), ...handler.dependencies, ...middlewares.map(({ sourceFile }) => sourceFile)];
