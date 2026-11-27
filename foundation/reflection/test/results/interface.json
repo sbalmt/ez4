@@ -446,6 +446,19 @@
         "value": {
           "type": "void"
         }
+      },
+      {
+        "type": "method",
+        "name": "templateMethod",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "input",
+            "value": {
+              "type": "unknown"
+            }
+          }
+        ]
       }
     ]
   },

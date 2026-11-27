@@ -8,10 +8,11 @@ import type { Context, State } from './common';
 import { isObjectBindingPattern, isParameter } from 'typescript';
 
 import { getNodeDocumentation } from '../helpers/documentation';
-import { isOptional } from '../utils';
 import { isTypeUnion, TypeName } from '../types';
-import { createUnion } from './type-union';
+import { isOptional } from '../utils';
+import { createUnknown } from './type-unknown';
 import { createUndefined } from './type-undefined';
+import { createUnion } from './type-union';
 import { getNewState } from './common';
 import { tryTypes } from './types';
 
@@ -43,7 +44,7 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
     return undefined;
   }
 
-  const resolver = () => {
+  const resolveType = () => {
     const spread = !!node.dotDotDotToken;
     const newState = { ...state, spread };
 
@@ -58,11 +59,7 @@ export const tryCallableParameter = (node: Node, context: Context, state: State)
     return undefined;
   };
 
-  const valueType = resolver();
-
-  if (!valueType) {
-    return undefined;
-  }
+  const valueType = resolveType() ?? createUnknown();
 
   const name = node.name.getText();
   const documentation = getNodeDocumentation(node.name, context.checker);
@@ -107,6 +104,7 @@ const getParameterBindingNames = (name: BindingName) => {
     const spread = !!element.dotDotDotToken;
     const propertyName = element.propertyName?.getText();
     const name = element.name.getText();
+
     return {
       name: propertyName ?? name,
       ...(spread && {

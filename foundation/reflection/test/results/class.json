@@ -1,8 +1,8 @@
 {
   "432b7cf5a23289932dc9b8dadae79de1:Class": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "Class",
+    "file": "test/types/class.ts",
     "position": {
       "line": 39,
       "character": 1
@@ -134,8 +134,8 @@
         "type": "property",
         "name": "template3",
         "value": {
-          "file": "test/types/class.ts",
           "type": "object",
+          "file": "test/types/class.ts",
           "position": {
             "line": 25,
             "character": 1
@@ -191,9 +191,9 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:ClassWithModifiers": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "ClassWithModifiers",
+    "file": "test/types/class.ts",
     "position": {
       "line": 65,
       "character": 1
@@ -266,16 +266,16 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:ClassWithDestructingParameters": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "ClassWithDestructingParameters",
+    "file": "test/types/class.ts",
     "position": {
-      "character": 1,
-      "line": 77
+      "line": 77,
+      "character": 1
     },
     "modifiers": {
-      "declare": true,
-      "export": true
+      "export": true,
+      "declare": true
     },
     "members": [
       {
@@ -359,18 +359,18 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:EmptyClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "EmptyClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 3,
       "character": 1
     }
   },
   "432b7cf5a23289932dc9b8dadae79de1:DeclareClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "DeclareClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 7,
       "character": 1
@@ -380,9 +380,9 @@
     }
   },
   "432b7cf5a23289932dc9b8dadae79de1:AbstractClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "AbstractClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 9,
       "character": 1
@@ -414,9 +414,9 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:HeritageClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "HeritageClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 14,
       "character": 1
@@ -456,9 +456,9 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:ConcreteClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "ConcreteClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 37,
       "character": 1
@@ -502,18 +502,18 @@
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:EmptyInterface": {
-    "file": "test/types/class.ts",
     "type": "interface",
     "name": "EmptyInterface",
+    "file": "test/types/class.ts",
     "position": {
       "line": 5,
       "character": 1
     }
   },
   "432b7cf5a23289932dc9b8dadae79de1:TemplateClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "TemplateClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 25,
       "character": 1
@@ -530,13 +530,26 @@
         "value": {
           "type": "void"
         }
+      },
+      {
+        "type": "method",
+        "name": "templateMethod",
+        "parameters": [
+          {
+            "type": "parameter",
+            "name": "input",
+            "value": {
+              "type": "unknown"
+            }
+          }
+        ]
       }
     ]
   },
   "432b7cf5a23289932dc9b8dadae79de1:BaseClass": {
-    "file": "test/types/class.ts",
     "type": "class",
     "name": "BaseClass",
+    "file": "test/types/class.ts",
     "position": {
       "line": 21,
       "character": 1
