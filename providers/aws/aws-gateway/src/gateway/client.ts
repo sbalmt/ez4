@@ -53,7 +53,7 @@ export const fetchGateway = async (logger: OperationLogLine, gatewayName: string
   const client = getApiGatewayV2Client();
   const region = await getRegion();
 
-  const findApiGateway = async (nextToken?: string): Promise<Api> => {
+  const findApiGateway = async (nextToken?: string): Promise<Api | undefined> => {
     const { Items, NextToken } = await client.send(
       new GetApisCommand({
         NextToken: nextToken,
@@ -61,13 +61,9 @@ export const fetchGateway = async (logger: OperationLogLine, gatewayName: string
       })
     );
 
-    if (!Items?.length) {
-      throw new Error(`API resource '${gatewayName}' wasn't found.`);
-    }
+    const response = Items?.find(({ Name }) => Name === gatewayName);
 
-    const response = Items.find(({ Name }) => Name === gatewayName);
-
-    if (!response) {
+    if (!response && NextToken) {
       return findApiGateway(NextToken);
     }
 
@@ -75,6 +71,10 @@ export const fetchGateway = async (logger: OperationLogLine, gatewayName: string
   };
 
   const response = await findApiGateway();
+
+  if (!response) {
+    throw new Error(`API resource '${gatewayName}' wasn't found.`);
+  }
 
   return {
     apiId: response.ApiId!,
