@@ -29,8 +29,8 @@ export const getServiceMiddlewares = (member: ModelProperty, reflection: Reflect
       return [];
     }
 
-    if (type.return && isServiceMiddleware(type.return) && type.return.parameters) {
-      const [, contextType] = type.return.parameters;
+    if (type.parameters) {
+      const [, contextType] = type.parameters;
 
       if (contextType) {
         const references = getFunctionReferences(contextType);

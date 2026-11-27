@@ -142,7 +142,8 @@ describe('worker tests', { timeout: 10000 }, () => {
 
     deepEqual(result, {
       value: 'middleware result',
-      order: ['first:before', 'second:before', 'second:after', 'first:after']
+      order: ['first:before', 'second:before', 'second:after', 'first:after'],
+      sum: 3
     });
   });
 

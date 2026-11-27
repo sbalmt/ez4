@@ -28,30 +28,47 @@
     "subscriptions": [
       {
         "type": "lambda",
+        "handler": {
+          "name": "testHandler",
+          "file": "test/input/output-middleware.ts",
+          "position": [
+            17,
+            1
+          ]
+        },
         "middlewares": [
           {
             "name": "firstMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              16,
+              19,
               1
+            ],
+            "references": [
+              "firstMiddlewareClient"
             ]
           },
           {
             "name": "secondMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              20,
+              25,
               1
+            ],
+            "references": [
+              "secondMiddlewareClient"
             ]
           }
         ],
-        "handler": {
-          "name": "testHandler",
+        "listener": {
+          "name": "topicListener",
           "file": "test/input/output-middleware.ts",
           "position": [
-            24,
+            31,
             1
+          ],
+          "references": [
+            "topicListenerClient"
           ]
         }
       }

@@ -23,7 +23,7 @@
           "name": "eventHandler",
           "file": "test/input/output-middleware.ts",
           "position": [
-            23,
+            14,
             1
           ]
         },
@@ -32,19 +32,36 @@
             "name": "firstMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              13,
+              16,
               1
+            ],
+            "references": [
+              "firstMiddlewareClient"
             ]
           },
           {
             "name": "secondMiddleware",
             "file": "test/input/output-middleware.ts",
             "position": [
-              18,
+              22,
               1
+            ],
+            "references": [
+              "secondMiddlewareClient"
             ]
           }
-        ]
+        ],
+        "listener": {
+          "name": "eventListener",
+          "file": "test/input/output-middleware.ts",
+          "position": [
+            28,
+            1
+          ],
+          "references": [
+            "eventListenerClient"
+          ]
+        }
       }
     ]
   }

@@ -6,18 +6,25 @@ export declare class TestStorage extends Bucket.Service {
       path: '*';
       handler: typeof eventHandler;
       middlewares: [typeof firstMiddleware, typeof secondMiddleware];
+      listener: typeof eventListener;
     }>
   ];
 }
 
-export function firstMiddleware<T extends Bucket.ObjectEvent>(next: Bucket.Handler): Bucket.Handler {
-  void (0 as unknown as T);
-  return (request, context) => next(request, context);
-}
-
-export function secondMiddleware<T extends Bucket.ObjectEvent>(next: Bucket.Handler): Bucket.Handler {
-  void (0 as unknown as T);
-  return (request, context) => next(request, context);
-}
-
 export function eventHandler(_event: Bucket.ObjectEvent) {}
+
+export function firstMiddleware(next: Bucket.Handler, { firstMiddlewareClient }: any): Bucket.Handler {
+  void firstMiddlewareClient;
+
+  return (request, context) => next(request, context);
+}
+
+export function secondMiddleware(next: Bucket.Handler, { secondMiddlewareClient }: any): Bucket.Handler {
+  void secondMiddlewareClient;
+
+  return (request, context) => next(request, context);
+}
+
+export function eventListener(_event: Bucket.ServiceEvent, { eventListenerClient }: any): void {
+  void eventListenerClient;
+}

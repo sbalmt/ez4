@@ -7,7 +7,9 @@ Listeners observe the lifecycle of a contract execution. They receive typed even
 A listener receives a contract-specific service event and context:
 
 ```ts
-export function myListener(event: Queue.ServiceEvent<MyMessage>, context: Service.Context<MyQueue>) {
+export function myListener(event: Queue.ServiceEvent<MyMessage>, { serviceClient }: Service.Context<MyQueue>) {
+  serviceClient.do_something();
+
   switch (event.type) {
     case ServiceEventType.Begin:
       // Execution started.
@@ -36,7 +38,13 @@ export function myListener(event: Queue.ServiceEvent<MyMessage>, context: Servic
 }
 ```
 
+Destructure every linked service needed by the listener from its context. These bindings are included in the bundle's context references, so a service required by the listener is retained even when the user handler does not destructure it. The same rule applies to [middleware](./middlewares.md) factory context.
+
 Attach a listener through the contract's `listener` property.
+
+```ts
+listener: typeof myListener;
+```
 
 ## Lifecycle events
 

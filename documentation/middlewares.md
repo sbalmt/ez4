@@ -4,10 +4,12 @@ Middleware wraps a user handler while preserving the handler's request and conte
 
 ## Implementation
 
-A middleware receives the next handler and returns another handler:
+A middleware receives the next handler and service context, then returns another handler:
 
 ```ts
-export function traceHandler(next: Queue.Handler<MyMessage>): Queue.Handler<MyMessage> {
+export function traceHandler(next: Queue.Handler<MyMessage>, { serviceClient }: Service.Context<MyQueue>): Queue.Handler<MyMessage> {
+  serviceClient.do_something();
+
   return async (request, context) => {
     try {
       return await next(request, context);
@@ -43,16 +45,18 @@ sequenceDiagram
     First-->>Runtime: complete or throw
 ```
 
-Calling `next(request, context)` continues the chain with the same request and context. Middleware may deliberately replace those values before continuing.
+Calling `next(request, context)` continues the chain with the same request and context. Middleware may deliberately replace those values before continuing. The context passed to the middleware factory is the same linked service context passed to the returned handler.
+
+Destructure every linked service needed by a middleware from its factory context. These bindings are included in the bundle's context references, so a service required by middleware is retained even when the user handler does not destructure it. The same rule applies to [listeners](./listeners.md): destructuring a linked service in a listener guarantees it remains available in the handler bundle.
 
 ## Short-circuiting
 
 Middleware owns whether the next handler runs. Returning without calling `next` short-circuits the remaining middleware and the user handler.
 
 ```ts
-export function rejectDuplicates(next: Queue.Handler<MyMessage>): Queue.Handler<MyMessage> {
+export function rejectDuplicates(next: Queue.Handler<MyMessage>, { duplicateStore }: Service.Context<MyQueue>): Queue.Handler<MyMessage> {
   return async (request, context) => {
-    if (await isDuplicate(request.message, context)) {
+    if (await isDuplicate(request.message, duplicateStore)) {
       return;
     }
 

@@ -46,7 +46,7 @@
             "name": "streamHandler",
             "file": "test/input/output-middleware.ts",
             "position": [
-              32,
+              25,
               1
             ]
           },
@@ -55,19 +55,36 @@
               "name": "firstMiddleware",
               "file": "test/input/output-middleware.ts",
               "position": [
-                24,
+                27,
                 1
+              ],
+              "references": [
+                "firstMiddlewareClient"
               ]
             },
             {
               "name": "secondMiddleware",
               "file": "test/input/output-middleware.ts",
               "position": [
-                28,
+                33,
                 1
+              ],
+              "references": [
+                "secondMiddlewareClient"
               ]
             }
-          ]
+          ],
+          "listener": {
+            "name": "streamListener",
+            "file": "test/input/output-middleware.ts",
+            "position": [
+              42,
+              1
+            ],
+            "references": [
+              "streamListenerClient"
+            ]
+          }
         }
       }
     ]

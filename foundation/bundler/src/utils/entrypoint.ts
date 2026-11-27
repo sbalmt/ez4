@@ -136,8 +136,14 @@ const getHandlerImports = (handler: BundlerEntrypoint, listener: BundlerEntrypoi
   return `
 ${imports.join('\n')}
 
-const handle = [${middlewareImports.names.join(', ')}].reduceRight(
-  (next, middleware) => middleware(next),
-  __EZ4_HANDLER
-);`;
+let __EZ4_WRAPPED_HANDLER;
+
+const handle = (request, context) => {
+  __EZ4_WRAPPED_HANDLER ??= [${middlewareImports.names.join(', ')}].reduceRight(
+    (next, middleware) => middleware(next, context),
+    __EZ4_HANDLER
+  );
+
+  return __EZ4_WRAPPED_HANDLER(request, context);
+};`;
 };
