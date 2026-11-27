@@ -1,7 +1,8 @@
 import type { Bucket, BucketEventType } from '@ez4/storage';
 import type { Environment } from '@ez4/common';
 import type { eventListener } from './listener';
-import type { eventHandler, storageMiddleware } from './events';
+import type { storageMiddleware } from './middleware';
+import type { eventHandler } from './events';
 
 /**
  * Example of AWS S3 event triggers deployed with EZ4.

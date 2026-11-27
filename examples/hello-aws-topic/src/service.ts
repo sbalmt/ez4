@@ -1,7 +1,8 @@
 import type { Topic } from '@ez4/topic';
 import type { Environment } from '@ez4/common';
 import type { Sqs, FifoSqs } from './queue/service';
-import type { eventHandlerA, eventHandlerB, topicMiddleware } from './lambda/handlers';
+import type { eventHandlerA, eventHandlerB } from './lambda/handlers';
+import type { topicMiddleware } from './lambda/middleware';
 import type { topicListener } from './listener';
 import type { EventRequest } from './types';
 
