@@ -58,6 +58,10 @@ Ensure the user performing deployments has the permissions below:
 Schedules are removed before their schedule groups through dependency
 ordering. Target roles and functions are managed as separate resources.
 
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
 ## License
 
 MIT License

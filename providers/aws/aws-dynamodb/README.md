@@ -42,6 +42,10 @@ Ensure the user performing deployments has the permissions below:
 DynamoDB table deletion is protected and requires forcing the deployment with
 `--force`. Index changes may delete existing indexes.
 
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
 ## License
 
 MIT License

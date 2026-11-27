@@ -48,6 +48,10 @@ A bucket is deleted only after it is empty. Managed objects, event
 notifications, policies, CORS, and lifecycle configuration are removed as
 separate resources.
 
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
 ## License
 
 MIT License

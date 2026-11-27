@@ -40,6 +40,10 @@ Ensure the user performing deployments has the permissions below:
 Subscriptions are removed before their SNS topic. Subscription changes are
 replacement operations rather than in-place updates.
 
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
 ## License
 
 MIT License

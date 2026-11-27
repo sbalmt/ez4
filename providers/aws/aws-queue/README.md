@@ -52,6 +52,10 @@ Ensure the user performing deployments has the permissions below:
 Deleting an SQS queue is destructive: AWS removes the queue and any messages
 still in it. Queue policies are managed as separate resources.
 
+## Custom entrypoint
+
+See [customizing the function entrypoint](docs/entrypoint.md).
+
 ## License
 
 MIT License
