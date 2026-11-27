@@ -28,26 +28,10 @@ export const getEntrypointCode = async (options: BundlerOptions) => {
 
   const { handler, listener, middlewares = [] } = options;
 
-  const handlerImports = getHandlerImports(handler, listener, middlewares);
-
   return `
-${handlerImports}
-
-const dispatch = async (event, context) => {
-  try {
-    await __EZ4_DISPATCH?.(event, context);
-  } catch (error) {
-    if (event.type === '${ServiceEventType.Begin}' || event.type === '${ServiceEventType.Ready}') {
-      throw error;
-    }
-
-    console.error({
-      traceId: Runtime.getTraceId(),
-      error
-    });
-  }
-};
 ${context.packages.join('\n')}
+
+${getHandlerImports(handler, listener, middlewares)}
 
 const __EZ4_MAKE_LAZY_CONTEXT_FACTORY = (context)=> {
   return new Proxy(context, {
@@ -67,6 +51,23 @@ const __EZ4_MAKE_LAZY_CONTEXT_FACTORY = (context)=> {
 
 const __EZ4_REPOSITORY = ${context.repository};
 const __EZ4_CONTEXT = ${context.services};
+
+const handle = ${getHandlerComposition(middlewares)};
+
+const dispatch = async (event, context) => {
+  try {
+    await __EZ4_DISPATCH?.(event, context);
+  } catch (error) {
+    if (event.type === '${ServiceEventType.Begin}' || event.type === '${ServiceEventType.Ready}') {
+      throw error;
+    }
+
+    console.error({
+      traceId: Runtime.getTraceId(),
+      error
+    });
+  }
+};
 
 ${template}
 `;
@@ -108,42 +109,28 @@ const getMiddlewareImports = (middlewares: BundlerEntrypoint[]) => {
   });
 
   return {
-    imports: imports.join('\n'),
+    imports,
     names
   };
 };
 
 const getHandlerImports = (handler: BundlerEntrypoint, listener: BundlerEntrypoint | undefined, middlewares: BundlerEntrypoint[]) => {
-  const imports = [];
+  const handlerImport = `import { ${handler.functionName} as __EZ4_HANDLER } from '${getEntrypointImport(handler)}';`;
+
+  const { imports: middlewareImports } = getMiddlewareImports(middlewares);
 
   const listenerImport = listener
     ? `import { ${listener.functionName} as __EZ4_DISPATCH } from '${getEntrypointImport(listener)}';`
     : `const __EZ4_DISPATCH = null;`;
 
-  imports.push(listenerImport);
+  return [handlerImport, ...middlewareImports, listenerImport].join('\n');
+};
 
-  if (!middlewares.length) {
-    imports.push(`import { ${handler.functionName} as handle } from '${getEntrypointImport(handler)}';`);
+const getHandlerComposition = (middlewares: BundlerEntrypoint[]) => {
+  const { names } = getMiddlewareImports(middlewares);
 
-    return imports.join('\n');
-  }
-
-  const middlewareImports = getMiddlewareImports(middlewares);
-
-  imports.push(`import { ${handler.functionName} as __EZ4_HANDLER } from '${getEntrypointImport(handler)}';`);
-  imports.push(middlewareImports.imports);
-
-  return `
-${imports.join('\n')}
-
-let __EZ4_WRAPPED_HANDLER;
-
-const handle = (request, context) => {
-  __EZ4_WRAPPED_HANDLER ??= [${middlewareImports.names.join(', ')}].reduceRight(
-    (next, middleware) => middleware(next, context),
-    __EZ4_HANDLER
-  );
-
-  return __EZ4_WRAPPED_HANDLER(request, context);
-};`;
+  return `[${names.join(', ')}].reduceRight(
+  (next, middleware) => middleware(next, __EZ4_CONTEXT),
+  __EZ4_HANDLER
+)`;
 };
