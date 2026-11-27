@@ -19,6 +19,10 @@ See the [required deployment permissions](docs/permission.md).
 Removing an email identity deletes the SES identity immediately. Its
 verification state and configuration are not retained.
 
+## Contract
+
+- [@ez4/email](../../../contracts/email/README.md)
+
 ## License
 
 MIT License

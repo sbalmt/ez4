@@ -19,6 +19,10 @@ See the [required deployment permissions](docs/permission.md).
 Valkey cache deletion is protected and requires forcing the deployment with
 `--force`. In local mode, resetting the emulator flushes all cached keys.
 
+## Contract
+
+- [@ez4/cache](../../../contracts/cache/README.md)
+
 ## License
 
 MIT License

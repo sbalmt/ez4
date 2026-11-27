@@ -20,6 +20,10 @@ CloudFront distributions are disabled before deletion because AWS only allows
 disabled distributions to be removed. Functions, policies, origins, and
 access controls are managed as separate resources.
 
+## Contract
+
+- [@ez4/distribution](../../../contracts/distribution/README.md)
+
 ## License
 
 MIT License

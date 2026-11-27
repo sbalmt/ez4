@@ -23,6 +23,10 @@ still in it. Queue policies are managed as separate resources.
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/queue](../../../contracts/queue/README.md)
+
 ## License
 
 MIT License

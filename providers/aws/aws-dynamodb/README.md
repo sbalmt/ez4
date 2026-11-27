@@ -23,6 +23,10 @@ DynamoDB table deletion is protected and requires forcing the deployment with
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/database](../../../contracts/database/README.md)
+
 ## License
 
 MIT License

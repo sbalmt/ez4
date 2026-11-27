@@ -23,6 +23,11 @@ replacement operations rather than in-place updates.
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/queue](../../../contracts/queue/README.md)
+- [@ez4/topic](../../../contracts/topic/README.md)
+
 ## License
 
 MIT License

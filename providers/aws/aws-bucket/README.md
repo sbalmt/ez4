@@ -24,6 +24,10 @@ separate resources.
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/storage](../../../contracts/storage/README.md)
+
 ## License
 
 MIT License

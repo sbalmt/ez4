@@ -23,6 +23,10 @@ ordering. Target roles and functions are managed as separate resources.
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/scheduler](../../../contracts/scheduler/README.md)
+
 ## License
 
 MIT License

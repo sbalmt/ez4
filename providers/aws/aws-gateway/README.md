@@ -24,6 +24,10 @@ gateway itself; stage access logging is detached during stage deletion.
 
 See [customizing the function entrypoint](docs/entrypoint.md).
 
+## Contract
+
+- [@ez4/gateway](../../../contracts/gateway/README.md)
+
 ## License
 
 MIT License

@@ -20,6 +20,10 @@ Aurora clusters, instances, and migration-managed tables are protected from
 deletion and can be removed by forcing the deployment with `--force`.
 Removing migration state does not drop the managed tables.
 
+## Contract
+
+- [@ez4/database](../../../contracts/database/README.md)
+
 ## License
 
 MIT License
