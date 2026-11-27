@@ -136,7 +136,7 @@ const getBundleFile = async (provider: string, options: BundlerOptions) => {
   const exports = Object.values(outputs).flatMap(({ exports }) => exports);
 
   if (!exports.includes(options.exportName)) {
-    const entrypointFile = wrapperFile ?? options.templateFile;
+    const entrypointFile = options.entrypointFile ?? options.templateFile;
 
     throw new MissingEntrypointError(entrypointFile, options.exportName);
   }
