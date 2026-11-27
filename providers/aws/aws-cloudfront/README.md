@@ -10,81 +10,9 @@ It provides all the components to manage CloudFront distributions on AWS.
 npm install @ez4/aws-cloudfront -D
 ```
 
-#### Permission
+#### Permissions
 
-Ensure the user performing deployments has the permissions below:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "OriginPolicyManagement",
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetOriginRequestPolicy",
-        "cloudfront:CreateOriginRequestPolicy",
-        "cloudfront:UpdateOriginRequestPolicy",
-        "cloudfront:DeleteOriginRequestPolicy",
-        "cloudfront:ListOriginRequestPolicies"
-      ],
-      "Resource": ["arn:aws:cloudfront::{account-id}:origin-request-policy/*"]
-    },
-    {
-      "Sid": "OriginAccessManagement",
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetOriginAccessControl",
-        "cloudfront:CreateOriginAccessControl",
-        "cloudfront:UpdateOriginAccessControl",
-        "cloudfront:DeleteOriginAccessControl",
-        "cloudfront:ListOriginAccessControls"
-      ],
-      "Resource": ["arn:aws:cloudfront::{account-id}:origin-access-control/*"]
-    },
-    {
-      "Sid": "CachePolicyManagement",
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetCachePolicy",
-        "cloudfront:CreateCachePolicy",
-        "cloudfront:UpdateCachePolicy",
-        "cloudfront:DeleteCachePolicy",
-        "cloudfront:ListCachePolicies"
-      ],
-      "Resource": ["arn:aws:cloudfront::{account-id}:cache-policy/*"]
-    },
-    {
-      "Sid": "DistributionManagement",
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetDistribution",
-        "cloudfront:CreateDistribution",
-        "cloudfront:UpdateDistribution",
-        "cloudfront:DeleteDistribution",
-        "cloudfront:GetInvalidation",
-        "cloudfront:CreateInvalidation",
-        "cloudfront:TagResource",
-        "cloudfront:UntagResource"
-      ],
-      "Resource": ["arn:aws:cloudfront::{account-id}:distribution/*"]
-    },
-    {
-      "Sid": "FunctionManagement",
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetFunction",
-        "cloudfront:DescribeFunction",
-        "cloudfront:CreateFunction",
-        "cloudfront:UpdateFunction",
-        "cloudfront:DeleteFunction",
-        "cloudfront:PublishFunction"
-      ],
-      "Resource": ["arn:aws:cloudfront::{account-id}:function/{prefix}-*"]
-    }
-  ]
-}
-```
+See the [required deployment permissions](docs/permission.md).
 
 ## Deletion behavior
 

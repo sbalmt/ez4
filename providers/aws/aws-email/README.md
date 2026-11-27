@@ -10,29 +10,9 @@ It provides all the components to manage simple email services on AWS.
 npm install @ez4/aws-email -D
 ```
 
-#### Permission
+#### Permissions
 
-Ensure the user performing deployments has the permissions below:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "EmailManagement",
-      "Effect": "Allow",
-      "Action": [
-        "ses:GetEmailIdentity",
-        "ses:CreateEmailIdentity",
-        "ses:DeleteEmailIdentity",
-        "ses:TagResource",
-        "ses:UntagResource"
-      ],
-      "Resource": ["arn:aws:ses:*:{account-id}:identity/{sender-domain}"]
-    }
-  ]
-}
-```
+See the [required deployment permissions](docs/permission.md).
 
 ## Deletion behavior
 

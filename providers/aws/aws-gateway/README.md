@@ -10,40 +10,9 @@ It provides all the components to manage API gateways on AWS.
 npm install @ez4/aws-gateway -D
 ```
 
-#### Permission
+#### Permissions
 
-Ensure the user performing deployments has the permissions below:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "GatewayManagement",
-      "Effect": "Allow",
-      "Action": ["apigateway:Get", "apigateway:Post", "apigateway:Patch", "apigateway:Delete"],
-      "Resource": [
-        "arn:aws:apigateway:*::/apis",
-        "arn:aws:apigateway:*::/apis/*",
-        "arn:aws:apigateway:*::/tags/*",
-        "arn:aws:apigateway:*::*"
-      ]
-    },
-    {
-      "Sid": "GatewayAccessLog",
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogDelivery",
-        "logs:UpdateLogDelivery",
-        "logs:DeleteLogDelivery",
-        "logs:ListLogDeliveries",
-        "logs:GetLogDelivery"
-      ],
-      "Resource": ["*"]
-    }
-  ]
-}
-```
+See the [required deployment permissions](docs/permission.md).
 
 ## Deletion behavior
 
